@@ -17,7 +17,7 @@ import {
   WebCryptoP256,
   withRelay,
 } from 'viem/tempo'
-import { Hash, Hex, Secp256k1, Signature } from 'viem/utils'
+import { Hash, Hex, PersonalMessage, Secp256k1, Signature } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempoAccounts.js'
 import { withResolvers } from '../core/internal/promise.js'
@@ -762,6 +762,226 @@ describe('stateless', () => {
         true,
         false,
         true,
+      ]
+    `)
+  })
+
+  test('behavior: signMessage and signTypedData (derived account)', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: Hex.fromNumber(0x106150, { size: 32 }),
+      threshold: 2,
+    })
+    const typedData = {
+      domain: { chainId: tempoLocalnet.id, name: 'Test', version: '1' },
+      message: { value: 'hello' },
+      primaryType: 'Test',
+      types: { Test: [{ name: 'value', type: 'string' }] },
+    } as const
+
+    const signature = await account.signMessage({ message: 'hello' })
+    const typedSignature = await account.signTypedData(typedData)
+
+    expect(SignatureEnvelope.deserialize(signature).type).toBe('configurable')
+    const results = await Promise.all([
+      viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature,
+      }),
+      viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message: 'goodbye',
+        signature,
+      }),
+      viem_Actions.typedData.verify(client, {
+        ...typedData,
+        address: account.address,
+        signature: typedSignature,
+      }),
+      viem_Actions.typedData.verify(client, {
+        ...typedData,
+        address: account.address,
+        message: { value: 'goodbye' },
+        signature: typedSignature,
+      }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        true,
+        false,
+        true,
+        false,
+      ]
+    `)
+  })
+
+  test('behavior: signMessage and signTypedData across a config update', async () => {
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+    const owner_3 = accounts[3]
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1],
+      salt: Hex.fromNumber(0x106151, { size: 32 }),
+    })
+    const typedData = {
+      domain: { chainId: tempoLocalnet.id, name: 'Test', version: '1' },
+      message: { value: 'hello' },
+      primaryType: 'Test',
+      types: { Test: [{ name: 'value', type: 'string' }] },
+    } as const
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: feeToken,
+    })
+
+    const initialSignature = await account.signMessage({ message: 'hello' })
+    const initialTypedSignature = await account.signTypedData(typedData)
+    expect(
+      await viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature: initialSignature,
+      }),
+    ).toBe(true)
+
+    const update = await viem_Actions.transaction.sendSync(client, {
+      account,
+      calls: [
+        Actions.accounts.updateConfig.call({
+          currentConfig: account.config,
+          nextConfig: {
+            owners: [
+              { owner: owner_2.address, weight: 1 },
+              { owner: owner_3.address, weight: 1 },
+            ],
+            threshold: 2,
+          },
+        }),
+      ],
+      feeToken,
+    })
+    assertSuccess(update)
+
+    const currentAccount = Account.fromConfig({
+      address: account.address,
+      owners: [owner_2, owner_3],
+      salt: account.config.salt,
+      threshold: 2,
+      version: 1,
+    })
+
+    const signature = await currentAccount.signMessage({ message: 'hello' })
+    const typedSignature = await currentAccount.signTypedData(typedData)
+
+    const results = await Promise.all([
+      viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature,
+      }),
+      viem_Actions.typedData.verify(client, {
+        ...typedData,
+        address: account.address,
+        signature: typedSignature,
+      }),
+      // Signatures made under the previous config no longer verify.
+      viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature: initialSignature,
+      }),
+      viem_Actions.typedData.verify(client, {
+        ...typedData,
+        address: account.address,
+        signature: initialTypedSignature,
+      }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        true,
+        true,
+        false,
+        false,
+      ]
+    `)
+  })
+
+  test('behavior: signMessage rejects approvals below the threshold', async () => {
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1, owner_2],
+      salt: Hex.fromNumber(0x106152, { size: 32 }),
+      threshold: 2,
+    })
+    const message = 'hello'
+    const payload = PersonalMessage.getSignPayload(Hex.fromString(message))
+    const signature = await account.signMessage({ message })
+    const envelope = SignatureEnvelope.deserialize(signature)
+    if (envelope.type !== 'configurable') throw new Error('unreachable')
+    const digest = AccountConfig.getSignPayload({
+      account: account.address,
+      config: account.config,
+      payload,
+    })
+    const [approval] = envelope.signatures
+    if (!approval) throw new Error('unreachable')
+
+    // Fewer local owners than the threshold fail at signing time.
+    await expect(
+      Account.fromConfig({
+        address: 'infer',
+        owners: [owner_1, owner_2.address],
+        salt: account.config.salt,
+        threshold: 2,
+      }).signMessage({ message }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Local owners do not meet the threshold.]`,
+    )
+
+    const nonOwner = SignatureEnvelope.from(
+      await accounts[3].sign({ hash: digest }),
+    )
+    if (nonOwner.type !== 'secp256k1') throw new Error('unreachable')
+    const results = await Promise.all([
+      // An envelope below the threshold does not verify.
+      viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message,
+        signature: SignatureEnvelope.serialize({
+          ...envelope,
+          signatures: [approval],
+        }),
+      }),
+      // A non-owner approval does not count toward the threshold.
+      viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message,
+        signature: SignatureEnvelope.serialize({
+          ...envelope,
+          signatures: SignatureEnvelope.sortApprovals({
+            account: account.address,
+            config: account.config,
+            payload,
+            signatures: [approval, nonOwner],
+          }),
+        }),
+      }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        false,
+        false,
       ]
     `)
   })

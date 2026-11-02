@@ -21,6 +21,7 @@ import {
   scheduleMulticall,
   shouldPerformMulticall,
 } from './internal/multicall.js'
+import * as transactionRequest from './internal/transactionRequest.js'
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
 type Context = {
@@ -122,6 +123,8 @@ async function call_(
       input: undefined,
       to: deploylessCall ? undefined : to,
     } satisfies TransactionRequest.toRpc.Input
+
+    transactionRequest.assert(request)
 
     if (
       batch &&

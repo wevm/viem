@@ -3,7 +3,10 @@ import { describe, expect, test } from 'vitest'
 
 import { Actions, Client, http, publicActions, webSocket } from 'viem'
 
+import * as generated from '~contracts/generated.js'
+import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
+import * as contract from '~test/contract.js'
 import * as Http from '~test/http.js'
 import * as Ws from '~test/ws.js'
 import { wait } from '../../internal/wait.js'
@@ -919,6 +922,135 @@ describe('polling: getLogs fallback', () => {
     } finally {
       await server.close()
     }
+  })
+})
+
+describe('polling: concurrent watchers', () => {
+  const client = Client.create({
+    pollingInterval: 50,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const approvalEvent = AbiEvent.from(
+    'event Approval(address indexed owner, address indexed spender, uint256 value)',
+  )
+
+  /**
+   * Calls `functionName` on the contract at `address`, then mines it.
+   * `EventsInvalid.emitTransfer` shares the selector of `Events.emitTransfer`.
+   */
+  async function emit(
+    address: Address.Address,
+    functionName: 'emitApproval' | 'emitTransfer',
+  ) {
+    await Actions.contract.write(client, {
+      abi: generated.Events.abi,
+      account: a,
+      address,
+      args: [a, b, 1n],
+      functionName,
+    })
+    await Actions.block.mine(client, { blocks: 1 })
+  }
+
+  test('watchers of different events each receive their own logs', async () => {
+    const { address } = await contract.deploy(client, {
+      bytecode: generated.Events.bytecode.object,
+    })
+    const transfers: string[] = []
+    const approvals: string[] = []
+
+    const transferWatch = Actions.event.watch(client, {
+      address,
+      events: [transferEvent],
+      poll: true,
+    })
+    transferWatch.onLogs((logs) => {
+      for (const log of logs) transfers.push(log.eventName)
+    })
+    const approvalWatch = Actions.event.watch(client, {
+      address,
+      events: [approvalEvent],
+      poll: true,
+    })
+    approvalWatch.onLogs((logs) => {
+      for (const log of logs) approvals.push(log.eventName)
+    })
+    await wait(200)
+
+    await emit(address, 'emitTransfer')
+    await emit(address, 'emitApproval')
+    await expect
+      .poll(() => [...transfers, ...approvals], { timeout: 5_000 })
+      .toHaveLength(2)
+    await wait(200)
+    transferWatch.off()
+    approvalWatch.off()
+
+    expect({ approvals, transfers }).toMatchInlineSnapshot(`
+      {
+        "approvals": [
+          "Approval",
+        ],
+        "transfers": [
+          "Transfer",
+        ],
+      }
+    `)
+  })
+
+  test('watchers of the same event with and without `strict` filter independently', async () => {
+    const { address } = await contract.deploy(client, {
+      bytecode: generated.Events.bytecode.object,
+    })
+    // Emits `Transfer` with only `from` indexed.
+    const { address: invalidAddress } = await contract.deploy(client, {
+      bytecode: generated.EventsInvalid.bytecode.object,
+    })
+    const unstrict: Address.Address[] = []
+    const strict: Address.Address[] = []
+
+    const unstrictWatch = Actions.event.watch(client, {
+      address: [address, invalidAddress],
+      event: transferEvent,
+      poll: true,
+    })
+    unstrictWatch.onLogs((logs) => {
+      for (const log of logs) unstrict.push(log.address)
+    })
+    const strictWatch = Actions.event.watch(client, {
+      address: [address, invalidAddress],
+      event: transferEvent,
+      poll: true,
+      strict: true,
+    })
+    strictWatch.onLogs((logs) => {
+      for (const log of logs) strict.push(log.address)
+    })
+    await wait(200)
+
+    await emit(address, 'emitTransfer')
+    await emit(invalidAddress, 'emitTransfer')
+    await expect
+      .poll(() => [...unstrict, ...strict], { timeout: 5_000 })
+      .toHaveLength(3)
+    await wait(200)
+    unstrictWatch.off()
+    strictWatch.off()
+
+    expect({
+      strict: strict.map((log) => Address.isEqual(log, address)),
+      unstrict: unstrict.map((log) => Address.isEqual(log, address)),
+    }).toMatchInlineSnapshot(`
+      {
+        "strict": [
+          true,
+        ],
+        "unstrict": [
+          true,
+          false,
+        ],
+      }
+    `)
   })
 })
 

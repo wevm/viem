@@ -3,9 +3,10 @@ import { describe, expect, test } from 'vitest'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import * as Http from '~test/http.js'
+import { withResolvers } from './internal/promise.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
-import { Account, Actions, Chain, Client, http } from 'viem'
+import { Account, Actions, Chain, Client, custom, http } from 'viem'
 import {
   createClient as createClientV2,
   http as httpV2,
@@ -488,6 +489,130 @@ describe('scope', () => {
     }
   })
 
+  test('deduplicates in-flight requests of calls that share a signal', async () => {
+    const server = await createHeldServer()
+    try {
+      const client = Client.create({ transport: http(server.url) })
+      const { signal } = new AbortController()
+
+      const first = Actions.chains.getId(client.scope({ signal }))
+      await server.held
+      const second = Actions.chains.getId(client.scope({ signal }))
+      server.release()
+
+      expect(await Promise.all([first, second])).toMatchInlineSnapshot(`
+        [
+          1,
+          1,
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not join in-flight requests of its parent', async () => {
+    const server = await createHeldServer()
+    try {
+      const client = Client.create({ transport: http(server.url) })
+
+      const pending = Actions.chains.getId(client)
+      await server.held
+
+      expect(await Actions.chains.getId(client.scope())).toMatchInlineSnapshot(
+        `2`,
+      )
+      server.release()
+      expect(await pending).toMatchInlineSnapshot(`1`)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not share in-flight requests with nested scopes', async () => {
+    const server = await createHeldServer()
+    try {
+      const scoped = Client.create({ transport: http(server.url) }).scope()
+
+      const pending = Actions.chains.getId(scoped)
+      await server.held
+
+      expect(await Actions.chains.getId(scoped.scope())).toMatchInlineSnapshot(
+        `2`,
+      )
+      server.release()
+      expect(await pending).toMatchInlineSnapshot(`1`)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('scopes of different Clients sharing a signal do not batch together', async () => {
+    // Each response reports the size of the batch that carried it.
+    const server = await Http.createServer((req, res) => {
+      let raw = ''
+      req.on('data', (chunk) => {
+        raw += chunk
+      })
+      req.on('end', () => {
+        const body = JSON.parse(raw)
+        const entries = Array.isArray(body) ? body : [body]
+        const result = entries.map((entry: { id: number }) => ({
+          id: entry.id,
+          jsonrpc: '2.0',
+          result: `0x${entries.length.toString(16)}`,
+        }))
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(Array.isArray(body) ? result : result[0]))
+      })
+    })
+    try {
+      const client = Client.create({
+        transport: http(server.url, { batch: true }),
+      })
+      const { signal } = new AbortController()
+
+      const results = await Promise.all([
+        Actions.chains.getId(client.scope({ signal })),
+        Actions.chains.getId(client.extend(() => ({})).scope({ signal })),
+      ])
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          1,
+          1,
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('aborts requests on transports that ignore the signal', async () => {
+    const client = Client.create({
+      transport: custom({ request: () => new Promise(() => {}) }),
+    })
+    const controller = new AbortController()
+
+    const promise = client
+      .scope({ signal: controller.signal })
+      .request({ method: 'eth_blockNumber' })
+    controller.abort(new Error('scope aborted'))
+
+    await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: scope aborted]`,
+    )
+  })
+
+  test('an extension named `scope` does not override the built-in', () => {
+    const client = Client.create({ transport: http(url) })
+      // Cast: the extension types reject redefining a base Client property.
+      .extend(() => ({ scope: 'custom' }) as never)
+      .extend(() => ({}))
+
+    expect(typeof client.scope).toMatchInlineSnapshot(`"function"`)
+  })
+
   test('aborts requests when the signal is already aborted', async () => {
     const client = Client.create({ transport: http(url) })
     const scoped = client.scope({
@@ -700,3 +825,41 @@ describe('toV2', () => {
     `)
   })
 })
+
+/**
+ * Starts a JSON-RPC server that holds its first request until released,
+ * answering `0x1` to it and `0x2` to the rest.
+ */
+async function createHeldServer() {
+  const held = withResolvers<void>()
+  const released = withResolvers<void>()
+  let first = true
+  const server = await Http.createServer((req, res) => {
+    let raw = ''
+    req.on('data', (chunk) => {
+      raw += chunk
+    })
+    req.on('end', async () => {
+      const { id } = JSON.parse(raw)
+      const hold = first
+      first = false
+      if (hold) {
+        held.resolve()
+        await released.promise
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({ id, jsonrpc: '2.0', result: hold ? '0x1' : '0x2' }),
+      )
+    })
+  })
+  return {
+    held: held.promise,
+    release: () => released.resolve(),
+    async close() {
+      released.resolve()
+      await server.close()
+    },
+    url: server.url,
+  }
+}

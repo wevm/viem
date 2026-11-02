@@ -1,4 +1,4 @@
-import { AbiFunction, AbiParameters, Hex } from 'ox'
+import { AbiFunction, AbiParameters, Hex, Value } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as testConstants from '~test/constants.js'
@@ -508,6 +508,61 @@ describe('errors', () => {
     expect(error.metaMessages?.join('\n')).toContain('Request Arguments:')
     expect(error.metaMessages?.join('\n')).toContain(address)
     expect(error.metaMessages?.join('\n')).toContain(sourceAccount.address)
+  })
+
+  test('maxFeePerGas zero and less than maxPriorityFeePerGas', async () => {
+    await expect(
+      Actions.call(client, {
+        account: sourceAccount.address,
+        data: name4bytes,
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: Value.fromGwei('1'),
+        to: multicall3,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [RpcError.ExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Request Arguments:
+        from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        data:                  0x06fdde03
+        maxFeePerGas:          0 gwei
+        maxPriorityFeePerGas:  1 gwei
+        to:                    0xcA11bde05977b3631167028862bE2a173976CA11
+
+      Details: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+      Version: viem@x.x.x]
+    `)
+  })
+
+  test('insufficient funds', async () => {
+    const error = await Actions.call(client, {
+      account: sourceAccount.address,
+      to: sourceAccount.address,
+      value: Value.fromEther('100000000'),
+    }).catch((error) => error)
+
+    expect(error).toBeInstanceOf(RpcError.ExecutionError)
+    expect(error.cause).toBeInstanceOf(RpcError.InsufficientFundsError)
+    expect(error).toMatchInlineSnapshot(`
+      [RpcError.ExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+      This error could arise when the account does not have enough funds to:
+       - pay for the total gas fee,
+       - pay for the value to send.
+       
+      The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+       - \`gas\` is the amount of gas needed for transaction to execute,
+       - \`gas fee\` is the gas fee,
+       - \`value\` is the amount of ether to send to the recipient.
+       
+      Request Arguments:
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        value:  100000000 ETH
+
+      Details: Insufficient funds for gas * price + value
+      Version: viem@x.x.x]
+    `)
   })
 
   test('deployless (no `to`) revert maps to RpcError.ExecutionError', async () => {

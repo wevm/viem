@@ -74,3 +74,18 @@ test('args: mode (hex)', async () => {
     }),
   ).toBe(true)
 })
+
+test('does not share cached results across Clients', async () => {
+  // The contract is deployed on `anvil.mainnet` only.
+  const other = anvil.getClient(anvil.local)
+
+  expect({
+    deployed: await Actions.erc7821.supportsExecutionMode(client, { address }),
+    other: await Actions.erc7821.supportsExecutionMode(other, { address }),
+  }).toMatchInlineSnapshot(`
+    {
+      "deployed": true,
+      "other": false,
+    }
+  `)
+})

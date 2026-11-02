@@ -112,7 +112,8 @@ Watchers and polling Actions poll every `pollingInterval`, and cached responses 
 `cacheTime`.
 
 By default, the interval is half the Chain's block time, clamped between 500ms and 4 seconds.
-`cacheTime` matches the interval.
+`cacheTime` defaults to the shorter of the interval and half the block time, so cached values are
+at most one block old. Without `chain.blockTime`, Viem assumes 12 second blocks.
 
 ```ts twoslash [example.ts]
 import { Client, http, publicActions } from 'viem'

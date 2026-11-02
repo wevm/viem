@@ -16,14 +16,7 @@ runs:
         version: nightly-08e262a80b23493d13b3811d4b4ba4b10b1221be
 
     - name: Set up pnpm
-      uses: wevm/actions/vendor/pnpm/action-setup/v6@8963daf30237417f873c8e2f17e3bf9415e3a7b9
-
-    - name: Set up node
-      uses: actions/setup-node@v6
+      uses: wevm/actions/.github/actions/pnpm@8963daf30237417f873c8e2f17e3bf9415e3a7b9
       with:
-        cache: ${{ inputs.skip-cache != 'true' && 'pnpm' || '' }}
-        node-version: 24.5
-
-    - name: Install dependencies
-      shell: bash
-      run: pnpm install
+        node-version: 24.22.1
+        skip-cache: ${{ inputs.skip-cache }}

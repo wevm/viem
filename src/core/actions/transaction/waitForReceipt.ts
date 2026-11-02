@@ -225,6 +225,12 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
                 : undefined)
             if (!replaced) return
 
+            // The transaction was seen mined, so it consumed its nonce slot
+            // and was not replaced: its receipt is not indexed yet. The
+            // transaction is fetched once, so one first seen pending is
+            // matched by replacement key instead.
+            if (replaced.blockNumber != null) return
+
             try {
               // Look up the transaction in its nonce slot, since the block
               // scan below misses a replacement mined before the wait starts.

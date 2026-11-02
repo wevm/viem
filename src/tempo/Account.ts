@@ -469,7 +469,13 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
         })
       }
       if (owners.length === 0) return serializeTransaction(request)
-      const payload = TxEnvelopeTempo.getSignPayload(request)
+      // A sponsored request signs the sponsored payload (excluding
+      // `feeToken`), which the `feePayerSignature: null` marker selects.
+      const payload = TxEnvelopeTempo.getSignPayload(
+        request.feePayer && typeof request.feePayerSignature === 'undefined'
+          ? { ...request, feePayerSignature: null }
+          : request,
+      )
       const simulation = request.accountSimulation
       if (request.from && !Address.isEqual(request.from, address))
         throw new Error(

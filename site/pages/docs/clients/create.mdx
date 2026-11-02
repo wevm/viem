@@ -316,7 +316,7 @@ const result = await client.request({ method: 'abe_foo', params: [42] })
 ### Extending a Client
 
 `.extend()` merges the function's returned properties into a new Client. Extensions can add
-properties but cannot redefine base Client properties.
+properties but cannot redefine base Client properties, including `.extend()` and `.scope()`.
 
 Call `.extend()` again to add another extension.
 

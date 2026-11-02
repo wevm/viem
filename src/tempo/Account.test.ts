@@ -902,6 +902,70 @@ describe('fromConfig', () => {
       ),
     ).toBe(feePayer.address)
   })
+
+  test('signTransaction with `feePayer: true` signs the sponsored payload', async () => {
+    const account = Account.fromConfig({
+      owners: [{ owner: owner_1, weight: 1 }],
+      threshold: 1,
+    })
+    const request = {
+      ...envelope,
+      feePayer: true,
+      feeToken: '0x20c0000000000000000000000000000000000001',
+      from: account.address,
+    } as const
+
+    const results = await Promise.all(
+      [undefined, tempoLocalnet].map(async (chain) => {
+        const serialized = await account.signTransaction(
+          request as never,
+          chain ? { chain } : undefined,
+        )
+        const transaction = TxEnvelopeTempo.deserialize(
+          serialized.replace(
+            TxEnvelopeTempo.feePayerMagic,
+            TxEnvelopeTempo.serializedType,
+          ) as TxEnvelopeTempo.Serialized,
+        )
+        if (transaction.signature?.type !== 'configurable')
+          throw new Error('unreachable')
+        const digest = AccountConfig.getSignPayload({
+          account: account.address,
+          config: transaction.signature.config,
+          payload: TxEnvelopeTempo.getSignPayload({
+            ...envelope,
+            feePayerSignature: null,
+          }),
+        })
+        return {
+          format: serialized.slice(0, 4),
+          from: transaction.from,
+          signers: transaction.signature.signatures.map((signature) =>
+            SignatureEnvelope.extractAddress({ payload: digest, signature }),
+          ),
+        }
+      }),
+    )
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "format": "0x78",
+          "from": "0x00a786b5dee39362feab935c9b9bcac7d6b36850",
+          "signers": [
+            "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          ],
+        },
+        {
+          "format": "0x78",
+          "from": "0x00a786b5dee39362feab935c9b9bcac7d6b36850",
+          "signers": [
+            "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          ],
+        },
+      ]
+    `)
+  })
 })
 
 // End-to-end fee payer flows against a tempo node.

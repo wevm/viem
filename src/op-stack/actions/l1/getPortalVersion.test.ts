@@ -1,7 +1,12 @@
 import { beforeAll, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
-import { Actions as CoreActions, Client, http } from 'viem'
+import {
+  Actions as CoreActions,
+  Client,
+  Errors as CoreErrors,
+  http,
+} from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 import { Actions } from 'viem/op-stack'
 
@@ -43,4 +48,18 @@ test('accepts an explicit portal address', async () => {
       "patch": 1,
     }
   `)
+})
+
+test('does not share cached results across Clients', async () => {
+  // The portal is deployed on the `anvil.mainnet` fork only.
+  const other = Client.create({
+    chain: mainnet,
+    transport: http(anvil.local.rpcUrl.http),
+  })
+
+  await Actions.l1.getPortalVersion(client, { targetChain: optimism })
+
+  await expect(
+    Actions.l1.getPortalVersion(other, { targetChain: optimism }),
+  ).rejects.toThrowError(CoreErrors.BaseError)
 })

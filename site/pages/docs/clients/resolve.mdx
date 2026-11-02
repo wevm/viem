@@ -237,9 +237,9 @@ const resolver = Client.createResolver({
 #### options.cacheTime
 
 - **Type:** `number`
-- **Default:** `pollingInterval`
+- **Default:** the shorter of `pollingInterval` and half of `chain.blockTime`
 
-Time (ms) cached data stays in memory.
+Time (ms) cached data stays in memory. Without `chain.blockTime`, Viem assumes 12 second blocks.
 
 ```ts twoslash
 import { Client, http } from 'viem'

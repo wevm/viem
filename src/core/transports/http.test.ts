@@ -414,6 +414,18 @@ describe('http', () => {
           "message": "execution reverted",
         }
       `)
+
+      expect(error.cause).toBeInstanceOf(RpcClient.HttpError)
+      const { headers, status } = error.cause
+      expect({
+        contentType: headers.get('Content-Type'),
+        status,
+      }).toMatchInlineSnapshot(`
+        {
+          "contentType": "application/json",
+          "status": 500,
+        }
+      `)
     } finally {
       await server.close()
     }

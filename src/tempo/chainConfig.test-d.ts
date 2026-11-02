@@ -2,7 +2,7 @@ import type { Address, Hex, TransactionEnvelope as TxEnvelope } from 'ox'
 import type { AccountSimulation } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 
-import type { Account, Chain } from 'viem'
+import { type Account, Actions, type Chain, Client, http } from 'viem'
 import { tempo } from 'viem/chains'
 
 import type { Envelope, TransactionRequest } from './chainConfig.js'
@@ -88,6 +88,17 @@ test('transaction hooks: envelope round-trips through the chain type', () => {
   expectTypeOf<Envelope['feePayer']>().toEqualTypeOf<
     Account.Account | boolean | string | undefined
   >()
+})
+
+test('prepare: relay-filled validity bounds', async () => {
+  const client = Client.create({ chain: tempo, transport: http() })
+  const { request } = await Actions.transaction.prepare(client, {
+    feePayer: true,
+    nonceKey: 0n,
+  })
+
+  expectTypeOf(request.validBefore).toEqualTypeOf<number | undefined>()
+  expectTypeOf(request.validAfter).toEqualTypeOf<number | undefined>()
 })
 
 test('chain assigns to the base Chain type', () => {

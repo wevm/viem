@@ -18,27 +18,6 @@ jobs:
       contents: read
       id-token: write
 
-  publish:
-    name: Publish Prerelease
-    if: ${{ !github.event.pull_request.draft }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v6
-
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Publish Prerelease
-        run: |
-          pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact '.'
-
   size:
     name: Size
     if: ${{ !github.event.pull_request.draft }}
@@ -50,7 +29,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
 
       - name: Install dependencies

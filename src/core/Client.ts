@@ -47,7 +47,7 @@ export type Client<
      * Creates a Client with the same configuration, transport, and extensions
      * that does not share in-flight requests, cached values, or request
      * batches with other Clients. Calls with the same `signal` return the
-     * same Client.
+     * same Client. As with `extend`, an extension cannot replace `scope`.
      *
      * @example
      * ```ts

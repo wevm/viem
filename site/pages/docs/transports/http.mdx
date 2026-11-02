@@ -104,6 +104,8 @@ const transport = http('https://eth.merkle.io', {
 
 Requests retry on rate limits, server errors, and other transient HTTP statuses, including JSON-RPC errors returned with those statuses. A `Retry-After` header, in seconds or as an HTTP date, sets the delay before the next attempt.
 
+When retries run out, a JSON-RPC error returned with a non-2xx status surfaces as the JSON-RPC error. Its `cause` is the `RpcClient.HttpError` holding the response `status` and `headers`.
+
 ### Setting a Request Timeout
 
 Set `timeout` to limit how long a JSON-RPC request can take before it fails.

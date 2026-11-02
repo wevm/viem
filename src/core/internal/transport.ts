@@ -116,9 +116,12 @@ export function wrapRequest<
       )
     } catch (error) {
       // A JSON-RPC error from a non-2xx response retries by its HTTP status,
-      // then surfaces as the JSON-RPC error.
+      // then surfaces as the JSON-RPC error with the HTTP error (`status`,
+      // `headers`) as its `cause`.
       if (error instanceof RpcClient.HttpError && error.rpcError) {
         const rpcError = RpcResponse.parseError(error.rpcError)
+        // `RpcResponse` error subclasses take no `cause`, so set it afterwards.
+        ;(rpcError as { cause: Error | undefined }).cause = error
         httpErrors.set(rpcError, error)
         throw rpcError
       }

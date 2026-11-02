@@ -612,6 +612,17 @@ type RequiredFields<
   FeeFields<options, type> &
   BlobFields<options>
 
+/** Validity bounds a node may fill (e.g. a relay sponsoring a transaction). */
+type FilledFields<
+  chain extends Chain.Chain | undefined,
+  options,
+> = 'validBefore' extends keyof Chain.ExtractTransactionRequest<chain>
+  ? Omit<
+      { validAfter?: number | undefined; validBefore?: number | undefined },
+      keyof options
+    >
+  : {}
+
 type PreparedRequest<
   chain extends Chain.Chain | undefined,
   account extends Account.Account | undefined,
@@ -619,7 +630,8 @@ type PreparedRequest<
 > = Compute<
   Omit<options, 'account' | 'chain' | 'nonceManager' | 'parameters'> &
     AccountFields<account, options> &
-    RequiredFields<options>
+    RequiredFields<options> &
+    FilledFields<chain, options>
 >
 
 /** Thrown when `maxFeePerGas` is lower than the estimated priority fee. */

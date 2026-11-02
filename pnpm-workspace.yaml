@@ -171,7 +171,7 @@ catalog:
   account-abstraction-v07: npm:@account-abstraction/contracts@0.7.0
   account-abstraction-v08: npm:@account-abstraction/contracts@0.8.0
   acorn: ^8.17.0
-  bun: ^1.3.14
+  bun: ^1.4.4
   fast-check: ^4.9.0
   knip: ^6.16.1
   magic-string: ^0.30.21

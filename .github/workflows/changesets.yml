@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
@@ -45,7 +45,7 @@ jobs:
 
       - name: Create Version Pull Request
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/viem@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/changesets/action/viem@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v1.4.10
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
 
       - name: Install dependencies
@@ -76,7 +76,7 @@ jobs:
           skip-cache: true # avoid cache poisoning attacks
 
       - name: Publish to NPM
-        uses: wevm/actions/vendor/changesets/action/viem@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/changesets/action/viem@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v1.4.10
         with:
           createGithubReleases: false
           publish: pnpm changeset:publish
@@ -98,7 +98,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
 
       - name: Install dependencies
@@ -108,7 +108,7 @@ jobs:
 
       - name: Publish to NPM
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/viem@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/changesets/action/viem@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v1.4.10
         with:
           createGithubReleases: true
           publish: pnpm changeset:publish
