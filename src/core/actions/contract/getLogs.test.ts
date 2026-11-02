@@ -194,9 +194,8 @@ test('behavior: anonymous event', async () => {
     eventName: 'Note',
     fromBlock,
   })
-  expect(
-    logs.map(({ args, eventName }) => ({ args, eventName })),
-  ).toMatchInlineSnapshot(`
+  expect(logs.map(({ args, eventName }) => ({ args, eventName })))
+    .toMatchInlineSnapshot(`
     [
       {
         "args": {

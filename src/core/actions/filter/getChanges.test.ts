@@ -115,9 +115,8 @@ describe('event', () => {
       topics: [Hex.padLeft(a, 32), Hex.fromNumber(7n, { size: 32 })],
     })
     const changes = await Actions.filter.getChanges(client, { filter })
-    expect(
-      changes.map(({ args, eventName }) => ({ args, eventName })),
-    ).toMatchInlineSnapshot(`
+    expect(changes.map(({ args, eventName }) => ({ args, eventName })))
+      .toMatchInlineSnapshot(`
       [
         {
           "args": {
