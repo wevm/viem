@@ -192,6 +192,34 @@ describe('poll', () => {
       ])
     })
 
+    test('emits every missed block when set beside a default watcher', async () => {
+      const fastClient = createClient({
+        ...anvilMainnet.clientConfig,
+        chain: { ...anvilMainnet.chain, blockTime: 4_000 },
+      })
+      const blocks: OnBlockParameter[] = []
+      const unwatchDefault = watchBlocks(fastClient, {
+        emitOnBegin: true,
+        onBlock: () => {},
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatchDefault)
+      const unwatch = watchBlocks(fastClient, {
+        emitMissed: true,
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 102 })
+      await expect.poll(() => blocks.length, { timeout: 10_000 }).toBe(103)
+    })
+
     test.each(['safe', 'finalized'] as const)(
       'defaults to false for the %s tag',
       async (blockTag) => {

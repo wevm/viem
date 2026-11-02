@@ -160,6 +160,7 @@ export function watchBlocks<
       emitMissed,
       emitOnBegin,
       includeTransactions,
+      maxMissed,
       pollingInterval,
     ])
 
