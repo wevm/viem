@@ -1632,6 +1632,91 @@ describe('anonymous', () => {
       args: { from, value: 1n },
       eventName: 'Transfer',
     })
+    expect(
+      decodeEventLog({
+        abi: [
+          {
+            anonymous: true,
+            inputs: [
+              { indexed: true, name: 'from', type: 'address' },
+              { indexed: true, name: 'value', type: 'uint256' },
+            ],
+            name: 'Anon',
+            type: 'event',
+          },
+          {
+            inputs: [
+              { indexed: true, name: 'from', type: 'address' },
+              { indexed: false, name: 'value', type: 'uint256' },
+            ],
+            name: 'Transfer',
+            type: 'event',
+          },
+        ],
+        data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        eventName: 'Anon',
+        topics: [
+          signature,
+          '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+        ],
+      }),
+    ).toEqual({
+      args: { from, value: 1n },
+      eventName: 'Transfer',
+    })
+  })
+
+  test('eventName does not skip the indexed arity check', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [{ indexed: true, name: 'a', type: 'address' }],
+        name: 'Foo',
+        type: 'event',
+      },
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'a', type: 'address' },
+          { indexed: true, name: 'b', type: 'address' },
+        ],
+        name: 'Foo',
+        type: 'event',
+      },
+    ] as const
+    const a =
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+    const b =
+      '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+    expect(
+      decodeEventLog({
+        abi,
+        data: '0x',
+        eventName: 'Foo',
+        topics: [a, b],
+      }),
+    ).toEqual({
+      args: {
+        a: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        b: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      },
+      eventName: 'Foo',
+    })
+    expect(() =>
+      decodeEventLog({
+        abi: [abi[0]],
+        data: '0x',
+        eventName: 'Foo',
+        topics: [a, b],
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEventSignatureNotFoundError: Encoded event signature "0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac" not found on ABI.
+      Make sure you are using the correct ABI and that the event exists on it.
+      You can look up the signature here: https://4byte.sourcify.dev/?q=0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac.
+
+      Docs: https://viem.sh/docs/contract/decodeEventLog
+      Version: viem@x.y.z]
+    `)
   })
 
   test('same indexed arity is ambiguous without eventName', () => {

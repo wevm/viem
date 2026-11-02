@@ -127,29 +127,39 @@ export function parseEventLogs<
 
       // Non-anonymous events share a signature topic. Several events can share
       // that selector and differ in indexed parameters (ERC-20 vs ERC-721
-      // `Transfer`). Anonymous events have no signature topic: `topics[0]` is
-      // the first indexed argument, so they match on indexed arity instead.
-      const selectable = eventName
-        ? abiTopics.filter((item) => eventName.includes(item.abi.name))
-        : abiTopics
-      const bySelector = selectable.filter(
+      // `Transfer`). Check that against the whole ABI before `eventName`:
+      // filtering by name first lets an anonymous event claim the log whenever
+      // its indexed count equals the topic count (a one-indexed anonymous
+      // event then matches every zero-indexed event, and a three-indexed one
+      // matches ERC-20 `Approval`).
+      const bySelector = abiTopics.filter(
         (item) =>
           !item.abi.anonymous && formattedLog.topics[0] === item.selector,
       )
+      const selectorItems = eventName
+        ? bySelector.filter((item) => eventName.includes(item.abi.name))
+        : bySelector
       // A dynamic ABI value can decode as a static type without throwing, so
       // several anonymous events of the same arity are not guessed. `eventName`
-      // narrows `selectable` to one event before this check.
-      const anonymous = selectable.filter((item) => {
-        if (!item.abi.anonymous) return false
-        const indexed =
-          item.abi.inputs?.filter((input) => input.indexed).length ?? 0
-        return indexed === formattedLog.topics.length
-      })
-      const abiItems = bySelector.length
-        ? bySelector
-        : anonymous.length === 1
-          ? anonymous
-          : []
+      // only narrows events that already fit the topic count.
+      const anonymousPool = eventName
+        ? abiTopics.filter((item) => eventName.includes(item.abi.name))
+        : abiTopics
+      const anonymous =
+        bySelector.length > 0
+          ? []
+          : anonymousPool.filter((item) => {
+              if (!item.abi.anonymous) return false
+              const indexed =
+                item.abi.inputs?.filter((input) => input.indexed).length ?? 0
+              return indexed === formattedLog.topics.length
+            })
+      const abiItems =
+        bySelector.length > 0
+          ? selectorItems
+          : anonymous.length === 1
+            ? anonymous
+            : []
       if (abiItems.length === 0) return null
 
       // Try each matching ABI item until one successfully decodes.

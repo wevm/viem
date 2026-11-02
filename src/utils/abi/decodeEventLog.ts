@@ -158,12 +158,13 @@ function anonymousCandidates(
   topicCount: number,
   eventName: string | undefined,
 ) {
-  const anonymous = events.filter((item) => item.anonymous)
-  if (eventName) {
-    const named = anonymous.find((item) => item.name === eventName)
-    return named ? [named] : []
-  }
-  return anonymous.filter((item) => indexedCount(item) === topicCount)
+  // `eventName` chooses among events that already fit the log. It does not
+  // skip the arity check, or a same-name overload with extra topics is guessed.
+  const matched = events.filter(
+    (item) => item.anonymous && indexedCount(item) === topicCount,
+  )
+  if (!eventName) return matched
+  return matched.filter((item) => item.name === eventName)
 }
 
 function indexedCount(item: AbiEvent) {

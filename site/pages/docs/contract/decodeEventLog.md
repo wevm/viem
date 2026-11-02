@@ -6,7 +6,7 @@ description: Decodes ABI encoded event topics & data.
 
 Decodes ABI encoded event topics & data (from an [Event Log](/docs/glossary/terms#event-log)) into an event name and structured arguments (both indexed & non-indexed).
 
-Anonymous events have no signature topic. The first topic is the first indexed argument. When more than one anonymous event in `abi` has that many indexed arguments, pass `eventName`.
+Anonymous events have no signature topic. The first topic is the first indexed argument, and the topic count has to match that event. A signature topic still selects a non-anonymous event. When more than one anonymous event fits, pass `eventName`.
 
 ## Install
 
