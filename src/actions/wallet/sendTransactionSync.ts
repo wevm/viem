@@ -41,6 +41,9 @@ import {
   assertCurrentChain,
 } from '../../utils/chain/assertCurrentChain.js'
 import { concat } from '../../utils/data/concat.js'
+import { sliceHex } from '../../utils/data/slice.js'
+import { fromRlp } from '../../utils/encoding/fromRlp.js'
+import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   type GetTransactionErrorReturnType,
   getTransactionError,
@@ -448,7 +451,16 @@ export async function sendTransactionSync<
 
         // Derive the hash from the sent bytes rather than trust the one in
         // the error.
-        const hash = keccak256(serializedTransaction)
+        const hash = (() => {
+          // An EIP-4844 network wrapper holds the signed payload, then the
+          // blobs, commitments, and proofs. The hash covers only the payload.
+          if (sliceHex(serializedTransaction, 0, 1) === '0x03') {
+            const fields = fromRlp(sliceHex(serializedTransaction, 1))
+            if (fields.length === 4 && Array.isArray(fields[0]))
+              return keccak256(concat(['0x03', toRlp(fields[0])]))
+          }
+          return keccak256(serializedTransaction)
+        })()
 
         const remaining = timeout - (Date.now() - start)
         // The node used up `timeout` before it answered.

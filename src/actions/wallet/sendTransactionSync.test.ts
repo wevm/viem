@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { getSmartAccounts_07 } from '~test/account-abstraction.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { blobData, kzg } from '~test/kzg.js'
 import { createRpcProxy, deploy, deployErrorExample } from '~test/utils.js'
 import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
@@ -25,10 +26,11 @@ import {
 import type { Account } from '../../types/account.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
+import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
-import { toHex } from '../../utils/encoding/toHex.js'
+import { stringToHex, toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   createNonceManager,
@@ -1672,6 +1674,27 @@ describe('local account', () => {
           account: privateKeyToAccount(sourceAccount.privateKey),
           to: targetAccount.address,
           value: parseEther('1'),
+        }),
+        node.pooled.then(async (hash) => {
+          await mine(client, { blocks: 1 })
+          return hash
+        }),
+      ])
+
+      expect(receipt.transactionHash).toBe(hash)
+    })
+
+    test('returns the receipt of a blob transaction', async () => {
+      await setup()
+      const node = await createNode(() => undefined)
+
+      const [receipt, hash] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          blobs: toBlobs({ data: stringToHex(blobData) }),
+          kzg,
+          maxFeePerBlobGas: parseGwei('30'),
+          to: '0x0000000000000000000000000000000000000000',
         }),
         node.pooled.then(async (hash) => {
           await mine(client, { blocks: 1 })
