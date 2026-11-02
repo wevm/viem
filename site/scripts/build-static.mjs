@@ -25,7 +25,8 @@ const vocsDir = realpathSync(path.join(root, 'node_modules/vocs'))
 const require = createRequire(path.join(vocsDir, 'package.json'))
 const wakuDir = path.dirname(require.resolve('waku/package.json'))
 const { runDeferredStaticBuild } = await import(
-  pathToFileURL(path.join(wakuDir, 'dist/lib/vite-plugins/static-build.js')).href
+  pathToFileURL(path.join(wakuDir, 'dist/lib/vite-plugins/static-build.js'))
+    .href
 )
 // Match the environment Vite sets for the in-process build.
 process.env.NODE_ENV ??= 'production'
