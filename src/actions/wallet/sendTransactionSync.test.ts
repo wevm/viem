@@ -1,7 +1,9 @@
+import { stringToHex, toBlobs } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { getSmartAccounts_07 } from '~test/account-abstraction.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { blobData, kzg } from '~test/kzg.js'
 import { createRpcProxy, deploy, deployErrorExample } from '~test/utils.js'
 import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
@@ -1644,6 +1646,46 @@ describe('local account', () => {
       await mine(client, { blocks: 1 })
     })
 
+    test('returns the receipt when the error holds no hash', async () => {
+      await setup()
+      const node = await createNode(() => undefined)
+
+      const [receipt, hash] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        node.pooled.then(async (hash) => {
+          await mine(client, { blocks: 1 })
+          return hash
+        }),
+      ])
+
+      expect(receipt.transactionHash).toBe(hash)
+    })
+
+    test('returns the receipt of a blob transaction', async () => {
+      await setup()
+      const node = await createNode(() => undefined)
+
+      const [receipt, hash] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          blobs: toBlobs({ data: stringToHex(blobData) }),
+          kzg,
+          maxFeePerBlobGas: parseGwei('30'),
+          to: '0x0000000000000000000000000000000000000000',
+        }),
+        node.pooled.then(async (hash) => {
+          await mine(client, { blocks: 1 })
+          return hash
+        }),
+      ])
+
+      expect(receipt.transactionHash).toBe(hash)
+    })
+
     test('keeps the nonce', async () => {
       await setup()
       const node = await createNode(() => undefined)
@@ -1662,17 +1704,11 @@ describe('local account', () => {
       await expect(() =>
         sendTransaction(node.client, {
           account,
+          timeout: 1_000,
           to: targetAccount.address,
           value: parseEther('1'),
         }),
-      ).rejects.toMatchObject({
-        name: 'TransactionExecutionError',
-        cause: {
-          name: 'RpcRequestError',
-          code: 4,
-          details: 'Transaction confirmation timeout',
-        },
-      })
+      ).rejects.toThrow('Timed out while waiting for transaction with hash')
       const hash = await node.pooled
       const nonce = await account.nonceManager!.consume({
         address: account.address,
