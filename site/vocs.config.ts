@@ -3709,6 +3709,11 @@ export default defineConfig({
     },
   ],
   twoslash: {
+    // Persist twoslash results inline in the markdown source as
+    // `// @twoslash-cache: ...` comments so the cache travels with the repo.
+    // This lets cold Vercel builds skip twoslash instead of re-resolving every
+    // snippet against Viem's types.
+    inlineCache: true,
     renderer,
     twoslashOptions: {
       vfsRoot: root,
