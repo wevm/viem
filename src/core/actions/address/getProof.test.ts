@@ -1,5 +1,6 @@
 import * as anvil from '~test/anvil.js'
 import { Actions } from 'viem'
+import { Hex } from 'viem/utils'
 import { beforeAll, expect, test } from 'vitest'
 
 const client = anvil.getClient(anvil.mainnet)
@@ -40,7 +41,8 @@ test('default', async () => {
     nonce: proof.nonce,
     storageHash: proof.storageHash,
     storageProofEntry: {
-      key: proof.storageProof[0]?.key,
+      // Upstream nodes serving the fork return the key padded or unpadded.
+      key: Hex.padLeft(proof.storageProof[0]!.key, 32),
       value: proof.storageProof[0]?.value,
     },
   }).toMatchInlineSnapshot(`
