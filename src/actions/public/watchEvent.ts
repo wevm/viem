@@ -389,9 +389,10 @@ export function watchEvent<
             } catch (err) {
               // A topic filter cannot select an anonymous event, so the
               // subscription can deliver logs that match no requested event.
-              // Strict mode skips them.
+              // Skip them when the watch names events, as the polling path
+              // does.
               if (
-                strict_ &&
+                (events_ || strict_) &&
                 (err instanceof AbiEventAmbiguityError ||
                   err instanceof AbiEventSignatureEmptyTopicsError ||
                   err instanceof AbiEventSignatureNotFoundError)

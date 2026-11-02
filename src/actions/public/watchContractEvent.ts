@@ -345,6 +345,11 @@ export function watchContractEvent<
             return client.transport
           })()
 
+          // A topic filter cannot select an anonymous event, so the
+          // subscription can deliver logs that match no requested event. Skip
+          // them when the watch names an event, as the polling path does.
+          const skipUnmatched = Boolean(eventName || strict_)
+
           const topics: LogTopic[] = eventName
             ? encodeEventTopics({
                 abi: abi,
@@ -372,11 +377,8 @@ export function watchContractEvent<
                 })
                 emit.onLogs([formatted] as any)
               } catch (err) {
-                // A topic filter cannot select an anonymous event, so the
-                // subscription can deliver logs that match no requested event.
-                // Strict mode skips them.
                 if (
-                  strict_ &&
+                  skipUnmatched &&
                   (err instanceof AbiEventAmbiguityError ||
                     err instanceof AbiEventSignatureEmptyTopicsError ||
                     err instanceof AbiEventSignatureNotFoundError)
