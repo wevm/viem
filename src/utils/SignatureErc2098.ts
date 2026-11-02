@@ -1,5 +1,5 @@
-import { Errors, Hex } from 'ox'
-import type { Bytes, Signature } from 'ox'
+import { Errors, Hex, Signature } from 'ox'
+import type { Bytes } from 'ox'
 
 /**
  * [EIP-2098](https://eips.ethereum.org/EIPS/eip-2098) compact signature, with
@@ -27,10 +27,14 @@ export type SignatureErc2098 = {
  */
 export function from(signature: Signature.Signature): SignatureErc2098 {
   const { r, s, yParity } = signature
-  const yParityAndS = Hex.fromNumber(
-    yParity === 1 ? Hex.toBigInt(s) | (1n << 255n) : Hex.toBigInt(s),
-    { size: 32 },
-  )
+  if (yParity !== 0 && yParity !== 1)
+    throw new Signature.InvalidYParityError({ value: yParity })
+  const s_ = Hex.toBigInt(s)
+  // The yParity bit is the top bit of `s`, which is always clear for a low `s`.
+  if (s_ >> 255n) throw new InvalidSError({ value: s })
+  const yParityAndS = Hex.fromNumber(yParity === 1 ? s_ | (1n << 255n) : s_, {
+    size: 32,
+  })
   return { r: Hex.padLeft(r, 32), yParityAndS }
 }
 
@@ -39,6 +43,8 @@ export declare namespace from {
     | Hex.fromNumber.ErrorType
     | Hex.padLeft.ErrorType
     | Hex.toBigInt.ErrorType
+    | InvalidSError
+    | Signature.InvalidYParityError
     | Errors.GlobalErrorType
 }
 
@@ -112,7 +118,7 @@ export function toSignature(signature: SignatureErc2098): Signature.Signature {
   const { r, yParityAndS } = signature
   const packed = Hex.toBigInt(yParityAndS)
   return {
-    r,
+    r: Hex.padLeft(r, 32),
     s: Hex.fromNumber(packed & ((1n << 255n) - 1n), { size: 32 }),
     yParity: packed >> 255n ? 1 : 0,
   }
@@ -121,8 +127,20 @@ export function toSignature(signature: SignatureErc2098): Signature.Signature {
 export declare namespace toSignature {
   type ErrorType =
     | Hex.fromNumber.ErrorType
+    | Hex.padLeft.ErrorType
     | Hex.toBigInt.ErrorType
     | Errors.GlobalErrorType
+}
+
+/** Thrown when a signature has a high `s`, which leaves no room for the yParity bit. */
+export class InvalidSError extends Errors.BaseError {
+  override name = 'SignatureErc2098.InvalidSError'
+
+  constructor({ value }: { value: Hex.Hex }) {
+    super(
+      `Value \`${value}\` is an invalid s value. s must be less than 2^255 to be packed with the yParity bit.`,
+    )
+  }
 }
 
 /** Thrown when a serialized compact signature is not 64 bytes. */

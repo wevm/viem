@@ -93,8 +93,8 @@ type ReturnType = {
   expiry: bigint
   /** Whether the key is revoked. */
   isRevoked: boolean
-  /** Key type. */
-  keyType: 'secp256k1' | 'p256' | 'webAuthn'
+  /** Key type. `configurable` for a configurable account access key. */
+  keyType: 'secp256k1' | 'p256' | 'webAuthn' | 'configurable'
   /** Spending policy. */
   spendPolicy: 'limited' | 'unlimited'
 }

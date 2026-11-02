@@ -3,7 +3,7 @@ import * as tempo from '~test/tempo.js'
 import { Actions as CoreActions } from 'viem'
 import { describe, expect, test } from 'vitest'
 
-import { Account, Actions } from 'viem/tempo'
+import { Account, Actions, TempoExecutionError } from 'viem/tempo'
 
 const account = Account.fromSecp256k1(tempo.accounts[0]!.privateKey)
 const client = tempo.getClient({ account, feeToken: tempo.pathUsd })
@@ -63,6 +63,6 @@ describe('rebalanceSwap', () => {
         userToken: tempo.alphaUsd,
         validatorToken: tempo.pathUsd,
       }),
-    ).rejects.toThrow('The contract function "rebalanceSwap" reverted')
+    ).rejects.toThrow(TempoExecutionError)
   })
 })

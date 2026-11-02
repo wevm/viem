@@ -50,6 +50,8 @@ const customFields = new Set([
   'feeToken',
   'keyAuthorization',
   'nonceKey',
+  'validAfter',
+  'validBefore',
 ])
 
 /**
@@ -219,8 +221,14 @@ export async function prepare<
           : {}),
         ...(typeof gas !== 'undefined' ? { gas } : {}),
         ...(typeof gasPrice !== 'undefined' && legacyish ? { gasPrice } : {}),
+        // Nonces above `Number.MAX_SAFE_INTEGER` (e.g. Tempo expiring nonce
+        // discriminators) stay exact.
         ...(typeof filledNonce !== 'undefined'
-          ? { nonce: Number(filledNonce) }
+          ? {
+              nonce: Number.isSafeInteger(Number(filledNonce))
+                ? Number(filledNonce)
+                : BigInt(filledNonce),
+            }
           : {}),
         ...(typeof maxFeePerBlobGas !== 'undefined' && !legacyish
           ? { maxFeePerBlobGas }
@@ -235,10 +243,19 @@ export async function prepare<
 
       // Carry through only the allowlisted chain-specific fields the node
       // returned that the caller did not already supply. Any other field the
-      // node sends back (e.g. `calls`) is ignored.
+      // node sends back (e.g. `calls`) is ignored. A fee payer signature
+      // commits to the filled fields, so they replace the requested ones, and
+      // a requested fee token the fee payer did not sign is dropped.
+      const sponsored =
+        rest.feePayerSignature !== undefined && rest.feePayerSignature !== null
+      if (sponsored) delete request.feeToken
       for (const key of customFields) {
         const value = rest[key]
-        if (value !== undefined && value !== null && !(key in request))
+        if (
+          value !== undefined &&
+          value !== null &&
+          (sponsored || !(key in request))
+        )
           request[key] = value
       }
     } catch (err) {
@@ -331,7 +348,7 @@ export async function prepare<
           })
         if (
           typeof request.maxPriorityFeePerGas === 'undefined' &&
-          request.maxFeePerGas &&
+          typeof request.maxFeePerGas !== 'undefined' &&
           BigInt(request.maxFeePerGas) < maxPriorityFeePerGas
         )
           throw new MaxFeePerGasTooLowError({ maxPriorityFeePerGas })

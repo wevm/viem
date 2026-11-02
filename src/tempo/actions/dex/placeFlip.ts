@@ -19,6 +19,7 @@ import {
   resolveCallParameters,
   simulateWrite,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Places a flip order that automatically flips when filled.
@@ -67,7 +68,9 @@ export namespace placeFlip {
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

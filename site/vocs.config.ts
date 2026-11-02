@@ -2648,6 +2648,10 @@ export default defineConfig({
                 text: 'Rotate Owners',
                 link: '/tempo/guides/configurable-accounts/rotate-owners',
               },
+              {
+                text: 'Upgrade an Account',
+                link: '/tempo/guides/configurable-accounts/upgrade',
+              },
             ],
           },
         ],
@@ -2762,6 +2766,11 @@ export default defineConfig({
             items: [
               {
                 badge: badge('public'),
+                text: 'Derive Account',
+                link: '/tempo/actions/accounts.deriveAccount',
+              },
+              {
+                badge: badge('public'),
                 text: 'Get Config',
                 link: '/tempo/actions/accounts.getConfig',
               },
@@ -2779,6 +2788,21 @@ export default defineConfig({
                 badge: badge('wallet'),
                 text: 'Update Config Sync',
                 link: '/tempo/actions/accounts.updateConfigSync',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Upgrade',
+                link: '/tempo/actions/accounts.upgrade',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Upgrade Sync',
+                link: '/tempo/actions/accounts.upgradeSync',
+              },
+              {
+                badge: badge('public'),
+                text: 'Verify Hash',
+                link: '/tempo/actions/accounts.verifyHash',
               },
             ],
           },
@@ -3620,6 +3644,7 @@ export default defineConfig({
           },
           { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
           { text: 'Accounts', link: '/tempo/relay/plugins/accounts' },
+          { text: 'Auto Swap', link: '/tempo/relay/plugins/auto-swap' },
         ],
       },
       {

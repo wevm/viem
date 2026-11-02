@@ -23,6 +23,7 @@ import {
   resolveToken,
   simulateWrite,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Mints TIP-20 tokens to an address.
@@ -69,7 +70,9 @@ export namespace mint {
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -81,10 +84,16 @@ export namespace mint {
     client: Client.Client<chain, account>,
     options: Options,
   ): Promise<dispatchWrite.ReturnType<action>> {
-    return dispatchWrite(action, client, {
-      ...options,
-      ...mint.call(client, options),
-    })
+    return dispatchWrite(
+      action,
+      client,
+      { ...options, ...mint.call(client, options) },
+      {
+        Unauthorized: [
+          'Minting requires the issuer role. Grant it to this account first.',
+        ],
+      },
+    )
   }
 
   /**

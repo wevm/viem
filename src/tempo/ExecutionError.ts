@@ -3,7 +3,7 @@ import { AbiError, AbiItem } from 'ox'
 import type { UnionOmit } from '../core/internal/types.js'
 import * as Abis from './Abis.js'
 
-type AllAbis = typeof Abis.core
+type AllAbis = typeof Abis.coreErrors
 type AbiErrorName = Extract<AllAbis[number], { type: 'error' }>['name']
 
 type DecodedError<
@@ -35,6 +35,9 @@ export type Rpc =
 export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'AbdicationAlreadyScheduled(uint8)':
     'Abdication is already scheduled for capability {0}.',
+  'AccountAlreadyConfigurable()':
+    'The account is already a configurable account.',
+  'AccountHasCode()': 'Accounts with code cannot be upgraded.',
   'AccountNotAllowed(address)': 'Account {0} is not allowed.',
   'ActiveLeaderRemoved()': 'The active leader cannot be removed.',
   'AddressAlreadyHasValidator()': 'This address already has a validator.',
@@ -101,6 +104,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidClaimAddress()': 'Invalid claim address.',
   'InvalidClosedLoopConfig()': 'Invalid closed-loop configuration.',
   'InvalidConfig()': 'Invalid configuration.',
+  'InvalidConfigurableAccountOwner()': 'Invalid owner.',
   'InvalidCurrency()': 'Invalid currency.',
   'InvalidDepositTransition()': 'Invalid deposit transition.',
   'InvalidEncryptionKeyIndex(uint256)': 'Invalid encryption key index ({0}).',
@@ -115,7 +119,6 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidMasterAddress()': 'Invalid master address.',
   'InvalidMigrationIndex()': 'Invalid migration index.',
   'InvalidMode()': 'Invalid mode.',
-  'InvalidMultisigOwner()': 'Invalid owner.',
   'InvalidNonceKey()': 'Invalid nonce key.',
   'InvalidOwner()': 'Invalid owner.',
   'InvalidOwnerOrder()': 'Invalid owner order.',
@@ -192,11 +195,13 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'PolicyNotFound()': 'Policy not found.',
   'PolicyNotSimple()': 'Policy is not a simple policy.',
   'PortalIsPaused()': 'The portal is paused.',
+  'PrimitiveRootRequired()': 'The root key must sign the upgrade transaction.',
   'ProofOfWorkFailed()': 'Proof of work failed.',
   'ProtectedAddress()': 'Address is protected.',
   'ProtocolNonceNotSupported()': 'Protocol nonce is not supported.',
   'PublicKeyAlreadyExists()': 'Public key already exists.',
   'ReentrantWithdrawal()': 'Reentrant withdrawals are not allowed.',
+  'RootKeyRetired(address)': 'The root key of {0} is retired.',
   'SequencerConfigurationUnchanged()':
     'The sequencer configuration is unchanged.',
   'SignatureTypeMismatch(uint8,uint8)':
@@ -220,8 +225,11 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'Unauthorized()': 'Unauthorized.',
   'UnauthorizedCaller()': 'Unauthorized caller.',
   'UnauthorizedClaimer()': 'Unauthorized claimer.',
-  'UnauthorizedMultisigCaller()': 'Unauthorized multisig caller.',
+  'UnauthorizedConfigurableAccountCaller()':
+    'Unauthorized configurable account caller.',
   'Uninitialized()': 'Uninitialized.',
+  'UpgradeMustBeOnlyCall()':
+    'The upgrade must be the only call in the transaction.',
   'ValidatorAlreadyDeactivated()': 'Validator is already deactivated.',
   'ValidatorAlreadyExists()': 'Validator already exists.',
   'ValidatorNotFound()': 'Validator not found.',
@@ -230,6 +238,106 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'ZeroDeposit()': 'Deposit cannot be zero.',
   'ZeroPublicKey()': 'Public key cannot be zero.',
 }
+
+/** Steps to resolve an error, keyed by error signature in `Abis.core`. */
+export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
+  {
+    'CallNotAllowed()': [
+      "The access key's scopes do not allow this target, selector, or recipient.",
+      'Authorize an access key whose scopes include this call.',
+    ],
+    'ContractPaused()': [
+      'The token is paused. An account with the unpause role can unpause it.',
+    ],
+    'ExpiringNonceReplay()': ['Resend the transaction with a new nonce.'],
+    'ExpiryInPast()': ['Set the expiry to a future time.'],
+    'InsufficientAllowance()': [
+      'Approve the spender for at least this amount.',
+    ],
+    'InsufficientBalance(uint256,uint256,address)': [
+      'Fund the account or lower the amount.',
+    ],
+    'InsufficientFeeTokenBalance()': [
+      'Fund the account with the fee token, or pay fees with another token.',
+    ],
+    'KeyAlreadyExists()': ['Use a new access key, or revoke the existing one.'],
+    'KeyAlreadyRevoked()': [
+      'Revoked access keys cannot be used or re-authorized. Authorize a new access key.',
+    ],
+    'KeyExpired()': ['Authorize a new access key.'],
+    'KeyNotFound()': [
+      'Authorize the access key first, or authorize it in the same transaction with a key authorization.',
+    ],
+    'PolicyForbids()': [
+      'The token transfer policy forbids this sender or recipient.',
+    ],
+    'SpendingLimitExceeded()': [
+      'Raise the spending limit, or wait for a periodic limit to reset.',
+    ],
+    'UnauthorizedCaller()': ['Sign with the root key or an admin access key.'],
+    'AmountExceedsDeposit()': [
+      'Top up the channel, or use a voucher for a smaller amount.',
+    ],
+    'AmountNotIncreasing()': [
+      'Use a voucher with a higher cumulative amount than the amount already settled.',
+    ],
+    'BelowMinimumOrderSize(uint128)': ['Place a larger order.'],
+    'ChannelNotFound()': [
+      'Check the channel details, or open the channel first.',
+    ],
+    'CloseNotReady()': [
+      'Request a close, then wait for the grace period to end before withdrawing.',
+    ],
+    'InsufficientBalance()': [
+      'Deposit more of the token, or lower the amount.',
+    ],
+    'InsufficientLiquidity()': ['Use a smaller amount.'],
+    'InsufficientOutput()': [
+      'Lower the minimum output amount, or sell a smaller amount.',
+    ],
+    'InsufficientReserves()': ['Use a smaller amount.'],
+    'InvalidExpiringNonceExpiry()': [
+      'Set the transaction expiry to a time in the near future.',
+    ],
+    'InvalidFlipTick()': [
+      'Choose a flip tick on the correct side of the order tick.',
+    ],
+    'MaxInputExceeded()': [
+      'Raise the maximum input amount, or buy a smaller amount.',
+    ],
+    'OrderDoesNotExist()': [
+      'Check the order ID. Filled and cancelled orders no longer exist.',
+    ],
+    'OrderNotStale()': [
+      'Only orders whose maker lost authorization can be cancelled as stale.',
+    ],
+    'PairDoesNotExist()': ['Create the trading pair first.'],
+    'PolicyNotFound()': ['Check the policy ID, or create the policy first.'],
+    'SignatureTypeMismatch(uint8,uint8)': [
+      'Sign with the same key type the access key was authorized with.',
+    ],
+    'SupplyCapExceeded()': ['Mint a smaller amount, or raise the supply cap.'],
+    'TickOutOfBounds(int16)': ['Use a tick within the allowed range.'],
+    'Unauthorized()': ['The account lacks the permission this call requires.'],
+    'AccountAlreadyConfigurable()': [
+      'The account is already configurable. Rotate its owners with `updateConfig` instead.',
+    ],
+    'AccountHasCode()': [
+      'Only accounts without code or delegation can be upgraded in place.',
+    ],
+    'PrimitiveRootRequired()': [
+      "Send the upgrade from the account's root key, not an access key or another account.",
+    ],
+    'RootKeyRetired(address)': [
+      'The account was upgraded to a configurable account. Sign with its owners instead of the retired root key.',
+    ],
+    'UnauthorizedConfigurableAccountCaller()': [
+      'Only the configurable account can update its own configuration.',
+    ],
+    'UpgradeMustBeOnlyCall()': [
+      'Send `upgradeAccount` as the only call, without a key authorization or authorization list.',
+    ],
+  }
 
 /** Interpolate `{0}`, `{1}`, … placeholders with args. */
 function interpolate(template: string, args?: readonly unknown[]): string {
@@ -371,7 +479,7 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
   const data = extractRevertData(error)
   if (data) {
     try {
-      const decoded = AbiError.extract(Abis.core, data)
+      const decoded = AbiError.extract(Abis.coreErrors, data)
       const { hash: _, ...abiItem } = decoded.error as typeof decoded.error & {
         hash?: Hex
       }
@@ -388,7 +496,7 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
       } as never
     } catch {
       if (data.length === 10) {
-        const abiItem = Abis.core.find(
+        const abiItem = Abis.coreErrors.find(
           (item) =>
             item.type === 'error' &&
             AbiItem.getSelector(item) === data.toLowerCase(),
@@ -405,6 +513,23 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
       }
     }
   }
+
+  // Nodes print zero-argument errors as `Name(Name)`, whose revert data is the selector alone.
+  const debugMatch = /\b(\w+)\(\1\)/.exec(raw)
+  const abiItem = debugMatch
+    ? Abis.coreErrors.find(
+        (item) => item.name === debugMatch[1] && item.inputs.length === 0,
+      )
+    : undefined
+  if (abiItem)
+    return {
+      abiItem,
+      args: undefined,
+      data: AbiItem.getSelector(abiItem),
+      errorName: abiItem.name,
+      message:
+        messages[AbiItem.getSignature(abiItem) as keyof typeof messages]!,
+    } as DecodedError
 
   // Human-readable names cannot distinguish overloads with different templates.
   const nameMatch = /:\s*(\w+)\(([^)]*)\)/.exec(raw)

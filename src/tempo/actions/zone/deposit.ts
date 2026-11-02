@@ -10,6 +10,7 @@ import * as ZoneAbis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import { defineCall, dispatchSend } from '../../internal/utils.js'
 import { getAccount, getAddress, type ZoneWriteParameters } from './internal.js'
+import type * as TempoErrors from '../../errors.js'
 
 const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -76,7 +77,9 @@ export namespace deposit {
       recipient?: Address.Address | undefined
     }
   export type ReturnType = send.ReturnType
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

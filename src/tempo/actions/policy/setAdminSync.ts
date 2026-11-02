@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { setAdmin } from './setAdmin.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Sets the admin for a TIP-403 transfer policy, and waits for the transaction to be confirmed. */
 export async function setAdminSync<
@@ -42,5 +43,7 @@ export namespace setAdminSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

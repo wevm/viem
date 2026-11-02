@@ -1,6 +1,7 @@
 import { AbiEvent, Log } from 'ox'
 import type { Address, Block, Errors, Hex } from 'ox'
 
+import { HttpError } from '../../../utils/RpcClient.js'
 import type * as Client from '../../Client.js'
 import { observe } from '../../internal/observe.js'
 import { poll } from '../../internal/poll.js'
@@ -26,8 +27,9 @@ import { getLogs } from './getLogs.js'
  * Uses a WebSocket / IPC subscription (`eth_subscribe` over `logs`) when the
  * Client's transport supports it. Otherwise it installs an event filter and
  * polls `eth_getFilterChanges`, falling back to `eth_getLogs` across the block
- * delta when the provider does not support filters. Pass `poll` to force one
- * mode or the other.
+ * delta when the provider does not support filters. When `eth_getLogs` fails
+ * for a block range, it retries with smaller ranges and may emit more than
+ * once per polling interval. Pass `poll` to force one mode or the other.
  *
  * @example
  * ```ts
@@ -117,10 +119,17 @@ export function watch<
         observerId,
         { onLogs: emitLogs, onError: emitError },
         (emit) => {
+          let active = true
           let prevBlockNumber =
             typeof fromBlock === 'bigint' ? fromBlock - 1n : undefined
           let filter: Filter<'event'> | undefined
           let initialized = false
+
+          const emitLogs = (logs: readonly unknown[]) => {
+            if (logs.length === 0) return
+            if (batch) emit.onLogs(logs as never)
+            else for (const log of logs) emit.onLogs([log] as never)
+          }
 
           const unpoll = poll(
             async () => {
@@ -145,34 +154,59 @@ export function watch<
                   >(client, options)) as Filter<'event'>
                 } catch {}
                 initialized = true
-                return
+                if (filter) return
               }
 
               try {
-                let logs: readonly unknown[]
                 if (filter) {
-                  logs = await getChanges(client, { filter })
-                } else {
-                  const blockNumber = await getNumber(client, { cacheTime: 0 })
-                  if (
-                    prevBlockNumber !== undefined &&
-                    prevBlockNumber !== blockNumber
-                  )
-                    logs = await getLogs(client, {
-                      address,
-                      args,
-                      event,
-                      events: events_,
-                      fromBlock: prevBlockNumber + 1n,
-                      toBlock: blockNumber,
-                    } as getLogs.Options)
-                  else logs = []
-                  prevBlockNumber = blockNumber
+                  emitLogs(await getChanges(client, { filter }))
+                  return
                 }
 
-                if (logs.length === 0) return
-                if (batch) emit.onLogs(logs as never)
-                else for (const log of logs) emit.onLogs([log] as never)
+                // Without filter support, fall back to `eth_getLogs` over the
+                // blocks since the last poll.
+                const blockNumber = await getNumber(client, { cacheTime: 0 })
+
+                // Without `fromBlock`, start watching from the current block.
+                let last = prevBlockNumber ?? blockNumber
+                prevBlockNumber = last
+
+                // RPC Providers limit `eth_getLogs` by block range, log count or
+                // response size. `size` is the most blocks to request at once: it
+                // starts with all new blocks and halves whenever a request fails.
+                let size = blockNumber - last
+                while (last < blockNumber) {
+                  const from = last + 1n
+                  const end = last + size
+                  const to = end < blockNumber ? end : blockNumber
+
+                  const logs = await getLogs(client, {
+                    address,
+                    args,
+                    event,
+                    events: events_,
+                    fromBlock: from,
+                    strict,
+                    toBlock: to,
+                  } as getLogs.Options).catch((error) => {
+                    // A single block cannot be split, and a smaller range does
+                    // not help when the RPC Provider is unreachable or rejects
+                    // the client.
+                    if (from === to || !isRangeError(error)) throw error
+                    return undefined
+                  })
+                  if (!active) return
+                  if (!logs) {
+                    size = (to - from + 1n) / 2n
+                    continue
+                  }
+
+                  // Only move past blocks whose logs were fetched, so none are
+                  // skipped or repeated.
+                  last = to
+                  prevBlockNumber = to
+                  emitLogs(logs)
+                }
               } catch (err) {
                 // Providers throw "invalid input" when a filter is uninstalled;
                 // reinitialize it on the next tick.
@@ -184,6 +218,7 @@ export function watch<
           )
 
           return () => {
+            active = false
             unpoll()
             // Fire-and-forget: a failed uninstall must not keep the poll alive.
             if (filter) void uninstall(client, { filter }).catch(() => {})
@@ -516,4 +551,23 @@ function isFilterExpired(error: unknown): boolean {
     current = value.cause
   }
   return false
+}
+
+/** Whether a failed `eth_getLogs` request may succeed with a smaller block range. */
+function isRangeError(error: unknown): boolean {
+  let current: unknown = error
+  while (current && typeof current === 'object') {
+    // Unreachable, unauthorized, forbidden or rate limited.
+    if (current instanceof HttpError)
+      return (
+        current.status !== undefined &&
+        current.status !== 401 &&
+        current.status !== 403 &&
+        current.status !== 429
+      )
+    // Rate limited.
+    if ((current as { code?: unknown }).code === 429) return false
+    current = (current as { cause?: unknown }).cause
+  }
+  return true
 }

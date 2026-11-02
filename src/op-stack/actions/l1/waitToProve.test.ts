@@ -131,3 +131,34 @@ test('rejects a receipt without withdrawals', async () => {
     Version: viem@x.x.x]
   `)
 })
+
+test('rejects a super-root receipt without an L2 timestamp', async () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  await CoreActions.state.reset(client, {
+    blockNumber: 26_270_300n,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+
+  await expect(
+    Actions.l1.waitToProve(client, {
+      receipt: opStack.getWithdrawalReceipt({
+        blockNumber: 0n,
+        transactionHash:
+          '0xdab8c1862755454ce77526f02c11dfda79687cb4838a47778f1543123ab205f6',
+        withdrawalHash:
+          '0x7e3c682907ae38aefbca24b93ffa687d022051bb0ea38d3010de94d20354ebac',
+      }),
+      targetChain: optimism,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [Withdrawal.L2TimestampRequiredError: Dispute game type 9 anchors on L2 timestamps, so the L2 timestamp of the withdrawal is required.
+
+    Pass \`l2Timestamp\`, or a receipt whose logs include \`blockTimestamp\`.
+
+    Version: viem@x.x.x]
+  `)
+}, 60_000)

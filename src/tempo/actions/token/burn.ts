@@ -24,6 +24,7 @@ import {
   resolveToken,
   simulateWrite,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Burns TIP-20 tokens from the caller's balance or a specified account with `BURN_AT_ROLE`.
@@ -71,7 +72,9 @@ export namespace burn {
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

@@ -4,18 +4,19 @@ import * as Account from '../../core/Account.js'
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
 import { estimateGas as core_estimateGas } from '../../core/actions/transaction/estimateGas.js'
-import { read } from '../../core/actions/contract/read.js'
 import { send } from '../../core/actions/transaction/send.js'
 import { sendSync } from '../../core/actions/transaction/sendSync.js'
 import { multicall } from '../../core/actions/multicall.js'
 import type { Compute, UnionOmit } from '../../core/internal/types.js'
 import * as Abis from '../Abis.js'
 import * as Expiry from '../Expiry.js'
+import type * as TempoErrors from '../errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import {
   defineCall,
   dispatchSend,
   pickWriteParameters,
+  read,
 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../chainConfig.js'
 import * as tokenActions from './token/index.js'
@@ -69,6 +70,10 @@ export namespace baseToken {
       functionName: 'baseToken',
     })
   }
+
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -120,6 +125,10 @@ export namespace quoteToken {
       functionName: 'quoteToken',
     })
   }
+
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -168,6 +177,10 @@ export namespace paused {
       functionName: 'paused',
     })
   }
+
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -225,6 +238,10 @@ export namespace takerAllowed {
       functionName: 'takerAllowed',
     })
   }
+
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -282,6 +299,10 @@ export namespace recipientAllowed {
       functionName: 'recipientAllowed',
     })
   }
+
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -339,6 +360,10 @@ export namespace resolveRecipient {
       functionName: 'resolveRecipient',
     })
   }
+
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -763,7 +788,9 @@ export namespace swap {
 
   export type ReturnValue = send.ReturnType
 
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -982,4 +1009,6 @@ export namespace swapSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = swap.ErrorType
 }

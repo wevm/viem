@@ -4,7 +4,7 @@ import * as Contracts from '../../core/internal/contracts.js'
 export const monadTestnet = /*#__PURE__*/ Chain.from({
   id: 10_143,
   name: 'Monad Testnet',
-  blockTime: 400,
+  blockTime: 300,
   nativeCurrency: {
     name: 'Testnet MON Token',
     symbol: 'MON',

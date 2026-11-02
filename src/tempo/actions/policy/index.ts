@@ -1,6 +1,11 @@
 // biome-ignore lint/performance/noBarrelFile: namespace module
 export { create, type PolicyType } from './create.js'
 export { createSync } from './createSync.js'
+export {
+  type ExecutionErrorType,
+  PolicyNotFoundError,
+  type PolicyNotFoundErrorType,
+} from './errors.js'
 export { getData } from './getData.js'
 export { isAuthorized } from './isAuthorized.js'
 export { modifyBlacklist } from './modifyBlacklist.js'

@@ -214,6 +214,11 @@ export declare namespace Chain {
         ]
       | undefined
     /**
+     * Transaction replacement semantics. `waitForReceipt` uses them to find
+     * which mined transaction replaced a pending one, and why.
+     */
+    replacement?: Transaction.Replacement | undefined
+    /**
      * Serializes a (signed or unsigned) transaction envelope.
      * Return `undefined` to delegate to the default.
      *
@@ -268,6 +273,35 @@ export declare namespace Chain {
       | 'beforeFillTransaction'
       | 'beforeFillParameters'
       | 'afterFillParameters'
+
+    /**
+     * Chain-specific transaction replacement semantics. Parameters are
+     * declared contravariantly (`never`) so chains with custom transaction
+     * types assign without casts.
+     */
+    type Replacement = {
+      /**
+       * Returns the key of the sender's nonce slot that a transaction
+       * consumes. A mined transaction from the same sender with the same key
+       * replaces a pending one. Chains that declare it identify nonce slots
+       * by more than a sender and nonce, so `waitForReceipt` ignores its
+       * `replacement` option on them.
+       *
+       * @default `String(transaction.nonce)`
+       */
+      getKey?: ((transaction: never) => string) | undefined
+      /**
+       * Classifies a replacement.
+       *
+       * @default Compares `to`, `value`, and `input`.
+       */
+      getReason?:
+        | ((options: {
+            replaced: never
+            replacement: never
+          }) => 'cancelled' | 'replaced' | 'repriced')
+        | undefined
+    }
   }
 
   /** RPC endpoints of a {@link Chain}. */

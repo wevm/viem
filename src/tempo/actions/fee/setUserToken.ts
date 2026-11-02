@@ -15,6 +15,7 @@ import {
   dispatchWrite,
   resolveCallParameters,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Sets the calling account's default fee token.
@@ -55,7 +56,9 @@ export namespace setUserToken {
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

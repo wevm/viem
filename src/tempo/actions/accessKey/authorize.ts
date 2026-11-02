@@ -10,6 +10,7 @@ import * as Abis from '../../Abis.js'
 import * as Account from '../../Account.js'
 import type { WriteParameters } from '../../internal/types.js'
 import { dispatchSend } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Authorizes an access key by signing a key authorization and sending a transaction.
@@ -62,7 +63,9 @@ export namespace authorize {
   export type Options = Omit<WriteParameters, 'keyAuthorization'> & Args
   export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -93,11 +96,16 @@ export namespace authorize {
       account as CoreAccount.Local,
       { admin, chainId, expiry, key: accessKey, limits, scopes, witness },
     )
-    return dispatchSend(action, client, {
-      ...rest,
-      account,
-      keyAuthorization,
-    })
+    return dispatchSend(
+      action,
+      client,
+      { ...rest, account, keyAuthorization },
+      {
+        KeyAlreadyExists: [
+          'This access key is already authorized. Update its spending limits instead.',
+        ],
+      },
+    )
   }
 
   /** Extracts the `KeyAuthorized` event from logs. */

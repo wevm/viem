@@ -1059,6 +1059,16 @@ describe('deposit.calls', () => {
                   "name": "account",
                   "type": "address",
                 },
+              ],
+              "name": "RootKeyRetired",
+              "type": "error",
+            },
+            {
+              "inputs": [
+                {
+                  "name": "account",
+                  "type": "address",
+                },
                 {
                   "name": "role",
                   "type": "bytes32",

@@ -74,12 +74,16 @@ export function tempoActions() {
         accessKey.watchWitnessBurned(client, options),
     },
     accounts: {
+      deriveAccount: (options) => accounts.deriveAccount(client, options),
       getConfig: (options) => accounts.getConfig(client, options),
       getConfigCommitment: (options) =>
         accounts.getConfigCommitment(client, options),
       getOperation: (options) => accounts.getOperation(client, options),
       updateConfig: (options) => accounts.updateConfig(client, options),
       updateConfigSync: (options) => accounts.updateConfigSync(client, options),
+      upgrade: (options) => accounts.upgrade(client, options),
+      upgradeSync: (options) => accounts.upgradeSync(client, options),
+      verifyHash: (options) => accounts.verifyHash(client, options),
     },
     amm: {
       burn: (options) => amm.burn(client, options),
@@ -949,6 +953,28 @@ export type Decorator<
   }
   /** Configurable account configuration and coordinated operations. */
   accounts: {
+    /**
+     * Derives a configurable account address from an initial config with the
+     * configurable account precompile.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const address = await client.accounts.deriveAccount({
+     *   owners: [{ owner: '0x…', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param options - Owners, threshold, and optional salt.
+     * @returns The configurable account address.
+     */
+    deriveAccount: (
+      options: accounts.deriveAccount.Options,
+    ) => Promise<accounts.deriveAccount.ReturnType>
     getConfig: (
       options: accounts.getConfig.Options,
     ) => Promise<accounts.getConfig.ReturnType>
@@ -964,6 +990,78 @@ export type Decorator<
     updateConfigSync: (
       options: accounts.updateConfigSync.Options,
     ) => Promise<accounts.updateConfigSync.ReturnType>
+    /**
+     * Upgrades an existing account to a configurable account in place.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.accounts.upgrade({
+     *   owners: [{ owner: '0x…', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param options - Owners, threshold, and transaction options.
+     * @returns The transaction hash.
+     */
+    upgrade: (
+      options: accounts.upgrade.Options,
+    ) => Promise<accounts.upgrade.ReturnType>
+    /**
+     * Upgrades an existing account to a configurable account in place and
+     * waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { config } = await client.accounts.upgradeSync({
+     *   owners: [{ owner: '0x…', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param options - Owners, threshold, and transaction options.
+     * @returns The installed configuration, its commitment, and the transaction receipt.
+     */
+    upgradeSync: (
+      options: accounts.upgradeSync.Options,
+    ) => Promise<accounts.upgradeSync.ReturnType>
+    /**
+     * Verifies a configurable account signature against the account's
+     * current configuration.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const valid = await client.accounts.verifyHash({
+     *   account: '0x…',
+     *   hash: '0x…',
+     *   signature: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Account, hash, and signature.
+     * @returns Whether the signature is valid for the account.
+     */
+    verifyHash: (
+      options: accounts.verifyHash.Options,
+    ) => Promise<accounts.verifyHash.ReturnType>
   }
   amm: {
     /**

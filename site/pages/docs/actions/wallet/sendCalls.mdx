@@ -390,6 +390,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 
 The batch of calls to send.
 Each call contains raw call data or contract function parameters.
+A call's `dataSuffix` is appended to its calldata. If the call has no `data`, the suffix is sent as the call's data.
 
 ```ts twoslash
 import { Actions } from 'viem'

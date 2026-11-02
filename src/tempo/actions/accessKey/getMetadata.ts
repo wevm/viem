@@ -3,7 +3,6 @@ import type { Address, Errors } from 'ox'
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import * as Abis from '../../Abis.js'
 import type { AccessKeyAccount } from '../../Account.js'
 import * as Addresses from '../../Addresses.js'
@@ -11,16 +10,11 @@ import type { ReadParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  read,
   resolveCallParameters,
 } from '../../internal/utils.js'
-import { resolveAccessKeyAddress } from './internal.js'
-
-/** @internal */
-const signatureTypes = {
-  0: 'secp256k1',
-  1: 'p256',
-  2: 'webAuthn',
-} as const satisfies Record<number, string>
+import { resolveAccessKeyAddress, signatureTypes } from './internal.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** @internal */
 const spendPolicies = {
@@ -87,13 +81,15 @@ export namespace getMetadata {
     expiry: bigint
     /** Whether the key is revoked. */
     isRevoked: boolean
-    /** Key type. */
-    keyType: 'secp256k1' | 'p256' | 'webAuthn'
+    /** Key type. `configurable` for a configurable account access key. */
+    keyType: 'secp256k1' | 'p256' | 'webAuthn' | 'configurable'
     /** Spending policy. */
     spendPolicy: 'limited' | 'unlimited'
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /**
    * Defines a call to the `getKey` function.

@@ -3,17 +3,18 @@ import type { Address, Errors } from 'ox'
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import { type Amount, toAmount } from '../../../core/actions/token/internal.js'
 import * as Abis from '../../Abis.js'
 import type { ReadParameters, TokenParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  read,
   resolveCallParameters,
   resolveToken,
   resolveTokenWithDecimals,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Gets the TIP-20 token balance of an account.
@@ -69,7 +70,9 @@ export namespace getBalance {
   export type Options = Omit<ReadParameters, 'account'> & Args
   export type ReturnType = Amount
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /**
    * Defines a call to the `balanceOf` function.

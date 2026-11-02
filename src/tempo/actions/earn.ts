@@ -7,7 +7,6 @@ import * as Account from '../../core/Account.js'
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
 import { getNumber } from '../../core/actions/block/getNumber.js'
-import { read } from '../../core/actions/contract/read.js'
 import type { simulate as simulateContract } from '../../core/actions/contract/simulate.js'
 import { writeSync } from '../../core/actions/contract/writeSync.js'
 import { getLogs } from '../../core/actions/event/getLogs.js'
@@ -22,6 +21,7 @@ import { stringify } from '../../core/internal/stringify.js'
 import type { Compute, OneOf } from '../../core/internal/types.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as TempoErrors from '../errors.js'
 import {
   GetVaultEngineChangedError,
   WaitForPrivateDepositTimeoutError,
@@ -40,6 +40,7 @@ import {
   estimateWrite,
   pickWriteParameters,
   pickWriteSyncParameters,
+  read,
   resolveCallParameters,
   resolveTokenWithDecimals,
   simulateWrite,
@@ -330,7 +331,9 @@ export namespace validateExitSafePolicy {
   export type Options = Omit<ReadParameters, 'account'> & Args
   export type ReturnType = void
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -391,7 +394,9 @@ export namespace deposit {
   export type Options = WriteParameters & Args
   export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal Shared dispatch; reads the asset for the approval. */
   export async function inner<
@@ -624,7 +629,9 @@ export namespace depositSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -688,7 +695,9 @@ export namespace depositShares {
   export type Options = WriteParameters & Args
   export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal Shared dispatch; reads the engine for the approval. */
   export async function inner<
@@ -926,7 +935,9 @@ export namespace depositSharesSync {
     venueShareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -1391,7 +1402,9 @@ export namespace getFeeState {
     targetBase: bigint
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /** Vault fee configuration. */
@@ -1566,7 +1579,9 @@ export namespace getPosition {
     value: bigint
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -1616,7 +1631,9 @@ export namespace getRedeemQuote {
     never
   >
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /**
    * Defines a call to the vault's `previewRedeem` function.
@@ -1795,7 +1812,10 @@ export namespace getVault {
     shareToken: Address.Address
   }
   // TODO: exhaustive error type
-  export type ErrorType = GetVaultEngineChangedError | Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | GetVaultEngineChangedError
+    | Errors.GlobalErrorType
 
   /**
    * Defines the reads used by {@link getVault}. Pass the current engine and
@@ -1965,7 +1985,9 @@ export namespace getWithdrawQuote {
     never
   >
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /**
    * Defines a call to the vault's `previewWithdraw` function.
@@ -2060,7 +2082,9 @@ export namespace redeem {
   export type Options = WriteParameters & Args
   export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
@@ -2293,7 +2317,9 @@ export namespace redeemSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -2708,7 +2734,9 @@ export namespace withdrawExact {
   export type Options = WriteParameters & Args
   export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
@@ -2945,7 +2973,9 @@ export namespace withdrawExactSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 type MinimumShareAmountParameters = OneOf<

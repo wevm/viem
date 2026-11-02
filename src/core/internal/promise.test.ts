@@ -761,6 +761,17 @@ describe('withRetry', () => {
     `)
   })
 
+  test('rejects on abort when fn ignores the signal', async () => {
+    const controller = new AbortController()
+    const promise = withRetry(() => new Promise<never>(() => {}), {
+      signal: controller.signal,
+    })
+    controller.abort(new Error('aborted'))
+    await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: aborted]`,
+    )
+  })
+
   test('rejects when shouldRetry throws after a retry', async () => {
     await expect(
       Promise.race([

@@ -64,7 +64,7 @@ describe('changeTransferPolicy', () => {
         to: account2.address,
         token,
       }),
-    ).rejects.toThrow('The contract function "transfer" reverted')
+    ).rejects.toThrow(Actions.token.TokenPolicyForbidsError)
 
     const { receipt } = await Actions.token.transferSync(client, {
       amount: Value.from('1', 6),
@@ -86,6 +86,6 @@ describe('changeTransferPolicy', () => {
 
     await expect(
       Actions.token.changeTransferPolicySync(client2, { policyId, token }),
-    ).rejects.toThrow('The contract function "changeTransferPolicyId" reverted')
+    ).rejects.toThrow(Actions.token.TokenUnauthorizedError)
   })
 })

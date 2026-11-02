@@ -24,7 +24,7 @@ import {
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
 type Context = {
-  ccipReadLookupCount: number
+  ccipRead?: offchainLookup.Context | undefined
 }
 
 /**
@@ -50,7 +50,7 @@ export function call(
   client: Client.Client,
   options: call.Options = {},
 ): Promise<call.ReturnType> {
-  return call_(client, options, { ccipReadLookupCount: 0 })
+  return call_(client, options, {})
 }
 
 async function call_(
@@ -188,15 +188,13 @@ async function call_(
         data: await offchainLookup({
           blockNumber,
           blockTag,
-          call: (options) =>
-            call_(client, options, {
-              ccipReadLookupCount: context.ccipReadLookupCount + 1,
-            }),
+          call: (options, ccipRead) => call_(client, options, { ccipRead }),
+          context: context.ccipRead,
           data,
-          lookupCount: context.ccipReadLookupCount,
           request: client.ccipRead.request,
           requestOptions,
           to,
+          transport: client.transport,
         }),
       }
     }

@@ -2,11 +2,10 @@ import type { Address } from 'ox'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { ReadParameters } from '../../internal/types.js'
-import { defineCall } from '../../internal/utils.js'
+import { defineCall, read } from '../../internal/utils.js'
 
 /**
  * Gets the current configuration commitment for a configurable account.
@@ -55,7 +54,7 @@ export namespace getConfigCommitment {
   }
 
   export type ReturnType = read.ReturnType<
-    typeof Abis.nativeMultisig,
+    typeof Abis.configurableAccount,
     'getConfigCommitment',
     never
   >
@@ -70,8 +69,8 @@ export namespace getConfigCommitment {
    */
   export function call(args: Args) {
     return defineCall({
-      address: Addresses.nativeMultisig,
-      abi: Abis.nativeMultisig,
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
       args: [args.account],
       functionName: 'getConfigCommitment',
     })

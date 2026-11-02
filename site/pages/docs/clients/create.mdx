@@ -193,6 +193,8 @@ const blockNumber = await Actions.block.getNumber(client)
 
 Set `cacheTime` to control how long cacheable RPC responses are retained. This is useful for repeated reads that can tolerate a short-lived cached result.
 
+By default, cached values such as the latest block number last the shorter of `pollingInterval` and half of `chain.blockTime`, so they are at most one block old.
+
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -246,7 +248,7 @@ The default [ENSIP-21 batch gateway](https://docs.ens.domains/ensip/21/) is oper
 
 Contract callbacks validate responses, so the gateway is not trusted for correctness.
 
-Local batches allow 64 total queries, four concurrent requests, and four nesting levels per lookup.
+One lookup follows at most four nested callbacks and four nested local batches. It makes at most 256 gateway requests (one per URL), 16 at a time, and each request uses the Transport timeout.
 
 Using `CcipRead.request` directly provides defense in depth, not a complete server-side request forgery boundary. Portable `fetch` implementations cannot pin DNS resolution to connections.
 
@@ -334,6 +336,32 @@ const chainId = await client.getChainId()
 ```
 
 
+### Scoping Requests
+
+A Client shares in-flight requests, cached values such as the latest block number, and request batches between its callers. `.scope()` creates a Client with the same configuration, Transport, and extensions that shares none of these with other Clients.
+
+Scope a Client for each request a server or Worker handles. On Cloudflare Workers, pending I/O is canceled when the request that started it ends, so a later request that joins that I/O never settles.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+
+export default {
+  async fetch(request: Request) {
+    const scoped = client.scope({ signal: request.signal }) // [!code focus]
+    const blockNumber = await Actions.block.getNumber(scoped)
+    return Response.json({ blockNumber: blockNumber.toString() })
+  },
+}
+```
+
+The optional `signal` aborts the scoped Client's requests, such as when the caller disconnects. Calls with the same `signal` return the same Client. Requests that pass their own `signal` use it instead.
+
 ## `Client.create`
 
 Composes a transport with an optional chain and account into a client, with `.extend()` for attaching Actions.
@@ -420,9 +448,9 @@ const client = Client.create({
 #### options.cacheTime
 
 - **Type:** `number`
-- **Default:** `pollingInterval`
+- **Default:** the shorter of `pollingInterval` and half of `chain.blockTime`
 
-Time (ms) cached data stays in memory.
+Time (ms) cached data stays in memory. Without `chain.blockTime`, Viem assumes 12 second blocks.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -670,7 +698,7 @@ const client = Client.create({
 `Client`
 
 The Client with its Chain, Account, Transport, and schema literal types preserved. The Client also
-includes [`.extend()`](#extending-a-client).
+includes [`.extend()`](#extending-a-client) and [`.scope()`](#scoping-requests).
 
 ### Errors
 

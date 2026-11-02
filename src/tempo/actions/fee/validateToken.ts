@@ -3,7 +3,6 @@ import type { Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import {
@@ -14,6 +13,7 @@ import {
 } from '../../errors.js'
 import type { ReadParameters, TokenParameter } from '../../internal/types.js'
 import { getMetadata } from '../token/getMetadata.js'
+import { read } from '../../internal/utils.js'
 
 const tip20AddressPrefix = '0x20c0'
 

@@ -17,8 +17,9 @@ import type { getLogs } from './getLogs.js'
  * Uses a WebSocket / IPC subscription (`eth_subscribe` over `logs`) when the
  * Client's transport supports it. Otherwise it installs an event filter and
  * polls `eth_getFilterChanges`, falling back to `eth_getLogs` across the block
- * delta when the provider does not support filters. Pass `poll` to force one
- * mode or the other.
+ * delta when the provider does not support filters. When `eth_getLogs` fails
+ * for a block range, it retries with smaller ranges and may emit more than
+ * once per polling interval. Pass `poll` to force one mode or the other.
  *
  * @example
  * ```ts

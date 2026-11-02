@@ -63,7 +63,7 @@ describe('sell', () => {
         amountIn: Value.from('100', 6),
         minAmountOut: Value.from('150', 6),
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountIn" reverted')
+    ).rejects.toThrow(Actions.dex.DexInsufficientOutputError)
   })
 
   test('behavior: fails with insufficient liquidity', async () => {
@@ -75,6 +75,6 @@ describe('sell', () => {
         amountIn: Value.from('100', 6),
         minAmountOut: Value.from('100', 6),
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountIn" reverted')
+    ).rejects.toThrow(Actions.dex.DexInsufficientLiquidityError)
   })
 })

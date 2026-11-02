@@ -5,6 +5,9 @@ export const hyperEvm = /*#__PURE__*/ Chain.from({
   id: 999,
   name: 'HyperEVM',
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
+  fees: {
+    baseFeeMultiplier: 2,
+  },
   blockExplorers: {
     name: 'HyperEVMScan',
     url: 'https://hyperevmscan.io',

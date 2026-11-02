@@ -7,6 +7,7 @@ import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { encryptedDeposit } from './encryptedDeposit.js'
 import type { ReceiptReturn } from './internal.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Deposits tokens into a zone on the parent Tempo chain with encrypted recipient and memo, and waits for the transaction to be confirmed.
@@ -51,5 +52,7 @@ export namespace encryptedDepositSync {
     account extends Account.Account | undefined = Account.Account | undefined,
   > = encryptedDeposit.Options<account> & WriteSyncParameters
   export type ReturnType = ReceiptReturn<sendSync.ReturnType>
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

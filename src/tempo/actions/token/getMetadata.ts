@@ -3,7 +3,6 @@ import type { Address, Errors } from 'ox'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import { multicall } from '../../../core/actions/multicall.js'
 import {
   defineCall,
@@ -13,7 +12,8 @@ import type { Compute } from '../../../core/internal/types.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { ReadParameters, TokenParameter } from '../../internal/types.js'
-import { resolveToken } from '../../internal/utils.js'
+import { read, resolveToken } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Gets TIP-20 token metadata including name, symbol, logo URI, currency,
@@ -188,7 +188,9 @@ export namespace getMetadata {
     transferPolicyId?: bigint | undefined
   }>
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 function unwrapMulticallResult<result>(

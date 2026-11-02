@@ -121,6 +121,30 @@ export declare namespace getWithdrawals {
     | Errors.GlobalErrorType
 }
 
+/** Thrown when a super-root dispute game requires the L2 timestamp of a withdrawal. */
+export class L2TimestampRequiredError extends ViemErrors.BaseError {
+  override name = 'Withdrawal.L2TimestampRequiredError'
+
+  constructor(options: L2TimestampRequiredError.Options) {
+    super(
+      `Dispute game type ${options.gameType} anchors on L2 timestamps, so the L2 timestamp of the withdrawal is required.`,
+      {
+        metaMessages: [
+          'Pass `l2Timestamp`, or a receipt whose logs include `blockTimestamp`.',
+        ],
+      },
+    )
+  }
+}
+
+export declare namespace L2TimestampRequiredError {
+  /** Constructor options for {@link L2TimestampRequiredError}. */
+  type Options = {
+    /** Respected dispute game type. */
+    gameType: number
+  }
+}
+
 /** Thrown when a transaction receipt contains no withdrawals. */
 export class ReceiptContainsNoWithdrawalsError extends ViemErrors.BaseError {
   override name = 'Withdrawal.ReceiptContainsNoWithdrawalsError'

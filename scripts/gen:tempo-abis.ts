@@ -175,30 +175,6 @@ function tempoAdapter(): SourceAdapter {
     type: string
   }
 
-  const compatibilityInterfaces: Record<
-    string,
-    { after: string; items: string[] }
-  > = {
-    // TODO: Remove once native multisig is merged into Tempo main.
-    INativeMultisig: {
-      after: 'IAddressRegistry',
-      items: [
-        'function deriveAccount(bytes32 salt, uint8 threshold, (address owner, uint8 weight)[] owners) pure returns (address account)',
-        'function getConfigCommitment(address account) view returns (bytes32 commitment)',
-        'function updateConfig((bytes32 salt, uint64 version, uint8 threshold, (address owner, uint8 weight)[] owners) current, uint8 threshold, (address owner, uint8 weight)[] owners)',
-        'event MultisigConfigUpdated(address indexed account, bytes32 salt, uint64 version, uint8 threshold, (address owner, uint8 weight)[] owners)',
-        'error InvalidAccount()',
-        'error InvalidConfig()',
-        'error InvalidThreshold()',
-        'error InvalidMultisigOwner()',
-        'error InvalidWeight()',
-        'error TooManyOwners()',
-        'error DuplicateOwner()',
-        'error InvalidOwnerOrder()',
-        'error UnauthorizedMultisigCaller()',
-      ],
-    },
-  }
   const extensions: Record<string, string[]> = {
     ITIP20: ['IRolesAuth'],
   }
@@ -211,24 +187,13 @@ function tempoAdapter(): SourceAdapter {
   return {
     name: 'tempo',
     async generate() {
-      const commit = await getLatestCommit(repository)
+      // `TEMPO_REF` pins a branch or commit ahead of Tempo main.
+      const commit = await getLatestCommit(
+        repository,
+        process.env.TEMPO_REF ?? 'HEAD',
+      )
       const { content, files } = await getPrecompileSources(commit)
       const interfaces = parseSolInterfaces(content)
-      for (const [name, { after, items }] of Object.entries(
-        compatibilityInterfaces,
-      )) {
-        if (interfaces.has(name)) continue
-        if (!interfaces.has(after)) {
-          interfaces.set(name, { name, items })
-          continue
-        }
-        const entries = [...interfaces]
-        interfaces.clear()
-        for (const [interfaceName, definition] of entries) {
-          interfaces.set(interfaceName, definition)
-          if (interfaceName === after) interfaces.set(name, { name, items })
-        }
-      }
 
       const processed: {
         abi: ReturnType<typeof Abi.from>
@@ -1031,8 +996,10 @@ async function getJson<result>(url: string) {
   return response.json() as Promise<result>
 }
 
-async function getLatestCommit(repository: string) {
-  const { sha } = await getJson<{ sha: string }>(`${repository}/commits/HEAD`)
+async function getLatestCommit(repository: string, ref = 'HEAD') {
+  const { sha } = await getJson<{ sha: string }>(
+    `${repository}/commits/${encodeURIComponent(ref)}`,
+  )
   if (!/^[0-9a-f]{40}$/.test(sha))
     throw new Error(`Invalid latest commit for ${repository}: ${sha}.`)
   return sha
@@ -1073,7 +1040,12 @@ const context: AdapterContext = {
   },
 }
 const source = process.argv[2]
-if (source && !adapters.some((adapter) => adapter.name === source))
+// `errors` only regenerates `coreErrors` from the current ABIs.
+if (
+  source &&
+  source !== 'errors' &&
+  !adapters.some((adapter) => adapter.name === source)
+)
   throw new Error(`Unknown ABI source: ${source}.`)
 for (const adapter of adapters.filter(
   (adapter) => !source || adapter.name === source,
@@ -1081,5 +1053,26 @@ for (const adapter of adapters.filter(
   const files = await adapter.generate(context)
   for (const file of files) generated.set(file.path, file.content)
   console.log(`✓ Generated ${adapter.name} artifacts`)
+}
+{
+  const path = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+  const abis = context
+    .read(path)
+    .replace(/\n+\/\*\* Deduplicated errors of `core`[\s\S]*$/, '\n')
+  const temporaryPath = Path.join(
+    Os.tmpdir(),
+    `viem-tempo-abis-${process.pid}.ts`,
+  )
+  Fs.writeFileSync(temporaryPath, abis)
+  const { core } = (await import(temporaryPath)) as typeof Abis
+  Fs.unlinkSync(temporaryPath)
+  const errors = new Map<string, AbiItem.AbiItem>()
+  for (const item of core)
+    if (item.type === 'error') errors.set(AbiItem.getSignature(item), item)
+  generated.set(
+    path,
+    `${abis}\n/** Deduplicated errors of \`core\`, for decoding reverts that bubble up across precompiles. */\nexport const coreErrors = ${JSON.stringify([...errors.values()])} as const\n`,
+  )
+  console.log(`✓ Generated ${errors.size} core errors`)
 }
 for (const [path, content] of generated) writeAtomic(path, content)

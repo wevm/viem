@@ -145,11 +145,11 @@ test('behavior: limits nested local batches', async () => {
   )
 })
 
-test('behavior: limits total nested queries', async () => {
+test('behavior: limits total queries across nested batches', async () => {
   const sender = '0x0000000000000000000000000000000000000001'
   const nested = AbiFunction.encodeData(query, [
     Array.from(
-      { length: 64 },
+      { length: 200 },
       () =>
         ({
           data: '0x',
@@ -159,7 +159,10 @@ test('behavior: limits total nested queries', async () => {
     ),
   ])
   const data = AbiFunction.encodeData(query, [
-    [{ data: nested, sender, urls: [localBatchGatewayUrl] }],
+    [
+      { data: nested, sender, urls: [localBatchGatewayUrl] },
+      { data: nested, sender, urls: [localBatchGatewayUrl] },
+    ],
   ])
 
   const result = await localBatchGatewayRequest({
@@ -167,13 +170,56 @@ test('behavior: limits total nested queries', async () => {
     request: unsafeRequest,
   })
 
-  const [failures, responses] = AbiFunction.decodeResult(query, result)
-  expect(failures).toEqual([true])
-  expect(responses[0]).toBe(
-    AbiError.encode(solidityError, [
-      'CCIP batch gateway query limit exceeded.',
-    ]),
-  )
+  const [, responses] = AbiFunction.decodeResult(query, result)
+  const failures = responses.flatMap((response) => {
+    const [failures, responses] = AbiFunction.decodeResult(query, response)
+    return failures.map((failure, i) => (failure ? responses[i] : undefined))
+  })
+  const reason = failures.find((failure) => failure !== undefined)
+  expect({
+    failures: failures.filter((failure) => failure !== undefined).length,
+    reason: reason && AbiError.decode(solidityError, reason),
+    successes: failures.filter((failure) => failure === undefined).length,
+  }).toMatchInlineSnapshot(`
+    {
+      "failures": 144,
+      "reason": "CCIP Read lookup limit exceeded.",
+      "successes": 256,
+    }
+  `)
+})
+
+test('behavior: charges each gateway URL', async () => {
+  const sender = '0x0000000000000000000000000000000000000001'
+  const data = AbiFunction.encodeData(query, [
+    [
+      {
+        data: '0x',
+        sender,
+        urls: Array.from(
+          { length: 300 },
+          () => 'data:application/json,{"data":"0x"}',
+        ),
+      },
+      {
+        data: '0x',
+        sender,
+        urls: ['data:application/json,{"data":"0x"}'],
+      },
+    ],
+  ])
+
+  const result = await localBatchGatewayRequest({
+    data,
+    request: unsafeRequest,
+  })
+
+  expect(AbiFunction.decodeResult(query, result)[0]).toMatchInlineSnapshot(`
+    [
+      false,
+      true,
+    ]
+  `)
 })
 
 test('behavior: limits concurrent requests', async () => {
@@ -181,7 +227,7 @@ test('behavior: limits concurrent requests', async () => {
   const barrier = withResolvers<void>()
   const server = await createServer(async (request, response) => {
     active.add(request)
-    if (active.size === 4) barrier.resolve()
+    if (active.size === 16) barrier.resolve()
     await barrier.promise
     await new Promise((resolve) => setTimeout(resolve, 20))
     const data = Hex.fromNumber(active.size, { size: 1 })
@@ -192,7 +238,7 @@ test('behavior: limits concurrent requests', async () => {
   const sender = '0x0000000000000000000000000000000000000001'
   const data = AbiFunction.encodeData(query, [
     Array.from(
-      { length: 8 },
+      { length: 32 },
       () =>
         ({
           data: '0x',
@@ -210,23 +256,14 @@ test('behavior: limits concurrent requests', async () => {
     const [failures, responses] = AbiFunction.decodeResult(query, result)
 
     expect({
-      failures,
+      failures: failures.filter(Boolean).length,
       maxConcurrency: Math.max(
         ...responses.map((response) => Hex.toNumber(response)),
       ),
     }).toMatchInlineSnapshot(`
       {
-        "failures": [
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-        ],
-        "maxConcurrency": 4,
+        "failures": 0,
+        "maxConcurrency": 16,
       }
     `)
   } finally {

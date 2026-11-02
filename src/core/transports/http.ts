@@ -80,9 +80,20 @@ export function http<raw extends boolean = false>(
             sort: (a, b) => a.id - b.id,
           })
 
-          const responses = batch
-            ? await schedule(body)
-            : [await client.request({ body, fetchOptions })]
+          const responses = await (
+            batch
+              ? schedule(body)
+              : client.request({ body, fetchOptions }).then((r) => [r])
+          ).catch((error) => {
+            // Raw transports also return JSON-RPC errors from non-2xx responses.
+            if (
+              options.raw &&
+              error instanceof RpcClient.HttpError &&
+              error.rpcError
+            )
+              return [{ error: error.rpcError, result: undefined }]
+            throw error
+          })
           const { error, result } = responses[0] as {
             error?:
               | { code: number; message: string; data?: unknown }

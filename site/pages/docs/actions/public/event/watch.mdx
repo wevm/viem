@@ -4,7 +4,7 @@ Watches incoming event logs, returning a watcher handle.
 
 The watcher subscribes to `logs` with `eth_subscribe` when the Client uses a WebSocket or IPC transport.
 
-Otherwise, the watcher polls an event filter. If the provider does not support filters, the watcher calls `eth_getLogs` for each block range.
+Otherwise, the watcher polls an event filter. If the provider does not support filters, the watcher calls `eth_getLogs` for each block range. When a range fails, the watcher retries with smaller ranges and may emit logs more than once per polling interval.
 
 The source starts when the first listener or iterator attaches.
 

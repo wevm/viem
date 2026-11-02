@@ -28,6 +28,26 @@ describe('shouldRetry', () => {
     expect(transport.shouldRetry(withStatus(418))).toBe(false)
   })
 
+  test('retries a JSON-RPC error from a non-2xx response by its status', () => {
+    const error = (status: number, code = -32000) =>
+      new RpcClient.HttpError({
+        rpcError: { code, message: 'rpc' },
+        status,
+        url: 'http://localhost',
+      })
+    expect({
+      retryableCode: transport.shouldRetry(error(400, -32005)),
+      retryableStatus: transport.shouldRetry(error(429)),
+      nonRetryable: transport.shouldRetry(error(400)),
+    }).toMatchInlineSnapshot(`
+      {
+        "nonRetryable": false,
+        "retryableCode": true,
+        "retryableStatus": true,
+      }
+    `)
+  })
+
   test('retries when there is no code or status', () => {
     expect(transport.shouldRetry(new Error('network'))).toBe(true)
   })

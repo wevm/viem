@@ -259,6 +259,10 @@ export function withRetry<data>(
   }: WithRetryParameters = {},
 ) {
   return new Promise<data>((resolve, reject) => {
+    // Settles on abort even when `fn` ignores the signal.
+    const onAbort = () => reject(getAbortError(signal))
+    signal?.addEventListener('abort', onAbort, { once: true })
+
     const attemptRetry = async ({ count = 0 } = {}): Promise<void> => {
       if (signal?.aborted) {
         reject(getAbortError(signal))
@@ -299,7 +303,9 @@ export function withRetry<data>(
         reject(err)
       }
     }
-    void attemptRetry().catch(reject)
+    void attemptRetry()
+      .catch(reject)
+      .finally(() => signal?.removeEventListener('abort', onAbort))
   })
 }
 

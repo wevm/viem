@@ -2,7 +2,7 @@ import { Client as CoreClient_ } from 'viem'
 import type { Transport as CoreTransport_ } from 'viem'
 import { http } from 'viem'
 import { tempo, tempoModerato } from 'viem/chains'
-import { Relay } from 'viem/tempo'
+import { type Capabilities, Relay } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 type EIP1193RequestOptions = NonNullable<
@@ -129,8 +129,16 @@ test('transaction plugins expose typed policies and caches', () => {
         >()
         return 'spend_limit_exceeded'
       },
+      feeToken({ chainId }) {
+        expectTypeOf(chainId).toEqualTypeOf<number>()
+        return undefined
+      },
+      onRejected(event) {
+        expectTypeOf(event).toEqualTypeOf<Relay.feePayer.SponsoredEvent>()
+      },
       onSponsored(event) {
         expectTypeOf(event).toEqualTypeOf<Relay.feePayer.SponsoredEvent>()
+        expectTypeOf(event.feePayer).toEqualTypeOf<`0x${string}`>()
         return { subsidized: false }
       },
     }),
@@ -144,6 +152,30 @@ test('transaction plugins expose typed policies and caches', () => {
   })
   // @ts-expect-error A policy must return a supported verdict.
   Relay.feePayer({ validate: () => 'allow' })
+  // @ts-expect-error A fee-token resolver must return an address.
+  Relay.feePayer({ feeToken: () => 'pathUSD' })
   // @ts-expect-error Tokens must be addresses.
   Relay.handleRequest(async () => null, { resolveTokens: () => ['pathUSD'] })
+})
+
+test('fill capabilities type the autoSwap capability', () => {
+  type ReturnType = Capabilities.Schema['fillTransaction']['ReturnType']
+
+  expectTypeOf<ReturnType['autoSwap']>().toEqualTypeOf<
+    Capabilities.AutoSwap | undefined
+  >()
+  expectTypeOf<Capabilities.AutoSwap>().toEqualTypeOf<{
+    calls: readonly { data: `0x${string}`; to: `0x${string}` }[]
+    maxIn: Capabilities.AutoSwapAmount
+    minOut: Capabilities.AutoSwapAmount
+    slippage: number
+  }>()
+  expectTypeOf<Capabilities.AutoSwapAmount>().toEqualTypeOf<{
+    decimals: number
+    formatted: string
+    name: string
+    symbol: string
+    token: `0x${string}`
+    value: `0x${string}`
+  }>()
 })

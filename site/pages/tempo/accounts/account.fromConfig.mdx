@@ -70,7 +70,39 @@ const account = Account.fromConfig({
 ```
 
 Tempo stores the config commitment, not the config fields. Retain each current config or
-recover it from the account's `MultisigConfigUpdated` events.
+recover it from the account's `ConfigurableAccountConfigUpdated` events.
+
+### Upgraded Account
+
+For an account upgraded in place with [`accounts.upgradeSync`](/tempo/actions/accounts.upgradeSync),
+pass the upgraded address with the installed config as a current config.
+
+```ts twoslash
+import { Account, Client, http } from 'viem/tempo'
+
+const client = Client.create({ transport: http() })
+const root = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+
+const { config } = await client.accounts.upgradeSync({
+  account: root,
+  owners: [{ owner: owner.address, weight: 1 }],
+  threshold: 1,
+})
+if (!config) throw new Error('Upgrade is pending.')
+
+const account = Account.fromConfig({
+  address: root.address,
+  owners: [owner],
+  salt: config.salt,
+  threshold: config.threshold,
+  version: config.version,
+})
+```
 
 ### Address Only
 
@@ -145,8 +177,42 @@ type ConfigurableAccount = LocalAccount<'configurable'> & {
 ```
 
 The account's `transaction.sign` method combines retained local owner approvals with any approvals
-provided through the request's `signatures`. `sign`, `signMessage`, and `signTypedData` are not
-supported.
+provided through the request's `signatures`.
+
+`sign`, `signMessage`, and `signTypedData` return a configurable signature envelope with local
+owner approvals up to the threshold. They throw when local owners do not meet the threshold.
+
+### Signature Verification
+
+Verify a signature over a hash with [`accounts.verifyHash`](/tempo/actions/accounts.verifyHash),
+which checks it with the signature verifier precompile.
+
+```ts twoslash
+import { Account, Client, http } from 'viem/tempo'
+import { Hash, Hex } from 'viem/utils'
+
+const client = Client.create({ transport: http() })
+const owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const account = Account.fromConfig({ address: 'infer', owners: [owner] })
+const hash = Hash.keccak256(Hex.fromString('hello'))
+
+const signature = await account.sign({ hash })
+
+const valid = await client.accounts.verifyHash({
+  account: account.address,
+  hash,
+  signature,
+})
+// @log: true
+```
+
+:::warning
+Signatures verify against the account's current config, so a config update invalidates earlier
+signatures. Configurable accounts have no code and do not implement ERC-1271 `isValidSignature`,
+so ERC-1271 verifiers do not accept their signatures.
+:::
 
 ## Parameters
 

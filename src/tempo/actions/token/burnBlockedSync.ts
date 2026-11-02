@@ -10,6 +10,7 @@ import { resolveAmountDecimals } from '../../../core/actions/token/internal.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { resolveToken } from '../../internal/utils.js'
 import { burnBlocked } from './burnBlocked.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Burns TIP-20 tokens from a blocked address, and waits for the transaction to
@@ -78,5 +79,7 @@ export namespace burnBlockedSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

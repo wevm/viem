@@ -1433,6 +1433,17 @@ describe('errors', () => {
     ).rejects.toThrowError(MaxFeePerGasTooLowError)
   })
 
+  test('MaxFeePerGasTooLowError (zero maxFeePerGas)', async () => {
+    await expect(() =>
+      Actions.transaction.prepare(fallbackClient, {
+        account,
+        maxFeePerGas: 0n,
+        to,
+        value: 1n,
+      }),
+    ).rejects.toThrowError(MaxFeePerGasTooLowError)
+  })
+
   test('Eip1559FeesNotSupportedError', async () => {
     await expect(() =>
       Actions.transaction.prepare(fallbackClient, {

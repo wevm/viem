@@ -17,7 +17,15 @@ export type Schema = {
 
 /** Capabilities accepted by `eth_fillTransaction`. */
 export type FillTransactionRequestCapabilities = {
-  /** Whether to include `balanceDiffs` in the response. */
+  /** Opts into a `Relay.autoSwap` buy of a missing token. A `slippage` can only tighten the relay's bound. */
+  autoSwap?:
+    | boolean
+    | {
+        /** Largest accepted price slippage, between 0 and 1. */
+        slippage?: number | undefined
+      }
+    | undefined
+  /** Opts into `balanceDiffs` in the response. */
   balanceDiffs?: boolean | undefined
   /** Whether execution reverts return error capabilities instead of throwing. */
   errors?: boolean | undefined
@@ -25,18 +33,8 @@ export type FillTransactionRequestCapabilities = {
 
 /** Capabilities returned by `eth_fillTransaction`. */
 export type FillTransactionCapabilities = {
-  autoSwap?:
-    | {
-        calls: readonly {
-          to: Address.Address
-          data: Hex.Hex
-          value: Hex.Hex
-        }[]
-        maxIn: SwapAmount
-        minOut: SwapAmount
-        slippage: number
-      }
-    | undefined
+  /** Stablecoin DEX buy prepended by `Relay.autoSwap` to cover a missing token. */
+  autoSwap?: AutoSwap | undefined
   balanceDiffs?:
     | Readonly<Record<Address.Address, readonly BalanceDiff[]>>
     | undefined
@@ -72,7 +70,29 @@ export type FillTransactionCapabilities = {
     | undefined
 }
 
-/** A balance change reported by `eth_fillTransaction`. */
+/** A swap that buys a fill's missing token before its calls. */
+export type AutoSwap = {
+  /** Swap calls prepended to the transaction. */
+  calls: readonly { data: Hex.Hex; to: Address.Address }[]
+  /** Largest amount of the input token the swap may spend. */
+  maxIn: AutoSwapAmount
+  /** Amount of the missing token the swap buys. */
+  minOut: AutoSwapAmount
+  /** Largest accepted price slippage over the missing amount. */
+  slippage: number
+}
+
+/** One side of an {@link AutoSwap}. */
+export type AutoSwapAmount = {
+  decimals: number
+  formatted: string
+  name: string
+  symbol: string
+  token: Address.Address
+  value: Hex.Hex
+}
+
+/** A token balance preview. A token's incoming and outgoing movements use separate entries; outgoing includes remaining approval exposure. */
 export type BalanceDiff = {
   address: Address.Address
   decimals: number
@@ -81,15 +101,5 @@ export type BalanceDiff = {
   name: string
   recipients: readonly Address.Address[]
   symbol: string
-  value: Hex.Hex
-}
-
-/** A swap leg reported by `eth_fillTransaction`. */
-export type SwapAmount = {
-  decimals: number
-  formatted: string
-  name: string
-  symbol: string
-  token: Address.Address
   value: Hex.Hex
 }

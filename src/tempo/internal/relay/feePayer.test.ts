@@ -8,13 +8,14 @@ import { tempoLocalnet as chain_ } from 'viem/chains'
 import { Account as TempoAccount_ } from 'viem/tempo'
 import { withResolvers } from '../../../core/internal/promise.js'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { Secp256k1 } from 'ox'
+import { Hex, P256, Rlp, Secp256k1 } from 'ox'
 import { SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { http } from 'viem'
 
 import { Account, Actions, Addresses, Relay, withRelay } from 'viem/tempo'
-import { beforeAll, expect, onTestFinished, test } from 'vitest'
+import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo.js'
+import * as FeePayer from '~test/tempo/feePayer.js'
 import { createServer as createHttpServer } from '~test/http.js'
 import type * as Request from './request.js'
 import * as Utils from './utils.js'
@@ -26,6 +27,12 @@ const feePayerAccount = TempoAccount_.fromSecp256k1(
 const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
 
 const caller = Tempo.getClient({})
+const maxUint256 = 2n ** 256n - 1n
+const transfer = Actions.token.transfer.call(caller, {
+  token: Tempo.alphaUsd,
+  to: recipient.address,
+  amount: 1n,
+})
 
 beforeAll(async () => {
   await Promise.all(
@@ -41,6 +48,94 @@ beforeAll(async () => {
     account: userAccount,
   })
 })
+
+test.each([undefined, 1])(
+  'preserves relay-filled validity bounds for sequential nonce sponsorship, validAfter: %s',
+  async (validAfter) => {
+    const block = await CoreActions_.block.get(caller)
+    const validBefore = Number(block.timestamp) + 600
+    const relay = Relay.create({
+      client: caller,
+      plugins: [
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            if (request.method === 'eth_fillTransaction') {
+              const transaction = request.params![0] as Record<string, unknown>
+              context.request = {
+                ...request,
+                params: [
+                  {
+                    ...transaction,
+                    validBefore: Hex.fromNumber(validBefore),
+                    ...(validAfter !== undefined
+                      ? { validAfter: Hex.fromNumber(validAfter) }
+                      : {}),
+                  },
+                ],
+              }
+            }
+            await next()
+            return context.result
+          },
+        },
+        Relay.feePayer({
+          account: feePayerAccount,
+          feeToken: Tempo.alphaUsd,
+        }),
+      ],
+    })
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const client = CoreClient_.create({
+      chain: chain_,
+      transport: http(server.url),
+    })
+    const nonce = await CoreActions_.address.getTransactionCount(caller, {
+      address: userAccount.address,
+      blockTag: 'pending',
+    })
+
+    const { request } = await CoreActions_.transaction.prepare(client, {
+      account: userAccount,
+      calls: [
+        Actions.token.transfer.call(caller, {
+          token: Tempo.alphaUsd,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+      feePayer: true,
+      feeToken: Tempo.alphaUsd,
+      nonce,
+      nonceKey: 0n,
+    })
+    const serializedTransaction = await signTransaction(userAccount, request)
+    const envelope = TxEnvelopeTempo.deserialize(
+      serializedTransaction as `0x76${string}`,
+    )
+
+    expect(envelope.validBefore).toBe(validBefore)
+    expect(envelope.validAfter).toBe(validAfter)
+    expect(
+      Secp256k1.recoverAddress({
+        payload: TxEnvelopeTempo.getFeePayerSignPayload(envelope, {
+          sender: userAccount.address,
+        }),
+        signature: envelope.feePayerSignature!,
+      }),
+    ).toBe(feePayerAccount.address.toLowerCase())
+
+    const receipt = await CoreActions_.transaction.sendRawSync(caller, {
+      transaction: serializedTransaction,
+    })
+
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+  },
+)
 
 test.each(
   ['requested', 'configured'].flatMap((selection) =>
@@ -82,7 +177,7 @@ test.each(
       Tempo.alphaUsd.toLowerCase(),
     )
     const receipt = await CoreActions_.transaction.sendRawSync(caller, {
-      transaction: await userAccount.signTransaction(transaction as never),
+      transaction: await signTransaction(userAccount, transaction),
     })
     expect(receipt.status).toBe('success')
     expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -121,7 +216,7 @@ test.each([true, false])('sponsorship accepted: %s', async (accepted) => {
   ).toBe(accepted)
   expect(Boolean(transaction.feePayerSignature)).toBe(accepted)
   const signed = await (async () => {
-    if (accepted) return userAccount.signTransaction(transaction as never)
+    if (accepted) return signTransaction(userAccount, transaction)
     const envelope = TxEnvelopeTempo.deserialize(
       (await Transaction.serialize(transaction as never)) as `0x76${string}`,
     )
@@ -157,7 +252,7 @@ test('raw sponsorship resolves chain from the signed envelope', async () => {
       feeToken: Tempo.alphaUsd,
     },
   )
-  const signed = await userAccount.signTransaction(request as never)
+  const signed = await signTransaction(userAccount, request)
   const relay = Relay.create({
     getClient: ({ chainId }) =>
       CoreClient_.create({
@@ -238,7 +333,7 @@ test.each([
       feeToken: Tempo.alphaUsd,
     },
   )
-  const signed = await userAccount.signTransaction(request as never)
+  const signed = await signTransaction(userAccount, request)
   const relay = Relay.create({
     client: Tempo.getClient({}),
     plugins: [
@@ -269,7 +364,7 @@ test('a failed sponsorship record prevents broadcast', async () => {
       feeToken: Tempo.alphaUsd,
     },
   )
-  const signed = await userAccount.signTransaction(request as never)
+  const signed = await signTransaction(userAccount, request)
   const relay = Relay.create({
     client: Tempo.getClient({}),
     plugins: [
@@ -435,7 +530,7 @@ test.each([false, true])(
         )?.sponsor,
       ).toBeUndefined()
       const receipt = await CoreActions_.transaction.sendRawSync(caller, {
-        transaction: await userAccount.signTransaction(transaction as never),
+        transaction: await signTransaction(userAccount, transaction),
       })
       expect(receipt.status).toBe('success')
       expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -616,7 +711,7 @@ test('sponsors a transaction prepared for sender-paid gas', async () => {
     chain: chain_,
   })
   const receipt = await CoreActions_.transaction.sendRawSync(caller, {
-    transaction: await userAccount.signTransaction(transaction as never),
+    transaction: await signTransaction(userAccount, transaction),
   })
   expect(receipt.status).toBe('success')
   expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -667,7 +762,7 @@ test('replaces an untrusted fee-payer signature and applies sponsorship recordin
   })) as Request.Result
   const transaction = Utils.normalizeTempoTransaction(result.tx)
   const receipt = await CoreActions_.transaction.sendRawSync(caller, {
-    transaction: await userAccount.signTransaction(transaction as never),
+    transaction: await signTransaction(userAccount, transaction),
   })
   expect(receipt.status).toBe('success')
   expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -977,3 +1072,970 @@ test('transferSync uses an external sponsor through withRelay', async () => {
     feePayer: feePayerAccount.address.toLowerCase(),
   })
 })
+
+describe('raw sender verification', () => {
+  const relay = Relay.create({
+    client: caller,
+    plugins: [Relay.feePayer({ account: feePayerAccount })],
+  })
+
+  test('rejects a sender placeholder its signature does not recover', async () => {
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+    const envelope = TxEnvelopeTempo.deserialize(
+      (await signTransaction(
+        userAccount,
+        transaction,
+      )) as TxEnvelopeTempo.Serialized,
+    )
+
+    await expect(
+      relay.request({
+        method: 'eth_signRawTransaction',
+        params: [
+          TxEnvelopeTempo.serialize(envelope, {
+            format: 'feePayer',
+            sender: recipient.address,
+          }),
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Transaction sender does not match its signature.]`,
+    )
+
+    const result = (await relay.request({
+      method: 'eth_signRawTransaction',
+      params: [
+        TxEnvelopeTempo.serialize(envelope, {
+          format: 'feePayer',
+          sender: userAccount.address,
+        }),
+      ],
+    })) as `0x76${string}`
+    expect(Transaction.deserialize(result).from).toBe(
+      userAccount.address.toLowerCase(),
+    )
+  })
+
+  test('rejects a P256 signature that does not verify for its public key', async () => {
+    const signer = Account.fromP256(P256.randomPrivateKey())
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+    const envelope = TxEnvelopeTempo.deserialize(
+      (await signTransaction(
+        signer,
+        transaction,
+      )) as TxEnvelopeTempo.Serialized,
+    )
+    if (envelope.signature?.type !== 'p256')
+      throw new Error('Expected a P256 signature.')
+    const publicKey = P256.getPublicKey({ privateKey: P256.randomPrivateKey() })
+
+    await expect(
+      relay.request({
+        method: 'eth_signRawTransaction',
+        params: [
+          TxEnvelopeTempo.serialize(envelope, {
+            signature: { ...envelope.signature, publicKey },
+          }),
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Transaction signature is invalid.]`,
+    )
+  })
+
+  test('rejects an access key its sender has not authorized', async () => {
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: userAccount,
+    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+
+    await expect(
+      relay.request({
+        method: 'eth_signRawTransaction',
+        params: [await signTransaction(accessKey, transaction)],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Transaction access key is not authorized for its sender.]`,
+    )
+  })
+
+  test('rejects a legacy access key signature', async () => {
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: userAccount,
+    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+    const envelope = TxEnvelopeTempo.deserialize(
+      (await signTransaction(
+        accessKey,
+        transaction,
+      )) as TxEnvelopeTempo.Serialized,
+    )
+    if (envelope.signature?.type !== 'keychain')
+      throw new Error('Expected an access key signature.')
+
+    await expect(
+      relay.request({
+        method: 'eth_signRawTransaction',
+        params: [
+          TxEnvelopeTempo.serialize(envelope, {
+            signature: { ...envelope.signature, version: 'v1' },
+          }),
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Legacy access key signatures are not supported.]`,
+    )
+  })
+
+  test('rejects a same-transaction authorization another account signed', async () => {
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: userAccount,
+    })
+    const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
+      accessKey,
+      account: recipient,
+    })
+    // Gas estimation rejects the foreign authorization, so attach it after preparation.
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+
+    await expect(
+      relay.request({
+        method: 'eth_signRawTransaction',
+        params: [
+          await signTransaction(accessKey, {
+            ...transaction,
+            keyAuthorization,
+          } as never),
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Transaction access key is not authorized for its sender.]`,
+    )
+  })
+
+  test('rejects a same-transaction authorization for another chain', async () => {
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: userAccount,
+    })
+    const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
+      accessKey,
+      account: userAccount,
+      chainId: chain_.id + 1,
+    })
+    // Gas estimation rejects the foreign authorization, so attach it after preparation.
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+
+    await expect(
+      relay.request({
+        method: 'eth_signRawTransaction',
+        params: [
+          await signTransaction(accessKey, {
+            ...transaction,
+            keyAuthorization,
+          } as never),
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Transaction access key is not authorized for its sender.]`,
+    )
+  })
+
+  test('rejects an expired same-transaction authorization', async () => {
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: userAccount,
+    })
+    const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
+      accessKey,
+      account: userAccount,
+      expiry: Math.floor(Date.now() / 1000) - 60,
+    })
+    // Gas estimation rejects the expired authorization, so attach it after preparation.
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+
+    await expect(
+      relay.request({
+        method: 'eth_signRawTransaction',
+        params: [
+          await signTransaction(accessKey, {
+            ...transaction,
+            keyAuthorization,
+          } as never),
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Transaction access key is not authorized for its sender.]`,
+    )
+  })
+
+  test('sponsors an access key authorized on chain', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: root,
+    })
+    await Actions.faucet.fundSync(caller, { account: root, timeout: 60_000 })
+    await Actions.accessKey.authorizeSync(Tempo.getClient({ account: root }), {
+      accessKey,
+      feeToken: Tempo.alphaUsd,
+    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: accessKey,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+
+    const receipt = (await relay.request({
+      method: 'eth_sendRawTransactionSync',
+      params: [await signTransaction(accessKey, transaction)],
+    })) as Record<string, unknown>
+
+    const { feePayer, from, status } = receipt
+    expect({ feePayer, from, status }).toEqual({
+      feePayer: feePayerAccount.address.toLowerCase(),
+      from: root.address.toLowerCase(),
+      status: '0x1',
+    })
+  })
+
+  test('sponsors an access key authorized in the same transaction', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: root,
+    })
+    await Actions.faucet.fundSync(caller, { account: root, timeout: 60_000 })
+    const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
+      accessKey,
+      account: root,
+    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: accessKey,
+        calls: [transfer],
+        feePayer: true,
+        keyAuthorization,
+      },
+    )
+
+    const receipt = (await relay.request({
+      method: 'eth_sendRawTransactionSync',
+      params: [await signTransaction(accessKey, transaction)],
+    })) as Record<string, unknown>
+
+    const { feePayer, from, status } = receipt
+    expect({ feePayer, from, status }).toEqual({
+      feePayer: feePayerAccount.address.toLowerCase(),
+      from: root.address.toLowerCase(),
+      status: '0x1',
+    })
+  })
+
+  test('rejects a replayed same-transaction authorization', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: root,
+    })
+    await Actions.faucet.fundSync(caller, { account: root, timeout: 60_000 })
+    const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
+      accessKey,
+      account: root,
+    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: accessKey,
+        calls: [transfer],
+        feePayer: true,
+        keyAuthorization,
+      },
+    )
+    await relay.request({
+      method: 'eth_sendRawTransactionSync',
+      params: [await signTransaction(accessKey, transaction)],
+    })
+    // Gas estimation rejects the consumed authorization, so attach it after preparation.
+    const { request: replay } = await CoreActions_.transaction.prepare(caller, {
+      account: accessKey,
+      calls: [transfer],
+      feePayer: true,
+    })
+
+    await expect(
+      relay.request({
+        method: 'eth_signRawTransaction',
+        params: [
+          await signTransaction(accessKey, {
+            ...replay,
+            keyAuthorization,
+          } as never),
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Transaction access key is not authorized for its sender.]`,
+    )
+  })
+})
+
+describe('raw canonical encoding', () => {
+  const relay = Relay.create({
+    client: caller,
+    plugins: [Relay.feePayer({ account: feePayerAccount })],
+  })
+
+  test.each(['eth_signRawTransaction', 'eth_sendRawTransactionSync'])(
+    'rejects a u64 field past the safe integer range: %s',
+    async (method) => {
+      const { request: transaction } = await CoreActions_.transaction.prepare(
+        caller,
+        {
+          account: userAccount,
+          calls: [transfer],
+          feePayer: true,
+        },
+      )
+      const signed = reencode(await signTransaction(userAccount, transaction), {
+        field: 'validBefore',
+        fn: () => Hex.fromNumber(9_007_199_254_740_993n),
+      })
+
+      await expect(
+        relay.request({ method, params: [signed] }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidParamsError: Transaction encoding is not canonical. Re-encode it with in-range field values.]`,
+      )
+    },
+  )
+
+  test('rejects a non-canonical integer encoding', async () => {
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+    const signed = reencode(await signTransaction(userAccount, transaction), {
+      field: 'gas',
+      fn: (gas) => Hex.concat('0x00', gas),
+    })
+
+    await expect(
+      relay.request({ method: 'eth_sendRawTransactionSync', params: [signed] }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Transaction encoding is not canonical. Re-encode it with in-range field values.]`,
+    )
+  })
+})
+
+test('raw sponsorship overrides an envelope fee token with the sponsor token', async () => {
+  const relay = Relay.create({
+    client: caller,
+    plugins: [
+      Relay.feePayer({
+        account: feePayerAccount,
+        feeToken: Tempo.alphaUsd,
+      }),
+    ],
+  })
+  const { request: transaction } = await CoreActions_.transaction.prepare(
+    caller,
+    {
+      account: userAccount,
+      calls: [transfer],
+      feePayer: true,
+    },
+  )
+  // The sender's signature does not commit to the fee-payer format's token.
+  const partial = TxEnvelopeTempo.serialize(
+    {
+      ...TxEnvelopeTempo.deserialize(
+        (await signTransaction(
+          userAccount,
+          transaction,
+        )) as TxEnvelopeTempo.Serialized,
+      ),
+      feeToken: Tempo.pathUsd,
+    },
+    { format: 'feePayer', sender: userAccount.address },
+  )
+  expect(Transaction.deserialize(partial).feeToken).toBe(Tempo.pathUsd)
+
+  const receipt = (await relay.request({
+    method: 'eth_sendRawTransactionSync',
+    params: [partial],
+  })) as Record<string, unknown>
+
+  const { feePayer, feeToken, status } = receipt
+  expect({ feePayer, feeToken, status }).toEqual({
+    feePayer: feePayerAccount.address.toLowerCase(),
+    feeToken: Tempo.alphaUsd,
+    status: '0x1',
+  })
+})
+
+describe('fee token resolver', () => {
+  const feeToken = ({ chainId }: { chainId: number }) =>
+    chainId === chain_.id ? Tempo.alphaUsd : undefined
+
+  test('resolves the sponsor token from the request chain', async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.pathUsd],
+      plugins: [Relay.feePayer({ account: feePayerAccount, feeToken })],
+    })
+
+    const result = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [{ from: userAccount.address, calls: [transfer] }],
+    })) as Request.Result
+
+    expect(result.tx.feeToken).toBe(Tempo.alphaUsd)
+  })
+
+  test('validated fills retain the resolved fee token in the signed envelope', async () => {
+    const events: Relay.feePayer.SponsoredEvent[] = []
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.pathUsd],
+      plugins: [
+        Relay.feePayer({
+          account: feePayerAccount,
+          feeToken,
+          onSponsored: (event) => {
+            events.push(event)
+          },
+          validate: () => true,
+        }),
+      ],
+    })
+
+    const result = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [{ from: userAccount.address, calls: [transfer] }],
+    })) as Request.Result
+
+    expect(result.tx.feeToken).toBe(Tempo.alphaUsd)
+    expect(
+      events.map(({ feePayer, feeToken, method, sender, transaction }) => ({
+        feePayer,
+        feeToken,
+        method,
+        sender,
+        transactionFeeToken: TxEnvelopeTempo.deserialize(
+          transaction as TxEnvelopeTempo.Serialized,
+        ).feeToken,
+      })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "feePayer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "method": "eth_fillTransaction",
+          "sender": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+          "transactionFeeToken": "0x20c0000000000000000000000000000000000001",
+        },
+      ]
+    `)
+  })
+
+  test('raw sponsor signing prefers the chain resolver', async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.pathUsd],
+      plugins: [Relay.feePayer({ account: feePayerAccount, feeToken })],
+    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
+
+    const result = (await relay.request({
+      method: 'eth_signRawTransaction',
+      params: [await signTransaction(userAccount, transaction)],
+    })) as `0x76${string}`
+
+    expect(Transaction.deserialize(result).feeToken).toBe(Tempo.alphaUsd)
+  })
+
+  test('an external fee payer chooses its own fee token', async () => {
+    const requests: unknown[] = []
+    const upstream = Relay.create({
+      client: caller,
+      plugins: [
+        {
+          async handleRequest(context, next) {
+            if (context.request.method === 'eth_fillTransaction')
+              requests.push(context.request.params?.[0])
+            return next()
+          },
+        },
+        Relay.feePayer({ account: feePayerAccount }),
+      ],
+    })
+    const server = await createHttpServer(createRequestListener(upstream.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.alphaUsd],
+      plugins: [
+        Relay.feePayer({
+          account: feePayerAccount,
+          allowedFeePayers: [server.url],
+          feeToken: () => Tempo.pathUsd,
+          internal_allowUnsafeUrls: true,
+        }),
+      ],
+    })
+
+    await relay.request({
+      method: 'eth_fillTransaction',
+      params: [
+        { from: userAccount.address, calls: [transfer], feePayer: server.url },
+      ],
+    })
+
+    expect(
+      requests.map((request) => (request as { feeToken?: unknown }).feeToken),
+    ).toEqual([Tempo.alphaUsd])
+  })
+})
+
+describe('fee-payer signature validity', () => {
+  // Prepared fills skip the node, so the relay's own bound check refuses them.
+  const prepared = {
+    calls: [transfer],
+    chainId: Hex.fromNumber(chain_.id),
+    from: userAccount.address,
+    gas: '0x100000',
+    maxFeePerGas: '0x4a817c800',
+    nonce: '0x0',
+    nonceKey: '0x1',
+  }
+
+  test.each([undefined, 7_200])(
+    'refuses raw signing with validBefore offset: %s',
+    async (offset) => {
+      const relay = Relay.create({
+        client: caller,
+        plugins: [Relay.feePayer({ account: feePayerAccount })],
+      })
+      const { request: transaction } = await CoreActions_.transaction.prepare(
+        caller,
+        {
+          account: userAccount,
+          calls: [transfer],
+          feePayer: true,
+          nonceKey: 1n,
+          ...(offset
+            ? { validBefore: Math.floor(Date.now() / 1000) + offset }
+            : {}),
+        },
+      )
+
+      await expect(
+        relay.request({
+          method: 'eth_signRawTransaction',
+          params: [await signTransaction(userAccount, transaction)],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 3600 seconds.]`,
+      )
+    },
+  )
+
+  test.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])(
+    'refuses validity: %s',
+    (validity) => {
+      expect(() =>
+        Relay.feePayer({ account: feePayerAccount, validity }),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidParamsError: Expected \`validity\` to be a positive integer number of seconds.]`,
+      )
+    },
+  )
+
+  test('bounds fills by the configured validity', async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.alphaUsd],
+      plugins: [Relay.feePayer({ account: feePayerAccount, validity: 600 })],
+    })
+    const now = Math.floor(Date.now() / 1000)
+
+    const result = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [
+        { from: userAccount.address, calls: [transfer], nonceKey: '0x1' },
+      ],
+    })) as Request.Result
+    const validBefore = Number(result.tx.validBefore)
+    expect(validBefore).toBeGreaterThan(now)
+    expect(validBefore).toBeLessThanOrEqual(now + 600 + 5)
+
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            from: userAccount.address,
+            calls: [transfer],
+            nonceKey: '0x1',
+            validBefore: Hex.fromNumber(now + 1_200),
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 600 seconds.]`,
+    )
+  })
+
+  test('bounds expiring nonce fills by the protocol limit', async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.alphaUsd],
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+    const expiring = { ...prepared, nonceKey: Hex.fromNumber(maxUint256) }
+    const now = Math.floor(Date.now() / 1000)
+
+    const result = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [expiring],
+    })) as Request.Result
+    const validBefore = Number(result.tx.validBefore)
+    expect(validBefore).toBeGreaterThan(now + 240)
+    expect(validBefore).toBeLessThanOrEqual(now + 270 + 5)
+
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [{ ...expiring, validBefore: Hex.fromNumber(now + 600) }],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 300 seconds.]`,
+    )
+  })
+
+  test.each(['', false, 0, '0x0'] as const)(
+    'refuses fills whose validBefore cannot bound the signature: %j',
+    async (validBefore) => {
+      const relay = Relay.create({
+        client: caller,
+        resolveTokens: () => [Tempo.alphaUsd],
+        plugins: [Relay.feePayer({ account: feePayerAccount })],
+      })
+
+      await expect(
+        relay.request({
+          method: 'eth_fillTransaction',
+          params: [{ ...prepared, validBefore }],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 3600 seconds.]`,
+      )
+    },
+  )
+
+  test('identical fill retries share one sign payload', async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.alphaUsd],
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+    const request = {
+      method: 'eth_fillTransaction',
+      params: [
+        { from: userAccount.address, calls: [transfer], nonceKey: '0x1' },
+      ],
+    } as const
+
+    const first = (await relay.request(request)) as Request.Result
+    const second = (await relay.request(request)) as Request.Result
+
+    expect(Number(first.tx.validBefore) % 300).toBe(0)
+    expect(second.tx).toEqual(first.tx)
+  })
+
+  test('refuses fills whose validAfter is at or past the generated validBefore', async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.alphaUsd],
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            ...prepared,
+            validAfter: Hex.fromNumber(
+              Math.floor(Date.now() / 1000) + 3_600 + 300,
+            ),
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 3600 seconds.]`,
+    )
+  })
+})
+
+describe('rejected broadcasts', () => {
+  test('a base-fee floor rejection reports the sponsorship', async () => {
+    const rejected: Relay.feePayer.SponsoredEvent[] = []
+    const relay = Relay.create({
+      client: caller,
+      plugins: [
+        Relay.feePayer({
+          account: feePayerAccount,
+          onRejected: (event) => {
+            rejected.push(event)
+          },
+        }),
+      ],
+    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount,
+        calls: [transfer],
+        feePayer: true,
+        feeToken: Tempo.alphaUsd,
+        gas: 1_000_000n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 0n,
+      },
+    )
+
+    await expect(
+      relay.request({
+        method: 'eth_sendRawTransaction',
+        params: [await signTransaction(userAccount, transaction)],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidInputError: fee cap less than base fee: max_fee_per_gas 1, base_fee 600000000]`,
+    )
+
+    expect(
+      rejected.map(({ chainId, feePayer, method, sender }) => ({
+        chainId,
+        feePayer,
+        method,
+        sender,
+      })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "chainId": 1337,
+          "feePayer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "method": "eth_sendRawTransaction",
+          "sender": "0xa0ee7a142d267c1f36714e4a8f75612f20a79720",
+        },
+      ]
+    `)
+  })
+
+  test.each([
+    { response: undefined, maxFeePerGas: 1n },
+    {
+      response: { code: -32000, message: 'transaction underpriced' },
+      maxFeePerGas: 1n,
+    },
+    {
+      response: { code: -32000, message: 'gas price is less than basefee' },
+      maxFeePerGas: 600_000_000n,
+    },
+    {
+      response: { code: -32000, message: 'gas price is less than basefee' },
+      maxFeePerGas: 1n,
+      minimumBaseFee: 1n,
+    },
+  ])(
+    'ambiguous broadcast failures stay unreported: $response.message',
+    async ({ response, maxFeePerGas, minimumBaseFee }) => {
+      const server = await createHttpServer((request, res) => {
+        request.resume()
+        if (!response) {
+          res.destroy()
+          return
+        }
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ jsonrpc: '2.0', id: 0, error: response }))
+      })
+      onTestFinished(async () => {
+        await server.close()
+      })
+      const rejected: Relay.feePayer.SponsoredEvent[] = []
+      const relay = Relay.create({
+        client: CoreClient_.create({
+          chain: chain_,
+          transport: http(server.url, { retryCount: 0 }),
+        }),
+        resolveTokens: () => [Tempo.alphaUsd],
+        plugins: [
+          Relay.feePayer({
+            account: feePayerAccount,
+            minimumBaseFee,
+            onRejected: (event) => {
+              rejected.push(event)
+            },
+          }),
+        ],
+      })
+      const { request: transaction } = await CoreActions_.transaction.prepare(
+        caller,
+        {
+          account: userAccount,
+          calls: [transfer],
+          feePayer: true,
+          feeToken: Tempo.alphaUsd,
+          gas: 1_000_000n,
+          maxFeePerGas,
+          maxPriorityFeePerGas: 0n,
+        },
+      )
+
+      await expect(
+        relay.request({
+          method: 'eth_sendRawTransaction',
+          params: [await signTransaction(userAccount, transaction)],
+        }),
+      ).rejects.toThrow()
+
+      expect(rejected).toEqual([])
+    },
+  )
+})
+
+/** Positions of Tempo envelope RLP fields rewritten by fixtures. */
+const fields = { gas: 3, validBefore: 8 } as const
+
+/** Returns a serialized Tempo envelope with one top-level RLP field rewritten, keeping its original signature. */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+function reencode(serialized: Hex.Hex, options: reencode.Options) {
+  const { field, fn } = options
+  const items = [...(Rlp.toHex(Hex.slice(serialized, 1)) as readonly Hex.Hex[])]
+  items[fields[field]] = fn(items[fields[field]]!)
+  return Hex.concat(Hex.slice(serialized, 0, 1), Rlp.fromHex(items))
+}
+
+declare namespace reencode {
+  type Options = {
+    /** Envelope field to rewrite. */
+    field: keyof typeof fields
+    /** Returns the replacement RLP item for the field's encoded value. */
+    fn: (value: Hex.Hex) => Hex.Hex
+  }
+}
+
+describe('scenarios', () => {
+  test.each(FeePayer.table())(
+    'sponsors $path with nonce $nonceMode, validity $validity, fee token $feeToken, gas $gas, key $key',
+    async (scenario) => {
+      await FeePayer.assertScenario(scenario)
+    },
+  )
+
+  test('sponsors a fill on a chain with a default fee token', async () => {
+    // The relay's chain has no default, so its fill omits the fee token.
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const sender = Account.fromSecp256k1(generatePrivateKey())
+    const client = CoreClient_.create({
+      chain: { ...chain_, feeToken: Tempo.alphaUsd },
+      transport: withRelay(tempoHttp_(Tempo.rpcUrl), http(server.url)),
+    })
+
+    const receipt = await CoreActions_.transaction.sendSync(client, {
+      account: sender,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+  })
+
+  test.each(FeePayer.tampers)(
+    'rejects a $0 change after the fee payer signs',
+    async (tamper) => {
+      await FeePayer.assertTamperRejected(tamper)
+    },
+  )
+})
+
+/** Signs a prepared request or filled transaction as `account` through the Tempo envelope. */
+function signTransaction(
+  account: { signTransaction: TempoAccount_.Account['signTransaction'] },
+  request: unknown,
+) {
+  return account.signTransaction(
+    chain_.transaction.toEnvelope(request as never) as never,
+    { chain: chain_ } as never,
+  )
+}

@@ -1,5 +1,5 @@
 import { AbiEvent, AbiParameters, Address, Hex } from 'ox'
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { Actions, Client, http, publicActions, webSocket } from 'viem'
 
@@ -565,6 +565,361 @@ test('polling: falls back to block-range log queries', async () => {
   } finally {
     await server.close()
   }
+})
+
+// Serves a node without filter support. `getBlockNumber` returns the block
+// number for each `eth_blockNumber` poll, and `getLogs` replies to each
+// `eth_getLogs` range (or returns an RPC error or HTTP status to fail it).
+function getLogsServer(options: {
+  getBlockNumber: () => bigint
+  getLogs: (
+    from: bigint,
+    to: bigint,
+  ) => readonly unknown[] | { code: number } | { status: number }
+}) {
+  const { getBlockNumber, getLogs } = options
+  const queries: (readonly [bigint, bigint])[] = []
+  return {
+    queries,
+    server: Http.createServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        const request = JSON.parse(body)
+        const reply = (() => {
+          if (request.method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'method not found' } }
+          if (request.method === 'eth_blockNumber')
+            return { result: Hex.fromNumber(getBlockNumber()) }
+          if (request.method === 'eth_getLogs') {
+            const { fromBlock, toBlock } = request.params[0]
+            const from = Hex.toBigInt(fromBlock)
+            const to = Hex.toBigInt(toBlock)
+            queries.push([from, to])
+            const result = getLogs(from, to)
+            if ('status' in result) return result
+            if ('code' in result)
+              return { error: { code: result.code, message: 'failed' } }
+            return { result }
+          }
+          return { result: null }
+        })()
+        if ('status' in reply) {
+          res.statusCode = reply.status as number
+          res.setHeader('Content-Type', 'text/plain')
+          res.end('request failed')
+          return
+        }
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', ...reply }))
+      })
+    }),
+  }
+}
+
+// Returns one `Transfer` log per block in the range, valued by its block number.
+function logsInRange(from: bigint, to: bigint) {
+  const logs = []
+  for (let block = from; block <= to; block++)
+    logs.push(makeLog(a, b, block, { blockNumber: block, logIndex: 0 }))
+  return logs
+}
+
+describe('polling: getLogs fallback', () => {
+  test('splits block ranges the RPC Provider rejects', async () => {
+    const fixture = getLogsServer({
+      getBlockNumber: () => 8n,
+      getLogs: (from, to) =>
+        to - from >= 2n ? { code: -32005 } : logsInRange(from, to),
+    })
+    const server = await fixture.server
+    try {
+      const seqClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 25,
+      })
+
+      const values: bigint[] = []
+      const watch = Actions.event.watch(seqClient, {
+        event: transferEvent,
+        fromBlock: 1n,
+      })
+      watch.onLogs((logs) => {
+        for (const log of logs) values.push(log.args.value!)
+      })
+
+      await expect
+        .poll(() => values, { interval: 25, timeout: 2_000 })
+        .toHaveLength(8)
+      watch.off()
+
+      expect({ queries: fixture.queries, values }).toMatchInlineSnapshot(`
+        {
+          "queries": [
+            [
+              1n,
+              8n,
+            ],
+            [
+              1n,
+              4n,
+            ],
+            [
+              1n,
+              2n,
+            ],
+            [
+              3n,
+              4n,
+            ],
+            [
+              5n,
+              6n,
+            ],
+            [
+              7n,
+              8n,
+            ],
+          ],
+          "values": [
+            1n,
+            2n,
+            3n,
+            4n,
+            5n,
+            6n,
+            7n,
+            8n,
+          ],
+        }
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('reports one error when a single block fails, then resumes from it', async () => {
+    let failures = 1
+    const fixture = getLogsServer({
+      getBlockNumber: () => 3n,
+      getLogs: (from, to) => {
+        if (from <= 2n && to >= 2n && failures > 0) {
+          if (from === to) failures--
+          return { code: -32005 }
+        }
+        return logsInRange(from, to)
+      },
+    })
+    const server = await fixture.server
+    try {
+      const seqClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 25,
+      })
+
+      const errors: string[] = []
+      const values: bigint[] = []
+      const watch = Actions.event.watch(seqClient, {
+        event: transferEvent,
+        fromBlock: 1n,
+      })
+      watch.onLogs((logs) => {
+        for (const log of logs) values.push(log.args.value!)
+      })
+      watch.onError((error) => errors.push(error.name))
+
+      await expect
+        .poll(() => values, { interval: 25, timeout: 2_000 })
+        .toHaveLength(3)
+      watch.off()
+
+      expect({ errors, values }).toMatchInlineSnapshot(`
+        {
+          "errors": [
+            "RpcResponse.LimitExceededError",
+          ],
+          "values": [
+            1n,
+            2n,
+            3n,
+          ],
+        }
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not split block ranges when rate limited', async () => {
+    const fixture = getLogsServer({
+      getBlockNumber: () => 8n,
+      getLogs: () => ({ status: 429 }),
+    })
+    const server = await fixture.server
+    try {
+      const seqClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 25,
+      })
+
+      const error = await new Promise<Error>((resolve) => {
+        const watch = Actions.event.watch(seqClient, {
+          event: transferEvent,
+          fromBlock: 1n,
+        })
+        watch.onLogs(() => {})
+        watch.onError((error) => {
+          watch.off()
+          resolve(error)
+        })
+      })
+
+      expect({ name: error.name, queries: fixture.queries })
+        .toMatchInlineSnapshot(`
+        {
+          "name": "RpcClient.HttpError",
+          "queries": [
+            [
+              1n,
+              8n,
+            ],
+          ],
+        }
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not repeat logs when the RPC Provider reports a lower block number', async () => {
+    const blockNumbers = [2n, 4n, 3n, 5n]
+    let index = 0
+    const fixture = getLogsServer({
+      getBlockNumber: () =>
+        blockNumbers[Math.min(index++, blockNumbers.length - 1)]!,
+      getLogs: logsInRange,
+    })
+    const server = await fixture.server
+    try {
+      const seqClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 25,
+      })
+
+      const values: bigint[] = []
+      const watch = Actions.event.watch(seqClient, { event: transferEvent })
+      watch.onLogs((logs) => {
+        for (const log of logs) values.push(log.args.value!)
+      })
+
+      await expect
+        .poll(() => values, { interval: 25, timeout: 2_000 })
+        .toHaveLength(3)
+      await wait(100)
+      watch.off()
+
+      expect(values).toMatchInlineSnapshot(`
+        [
+          3n,
+          4n,
+          5n,
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not emit logs before a `fromBlock` past the latest block', async () => {
+    let blockNumber = 5n
+    const fixture = getLogsServer({
+      getBlockNumber: () => blockNumber,
+      getLogs: logsInRange,
+    })
+    const server = await fixture.server
+    try {
+      const seqClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 25,
+      })
+
+      const values: bigint[] = []
+      const watch = Actions.event.watch(seqClient, {
+        event: transferEvent,
+        fromBlock: 10n,
+      })
+      watch.onLogs((logs) => {
+        for (const log of logs) values.push(log.args.value!)
+      })
+
+      await wait(100)
+      blockNumber = 11n
+      await expect
+        .poll(() => values, { interval: 25, timeout: 2_000 })
+        .toHaveLength(2)
+      watch.off()
+
+      expect({ queries: fixture.queries, values }).toMatchInlineSnapshot(`
+        {
+          "queries": [
+            [
+              10n,
+              11n,
+            ],
+          ],
+          "values": [
+            10n,
+            11n,
+          ],
+        }
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('skips logs that do not match `event` when `strict: true`', async () => {
+    const fixture = getLogsServer({
+      getBlockNumber: () => 2n,
+      getLogs: () => [
+        { ...makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }), data: '0x' },
+        makeLog(a, b, 2n, { blockNumber: 2n, logIndex: 0 }),
+      ],
+    })
+    const server = await fixture.server
+    try {
+      const seqClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 25,
+      })
+
+      const values: bigint[] = []
+      const watch = Actions.event.watch(seqClient, {
+        event: transferEvent,
+        fromBlock: 1n,
+        strict: true,
+      })
+      watch.onLogs((logs) => {
+        for (const log of logs) values.push(log.args.value)
+      })
+
+      await expect
+        .poll(() => values, { interval: 25, timeout: 2_000 })
+        .toHaveLength(1)
+      await wait(50)
+      watch.off()
+
+      expect(values).toMatchInlineSnapshot(`
+        [
+          2n,
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
 })
 
 test('async iterator: yields decoded logs', async () => {

@@ -14,6 +14,7 @@ import { getTimeToFinalize } from './getTimeToFinalize.js'
 import {
   type ContractParameters,
   getContractAddress,
+  getGameL2BlockNumber,
   isContractCallUnavailable,
 } from './internal.js'
 
@@ -89,11 +90,20 @@ export async function getWithdrawalStatus<
 
   const [gameResult, provenResult, checkResult, finalizedResult] =
     await Promise.allSettled([
-      getGame(client, {
-        ...options,
+      // A missing super-root L2 timestamp only fails the game lookup, so a
+      // finalized withdrawal still resolves.
+      getGameL2BlockNumber(client, {
         l2BlockNumber,
-        limit: options.gameLimit ?? 100,
-      }),
+        l2Timestamp: options.l2Timestamp,
+        portalAddress,
+        receipt,
+      }).then((l2BlockNumber) =>
+        getGame(client, {
+          ...options,
+          l2BlockNumber,
+          limit: options.gameLimit ?? 100,
+        }),
+      ),
       read(client, {
         abi: portal2Abi,
         address: portalAddress,
@@ -184,7 +194,10 @@ export declare namespace getWithdrawalStatus {
     chain?: Chain.Chain | undefined
     /** Maximum number of dispute games to inspect. @default 100 */
     gameLimit?: number | undefined
-    /** L2 timestamp required by super-root games. */
+    /**
+     * L2 timestamp of the withdrawal, required by super-root games.
+     * @default The `blockTimestamp` of the receipt logs (super-root games only).
+     */
     l2Timestamp?: bigint | undefined
   } & (
       | {
@@ -219,6 +232,7 @@ export declare namespace getWithdrawalStatus {
     | getPortalVersion.ErrorType
     | getTimeToFinalize.ErrorType
     | Withdrawal.getWithdrawals.ErrorType
+    | Withdrawal.L2TimestampRequiredError
     | Withdrawal.ReceiptContainsNoWithdrawalsError
     | Chain.getContractAddress.ErrorType
     | Errors.GlobalErrorType

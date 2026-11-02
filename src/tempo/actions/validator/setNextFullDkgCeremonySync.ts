@@ -6,6 +6,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { setNextFullDkgCeremony } from './setNextFullDkgCeremony.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Sets the next epoch for a full DKG ceremony, and waits for the transaction to be confirmed. */
 export async function setNextFullDkgCeremonySync<
@@ -31,5 +32,7 @@ export namespace setNextFullDkgCeremonySync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

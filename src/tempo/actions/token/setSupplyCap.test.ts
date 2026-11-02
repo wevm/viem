@@ -59,7 +59,7 @@ describe('setSupplyCap', () => {
         to: account2.address,
         token,
       }),
-    ).rejects.toThrow('The contract function "mint" reverted')
+    ).rejects.toThrow(Actions.token.TokenSupplyCapExceededError)
   })
 
   test('behavior: requires admin', async () => {
@@ -74,6 +74,6 @@ describe('setSupplyCap', () => {
         supplyCap: Value.from('1000', 6),
         token,
       }),
-    ).rejects.toThrow('The contract function "setSupplyCap" reverted')
+    ).rejects.toThrow(Actions.token.TokenUnauthorizedError)
   })
 })

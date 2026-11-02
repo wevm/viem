@@ -3,10 +3,11 @@ import type { Errors } from 'ox'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import * as ZoneAbis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { ReadParameters } from '../../internal/types.js'
+import { read } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Returns the fee required for a withdrawal from a zone, given a callback gas limit.
@@ -47,5 +48,7 @@ export namespace getWithdrawalFee {
     callbackGas?: bigint | undefined
   }
   export type ReturnType = bigint
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

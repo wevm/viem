@@ -77,7 +77,7 @@ describe('getOrder', () => {
   test('behavior: fails for non-existent order', async () => {
     await expect(
       Actions.dex.getOrder(client, { orderId: 999999999n }),
-    ).rejects.toThrow('The contract function "getOrder" reverted')
+    ).rejects.toThrow(Actions.dex.DexOrderNotFoundError)
   })
 
   test('behavior: reflects order state after partial fill', async () => {

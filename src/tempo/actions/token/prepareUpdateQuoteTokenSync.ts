@@ -10,6 +10,7 @@ import {
   prepareUpdateQuoteToken,
   type PrepareUpdateQuoteTokenEvent,
 } from './prepareUpdateQuoteToken.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Prepares a quote token update for a TIP-20 token, and waits for the
@@ -64,5 +65,7 @@ export namespace prepareUpdateQuoteTokenSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

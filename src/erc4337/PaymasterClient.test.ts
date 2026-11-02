@@ -34,6 +34,7 @@ test('default', () => {
       },
       "pollingInterval": 10,
       "request": null,
+      "scope": [Function],
       "tokens": undefined,
       "transport": null,
       "type": "paymaster",

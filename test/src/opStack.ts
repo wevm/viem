@@ -52,6 +52,9 @@ export function getWithdrawalReceipt(
         address: '0x4200000000000000000000000000000000000016',
         blockHash,
         blockNumber: options.blockNumber,
+        ...(typeof options.blockTimestamp === 'bigint'
+          ? { blockTimestamp: options.blockTimestamp }
+          : {}),
         data: AbiParameters.encode(
           [
             { type: 'uint256' },
@@ -75,6 +78,7 @@ export function getWithdrawalReceipt(
 export declare namespace getWithdrawalReceipt {
   type Options = {
     blockNumber: bigint
+    blockTimestamp?: bigint | undefined
     transactionHash: Hex.Hex
     withdrawalHash: Hex.Hex
   }

@@ -292,6 +292,14 @@ export declare namespace fromSecp256k1 {
  * Normalizes supplied config fields with `AccountConfig.from`, so callers do
  * not need to normalize owner ordering themselves.
  *
+ * `sign`, `signMessage`, and `signTypedData` return a configurable signature
+ * envelope with local owner approvals up to the config threshold. Signatures
+ * verify against the account's current config, so a config update invalidates
+ * earlier signatures. Verify them with `verifyHash`, `verifyMessage`, or
+ * `verifyTypedData` on a Tempo client, which use the signature verifier
+ * precompile. Configurable accounts have no code and do not implement ERC-1271
+ * `isValidSignature`, so ERC-1271 verifiers do not accept their signatures.
+ *
  * @example
  * ```ts
  * import { Account } from 'viem/tempo'
@@ -403,10 +411,10 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
         await signConfigurable(account, { payload: hash }),
       )
     },
-    async signMessage() {
-      throw new Error(
-        '`signMessage` is not supported for configurable accounts.',
-      )
+    async signMessage({ message }) {
+      return await account.sign({
+        hash: PersonalMessage.getSignPayload(toPayload(message)),
+      })
     },
     async signTransaction(envelope_, options) {
       const request = envelope_ as unknown as Envelope
@@ -474,10 +482,10 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
       })
       return serializeTransaction(request, { signature })
     },
-    async signTypedData() {
-      throw new Error(
-        '`signTypedData` is not supported for configurable accounts.',
-      )
+    async signTypedData(typedData) {
+      return await account.sign({
+        hash: TypedData.getSignPayload(typedData as TypedData.encode.Value),
+      })
     },
   }
   return account
@@ -529,6 +537,12 @@ export declare namespace fromConfig {
   export type Parameters = Address.Address | CurrentConfig | InitialConfig
 }
 
+/**
+ * Configurable account (TIP-1107) returned by {@link fromConfig}.
+ *
+ * Its signatures verify against the account's current config through Tempo's
+ * `verifyHash`, not ERC-1271, and a config update invalidates earlier signatures.
+ */
 export type ConfigurableAccount<
   config extends AccountConfig.Config | undefined =
     | AccountConfig.Config
@@ -910,7 +924,7 @@ export declare namespace signKeyAuthorization {
     /**
      * Whether to authorize the key as an admin key. Admin keys are
      * unrestricted and can manage the account's other access keys; `expiry`,
-     * `limits`, and `scopes` are ignored. Requires the T6 hardfork.
+     * `limits`, and `scopes` are ignored. Requires the T6 hardfork; T14 (TIP-1137) removes admin key creation.
      *
      * [TIP-1049](https://tips.sh/1049)
      */
@@ -930,6 +944,10 @@ export declare namespace signKeyAuthorization {
   type ReturnValue = KeyAuthorization.Signed
 }
 
+// TODO: support configurable accounts as access keys (TIP-1111): authorize a
+// configurable account with key type `configurable`, sign as it with a keychain
+// envelope wrapping its configurable signature, and accept those envelopes in the
+// relay fee payer.
 /** Resolves an access key input into its address and key type. @internal */
 export function resolveAccessKey(
   accessKey: resolveAccessKey.Parameters,

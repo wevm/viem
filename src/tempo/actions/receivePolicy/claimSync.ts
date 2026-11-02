@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { claim } from './claim.js'
+import type * as TempoErrors from '../../errors.js'
 
 type ClaimEvent = ReturnType<typeof claim.extractEvent>
 
@@ -41,5 +42,7 @@ export namespace claimSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

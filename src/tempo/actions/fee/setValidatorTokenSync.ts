@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { setValidatorToken } from './setValidatorToken.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Sets the calling validator's preferred fee token, and waits for the
@@ -66,5 +67,7 @@ export namespace setValidatorTokenSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

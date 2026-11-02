@@ -1,8 +1,13 @@
-import type { Address } from 'ox'
+import type { Address, TransactionReceipt } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import * as Chain from '../../../core/Chain.js'
+import type * as Client from '../../../core/Client.js'
 import * as ContractError from '../../../core/ContractError.js'
+import { read } from '../../../core/actions/contract/read.js'
+import * as Game from '../../Game.js'
+import * as Withdrawal from '../../Withdrawal.js'
+import { portal2Abi } from '../../abis.js'
 
 /** Contract-address parameters shared by OP Stack L1 actions. */
 export type ContractParameters<names extends string> =
@@ -74,6 +79,36 @@ export function isContractCallUnavailable(error: unknown): boolean {
     (!raw || raw === '0x') &&
     (!reason || reason === 'execution reverted')
   )
+}
+
+/**
+ * Returns the L2 position a dispute game must anchor past to prove a
+ * withdrawal. Super-root games anchor on L2 timestamps instead of L2 block
+ * numbers, so the timestamp comes from `l2Timestamp` or the receipt logs.
+ */
+export async function getGameL2BlockNumber<
+  chain extends Chain.Chain | undefined,
+>(
+  client: Client.Client<chain>,
+  options: {
+    l2BlockNumber: bigint
+    l2Timestamp?: bigint | undefined
+    portalAddress: Address.Address
+    receipt?: TransactionReceipt.TransactionReceipt | undefined
+  },
+): Promise<bigint> {
+  const { l2BlockNumber, l2Timestamp, portalAddress, receipt } = options
+  if (typeof l2Timestamp === 'bigint') return l2Timestamp
+  const gameType = await read(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'respectedGameType',
+  })
+  if (!Game.isSuper(gameType)) return l2BlockNumber
+  const timestamp = receipt?.logs[0]?.blockTimestamp
+  if (typeof timestamp !== 'bigint')
+    throw new Withdrawal.L2TimestampRequiredError({ gameType })
+  return timestamp
 }
 
 /** Resolves an explicit or target-chain contract address. */

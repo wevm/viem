@@ -171,25 +171,30 @@ test('behavior: does not attach to keys authorized onchain', async () => {
   expect(await prepare(client, { accessKey })).toBeUndefined()
 })
 
-test('behavior: does not save key authorizations signed by an admin key', async () => {
-  const store = Store.memory()
-  const client = getClient({ store })
-  const adminKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
-  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
+test.runIf(Tempo.adminKeys)(
+  'behavior: does not save key authorizations signed by an admin key',
+  async () => {
+    const store = Store.memory()
+    const client = getClient({ store })
+    const adminKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: root,
+    })
 
-  await Actions.accessKey.authorizeSync(caller, {
-    account: root,
-    accessKey: adminKey,
-    admin: true,
-  })
-  await Actions.accessKey.signAuthorization(client, {
-    account: adminKey,
-    accessKey,
-    expiry: expiry(),
-  })
+    await Actions.accessKey.authorizeSync(caller, {
+      account: root,
+      accessKey: adminKey,
+      admin: true,
+    })
+    await Actions.accessKey.signAuthorization(client, {
+      account: adminKey,
+      accessKey,
+      expiry: expiry(),
+    })
 
-  expect(await store.getItem(getKey(accessKey.accessKeyAddress))).toBeNull()
-})
+    expect(await store.getItem(getKey(accessKey.accessKeyAddress))).toBeNull()
+  },
+)
 
 test('behavior: keeps an explicit key authorization', async () => {
   const client = getClient()

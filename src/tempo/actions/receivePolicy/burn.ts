@@ -19,6 +19,7 @@ import {
   resolveCallParameters,
   simulateWrite,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Burns the funds backing a blocked receipt. */
 export async function burn<
@@ -39,7 +40,9 @@ export namespace burn {
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

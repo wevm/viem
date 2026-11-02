@@ -41,6 +41,15 @@ describe('FeeCapTooHighError', () => {
   test('without maxFeePerGas', () => {
     expect(new RpcError.FeeCapTooHighError().message).toContain('The fee cap')
   })
+
+  test('with zero maxFeePerGas', () => {
+    expect(new RpcError.FeeCapTooHighError({ maxFeePerGas: 0n }).message)
+      .toMatchInlineSnapshot(`
+      "The fee cap (\`maxFeePerGas\` = 0 gwei) cannot be higher than the maximum allowed value (2^256-1).
+
+      Version: viem@x.x.x"
+    `)
+  })
 })
 
 describe('FeeCapTooLowError', () => {
@@ -48,6 +57,15 @@ describe('FeeCapTooLowError', () => {
     expect(
       new RpcError.FeeCapTooLowError({ maxFeePerGas: 1n }).message,
     ).toContain('cannot be lower than the block base fee')
+  })
+
+  test('with zero maxFeePerGas', () => {
+    expect(new RpcError.FeeCapTooLowError({ maxFeePerGas: 0n }).message)
+      .toMatchInlineSnapshot(`
+      "The fee cap (\`maxFeePerGas\` = 0 gwei) cannot be lower than the block base fee.
+
+      Version: viem@x.x.x"
+    `)
   })
 })
 
@@ -136,6 +154,19 @@ describe('TipAboveFeeCapError', () => {
     expect(new RpcError.TipAboveFeeCapError().message).toContain(
       'The provided tip',
     )
+  })
+
+  test('with zero maxFeePerGas', () => {
+    expect(
+      new RpcError.TipAboveFeeCapError({
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: 1n,
+      }).message,
+    ).toMatchInlineSnapshot(`
+      "The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Version: viem@x.x.x"
+    `)
   })
 })
 
@@ -308,6 +339,12 @@ describe('fromRpcError', () => {
   test('insufficient funds', () => {
     expect(
       RpcError.fromRpcError(new Error('insufficient funds for gas')),
+    ).toBeInstanceOf(RpcError.InsufficientFundsError)
+  })
+
+  test('insufficient funds (OutOfFunds)', () => {
+    expect(
+      RpcError.fromRpcError(new Error('EVM error: OutOfFunds')),
     ).toBeInstanceOf(RpcError.InsufficientFundsError)
   })
 

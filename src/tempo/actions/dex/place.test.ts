@@ -109,7 +109,7 @@ describe('place', () => {
         token: base,
         type: 'buy',
       }),
-    ).rejects.toThrow('The contract function "place" reverted')
+    ).rejects.toThrow(Actions.dex.DexTickOutOfBoundsError)
 
     // Below min tick
     await expect(
@@ -119,7 +119,7 @@ describe('place', () => {
         token: base,
         type: 'sell',
       }),
-    ).rejects.toThrow('The contract function "place" reverted')
+    ).rejects.toThrow(Actions.dex.DexTickOutOfBoundsError)
   })
 
   test('behavior: transfers from wallet', async () => {

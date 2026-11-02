@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { settle } from './settle.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Settles a TIP-20 channel reserve voucher and waits for the transaction receipt. */
 export async function settleSync<
@@ -48,5 +49,7 @@ export namespace settleSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

@@ -60,3 +60,28 @@ test('chain codecs: receipt type reflects the chain codec', async () => {
     Chain.ExtractTransactionReceipt<typeof chain>
   >()
 })
+
+test('options: replacement', () => {
+  const from = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+
+  Actions.transaction.waitForReceipt(client, {
+    hash: '0x',
+    replacement: { from, nonce: 0 },
+  })
+  Actions.transaction.waitForReceipt(client, {
+    hash: '0x',
+    replacement: { from, input: '0x', nonce: 0, to: null, value: 0n },
+  })
+
+  Actions.transaction.waitForReceipt(client, {
+    hash: '0x',
+    // @ts-expect-error `nonce` is required.
+    replacement: { from },
+  })
+
+  Actions.transaction.waitForReceipt(client, {
+    hash: '0x',
+    // @ts-expect-error `nonceKey` is not a field of `replacement`.
+    replacement: { from, nonce: 0, nonceKey: 1n },
+  })
+})

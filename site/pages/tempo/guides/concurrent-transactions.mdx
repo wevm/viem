@@ -98,10 +98,13 @@ const hash = await client.transaction.send({
 
 :::
 
-Viem defaults an omitted nonce to `0`.
+Viem defaults an omitted nonce to a random 48-bit integer, so otherwise identical transactions stay distinct.
 Use integers between `0` and `Number.MAX_SAFE_INTEGER`; Viem's nonce API uses JavaScript
 `number` and does not support the full `uint64` range. For retries, reuse the signed transaction
 so its nonce, validity window, and other signed fields stay identical.
+
+An omitted `validBefore` defaults to 270 seconds from now. Tempo rejects expiring transactions
+whose `validBefore` is more than `Expiry.expiringNonceMax` (300) seconds away.
 
 ### Read a Nonce
 

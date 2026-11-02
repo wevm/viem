@@ -32,6 +32,7 @@ import type {
   PreparedEncryptedDeposit,
   PreparedEncryptedDepositRecipient,
 } from './types.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Deposits tokens into a zone on the parent Tempo chain with encrypted recipient and memo.
@@ -116,7 +117,9 @@ export namespace encryptedDeposit {
     | PlainOptions<account>
     | (ZoneWriteParameters<account> & PreparedEncryptedDeposit)
   export type ReturnType = send.ReturnType
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -244,7 +247,9 @@ export namespace encryptedDeposit {
         IsUndefined<account>
       >
     export type ReturnType = PreparedEncryptedDeposit
-    export type ErrorType = Errors.GlobalErrorType
+    export type ErrorType =
+      | TempoErrors.ExecutionErrorType
+      | Errors.GlobalErrorType
   }
 
   /** Prepares encrypted recipient instructions without constructing a deposit. */

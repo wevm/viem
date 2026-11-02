@@ -38,16 +38,192 @@ describe('http', () => {
     expect(typeof response.error?.code).toBe('number')
   })
 
-  test('returns a non-ok response that carries a valid JSON-RPC error', async () => {
+  test('throws HttpError carrying the JSON-RPC error of a non-ok response', async () => {
     const server = await Http.createServer((_req, res) => {
-      res.writeHead(400, { 'Content-Type': 'application/json' })
+      res.writeHead(429, {
+        'Content-Type': 'application/json',
+        'Retry-After': '1',
+      })
       res.end(JSON.stringify({ error: { code: -32602, message: 'bad' } }))
     })
     try {
-      const response = await RpcClient.http(server.url).request({
-        body: { method: 'eth_chainId' },
+      const error = (await RpcClient.http(server.url)
+        .request({ body: { method: 'eth_chainId' } })
+        .catch((error) => error)) as RpcClient.HttpError
+      const { headers, rpcError, status } = error
+      expect({ retryAfter: headers?.get('Retry-After'), rpcError, status })
+        .toMatchInlineSnapshot(`
+        {
+          "retryAfter": "1",
+          "rpcError": {
+            "code": -32602,
+            "message": "bad",
+          },
+          "status": 429,
+        }
+      `)
+      expect(
+        error.message
+          .replace(server.url, 'http://localhost')
+          .replace(/"id":\d+/, '"id":0'),
+      ).toMatchInlineSnapshot(`
+        "HTTP request failed.
+
+        Status: 429
+        URL: http://localhost/
+        Request body: {"jsonrpc":"2.0","id":0,"method":"eth_chainId"}
+
+        Details: bad
+        Version: viem@x.x.x"
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('unwraps a one-element batch error from a non-ok response', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(500, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify([
+          { id: null, error: { code: -32000, message: 'batch rejected' } },
+        ]),
+      )
+    })
+    try {
+      const error = (await RpcClient.http(server.url)
+        .request({
+          body: [{ method: 'eth_chainId' }, { method: 'eth_blockNumber' }],
+        })
+        .catch((error) => error)) as RpcClient.HttpError
+      expect({ rpcError: error.rpcError, status: error.status })
+        .toMatchInlineSnapshot(`
+        {
+          "rpcError": {
+            "code": -32000,
+            "message": "batch rejected",
+          },
+          "status": 500,
+        }
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('maps a whole-batch error to every request in the batch', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: null,
+          error: { code: -32005, message: 'rate limited' },
+        }),
+      )
+    })
+    try {
+      const responses = await RpcClient.http(server.url).request({
+        body: [{ method: 'eth_chainId' }, { method: 'eth_blockNumber' }],
       })
-      expect(response.error?.code).toBe(-32602)
+      expect(responses).toMatchInlineSnapshot(`
+        [
+          {
+            "error": {
+              "code": -32005,
+              "message": "rate limited",
+            },
+            "id": null,
+            "jsonrpc": "2.0",
+          },
+          {
+            "error": {
+              "code": -32005,
+              "message": "rate limited",
+            },
+            "id": null,
+            "jsonrpc": "2.0",
+          },
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('maps a one-element batch error to every request in the batch', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify([
+          { id: null, error: { code: -32005, message: 'rate limited' } },
+        ]),
+      )
+    })
+    try {
+      const responses = await RpcClient.http(server.url).request({
+        body: [{ method: 'eth_chainId' }, { method: 'eth_blockNumber' }],
+      })
+      expect(responses.map(({ error }) => error)).toMatchInlineSnapshot(`
+        [
+          {
+            "code": -32005,
+            "message": "rate limited",
+          },
+          {
+            "code": -32005,
+            "message": "rate limited",
+          },
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('throws when a batch reply is missing responses', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify([{ id: 0, jsonrpc: '2.0', result: '0x1' }]))
+    })
+    try {
+      const error = (await RpcClient.http(server.url)
+        .request({
+          body: [{ method: 'eth_chainId' }, { method: 'eth_blockNumber' }],
+        })
+        .catch((error) => error)) as RpcClient.HttpError
+      expect(error).toBeInstanceOf(RpcClient.HttpError)
+      expect(error.cause?.message).toMatchInlineSnapshot(
+        `"Expected 2 responses to batch request."`,
+      )
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('returns an empty batch reply unchanged', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: null,
+          error: { code: -32600, message: 'empty batch' },
+        }),
+      )
+    })
+    try {
+      expect(await RpcClient.http(server.url).request({ body: [] }))
+        .toMatchInlineSnapshot(`
+        {
+          "error": {
+            "code": -32600,
+            "message": "empty batch",
+          },
+          "id": null,
+          "jsonrpc": "2.0",
+        }
+      `)
     } finally {
       await server.close()
     }

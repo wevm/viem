@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { setUserToken } from './setUserToken.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Sets the calling account's default fee token, and waits for the
@@ -65,5 +66,7 @@ export namespace setUserTokenSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

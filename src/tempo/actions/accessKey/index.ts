@@ -3,6 +3,23 @@ export { authorize } from './authorize.js'
 export { authorizeSync } from './authorizeSync.js'
 export { burnWitness } from './burnWitness.js'
 export { burnWitnessSync } from './burnWitnessSync.js'
+export {
+  AccessKeyAlreadyExistsError,
+  type AccessKeyAlreadyExistsErrorType,
+  AccessKeyCallNotAllowedError,
+  type AccessKeyCallNotAllowedErrorType,
+  AccessKeyError,
+  type AccessKeyErrorType,
+  AccessKeyExpiredError,
+  type AccessKeyExpiredErrorType,
+  AccessKeyExpiryInPastError,
+  type AccessKeyExpiryInPastErrorType,
+  AccessKeySignatureTypeMismatchError,
+  type AccessKeySignatureTypeMismatchErrorType,
+  AccessKeySpendingLimitExceededError,
+  type AccessKeySpendingLimitExceededErrorType,
+  type ExecutionErrorType,
+} from './errors.js'
 export { getMetadata } from './getMetadata.js'
 export { getRemainingLimit } from './getRemainingLimit.js'
 export { isAdmin } from './isAdmin.js'

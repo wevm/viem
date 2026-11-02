@@ -17,12 +17,16 @@ afterAll(async () => {
   })
 }, 60_000)
 
-test('returns zero seconds for a matured proof', async () => {
+test('waits for the dispute game after the proof matures', async () => {
   await CoreActions.state.reset(client, {
     blockNumber: 21_890_932n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
   const before = Date.now()
+
+  // The proof has matured, but its dispute game is unresolved at this block
+  // and its estimated resolution (`createdAt + maxClockDuration`) has passed,
+  // so the remaining wait is the game finality delay.
 
   const time = await Actions.l1.getTimeToFinalize(client, {
     targetChain: optimism,
@@ -33,11 +37,13 @@ test('returns zero seconds for a matured proof', async () => {
   expect({
     period: time.period,
     seconds: time.seconds,
-    timestampCurrent: time.timestamp >= before && time.timestamp <= Date.now(),
+    timestampCurrent:
+      time.timestamp >= before + time.seconds * 1000 &&
+      time.timestamp <= Date.now() + time.seconds * 1000,
   }).toMatchInlineSnapshot(`
     {
       "period": 604800,
-      "seconds": 0,
+      "seconds": 302410,
       "timestampCurrent": true,
     }
   `)

@@ -78,6 +78,19 @@ test('tokens: omitted tokens is undefined', () => {
   expectTypeOf(client.tokens).toEqualTypeOf<undefined>()
 })
 
+test('scope: returns the same Client type', () => {
+  const client = Client.create({
+    account: address,
+    chain: mainnet,
+    transport: http(),
+  }).extend(() => ({ foo: 'bar' as const }))
+
+  const scoped = client.scope({ signal: new AbortController().signal })
+
+  expectTypeOf(scoped).toEqualTypeOf<typeof client>()
+  expectTypeOf(scoped.scope()).toEqualTypeOf<typeof client>()
+})
+
 test('extend: accumulates the returned bag', () => {
   const client = Client.create({ transport: http() })
     .extend(() => ({ foo: () => 'foo' as const }))

@@ -5,7 +5,7 @@ import * as constants from '~test/constants.js'
 import * as Http from '~test/http.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
-import { Account, Client, http } from 'viem'
+import { Account, Actions, Chain, Client, http } from 'viem'
 import {
   createClient as createClientV2,
   http as httpV2,
@@ -53,6 +53,37 @@ describe('create', () => {
     // clamp(floor(12_000 / 2), 500, 4_000) === 4_000
     expect(client.pollingInterval).toBe(4_000)
     expect(client.cacheTime).toBe(4_000)
+  })
+
+  test('caps the default cacheTime at half the chain blockTime', () => {
+    const chain = Chain.from({ blockTime: 300, id: 1 })
+    const fast = Client.create({ chain, transport: http(url) })
+    const slow = Client.create({
+      chain,
+      pollingInterval: 10_000,
+      transport: http(url),
+    })
+    expect({
+      fast: {
+        cacheTime: fast.cacheTime,
+        pollingInterval: fast.pollingInterval,
+      },
+      slow: {
+        cacheTime: slow.cacheTime,
+        pollingInterval: slow.pollingInterval,
+      },
+    }).toMatchInlineSnapshot(`
+      {
+        "fast": {
+          "cacheTime": 150,
+          "pollingInterval": 500,
+        },
+        "slow": {
+          "cacheTime": 150,
+          "pollingInterval": 10000,
+        },
+      }
+    `)
   })
 
   test('honors pollingInterval and cacheTime overrides', () => {
@@ -310,6 +341,162 @@ describe('extend', () => {
       .extend(() => ({ ns: { a: () => 'first' as const } }))
       .extend(() => ({ ns: { a: () => 'second' as const } }))
     expect(client.ns.a()).toBe('second')
+  })
+})
+
+describe('scope', () => {
+  test('keeps the configuration and extensions with a new uid', () => {
+    const client = Client.create({ chain: mainnet, transport: http(url) })
+      .extend(() => ({ foo: () => 'foo' as const }))
+      .extend(() => ({ ns: { bar: () => 'bar' as const } }))
+
+    const scoped = client.scope()
+
+    expect({
+      bar: scoped.ns.bar(),
+      chainId: scoped.chain.id,
+      foo: scoped.foo(),
+      sameTransport: scoped.transport === client.transport,
+      sameUid: scoped.uid === client.uid,
+    }).toMatchInlineSnapshot(`
+      {
+        "bar": "bar",
+        "chainId": 1,
+        "foo": "foo",
+        "sameTransport": true,
+        "sameUid": false,
+      }
+    `)
+  })
+
+  test('memoizes scopes by signal', () => {
+    const client = Client.create({ transport: http(url) })
+    const { signal } = new AbortController()
+
+    const scoped = client.scope({ signal })
+
+    expect({
+      sameSignal: client.scope({ signal }) === scoped,
+      otherSignal:
+        client.scope({ signal: new AbortController().signal }) === scoped,
+      noSignal: client.scope() === client.scope(),
+      nested: scoped.scope({ signal }) === scoped,
+    }).toMatchInlineSnapshot(`
+      {
+        "nested": false,
+        "noSignal": false,
+        "otherSignal": false,
+        "sameSignal": true,
+      }
+    `)
+  })
+
+  test('does not share cached values with other Clients', async () => {
+    let blockNumber = 0
+    const server = await Http.createServer((_req, res) => {
+      blockNumber += 1
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          id: 0,
+          jsonrpc: '2.0',
+          result: `0x${blockNumber.toString(16)}`,
+        }),
+      )
+    })
+    try {
+      const client = Client.create({
+        cacheTime: 10_000,
+        transport: http(server.url),
+      })
+
+      const first = await Actions.block.getNumber(client)
+      const cached = await Actions.block.getNumber(client)
+      const scoped = await Actions.block.getNumber(client.scope())
+
+      expect({ cached, first, scoped }).toMatchInlineSnapshot(`
+        {
+          "cached": 1n,
+          "first": 1n,
+          "scoped": 2n,
+        }
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not share request batches with other Clients', async () => {
+    const batchSizes: number[] = []
+    const server = await Http.createServer((req, res) => {
+      let raw = ''
+      req.on('data', (chunk) => {
+        raw += chunk
+      })
+      req.on('end', () => {
+        const body = JSON.parse(raw)
+        const entries = Array.isArray(body) ? body : [body]
+        batchSizes.push(entries.length)
+        const result = entries.map((entry: { id: number }) => ({
+          id: entry.id,
+          jsonrpc: '2.0',
+          result: '0x1',
+        }))
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(Array.isArray(body) ? result : result[0]))
+      })
+    })
+    try {
+      const client = Client.create({
+        transport: http(server.url, { batch: true }),
+      })
+      const scoped = client.scope()
+
+      await Promise.all([
+        client.request({ method: 'eth_chainId' }),
+        client.request({ method: 'eth_blockNumber' }),
+        scoped.request({ method: 'eth_chainId' }),
+        scoped.request({ method: 'eth_blockNumber' }),
+      ])
+
+      expect(batchSizes).toMatchInlineSnapshot(`
+        [
+          2,
+          2,
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('aborts requests when the signal aborts', async () => {
+    const server = await Http.createServer(() => {})
+    try {
+      const client = Client.create({ transport: http(server.url) })
+      const controller = new AbortController()
+      const scoped = client.scope({ signal: controller.signal })
+
+      const promise = scoped.request({ method: 'eth_chainId' })
+      controller.abort(new Error('scope aborted'))
+
+      await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: scope aborted]`,
+      )
+    } finally {
+      server.close()
+    }
+  })
+
+  test('aborts requests when the signal is already aborted', async () => {
+    const client = Client.create({ transport: http(url) })
+    const scoped = client.scope({
+      signal: AbortSignal.abort(new Error('scope aborted')),
+    })
+
+    await expect(
+      scoped.request({ method: 'eth_chainId' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: scope aborted]`)
   })
 })
 

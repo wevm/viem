@@ -21,6 +21,7 @@ import {
   simulateWrite,
 } from '../../internal/utils.js'
 import { resolveAccessKeyAddress } from './internal.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Updates the spending limit for a specific token on an authorized access key.
@@ -67,7 +68,9 @@ export namespace updateLimit {
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

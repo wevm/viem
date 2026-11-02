@@ -105,8 +105,9 @@ An explicit L2 Output Oracle address. Supply all three explicit addresses when o
 ### l2Timestamp
 
 - **Type:** `bigint`
+- **Default:** The `blockTimestamp` of the receipt logs (super-root games only)
 
-The L2 timestamp used as the position for super-root games.
+The L2 timestamp of the withdrawal, used as the position for super-root games. Other games use the receipt's L2 block number. Without `l2Timestamp` or a receipt log `blockTimestamp`, super-root games throw `Withdrawal.L2TimestampRequiredError`.
 
 ### logIndex
 

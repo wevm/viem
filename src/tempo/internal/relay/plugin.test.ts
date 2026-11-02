@@ -118,6 +118,7 @@ test.each(['plain', 'custom'] as const)(
         method: 'eth_fillTransaction',
         params: [
           {
+            capabilities: { balanceDiffs: true },
             from: userAccount.address,
             calls: [
               Actions.token.transfer.call(caller, {
@@ -175,6 +176,7 @@ test.each(
     }),
   })
   const result = await CoreActions_.transaction.fill(client, {
+    capabilities: { balanceDiffs: true },
     account: userAccount.address,
     calls: [
       Actions.token.transfer.call(caller, {
@@ -331,6 +333,7 @@ test('simulation and virtual-address resolution progress while sponsorship is pe
     const { transaction, capabilities } = await CoreActions_.transaction.fill(
       client,
       {
+        capabilities: { balanceDiffs: true },
         account: userAccount.address,
         calls: [
           { to: virtual },
@@ -441,6 +444,7 @@ test.each(['none', 'accept', 'reject'] as const)(
       method: 'eth_fillTransaction',
       params: [
         {
+          capabilities: { balanceDiffs: true },
           from: userAccount.address,
           calls: [
             Actions.token.transfer.call(caller, {
@@ -623,7 +627,7 @@ test('preserves deficit metadata within four requests with virtual recipients', 
           }),
           { to: virtual, value: '0x0', data: '0x' },
         ],
-        capabilities: { errors: true },
+        capabilities: { balanceDiffs: true, errors: true },
       },
     ],
   })) as Relay.Plugin.FillResult

@@ -16,7 +16,7 @@ export const zksync = /*#__PURE__*/ Chain.from({
   },
   blockExplorers: {
     name: 'ZKsync Explorer',
-    url: 'https://explorer.zksync.io/',
+    url: 'https://explorer.zksync.io',
     apiUrl: 'https://block-explorer-api.mainnet.zksync.io/api',
   },
   contracts: {

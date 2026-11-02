@@ -6,7 +6,11 @@ import * as Game from '../../Game.js'
 import * as Withdrawal from '../../Withdrawal.js'
 import { getPortalVersion } from './getPortalVersion.js'
 import type { getL2Output } from './getL2Output.js'
-import type { ContractParameters } from './internal.js'
+import {
+  type ContractParameters,
+  getContractAddress,
+  getGameL2BlockNumber,
+} from './internal.js'
 import { waitForNextGame } from './waitForNextGame.js'
 import { waitForNextL2Output } from './waitForNextL2Output.js'
 
@@ -23,11 +27,10 @@ export async function waitToProve<chain extends Chain.Chain | undefined>(
     })
 
   const version = await getPortalVersion(client, options)
-  const l2BlockNumber = l2Timestamp ?? receipt.blockNumber
   if (version.major < 3) {
     const output = await waitForNextL2Output(client, {
       ...options,
-      l2BlockNumber,
+      l2BlockNumber: l2Timestamp ?? receipt.blockNumber,
     })
     return {
       game: {
@@ -44,6 +47,15 @@ export async function waitToProve<chain extends Chain.Chain | undefined>(
     }
   }
 
+  const l2BlockNumber = await getGameL2BlockNumber(client, {
+    l2BlockNumber: receipt.blockNumber,
+    l2Timestamp,
+    portalAddress: getContractAddress(
+      { ...options, chain: options.chain ?? client.chain },
+      'portal',
+    ),
+    receipt,
+  })
   const game = await waitForNextGame(client, {
     ...options,
     l2BlockNumber,
@@ -70,7 +82,10 @@ export declare namespace waitToProve {
     chain?: Chain.Chain | undefined
     /** Maximum number of recent games to inspect. @default 100 */
     gameLimit?: number | undefined
-    /** L2 timestamp required by super-root games. */
+    /**
+     * L2 timestamp of the withdrawal, required by super-root games.
+     * @default The `blockTimestamp` of the receipt logs (super-root games only).
+     */
     l2Timestamp?: bigint | undefined
     /** Polling interval in milliseconds. @default client.pollingInterval */
     pollingInterval?: number | undefined
@@ -99,6 +114,7 @@ export declare namespace waitToProve {
     | waitForNextGame.ErrorType
     | waitForNextL2Output.ErrorType
     | Withdrawal.getWithdrawals.ErrorType
+    | Withdrawal.L2TimestampRequiredError
     | Withdrawal.ReceiptContainsNoWithdrawalsError
     | Errors.GlobalErrorType
 }

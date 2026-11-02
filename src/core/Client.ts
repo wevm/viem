@@ -43,7 +43,47 @@ export type Client<
       Prettify<Omit<fn, '~schema'>> &
         (extended extends Extended ? extended : unknown)
     >
+    /**
+     * Creates a Client with the same configuration, transport, and extensions
+     * that does not share in-flight requests, cached values, or request
+     * batches with other Clients. Calls with the same `signal` return the
+     * same Client.
+     *
+     * @example
+     * ```ts
+     * import { Actions, Client, http } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({ chain: mainnet, transport: http() })
+     *
+     * export default {
+     *   async fetch(request: Request) {
+     *     const scoped = client.scope({ signal: request.signal })
+     *     const blockNumber = await Actions.block.getNumber(scoped)
+     *     return Response.json({ blockNumber: blockNumber.toString() })
+     *   },
+     * }
+     * ```
+     */
+    scope: (
+      options?: ScopeOptions | undefined,
+    ) => Client<chain, account, transport, tokens, schema, extended>
   }
+
+type RequestOptions = NonNullable<Parameters<Transport.RequestFn>[1]>
+type RawRequestFn = (
+  args: { method: string; params?: unknown },
+  options?: RequestOptions | undefined,
+) => Promise<unknown>
+
+/** Options for `client.scope`. */
+type ScopeOptions = {
+  /**
+   * Signal that aborts the scoped Client's requests and identifies the scope.
+   * Requests made with their own `signal` use it instead.
+   */
+  signal?: AbortSignal | undefined
+}
 
 type Base<
   chain extends Chain.Chain | undefined,
@@ -190,7 +230,8 @@ export function create(options: create.Options): Client {
   const pollingInterval =
     options.pollingInterval ??
     Math.min(Math.max(Math.floor(blockTime / 2), 500), 4_000)
-  const cacheTime = options.cacheTime ?? pollingInterval
+  const cacheTime =
+    options.cacheTime ?? Math.min(pollingInterval, Math.floor(blockTime / 2))
 
   const account =
     typeof options.account === 'string'
@@ -222,20 +263,70 @@ export function create(options: create.Options): Client {
     ...(blockTag ? { blockTag } : {}),
   }
 
-  function extend(base: typeof client) {
-    type ExtendFn = (base: typeof client) => Record<string, unknown>
+  type ExtendFn = (base: typeof client) => Record<string, unknown>
+  type Decorated = typeof client & {
+    extend: (fn: ExtendFn) => Decorated
+    scope: (options?: ScopeOptions | undefined) => Decorated
+  }
+
+  /** Attaches `extend` and `scope`, replaying `extensions` onto each scope. */
+  function decorate(
+    base: typeof client,
+    extensions: readonly ExtendFn[],
+  ): Decorated {
+    return Object.assign(base, {
+      extend: extend(base, extensions),
+      scope: scope(extensions),
+    })
+  }
+
+  function extend(base: typeof client, extensions: readonly ExtendFn[]) {
     return (fn: ExtendFn) => {
       const extended = fn(base)
       for (const key in client) delete extended[key]
       delete extended['~schema']
-      const combined = merge(base, extended)
-      return Object.assign(combined, {
-        extend: extend(combined as typeof base),
-      })
+      const combined = merge(base, extended) as typeof base
+      return decorate(combined, [...extensions, fn])
     }
   }
 
-  return Object.assign(client, { extend: extend(client) }) as unknown as Client
+  function scope(extensions: readonly ExtendFn[]) {
+    // Memoized by signal, so callers sharing one signal share one scope.
+    const scopes = new WeakMap<AbortSignal, Decorated>()
+    return (options: ScopeOptions = {}) => {
+      const { signal } = options
+      const cached = signal && scopes.get(signal)
+      if (cached) return cached
+
+      const id = uid()
+      // A scope-owned signal keys transport queues, such as HTTP batches, to
+      // the scope.
+      const controller = new AbortController()
+      if (signal?.aborted) controller.abort(signal.reason)
+      else
+        signal?.addEventListener(
+          'abort',
+          () => controller.abort(signal.reason),
+          { once: true },
+        )
+      const request = ((
+        args: { method: string; params?: unknown },
+        options: RequestOptions = {},
+      ) =>
+        (client.request as RawRequestFn)(args, {
+          ...options,
+          signal: options.signal ?? controller.signal,
+          // The request `uid` keys in-flight request deduplication.
+          uid: options.uid ?? id,
+        })) as typeof client.request
+      let scoped = decorate({ ...client, request, uid: id }, [])
+      for (const fn of extensions) scoped = scoped.extend(fn)
+      if (signal) scopes.set(signal, scoped)
+      return scoped
+    }
+  }
+
+  return decorate(client, []) as unknown as Client
 }
 
 /**
@@ -357,9 +448,18 @@ export declare namespace create {
     batch?: { multicall?: boolean | MulticallOptions | undefined } | undefined
     /** Default block tag for RPC requests. */
     blockTag?: BlockTag | undefined
-    /** Time (in ms) cached data stays in memory. @default pollingInterval */
+    /** Time (in ms) cached data stays in memory. @default min(pollingInterval, chain.blockTime / 2) */
     cacheTime?: number | undefined
-    /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config. `false` disables CCIP Read. @default allowlisted batch gateway */
+    /**
+     * [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config. `false` disables CCIP Read.
+     *
+     * A lookup follows at most 4 nested callbacks and 4 nested local batches,
+     * and makes at most 256 gateway requests (one per URL), 16 at a time. Each
+     * gateway request uses the transport timeout (the longest of a
+     * `fallback`'s transports).
+     *
+     * @default allowlisted batch gateway
+     */
     ccipRead?: CcipReadOptions | false | undefined
     /** Chain (or chain id) for the Client. */
     chain?: chainOrId | undefined

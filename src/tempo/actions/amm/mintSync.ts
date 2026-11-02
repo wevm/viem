@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { mint } from './mint.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Adds liquidity to a pool, and waits for the transaction to be confirmed.
@@ -73,5 +74,7 @@ export namespace mintSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

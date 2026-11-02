@@ -1,20 +1,114 @@
-import type { Address } from 'ox'
+import type { Abi, Address } from 'ox'
 
 import type * as Client from '../../core/Client.js'
-import { read } from '../../core/actions/contract/read.js'
+import { read as core_read } from '../../core/actions/contract/read.js'
+import type { write } from '../../core/actions/contract/write.js'
+import type { writeSync } from '../../core/actions/contract/writeSync.js'
+import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
+} from '../../core/actions/internal/contract.js'
 import {
+  dispatchSend as core_dispatchSend,
+  dispatchWrite as core_dispatchWrite,
   findDeclaredToken,
   resolveToken as resolveErc20Token,
 } from '../../core/actions/token/internal.js'
+import type { send } from '../../core/actions/transaction/send.js'
+import type { sendSync } from '../../core/actions/transaction/sendSync.js'
 import * as Abis from '../Abis.js'
+import { type Hints, withExecutionError } from './errors.js'
 
 export {
   defineCall,
-  dispatchSend,
-  dispatchWrite,
   estimateWrite,
   simulateWrite,
 } from '../../core/actions/token/internal.js'
+
+/**
+ * Dispatches a write action to `write` or `writeSync`, throwing a
+ * `TempoExecutionError` for decoded Tempo precompile errors.
+ */
+export async function dispatchWrite<
+  action extends typeof write | typeof writeSync,
+>(
+  action: action,
+  client: Client.Client,
+  options: object,
+  hints?: Hints | undefined,
+): Promise<dispatchWrite.ReturnType<action>> {
+  return withExecutionError(() => core_dispatchWrite(action, client, options), {
+    client,
+    hints,
+    parameters: options,
+  })
+}
+
+export declare namespace dispatchWrite {
+  type ReturnType<action> = core_dispatchWrite.ReturnType<action>
+}
+
+/**
+ * Dispatches a batched transaction to `transaction.send` or
+ * `transaction.sendSync`, throwing a `TempoExecutionError` for decoded Tempo
+ * precompile errors.
+ */
+export async function dispatchSend<
+  action extends typeof send | typeof sendSync,
+>(
+  action: action,
+  client: Client.Client,
+  options: object,
+  hints?: Hints | undefined,
+): Promise<dispatchSend.ReturnType<action>> {
+  return withExecutionError(() => core_dispatchSend(action, client, options), {
+    client,
+    hints,
+    parameters: options,
+  })
+}
+
+export declare namespace dispatchSend {
+  type ReturnType<action> = core_dispatchSend.ReturnType<action>
+}
+
+/**
+ * Reads a contract, throwing a `TempoExecutionError` for decoded Tempo
+ * precompile errors.
+ */
+export async function read<
+  const abi extends Abi.Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+  const args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  as extends 'Object' | 'Array' = 'Object',
+>(
+  client: Client.Client,
+  options: core_read.Options<abi, functionName, args, as>,
+): Promise<core_read.ReturnType<abi, functionName, args, as>> {
+  return withExecutionError(() => core_read(client, options), {
+    client,
+    parameters: options,
+  })
+}
+
+export declare namespace read {
+  type Options<
+    abi extends Abi.Abi | readonly unknown[] = Abi.Abi,
+    functionName extends ContractFunctionName<abi, 'pure' | 'view'> =
+      ContractFunctionName<abi, 'pure' | 'view'>,
+    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
+      ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+    as extends 'Object' | 'Array' = 'Object',
+  > = core_read.Options<abi, functionName, args, as>
+  type ReturnType<
+    abi extends Abi.Abi | readonly unknown[] = Abi.Abi,
+    functionName extends ContractFunctionName<abi, 'pure' | 'view'> =
+      ContractFunctionName<abi, 'pure' | 'view'>,
+    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
+      ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+    as extends 'Object' | 'Array' = 'Object',
+  > = core_read.ReturnType<abi, functionName, args, as>
+}
 
 /**
  * Resolves the token contract `address` and `decimals` from a `token`, which
@@ -71,7 +165,7 @@ export async function resolveTokenWithDecimals(
   if (decimals !== undefined) return { address, decimals }
   return {
     address,
-    decimals: await read(client, {
+    decimals: await core_read(client, {
       abi: Abis.tip20,
       address,
       functionName: 'decimals',
@@ -146,4 +240,14 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
 export function pickWriteSyncParameters(parameters: Record<string, unknown>) {
   const { pollingInterval, throwOnReceiptRevert, timeout } = parameters
   return { pollingInterval, throwOnReceiptRevert, timeout }
+}
+
+/** 12-byte prefix shared by TIP-20 token addresses; shorter prefixes are cheap to grind with CREATE2. */
+const tip20Prefix = '0x20c000000000000000000000'
+
+/** Whether `address` carries the TIP-20 token address prefix. */
+export function isTip20(
+  address: string | undefined,
+): address is Address.Address {
+  return !!address?.toLowerCase().startsWith(tip20Prefix)
 }

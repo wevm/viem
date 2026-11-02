@@ -1,6 +1,17 @@
 // biome-ignore lint/performance/noBarrelFile: namespace module
 export { close } from './close.js'
 export { closeSync } from './closeSync.js'
+export {
+  ChannelAmountExceedsDepositError,
+  type ChannelAmountExceedsDepositErrorType,
+  ChannelAmountNotIncreasingError,
+  type ChannelAmountNotIncreasingErrorType,
+  ChannelCloseNotReadyError,
+  type ChannelCloseNotReadyErrorType,
+  ChannelNotFoundError,
+  type ChannelNotFoundErrorType,
+  type ExecutionErrorType,
+} from './errors.js'
 export { getStates } from './getStates.js'
 export { open } from './open.js'
 export { openSync } from './openSync.js'

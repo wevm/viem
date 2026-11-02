@@ -52,8 +52,6 @@ describe('getBuyQuote', () => {
         tokenOut: base,
         amountOut: Value.from('100', 6),
       }),
-    ).rejects.toThrow(
-      'The contract function "quoteSwapExactAmountOut" reverted',
-    )
+    ).rejects.toThrow(Actions.dex.DexInsufficientLiquidityError)
   })
 })

@@ -16,8 +16,8 @@ export async function read(
   store: Store.Store,
   options: read.Options,
 ): Promise<AccountConfig.Config | null> {
-  const { address, commitment } = options
-  const value = await store.getItem(key({ address, commitment }))
+  const { address, chainId, commitment } = options
+  const value = await store.getItem(key({ address, chainId, commitment }))
   if (value === null || value === undefined) return null
   const config = deserialize(value)
   assertKey({ address, commitment, config })
@@ -29,25 +29,43 @@ export declare namespace read {
   export type Options = {
     /** Configurable account address. */
     address: Address.Address
+    /** Chain whose commitment selects the config. */
+    chainId: number
     /** Config commitment observed onchain. */
     commitment: Hex.Hex
   }
 }
 
-/** Writes a validated account config. */
+/**
+ * Writes a validated account config.
+ *
+ * Each key fixes one config, through its commitment or, before initialization, the account
+ * address. An existing key therefore holds the same config and is not written again.
+ */
 export async function write(
-  store: Store.Store,
+  store: Store.Atomic,
   options: write.Options,
 ): Promise<void> {
-  const { address, commitment } = options
-  const config = AccountConfig.from(options.config)
+  const { address, chainId, commitment } = options
+  const config = (() => {
+    try {
+      return AccountConfig.from(options.config)
+    } catch (cause) {
+      throw new InvalidStoreValueError({ cause })
+    }
+  })()
   assertKey({ address, commitment, config })
   const value = serialize(config)
-  await store.setItem(key({ address, commitment }), value)
+  await store.compareAndSet(key({ address, chainId, commitment }), null, value)
   // Initialization commits the version-zero config without changing its version.
   if (commitment.toLowerCase() === zeroCommitment)
-    await store.setItem(
-      key({ address, commitment: AccountConfig.getCommitment(config) }),
+    await store.compareAndSet(
+      key({
+        address,
+        chainId,
+        commitment: AccountConfig.getCommitment(config),
+      }),
+      null,
       value,
     )
 }
@@ -57,6 +75,8 @@ export declare namespace write {
   export type Options = {
     /** Configurable account address. */
     address: Address.Address
+    /** Chain whose commitment selects the config. */
+    chainId: number
     /** Config commitment used for lookup. */
     commitment: Hex.Hex
     /** Complete config. */
@@ -101,10 +121,14 @@ function deserialize(value: string): AccountConfig.Config {
   }
 }
 
-/** Returns the store key for an account and config commitment. */
-function key(options: { address: Address.Address; commitment: Hex.Hex }) {
-  const { address, commitment } = options
-  return `multisig:config:${address.toLowerCase()}:${commitment.toLowerCase()}`
+/** Returns the store key for an account and config commitment on one chain. */
+function key(options: {
+  address: Address.Address
+  chainId: number
+  commitment: Hex.Hex
+}) {
+  const { address, chainId, commitment } = options
+  return `configurableAccount:config:${chainId}:${address.toLowerCase()}:${commitment.toLowerCase()}`
 }
 
 /** Serializes an account config for storage. */

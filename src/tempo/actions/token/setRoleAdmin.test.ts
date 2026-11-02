@@ -2,7 +2,7 @@ import { TokenRole } from 'ox/tempo'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
-import { Account, Actions } from 'viem/tempo'
+import { Account, Actions, TempoExecutionError } from 'viem/tempo'
 
 const client = tempo.getClient({ feeToken: tempo.pathUsd })
 const account2 = Account.fromSecp256k1(tempo.accounts[1]!.privateKey)
@@ -79,6 +79,6 @@ describe('setRoleAdmin', () => {
         role: 'issuer',
         token,
       }),
-    ).rejects.toThrow('The contract function "setRoleAdmin" reverted')
+    ).rejects.toThrow(TempoExecutionError)
   })
 })

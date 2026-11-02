@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { changeTransferPolicy } from './changeTransferPolicy.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Changes the transfer policy ID for a TIP-20 token, and waits for the
@@ -65,5 +66,7 @@ export namespace changeTransferPolicySync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

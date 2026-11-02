@@ -706,7 +706,7 @@ describe('fromConfig', () => {
     }
   })
 
-  test('sign requires local owners; message signing is unsupported', async () => {
+  test('sign requires local owners', async () => {
     const account = Account.fromConfig({
       owners: [{ owner: owner_1.address, weight: 1 }],
       threshold: 1,
@@ -720,12 +720,36 @@ describe('fromConfig', () => {
     await expect(
       account.signMessage({ message: 'hello' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: \`signMessage\` is not supported for configurable accounts.]`,
+      `[Error: Local owners do not meet the threshold.]`,
     )
-    await expect(
-      account.signTypedData({} as never),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: \`signTypedData\` is not supported for configurable accounts.]`,
+  })
+
+  test('signMessage signs the personal message digest', async () => {
+    const account = Account.fromConfig({ owners: [owner_1] })
+
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(signature).toBe(
+      await account.sign({
+        hash: PersonalMessage.getSignPayload(Hex.fromString('hello')),
+      }),
+    )
+    expect(SignatureEnvelope.deserialize(signature).type).toBe('configurable')
+  })
+
+  test('signTypedData signs the typed data digest', async () => {
+    const account = Account.fromConfig({ owners: [owner_1] })
+    const typedData = {
+      domain: { name: 'Tempo', version: '1', chainId: 1 },
+      message: { contents: 'hello' },
+      primaryType: 'Mail',
+      types: { Mail: [{ name: 'contents', type: 'string' }] },
+    } as const
+
+    const signature = await account.signTypedData(typedData)
+
+    expect(signature).toBe(
+      await account.sign({ hash: TypedData.getSignPayload(typedData) }),
     )
   })
 

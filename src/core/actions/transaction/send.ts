@@ -69,7 +69,7 @@ export async function send<chain extends Chain.Chain | undefined>(
 
   // Recover the address to reset the nonce against if signing/broadcasting
   // fails after the nonce manager has consumed one.
-  let reset: NonceManager.NonceManager.Parameters | undefined
+  let reset: NonceManager.NonceManager.ResetParameters | undefined
   const nonceManager =
     accountNonceManager && typeof rest.nonce === 'undefined'
       ? {
@@ -78,8 +78,13 @@ export async function send<chain extends Chain.Chain | undefined>(
               client: Client.Client
             },
           ) {
-            reset = parameters
-            return accountNonceManager.consume(parameters)
+            const { address, chainId } = parameters
+            reset = { address, chainId }
+            const nonce = await accountNonceManager.consume(parameters)
+            // Pass the consumed nonce to `reset` so the manager can tell
+            // which `consume` a failed send follows.
+            reset = { address, chainId, nonce }
+            return nonce
           },
           get: accountNonceManager.get,
           increment: accountNonceManager.increment,

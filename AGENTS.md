@@ -143,6 +143,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Package exports are generated**; run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
 - **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
+- **Nullable RPC omissions**; skip both `null` and `undefined` when copying optional fields from filled transactions.
 - **Bound CCIP batch fan-out**; cap total queries, nesting, and concurrent requests. Share one budget across recursive local batches.
 - **No runtime `z.RpcSchema` in actions**; default action paths convert wire values with ox
   core helpers (`Hex.toBigInt`, `TransactionRequest.toRpc`, `Block.fromRpc`, …), keeping zod
@@ -287,6 +288,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Make hooks produce distinguishable, verifiable results.
   - Example: a chain `serialize` hook can return a known value.
   - Example: recover the signer from a `getSignPayload` payload.
+- **Aggregate varying parameterized results for inline snapshots**; Vitest cannot write different inline snapshots at the same assertion location.
 - **Snapshot whole objects, omit nondeterministic properties**; destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
 - **Prefer whole-response snapshots over dynamic fixtures**; snapshot whole decoded responses.
   - Use deterministic data, like a pinned fork block anvil caches.

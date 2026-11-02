@@ -4,15 +4,16 @@ import { TokenRole } from 'ox/tempo'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import * as Abis from '../../Abis.js'
 import type { ReadParameters, TokenParameter } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  read,
   resolveCallParameters,
   resolveToken,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Gets the admin role for a specific role in a TIP-20 token.
@@ -56,7 +57,9 @@ export namespace getRoleAdmin {
   export type Options = ReadParameters & Args
   export type ReturnType = read.ReturnType<typeof Abis.tip20, 'getRoleAdmin'>
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /**
    * Defines a call to the `getRoleAdmin` function.

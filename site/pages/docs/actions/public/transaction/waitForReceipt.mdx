@@ -125,6 +125,32 @@ watch.onReplaced(({ reason, replacedTransaction, transaction }) => { // [!code f
 }) // [!code focus]
 ```
 
+### Detect a Replacement of a Dropped Transaction
+
+A node can drop a replaced transaction before the wait first reads it. Pass the sender and nonce as `replacement` so the wait can look up the transaction in its nonce slot.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.transaction.waitForReceipt({
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  replacement: { // [!code focus]
+    from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
+    nonce: 69, // [!code focus]
+  }, // [!code focus]
+})
+
+watch.onReplaced(({ reason, transaction }) => {
+  console.log(reason, transaction.hash)
+})
+```
+
 ## Return Value
 
 `Watcher`
@@ -305,6 +331,29 @@ const client = Client.create({ chain: mainnet, transport: http() })
 const { receipt } = Actions.transaction.waitForReceipt(client, {
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
   pollingInterval: 1_000, // [!code focus]
+})
+```
+
+### replacement
+
+- **Type:** `{ from: Address; nonce: number; input?: Hex; to?: Address | null; value?: bigint }`
+
+The sender and nonce of the transaction, and optionally the fields it was sent with. `input`, `to`, and `value` identify a repriced replacement.
+
+When the node no longer returns the transaction by hash, the wait looks it up with `eth_getTransactionBySenderAndNonce`. Without that method, it scans each block from the one it starts on, which misses a replacement mined earlier. `onReplaced` receives these fields, with `hash`, as `replacedTransaction`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  replacement: { // [!code focus]
+    from: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
+    nonce: 69, // [!code focus]
+  }, // [!code focus]
 })
 ```
 

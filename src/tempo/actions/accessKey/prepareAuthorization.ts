@@ -91,7 +91,7 @@ export namespace prepareAuthorization {
     /**
      * Whether to authorize the key as an admin key. Admin keys are unrestricted
      * and can manage the account's other access keys; `expiry`, `limits`, and
-     * `scopes` are ignored. Requires the T6 hardfork.
+     * `scopes` are ignored. Requires the T6 hardfork; T14 (TIP-1137) removes admin key creation.
      *
      * [TIP-1049](https://tips.sh/1049)
      */

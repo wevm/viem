@@ -9,6 +9,7 @@ import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import type { ReceiptReturn } from './internal.js'
 import { requestWithdrawal } from './requestWithdrawal.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Requests a withdrawal from a zone to the parent Tempo chain, and waits for the transaction to be confirmed.
@@ -66,5 +67,7 @@ export namespace requestWithdrawalSync {
     /** Sender tag identifying the parent-chain `WithdrawalProcessed` event. */
     senderTag: Hex.Hex
   }
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

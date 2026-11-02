@@ -19,6 +19,7 @@ import {
   resolveCallParameters,
   simulateWrite,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Policy type. */
 export type PolicyType = 'blacklist' | 'whitelist'
@@ -54,7 +55,9 @@ export namespace create {
       : { admin: Account.Account | Address.Address })
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

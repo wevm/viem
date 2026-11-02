@@ -5,7 +5,13 @@ import { Value } from 'ox'
 
 import { Actions, Token } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { Account, Actions as TempoActions, Client, http } from 'viem/tempo'
+import {
+  Account,
+  Client,
+  Hardfork,
+  Actions as TempoActions,
+  http,
+} from 'viem/tempo'
 
 import * as constants from './constants.js'
 import * as TempoAccounts from './tempoAccountsInstance.js'
@@ -24,6 +30,12 @@ export const accounts = constants.accounts
 const hardfork = process.env.VITE_TEMPO_HARDFORK
 const legacyHardfork =
   hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+
+/** Whether the node can create admin access keys, which T14 removed (TIP-1137). An unpinned node runs every hardfork. */
+export const adminKeys =
+  !!hardfork &&
+  hardfork !== 'Tnext' &&
+  Hardfork.lt(hardfork.toLowerCase(), 't14')
 
 /** Dev key that owns and provisions local Zone factories. */
 export const zoneAdminKey = accounts[legacyHardfork ? 1 : 0].privateKey
@@ -136,6 +148,37 @@ export async function setupToken(
     token: token.token,
   })
   return token
+}
+
+/** Creates a quote token and a base token quoted in it, mints both to the client account, and lists the pair on the DEX. */
+export async function setupTokenPair(client: ReturnType<typeof getClient>) {
+  const { token: quote } = await TempoActions.token.createSync(client, {
+    currency: 'USD',
+    name: 'Test Quote Token',
+    symbol: 'QUOTE',
+  })
+  const { token: base } = await TempoActions.token.createSync(client, {
+    currency: 'USD',
+    name: 'Test Base Token',
+    quoteToken: quote,
+    symbol: 'BASE',
+  })
+  await Actions.transaction.sendSync(client, {
+    calls: [base, quote].flatMap((token) => [
+      TempoActions.token.grantRoles.call(client, {
+        role: 'issuer',
+        to: client.account.address,
+        token,
+      }),
+      TempoActions.token.mint.call(client, {
+        amount: Value.from('10000', 6),
+        to: client.account.address,
+        token,
+      }),
+    ]),
+  })
+  await TempoActions.dex.createPairSync(client, { base })
+  return { base, quote }
 }
 
 /** Funds an account with the local fee token. */

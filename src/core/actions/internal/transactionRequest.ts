@@ -26,8 +26,8 @@ export function assert(options: assert.Options): void {
   if (maxFeePerGas && maxFeePerGas > maxUint256)
     throw new RpcError.FeeCapTooHighError({ maxFeePerGas })
   if (
-    maxPriorityFeePerGas &&
-    maxFeePerGas &&
+    typeof maxPriorityFeePerGas === 'bigint' &&
+    typeof maxFeePerGas === 'bigint' &&
     maxPriorityFeePerGas > maxFeePerGas
   )
     throw new RpcError.TipAboveFeeCapError({

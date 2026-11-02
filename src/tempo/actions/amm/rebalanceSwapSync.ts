@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { rebalanceSwap } from './rebalanceSwap.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Performs a rebalance swap from validator token to user token, and waits for the transaction to be confirmed.
@@ -71,5 +72,7 @@ export namespace rebalanceSwapSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

@@ -184,6 +184,41 @@ describe('parseAvatarRecord', () => {
       await server.close()
     })
 
+    test('onchain json with a utf-8 svg', async () => {
+      const json = JSON.stringify({
+        name: 'café ⚡',
+        image_data: '<svg><text>café ⚡</text></svg>',
+      })
+      // Base64 metadata may wrap across lines.
+      const encodedJson = Buffer.from(json)
+        .toString('base64')
+        .replace(/(.{40})/g, '$1\n')
+      const { address } = await contract.deploy(local, {
+        bytecode: AbiConstructor.encode(
+          AbiConstructor.fromAbi(generated.EnsAvatarExample.abi),
+          {
+            args: ['', `data:application/json;base64,${encodedJson}`, json],
+            bytecode: generated.EnsAvatarExample.bytecode.object,
+          },
+        ),
+      })
+
+      const records = await Promise.all(
+        [100, 108].map((tokenId) =>
+          parseAvatarRecord(local, {
+            record: `eip155:1/erc721:${address}/${tokenId}`,
+          }),
+        ),
+      )
+
+      expect(records).toMatchInlineSnapshot(`
+        [
+          "data:image/svg+xml;base64,PHN2Zz48dGV4dD5jYWbDqSDimqE8L3RleHQ+PC9zdmc+",
+          "data:image/svg+xml;base64,PHN2Zz48dGV4dD5jYWbDqSDimqE8L3RleHQ+PC9zdmc+",
+        ]
+      `)
+    })
+
     test('behavior: invalid nft uri', async () => {
       await expect(
         parseAvatarRecord(local, {

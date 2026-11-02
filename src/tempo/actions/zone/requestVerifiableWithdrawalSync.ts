@@ -7,6 +7,7 @@ import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import type { ReceiptReturn } from './internal.js'
 import { requestVerifiableWithdrawal } from './requestVerifiableWithdrawal.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Requests a verifiable withdrawal from a zone to the parent Tempo chain, and waits for the transaction to be confirmed.
@@ -51,5 +52,7 @@ export namespace requestVerifiableWithdrawalSync {
     account extends Account.Account | undefined = Account.Account | undefined,
   > = requestVerifiableWithdrawal.Options<account> & WriteSyncParameters
   export type ReturnType = ReceiptReturn<sendSync.ReturnType>
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

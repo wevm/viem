@@ -17,7 +17,7 @@ import {
 import { afterAll, describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo.js'
 
-import { Client, http } from 'viem'
+import { Client, Actions as CoreActions, http } from 'viem'
 import { tempoLocalnet, tempoModerato } from 'viem/chains'
 import { Account, Actions, KeyAuthorizationManager } from 'viem/tempo'
 
@@ -309,6 +309,153 @@ describe('codecs.transactionRequest', () => {
     ) as Record<string, unknown>
     expect(rpc.type).toBe('0x76')
     expect(rpc.feeToken).toBe(baseRequest.feeToken)
+  })
+})
+
+/** A mainnet expiring nonce transaction whose nonce exceeds `Number.MAX_SAFE_INTEGER`. */
+const expiringNonceTransaction = {
+  accessList: [],
+  aaAuthorizationList: [],
+  blockHash:
+    '0x2a1be7bdf66a1d611af5af52d961261bd8f2f49fd6131ec00d702b585dca6f45',
+  blockNumber: '0x2c052d2',
+  blockTimestamp: '0x6ae0cad2',
+  calls: [
+    {
+      data: null,
+      input:
+        '0xa9059cbb0000000000000000000000004c2c0f0bb2631b02ac9299c59690914ee7a200b8000000000000000000000000000000000000000000000000000000000052b3e0',
+      to: '0x20c0000000000000000000006a37da5c996874be',
+      value: '0x0',
+    },
+  ],
+  chainId: '0x1079',
+  feePayerSignature: {
+    r: '0x7c4ef2a5e8e020d72493c05b7973ebcef0d67229042de01a0a07d64933f8880f',
+    s: '0x2298cf0122f6e8e6cd9d6bec68a06e75176f0e8231b81ad35430065b49323bc9',
+    v: '0x0',
+    yParity: '0x0',
+  },
+  feeToken: '0x20c0000000000000000000000000000000000000',
+  from: '0xec069186420e91902de5343393503d635ea90382',
+  gas: '0x916d2',
+  gasPrice: '0x23c34600',
+  hash: '0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239',
+  keyAuthorization: null,
+  maxFeePerGas: '0x47868c00',
+  maxPriorityFeePerGas: '0x0',
+  nonce: '0xe723b82c0de6fb54',
+  nonceKey:
+    '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+  signature: {
+    r: '0x20b5df0d1c766184d8d3867f4322fc6980bd6c8cf3cd41ceb4620fafb7e9f7fd',
+    s: '0x567734f30f9b8e9cbf71eb2be871a3a5eecf773da2feb74eda0fe82d52d83813',
+    type: 'secp256k1',
+    v: '0x0',
+    yParity: '0x0',
+  },
+  transactionIndex: '0x0',
+  type: '0x76',
+  validAfter: null,
+  validBefore: '0x6ae0cb0d',
+} as const
+
+describe('codecs.transaction', () => {
+  test('decodes expiring nonces above 2^53 exactly', () => {
+    const transaction = chainConfig.codecs.transaction.fromRpc(
+      expiringNonceTransaction as unknown as Parameters<
+        typeof chainConfig.codecs.transaction.fromRpc
+      >[0],
+    )
+    expect(transaction).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "blockHash": "0x2a1be7bdf66a1d611af5af52d961261bd8f2f49fd6131ec00d702b585dca6f45",
+        "blockNumber": 46158546n,
+        "blockTimestamp": 1793116882n,
+        "calls": [
+          {
+            "data": "0xa9059cbb0000000000000000000000004c2c0f0bb2631b02ac9299c59690914ee7a200b8000000000000000000000000000000000000000000000000000000000052b3e0",
+            "to": "0x20c0000000000000000000006a37da5c996874be",
+            "value": 0n,
+          },
+        ],
+        "chainId": 4217,
+        "feePayerSignature": {
+          "r": "0x7c4ef2a5e8e020d72493c05b7973ebcef0d67229042de01a0a07d64933f8880f",
+          "s": "0x2298cf0122f6e8e6cd9d6bec68a06e75176f0e8231b81ad35430065b49323bc9",
+          "v": 27,
+          "yParity": 0,
+        },
+        "feeToken": "0x20c0000000000000000000000000000000000000",
+        "from": "0xec069186420e91902de5343393503d635ea90382",
+        "gas": 595666n,
+        "gasPrice": 600000000n,
+        "hash": "0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239",
+        "maxFeePerGas": 1200000000n,
+        "maxPriorityFeePerGas": 0n,
+        "nonce": 16655358346297539412n,
+        "nonceKey": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        "signature": {
+          "signature": {
+            "r": "0x20b5df0d1c766184d8d3867f4322fc6980bd6c8cf3cd41ceb4620fafb7e9f7fd",
+            "s": "0x567734f30f9b8e9cbf71eb2be871a3a5eecf773da2feb74eda0fe82d52d83813",
+            "yParity": 0,
+          },
+          "type": "secp256k1",
+        },
+        "transactionIndex": 0,
+        "type": "tempo",
+        "validBefore": 1793116941,
+      }
+    `)
+  })
+  test('decoded expiring nonces serialize to the mined transaction', () => {
+    const transaction = chainConfig.codecs.transaction.fromRpc(
+      expiringNonceTransaction as unknown as Parameters<
+        typeof chainConfig.codecs.transaction.fromRpc
+      >[0],
+    )
+    if (transaction.type !== 'tempo') throw new Error('expected tempo')
+    const serialized = serialize(
+      TxEnvelopeTempo.from({ ...transaction, nonce: transaction.nonce }),
+    )
+    expect(Hash.keccak256(serialized)).toBe(expiringNonceTransaction.hash)
+  })
+})
+
+describe('codecs.block', () => {
+  test('decodes Tempo transactions inside blocks', () => {
+    const block = chainConfig.codecs.block.fromRpc({
+      number: '0x2c052d2',
+      transactions: [
+        expiringNonceTransaction,
+        '0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239',
+      ],
+    } as unknown as Parameters<typeof chainConfig.codecs.block.fromRpc>[0])
+    const [transaction, hash] = block.transactions
+    expect({
+      hash,
+      number: block.number,
+      transaction:
+        typeof transaction === 'object'
+          ? {
+              nonce: transaction.nonce,
+              nonceKey: transaction.nonceKey,
+              type: transaction.type,
+            }
+          : transaction,
+    }).toMatchInlineSnapshot(`
+      {
+        "hash": "0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239",
+        "number": 46158546n,
+        "transaction": {
+          "nonce": 16655358346297539412n,
+          "nonceKey": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+          "type": "tempo",
+        },
+      }
+    `)
   })
 })
 
@@ -838,26 +985,31 @@ describe('transaction.prepare', () => {
     expect(request.account).toBe(account)
   })
 
-  test('expiring nonce: explicit `nonceKey: expiring`', async () => {
-    const request = await prepare(
-      { feeToken: baseRequest.feeToken, nonceKey: 'expiring' },
-      { client, phase: 'beforeFillTransaction' },
-    )
-    expect(request.nonceKey).toBe(2n ** 256n - 1n)
-    expect(request.nonce).toBe(0)
-    expect(request.validAfter).toBeLessThan(Date.now() / 1000)
-    expect(request.validBefore).toBeGreaterThan(Date.now() / 1000)
-  })
+  test.each(['expiring', 2n ** 256n - 1n] as const)(
+    'expiring nonce: random discriminator and validity window for %s',
+    async (nonceKey) => {
+      const now = Math.floor(Date.now() / 1000)
+      const requests = await Promise.all(
+        Array.from({ length: 3 }, () =>
+          prepare(
+            { feeToken: baseRequest.feeToken, nonceKey },
+            { client, phase: 'beforeFillTransaction' },
+          ),
+        ),
+      )
 
-  test('expiring nonce: explicit numeric sentinel', async () => {
-    const request = await prepare(
-      { feeToken: baseRequest.feeToken, nonceKey: 2n ** 256n - 1n },
-      { client, phase: 'beforeFillTransaction' },
-    )
-    expect(request.nonceKey).toBe(2n ** 256n - 1n)
-    expect(request.nonce).toBe(0)
-    expect(request.validBefore).toBeGreaterThan(Date.now() / 1000)
-  })
+      const nonces = requests.map(({ nonce }) => nonce as number)
+      expect(new Set(nonces).size).toBe(3)
+      for (const request of requests) {
+        expect(request.nonceKey).toBe(2n ** 256n - 1n)
+        expect(Number.isSafeInteger(request.nonce)).toBe(true)
+        expect(request.nonce).toBeLessThan(2 ** 48)
+        expect(request.validAfter).toBeUndefined()
+        expect(request.validBefore).toBeGreaterThanOrEqual(now + 270)
+        expect(request.validBefore).toBeLessThanOrEqual(now + 271)
+      }
+    },
+  )
 
   test('expiring nonce: concurrent JSON-RPC address accounts', async () => {
     const [first, second] = await Promise.all([
@@ -934,6 +1086,16 @@ describe('transaction.prepare', () => {
     expect(request.nonceKey).toBeUndefined()
   })
 
+  test('protocol nonce key (0) leaves the nonce to core', async () => {
+    const request = await prepare(
+      { feeToken: baseRequest.feeToken, nonceKey: 0n },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.nonceKey).toBe(0n)
+    expect(request.nonce).toBeUndefined()
+    expect(request.validBefore).toBeUndefined()
+  })
+
   test('explicit nonceKey (2D nonces) defaults the nonce', async () => {
     const request = await prepare(
       { feeToken: baseRequest.feeToken, nonceKey: 69n },
@@ -964,6 +1126,13 @@ describe('transaction.prepare', () => {
     )
     expect(unprepared.gas).toBeUndefined()
 
+    // The fee payer's signature and fee token cost 5,000 gas on their own.
+    const sponsored = await prepare(
+      { feePayer: true, gas: 100_000n },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(sponsored.gas).toBe(105_000n)
+
     const webAuthn = await prepare(
       {
         feePayer: true,
@@ -972,7 +1141,7 @@ describe('transaction.prepare', () => {
       },
       { client, phase: 'afterFillParameters' },
     )
-    expect(webAuthn.gas).toBe(120_000n)
+    expect(webAuthn.gas).toBe(125_000n)
 
     const accessKey = await prepare(
       {
@@ -982,7 +1151,19 @@ describe('transaction.prepare', () => {
       },
       { client, phase: 'afterFillParameters' },
     )
-    expect(accessKey.gas).toBe(110_000n)
+    expect(accessKey.gas).toBe(115_000n)
+
+    // Owner approvals cover the gas limit, so it stays.
+    const approved = await prepare(
+      {
+        account: { address: sender, source: 'accessKey' },
+        feePayer: true,
+        gas: 100_000n,
+        signatures: ['0x01'],
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(approved.gas).toBe(100_000n)
 
     const signed = await prepare(
       {
@@ -1008,6 +1189,42 @@ describe('transaction.prepare', () => {
 
   // The pending key authorization refresh reads the on-chain
   // AccountKeychain (`getKey`) before attaching or dropping.
+  test(
+    'protocol nonce key (0): prepares the protocol nonce (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const funder = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+      const client = tempo.getClient({ account, rpcUrl: await node.start() })
+      await Actions.token.transferSync(funder, {
+        amount: 1_000_000n,
+        to: account.address,
+        token: tempo.pathUsd,
+      })
+      await CoreActions.transaction.sendSync(client, {
+        feeToken: tempo.pathUsd,
+        nonceKey: 0n,
+        to: sender,
+      })
+
+      const { request } = await CoreActions.transaction.prepare(client, {
+        feeToken: tempo.pathUsd,
+        nonceKey: 0n,
+        to: sender,
+      })
+
+      expect({
+        nonce: request.nonce,
+        nonceKey: request.nonceKey,
+      }).toMatchInlineSnapshot(`
+        {
+          "nonce": 1,
+          "nonceKey": 0n,
+        }
+      `)
+    },
+  )
+
   test(
     'keyAuthorization: attaches a pending authorization (tempo node)',
     { timeout: 120_000 },

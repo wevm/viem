@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 
-import { mainnet } from 'viem/chains'
+import { hyperEvm, hyperliquidEvmTestnet, mainnet } from 'viem/chains'
 
 import {
   BaseFeeScalarError,
@@ -122,6 +122,61 @@ describe('chain `baseFeeMultiplier` override', () => {
         chain: { ...chain, fees: { baseFeeMultiplier: async () => 0.5 } },
       }),
     ).rejects.toThrowError(BaseFeeScalarError)
+  })
+})
+
+describe('HyperEVM fee headroom', () => {
+  test('default', async () => {
+    const fees = await Promise.all(
+      [hyperEvm, hyperliquidEvmTestnet].map((chain) =>
+        internal_estimateFeesPerGas(client, {
+          block: { baseFeePerGas: 1_000_000_000n } as Block.Block,
+          chain,
+          request: { maxPriorityFeePerGas: 7n },
+        }),
+      ),
+    )
+
+    expect(fees).toMatchInlineSnapshot(`
+      [
+        {
+          "maxFeePerGas": 2000000007n,
+          "maxPriorityFeePerGas": 7n,
+        },
+        {
+          "maxFeePerGas": 2000000007n,
+          "maxPriorityFeePerGas": 7n,
+        },
+      ]
+    `)
+  })
+
+  test('behavior: explicit fee cap', async () => {
+    const fees = await Promise.all(
+      [hyperEvm, hyperliquidEvmTestnet].map((chain) =>
+        internal_estimateFeesPerGas(client, {
+          block: { baseFeePerGas: 1_000_000_000n } as Block.Block,
+          chain,
+          request: {
+            maxFeePerGas: 1_500_000_000n,
+            maxPriorityFeePerGas: 7n,
+          },
+        }),
+      ),
+    )
+
+    expect(fees).toMatchInlineSnapshot(`
+      [
+        {
+          "maxFeePerGas": 1500000000n,
+          "maxPriorityFeePerGas": 7n,
+        },
+        {
+          "maxFeePerGas": 1500000000n,
+          "maxPriorityFeePerGas": 7n,
+        },
+      ]
+    `)
   })
 })
 

@@ -1,6 +1,7 @@
 import type { TransactionEnvelope as ox_TxEnvelope } from 'ox'
 import {
   Address,
+  Block as ox_Block,
   Hash,
   Hex,
   TransactionRequest as ox_TransactionRequest,
@@ -22,6 +23,8 @@ import { getCode } from '../core/actions/address/getCode.js'
 import { read } from '../core/actions/contract/read.js'
 import { get as getTransaction } from '../core/actions/transaction/get.js'
 import { verifyDefault, type verifyHash } from '../core/actions/verifyHash.js'
+import * as ContractError from '../core/ContractError.js'
+import { BaseError } from '../core/Errors.js'
 import * as Contracts from '../core/internal/contracts.js'
 import * as Abis from './Abis.js'
 import type { ConfigurableAccount, RootAccount } from './Account.js'
@@ -31,18 +34,23 @@ import type { Hardfork } from './Hardfork.js'
 import type * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 import { getConfig } from './actions/accounts/getConfig.js'
 import { parseApproval } from './accounts/Signature.js'
+import * as Expiry from './Expiry.js'
 import * as Concurrent from './internal/concurrent.js'
+import * as Replacement from './internal/replacement.js'
 
-const maxExpirySecs = 25
+/**
+ * Default distance, in seconds, of a generated expiring nonce `validBefore`.
+ * Stays under {@link Expiry.expiringNonceMax} to allow for clock skew.
+ */
+const expiringNonceExpiry = Expiry.expiringNonceMax - 30
 const maxUint256 = 2n ** 256n - 1n
 
-/** Returns a random past timestamp for unique expiring transactions. */
-function randomValidAfter(): number {
-  const now = BigInt(Math.floor(Date.now() / 1_000))
-  const latest = now - 60n
-  if (latest <= 0n) return 0
-  return Number(BigInt(Hex.random(8)) % latest)
-}
+/**
+ * Intrinsic gas reserved for what `eth_fillTransaction` estimates without: the
+ * fee payer's signature and fee token, and, from T14, one cold access (2,600
+ * gas) of the fee payer's account. Earlier forks refund the unused gas.
+ */
+const feePayerGas = 5_000n
 
 /** Tempo EOA default-delegation designator. */
 const delegationCode = '0xef01007702c00000000000000000000000000000000000'
@@ -110,6 +118,9 @@ export type ChainConfig = {
     hardfork?: Hardfork | undefined
   }
   codecs: {
+    block: {
+      fromRpc: (rpc: BlockRpc) => Block
+    }
     transaction: {
       fromRpc: (rpc: TransactionRpc) => Transaction
     }
@@ -132,6 +143,7 @@ export type ChainConfig = {
       fn: Chain.Chain.Transaction.PrepareFn,
       options: { runAt: readonly Chain.Chain.Transaction.PreparePhase[] },
     ]
+    replacement: typeof Replacement.transactionReplacement
     serialize: (
       envelope: Envelope | TxEnvelope,
       options?: SerializeOptions | undefined,
@@ -187,20 +199,24 @@ export const chainConfig = {
     hardfork?: Hardfork | undefined
   }>(),
   codecs: {
-    transaction: {
-      fromRpc(rpc: TransactionRpc): Transaction {
-        const transaction = TransactionTempo.fromRpc(rpc)
+    // The core block codec decodes transactions as Ethereum transactions, so
+    // Tempo decodes the transactions inside blocks itself.
+    block: {
+      fromRpc(rpc: BlockRpc): Block {
+        const { transactions, ...rest } = rpc
         return {
-          ...transaction,
-          ...(rpc.operation
-            ? {
-                operation: AccountOperation.fromRpc(
-                  rpc.operation,
-                ) as AccountOperation.TransactionOperation,
-              }
-            : {}),
-        }
+          // Pending blocks carry `null` hashes, which `fromRpc` passes through.
+          ...ox_Block.fromRpc({ ...rest, transactions: [] } as ox_Block.Rpc),
+          transactions: transactions.map((transaction) =>
+            typeof transaction === 'string'
+              ? transaction
+              : decodeTransaction(transaction),
+          ),
+        } as Block
       },
+    },
+    transaction: {
+      fromRpc: decodeTransaction,
     },
     transactionReceipt: {
       fromRpc(rpc: TransactionReceiptRpc): TransactionReceipt {
@@ -308,22 +324,27 @@ export const chainConfig = {
         }
 
         if (phase === 'afterFillParameters') {
+          // The fee payer signature covers the gas limit, so the relay sets it
+          // before signing and it must not change afterward. Owner approvals
+          // also cover it, so a request carrying them keeps its gas.
           if (
             typeof request.gas !== 'undefined' &&
             request.feePayer &&
-            !request.feePayerSignature
+            !request.feePayerSignature &&
+            !request.signatures?.length
           ) {
             // Fee-paid transactions are gas-estimated with a dummy secp256k1
-            // signature and a null fee-payer signature; larger envelope
-            // signatures cost more intrinsic gas.
+            // signature and without the fee payer's signature and fee token;
+            // larger envelope signatures cost more intrinsic gas.
             const gas =
-              typeof request.gas === 'bigint'
+              (typeof request.gas === 'bigint'
                 ? request.gas
-                : BigInt(request.gas)
+                : BigInt(request.gas)) + feePayerGas
             if (request.keyAuthorization?.signature.type === 'webAuthn')
               request.gas = gas + 20_000n
             else if (account?.source === 'accessKey')
               request.gas = gas + 10_000n
+            else request.gas = gas
           }
           return request as Record<string, unknown>
         }
@@ -438,12 +459,18 @@ export const chainConfig = {
           request.nonce = 0
         } else if (useExpiringNonce) {
           request.nonceKey = maxUint256
-          request.nonce ??= 0
-          if (typeof request.validAfter === 'undefined')
-            request.validAfter = randomValidAfter()
+          // A random discriminator keeps otherwise identical expiring
+          // transactions distinct. 48 bits stay within
+          // `Number.MAX_SAFE_INTEGER`.
+          request.nonce ??= Hex.toNumber(Hex.random(6))
           if (typeof request.validBefore === 'undefined')
-            request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
-        } else if (typeof request.nonceKey !== 'undefined') {
+            request.validBefore = Expiry.seconds(expiringNonceExpiry)
+        } else if (
+          typeof request.nonceKey !== 'undefined' &&
+          // Nonce key 0 is the protocol nonce, which core fills like an
+          // Ethereum nonce.
+          request.nonceKey !== 0n
+        ) {
           // Explicit nonceKey provided (2D nonce mode).
           request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
         }
@@ -504,6 +531,7 @@ export const chainConfig = {
       },
       { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
     ],
+    replacement: Replacement.transactionReplacement,
     serialize(
       envelope: Envelope | TxEnvelope,
       options: SerializeOptions = {},
@@ -665,6 +693,32 @@ export const chainConfig = {
         })
       }
 
+      // Configurable account signatures verify against the account's current
+      // config commitment, which only the chain knows. Reverts (malformed
+      // signatures or approvals below quorum) are invalid signatures.
+      if (envelope.type === 'configurable')
+        return await read(client, {
+          abi: Abis.signatureVerifier,
+          address: Addresses.signatureVerifier,
+          args: [address, hash, signature],
+          functionName: 'verifyConfigurableAccount',
+          ...(blockHash
+            ? { blockHash, requireCanonical }
+            : typeof blockNumber === 'bigint'
+              ? { blockNumber }
+              : { blockTag }),
+        }).catch((error) => {
+          if (
+            error instanceof BaseError &&
+            error.walk(
+              (cause) =>
+                cause instanceof ContractError.ContractFunctionRevertedError,
+            )
+          )
+            return false
+          throw error
+        })
+
       // Stateless envelopes (P256, WebAuthn) verify without a network request
       // for EOAs (including the Tempo default delegation); contracts fall
       // through to the ERC-1271 flow.
@@ -728,6 +782,21 @@ function isTempoRequest(request: Record<string, unknown>): boolean {
     typeof request.validAfter !== 'undefined' ||
     typeof request.validBefore !== 'undefined'
   )
+}
+
+/** Decodes (wire → native) a Tempo RPC transaction. @internal */
+function decodeTransaction(rpc: TransactionRpc): Transaction {
+  const transaction = TransactionTempo.fromRpc(rpc)
+  return {
+    ...transaction,
+    ...(rpc.operation
+      ? {
+          operation: AccountOperation.fromRpc(
+            rpc.operation,
+          ) as AccountOperation.TransactionOperation,
+        }
+      : {}),
+  }
 }
 
 /** Decodes (wire → native) a Tempo RPC transaction request. @internal */
@@ -836,6 +905,14 @@ function selectOwners(config: AccountConfig.Config) {
 }
 
 // Exported so consumer declaration emit can name them. See `internal/inference.ts`.
+export type Block = ox_Block.Block<
+  boolean,
+  ox_Block.Tag,
+  bigint,
+  number,
+  Transaction
+>
+export type BlockRpc = ox_Block.Rpc<boolean, ox_Block.Tag, TransactionRpc>
 export type Transaction = TransactionTempo.Transaction & {
   operation?: AccountOperation.TransactionOperation | undefined
 }

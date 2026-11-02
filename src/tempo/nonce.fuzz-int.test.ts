@@ -139,7 +139,7 @@ describe('Tempo nonce concurrency: node fuzz', () => {
       expect(transaction.from).toBe(account.address.toLowerCase())
       if (scenario.mode === 'automatic' || scenario.mode === 'expiring') {
         expect(transaction.nonceKey).toBe(maxUint256)
-        expect(transaction.nonce).toBe(0n)
+        expect(transaction.nonce).toBeLessThan(2n ** 48n)
         expect(transaction.validBefore).toBeTypeOf('number')
         continue
       }
@@ -247,9 +247,10 @@ describe('Tempo nonce concurrency: node fuzz', () => {
       for (const transaction of transactions) {
         expect(transaction.from).toBe(account.address.toLowerCase())
         expect(transaction.nonceKey).toBe(maxUint256)
-        expect(transaction.nonce).toBe(0n)
+        expect(transaction.nonce).toBeLessThan(2n ** 48n)
         expect(transaction.feePayerSignature).toBeDefined()
       }
+      expect(new Set(transactions.map(({ nonce }) => nonce)).size).toBe(burst)
       for (const receipt of receipts) {
         expect(receipt.from).toBe(account.address.toLowerCase())
         expect(receipt.feePayer).toBe(feePayer.address.toLowerCase())

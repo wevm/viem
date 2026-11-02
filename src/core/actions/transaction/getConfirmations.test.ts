@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from 'vitest'
-import { Actions } from 'viem'
+import { Actions, Client, http } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -50,6 +50,45 @@ test('behavior: pending transaction (no block) returns 0n', async () => {
     hash,
   })
   expect(confirmations).toMatchInlineSnapshot('0n')
+})
+
+test('behavior: cached block number lower than the transaction block', async () => {
+  const client = Client.create({
+    cacheTime: 10_000,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  await Actions.block.getNumber(client)
+
+  const hash = await Actions.transaction.send(client, {
+    account: constants.accounts[0].address,
+    to: constants.accounts[1].address,
+    value: 1n,
+  })
+  await Actions.block.mine(client, { blocks: 2 })
+  const transactionReceipt = await Actions.transaction.getReceipt(client, {
+    hash,
+  })
+
+  const confirmations = await Actions.transaction.getConfirmations(client, {
+    transactionReceipt,
+  })
+  expect(confirmations).toMatchInlineSnapshot(`2n`)
+})
+
+test('behavior: fresh block number lower than the transaction block', async () => {
+  const transactionReceipt = await Actions.transaction.getReceipt(client, {
+    hash,
+  })
+
+  // The receipt comes from a node that is ahead of the one returning block
+  // numbers.
+  const confirmations = await Actions.transaction.getConfirmations(client, {
+    transactionReceipt: {
+      ...transactionReceipt,
+      blockNumber: transactionReceipt.blockNumber + 10n,
+    },
+  })
+  expect(confirmations).toMatchInlineSnapshot(`1n`)
 })
 
 test('error: transaction not found', async () => {

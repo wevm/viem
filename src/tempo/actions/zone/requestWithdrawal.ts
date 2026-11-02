@@ -18,6 +18,7 @@ import {
   pickWriteSyncParameters,
 } from '../../internal/utils.js'
 import { getAccount, getAddress, type ZoneWriteParameters } from './internal.js'
+import type * as TempoErrors from '../../errors.js'
 
 const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -80,7 +81,9 @@ export namespace requestWithdrawal {
       to?: Address.Address | undefined
     }
   export type ReturnType = send.ReturnType
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

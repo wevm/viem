@@ -12,6 +12,7 @@ import * as Addresses from '../../Addresses.js'
 import type { WriteParameters } from '../../internal/types.js'
 import { defineCall, dispatchWrite } from '../../internal/utils.js'
 import { getConfig } from './getConfig.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Replaces the current configuration for a configurable account.
@@ -85,7 +86,9 @@ export namespace updateConfig {
   export type ReturnType = write.ReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -181,25 +184,26 @@ export namespace updateConfig {
     const currentConfig = AccountConfig.from(args.currentConfig)
     const nextConfig = AccountConfig.update(currentConfig, args.nextConfig)
     return defineCall({
-      address: Addresses.nativeMultisig,
-      abi: Abis.nativeMultisig,
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
       args: [currentConfig, nextConfig.threshold, nextConfig.owners],
       functionName: 'updateConfig',
     })
   }
 
   /**
-   * Extracts the `MultisigConfigUpdated` event from logs.
+   * Extracts the `ConfigurableAccountConfigUpdated` event from logs.
    *
    * @param logs - Transaction logs.
    * @returns The configuration update event.
    */
   export function extractEvent(logs: readonly AbiEvent.extractLogs.Log[]) {
-    const [log] = AbiEvent.extractLogs(Abis.nativeMultisig, logs, {
-      eventName: 'MultisigConfigUpdated',
+    const [log] = AbiEvent.extractLogs(Abis.configurableAccount, logs, {
+      eventName: 'ConfigurableAccountConfigUpdated',
       strict: true,
     })
-    if (!log) throw new Error('`MultisigConfigUpdated` event not found.')
+    if (!log)
+      throw new Error('`ConfigurableAccountConfigUpdated` event not found.')
     return log
   }
 }

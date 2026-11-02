@@ -86,7 +86,11 @@ export * as Selectors from './Selectors.js'
 export * as Store from './Store.js'
 
 /** Relay transport: routes fee sponsorship traffic to a fee payer service. */
-export { withRelay } from './Transport.js'
+export {
+  /** Transport that `withRelay` returns for a remote relay. */
+  type Relay as RelayTransport,
+  withRelay,
+} from './Transport.js'
 
 /** WebAuthn P256 credential creation & signing. */
 export * as WebAuthnP256 from './WebAuthnP256.js'

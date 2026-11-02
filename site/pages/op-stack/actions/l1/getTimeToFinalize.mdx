@@ -63,7 +63,9 @@ const time = await Actions.l1.getTimeToFinalize(client, { // [!code focus]
 }
 ```
 
-The finalization period, remaining seconds, and finalization timestamp in milliseconds.
+The proof maturity delay (`period`), remaining seconds, and finalization timestamp in milliseconds.
+
+`seconds` is the later of the proof maturity delay and the resolution of the proof's dispute game plus its finality delay. While the game is unresolved, its resolution time is an estimate.
 
 ## Parameters
 

@@ -78,6 +78,6 @@ describe('cancel', () => {
   test('behavior: cannot cancel non-existent order', async () => {
     await expect(
       Actions.dex.cancelSync(client, { orderId: 999999999n }),
-    ).rejects.toThrow('The contract function "cancel" reverted')
+    ).rejects.toThrow(Actions.dex.DexOrderNotFoundError)
   })
 })

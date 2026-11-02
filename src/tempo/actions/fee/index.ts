@@ -1,4 +1,9 @@
 // biome-ignore lint/performance/noBarrelFile: namespace module
+export {
+  type ExecutionErrorType,
+  FeeInsufficientBalanceError,
+  type FeeInsufficientBalanceErrorType,
+} from './errors.js'
 export { getUserToken } from './getUserToken.js'
 export { getValidatorToken } from './getValidatorToken.js'
 export { setUserToken } from './setUserToken.js'

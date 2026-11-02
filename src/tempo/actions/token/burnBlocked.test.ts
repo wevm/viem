@@ -83,7 +83,7 @@ describe('burnBlocked', () => {
         from: account2.address,
         token,
       }),
-    ).rejects.toThrow('The contract function "burnBlocked" reverted')
+    ).rejects.toThrow(Actions.token.TokenPolicyForbidsError)
   })
 
   test('behavior: requires `burnBlocked` role', async () => {
@@ -95,6 +95,6 @@ describe('burnBlocked', () => {
         from: account2.address,
         token,
       }),
-    ).rejects.toThrow('The contract function "burnBlocked" reverted')
+    ).rejects.toThrow(Actions.token.TokenUnauthorizedError)
   })
 })

@@ -8,6 +8,7 @@ import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { grantRoles, type RoleMembershipUpdated } from './grantRoles.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Grants roles for a TIP-20 token, and waits for the transaction to be confirmed.
@@ -62,5 +63,7 @@ export namespace grantRolesSync {
     value: readonly RoleMembershipUpdated[]
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

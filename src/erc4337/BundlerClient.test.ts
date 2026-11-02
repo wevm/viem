@@ -44,6 +44,7 @@ test('default', async () => {
       "paymasterContext": undefined,
       "pollingInterval": 10,
       "request": null,
+      "scope": [Function],
       "tokens": undefined,
       "transport": null,
       "type": "bundler",

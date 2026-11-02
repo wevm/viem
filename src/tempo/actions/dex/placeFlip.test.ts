@@ -89,7 +89,7 @@ describe('placeFlip', () => {
         tick: 100,
         flipTick: 50,
       }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    ).rejects.toThrow(Actions.dex.DexInvalidFlipTickError)
   })
 
   test('behavior: flip ask requires flipTick <= tick', async () => {
@@ -124,7 +124,7 @@ describe('placeFlip', () => {
         tick: 50,
         flipTick: 100,
       }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    ).rejects.toThrow(Actions.dex.DexInvalidFlipTickError)
   })
 
   test('behavior: flip ticks at boundaries', async () => {

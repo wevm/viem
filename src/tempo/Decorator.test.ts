@@ -1196,7 +1196,7 @@ test('channel lifecycle', async () => {
   await client.channel.requestCloseSync({ channel: withdrawSync.channel })
   await expect(
     client.channel.withdrawSync({ channel: withdrawSync.channel }),
-  ).rejects.toThrow('The contract function "withdraw" reverted')
+  ).rejects.toThrow(Actions.channel.ChannelCloseNotReadyError)
 
   const withdrawAsync = await openChannel(Hex.fromNumber(0xd005, { size: 32 }))
   await waitForHash(
@@ -1204,7 +1204,7 @@ test('channel lifecycle', async () => {
   )
   await expect(
     client.channel.withdraw({ channel: withdrawAsync.channel }),
-  ).rejects.toThrow('The contract function "withdraw" reverted')
+  ).rejects.toThrow(Actions.channel.ChannelCloseNotReadyError)
 })
 
 test('receive policy lifecycle', async () => {

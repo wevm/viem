@@ -18,6 +18,7 @@ import {
   resolveCallParameters,
   resolveToken,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Renounces roles for a TIP-20 token.
@@ -63,7 +64,9 @@ export namespace renounceRoles {
     }
   export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<

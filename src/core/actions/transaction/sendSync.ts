@@ -95,7 +95,7 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
   const codecsChain = chain_ ?? client.chain
   const accountNonceManager =
     account.type === 'local' ? account.nonceManager : undefined
-  let reset: NonceManager.NonceManager.Parameters | undefined
+  let reset: NonceManager.NonceManager.ResetParameters | undefined
   const nonceManager =
     accountNonceManager && typeof rest.nonce === 'undefined'
       ? {
@@ -104,8 +104,13 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
               client: Client.Client
             },
           ) {
-            reset = parameters
-            return accountNonceManager.consume(parameters)
+            const { address, chainId } = parameters
+            reset = { address, chainId }
+            const nonce = await accountNonceManager.consume(parameters)
+            // Pass the consumed nonce to `reset` so the manager can tell
+            // which `consume` a failed send follows.
+            reset = { address, chainId, nonce }
+            return nonce
           },
           get: accountNonceManager.get,
           increment: accountNonceManager.increment,

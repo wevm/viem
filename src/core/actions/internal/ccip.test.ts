@@ -2,12 +2,13 @@ import { AbiConstructor, AbiError, AbiFunction, Hex } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import { createCcipServer } from '~test/ccip.js'
+import { createServer } from '~test/http.js'
 import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
 import { describe, expect, test } from 'vitest'
 
-import { Actions, Client, custom, RpcError } from 'viem'
-import { CcipRead } from 'viem/utils'
+import { Actions, Client, custom, fallback, http, RpcError } from 'viem'
+import { CcipRead, RpcClient } from 'viem/utils'
 
 import { offchainLookup } from './ccip.js'
 
@@ -160,6 +161,54 @@ describe('call integration', () => {
     expect(error).toBeInstanceOf(CcipRead.LookupLimitExceededError)
     expect(error.limit).toBe(4)
   })
+
+  test('behavior: charges each gateway URL across recursive lookups', async () => {
+    const { address } = await deployExample(
+      Array.from({ length: 100 }, () => 'data:application/json,{"data":"0x"}'),
+    )
+    const enabled = Client.create({
+      ccipRead: { request: unsafeRequest },
+      transport,
+    })
+    const data = AbiFunction.encodeData(
+      AbiFunction.fromAbi(generated.OffchainLookupExample.abi, 'loop'),
+    )
+
+    const error = await Actions.call(enabled, { data, to: address }).catch(
+      (error) => error,
+    )
+
+    expect(error).toBeInstanceOf(CcipRead.LookupLimitExceededError)
+    expect(error.limit).toMatchInlineSnapshot(`256`)
+  })
+
+  test('behavior: uses the longest transport timeout for gateway requests', async () => {
+    const server = await createServer(() => {})
+    try {
+      const { address } = await deployExample([`${server.url}/{sender}/{data}`])
+      const enabled = Client.create({
+        ccipRead: { request: unsafeRequest },
+        transport: fallback([
+          http(anvil.local.rpcUrl.http, { retryCount: 0, timeout: 200 }),
+          http(anvil.local.rpcUrl.http, { retryCount: 0, timeout: 300 }),
+        ]),
+      })
+
+      const start = Date.now()
+      const error = await Actions.call(enabled, {
+        data: getAddressData('jxom.viem'),
+        to: address,
+      }).catch((error) => error)
+      const elapsed = Date.now() - start
+
+      expect(error).toBeInstanceOf(CcipRead.LookupError)
+      expect(error.cause).toBeInstanceOf(RpcClient.TimeoutError)
+      expect(elapsed).toBeGreaterThanOrEqual(300)
+      expect(elapsed).toBeLessThan(5_000)
+    } finally {
+      server.close()
+    }
+  })
 })
 
 describe('offchainLookup', () => {
@@ -175,7 +224,6 @@ describe('offchainLookup', () => {
     const error = (await offchainLookup({
       call: (options) => Actions.call(client, options),
       data,
-      lookupCount: 0,
       request: CcipRead.request,
       to: '0x0000000000000000000000000000000000000001',
     }).catch((error) => error)) as CcipRead.LookupError

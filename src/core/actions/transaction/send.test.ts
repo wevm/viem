@@ -571,6 +571,87 @@ describe('behavior: nonceManager', () => {
     )
     expect(b!.nonce).toBe(a!.nonce + 1n)
   })
+
+  test('resets without a nonce when consume throws', async () => {
+    const resets: NonceManager.NonceManager.ResetParameters[] = []
+    const nonceManager: NonceManager.NonceManager = {
+      async consume() {
+        throw new Error('source unavailable')
+      },
+      async get() {
+        return 0
+      },
+      increment() {},
+      reset(parameters) {
+        resets.push(parameters)
+      },
+    }
+    const account = {
+      ...Account.fromPrivateKey(constants.accounts[4].privateKey),
+      nonceManager,
+    }
+
+    await expect(
+      Actions.transaction.send(client, { account, to, value: 1n }),
+    ).rejects.toThrowError(RpcError.ExecutionError)
+
+    expect(resets.map(({ address: _, ...rest }) => rest))
+      .toMatchInlineSnapshot(`
+      [
+        {
+          "chainId": 1,
+        },
+      ]
+    `)
+  })
+
+  test('releases only the consumed nonce of a failed send', async () => {
+    const account_ = Account.fromPrivateKey(constants.accounts[4].privateKey)
+    const start = await Actions.address.getTransactionCount(client, {
+      address: account_.address,
+      blockTag: 'pending',
+    })
+    const free: number[] = []
+    let next = start
+    const nonceManager: NonceManager.NonceManager = {
+      async consume() {
+        return free.shift() ?? next++
+      },
+      async get() {
+        return free[0] ?? next
+      },
+      increment() {},
+      reset({ nonce }) {
+        if (typeof nonce === 'number') free.push(nonce)
+      },
+    }
+    const account = { ...account_, nonceManager }
+
+    const a = await Actions.transaction.send(client, { account, to, value: 1n })
+    const error = await Actions.transaction
+      .send(client, { account, gas: 100n, to, value: 1n })
+      .catch((error) => error)
+    const b = await Actions.transaction.send(client, { account, to, value: 1n })
+
+    expect(error).toBeInstanceOf(RpcError.ExecutionError)
+    const nonces = await Promise.all(
+      [a, b].map(async (result) => {
+        const transaction = await Actions.transaction.get(client, {
+          hash: result,
+        })
+        return Number(transaction.nonce) - start
+      }),
+    )
+    expect({ free, nonces }).toMatchInlineSnapshot(`
+      {
+        "free": [],
+        "nonces": [
+          0,
+          1,
+        ],
+      }
+    `)
+  })
 })
 
 describe('errors', () => {

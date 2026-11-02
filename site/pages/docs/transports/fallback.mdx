@@ -34,6 +34,35 @@ const transport = fallback([ // [!code focus]
 ]) // [!code focus]
 ```
 
+### Using a Self-Hosted RPC Proxy
+
+A self-hosted JSON-RPC proxy can retry and fail over between providers on the server. Pass the proxy URL to an [`http`](/docs/transports/http) Transport like any other RPC URL.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://localhost:4000/main/evm/1'), // [!code focus]
+})
+```
+
+To keep serving requests when the proxy itself is down, list it first with a direct RPC URL after it.
+
+```ts twoslash
+import { Client, fallback, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: fallback([
+    http('http://localhost:4000/main/evm/1'), // [!code focus]
+    http('https://1.rpc.example'), // [!code focus]
+  ]),
+})
+```
+
 ### Ranking Transports by Latency
 
 Enable `rank` to continuously re-order transports by latency and stability. Pass an object to tune the sampling.

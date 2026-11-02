@@ -42,6 +42,17 @@ test('ExtractTransaction: tempo transaction converter output', () => {
   expectTypeOf<TempoTransaction>().toHaveProperty('feeToken')
 })
 
+test('ExtractBlock: tempo transactions inside blocks', () => {
+  type Block = Chain.ExtractBlock<typeof tempo, true>
+
+  expectTypeOf<Block['transactions'][number]>().toEqualTypeOf<
+    Hex.Hex | Chain.ExtractTransaction<typeof tempo>
+  >()
+  expectTypeOf<
+    Extract<Block['transactions'][number], { type: 'tempo' }>['nonce']
+  >().toEqualTypeOf<bigint>()
+})
+
 test('ExtractTransactionReceipt: tempo receipt converter output', () => {
   type Receipt = Chain.ExtractTransactionReceipt<typeof tempo>
 

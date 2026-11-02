@@ -288,6 +288,30 @@ describe('errors', () => {
       Version: viem@x.x.x]
     `)
   })
+
+  test('tip higher than a zero fee cap', async () => {
+    await expect(() =>
+      Actions.transaction.estimateGas(client, {
+        account: sourceAccount.address,
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: Value.fromGwei('1'),
+        to: targetAccount.address,
+        value: Value.fromEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [RpcError.ExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Request Arguments:
+        from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        maxFeePerGas:          0 gwei
+        maxPriorityFeePerGas:  1 gwei
+        to:                    0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:                 1 ETH
+
+      Details: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+      Version: viem@x.x.x]
+    `)
+  })
 })
 
 describe('behavior: chain codecs', () => {

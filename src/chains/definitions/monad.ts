@@ -4,7 +4,7 @@ import * as Contracts from '../../core/internal/contracts.js'
 export const monad = /*#__PURE__*/ Chain.from({
   id: 143,
   name: 'Monad',
-  blockTime: 400,
+  blockTime: 300,
   nativeCurrency: {
     name: 'Monad',
     symbol: 'MON',

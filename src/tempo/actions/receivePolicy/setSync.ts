@@ -9,6 +9,7 @@ import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import type { Claimer, PolicyRef } from './get.js'
 import { set } from './set.js'
+import type * as TempoErrors from '../../errors.js'
 
 type SetEvent = ReturnType<typeof set.extractEvent>
 
@@ -59,7 +60,9 @@ export namespace setSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 function toPolicyRef(id: bigint): PolicyRef {

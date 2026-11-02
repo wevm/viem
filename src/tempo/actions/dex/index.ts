@@ -7,6 +7,29 @@ export { cancelStaleSync } from './cancelStaleSync.js'
 export { cancelSync } from './cancelSync.js'
 export { createPair } from './createPair.js'
 export { createPairSync } from './createPairSync.js'
+export {
+  DexBelowMinimumOrderSizeError,
+  type DexBelowMinimumOrderSizeErrorType,
+  DexInsufficientBalanceError,
+  type DexInsufficientBalanceErrorType,
+  DexInsufficientLiquidityError,
+  type DexInsufficientLiquidityErrorType,
+  DexInsufficientOutputError,
+  type DexInsufficientOutputErrorType,
+  DexInvalidFlipTickError,
+  type DexInvalidFlipTickErrorType,
+  DexMaxInputExceededError,
+  type DexMaxInputExceededErrorType,
+  DexOrderNotFoundError,
+  type DexOrderNotFoundErrorType,
+  DexOrderNotStaleError,
+  type DexOrderNotStaleErrorType,
+  DexPairNotFoundError,
+  type DexPairNotFoundErrorType,
+  DexTickOutOfBoundsError,
+  type DexTickOutOfBoundsErrorType,
+  type ExecutionErrorType,
+} from './errors.js'
 export { getBalance } from './getBalance.js'
 export { getBuyQuote } from './getBuyQuote.js'
 export { getOrder } from './getOrder.js'

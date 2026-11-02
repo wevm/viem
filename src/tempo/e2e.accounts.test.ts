@@ -17,7 +17,7 @@ import {
   WebCryptoP256,
   withRelay,
 } from 'viem/tempo'
-import { Hex, Secp256k1, Signature } from 'viem/utils'
+import { Hash, Hex, Secp256k1, Signature } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempoAccounts.js'
 import { withResolvers } from '../core/internal/promise.js'
@@ -551,6 +551,130 @@ describe('stateless', () => {
     expect(receipt.from).toBe(currentAccount.address.toLowerCase())
   })
 
+  test('behavior: deriveAccount matches the local address', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: Hex.fromNumber(0x106140, { size: 32 }),
+      threshold: 2,
+    })
+
+    const address = await Actions.accounts.deriveAccount(client, {
+      owners: account.config.owners,
+      salt: account.config.salt,
+      threshold: account.config.threshold,
+    })
+
+    expect(address).toBe(account.address)
+  })
+
+  test('behavior: verifyHash', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: Hex.fromNumber(0x106141, { size: 32 }),
+      threshold: 2,
+    })
+    const hash = Hash.keccak256(Hex.fromString('hello'))
+    const signature = await account.sign({ hash })
+
+    const results = await Promise.all([
+      Actions.accounts.verifyHash(client, {
+        account: account.address,
+        hash,
+        signature,
+      }),
+      Actions.accounts.verifyHash(client, {
+        account: accounts[3].address,
+        hash,
+        signature,
+      }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        true,
+        false,
+      ]
+    `)
+  })
+
+  test('behavior: core verifyHash and verifyMessage', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: Hex.fromNumber(0x106142, { size: 32 }),
+      threshold: 2,
+    })
+    const hash = Hash.keccak256(Hex.fromString('hello'))
+    const signature = await account.sign({ hash })
+    const messageSignature = await account.signMessage({ message: 'hello' })
+
+    const results = await Promise.all([
+      viem_Actions.verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+      viem_Actions.verifyHash(client, {
+        address: account.address,
+        hash: Hash.keccak256(Hex.fromString('goodbye')),
+        signature,
+      }),
+      viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature: messageSignature,
+      }),
+      viem_Actions.verifyMessage(client, {
+        address: account.address,
+        message: 'goodbye',
+        signature: messageSignature,
+      }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        true,
+        false,
+        true,
+        false,
+      ]
+    `)
+  })
+
+  test('behavior: upgrade rejects a configurable account', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1]],
+    })
+
+    await expect(
+      Actions.accounts.upgrade(client, {
+        account,
+        owners: [{ owner: accounts[2].address, weight: 1 }],
+        threshold: 1,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: The account is already a configurable account.]`,
+    )
+  })
+
+  test('behavior: upgrade rejects additional calls', async () => {
+    const options = {
+      account: accounts[1],
+      calls: [{ to: accounts[2].address }],
+      owners: [{ owner: accounts[2].address, weight: 1 }],
+      threshold: 1,
+    }
+
+    await expect(
+      Actions.accounts.upgrade(client, options),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`calls\` is not supported: the upgrade must be the only call, without authorizations.]`,
+    )
+  })
+
   test.each([
     { name: '1-of-1', ownerCount: 1, salt: 0x106131, threshold: 1 },
     { name: '1-of-4', ownerCount: 4, salt: 0x106132, threshold: 1 },
@@ -960,7 +1084,7 @@ describe('stateful', () => {
     const address = tempo.accounts[19].address
     const store = Store.memory()
     await store.setItem(
-      `multisig:config:${address.toLowerCase()}:${Hex.fromNumber(0, { size: 32 })}`,
+      `configurableAccount:config:${tempoLocalnet.id}:${address.toLowerCase()}:${Hex.fromNumber(0, { size: 32 })}`,
       'invalid json',
     )
     const client = Client.create({
@@ -2792,7 +2916,7 @@ describe('stateful', () => {
     expect(operation?.status).toMatchInlineSnapshot(`"success"`)
     await expect(
       store.getItem(
-        `multisig:submission:${pending.transactionHash}:${submitting.submissionId}`,
+        `configurableAccount:submission:${pending.transactionHash}:${submitting.submissionId}`,
       ),
     ).resolves.toMatchInlineSnapshot(`null`)
   })
@@ -2863,7 +2987,7 @@ describe('stateful', () => {
         throw new Error('Expected transaction operation.')
       return submitting
     })
-    const submissionKey = `multisig:submission:${operation.hash}:${submissionId}`
+    const submissionKey = `configurableAccount:submission:${operation.hash}:${submissionId}`
     expect(await store.getItem(submissionKey)).toBeTypeOf('string')
 
     const receipt = await viem_Actions.transaction.sendSync(client, {
@@ -3246,7 +3370,7 @@ describe('stateful', () => {
     expect(failedOperation?.weight).toBe(2)
     await expect(
       store.getItem(
-        `multisig:submission:${pending.transactionHash}:${submitting.submissionId}`,
+        `configurableAccount:submission:${pending.transactionHash}:${submitting.submissionId}`,
       ),
     ).resolves.toMatchInlineSnapshot(`null`)
 

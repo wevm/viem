@@ -120,6 +120,34 @@ const nonceManager = NonceManager.from({
 })
 ```
 
+### Releasing a Failed Send's Nonce
+
+When a send fails after the manager consumed a nonce, [`transaction.send`](/docs/actions/wallet/transaction/send) and [`transaction.sendSync`](/docs/actions/wallet/transaction/send) call `reset` with that nonce as `nonce`. They omit `nonce` when `consume` threw.
+
+A custom manager that tracks a nonce per send can release that nonce only. `NonceManager.from` ignores it.
+
+```ts twoslash
+import { NonceManager } from 'viem'
+
+const free: number[] = []
+let next = 0
+
+const nonceManager: NonceManager.NonceManager = {
+  async consume() {
+    return free.shift() ?? next++
+  },
+  async get() {
+    return free[0] ?? next
+  },
+  increment() {},
+  reset({ nonce }) { // [!code focus]
+    if (typeof nonce === 'number') free.push(nonce) // [!code focus]
+  }, // [!code focus]
+}
+```
+
+A failed send does not prove the nonce is unused. The node may have accepted the transaction before the request failed (for example, on a timeout). Check the pending nonce before reusing a released nonce.
+
 ## `NonceManager.from`
 
 Creates a nonce manager for auto-incrementing transaction nonces.

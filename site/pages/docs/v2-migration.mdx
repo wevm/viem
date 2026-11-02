@@ -1770,7 +1770,7 @@ Callbacks now use the original block context and stop after four lookups. Previo
 
 `CcipRead.request` now has a 10-second timeout and 10 MiB response cap. Set `timeout: 0` or `maxResponseBodySize: false` to disable them.
 
-Local batches allow 64 total queries, four concurrent requests, and four nesting levels per lookup.
+One lookup allows four nested local batches and 256 gateway requests (one per URL), 16 at a time, across its callbacks. Client lookups pass the Transport timeout to each gateway request.
 
 CCIP gateway requests and batch tunnels moved to `CcipRead`, tunnel overrides renamed `ccipRequest` to `request`, and transport request options began flowing through tunnels.
 

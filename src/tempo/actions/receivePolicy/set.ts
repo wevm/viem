@@ -16,15 +16,16 @@ import {
   defineCall,
   dispatchWrite,
   estimateWrite,
+  isTip20,
   pickWriteParameters,
   resolveCallParameters,
   simulateWrite,
 } from '../../internal/utils.js'
 import type { Claimer, PolicyRef } from './get.js'
+import type * as TempoErrors from '../../errors.js'
 
 const rejectAllPolicyId = 0n
 const allowAllPolicyId = 1n
-const tip20Prefix = '0x20c000000000000000000000'
 const zeroAddress = '0x0000000000000000000000000000000000000000'
 const systemPrecompiles = [
   Addresses.accountKeychain,
@@ -72,7 +73,9 @@ export namespace set {
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -185,7 +188,7 @@ function assertValidRecoveryAuthority(recoveryAuthority: Address.Address) {
   if (Address_.isEqual(recoveryAuthority, zeroAddress)) return
   if (VirtualAddress.isVirtual(recoveryAuthority))
     throw new Error('Recovery authority cannot be a TIP-1022 virtual address.')
-  if (recoveryAuthority.toLowerCase().startsWith(tip20Prefix))
+  if (isTip20(recoveryAuthority))
     throw new Error('Recovery authority cannot be a TIP-20 token address.')
   if (
     systemPrecompiles.some((address) =>

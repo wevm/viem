@@ -6,6 +6,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { changeOwner } from './changeOwner.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Changes the owner of the validator config precompile, and waits for the transaction to be confirmed. */
 export async function changeOwnerSync<
@@ -31,5 +32,7 @@ export namespace changeOwnerSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

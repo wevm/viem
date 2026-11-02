@@ -87,6 +87,6 @@ describe('cancelStale', () => {
     })
     await expect(
       Actions.dex.cancelStaleSync(client, { orderId }),
-    ).rejects.toThrow('The contract function "cancelStaleOrder" reverted')
+    ).rejects.toThrow(Actions.dex.DexOrderNotStaleError)
   })
 })

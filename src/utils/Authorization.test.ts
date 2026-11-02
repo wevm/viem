@@ -45,6 +45,16 @@ describe('recoverAddress', () => {
     ).toBe(account.address)
   })
 
+  test('error: yParity above 1', () => {
+    expect(() =>
+      Authorization.recoverAddress({
+        authorization: { ...signedAuthorization(), yParity: 27 },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Signature.InvalidYParityError: Value \`27\` is an invalid y-parity value. Y-parity must be 0 or 1.]`,
+    )
+  })
+
   test('error: unsigned authorization', () => {
     expect(() =>
       Authorization.recoverAddress({
@@ -77,6 +87,15 @@ describe('verify', () => {
         publicKey: Secp256k1.getPublicKey({
           privateKey: constants.accounts[1].privateKey,
         }),
+      }),
+    ).toBe(false)
+  })
+
+  test('behavior: yParity above 1 has no authority', () => {
+    expect(
+      Authorization.verify({
+        authorization: { ...signedAuthorization(), yParity: 27 },
+        address: account.address,
       }),
     ).toBe(false)
   })

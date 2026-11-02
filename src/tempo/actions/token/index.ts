@@ -9,6 +9,21 @@ export { changeTransferPolicy } from './changeTransferPolicy.js'
 export { changeTransferPolicySync } from './changeTransferPolicySync.js'
 export { create } from './create.js'
 export { createSync } from './createSync.js'
+export {
+  type ExecutionErrorType,
+  TokenInsufficientAllowanceError,
+  type TokenInsufficientAllowanceErrorType,
+  TokenInsufficientBalanceError,
+  type TokenInsufficientBalanceErrorType,
+  TokenPausedError,
+  type TokenPausedErrorType,
+  TokenPolicyForbidsError,
+  type TokenPolicyForbidsErrorType,
+  TokenSupplyCapExceededError,
+  type TokenSupplyCapExceededErrorType,
+  TokenUnauthorizedError,
+  type TokenUnauthorizedErrorType,
+} from './errors.js'
 export { getAllowance } from './getAllowance.js'
 export { getBalance } from './getBalance.js'
 export { getMetadata } from './getMetadata.js'

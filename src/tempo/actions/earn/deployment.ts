@@ -7,7 +7,6 @@ import * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { BaseError } from '../../../core/Errors.js'
 import { getCode } from '../../../core/actions/address/getCode.js'
-import { read } from '../../../core/actions/contract/read.js'
 import { simulate } from '../../../core/actions/contract/simulate.js'
 import { write } from '../../../core/actions/contract/write.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
@@ -16,14 +15,17 @@ import { TransactionReceiptRevertedError } from '../../../core/actions/transacti
 import type { Compute } from '../../../core/internal/types.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
+import type * as TempoErrors from '../../errors.js'
 import type {
   WriteParameters,
   WriteSyncParameters,
 } from '../../internal/types.js'
 import {
   defineCall,
+  dispatchWrite,
   pickWriteParameters,
   pickWriteSyncParameters,
+  read,
 } from '../../internal/utils.js'
 
 const maxUint64 = 2n ** 64n - 1n
@@ -182,7 +184,9 @@ export namespace createErc4626Engine {
   export type ReturnValue = write.ReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -193,7 +197,7 @@ export namespace createErc4626Engine {
     action: action,
     client: Client.Client<chain, account>,
     parameters: Parameters,
-  ): Promise<ReturnType<action>> {
+  ): Promise<dispatchWrite.ReturnType<action>> {
     const {
       account = client.account,
       chain = client.chain,
@@ -208,7 +212,7 @@ export namespace createErc4626Engine {
     if (!account) throw new Account.NotFoundError()
     if (!owner_) throw new Error('`owner` is required.')
     const owner = Account.from(owner_).address
-    return (await action(client, {
+    return dispatchWrite(action, client, {
       ...rest,
       account,
       chain,
@@ -220,7 +224,7 @@ export namespace createErc4626Engine {
         symbol,
         venue,
       }),
-    } as never)) as never
+    })
   }
 
   /**
@@ -374,7 +378,9 @@ export namespace createErc4626EngineSync {
     }
   >
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -443,7 +449,9 @@ export namespace createStack {
   export type ReturnValue = write.ReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -454,7 +462,7 @@ export namespace createStack {
     action: action,
     client: Client.Client<chain, account>,
     parameters: Parameters,
-  ): Promise<ReturnType<action>> {
+  ): Promise<dispatchWrite.ReturnType<action>> {
     const {
       account = client.account,
       chain = client.chain,
@@ -470,7 +478,7 @@ export namespace createStack {
     } = parameters
     if (!account) throw new Account.NotFoundError()
     if (!owner_) throw new Error('`owner` is required.')
-    return (await action(client, {
+    return dispatchWrite(action, client, {
       ...rest,
       account,
       chain,
@@ -484,7 +492,7 @@ export namespace createStack {
         owner: Account.from(owner_).address,
         transferPolicyId,
       }),
-    } as never)) as never
+    })
   }
 
   /**
@@ -636,7 +644,9 @@ export namespace createStackSync {
     }
   >
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -688,7 +698,9 @@ export namespace bindEngine {
   export type Parameters = WriteParameters & Args
   export type ReturnValue = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
@@ -699,12 +711,12 @@ export namespace bindEngine {
     action: action,
     client: Client.Client<chain, account>,
     parameters: Parameters,
-  ): Promise<ReturnType<action>> {
+  ): Promise<dispatchWrite.ReturnType<action>> {
     const { engine, finalOwner, vault, ...rest } = parameters
-    return (await action(client, {
+    return dispatchWrite(action, client, {
       ...rest,
       ...bindEngine.call({ engine, finalOwner, vault }),
-    } as never)) as never
+    })
   }
 
   /**
@@ -835,7 +847,9 @@ export namespace bindEngineSync {
     vault: Address.Address
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }
 
 export type DeployErc4626StackErrorType = DeployErc4626StackError & {

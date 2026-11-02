@@ -1,6 +1,6 @@
 import { Hex, Provider, Value } from 'ox'
 import { describe, expect, test } from 'vitest'
-import { Client, custom, http, testActions, walletActions } from 'viem'
+import { Actions, Client, custom, http, testActions, walletActions } from 'viem'
 import { mainnet } from 'viem/chains'
 
 import * as generated from '~contracts/generated.js'
@@ -424,6 +424,26 @@ describe('behavior: eth_sendTransaction fallback', () => {
     const hashes = expectFallbackId(response.id, 3)
     expect(hashes).toContain(fallbackTransactionErrorMagicIdentifier)
   })
+
+  test('behavior: dataSuffix (no data)', async () => {
+    const response = await sendCalls(client, {
+      account: constants.accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          dataSuffix: '0x12345678',
+          to: constants.accounts[1].address,
+          value: Value.fromEther('1'),
+        },
+      ],
+      experimental_fallback: true,
+      experimental_fallbackDelay: 0,
+    })
+
+    const [hash] = expectFallbackId(response.id, 1)
+    const { input } = await Actions.transaction.get(client, { hash: hash! })
+    expect(input).toMatchInlineSnapshot(`"0x12345678"`)
+  })
 })
 
 test('error: insufficient funds', async () => {
@@ -500,6 +520,46 @@ test('args: dataSuffix', async () => {
           ],
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "version": "2.0.0",
+        },
+      ],
+    ]
+  `)
+})
+
+test('args: dataSuffix (no data)', async () => {
+  const requests: unknown[] = []
+  const client = getClient({ onRequest: ({ params }) => requests.push(params) })
+
+  const response = await sendCalls(client, {
+    account: constants.accounts[0].address,
+    chain: mainnet,
+    calls: [
+      {
+        dataSuffix: '0x12345678',
+        to: constants.accounts[1].address,
+        value: Value.fromEther('1'),
+      },
+    ],
+  })
+
+  expect(response.id).toBeDefined()
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
+        {
+          "atomicRequired": false,
+          "calls": [
+            {
+              "data": "0x12345678",
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "value": "0xde0b6b3a7640000",
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
           "version": "2.0.0",
         },
       ],

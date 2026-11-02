@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { authorize } from './authorize.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Authorizes an access key and waits for the transaction receipt.
@@ -71,5 +72,7 @@ export namespace authorizeSync {
     receipt: sendSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

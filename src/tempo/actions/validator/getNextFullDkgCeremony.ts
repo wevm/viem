@@ -2,11 +2,11 @@ import type { Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { ReadParameters } from '../../internal/types.js'
-import { defineCall } from '../../internal/utils.js'
+import { defineCall, read } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Gets the next epoch for a full DKG ceremony. */
 export async function getNextFullDkgCeremony<
@@ -28,7 +28,9 @@ export namespace getNextFullDkgCeremony {
     'getNextFullDkgCeremony'
   >
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** Defines a call to the `getNextFullDkgCeremony` function. */
   export function call() {

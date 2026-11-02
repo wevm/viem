@@ -53,6 +53,6 @@ describe('getSellQuote', () => {
         tokenOut: quote,
         amountIn: Value.from('100', 6),
       }),
-    ).rejects.toThrow('The contract function "quoteSwapExactAmountIn" reverted')
+    ).rejects.toThrow(Actions.dex.DexInsufficientLiquidityError)
   })
 })

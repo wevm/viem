@@ -1,4 +1,4 @@
-import { afterAll, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as opStack from '~test/opStack.js'
@@ -145,4 +145,90 @@ test('rejects a receipt without withdrawals', async () => {
 
     Version: viem@x.x.x]
   `)
+})
+
+// Super-root games (game type 9) anchor on L2 timestamps.
+const superRootBlockNumber = 26_270_300n
+
+// L2 timestamp newer than the latest game at `superRootBlockNumber`.
+const superRootPendingReceipt = opStack.getWithdrawalReceipt({
+  blockNumber: 0n,
+  blockTimestamp: 1_792_936_085n,
+  transactionHash:
+    '0xdab8c1862755454ce77526f02c11dfda79687cb4838a47778f1543123ab205f6',
+  withdrawalHash:
+    '0x7e3c682907ae38aefbca24b93ffa687d022051bb0ea38d3010de94d20354ebac',
+})
+
+// L2 timestamp covered by the latest game at `superRootBlockNumber`, for an
+// unproven withdrawal.
+const superRootReadyReceipt = opStack.getWithdrawalReceipt({
+  blockNumber: 0n,
+  blockTimestamp: 1_792_882_853n,
+  transactionHash:
+    '0xee9fa457e05836ba7dbbecdf6b0c9c1741b9fd59fd4da715d57b0c16529c3e5d',
+  withdrawalHash:
+    '0x1111111111111111111111111111111111111111111111111111111111111111',
+})
+
+describe('super-root games', () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+
+  beforeAll(async () => {
+    await CoreActions.state.reset(client, {
+      blockNumber: superRootBlockNumber,
+      jsonRpcUrl: anvil.mainnet.forkUrl,
+    })
+  }, 60_000)
+
+  test('returns waiting-to-prove for a timestamp past the latest game', async () => {
+    const status = await Actions.l1.getWithdrawalStatus(client, {
+      receipt: superRootPendingReceipt,
+      targetChain: optimism,
+    })
+
+    expect(status).toMatchInlineSnapshot(`"waiting-to-prove"`)
+  }, 60_000)
+
+  test('returns ready-to-prove for a timestamp covered by a game', async () => {
+    const status = await Actions.l1.getWithdrawalStatus(client, {
+      receipt: superRootReadyReceipt,
+      targetChain: optimism,
+    })
+
+    expect(status).toMatchInlineSnapshot(`"ready-to-prove"`)
+  }, 60_000)
+
+  test('returns finalized without an L2 timestamp', async () => {
+    const status = await Actions.l1.getWithdrawalStatus(client, {
+      l2BlockNumber: 21_890_440n,
+      sender: '0x7F6a4DfFcE8aE3AD8b75a35b6e2FB611b93Ca1DB',
+      targetChain: optimism,
+      withdrawalHash:
+        '0x1CD56A12D477EDB091DDECAC56A29D51AD61A9920BE8FCF1EE62BA00AF2B8E55',
+    })
+
+    expect(status).toMatchInlineSnapshot(`"finalized"`)
+  }, 60_000)
+
+  test('rejects a receipt without an L2 timestamp', async () => {
+    const { blockTimestamp: _, ...log } = superRootPendingReceipt.logs[0]!
+
+    await expect(
+      Actions.l1.getWithdrawalStatus(client, {
+        receipt: { ...superRootPendingReceipt, logs: [log] },
+        targetChain: optimism,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [Withdrawal.L2TimestampRequiredError: Dispute game type 9 anchors on L2 timestamps, so the L2 timestamp of the withdrawal is required.
+
+      Pass \`l2Timestamp\`, or a receipt whose logs include \`blockTimestamp\`.
+
+      Version: viem@x.x.x]
+    `)
+  }, 60_000)
 })

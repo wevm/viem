@@ -54,7 +54,9 @@ export class FeeCapTooHighError extends BaseError<Error> {
   ) {
     super(
       `The fee cap (\`maxFeePerGas\`${
-        options.maxFeePerGas ? ` = ${gwei(options.maxFeePerGas)}` : ''
+        typeof options.maxFeePerGas === 'bigint'
+          ? ` = ${gwei(options.maxFeePerGas)}`
+          : ''
       }) cannot be higher than the maximum allowed value (2^256-1).`,
       { cause: options.cause },
     )
@@ -76,7 +78,9 @@ export class FeeCapTooLowError extends BaseError<Error> {
   ) {
     super(
       `The fee cap (\`maxFeePerGas\`${
-        options.maxFeePerGas ? ` = ${gwei(options.maxFeePerGas)}` : ''
+        typeof options.maxFeePerGas === 'bigint'
+          ? ` = ${gwei(options.maxFeePerGas)}`
+          : ''
       }) cannot be lower than the block base fee.`,
       { cause: options.cause },
     )
@@ -144,7 +148,7 @@ export class NonceMaxValueError extends BaseError<Error> {
 /** Thrown when the account has insufficient funds to execute the transaction. */
 export class InsufficientFundsError extends BaseError<Error> {
   static nodeMessage =
-    /insufficient funds|exceeds transaction sender account balance/
+    /insufficient funds|exceeds transaction sender account balance|outoffunds/
 
   override readonly name = 'RpcError.InsufficientFundsError'
 
@@ -233,11 +237,13 @@ export class TipAboveFeeCapError extends BaseError<Error> {
   ) {
     super(
       `The provided tip (\`maxPriorityFeePerGas\`${
-        options.maxPriorityFeePerGas
+        typeof options.maxPriorityFeePerGas === 'bigint'
           ? ` = ${gwei(options.maxPriorityFeePerGas)}`
           : ''
       }) cannot be higher than the fee cap (\`maxFeePerGas\`${
-        options.maxFeePerGas ? ` = ${gwei(options.maxFeePerGas)}` : ''
+        typeof options.maxFeePerGas === 'bigint'
+          ? ` = ${gwei(options.maxFeePerGas)}`
+          : ''
       }).`,
       { cause: options.cause },
     )

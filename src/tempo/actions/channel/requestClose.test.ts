@@ -37,7 +37,7 @@ describe('requestClose', () => {
       Actions.channel.withdrawSync(client, {
         channel,
       }),
-    ).rejects.toThrow('The contract function "withdraw" reverted')
+    ).rejects.toThrow(Actions.channel.ChannelCloseNotReadyError)
 
     // Core `block.simulate` takes the sender per call (the tempo `simulate`
     // namespace, which defaults it to the client account, lands separately).

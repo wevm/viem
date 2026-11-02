@@ -3,15 +3,16 @@ import { Channel } from 'ox/tempo'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { ReadParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  read,
   resolveCallParameters,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Gets TIP-20 channel reserve state for a channel ID or channel.
@@ -73,7 +74,9 @@ export namespace getStates {
   export type ReturnType<channel extends Channel | readonly Channel[]> =
     channel extends readonly Channel[] ? readonly State[] : State
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 
   /** Defines a call to the `getChannelState` or `getChannelStatesBatch` function. */
   export function call<const channel extends Channel | readonly Channel[]>(

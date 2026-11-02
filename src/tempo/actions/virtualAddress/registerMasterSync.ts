@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { registerMaster } from './registerMaster.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Registers a virtual master address, and waits for the transaction to be confirmed.
@@ -64,5 +65,7 @@ export namespace registerMasterSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

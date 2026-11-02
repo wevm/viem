@@ -63,15 +63,21 @@ export declare namespace recoverAddress {
  */
 export function verify(options: verify.Options): boolean {
   const { authorization, signature: signatureOption, ...rest } = options
-  const signature = signatureOption ?? Signature.extract(authorization)
-  if (!signature) throw new MissingSignatureError()
-  return Secp256k1.verify({
-    payload: Authorization.getSignPayload(
-      authorization as Authorization.Authorization,
-    ),
-    signature,
-    ...rest,
-  } as Secp256k1.verify.Options)
+  try {
+    const signature = signatureOption ?? Signature.extract(authorization)
+    if (!signature) throw new MissingSignatureError()
+    return Secp256k1.verify({
+      payload: Authorization.getSignPayload(
+        authorization as Authorization.Authorization,
+      ),
+      signature,
+      ...rest,
+    } as Secp256k1.verify.Options)
+  } catch (error) {
+    // A `yParity` other than 0 or 1 has no authority under EIP-7702.
+    if (error instanceof Signature.InvalidYParityError) return false
+    throw error
+  }
 }
 
 export declare namespace verify {

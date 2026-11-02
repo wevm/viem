@@ -193,24 +193,32 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
           }
         }
 
-        if (!response.ok) {
-          // A valid JSON-RPC error body flows through normal error handling.
-          if (
-            typeof data.error?.code === 'number' &&
-            typeof data.error?.message === 'string'
-          )
-            return data
+        // A server that rejects a whole batch replies with a single error, bare
+        // or in a one-element array (geth).
+        const error =
+          Array.isArray(body) && Array.isArray(data) && data.length === 1
+            ? data[0]
+            : data
 
+        if (!response.ok)
           throw new HttpError({
             body: errorBody,
-            details: stringify(data.error) || response.statusText,
+            details: isRpcError(error)
+              ? error.error.message
+              : stringify(data.error) || response.statusText,
             headers: response.headers,
+            // A valid JSON-RPC error body keeps its error object, so retries
+            // can use the response status and headers before it surfaces.
+            rpcError: isRpcError(error) ? error.error : undefined,
             status: response.status,
             url,
           })
-        }
 
-        return data
+        if (!Array.isArray(body) || !body.length) return data
+        if (Array.isArray(data) && data.length >= body.length) return data
+        if (!isRpcError(error))
+          throw new Error(`Expected ${body.length} responses to batch request.`)
+        return body.map(() => error)
       } catch (err) {
         if (signal_?.aborted) throw errors.getAbortError(signal_)
         if (errors.isAbortError(err)) throw err
@@ -223,6 +231,11 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
   })
 }
 
+function isRpcError(data: unknown): data is { error: RpcResponse.ErrorObject } {
+  const { error } = (data ?? {}) as { error?: Partial<RpcResponse.ErrorObject> }
+  return typeof error?.code === 'number' && typeof error?.message === 'string'
+}
+
 async function readResponseBody(
   response: Response,
   { maxResponseBodySize }: { maxResponseBodySize: number | false },
@@ -232,11 +245,13 @@ async function readResponseBody(
   const contentLength = response.headers.get('Content-Length')
   if (contentLength) {
     const size = Number(contentLength)
-    if (size > maxResponseBodySize)
+    if (size > maxResponseBodySize) {
+      await response.body?.cancel()
       throw new ResponseBodyTooLargeError({
         maxSize: maxResponseBodySize,
         size,
       })
+    }
   }
 
   if (!response.body) {
@@ -834,6 +849,8 @@ export class HttpError extends Errors.BaseError<Error | undefined> {
 
   body?: { [x: string]: unknown } | { [y: string]: unknown }[] | undefined
   headers?: Headers | undefined
+  /** JSON-RPC error carried by a non-2xx response body. */
+  rpcError?: RpcResponse.ErrorObject | undefined
   status?: number | undefined
   url: string
 
@@ -842,6 +859,7 @@ export class HttpError extends Errors.BaseError<Error | undefined> {
     cause,
     details,
     headers,
+    rpcError,
     status,
     url,
   }: {
@@ -849,6 +867,7 @@ export class HttpError extends Errors.BaseError<Error | undefined> {
     cause?: Error | undefined
     details?: string | undefined
     headers?: Headers | undefined
+    rpcError?: RpcResponse.ErrorObject | undefined
     status?: number | undefined
     url: string
   }) {
@@ -863,6 +882,7 @@ export class HttpError extends Errors.BaseError<Error | undefined> {
     })
     this.body = body
     this.headers = headers
+    this.rpcError = rpcError
     this.status = status
     this.url = url
   }

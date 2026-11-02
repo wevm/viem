@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { AbiEvent, AbiFunction, Hex, Log as Log_ } from 'ox'
+import { AbiEvent, Hex, Log as Log_ } from 'ox'
 import * as TransactionRequest from 'ox/TransactionRequest'
 import type { Client } from '../../../core/Client.js'
 import type { Call } from 'ox/tempo/TxEnvelopeTempo'
@@ -45,9 +45,10 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
       const signal = context.options.signal
       const transaction = Utils.normalizeTempoTransaction(result.tx)
       const feeToken = transaction.feeToken as Address | undefined
+      // Balance diffs cost a simulation, so callers opt in; the fee is always estimated.
       const simulation =
         (parameters.capabilities as Record<string, unknown> | undefined)
-          ?.balanceDiffs !== false
+          ?.balanceDiffs === true
           ? await simulateAndParseDiffs(context.client, {
               account: parameters.from as Address | undefined,
               calls: extractCalls(transaction),
@@ -78,7 +79,16 @@ export async function simulateAndParseDiffs(
   client: Client,
   options: simulateAndParseDiffs.Options,
 ) {
-  const { account, calls, feeToken, gas, store, maxFeePerGas, signal } = options
+  const {
+    account,
+    blockNumber,
+    calls,
+    feeToken,
+    gas,
+    store,
+    maxFeePerGas,
+    signal,
+  } = options
   signal?.throwIfAborted()
 
   try {
@@ -93,53 +103,30 @@ export async function simulateAndParseDiffs(
             }),
           ]
         : []
-    const simulation = (await client.request({
-      method: 'tempo_simulateV1',
-      params: [
-        {
-          blockStateCalls: [
-            {
-              calls: [...calls, ...probe].map((call) =>
-                TransactionRequest.toRpc({
-                  ...call,
-                  ...('abi' in call
-                    ? {
-                        to: call.address,
-                        data: AbiFunction.encodeData(
-                          AbiFunction.fromAbi(call.abi, call.functionName),
-                          call.args,
-                        ),
-                      }
-                    : {}),
-                  from: account === zeroAddress ? undefined : account,
-                }),
-              ),
-            },
-          ],
-          traceTransfers: true,
-        },
-        'latest',
-      ],
-    })) as {
-      blocks: readonly {
-        calls?:
-          | readonly { logs?: readonly Log_.Rpc[] | undefined }[]
-          | undefined
-      }[]
-      tokenMetadata?:
-        | Record<string, { name: string; symbol: string; currency: string }>
-        | undefined
-    }
+    const simulation = await simulateV1(client, {
+      account: account === zeroAddress ? undefined : account,
+      blockNumber,
+      calls: [...calls, ...probe],
+      traceTransfers: true,
+    })
     const tokenMetadata = simulation.tokenMetadata ?? {}
     signal?.throwIfAborted()
     const logs = (simulation.blocks[0]?.calls ?? [])
       .slice(0, calls.length)
       .flatMap((result) => result.logs?.map((log) => Log_.fromRpc(log)) ?? [])
 
+    const allowances =
+      account && account !== zeroAddress
+        ? await readAllowances(client, { account, blockNumber, calls, logs })
+        : undefined
+
+    signal?.throwIfAborted()
+
     // Build per-token balance diffs relative to the sender.
     const balanceDiffs = account
       ? await buildBalanceDiffs(client, {
           account,
+          allowances,
           store,
           signal,
           logs,
@@ -176,6 +163,8 @@ export async function simulateAndParseDiffs(
 export declare namespace simulateAndParseDiffs {
   type Options = {
     account?: Address | undefined
+    /** Block to simulate against. Defaults to the latest block. */
+    blockNumber?: bigint | undefined
     calls: readonly Call[]
     feeToken?: Address | undefined
     gas?: bigint | undefined
@@ -190,7 +179,7 @@ export async function buildBalanceDiffs(
   client: Client,
   options: buildBalanceDiffs.Options,
 ) {
-  const { account, store, logs, tokenMetadata, signal } = options
+  const { account, allowances, store, logs, tokenMetadata, signal } = options
   signal?.throwIfAborted()
   const accountLower = account.toLowerCase()
 
@@ -205,7 +194,7 @@ export async function buildBalanceDiffs(
     { eventName: 'Approval' },
   )
 
-  // Track net movement per token: incoming vs outgoing.
+  // Track gross movement per token, so a token received and passed on in one transaction stays visible.
   const tokenMap = new Map<
     string,
     {
@@ -221,6 +210,8 @@ export async function buildBalanceDiffs(
     const token = log.address.toLowerCase()
     const fromLower = log.args.from.toLowerCase()
     const toLower = log.args.to.toLowerCase()
+    // Transfers to oneself move nothing.
+    if (fromLower === accountLower && toLower === accountLower) continue
 
     const entry = tokenMap.get(token) ?? {
       incoming: 0n,
@@ -247,10 +238,13 @@ export async function buildBalanceDiffs(
     )
   }
 
-  // Transfers do not identify allowance consumption, so retain final approval exposure.
+  // Transfers do not identify allowance consumption, so exposure is the allowance read after the calls, else the final approval.
   for (const log of approvals.values()) {
-    if (log.args.amount === 0n) continue
     const token = log.address.toLowerCase()
+    const amount =
+      allowances?.get(`${token}:${log.args.spender.toLowerCase()}`) ??
+      log.args.amount
+    if (amount === 0n) continue
 
     const entry = tokenMap.get(token) ?? {
       incoming: 0n,
@@ -259,19 +253,15 @@ export async function buildBalanceDiffs(
       recipients: new Set<Address>(),
       token: log.address,
     }
-    entry.approved += log.args.amount
+    entry.approved += amount
     entry.recipients.add(log.args.spender)
     tokenMap.set(token, entry)
   }
 
   // Collect unique tokens that need decimals.
-  const entries = [...tokenMap.values()].filter((e) => {
-    const net =
-      e.outgoing > e.incoming
-        ? e.outgoing - e.incoming
-        : e.incoming - e.outgoing
-    return net > 0n || e.approved > 0n
-  })
+  const entries = [...tokenMap.values()].filter(
+    (e) => e.incoming > 0n || e.outgoing > 0n || e.approved > 0n,
+  )
   if (entries.length === 0) return {}
   // Omit an unavailable preview rather than returning a partial set of movements.
   if (entries.length > 100) return undefined
@@ -305,11 +295,8 @@ export async function buildBalanceDiffs(
   // Build the diff array for this account.
   const diffs: Capabilities.BalanceDiff[] = []
   for (const entry of entries) {
-    const incoming =
-      entry.incoming > entry.outgoing ? entry.incoming - entry.outgoing : 0n
-    const outgoing =
-      (entry.outgoing > entry.incoming ? entry.outgoing - entry.incoming : 0n) +
-      entry.approved
+    const { incoming } = entry
+    const outgoing = entry.outgoing + entry.approved
     const meta = metadataMap.get(entry.token.toLowerCase())!
     const decimals = meta.decimals
     const metadata = {
@@ -342,6 +329,8 @@ export async function buildBalanceDiffs(
 export declare namespace buildBalanceDiffs {
   type Options = {
     account: Address
+    /** Allowances read after the calls, keyed by lowercase `token:spender`. */
+    allowances?: ReadonlyMap<string, bigint> | undefined
     store?: Store.Store | undefined
     signal?: AbortSignal | undefined
     logs: readonly Log<boolean>[]
@@ -390,5 +379,122 @@ declare namespace computeFee {
     tokenMetadata?:
       | Record<Address, { name: string; symbol: string; currency: string }>
       | undefined
+  }
+}
+
+/**
+ * Reads, after the calls, the allowance of every spender the account approved during them,
+ * so approval exposure is net of what spenders consumed however the approval was made.
+ */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function readAllowances(
+  client: Client,
+  options: readAllowances.Options,
+): Promise<ReadonlyMap<string, bigint> | undefined> {
+  const { account, blockNumber, calls, logs } = options
+  const accountLower = account.toLowerCase()
+  const pairs = new Map<string, { spender: Address; token: Address }>()
+  for (const log of AbiEvent.extractLogs(
+    [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
+    logs,
+    { eventName: 'Approval' },
+  )) {
+    if (log.args.owner.toLowerCase() !== accountLower) continue
+    pairs.set(
+      `${log.address.toLowerCase()}:${log.args.spender.toLowerCase()}`,
+      { spender: log.args.spender, token: log.address },
+    )
+  }
+  // Previews over the token budget are omitted, so their reads are skipped too.
+  if (pairs.size === 0 || pairs.size > 100) return undefined
+  try {
+    const entries = [...pairs.entries()]
+    const simulation = await simulateV1(client, {
+      account,
+      blockNumber,
+      calls: [
+        ...calls,
+        ...entries.map(([, { spender, token }]) =>
+          Actions.token.getAllowance.call(client, { account, spender, token }),
+        ),
+      ],
+    })
+    const results = simulation.blocks[0]?.calls ?? []
+    const allowances = new Map<string, bigint>()
+    for (const [index, [key]] of entries.entries()) {
+      const result = results[calls.length + index]
+      if (
+        result?.status !== '0x1' ||
+        !result.returnData ||
+        result.returnData === '0x'
+      )
+        continue
+      allowances.set(key, Hex.toBigInt(result.returnData))
+    }
+    return allowances
+  } catch {
+    // Without the reads, exposure falls back to each pair's final approved amount.
+    return undefined
+  }
+}
+
+declare namespace readAllowances {
+  type Options = {
+    /** Owner whose allowances are read. */
+    account: Address
+    /** Block the calls were simulated against. */
+    blockNumber?: bigint | undefined
+    /** Calls preceding the reads. */
+    calls: readonly Call[]
+    /** Logs the calls emitted. */
+    logs: Log[]
+  }
+}
+
+/** Simulates calls in one block with `tempo_simulateV1`. */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function simulateV1(client: Client, options: simulateV1.Options) {
+  const { account, blockNumber, calls, traceTransfers } = options
+  return (await client.request({
+    method: 'tempo_simulateV1',
+    params: [
+      {
+        blockStateCalls: [
+          {
+            calls: calls.map((call) =>
+              TransactionRequest.toRpc({ ...call, from: account }),
+            ),
+          },
+        ],
+        ...(traceTransfers ? { traceTransfers } : {}),
+      },
+      blockNumber === undefined ? 'latest' : Hex.fromNumber(blockNumber),
+    ],
+  })) as {
+    blocks: readonly {
+      calls?:
+        | readonly {
+            logs?: readonly Log_.Rpc[] | undefined
+            returnData?: Hex.Hex | undefined
+            status?: Hex.Hex | undefined
+          }[]
+        | undefined
+    }[]
+    tokenMetadata?:
+      | Record<string, { name: string; symbol: string; currency: string }>
+      | undefined
+  }
+}
+
+declare namespace simulateV1 {
+  type Options = {
+    /** Sender of the calls. */
+    account?: Address | undefined
+    /** Block to simulate against. Defaults to the latest block. */
+    blockNumber?: bigint | undefined
+    /** Calls to simulate. */
+    calls: readonly Call[]
+    /** Whether to report native and TIP-20 transfers as logs. */
+    traceTransfers?: boolean | undefined
   }
 }

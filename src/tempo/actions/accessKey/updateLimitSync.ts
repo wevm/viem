@@ -7,6 +7,7 @@ import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { updateLimit } from './updateLimit.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Updates the spending limit for a specific token on an authorized access key,
@@ -73,5 +74,7 @@ export namespace updateLimitSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

@@ -8,6 +8,7 @@ import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { deposit } from './deposit.js'
 import type { ReceiptReturn } from './internal.js'
+import type * as TempoErrors from '../../errors.js'
 
 /**
  * Deposits tokens into a zone on the parent Tempo chain, and waits for the transaction to be confirmed.
@@ -55,5 +56,7 @@ export namespace depositSync {
     account extends Account.Account | undefined = Account.Account | undefined,
   > = deposit.Options<account> & WriteSyncParameters
   export type ReturnType = ReceiptReturn<sendSync.ReturnType>
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

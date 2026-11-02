@@ -1,6 +1,11 @@
 // biome-ignore lint/performance/noBarrelFile: namespace module
 export { burn } from './burn.js'
 export { burnSync } from './burnSync.js'
+export {
+  AmmInsufficientLiquidityError,
+  type AmmInsufficientLiquidityErrorType,
+  type ExecutionErrorType,
+} from './errors.js'
 export { getLiquidityBalance } from './getLiquidityBalance.js'
 export { getPool } from './getPool.js'
 export { mint } from './mint.js'

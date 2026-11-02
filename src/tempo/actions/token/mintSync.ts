@@ -10,6 +10,7 @@ import { resolveAmountDecimals } from '../../../core/actions/token/internal.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
 import { resolveToken } from '../../internal/utils.js'
 import { mint } from './mint.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Mints TIP-20 tokens to an address, and waits for the transaction to be confirmed. */
 export async function mintSync<
@@ -55,5 +56,7 @@ export namespace mintSync {
     receipt: writeSync.ReturnType
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
 }

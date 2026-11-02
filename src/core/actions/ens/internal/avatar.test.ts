@@ -8,6 +8,7 @@ import { describe, expect, test } from 'vitest'
 import {
   getJsonImage,
   getMetadataAvatarUri,
+  getNftMetadataUri,
   getNftTokenUri,
   parseAvatarUri,
   parseNftUri,
@@ -191,6 +192,14 @@ describe('resolveAvatarUri', () => {
       uri: 'data:image/svg+xml;utf8,<svg></svg>',
       expected: {
         uri: 'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
+        isOnChain: true,
+        isEncoded: false,
+      },
+    },
+    {
+      uri: 'data:image/svg+xml;utf8,<svg><text>café ⚡</text></svg>',
+      expected: {
+        uri: 'data:image/svg+xml;base64,PHN2Zz48dGV4dD5jYWbDqSDimqE8L3RleHQ+PC9zdmc+',
         isOnChain: true,
         isEncoded: false,
       },
@@ -539,6 +548,36 @@ describe('parseAvatarUri', () => {
 
     await server.close()
   })
+})
+
+test('getNftMetadataUri', () => {
+  const uris = [
+    { namespace: 'erc1155', tokenId: '10063' },
+    { namespace: 'erc1155', tokenId: '0x274f' },
+    { namespace: 'erc721', tokenId: '10063' },
+  ].flatMap(({ namespace, tokenId }) => {
+    const nft = {
+      chainId: 1,
+      contractAddress: '0x0000000000000000000000000000000000000000',
+      namespace,
+      tokenId,
+    } as const
+    return [
+      getNftMetadataUri({ nft, uri: 'https://example.com/{id}.json' }),
+      getNftMetadataUri({ nft, uri: 'https://example.com/0x{id}.json' }),
+    ]
+  })
+
+  expect(uris).toMatchInlineSnapshot(`
+    [
+      "https://example.com/000000000000000000000000000000000000000000000000000000000000274f.json",
+      "https://example.com/000000000000000000000000000000000000000000000000000000000000274f.json",
+      "https://example.com/000000000000000000000000000000000000000000000000000000000000274f.json",
+      "https://example.com/000000000000000000000000000000000000000000000000000000000000274f.json",
+      "https://example.com/10063.json",
+      "https://example.com/10063.json",
+    ]
+  `)
 })
 
 describe('parseNftUri', () => {

@@ -9,3 +9,11 @@ export function resolveAccessKeyAddress(
   if (typeof accessKey === 'string') return accessKey
   return accessKey.accessKeyAddress
 }
+
+/** Access key signature types, keyed by their onchain value. @internal */
+export const signatureTypes = {
+  0: 'secp256k1',
+  1: 'p256',
+  2: 'webAuthn',
+  3: 'configurable',
+} as const satisfies Record<number, string>

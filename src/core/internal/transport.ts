@@ -1,6 +1,7 @@
 import { RpcResponse } from 'ox'
 import type { RpcSchema } from 'ox'
 
+import * as RpcClient from '../../utils/RpcClient.js'
 import * as errors from './errors.js'
 import * as promise from './promise.js'
 import { stringify } from './stringify.js'
@@ -84,27 +85,40 @@ export function wrapRequest<
       ? hashString(`${uid}.${stringify(args)}`)
       : undefined
 
-    return promise.withDedupe(
-      () =>
-        promise.withRetry(
-          () => request(args, signal ? { signal } : undefined),
-          {
-            delay: ({ count, error }) => {
-              // Honor a `Retry-After` header when the error carries one.
-              const headers = (error as { headers?: Headers } | undefined)
-                ?.headers
-              const retryAfter = headers?.get?.('Retry-After')
-              if (retryAfter?.match(/\d/))
-                return Number.parseInt(retryAfter, 10) * 1000
-              return ~~(1 << count) * retryDelay
+    try {
+      return await promise.withDedupe(
+        () =>
+          promise.withRetry(
+            () => request(args, signal ? { signal } : undefined),
+            {
+              delay: ({ count, error }) => {
+                // Honor a `Retry-After` header when the error carries one.
+                const headers = (error as { headers?: Headers } | undefined)
+                  ?.headers
+                const retryAfter = headers?.get?.('Retry-After')
+                if (retryAfter) {
+                  const seconds = Number.parseInt(retryAfter, 10)
+                  if (!Number.isNaN(seconds)) return seconds * 1000
+                  // HTTP-date form. A past or invalid date falls back to backoff.
+                  const delay = Date.parse(retryAfter) - Date.now()
+                  if (delay > 0) return delay
+                }
+                return ~~(1 << count) * retryDelay
+              },
+              retryCount,
+              signal,
+              shouldRetry: ({ error }) => shouldRetry(error),
             },
-            retryCount,
-            signal,
-            shouldRetry: ({ error }) => shouldRetry(error),
-          },
-        ),
-      { enabled: dedupe, id: requestId },
-    )
+          ),
+        { enabled: dedupe, id: requestId },
+      )
+    } catch (error) {
+      // A JSON-RPC error from a non-2xx response retries by its HTTP status,
+      // then surfaces as the JSON-RPC error.
+      if (error instanceof RpcClient.HttpError && error.rpcError)
+        throw RpcResponse.parseError(error.rpcError)
+      throw error
+    }
   }
   return requestFn as RequestFn
 }
@@ -131,15 +145,19 @@ export declare namespace wrapRequest {
 
 /** @internal */
 export function shouldRetry(error: Error): boolean {
-  const code = (error as { code?: unknown }).code
+  const code =
+    error instanceof RpcClient.HttpError
+      ? error.rpcError?.code
+      : (error as { code?: unknown }).code
+  const status = (error as { status?: unknown }).status
   if (typeof code === 'number') {
     if (code === -1) return true // unknown
     if (code === -32005 || code === -32007) return true // limit exceeded
     if (code === -32603) return true // internal
     if (code === 429) return true // too many requests (JSON-RPC body form)
-    return false
+    // A JSON-RPC error from a non-2xx response also retries by its HTTP status.
+    if (typeof status !== 'number') return false
   }
-  const status = (error as { status?: unknown }).status
   if (typeof status === 'number')
     return [403, 408, 413, 429, 500, 502, 503, 504].includes(status)
   return true

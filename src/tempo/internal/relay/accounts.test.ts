@@ -14,8 +14,8 @@ import {
   KeyAuthorization,
   SignatureEnvelope,
 } from 'ox/tempo'
-import { Secp256k1 } from 'ox'
-import { http } from 'viem'
+import { Address, Secp256k1 } from 'ox'
+import { custom, http } from 'viem'
 
 import { tempo, tempoModerato } from 'viem/chains'
 import { Account, Actions, Relay, Store, withRelay } from 'viem/tempo'
@@ -211,6 +211,49 @@ test('error: rejects conflicting chain ids', async () => {
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `[RpcResponse.InvalidParamsError: Conflicting chain ids.]`,
+  )
+})
+
+test('error: requires a chain to read a config', async () => {
+  const handle = Relay.handleRequest(async () => null, {
+    plugins: [Relay.accounts({ store: Store.memory() })],
+  })
+
+  await expect(
+    handle({ method: 'account_getConfig', params: [{ address: account }] }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: A chain ID is required to resolve the downstream client.]`,
+  )
+})
+
+test('error: requires a chain to approve a key authorization for any chain', async () => {
+  const handle = Relay.handleRequest(async () => null, {
+    plugins: [Relay.accounts({ store: Store.memory() })],
+  })
+  const keyAuthorization = KeyAuthorization.from(
+    {
+      account,
+      address: '0x2222222222222222222222222222222222222222',
+      chainId: 0n,
+      isAdmin: false,
+      type: 'secp256k1',
+    },
+    {
+      signature: SignatureEnvelope.from({
+        account,
+        config,
+        signatures: [parseApproval(SignatureEnvelope.serialize(approval))],
+      }),
+    },
+  )
+
+  await expect(
+    handle({
+      method: 'account_approveKeyAuthorization',
+      params: [{ keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }],
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: A chain ID is required to resolve the downstream client.]`,
   )
 })
 
@@ -426,6 +469,194 @@ describe.runIf(
         hash: pending.transactionHash,
       }),
     ).toMatchObject({ status: 'success' })
+  })
+
+  test('behavior: serves a pending config only on its chain', async () => {
+    const store = Store.memory()
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.accounts({ store })],
+    })
+    const chain_other = { ...chain_, id: chain_.id + 1 }
+    const other = Relay.create({
+      client: CoreClient_.create({
+        chain: chain_other,
+        transport: tempoHttp_(Tempo.rpcUrl),
+      }),
+      plugins: [Relay.accounts({ store })],
+    })
+    const client = CoreClient_.create({
+      chain: chain_,
+      transport: custom(relay),
+    })
+    const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
+    const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x109702, { size: 32 }),
+      threshold: 2,
+    })
+    const token = Tempo.alphaUsd
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      token,
+      to: account.address,
+      amount: parseUnits('1', 6),
+    })
+
+    await CoreActions_.transaction.sendSync(client, {
+      account,
+      owner: owner_1,
+      feeToken: token,
+      calls: [
+        Actions.token.transfer.call(client, {
+          token,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+    })
+
+    expect([
+      await Actions.accounts.getConfig(client, { address: account.address }),
+      await Actions.accounts.getConfig(
+        CoreClient_.create({ chain: chain_other, transport: custom(other) }),
+        { address: account.address },
+      ),
+    ]).toEqual([
+      AccountConfig.from({
+        owners: [
+          { owner: owner_1.address, weight: 1 },
+          { owner: owner_2.address, weight: 1 },
+        ],
+        salt: toHex(0x109702, { size: 32 }),
+        threshold: 2,
+        version: 0n,
+      }),
+      null,
+    ])
+  })
+
+  test('behavior: stores a config from resolveConfig', async () => {
+    const store = Store.memory()
+    const config = AccountConfig.from({
+      owners: [{ owner: Tempo.accounts[3]!.address, weight: 1 }],
+      salt: toHex(0x109703, { size: 32 }),
+      threshold: 1,
+    })
+    const address = AccountConfig.getAddress(config, {
+      factory: nativeMultisigFactory,
+    })
+    const resolving = CoreClient_.create({
+      chain: chain_,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [
+            Relay.accounts({
+              resolveConfig: (options) =>
+                options.chainId === chain_.id &&
+                Address.isEqual(options.address, address) &&
+                options.commitment === toHex(0, { size: 32 })
+                  ? config
+                  : null,
+              store,
+            }),
+          ],
+        }),
+      ),
+    })
+    const stored = CoreClient_.create({
+      chain: chain_,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [Relay.accounts({ store })],
+        }),
+      ),
+    })
+
+    expect([
+      await Actions.accounts.getConfig(resolving, { address }),
+      await Actions.accounts.getConfig(stored, { address }),
+    ]).toEqual([config, config])
+  })
+
+  test('error: propagates a store failure while saving a resolved config', async () => {
+    const config = AccountConfig.from({
+      owners: [{ owner: Tempo.accounts[6]!.address, weight: 1 }],
+      threshold: 1,
+    })
+    const address = AccountConfig.getAddress(config, {
+      factory: nativeMultisigFactory,
+    })
+    const store = Store.from({
+      compareAndSet() {
+        throw new Error('Store unavailable.')
+      },
+      getItem() {
+        return null
+      },
+      removeItem() {},
+      setItem() {},
+    })
+    const client = CoreClient_.create({
+      chain: chain_,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [Relay.accounts({ resolveConfig: () => config, store })],
+        }),
+      ),
+    })
+
+    await expect(
+      Actions.accounts.getConfig(client, { address }),
+    ).rejects.toThrow('Store unavailable.')
+  })
+
+  test('behavior: drops a resolved config for another account', async () => {
+    const store = Store.memory()
+    const config = AccountConfig.from({
+      owners: [{ owner: Tempo.accounts[4]!.address, weight: 1 }],
+      threshold: 1,
+    })
+    const address = AccountConfig.getAddress(
+      AccountConfig.from({
+        owners: [{ owner: Tempo.accounts[5]!.address, weight: 1 }],
+        threshold: 1,
+      }),
+      { factory: nativeMultisigFactory },
+    )
+    const resolving = CoreClient_.create({
+      chain: chain_,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [Relay.accounts({ resolveConfig: () => config, store })],
+        }),
+      ),
+    })
+    const stored = CoreClient_.create({
+      chain: chain_,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [Relay.accounts({ store })],
+        }),
+      ),
+    })
+
+    expect([
+      await Actions.accounts.getConfig(resolving, { address }),
+      await Actions.accounts.getConfig(stored, { address }),
+    ]).toMatchInlineSnapshot(`
+      [
+        null,
+        null,
+      ]
+    `)
   })
 })
 

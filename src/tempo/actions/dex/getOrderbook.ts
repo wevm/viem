@@ -3,15 +3,16 @@ import type { Address, Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { ReadParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  read,
   resolveCallParameters,
 } from '../../internal/utils.js'
+import type * as TempoErrors from '../../errors.js'
 
 /** Gets orderbook information for a trading pair. */
 export async function getOrderbook<chain extends Chain.Chain | undefined>(
@@ -38,7 +39,9 @@ export namespace getOrderbook {
     /** Best ask tick. */ bestAskTick: number
   }
   // TODO: exhaustive error type
-  export type ErrorType = Errors.GlobalErrorType
+  export type ErrorType =
+    | TempoErrors.ExecutionErrorType
+    | Errors.GlobalErrorType
   /** Defines a call to the `books` function. */
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>

@@ -1,4 +1,4 @@
-import { Abi } from 'ox'
+import { Abi, Base64, Hex } from 'ox'
 import type { Address } from 'ox'
 
 import type * as Client from '../../../Client.js'
@@ -75,21 +75,42 @@ async function parseNftAvatarUri(
       resolvedNftUri.startsWith('{'))
   ) {
     const encodedJson = isEncoded
-      ? atob(resolvedNftUri.replace('data:application/json;base64,', ''))
+      ? Base64.toString(
+          resolvedNftUri
+            .replace('data:application/json;base64,', '')
+            .replace(/\s/g, ''),
+        )
       : resolvedNftUri
 
     const decoded = JSON.parse(encodedJson)
     return parseAvatarUri({ gatewayUrls, uri: getJsonImage(decoded) })
   }
 
-  let uriTokenId = nft.tokenId
-  if (nft.namespace === 'erc1155')
-    uriTokenId = uriTokenId.replace('0x', '').padStart(64, '0')
-
   return getMetadataAvatarUri({
     gatewayUrls,
-    uri: resolvedNftUri.replace(/(?:0x)?{id}/, uriTokenId),
+    uri: getNftMetadataUri({ nft, uri: resolvedNftUri }),
   })
+}
+
+/**
+ * Substitutes the `{id}` placeholder of an NFT metadata URI with the token ID.
+ *
+ * ERC-1155 requires the ID as lowercase hex, without a `0x` prefix and
+ * zero-padded to 64 characters.
+ *
+ * @see https://eips.ethereum.org/EIPS/eip-1155#metadata
+ * @internal
+ */
+export function getNftMetadataUri(options: {
+  nft: ParsedNft
+  uri: string
+}): string {
+  const { nft, uri } = options
+  const tokenId =
+    nft.namespace === 'erc1155'
+      ? Hex.fromNumber(BigInt(nft.tokenId), { size: 32 }).slice(2)
+      : nft.tokenId
+  return uri.replace(/(?:0x)?{id}/, tokenId)
 }
 
 /** @internal */
@@ -140,7 +161,7 @@ export function resolveAvatarUri(options: {
 
   let parsedUri = uri.replace(dataURIRegex, '')
   if (parsedUri.startsWith('<svg'))
-    parsedUri = `data:image/svg+xml;base64,${btoa(parsedUri)}`
+    parsedUri = `data:image/svg+xml;base64,${Base64.fromString(parsedUri)}`
 
   if (parsedUri.startsWith('data:') || parsedUri.startsWith('{'))
     return {

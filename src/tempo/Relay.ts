@@ -1,12 +1,16 @@
 import type { Address } from 'abitype'
+import type * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
+import type { AccountConfig } from 'ox/tempo'
 import type { Local as LocalAccount } from '../core/Account.js'
 import type { Client as Client_ } from '../core/Client.js'
 import { ChainNotConfiguredError } from '../core/Client.js'
+import type { MaybePromise } from '../core/internal/types.js'
 import type * as Transport from '../core/Transport.js'
+import * as Accounts from './internal/relay/accounts.js'
+import * as AutoSwap from './internal/relay/autoSwap.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
-import * as Accounts from './internal/relay/accounts.js'
 import * as KeyAuthorization from './internal/relay/keyAuthorization.js'
 import * as Request_ from './internal/relay/request.js'
 import * as Simulate from './internal/relay/simulate.js'
@@ -344,11 +348,64 @@ export function accounts(options: accounts.Options): accounts.ReturnType {
 export declare namespace accounts {
   /** Configurable account options. */
   export type Options = {
+    /**
+     * Resolves a config that `store` does not hold, such as from an indexer of
+     * `ConfigurableAccountConfigUpdated` events. The plugin stores and returns
+     * a resolved config only when it matches the account and commitment.
+     */
+    resolveConfig?:
+      | ((
+          options: resolveConfig.Options,
+        ) => MaybePromise<AccountConfig.Config | null | undefined>)
+      | undefined
     /** Store shared by relays, with atomic compare-and-set support. */
     store: Store.Atomic
   }
+
+  export namespace resolveConfig {
+    /** Lookup that `resolveConfig` receives. */
+    export type Options = {
+      /** Configurable account address. */
+      address: Address
+      /** Chain whose commitment the config must match. */
+      chainId: number
+      /** Config commitment read from the chain. */
+      commitment: Hex.Hex
+    }
+  }
+
   /** Middleware advertising configurable account support. */
   export type ReturnType = Plugin & { readonly [accountsBrand]: true }
+}
+
+/**
+ * Recovers fills that revert with `InsufficientBalance` by buying the missing
+ * amount on the stablecoin DEX from a funded token. The swap call is
+ * prepended to the transaction and reported as `capabilities.autoSwap`.
+ *
+ * Place this plugin last, after `Relay.simulate()`, so it sees node reverts
+ * before they become error capabilities.
+ *
+ * @example
+ * ```ts
+ * import { Relay } from 'viem/tempo'
+ * const plugins = [Relay.feeToken(), Relay.simulate(), Relay.autoSwap()]
+ * ```
+ * @param options - Slippage tolerance and metadata store.
+ * @returns An auto-swap relay plugin.
+ */
+export function autoSwap(options: autoSwap.Options = {}): Plugin {
+  return AutoSwap.create(options)
+}
+
+export declare namespace autoSwap {
+  /** Auto-swap configuration. */
+  export type Options = {
+    /** Largest accepted price slippage over the missing amount, between 0 and 1. @default 0.05 */
+    slippage?: number | undefined
+    /** Store for cached token metadata. Omit to read metadata for each request. */
+    store?: Store.Store | undefined
+  }
 }
 
 /**
@@ -376,18 +433,27 @@ export declare namespace feePayer {
     account?: LocalAccount | undefined
     /** Trusted external fee-payer URLs. Matches the normalized full URL, including path and query. Defaults to none. */
     allowedFeePayers?: readonly string[] | undefined
-    /** Sponsor's preferred fee token. Overrides the request token on sponsored fills. */
-    feeToken?: Address | undefined
+    /** Sponsor's preferred fee token, or a resolver keyed by the request chain. Overrides the request and raw envelope token on local sponsorship. */
+    feeToken?:
+      | Address
+      | ((options: { chainId: number }) => Address | undefined)
+      | undefined
     /** Allow HTTP and private external relay hosts in trusted development environments. @default false */
     internal_allowUnsafeUrls?: boolean | undefined
+    /** Lowest base fee, in attodollars per gas, the target chains can ever charge. `onRejected` fires only for fee caps below it. @default 600_000_000n */
+    minimumBaseFee?: bigint | undefined
     /** Display name returned in sponsor capabilities. */
     name?: string | undefined
+    /** Called when the node rejects a sponsored raw broadcast whose fee cap is below `minimumBaseFee`. Awaited before the node error is rethrown. */
+    onRejected?: ((event: SponsoredEvent) => void | Promise<void>) | undefined
     /** Called after signing and before returning or broadcasting. A thrown error aborts sponsorship. */
     onSponsored?: Sponsorship.sign.Options['onSponsored'] | undefined
     /** Sponsor display URL. */
     url?: string | undefined
     /** Only `true` authorizes sponsorship. Rejected fills fall back to sender-paid transactions. */
     validate?: Sponsorship.Validate | undefined
+    /** Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills without `validBefore` receive one; `eth_signRawTransaction` requires one. Expiring nonce transactions are capped at `Expiry.expiringNonceMax`. @default 3600 */
+    validity?: number | undefined
   }
   /** Result of a sponsorship policy check. */
   export type Validation = Sponsorship.Validation
