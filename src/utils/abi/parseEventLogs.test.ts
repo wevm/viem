@@ -2177,7 +2177,11 @@ describe('anonymous events', () => {
       parseEventLogs({ abi, logs: [transfer, anon, unrelated] }).map(
         (log) => log.eventName,
       ),
-    ).toEqual(['Transfer'])
+    ).toMatchInlineSnapshot(`
+      [
+        "Transfer",
+      ]
+    `)
     expect(
       parseEventLogs({
         abi,

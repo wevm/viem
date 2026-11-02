@@ -819,8 +819,6 @@ export {
   type AbiErrorNotFoundErrorType,
   AbiErrorSignatureNotFoundError,
   type AbiErrorSignatureNotFoundErrorType,
-  AbiEventAmbiguityError,
-  type AbiEventAmbiguityErrorType,
   AbiEventNotFoundError,
   type AbiEventNotFoundErrorType,
   AbiEventSignatureEmptyTopicsError,
@@ -1352,6 +1350,8 @@ export {
   decodeErrorResult,
 } from './utils/abi/decodeErrorResult.js'
 export {
+  AbiEventAmbiguityError,
+  type AbiEventAmbiguityErrorType,
   type DecodeEventLogErrorType,
   type DecodeEventLogParameters,
   type DecodeEventLogReturnType,

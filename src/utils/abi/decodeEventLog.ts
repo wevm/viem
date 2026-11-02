@@ -3,8 +3,6 @@ import type { Abi, AbiEvent, AbiParameter } from 'abitype'
 import {
   AbiDecodingDataSizeTooSmallError,
   type AbiDecodingDataSizeTooSmallErrorType,
-  AbiEventAmbiguityError,
-  type AbiEventAmbiguityErrorType,
   AbiEventSignatureEmptyTopicsError,
   type AbiEventSignatureEmptyTopicsErrorType,
   AbiEventSignatureNotFoundError,
@@ -14,6 +12,7 @@ import {
   DecodeLogTopicsMismatch,
   type DecodeLogTopicsMismatchErrorType,
 } from '../../errors/abi.js'
+import { BaseError } from '../../errors/base.js'
 import { PositionOutOfBoundsError } from '../../errors/cursor.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
@@ -290,4 +289,26 @@ function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {
     return value
   const decodedArg = decodeAbiParameters([param], value) || []
   return decodedArg[0]
+}
+
+export type AbiEventAmbiguityErrorType = AbiEventAmbiguityError & {
+  name: 'AbiEventAmbiguityError'
+}
+export class AbiEventAmbiguityError extends BaseError {
+  constructor(eventNames: readonly string[]) {
+    // `eventName` cannot choose between overloads that share a name, so those
+    // need an ABI narrowed to one event.
+    const distinct = new Set(eventNames).size === eventNames.length
+    super('Ambiguous anonymous event log.', {
+      docsPath,
+      metaMessages: [
+        `Matched ${eventNames.map((name) => `\`${name}\``).join(', ')}.`,
+        'These events take the same number of indexed topics.',
+        distinct
+          ? 'Pass `eventName` to choose one.'
+          : 'Pass an `abi` that holds only the event to decode.',
+      ],
+      name: 'AbiEventAmbiguityError',
+    })
+  }
 }

@@ -1522,10 +1522,15 @@ describe('anonymous', () => {
         eventName: 'Message',
       }),
     })
-    expect(event).toEqual({
-      args: { from, note: 'hello' },
-      eventName: 'Message',
-    })
+    expect(event).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "note": "hello",
+        },
+        "eventName": "Message",
+      }
+    `)
   })
 
   test('indexed arguments only', () => {
@@ -1547,10 +1552,14 @@ describe('anonymous', () => {
           eventName: 'Ping',
         }),
       }),
-    ).toEqual({
-      args: { from },
-      eventName: 'Ping',
-    })
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+        },
+        "eventName": "Ping",
+      }
+    `)
   })
 
   test('no indexed arguments', () => {
@@ -1568,10 +1577,14 @@ describe('anonymous', () => {
         data: encodeAbiParameters([{ type: 'string' }], ['hello']),
         topics: [],
       }),
-    ).toEqual({
-      args: { note: 'hello' },
-      eventName: 'Note',
-    })
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "note": "hello",
+        },
+        "eventName": "Note",
+      }
+    `)
   })
 
   test('leading non-indexed argument', () => {
@@ -1594,10 +1607,15 @@ describe('anonymous', () => {
         data: encodeAbiParameters([{ type: 'string' }], ['title']),
         topics: [message],
       }),
-    ).toEqual({
-      args: { message, title: 'title' },
-      eventName: 'Bar',
-    })
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "message": "0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8",
+          "title": "title",
+        },
+        "eventName": "Bar",
+      }
+    `)
   })
 
   test('signature match wins over an anonymous event in the same ABI', () => {
@@ -1628,10 +1646,15 @@ describe('anonymous', () => {
         '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
       ],
     })
-    expect(event).toEqual({
-      args: { from, value: 1n },
-      eventName: 'Transfer',
-    })
+    expect(event).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "value": 1n,
+        },
+        "eventName": "Transfer",
+      }
+    `)
     expect(
       decodeEventLog({
         abi: [
@@ -1660,10 +1683,15 @@ describe('anonymous', () => {
           '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
         ],
       }),
-    ).toEqual({
-      args: { from, value: 1n },
-      eventName: 'Transfer',
-    })
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "value": 1n,
+        },
+        "eventName": "Transfer",
+      }
+    `)
   })
 
   test('anonymous event is not requested in a mixed ABI without eventName', () => {
@@ -1750,13 +1778,15 @@ describe('anonymous', () => {
         eventName: 'Foo',
         topics: [a, b],
       }),
-    ).toEqual({
-      args: {
-        a: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-        b: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      },
-      eventName: 'Foo',
-    })
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "a": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "b": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        },
+        "eventName": "Foo",
+      }
+    `)
     expect(() =>
       decodeEventLog({
         abi: [abi[0]],
@@ -1771,6 +1801,59 @@ describe('anonymous', () => {
 
       Docs: https://viem.sh/docs/contract/decodeEventLog
       Version: viem@x.y.z]
+    `)
+  })
+
+  test('same-name overloads with the same arity need a narrowed abi', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'value', type: 'uint256' },
+        ],
+        name: 'Foo',
+        type: 'event',
+      },
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'note', type: 'string' },
+        ],
+        name: 'Foo',
+        type: 'event',
+      },
+    ] as const
+    const topics = anonymousTopics({
+      abi: [abi[0]],
+      args: { from },
+    })
+    const data =
+      '0x0000000000000000000000000000000000000000000000000000000000000001'
+
+    expect(() =>
+      decodeEventLog({ abi, data, eventName: 'Foo', topics }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEventAmbiguityError: Ambiguous anonymous event log.
+
+      Matched \`Foo\`, \`Foo\`.
+      These events take the same number of indexed topics.
+      Pass an \`abi\` that holds only the event to decode.
+
+      Docs: https://viem.sh/docs/contract/decodeEventLog
+      Version: viem@x.y.z]
+    `)
+    expect(
+      decodeEventLog({ abi: [abi[0]], data, eventName: 'Foo', topics }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "value": 1n,
+        },
+        "eventName": "Foo",
+      }
     `)
   })
 
@@ -1823,10 +1906,15 @@ describe('anonymous', () => {
         eventName: 'Message',
         topics,
       }),
-    ).toEqual({
-      args: { from, note: 'hello' },
-      eventName: 'Message',
-    })
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "note": "hello",
+        },
+        "eventName": "Message",
+      }
+    `)
   })
 
   test('eventName selects an anonymous event with the same shape', () => {
@@ -1862,9 +1950,14 @@ describe('anonymous', () => {
         eventName: 'Second',
         topics,
       }),
-    ).toEqual({
-      args: { from, value: 1n },
-      eventName: 'Second',
-    })
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "value": 1n,
+        },
+        "eventName": "Second",
+      }
+    `)
   })
 })
