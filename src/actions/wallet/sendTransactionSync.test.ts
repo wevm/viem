@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { getSmartAccounts_07 } from '~test/account-abstraction.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { deploy, deployErrorExample } from '~test/utils.js'
+import { createRpcProxy, deploy, deployErrorExample } from '~test/utils.js'
 import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
@@ -31,11 +31,13 @@ import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
+  createNonceManager,
   decodeEventLog,
   encodeFunctionData,
   getAddress,
   nonceManager,
 } from '../../utils/index.js'
+import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
@@ -43,6 +45,7 @@ import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { getBalance } from '../public/getBalance.js'
 import { getBlock } from '../public/getBlock.js'
 import { getTransaction } from '../public/getTransaction.js'
+import { getTransactionCount } from '../public/getTransactionCount.js'
 import { mine } from '../test/mine.js'
 import { reset } from '../test/reset.js'
 import { setBalance } from '../test/setBalance.js'
@@ -1515,6 +1518,192 @@ describe('local account', () => {
         (await getTransaction(client, { hash: receipt_7.transactionHash }))
           .nonce,
       ).toBe(40)
+    })
+  })
+
+  describe('behavior: node stops waiting (error code 4)', () => {
+    // A node that puts the transaction in the mempool, waits out the
+    // requested `timeout`, then answers `eth_sendRawTransactionSync` with
+    // error code 4. Without a `timeout`, it answers at once.
+    async function createNode(getData: (hash: Hex) => unknown) {
+      const pooled = withResolvers<Hex>()
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        async ({ method, params }) => {
+          if (method !== 'eth_sendRawTransactionSync') return undefined
+          const hash = await client.request({
+            method: 'eth_sendRawTransaction',
+            params: [params[0] as Hex],
+          })
+          pooled.resolve(hash)
+          await wait((params[1] as number | undefined) ?? 0)
+          return {
+            error: {
+              code: 4,
+              data: getData(hash),
+              message: 'Transaction confirmation timeout',
+            },
+          }
+        },
+      )
+      return {
+        client: createWalletClient({
+          chain: anvilMainnet.chain,
+          transport: http(url),
+        }),
+        pooled: pooled.promise,
+      }
+    }
+
+    test('returns the receipt', async () => {
+      await setup()
+      const node = await createNode((hash) => hash)
+
+      const [receipt] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        node.pooled.then(() => mine(client, { blocks: 1 })),
+      ])
+      // Whether `eth_getTransactionReceipt` returns it depends on the Anvil version.
+      const { blobGasPrice: _, ...rest } = receipt
+
+      expect({
+        ...rest,
+        blockHash: null,
+        blockNumber: null,
+        blockTimestamp: null,
+        transactionHash: null,
+      }).toMatchInlineSnapshot(`
+        {
+          "blockHash": null,
+          "blockNumber": null,
+          "blockTimestamp": null,
+          "contractAddress": null,
+          "cumulativeGasUsed": 21000n,
+          "effectiveGasPrice": 9750000000n,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gasUsed": 21000n,
+          "logs": [],
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "status": "success",
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "transactionHash": null,
+          "transactionIndex": 0,
+          "type": "eip1559",
+        }
+      `)
+    })
+
+    test('args: throwOnReceiptRevert', async () => {
+      await setup()
+      const { contractAddress } = await deployErrorExample()
+      const node = await createNode((hash) => hash)
+
+      await expect(() =>
+        Promise.all([
+          sendTransaction(node.client, {
+            account: privateKeyToAccount(sourceAccount.privateKey),
+            data: encodeFunctionData({
+              abi: ErrorsExample.abi,
+              functionName: 'revertWrite',
+            }),
+            gas: 100_000n,
+            throwOnReceiptRevert: true,
+            to: contractAddress!,
+          }),
+          node.pooled.then(() => mine(client, { blocks: 1 })),
+        ]),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [TransactionExecutionError: Transaction with hash "0x44b405a338bc8efa6bd0382b0d989c4ee19080d2f855969bd1c6d888cd307edc" reverted.
+
+        The receipt marked the transaction as "reverted". This could mean that the function on the contract you are trying to call threw an error.
+         
+        You can attempt to extract the revert reason by:
+        - calling the \`simulateContract\` or \`simulateCalls\` Action with the \`abi\` and \`functionName\` of the contract
+        - using the \`call\` Action with raw \`data\`
+         
+        Request Arguments:
+          from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+          to:    0x1c2fb12ecca5edb9ac8da583caa865e7c893a7ef
+          data:  0x940b8802
+          gas:   100000
+
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('throws when `timeout` runs out', async () => {
+      await setup()
+      const node = await createNode((hash) => hash)
+
+      await expect(() =>
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          timeout: 1_000,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [TransactionExecutionError: Timed out while waiting for transaction with hash "0xcfadf13a6d4f54a8d85c1453fc787c3db27397def8cfa034b584fc454f21567f" to be confirmed.
+
+        Request Arguments:
+          from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+          to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+          value:  1 ETH
+
+        Version: viem@x.y.z]
+      `)
+
+      await mine(client, { blocks: 1 })
+    })
+
+    test('keeps the nonce', async () => {
+      await setup()
+      const node = await createNode(() => undefined)
+      const account = privateKeyToAccount(sourceAccount.privateKey, {
+        // Reads `latest`, like nodes whose `pending` count leaves out the
+        // mempool. A reset would hand out the pending transaction's nonce.
+        nonceManager: createNonceManager({
+          source: {
+            get: ({ address, client }) =>
+              getTransactionCount(client, { address, blockTag: 'latest' }),
+            set() {},
+          },
+        }),
+      })
+
+      await expect(() =>
+        sendTransaction(node.client, {
+          account,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [TransactionExecutionError: RPC Request failed.
+
+        URL: http://localhost
+        Request body: {"method":"eth_sendRawTransactionSync","params":["0x02f875018203fd843b9aca008502b95fd5008252089470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c001a0552ed0f8053733716dc9703ae1c015f3086f131047a4254c19701589242fc808a004ebf2665331fad0b2e17bbf7fe35d8bcebc05a6a0a88699143452c143b56273"]}
+         
+        Request Arguments:
+          from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+          to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+          value:  1 ETH
+
+        Details: Transaction confirmation timeout
+        Version: viem@x.y.z]
+      `)
+      const hash = await node.pooled
+      const nonce = await account.nonceManager!.consume({
+        address: account.address,
+        chainId: anvilMainnet.chain.id,
+        client,
+      })
+      await mine(client, { blocks: 1 })
+
+      expect(nonce - (await getTransaction(client, { hash })).nonce).toBe(1)
     })
   })
 

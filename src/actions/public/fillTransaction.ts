@@ -191,6 +191,8 @@ export async function fillTransaction<
     delete transaction.transactionIndex
     delete transaction.v
     delete transaction.yParity
+    if (typeof transaction.maxFeePerGas !== 'undefined')
+      delete transaction.gasPrice
 
     // Rewrite fields.
     transaction.data = transaction.input

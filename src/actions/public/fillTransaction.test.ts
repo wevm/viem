@@ -26,7 +26,6 @@ test('default', async () => {
         "data": "0xdeadbeef",
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21160n,
-        "gasPrice": 1942604248n,
         "hash": "0x1b55c62b7d06b0bc1917c18db61b2676ae4092a4ca13884a07737b18b4454014",
         "input": "0xdeadbeef",
         "maxFeePerGas": 1942604248n,

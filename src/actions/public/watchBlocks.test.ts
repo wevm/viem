@@ -91,6 +91,108 @@ describe('poll', () => {
       unwatch()
       expect(blocks.length).toBe(6)
     })
+
+    test('emits missed blocks in order across batches', async () => {
+      const blocks: [OnBlockParameter, OnBlockParameter | undefined][] = []
+      const unwatch = watchBlocks(client, {
+        emitMissed: true,
+        emitOnBegin: true,
+        onBlock: (block, prevBlock) => blocks.push([block, prevBlock]),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      const start = blocks[0]![0].number
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 12 })
+      await expect.poll(() => blocks.length, { timeout: 10_000 }).toBe(13)
+
+      expect(
+        blocks
+          .slice(1)
+          .map(([block, prevBlock]) => [
+            Number(block.number - start),
+            Number(prevBlock!.number - start),
+          ]),
+      ).toEqual(Array.from({ length: 12 }, (_, i) => [i + 1, i]))
+    })
+
+    test('defaults to true when polling less than twice per block', async () => {
+      const fastClient = createClient({
+        ...anvilMainnet.clientConfig,
+        chain: { ...anvilMainnet.chain, blockTime: 4_000 },
+      })
+      const blocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(fastClient, {
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      const start = blocks[0]!.number
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 5 })
+      await expect.poll(() => blocks.length, { timeout: 10_000 }).toBe(6)
+
+      expect(blocks.map((block) => Number(block.number - start))).toEqual([
+        0, 1, 2, 3, 4, 5,
+      ])
+    })
+
+    test('defaults to false when polling at least twice per block', async () => {
+      const blocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(client, {
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      const start = blocks[0]!.number
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 5 })
+      await expect
+        .poll(() => blocks.at(-1)!.number, { timeout: 10_000 })
+        .toBe(start + 5n)
+
+      expect(blocks.length).toBeLessThan(6)
+    })
+
+    test.each(['safe', 'finalized'] as const)(
+      'defaults to false for the %s tag',
+      async (blockTag) => {
+        const fastClient = createClient({
+          ...anvilMainnet.clientConfig,
+          chain: { ...anvilMainnet.chain, blockTime: 4_000 },
+        })
+        const blocks: OnBlockParameter<Chain, false, typeof blockTag>[] = []
+        const unwatch = watchBlocks(fastClient, {
+          blockTag,
+          emitOnBegin: true,
+          onBlock: (block) => blocks.push(block),
+          poll: true,
+          pollingInterval: 4_000,
+        })
+        onTestFinished(unwatch)
+        await expect.poll(() => blocks.length).toBe(1)
+        const start = blocks[0]!.number
+
+        // Mine between two polls, so the next poll sees all the new blocks.
+        await mine(client, { blocks: 5 })
+        await expect
+          .poll(() => blocks.at(-1)!.number, { timeout: 10_000 })
+          .toBe(start + 5n)
+
+        expect(blocks.length).toBeLessThan(6)
+      },
+    )
   })
 
   describe('emitOnBegin', () => {

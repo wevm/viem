@@ -1329,7 +1329,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1366,7 +1365,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1403,7 +1401,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1441,7 +1438,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 5,
@@ -1551,7 +1547,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 120000000000n,
         "maxFeePerGas": 100000000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1661,7 +1656,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 0n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1699,7 +1693,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12000000000n,
         "maxFeePerGas": 10000000000n,
         "maxPriorityFeePerGas": 5000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1757,12 +1750,73 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
+      }
+    `)
+  })
+
+  test('args: type (legacy, eip2930)', async () => {
+    await setup()
+
+    // A known legacy estimate, so the result shows where `gasPrice` came from.
+    const client_ = createClient({
+      chain: {
+        ...anvilMainnet.chain,
+        fees: {
+          async estimateFeesPerGas({ type }) {
+            if (type !== 'legacy') return null
+            return { gasPrice: parseGwei('42') } as never
+          },
+        },
+      },
+      transport: http(),
+    })
+
+    const { nonce: _legacyNonce, ...legacy } = await prepareTransactionRequest(
+      client_,
+      {
+        account: sourceAccount.address,
+        parameters: defaultParameters,
+        to: targetAccount.address,
+        type: 'legacy',
+        value: parseEther('1'),
+      },
+    )
+    const { nonce: _eip2930Nonce, ...eip2930 } =
+      await prepareTransactionRequest(client_, {
+        account: sourceAccount.address,
+        parameters: defaultParameters,
+        to: targetAccount.address,
+        type: 'eip2930',
+        value: parseEther('1'),
+      })
+
+    expect({ legacy, eip2930 }).toMatchInlineSnapshot(`
+      {
+        "eip2930": {
+          "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "chainId": 1,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gas": 21000n,
+          "gasPrice": 42000000000n,
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "type": "eip2930",
+          "value": 1000000000000000000n,
+        },
+        "legacy": {
+          "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "chainId": 1,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gas": 21000n,
+          "gasPrice": 42000000000n,
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "type": "legacy",
+          "value": 1000000000000000000n,
+        },
       }
     `)
   })
@@ -1793,7 +1847,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1826,7 +1879,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1859,7 +1911,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1892,7 +1943,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
