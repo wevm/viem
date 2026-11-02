@@ -2171,8 +2171,19 @@ describe('anonymous events', () => {
       ],
     } as Log
 
+    // Without `eventName`, the anonymous event is not requested, so a log with
+    // an unknown signature is not decoded as `Anon`.
     expect(
-      parseEventLogs({ abi, logs: [transfer, anon, unrelated] }),
+      parseEventLogs({ abi, logs: [transfer, anon, unrelated] }).map(
+        (log) => log.eventName,
+      ),
+    ).toEqual(['Transfer'])
+    expect(
+      parseEventLogs({
+        abi,
+        eventName: ['Anon', 'Transfer'],
+        logs: [transfer, anon, unrelated],
+      }),
     ).toMatchInlineSnapshot(`
       [
         {

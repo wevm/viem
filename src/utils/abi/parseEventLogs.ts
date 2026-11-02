@@ -117,6 +117,20 @@ export function parseEventLogs<
       selector: toEventSelector(abiItem),
     }))
 
+  // Nothing in a log identifies an anonymous event, so any log with the same
+  // topic count fits it. Anonymous events are only considered when requested:
+  // `eventName` names one, or every event in the ABI is anonymous. Otherwise a
+  // log from another contract in the same receipt is decoded as the anonymous
+  // event.
+  const anonymousTopics = (() => {
+    if (eventName)
+      return abiTopics.filter(
+        (item) => item.abi.anonymous && eventName.includes(item.abi.name),
+      )
+    if (abiTopics.every((item) => item.abi.anonymous)) return abiTopics
+    return []
+  })()
+
   return logs
     .map((log) => {
       // Normalize RpcLog (hex-encoded quantities) to Log (bigint/number).
@@ -127,39 +141,27 @@ export function parseEventLogs<
 
       // Non-anonymous events share a signature topic. Several events can share
       // that selector and differ in indexed parameters (ERC-20 vs ERC-721
-      // `Transfer`). Check that against the whole ABI before `eventName`:
-      // filtering by name first lets an anonymous event claim the log whenever
-      // its indexed count equals the topic count (a one-indexed anonymous
-      // event then matches every zero-indexed event, and a three-indexed one
-      // matches ERC-20 `Approval`).
+      // `Transfer`). Check that against the whole ABI before `eventName`, so
+      // an anonymous event never claims a log whose signature is known.
       const bySelector = abiTopics.filter(
         (item) =>
           !item.abi.anonymous && formattedLog.topics[0] === item.selector,
       )
-      const selectorItems = eventName
-        ? bySelector.filter((item) => eventName.includes(item.abi.name))
-        : bySelector
-      // A dynamic ABI value can decode as a static type without throwing, so
-      // several anonymous events of the same arity are not guessed. `eventName`
-      // only narrows events that already fit the topic count.
-      const anonymousPool = eventName
-        ? abiTopics.filter((item) => eventName.includes(item.abi.name))
-        : abiTopics
-      const anonymous =
-        bySelector.length > 0
-          ? []
-          : anonymousPool.filter((item) => {
-              if (!item.abi.anonymous) return false
-              const indexed =
-                item.abi.inputs?.filter((input) => input.indexed).length ?? 0
-              return indexed === formattedLog.topics.length
-            })
-      const abiItems =
-        bySelector.length > 0
-          ? selectorItems
-          : anonymous.length === 1
-            ? anonymous
-            : []
+      const abiItems = (() => {
+        if (bySelector.length > 0) {
+          if (!eventName) return bySelector
+          return bySelector.filter((item) => eventName.includes(item.abi.name))
+        }
+        // A dynamic ABI value can decode as a static type without throwing, so
+        // several anonymous events of the same arity are not guessed.
+        const anonymous = anonymousTopics.filter(
+          (item) =>
+            (item.abi.inputs?.filter((input) => input.indexed).length ?? 0) ===
+            formattedLog.topics.length,
+        )
+        if (anonymous.length === 1) return anonymous
+        return []
+      })()
       if (abiItems.length === 0) return null
 
       // Try each matching ABI item until one successfully decodes.

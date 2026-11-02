@@ -133,18 +133,14 @@ export function decodeEventLog<
     ? [bySelector]
     : anonymousCandidates(events, topics.length, eventName)
 
-  if (candidates.length !== 1) {
-    if (candidates.length > 1)
-      throw new AbiEventAmbiguityError(candidates.map((item) => item.name))
-    if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
-    throw new AbiEventSignatureNotFoundError(signature, { docsPath })
-  }
-
+  if (candidates.length > 1)
+    throw new AbiEventAmbiguityError(candidates.map((item) => item.name))
   const abiItem = candidates[0]
   if (!abiItem) {
     if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
     throw new AbiEventSignatureNotFoundError(signature, { docsPath })
   }
+
   return decodeMatchedEventLog({
     abiItem,
     argTopics: abiItem.anonymous ? topics : topics.slice(1),
@@ -158,13 +154,20 @@ function anonymousCandidates(
   topicCount: number,
   eventName: string | undefined,
 ) {
-  // `eventName` chooses among events that already fit the log. It does not
-  // skip the arity check, or a same-name overload with extra topics is guessed.
-  const matched = events.filter(
+  // Nothing in a log identifies an anonymous event, so any log with the same
+  // topic count fits it. Anonymous events are only considered when requested:
+  // `eventName` names one, or every event in the ABI is anonymous. Otherwise a
+  // log from another contract is decoded as the anonymous event.
+  const requested = (() => {
+    if (eventName) return events.filter((item) => item.name === eventName)
+    if (events.every((item) => item.anonymous)) return events
+    return []
+  })()
+  // `eventName` does not skip the arity check, or a same-name overload with
+  // extra topics is guessed.
+  return requested.filter(
     (item) => item.anonymous && indexedCount(item) === topicCount,
   )
-  if (!eventName) return matched
-  return matched.filter((item) => item.name === eventName)
 }
 
 function indexedCount(item: AbiEvent) {

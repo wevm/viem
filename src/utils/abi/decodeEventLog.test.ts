@@ -1666,6 +1666,61 @@ describe('anonymous', () => {
     })
   })
 
+  test('anonymous event is not requested in a mixed ABI without eventName', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'a', type: 'address' },
+          { indexed: true, name: 'b', type: 'address' },
+        ],
+        name: 'Anon',
+        type: 'event',
+      },
+      {
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'value', type: 'uint256' },
+        ],
+        name: 'Transfer',
+        type: 'event',
+      },
+    ] as const
+    // A log from another contract: an unknown signature and one indexed
+    // argument, so the topic count fits `Anon`.
+    const topics = [
+      toEventSelector('Deposit(address,uint256)'),
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    ] as const
+
+    expect(() =>
+      decodeEventLog({ abi, data: '0x', topics: [...topics] }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEventSignatureNotFoundError: Encoded event signature "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c" not found on ABI.
+      Make sure you are using the correct ABI and that the event exists on it.
+      You can look up the signature here: https://4byte.sourcify.dev/?q=0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c.
+
+      Docs: https://viem.sh/docs/contract/decodeEventLog
+      Version: viem@x.y.z]
+    `)
+    expect(
+      decodeEventLog({
+        abi,
+        data: '0x',
+        eventName: 'Anon',
+        topics: [...topics],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "a": "0x8bFC6cDa04EB5B0d3c460751C2402c5C5CC9109C",
+          "b": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+        },
+        "eventName": "Anon",
+      }
+    `)
+  })
+
   test('eventName does not skip the indexed arity check', () => {
     const abi = [
       {
