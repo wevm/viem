@@ -51,7 +51,12 @@ export type WatchBlocksParameters<
   | {
       /** The block tag. Defaults to "latest". */
       blockTag?: blockTag | BlockTag | undefined
-      /** Whether or not to emit the missed blocks to the callback. */
+      /**
+       * Whether or not to emit the missed blocks to the callback.
+       * Defaults to `true` when `blockTag` is `latest` or `pending` and the
+       * polling interval is longer than half the chain's block time,
+       * otherwise `false`.
+       */
       emitMissed?: boolean | undefined
       /** Whether or not to emit the block to the callback when the subscription opens. */
       emitOnBegin?: boolean | undefined
@@ -104,7 +109,7 @@ export function watchBlocks<
   client: Client<transport, chain>,
   {
     blockTag = client.experimental_blockTag ?? 'latest',
-    emitMissed = false,
+    emitMissed: emitMissed_,
     emitOnBegin = false,
     onBlock,
     onError,
@@ -129,6 +134,16 @@ export function watchBlocks<
     return true
   })()
   const includeTransactions = includeTransactions_ ?? false
+  // Polling less than twice per block skips blocks, so emit the missed
+  // ones unless told otherwise. `safe` and `finalized` can move by
+  // thousands of blocks at once (such as on Arbitrum) at any polling
+  // interval, so they emit missed blocks only when asked.
+  const blockTime = client.chain?.blockTime
+  const emitMissed =
+    emitMissed_ ??
+    ((blockTag === 'latest' || blockTag === 'pending') &&
+      blockTime !== undefined &&
+      pollingInterval > blockTime / 2)
 
   let prevBlock:
     | GetBlockReturnType<chain, false | includeTransactions, 'latest'>
@@ -164,18 +179,31 @@ export function watchBlocks<
 
               // If we have missed out on some previous blocks, and the
               // `emitMissed` flag is truthy, let's emit those blocks.
+              // Fetch them in parallel batches so catching up takes a few
+              // round trips rather than one per block.
               if (block.number - prevBlock.number > 1 && emitMissed) {
-                for (let i = prevBlock?.number + 1n; i < block.number; i++) {
-                  const block = (await getAction(
-                    client,
-                    getBlock,
-                    'getBlock',
-                  )({
-                    blockNumber: i,
-                    includeTransactions,
-                  })) as GetBlockReturnType<chain>
-                  emit.onBlock(block as any, prevBlock as any)
-                  prevBlock = block
+                const batchSize = 10
+                const start = prevBlock.number + 1n
+                const count = Number(block.number - start)
+                for (let i = 0; i < count; i += batchSize) {
+                  const blocks = await Promise.all(
+                    Array.from(
+                      { length: Math.min(batchSize, count - i) },
+                      (_, j) =>
+                        getAction(
+                          client,
+                          getBlock,
+                          'getBlock',
+                        )({
+                          blockNumber: start + BigInt(i + j),
+                          includeTransactions,
+                        }),
+                    ),
+                  )
+                  for (const block of blocks) {
+                    emit.onBlock(block as any, prevBlock as any)
+                    prevBlock = block as any
+                  }
                 }
               }
             }

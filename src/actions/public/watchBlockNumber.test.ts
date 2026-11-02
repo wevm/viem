@@ -72,6 +72,46 @@ describe('poll', () => {
       unwatch()
       expect(blockNumbers.length).toBe(6)
     })
+
+    test('defaults to true when polling less than twice per block', async () => {
+      const fastClient = createClient({
+        ...anvilMainnet.clientConfig,
+        chain: { ...anvilMainnet.chain, blockTime: 100 },
+      })
+      const blockNumbers: OnBlockNumberParameter[] = []
+      const unwatch = watchBlockNumber(fastClient, {
+        onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
+        poll: true,
+        pollingInterval: 100,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      const start = blockNumbers[0]!
+
+      await mine(client, { blocks: 5 })
+      await expect.poll(() => blockNumbers.length).toBe(6)
+
+      expect(
+        blockNumbers.map((blockNumber) => Number(blockNumber - start)),
+      ).toEqual([0, 1, 2, 3, 4, 5])
+    })
+
+    test('defaults to false when polling at least twice per block', async () => {
+      const blockNumbers: OnBlockNumberParameter[] = []
+      const unwatch = watchBlockNumber(client, {
+        onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
+        poll: true,
+        pollingInterval: 100,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      const start = blockNumbers[0]!
+
+      await mine(client, { blocks: 5 })
+      await expect.poll(() => blockNumbers.at(-1)).toBe(start + 5n)
+
+      expect(blockNumbers.length).toBeLessThan(6)
+    })
   })
 
   describe('emitOnBegin', () => {
