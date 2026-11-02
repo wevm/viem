@@ -55,7 +55,7 @@ export type WatchBlocksParameters<
        * Whether or not to emit the missed blocks to the callback.
        * Defaults to `true` when `blockTag` is `latest` or `pending` and the
        * polling interval is longer than half the chain's block time,
-       * otherwise `false`.
+       * otherwise `false`. The default skips gaps of more than 100 blocks.
        */
       emitMissed?: boolean | undefined
       /** Whether or not to emit the block to the callback when the subscription opens. */
@@ -144,6 +144,9 @@ export function watchBlocks<
     ((blockTag === 'latest' || blockTag === 'pending') &&
       blockTime !== undefined &&
       pollingInterval > blockTime / 2)
+  // The default catches up at most 100 blocks, so a long gap, such as a
+  // device waking from sleep, skips to the latest block.
+  const maxMissed = emitMissed_ === undefined ? 100 : Number.POSITIVE_INFINITY
 
   let prevBlock:
     | GetBlockReturnType<chain, false | includeTransactions, 'latest'>
@@ -181,14 +184,14 @@ export function watchBlocks<
               // `emitMissed` flag is truthy, let's emit those blocks.
               // Fetch them in parallel batches so catching up takes a few
               // round trips rather than one per block.
-              if (block.number - prevBlock.number > 1 && emitMissed) {
+              const missed = Number(block.number - prevBlock.number) - 1
+              if (missed > 0 && missed <= maxMissed && emitMissed) {
                 const batchSize = 10
                 const start = prevBlock.number + 1n
-                const count = Number(block.number - start)
-                for (let i = 0; i < count; i += batchSize) {
+                for (let i = 0; i < missed; i += batchSize) {
                   const blocks = await Promise.all(
                     Array.from(
-                      { length: Math.min(batchSize, count - i) },
+                      { length: Math.min(batchSize, missed - i) },
                       (_, j) =>
                         getAction(
                           client,

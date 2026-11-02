@@ -165,6 +165,33 @@ describe('poll', () => {
       expect(blocks.length).toBeLessThan(6)
     })
 
+    test('skips more than 100 missed blocks by default', async () => {
+      const fastClient = createClient({
+        ...anvilMainnet.clientConfig,
+        chain: { ...anvilMainnet.chain, blockTime: 4_000 },
+      })
+      const blocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(fastClient, {
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      const start = blocks[0]!.number
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 102 })
+      await expect
+        .poll(() => blocks.at(-1)!.number, { timeout: 10_000 })
+        .toBe(start + 102n)
+
+      expect(blocks.map((block) => Number(block.number - start))).toEqual([
+        0, 102,
+      ])
+    })
+
     test.each(['safe', 'finalized'] as const)(
       'defaults to false for the %s tag',
       async (blockTag) => {
