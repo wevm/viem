@@ -78,6 +78,11 @@ export function createHttpServer(
   })
 }
 
+type RpcProxyReply =
+  | { error: { code: number; data?: unknown; message: string } }
+  | { result: unknown }
+  | undefined
+
 /**
  * Serves JSON-RPC on an ephemeral HTTP server that forwards each request to
  * `url`, or responds with the reply that `getReply` returns for it. The server
@@ -88,16 +93,13 @@ export async function createRpcProxy(
   getReply: (request: {
     method: string
     params: readonly unknown[]
-  }) =>
-    | { error: { code: number; message: string } }
-    | { result: unknown }
-    | undefined,
+  }) => RpcProxyReply | Promise<RpcProxyReply>,
 ) {
   const server = await createHttpServer(async (req, res) => {
     let body = ''
     for await (const chunk of req) body += chunk
     const request = JSON.parse(body)
-    const reply = getReply(request)
+    const reply = await getReply(request)
 
     res.setHeader('Content-Type', 'application/json')
     if (reply) {

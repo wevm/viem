@@ -9,10 +9,12 @@ import {
   UserRejectedRequestError,
   WalletConnectSessionSettlementError,
 } from '../../errors/rpc.js'
+import { getHttpRpcClient } from '../../utils/rpc/http.js'
 import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
 import type { Transport } from './createTransport.js'
+import { custom } from './custom.js'
 import {
   type FallbackTransport,
   fallback,
@@ -579,6 +581,129 @@ describe('request', () => {
     ).rejects.toThrowError()
 
     expect(count).toBe(1)
+  })
+
+  test('error (rpc - eth_sendRawTransactionSync timeout)', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 4,
+            data: '0xd75b1cdc25d0b1ad1e2a0d03b4a9b1f2a2f7a5fbd6e2ca3c40b8ce8a04f8e5c8',
+            message: 'Transaction confirmation timeout',
+          },
+        }),
+      )
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: { code: -32003, message: 'nonce too low' },
+        }),
+      )
+    })
+
+    const transport = fallback([http(server1.url), http(server2.url)])({
+      chain: localhost,
+    })
+    await expect(() =>
+      transport.request({
+        method: 'eth_sendRawTransactionSync',
+        params: ['0x02'],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [RpcRequestError: RPC Request failed.
+
+      URL: http://localhost
+      Request body: {"method":"eth_sendRawTransactionSync","params":["0x02"]}
+
+      Details: Transaction confirmation timeout
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error (rpc - eth_sendRawTransactionSync timeout, custom provider)', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 4,
+            data: '0xd75b1cdc25d0b1ad1e2a0d03b4a9b1f2a2f7a5fbd6e2ca3c40b8ce8a04f8e5c8',
+            message: 'Transaction confirmation timeout',
+          },
+        }),
+      )
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: { code: -32003, message: 'nonce too low' },
+        }),
+      )
+    })
+    const rpcClient = getHttpRpcClient(server1.url)
+
+    const transport = fallback([
+      // An EIP-1193 provider throws the plain JSON-RPC error.
+      custom({
+        async request({ method, params }) {
+          const { error, result } = await rpcClient.request({
+            body: { method, params },
+          })
+          if (error) throw error
+          return result
+        },
+      }),
+      http(server2.url),
+    ])({
+      chain: localhost,
+    })
+    await expect(() =>
+      transport.request({
+        method: 'eth_sendRawTransactionSync',
+        params: ['0x02'],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [UnknownRpcError: An unknown RPC error occurred.
+
+      Details: Transaction confirmation timeout
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error (rpc - code 4 on other methods)', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: { code: 4, message: 'error' } }))
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = fallback([http(server1.url), http(server2.url)])({
+      chain: localhost,
+    })
+
+    expect(
+      await transport.request({ method: 'eth_blockNumber' }),
+    ).toMatchInlineSnapshot(`"0x1"`)
   })
 
   test('all error', async () => {
