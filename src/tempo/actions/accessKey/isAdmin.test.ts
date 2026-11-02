@@ -41,7 +41,7 @@ describe('isAdmin', () => {
 })
 
 describe('watchAdminAuthorized', () => {
-  test('default', async () => {
+  test.runIf(tempo.adminKeys)('default', async () => {
     const accessKey = Account.fromP256(P256.randomPrivateKey(), {
       access: account,
     })

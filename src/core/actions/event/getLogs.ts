@@ -1,8 +1,9 @@
-import { AbiEvent, Filter, Log } from 'ox'
-import type { Address, Block, Errors, Hex } from 'ox'
+import { Filter, Log } from 'ox'
+import type { AbiEvent, Address, Block, Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import type { OneOf } from '../../internal/types.js'
+import * as internal from './internal.js'
 
 /**
  * Returns a list of event logs matching the provided parameters (`eth_getLogs`).
@@ -49,15 +50,7 @@ export async function getLogs<
 
   const events = events_ ?? (event ? [event] : undefined)
 
-  const topics = (() => {
-    if (!events) return undefined
-    if (event)
-      return AbiEvent.encode(
-        event,
-        ...((args !== undefined ? [args] : []) as []),
-      ).topics
-    return [events.map((event) => AbiEvent.encode(event).topics[0])]
-  })() as readonly Hex.Hex[]
+  const topics = internal.getTopics({ args, event, events })
 
   const result = await client.request({
     method: 'eth_getLogs',
@@ -72,7 +65,7 @@ export async function getLogs<
   const logs = result.map((log) => Log.fromRpc(log))
 
   if (!events) return logs as never
-  return AbiEvent.extractLogs(events, logs, { args, strict }) as never
+  return internal.extractLogs(events, logs, { args, strict }) as never
 }
 
 export declare namespace getLogs {

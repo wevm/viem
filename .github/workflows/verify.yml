@@ -230,7 +230,7 @@ jobs:
           CI: true
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_ACCOUNTS: 'true'
-          VITE_TEMPO_TAG: sha-83f3ccd
+          VITE_TEMPO_TAG: sha-179347b
 
   test-tempo-fuzz:
     if: ${{ inputs.full }}

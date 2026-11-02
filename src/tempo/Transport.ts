@@ -178,12 +178,16 @@ export function withRelay(
             // A pending fee payer signature marks the envelope as awaiting relay co-signature.
             if (
               typeof serialized === 'string' &&
-              serialized.startsWith(TxEnvelopeTempo.serializedType)
+              (serialized.startsWith(TxEnvelopeTempo.serializedType) ||
+                serialized.startsWith(TxEnvelopeTempo.feePayerMagic))
             ) {
               const envelope = (() => {
                 try {
                   return TxEnvelopeTempo.deserialize(
-                    serialized as TxEnvelopeTempo.Serialized,
+                    serialized.replace(
+                      TxEnvelopeTempo.feePayerMagic,
+                      TxEnvelopeTempo.serializedType,
+                    ) as TxEnvelopeTempo.Serialized,
                   )
                 } catch {
                   return undefined

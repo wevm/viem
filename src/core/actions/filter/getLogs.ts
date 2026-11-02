@@ -1,8 +1,9 @@
-import { AbiEvent, Log } from 'ox'
-import type { Block, Errors } from 'ox'
+import { Log } from 'ox'
+import type { AbiEvent, Block, Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 import type * as event from '../event/index.js'
+import * as internal from '../event/internal.js'
 import type { Filter } from './Filter.js'
 
 /**
@@ -49,10 +50,10 @@ export async function getLogs<
   })()
   if (!events) return logs as never
 
-  return AbiEvent.extractLogs(events, logs as never, {
+  return internal.extractLogs(events, logs, {
     args: filter.args,
     strict: filter.strict ?? false,
-  })
+  }) as getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>
 }
 
 export declare namespace getLogs {

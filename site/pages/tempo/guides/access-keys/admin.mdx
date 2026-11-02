@@ -13,6 +13,11 @@ as authorizing and revoking them, without using the root key each time. Admin ke
 an `expiry`, `limits`, or `scopes` (those are ignored), so treat them as powerful as the root
 key itself.
 
+:::warning
+Admin access keys are deprecated. T14 ([TIP-1137](https://tips.sh/1137)) removes them, and the
+Tempo node rejects key authorizations that provision an admin key from T14.
+:::
+
 ## Recipes
 
 These recipes assume you have [set up a Tempo client](/tempo).

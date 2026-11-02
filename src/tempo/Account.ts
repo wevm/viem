@@ -22,7 +22,6 @@ import {
   TxEnvelopeTempo,
 } from 'ox/tempo'
 
-import { nativeMultisigFactory } from './Addresses.js'
 import { parseApproval } from './accounts/Signature.js'
 
 import * as viem_Account from '../core/Account.js'
@@ -280,8 +279,10 @@ export declare namespace fromSecp256k1 {
  *
  * The returned account does not hold a key itself. Omit `address` or set it to
  * `infer` to derive an account address from its initial config. For a current
- * config, set `address` to the stable account address. Pass the address directly
- * for an address-only account.
+ * config, set `address` to the stable account address. For an account
+ * upgraded in place with `Actions.accounts.upgrade`, set `address` to the
+ * upgraded account and pass the installed owners and threshold as `upgrade`.
+ * Pass the address directly for an address-only account.
  *
  * Owners can be accounts or addresses directly, or weighted `{ owner, weight }`
  * entries. Direct owners default to weight `1`, and `threshold` defaults to `1`.
@@ -316,7 +317,7 @@ export declare namespace fromSecp256k1 {
  * const transaction = await client.transaction.sign(request)
  * ```
  *
- * @param value Initial config, current config, or account address.
+ * @param value Initial config, current config, upgrade config, or account address.
  * @returns Configurable account.
  */
 export function fromConfig(
@@ -326,12 +327,16 @@ export function fromConfig(
   value: fromConfig.CurrentConfig,
 ): ConfigurableAccount<AccountConfig.Config>
 export function fromConfig(
+  value: fromConfig.UpgradeConfig,
+): ConfigurableAccount<AccountConfig.Config>
+export function fromConfig(
   address: Address.Address,
 ): ConfigurableAccount<undefined>
 export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount
 export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
+    if ('upgrade' in value) return value.upgrade
     const { address: _, ...config } = value
     return config
   })()
@@ -342,16 +347,16 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
         ? { owner: value, weight: 1 }
         : value,
     )
-    return AccountConfig.from({
-      ...configInput,
-      owners: ownerEntries.map(({ owner, weight }) => ({
-        owner: typeof owner === 'string' ? owner : owner.address,
-        weight,
-      })),
-      threshold: configInput.threshold ?? 1,
-    })
+    const owners = ownerEntries.map(({ owner, weight }) => ({
+      owner: typeof owner === 'string' ? owner : owner.address,
+      weight,
+    }))
+    const threshold = configInput.threshold ?? 1
+    if (typeof value !== 'string' && 'upgrade' in value)
+      return AccountConfig.fromUpgrade(value.address, { owners, threshold })
+    return AccountConfig.from({ ...configInput, owners, threshold })
   })()
-  if (typeof value !== 'string') {
+  if (typeof value !== 'string' && !('upgrade' in value)) {
     if (
       (value.address === undefined || value.address === 'infer') &&
       config!.version !== 0n
@@ -368,9 +373,7 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
     (() => {
       if (typeof value === 'string') return value
       if (value.address === undefined || value.address === 'infer')
-        return AccountConfig.getAddress(config!, {
-          factory: nativeMultisigFactory,
-        })
+        return AccountConfig.getAddress(config!)
       return value.address
     })(),
   )
@@ -534,7 +537,24 @@ export declare namespace fromConfig {
       })
 
   /** Parameters for {@link fromConfig}. */
-  export type Parameters = Address.Address | CurrentConfig | InitialConfig
+  export type Parameters =
+    | Address.Address
+    | CurrentConfig
+    | InitialConfig
+    | UpgradeConfig
+
+  /** Account upgraded in place and the owners and threshold it installed. */
+  export type UpgradeConfig = {
+    /** Upgraded account address. */
+    address: Address.Address
+    /** Owners and threshold installed by the upgrade. */
+    upgrade: {
+      /** Weighted owners. */
+      owners: readonly Owner[]
+      /** Minimum owner weight required for authorization. */
+      threshold?: number | undefined
+    }
+  }
 }
 
 /**
@@ -921,14 +941,18 @@ export declare namespace signKeyAuthorization {
     KeyAuthorization.KeyAuthorization,
     'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
+    chainId: number | bigint
     /**
      * Whether to authorize the key as an admin key. Admin keys are
      * unrestricted and can manage the account's other access keys; `expiry`,
-     * `limits`, and `scopes` are ignored. Requires the T6 hardfork; T14 (TIP-1137) removes admin key creation.
+     * `limits`, and `scopes` are ignored. Requires the T6 hardfork.
      *
      * [TIP-1049](https://tips.sh/1049)
+     *
+     * @deprecated Admin access keys are removed at T14 by
+     * [TIP-1137](https://docs.tempo.xyz/protocol/tips/tip-1137). From T14 the Tempo
+     * node rejects key authorizations that provision an admin key.
      */
-    chainId: number | bigint
     admin?: boolean | undefined
     key: resolveAccessKey.Parameters
     /** @internal Current state used when a configurable account signs the authorization. */
@@ -1053,11 +1077,21 @@ function fromBase(parameters: fromBase.Parameters): Base {
       // The envelope originates from the tempo chain's `toEnvelope` (or is a
       // Tempo envelope directly); `feePayer` and `accountSimulation` ride it as
       // request metadata.
-      const envelope =
-        envelope_ as unknown as TxEnvelopeTempo.TxEnvelopeTempo & {
-          feePayer?: Envelope['feePayer'] | undefined
-          accountSimulation?: Envelope['accountSimulation'] | undefined
-        }
+      const envelope = (() => {
+        const envelope =
+          envelope_ as unknown as TxEnvelopeTempo.TxEnvelopeTempo & {
+            feePayer?: Envelope['feePayer'] | undefined
+            accountSimulation?: Envelope['accountSimulation'] | undefined
+          }
+        // A sponsored request signs the sponsored payload (excluding
+        // `feeToken`), which the `feePayerSignature: null` marker selects.
+        if (
+          envelope.feePayer &&
+          typeof envelope.feePayerSignature === 'undefined'
+        )
+          return { ...envelope, feePayerSignature: null }
+        return envelope
+      })()
 
       // Non-tempo envelopes take the generic path (secp256k1 signatures
       // only; other key types cannot produce valid signatures for them).
@@ -1110,7 +1144,9 @@ function fromBase(parameters: fromBase.Parameters): Base {
       const signatureEnvelope = SignatureEnvelope.from(signature)
       const serialized =
         serialize?.(envelope, { signature: signatureEnvelope }) ??
-        (envelope.feePayer
+        // A prefilled fee-payer signature (e.g. from `eth_fillTransaction`)
+        // completes the envelope; otherwise hand off in the fee payer format.
+        (envelope.feePayer && !envelope.feePayerSignature
           ? TxEnvelopeTempo.serialize(envelope, {
               format: 'feePayer',
               sender: envelope.from ?? address,

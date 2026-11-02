@@ -206,7 +206,7 @@ export async function assertTamperRejected(
 
   await expect(
     CoreActions_.transaction.sendRawSync(caller, {
-      transaction: await signTransaction(sender, tampered),
+      transaction: await sender.signTransaction(tampered as never),
     }),
   ).rejects.toThrow()
 }
@@ -285,20 +285,9 @@ async function send(scenario: Scenario, request: send.Request, rpcUrl: string) {
       }),
     })
     return await CoreActions_.transaction.sendRawSync(client, {
-      transaction: await signTransaction(request.account, prepared),
+      transaction: await request.account.signTransaction(prepared as never),
     })
   } finally {
     await server.close()
   }
-}
-
-/** Signs a prepared request or filled transaction as `account` through the Tempo envelope. */
-function signTransaction(
-  account: { signTransaction: Account.Account['signTransaction'] },
-  request: unknown,
-) {
-  return account.signTransaction(
-    chain_.transaction.toEnvelope(request as never) as never,
-    { chain: chain_ } as never,
-  )
 }

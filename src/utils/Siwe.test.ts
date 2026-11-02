@@ -49,3 +49,21 @@ test('reads resources from their field, ignoring Resources: in the statement', (
   }
   expect(Siwe.parseMessage(Siwe.createMessage(value))).toEqual(value)
 })
+
+test('round-trips a punycode top-level domain', () => {
+  const value = { ...message, domain: 'example.xn--p1ai' }
+  expect(Siwe.parseMessage(Siwe.createMessage(value))).toEqual(value)
+})
+
+test('rejects a top-level domain label longer than 63 characters', () => {
+  expect(() =>
+    Siwe.createMessage({ ...message, domain: `example.${'a'.repeat(64)}` }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "domain".
+
+    - Domain must be an RFC 3986 authority.
+    - See https://www.rfc-editor.org/rfc/rfc3986
+
+    Provided value: example.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+  `)
+})

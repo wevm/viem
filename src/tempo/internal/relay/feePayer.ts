@@ -175,8 +175,8 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         Object.assign(filled, { feeToken: token })
 
       const defer =
-        typeof normalized.accountSimulation === 'object' &&
-        normalized.accountSimulation !== null
+        typeof normalized.configurableAccountSimulation === 'object' &&
+        normalized.configurableAccountSimulation !== null
 
       // Bound before validation so the validated envelope is the one signed, and returned signatures expire.
       const signs = !!options.account && !external && !defer
@@ -241,8 +241,8 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         typeof parameters.feePayer === 'string' ||
         parameters.feePayer === false ||
         !result.capabilities?.sponsored ||
-        (typeof parameters.accountSimulation === 'object' &&
-          parameters.accountSimulation !== null)
+        (typeof parameters.configurableAccountSimulation === 'object' &&
+          parameters.configurableAccountSimulation !== null)
       )
         return undefined
       const transaction = Utils.normalizeTempoTransaction(result.tx)

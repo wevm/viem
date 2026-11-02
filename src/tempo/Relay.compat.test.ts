@@ -363,7 +363,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
 describe.runIf(
   nodeEnv === 'localnet' &&
     process.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    process.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
+    process.env.VITE_TEMPO_TAG === 'sha-179347b',
 )('accounts', () => {
   let client: CoreClient_.Client<typeof chain_>
   let server: Server

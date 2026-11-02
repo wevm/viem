@@ -9,7 +9,6 @@ import { Secp256k1 } from 'viem/utils'
 import { Account, Actions, Relay } from 'viem/tempo'
 import { expect, test } from 'vitest'
 import * as Tempo from '~test/tempoAccounts.js'
-import { nativeMultisigFactory } from '../../Addresses.js'
 
 const userAccount = Tempo.accounts[9]!
 const feePayerAccount = Tempo.accounts[0]!
@@ -65,7 +64,7 @@ test('rejects a configurable signature from a non-owner', async () => {
   await expect(
     relay.request({ method: 'eth_signRawTransaction', params: [serialized] }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `[RpcResponse.InvalidParamsError: Invalid operation approval: signature is from non-owner 0xa0ee7a142d267c1f36714e4a8f75612f20a79720.]`,
+    `[RpcResponse.InvalidParamsError: Invalid operation approval: signature is from non-owner 0x9ac4fdc8e5d72aaade30f9ff52d392d60c68a64a.]`,
   )
 })
 
@@ -105,7 +104,7 @@ test('rejects a same-transaction authorization a non-owner signed for a configur
   await expect(
     relay.request({ method: 'eth_signRawTransaction', params: [serialized] }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `[RpcResponse.InvalidParamsError: Invalid operation approval: signature is from non-owner 0xa0ee7a142d267c1f36714e4a8f75612f20a79720.]`,
+    `[RpcResponse.InvalidParamsError: Invalid operation approval: signature is from non-owner 0x9ac4fdc8e5d72aaade30f9ff52d392d60c68a64a.]`,
   )
 })
 
@@ -126,9 +125,7 @@ function configurableConfig(
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function configurableHandoff(options: configurableHandoff.Options) {
   const { config, owners } = options
-  const account =
-    options.account ??
-    AccountConfig.getAddress(config, { factory: nativeMultisigFactory })
+  const account = options.account ?? AccountConfig.getAddress(config)
   const envelope = TxEnvelopeTempo.from({
     calls: [transfer],
     chainId: Tempo.chain.id,
@@ -184,9 +181,7 @@ async function configurableKeyAuthorization(
   options: configurableKeyAuthorization.Options,
 ) {
   const { config, signer } = options
-  const victim = AccountConfig.getAddress(config, {
-    factory: nativeMultisigFactory,
-  })
+  const victim = AccountConfig.getAddress(config)
   const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
   const unsigned = KeyAuthorization.from({
     account: victim,

@@ -1,5 +1,4 @@
-import { AbiEvent, Address } from 'ox'
-import type { Hex } from 'ox'
+import { AbiEvent, Address, Hex } from 'ox'
 import { z } from 'ox/zod'
 import { Actions } from 'viem'
 import { describe, expect, test } from 'vitest'
@@ -91,6 +90,45 @@ describe('event', () => {
       to: Address.checksum(b),
       value: 1n,
     })
+
+    await Actions.filter.uninstall(client, { filter })
+  })
+
+  test('decodes logs by an anonymous event', async () => {
+    const note = {
+      ...AbiEvent.from(
+        'event Note(address indexed from, uint256 indexed id, uint256 value)',
+      ),
+      anonymous: true,
+    } as const
+    const { address: logger } = await contract.deploy(client, {
+      bytecode: contract.loggerBytecode,
+    })
+    const filter = await Actions.event.createFilter(client, {
+      address: logger,
+      event: note,
+    })
+
+    await contract.emitLog(client, {
+      address: logger,
+      data: Hex.fromNumber(1n, { size: 32 }),
+      topics: [Hex.padLeft(a, 32), Hex.fromNumber(7n, { size: 32 })],
+    })
+    const changes = await Actions.filter.getChanges(client, { filter })
+    expect(
+      changes.map(({ args, eventName }) => ({ args, eventName })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "args": {
+            "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "id": 7n,
+            "value": 1n,
+          },
+          "eventName": "Note",
+        },
+      ]
+    `)
 
     await Actions.filter.uninstall(client, { filter })
   })

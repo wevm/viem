@@ -621,7 +621,7 @@ test('sponsors an unfunded sender that sets fee fields without gas', async () =>
   })
   const { gas, maxFeePerGas, maxPriorityFeePerGas } = transaction
   const receipt = await CoreActions_.transaction.sendRawSync(client, {
-    transaction: await signTransaction(sender, transaction),
+    transaction: await sender.signTransaction(transaction as never),
   })
 
   expect({ maxFeePerGas, maxPriorityFeePerGas }).toMatchInlineSnapshot(`
@@ -670,7 +670,7 @@ test('sponsors an unfunded sender that sets only a priority fee without gas', as
   })
   const { gas, maxFeePerGas, maxPriorityFeePerGas } = transaction
   const receipt = await CoreActions_.transaction.sendRawSync(client, {
-    transaction: await signTransaction(sender, transaction),
+    transaction: await sender.signTransaction(transaction as never),
   })
 
   expect(maxPriorityFeePerGas).toMatchInlineSnapshot(`1000000000n`)
@@ -1129,14 +1129,3 @@ test.each(['create', 'transport'])(
     }
   },
 )
-
-/** Signs a prepared request or filled transaction as `account` through the Tempo envelope. */
-function signTransaction(
-  account: { signTransaction: Account.Account['signTransaction'] },
-  request: unknown,
-) {
-  return account.signTransaction(
-    tempoLocalnet.transaction.toEnvelope(request as never) as never,
-    { chain: tempoLocalnet } as never,
-  )
-}

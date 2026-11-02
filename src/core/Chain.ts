@@ -335,6 +335,10 @@ export declare namespace Chain {
  * Native block type a {@link Chain} produces. Resolves to the return type of
  * the chain's `codecs.block.fromRpc` converter when declared, otherwise the
  * default {@link Block.Block}.
+ *
+ * A converter's block narrows on `includeTransactions` (transaction hashes, or
+ * the chain's {@link ExtractTransaction} objects) and on a `'pending'`
+ * `blockTag` (`null` hash, logs bloom, nonce, and number).
  */
 export type ExtractBlock<
   chain extends Chain | undefined,
@@ -343,7 +347,20 @@ export type ExtractBlock<
 > = chain extends {
   codecs: { block: { fromRpc: (value: never) => infer block } }
 }
-  ? block
+  ? {
+      [key in keyof block]: key extends 'transactions'
+        ? includeTransactions extends true
+          ? readonly ExtractTransaction<
+              chain,
+              blockTag extends 'pending' ? true : false
+            >[]
+          : readonly Hex.Hex[]
+        : key extends 'hash' | 'logsBloom' | 'nonce' | 'number'
+          ? blockTag extends 'pending'
+            ? null
+            : Exclude<block[key], null>
+          : block[key]
+    }
   : Block.Block<includeTransactions, blockTag>
 
 /**

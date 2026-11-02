@@ -7,7 +7,6 @@ import {
 } from 'ox/tempo'
 import { Account, Relay, Store } from 'viem/tempo'
 import { expect, test } from 'vitest'
-import { nativeMultisigFactory } from './Addresses.js'
 import * as Operation from './accounts/Operation.js'
 import { parseApproval } from './accounts/Signature.js'
 
@@ -18,9 +17,7 @@ const config = AccountConfig.from({
   owners: [{ owner: owner.address, weight: 1 }],
   threshold: 1,
 })
-const account = AccountConfig.getAddress(config, {
-  factory: nativeMultisigFactory,
-})
+const account = AccountConfig.getAddress(config)
 const approval = SignatureEnvelope.from({
   signature: {
     r: `0x${'00'.repeat(31)}01`,

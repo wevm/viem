@@ -150,6 +150,59 @@ describe('fallback', () => {
     }
   })
 
+  test('retries a JSON-RPC error from a non-2xx response by its HTTP status', async () => {
+    // Only the first request is rate limited.
+    const rateLimits = [{ error: { code: -32000, message: 'rate limited' } }]
+    const server = await Http.createServer((_req, res) => {
+      const rateLimit = rateLimits.shift()
+      res.writeHead(
+        rateLimit ? 429 : 200,
+        rateLimit
+          ? { 'Content-Type': 'application/json', 'Retry-After': '1' }
+          : { 'Content-Type': 'application/json' },
+      )
+      res.end(JSON.stringify(rateLimit ?? { result: '0x1' }))
+    })
+    try {
+      const transport = fallback.fallback([http(server.url)]).setup()
+
+      const start = Date.now()
+      const result = await transport.request({ method: 'eth_chainId' })
+      const elapsed = Date.now() - start
+
+      expect(result).toMatchInlineSnapshot(`"0x1"`)
+      expect(elapsed).toBeGreaterThan(900)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not retry a JSON-RPC error with a non-retryable HTTP status', async () => {
+    // A retry would receive the second, successful response.
+    const responses = [
+      { status: 400, body: { error: { code: -32000, message: 'bad' } } },
+      { status: 200, body: { result: '0x1' } },
+    ]
+    const server = await Http.createServer((_req, res) => {
+      const { status, body } = responses.shift()!
+      res.writeHead(status, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(body))
+    })
+    try {
+      const transport = fallback
+        .fallback([http(server.url)], { retryDelay: 0 })
+        .setup()
+
+      await expect(
+        transport.request({ method: 'eth_chainId' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidInputError: bad]`,
+      )
+    } finally {
+      await server.close()
+    }
+  })
+
   test('exposes the inner transport instances', () => {
     const transport = fallback.fallback([http(url), http(url)]).setup()
     expect(transport.transports).toHaveLength(2)

@@ -7,8 +7,7 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 # `accounts.deriveAccount`
 
 Derives a configurable account address from an initial config with the configurable account
-precompile. The precompile validates the config and derives the address with the chain's recovery
-factory.
+precompile. The precompile validates the config and derives the address from its hash.
 
 To derive the address without a network request, use
 [`Account.fromConfig`](/tempo/accounts/account.fromConfig) with `address: 'infer'`.

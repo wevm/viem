@@ -1,4 +1,3 @@
-import { nativeMultisigFactory } from './Addresses.js'
 import {
   Address,
   Authorization,
@@ -628,6 +627,58 @@ describe('signTransaction', () => {
     ).toBe(true)
   })
 
+  test('behavior: `feePayer: true` signs the sponsored payload', async () => {
+    const account = Account.fromSecp256k1(privateKey)
+    const request = {
+      ...envelope,
+      feePayer: true,
+      feeToken: '0x20c0000000000000000000000000000000000001',
+    } as const
+
+    const results = await Promise.all(
+      [undefined, tempoLocalnet].map(async (chain) => {
+        const serialized = await account.signTransaction(
+          request as never,
+          chain ? { chain } : undefined,
+        )
+        const transaction = TxEnvelopeTempo.deserialize(
+          serialized.replace(
+            TxEnvelopeTempo.feePayerMagic,
+            TxEnvelopeTempo.serializedType,
+          ) as TxEnvelopeTempo.Serialized,
+        )
+        if (transaction.signature?.type !== 'secp256k1')
+          throw new Error('unreachable')
+        return {
+          format: serialized.slice(0, 4),
+          from: transaction.from,
+          signer: Secp256k1.recoverAddress({
+            payload: TxEnvelopeTempo.getSignPayload({
+              ...envelope,
+              feePayerSignature: null,
+            }),
+            signature: transaction.signature.signature,
+          }),
+        }
+      }),
+    )
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "format": "0x78",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "signer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        },
+        {
+          "format": "0x78",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "signer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        },
+      ]
+    `)
+  })
+
   test('behavior: access key signs through a keychain envelope', async () => {
     const account = Account.fromSecp256k1(privateKey_p256, { access: parent })
     const serialized = await account.signTransaction(envelope as never)
@@ -647,9 +698,7 @@ describe('signTransaction', () => {
 
     const approval = await owner.signTransaction({
       ...envelope,
-      from: AccountConfig.getAddress(config, {
-        factory: nativeMultisigFactory,
-      }),
+      from: AccountConfig.getAddress(config),
       accountSimulation: {
         config,
         approvals: [],
@@ -658,9 +707,7 @@ describe('signTransaction', () => {
 
     const payload = TxEnvelopeTempo.getSignPayload(envelope)
     const digest = AccountConfig.getSignPayload({
-      account: AccountConfig.getAddress(config, {
-        factory: nativeMultisigFactory,
-      }),
+      account: AccountConfig.getAddress(config),
       config,
       payload,
     })
@@ -691,6 +738,48 @@ describe('fromConfig', () => {
     expect(account.address).toBe(
       Account.fromConfig({ ...account.config, version: 0n }).address,
     )
+  })
+
+  test('behavior: Tempo account vector', () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: ['0x1111111111111111111111111111111111111111'],
+    })
+
+    expect(account.address).toMatchInlineSnapshot(
+      `"0xCbB727E2489C904A905420E794e8275B6150bfE1"`,
+    )
+  })
+
+  test('behavior: upgrade config', () => {
+    const account = Account.fromConfig({
+      address: '0x3333333333333333333333333333333333333333',
+      upgrade: { owners: [owner_1], threshold: 1 },
+    })
+
+    expect({
+      address: account.address,
+      config: account.config,
+      owners: account.owners.map((owner) => owner.address),
+    }).toMatchInlineSnapshot(`
+      {
+        "address": "0x3333333333333333333333333333333333333333",
+        "config": {
+          "owners": [
+            {
+              "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x42b3dad8fa6c40b50e6dbbbdaaace72d6c04250c16c1e263a52355983a30eb56",
+          "threshold": 1,
+          "version": 1n,
+        },
+        "owners": [
+          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        ],
+      }
+    `)
   })
 
   test('rejects nested and access-key owners', () => {

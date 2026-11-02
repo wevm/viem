@@ -19,6 +19,18 @@ const chain = Chain.from({
 
 test('block codec', () => {
   expectTypeOf<Chain.ExtractBlock<typeof chain>>().toMatchTypeOf<Block.Block>()
+  expectTypeOf<
+    Chain.ExtractBlock<typeof chain>['transactions']
+  >().toEqualTypeOf<readonly Hex.Hex[]>()
+  expectTypeOf<
+    Chain.ExtractBlock<typeof chain, true>['transactions']
+  >().toEqualTypeOf<readonly Chain.ExtractTransaction<typeof chain>[]>()
+  expectTypeOf<
+    Extract<
+      Chain.ExtractBlock<typeof chain, true>['transactions'][number],
+      { type: 'deposit' }
+    >['sourceHash']
+  >().toEqualTypeOf<Hex.Hex>()
 })
 
 test('transaction codec', () => {

@@ -1,4 +1,3 @@
-import { nativeMultisigFactory } from './Addresses.js'
 import { Hex, RpcResponse, Secp256k1 } from 'ox'
 import { AccountConfig } from 'ox/tempo'
 import { custom } from 'viem'
@@ -62,9 +61,7 @@ test('behavior: routes account coordination to the relay', async () => {
       { data: '0xdeadbeef', to: '0x0000000000000000000000000000000000000020' },
     ],
     chainId: chain.id,
-    from: AccountConfig.getAddress(config, {
-      factory: nativeMultisigFactory,
-    }),
+    from: AccountConfig.getAddress(config),
     accountSimulation: {
       approvals: [{ owner: owner.address }],
       config,

@@ -1,4 +1,3 @@
-import { nativeMultisigFactory } from './Addresses.js'
 import { AccountConfig } from 'ox/tempo'
 import { Account as CoreAccount, Actions as viem_Actions } from 'viem'
 import { Account } from 'viem/tempo'
@@ -102,9 +101,7 @@ describe('prepareTransactionRequest', () => {
       threshold: 1,
     })
     const account = Account.fromConfig({
-      address: AccountConfig.getAddress(initial, {
-        factory: nativeMultisigFactory,
-      }),
+      address: AccountConfig.getAddress(initial),
       ...initial,
       version: 2n,
     })

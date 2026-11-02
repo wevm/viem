@@ -22,7 +22,6 @@ import { Account, Actions, Relay, Store, withRelay } from 'viem/tempo'
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo.js'
 import { createServer as createHttpServer } from '~test/http.js'
-import { nativeMultisigFactory } from '../../Addresses.js'
 import * as Operation from '../../accounts/Operation.js'
 import { parseApproval } from '../../accounts/Signature.js'
 
@@ -39,9 +38,7 @@ const config = AccountConfig.from({
   owners: [{ owner: owner.address, weight: 1 }],
   threshold: 1,
 })
-const account = AccountConfig.getAddress(config, {
-  factory: nativeMultisigFactory,
-})
+const account = AccountConfig.getAddress(config)
 const approval = SignatureEnvelope.from({
   signature: {
     r: `0x${'00'.repeat(31)}01`,
@@ -291,7 +288,7 @@ test('rejects a signed payload conflicting with the client chain', async () => {
 
 describe.runIf(
   process.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    process.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
+    process.env.VITE_TEMPO_TAG === 'sha-179347b',
 )('plugin: accounts', () => {
   beforeAll(async () => {
     await Actions.faucet.fundSync(caller, {
@@ -524,18 +521,26 @@ describe.runIf(
         CoreClient_.create({ chain: chain_other, transport: custom(other) }),
         { address: account.address },
       ),
-    ]).toEqual([
-      AccountConfig.from({
-        owners: [
-          { owner: owner_1.address, weight: 1 },
-          { owner: owner_2.address, weight: 1 },
-        ],
-        salt: toHex(0x109702, { size: 32 }),
-        threshold: 2,
-        version: 0n,
-      }),
-      null,
-    ])
+    ]).toMatchInlineSnapshot(`
+      [
+        {
+          "owners": [
+            {
+              "owner": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+              "weight": 1,
+            },
+            {
+              "owner": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000109702",
+          "threshold": 2,
+          "version": 0n,
+        },
+        null,
+      ]
+    `)
   })
 
   test('behavior: stores a config from resolveConfig', async () => {
@@ -545,9 +550,7 @@ describe.runIf(
       salt: toHex(0x109703, { size: 32 }),
       threshold: 1,
     })
-    const address = AccountConfig.getAddress(config, {
-      factory: nativeMultisigFactory,
-    })
+    const address = AccountConfig.getAddress(config)
     const resolving = CoreClient_.create({
       chain: chain_,
       transport: custom(
@@ -588,9 +591,7 @@ describe.runIf(
       owners: [{ owner: Tempo.accounts[6]!.address, weight: 1 }],
       threshold: 1,
     })
-    const address = AccountConfig.getAddress(config, {
-      factory: nativeMultisigFactory,
-    })
+    const address = AccountConfig.getAddress(config)
     const store = Store.from({
       compareAndSet() {
         throw new Error('Store unavailable.')
@@ -627,7 +628,6 @@ describe.runIf(
         owners: [{ owner: Tempo.accounts[5]!.address, weight: 1 }],
         threshold: 1,
       }),
-      { factory: nativeMultisigFactory },
     )
     const resolving = CoreClient_.create({
       chain: chain_,
@@ -696,7 +696,7 @@ test('plugin: keyAuthorization rejects a configurable account key authorization 
 
 describe.runIf(
   process.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    process.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
+    process.env.VITE_TEMPO_TAG === 'sha-179347b',
 )('plugin: keyAuthorization', () => {
   const relay = Relay.create({
     client: caller,

@@ -21,7 +21,7 @@ These recipes assume you have [set up a Tempo client](/tempo).
 ### Upgrade to a 2-of-2 Account
 
 Sign the upgrade with [`accounts.upgradeSync`](/tempo/actions/accounts.upgradeSync) from the root
-key, then recreate the account from its address and the installed config with
+key, then recreate the account from its address and the installed owners with
 [`Account.fromConfig`](/tempo/accounts/account.fromConfig).
 
 :::code-group
@@ -40,7 +40,7 @@ const owner_2 = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
 
-const { config } = await client.accounts.upgradeSync({ // [!code focus]
+await client.accounts.upgradeSync({ // [!code focus]
   account: root, // [!code focus]
   owners: [ // [!code focus]
     { owner: owner_1.address, weight: 1 }, // [!code focus]
@@ -48,14 +48,10 @@ const { config } = await client.accounts.upgradeSync({ // [!code focus]
   ], // [!code focus]
   threshold: 2, // [!code focus]
 }) // [!code focus]
-if (!config) throw new Error('Upgrade is pending.')
 
 const account = Account.fromConfig({ // [!code focus]
   address: root.address, // [!code focus]
-  owners: [owner_1, owner_2], // [!code focus]
-  salt: config.salt, // [!code focus]
-  threshold: config.threshold, // [!code focus]
-  version: config.version, // [!code focus]
+  upgrade: { owners: [owner_1, owner_2], threshold: 2 }, // [!code focus]
 }) // [!code focus]
 
 const receipt = await client.transaction.sendSync({

@@ -69,6 +69,27 @@ test('fromConfig rejects non-root owner accounts', () => {
   Account.fromConfig({ owners: [{ owner: accessKey, weight: 1 }] })
 })
 
+test('fromConfig distinguishes initial, upgrade, and address-only configs', () => {
+  expectTypeOf(
+    Account.fromConfig({ address: 'infer', owners: [owner] }).config,
+  ).toEqualTypeOf<NonNullable<Account.ConfigurableAccount['config']>>()
+  expectTypeOf(
+    Account.fromConfig({
+      address: owner.address,
+      upgrade: { owners: [owner], threshold: 1 },
+    }).config,
+  ).toEqualTypeOf<NonNullable<Account.ConfigurableAccount['config']>>()
+  expectTypeOf(
+    Account.fromConfig(owner.address).config,
+  ).toEqualTypeOf<undefined>()
+  Account.fromConfig({
+    address: 'infer',
+    // @ts-expect-error Addresses derive from the config alone.
+    factory: '0x9999999999999999999999999999999999999999',
+    owners: [owner],
+  })
+})
+
 test('fromConfig accepts primitive owner accounts', () => {
   const ethereumOwner = viem_Account.fromPrivateKey(`0x${'1'.repeat(64)}`)
   Account.fromConfig({ owners: [owner, ethereumOwner, owner.address] })

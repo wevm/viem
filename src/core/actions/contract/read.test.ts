@@ -98,6 +98,58 @@ test('return shape: mixed outputs', async () => {
   `)
 })
 
+test('overloaded function: resolves by argument shape', async () => {
+  const abi = Abi.from([
+    'function foo(bytes32) view returns (uint256)',
+    'function foo(bytes) view returns (uint256, uint256)',
+    'function bar(uint256[2]) view returns (uint256)',
+    'function bar(uint256[]) view returns (uint256, uint256)',
+  ])
+
+  const results = await Promise.all(
+    [
+      Actions.contract.read(client, {
+        abi,
+        args: ['0x1234'],
+        code: valuesCode,
+        functionName: 'foo',
+      }),
+      Actions.contract.read(client, {
+        abi,
+        args: [`0x${'11'.repeat(32)}`],
+        code: valuesCode,
+        functionName: 'foo',
+      }),
+      Actions.contract.read(client, {
+        abi,
+        args: [[1n, 2n, 3n]],
+        code: valuesCode,
+        functionName: 'bar',
+      }),
+      Actions.contract.read(client, {
+        abi,
+        args: [[1n, 2n]],
+        code: valuesCode,
+        functionName: 'bar',
+      }),
+    ].map((result) => result.catch((error: Error) => error.name)),
+  )
+  expect(results).toMatchInlineSnapshot(`
+    [
+      [
+        42n,
+        69n,
+      ],
+      "AbiItem.AmbiguityError",
+      [
+        42n,
+        69n,
+      ],
+      "AbiItem.AmbiguityError",
+    ]
+  `)
+})
+
 test('args: function with return value', async () => {
   expect(
     await Actions.contract.read(client, {

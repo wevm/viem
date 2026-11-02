@@ -2,7 +2,6 @@ import type { Hex } from 'ox'
 import { Address, Hash, Json } from 'ox'
 import { AccountConfig } from 'ox/tempo'
 import { BaseError } from '../../core/Errors.js'
-import { nativeMultisigFactory } from '../Addresses.js'
 import type * as Store from '../Store.js'
 
 /** A valid 48-owner config is much smaller; 64 KiB bounds hostile store parsing work. */
@@ -94,12 +93,7 @@ function assertKey(options: {
   if (!Address.validate(address) || !Hash.validate(commitment))
     throw new InvalidStoreValueError()
   if (config.version === 0n) {
-    if (
-      !Address.isEqual(
-        AccountConfig.getAddress(config, { factory: nativeMultisigFactory }),
-        address,
-      )
-    )
+    if (!Address.isEqual(AccountConfig.getAddress(config), address))
       throw new InvalidStoreValueError()
     if (commitment.toLowerCase() === zeroCommitment) return
   }

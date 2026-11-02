@@ -252,8 +252,16 @@ async function submit(options: submit.Options) {
     if (
       options.method === 'eth_sendRawTransaction' ||
       options.method === 'eth_sendRawTransactionSync'
-    )
-      return await options.next(options.request, options.requestOptions)
+    ) {
+      const result = await options.next(options.request, options.requestOptions)
+      // Cache after the node accepts the transaction, so only validly signed upgrades are cached.
+      // Caching is best-effort: a store failure must not mask an accepted upgrade.
+      if (transaction)
+        await cacheUpgradeConfig({ store: options.store, transaction }).catch(
+          () => {},
+        )
+      return result
+    }
     throw new RpcResponse.InvalidParamsError({
       message: 'Expected a configurable account transaction signature.',
     })
@@ -791,9 +799,7 @@ function assertConfig(options: {
   const { account, commitment, config } = options
   if (
     config.version === 0n &&
-    AccountConfig.getAddress(config, {
-      factory: Addresses.nativeMultisigFactory,
-    }).toLowerCase() !== account.toLowerCase()
+    AccountConfig.getAddress(config).toLowerCase() !== account.toLowerCase()
   )
     throw new RpcResponse.InvalidParamsError({
       message:
@@ -895,6 +901,53 @@ declare namespace cacheNextConfigs {
     /** Shared account store. */
     store: Store.Atomic
     /** Submitted transaction containing potential config updates. */
+    transaction: TxEnvelopeTempo.TxEnvelopeTempo
+  }
+}
+
+/** Caches the config installed by a root-signed account upgrade. */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function cacheUpgradeConfig(options: cacheUpgradeConfig.Options) {
+  const { calls, chainId, from, signature } = options.transaction
+  const [call] = calls
+  if (
+    !from ||
+    !signature ||
+    signature.type === 'keychain' ||
+    calls.length !== 1 ||
+    !call?.to ||
+    !Address_.isEqual(call.to, Addresses.configurableAccount) ||
+    !call.data
+  )
+    return
+  const config = (() => {
+    try {
+      const item = AbiFunction.fromAbi(
+        Abis.configurableAccount,
+        'upgradeAccount',
+      )
+      if (!call.data.startsWith(AbiFunction.getSelector(item))) return undefined
+      const [threshold, owners] = AbiFunction.decodeData(item, call.data)
+      return AccountConfig.fromUpgrade(from, { owners, threshold })
+    } catch {
+      return undefined
+    }
+  })()
+  if (!config) return
+  await ConfigStore.write(options.store, {
+    address: from,
+    chainId,
+    commitment: AccountConfig.getCommitment(config),
+    config,
+  })
+}
+
+declare namespace cacheUpgradeConfig {
+  /** Parameters for {@link cacheUpgradeConfig}. */
+  export type Options = {
+    /** Shared account store. */
+    store: Store.Atomic
+    /** Submitted transaction containing a potential account upgrade. */
     transaction: TxEnvelopeTempo.TxEnvelopeTempo
   }
 }

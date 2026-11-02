@@ -1,4 +1,3 @@
-import { nativeMultisigFactory } from './Addresses.js'
 import {
   Address,
   Hash,
@@ -185,7 +184,7 @@ describe('codecs.transactionRequest', () => {
     expect(rpc.keyData).toBe('0x0578')
     expect(rpc.keyId).toBe('0xcccccccccccccccccccccccccccccccccccccccc')
     expect(rpc.keyType).toBe('webAuthn')
-    expect(rpc.multisigSimulation).toMatchObject({
+    expect(rpc.configurableAccountSimulation).toMatchObject({
       approvals: [{ owner: sender, keyType: 'secp256k1' }],
     })
   })
@@ -738,13 +737,9 @@ describe('transaction.serialize', () => {
 
     const envelope = toEnvelope({
       ...baseRequest,
-      from: AccountConfig.getAddress(config, {
-        factory: nativeMultisigFactory,
-      }),
+      from: AccountConfig.getAddress(config),
       accountSimulation: {
-        account: AccountConfig.getAddress(config, {
-          factory: nativeMultisigFactory,
-        }),
+        account: AccountConfig.getAddress(config),
         config,
         approvals: [],
       },
@@ -754,9 +749,7 @@ describe('transaction.serialize', () => {
     const payload = getSignPayload(envelope)
     const digest = AccountConfig.getSignPayload({
       payload,
-      account: AccountConfig.getAddress(config, {
-        factory: nativeMultisigFactory,
-      }),
+      account: AccountConfig.getAddress(config),
       config,
     })
     const signatures = ownerKeys.map((privateKey) =>
@@ -784,13 +777,9 @@ describe('transaction.serialize', () => {
 
     const envelope = toEnvelope({
       ...baseRequest,
-      from: AccountConfig.getAddress(config, {
-        factory: nativeMultisigFactory,
-      }),
+      from: AccountConfig.getAddress(config),
       accountSimulation: {
-        account: AccountConfig.getAddress(config, {
-          factory: nativeMultisigFactory,
-        }),
+        account: AccountConfig.getAddress(config),
         config,
         approvals: [],
       },
@@ -801,9 +790,7 @@ describe('transaction.serialize', () => {
     const payload = getSignPayload(envelope)
     const digest = AccountConfig.getSignPayload({
       payload,
-      account: AccountConfig.getAddress(config, {
-        factory: nativeMultisigFactory,
-      }),
+      account: AccountConfig.getAddress(config),
       config,
     })
     const signatures = [

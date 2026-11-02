@@ -1,5 +1,4 @@
-import { AbiEvent, Address } from 'ox'
-import type { Hex } from 'ox'
+import { AbiEvent, Address, Hex } from 'ox'
 import { Actions } from 'viem'
 import { describe, expect, test } from 'vitest'
 
@@ -24,6 +23,13 @@ const approvalEvent = AbiEvent.from(
   'event Approval(address indexed owner, address indexed spender, uint256 value)',
 )
 const messageEvent = AbiEvent.from('event Message(string message)')
+const noteEvent = {
+  ...AbiEvent.from(
+    'event Note(address indexed from, uint256 indexed id, uint256 value)',
+  ),
+  anonymous: true,
+} as const
+const taggedEvent = AbiEvent.from('event Tagged(bytes32 indexed tag)')
 
 const a = constants.accounts[0].address
 const b = constants.accounts[1].address
@@ -36,6 +42,24 @@ const { address } = await contract.deploy(client, {
 const { address: invalidAddress } = await contract.deploy(client, {
   bytecode: generated.EventsInvalid.bytecode.object,
 })
+const { address: logger } = await contract.deploy(client, {
+  bytecode: contract.loggerBytecode,
+})
+
+async function note(from: Hex.Hex, id: bigint, value: bigint) {
+  await contract.emitLog(client, {
+    address: logger,
+    data: Hex.fromNumber(value, { size: 32 }),
+    topics: [Hex.padLeft(from, 32), Hex.fromNumber(id, { size: 32 })],
+  })
+}
+
+async function tagged(tag: Hex.Hex) {
+  await contract.emitLog(client, {
+    address: logger,
+    topics: [AbiEvent.getSelector(taggedEvent), tag],
+  })
+}
 
 /** Mines pending transactions into a block. */
 async function mine() {
@@ -468,4 +492,118 @@ describe('events', () => {
       expect(looseLogs.length).toBe(3)
     })
   })
+})
+
+describe('anonymous events', () => {
+  test('decodes logs of a requested anonymous event', async () => {
+    const fromBlock =
+      (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
+    await note(a, 1n, 7n)
+    // Same topic count as `Note`, but no data to decode `value` from.
+    await tagged(Hex.padLeft('0x01', 32))
+
+    const logs = await Actions.event.getLogs(client, {
+      address: logger,
+      event: noteEvent,
+      fromBlock,
+    })
+    expect(
+      logs.map(
+        ({
+          address: _,
+          blockHash: _h,
+          blockNumber: _n,
+          blockTimestamp: _t,
+          transactionHash: _x,
+          ...log
+        }) => log,
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "args": {
+            "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "id": 1n,
+            "value": 7n,
+          },
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "eventName": "Note",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+          ],
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
+  test('filters anonymous event logs by indexed args', async () => {
+    const fromBlock =
+      (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
+    await note(a, 1n, 1n)
+    await note(b, 2n, 2n)
+
+    const logs = await Actions.event.getLogs(client, {
+      address: logger,
+      args: { from: b },
+      event: noteEvent,
+      fromBlock,
+    })
+    expect(logs.map((log) => log.args)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+          "id": 2n,
+          "value": 2n,
+        },
+      ]
+    `)
+  })
+
+  test('skips anonymous events requested alongside named events', async () => {
+    const fromBlock =
+      (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
+    await note(a, 1n, 1n)
+    await tagged(Hex.padLeft('0x02', 32))
+
+    const logs = await Actions.event.getLogs(client, {
+      address: logger,
+      events: [noteEvent, taggedEvent],
+      fromBlock,
+    })
+    expect(logs.map(({ args, eventName }) => ({ args, eventName })))
+      .toMatchInlineSnapshot(`
+      [
+        {
+          "args": {
+            "tag": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          },
+          "eventName": "Tagged",
+        },
+      ]
+    `)
+  })
+})
+
+test('args: bytes in a different hex case', async () => {
+  const fromBlock =
+    (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
+  await tagged(Hex.padLeft('0xabcdef', 32))
+
+  const logs = await Actions.event.getLogs(client, {
+    address: logger,
+    args: { tag: Hex.padLeft('0xABCDEF', 32) },
+    event: taggedEvent,
+    fromBlock,
+  })
+  expect(logs.map((log) => log.args)).toMatchInlineSnapshot(`
+    [
+      {
+        "tag": "0x0000000000000000000000000000000000000000000000000000000000abcdef",
+      },
+    ]
+  `)
 })

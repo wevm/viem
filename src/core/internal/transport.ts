@@ -93,8 +93,10 @@ export function wrapRequest<
             {
               delay: ({ count, error }) => {
                 // Honor a `Retry-After` header when the error carries one.
-                const headers = (error as { headers?: Headers } | undefined)
-                  ?.headers
+                const headers = (
+                  (error && httpErrors.get(error)) ??
+                  (error as { headers?: Headers } | undefined)
+                )?.headers
                 const retryAfter = headers?.get?.('Retry-After')
                 if (retryAfter) {
                   const seconds = Number.parseInt(retryAfter, 10)
@@ -115,8 +117,11 @@ export function wrapRequest<
     } catch (error) {
       // A JSON-RPC error from a non-2xx response retries by its HTTP status,
       // then surfaces as the JSON-RPC error.
-      if (error instanceof RpcClient.HttpError && error.rpcError)
-        throw RpcResponse.parseError(error.rpcError)
+      if (error instanceof RpcClient.HttpError && error.rpcError) {
+        const rpcError = RpcResponse.parseError(error.rpcError)
+        httpErrors.set(rpcError, error)
+        throw rpcError
+      }
       throw error
     }
   }
@@ -143,13 +148,21 @@ export declare namespace wrapRequest {
   }
 }
 
+/**
+ * HTTP errors behind the JSON-RPC errors they surface as. An outer request
+ * layer (such as the `fallback` transport's) still retries them by HTTP status
+ * and `Retry-After`.
+ */
+const httpErrors = new WeakMap<Error, RpcClient.HttpError>()
+
 /** @internal */
 export function shouldRetry(error: Error): boolean {
-  const code =
-    error instanceof RpcClient.HttpError
-      ? error.rpcError?.code
-      : (error as { code?: unknown }).code
-  const status = (error as { status?: unknown }).status
+  const httpError =
+    error instanceof RpcClient.HttpError ? error : httpErrors.get(error)
+  const code = httpError
+    ? httpError.rpcError?.code
+    : (error as { code?: unknown }).code
+  const status = (httpError ?? (error as { status?: unknown })).status
   if (typeof code === 'number') {
     if (code === -1) return true // unknown
     if (code === -32005 || code === -32007) return true // limit exceeded

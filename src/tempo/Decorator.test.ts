@@ -247,16 +247,10 @@ test('wallet actions use wallet RPC methods', async () => {
 
 test('access key lifecycle', async () => {
   const watchers = [
-    observe(client.accessKey.watchAdminAuthorized()),
     observe(client.accessKey.watchWitness()),
     observe(client.accessKey.watchWitnessBurned()),
   ]
   try {
-    const adminKey = Account.fromP256(P256.randomPrivateKey(), {
-      access: account,
-    })
-    await client.accessKey.authorizeSync({ accessKey: adminKey, admin: true })
-
     const witness = Hex.random(32)
     const limitedKey = Account.fromP256(P256.randomPrivateKey(), {
       access: account,
@@ -285,10 +279,10 @@ test('access key lifecycle', async () => {
     ).toMatchObject({ remaining: 1_000_000n })
     expect(
       await client.accessKey.isAdmin({
-        accessKey: adminKey,
+        accessKey: limitedKey,
         account: account.address,
       }),
-    ).toBe(true)
+    ).toBe(false)
     expect(
       await client.accessKey.isWitnessBurned({
         account: account.address,
@@ -324,8 +318,9 @@ test('access key lifecycle', async () => {
     expect(
       await client.accessKey.verifyHash({
         account: account.address,
+        admin: false,
         hash,
-        signature: await adminKey.sign({ hash }),
+        signature: await limitedKey.sign({ hash }),
       }),
     ).toBe(true)
 
@@ -348,6 +343,36 @@ test('access key lifecycle', async () => {
       expiry: Math.floor((Date.now() + 30_000) / 1_000),
     })
     await waitForHash(await client.accessKey.revoke({ accessKey: revokedKey }))
+
+    await waitForWatchers(watchers)
+  } finally {
+    stopWatchers(watchers)
+  }
+})
+
+test.runIf(tempo.adminKeys)('admin access key lifecycle', async () => {
+  const watchers = [observe(client.accessKey.watchAdminAuthorized())]
+  try {
+    const adminKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: account,
+    })
+    await client.accessKey.authorizeSync({ accessKey: adminKey, admin: true })
+
+    expect(
+      await client.accessKey.isAdmin({
+        accessKey: adminKey,
+        account: account.address,
+      }),
+    ).toBe(true)
+
+    const hash = Hex.random(32)
+    expect(
+      await client.accessKey.verifyHash({
+        account: account.address,
+        hash,
+        signature: await adminKey.sign({ hash }),
+      }),
+    ).toBe(true)
 
     await waitForWatchers(watchers)
   } finally {

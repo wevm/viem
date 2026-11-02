@@ -112,7 +112,9 @@ test.each([undefined, 1])(
       nonce,
       nonceKey: 0n,
     })
-    const serializedTransaction = await signTransaction(userAccount, request)
+    const serializedTransaction = await userAccount.signTransaction(
+      request as never,
+    )
     const envelope = TxEnvelopeTempo.deserialize(
       serializedTransaction as `0x76${string}`,
     )
@@ -177,7 +179,7 @@ test.each(
       Tempo.alphaUsd.toLowerCase(),
     )
     const receipt = await CoreActions_.transaction.sendRawSync(caller, {
-      transaction: await signTransaction(userAccount, transaction),
+      transaction: await userAccount.signTransaction(transaction as never),
     })
     expect(receipt.status).toBe('success')
     expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -216,7 +218,7 @@ test.each([true, false])('sponsorship accepted: %s', async (accepted) => {
   ).toBe(accepted)
   expect(Boolean(transaction.feePayerSignature)).toBe(accepted)
   const signed = await (async () => {
-    if (accepted) return signTransaction(userAccount, transaction)
+    if (accepted) return userAccount.signTransaction(transaction as never)
     const envelope = TxEnvelopeTempo.deserialize(
       (await Transaction.serialize(transaction as never)) as `0x76${string}`,
     )
@@ -252,7 +254,7 @@ test('raw sponsorship resolves chain from the signed envelope', async () => {
       feeToken: Tempo.alphaUsd,
     },
   )
-  const signed = await signTransaction(userAccount, request)
+  const signed = await userAccount.signTransaction(request as never)
   const relay = Relay.create({
     getClient: ({ chainId }) =>
       CoreClient_.create({
@@ -333,7 +335,7 @@ test.each([
       feeToken: Tempo.alphaUsd,
     },
   )
-  const signed = await signTransaction(userAccount, request)
+  const signed = await userAccount.signTransaction(request as never)
   const relay = Relay.create({
     client: Tempo.getClient({}),
     plugins: [
@@ -364,7 +366,7 @@ test('a failed sponsorship record prevents broadcast', async () => {
       feeToken: Tempo.alphaUsd,
     },
   )
-  const signed = await signTransaction(userAccount, request)
+  const signed = await userAccount.signTransaction(request as never)
   const relay = Relay.create({
     client: Tempo.getClient({}),
     plugins: [
@@ -530,7 +532,7 @@ test.each([false, true])(
         )?.sponsor,
       ).toBeUndefined()
       const receipt = await CoreActions_.transaction.sendRawSync(caller, {
-        transaction: await signTransaction(userAccount, transaction),
+        transaction: await userAccount.signTransaction(transaction as never),
       })
       expect(receipt.status).toBe('success')
       expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -711,7 +713,7 @@ test('sponsors a transaction prepared for sender-paid gas', async () => {
     chain: chain_,
   })
   const receipt = await CoreActions_.transaction.sendRawSync(caller, {
-    transaction: await signTransaction(userAccount, transaction),
+    transaction: await userAccount.signTransaction(transaction as never),
   })
   expect(receipt.status).toBe('success')
   expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -762,7 +764,7 @@ test('replaces an untrusted fee-payer signature and applies sponsorship recordin
   })) as Request.Result
   const transaction = Utils.normalizeTempoTransaction(result.tx)
   const receipt = await CoreActions_.transaction.sendRawSync(caller, {
-    transaction: await signTransaction(userAccount, transaction),
+    transaction: await userAccount.signTransaction(transaction as never),
   })
   expect(receipt.status).toBe('success')
   expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -1089,9 +1091,8 @@ describe('raw sender verification', () => {
       },
     )
     const envelope = TxEnvelopeTempo.deserialize(
-      (await signTransaction(
-        userAccount,
-        transaction,
+      (await userAccount.signTransaction(
+        transaction as never,
       )) as TxEnvelopeTempo.Serialized,
     )
 
@@ -1134,9 +1135,8 @@ describe('raw sender verification', () => {
       },
     )
     const envelope = TxEnvelopeTempo.deserialize(
-      (await signTransaction(
-        signer,
-        transaction,
+      (await signer.signTransaction(
+        transaction as never,
       )) as TxEnvelopeTempo.Serialized,
     )
     if (envelope.signature?.type !== 'p256')
@@ -1173,7 +1173,7 @@ describe('raw sender verification', () => {
     await expect(
       relay.request({
         method: 'eth_signRawTransaction',
-        params: [await signTransaction(accessKey, transaction)],
+        params: [await accessKey.signTransaction(transaction as never)],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[RpcResponse.InvalidParamsError: Transaction access key is not authorized for its sender.]`,
@@ -1193,9 +1193,8 @@ describe('raw sender verification', () => {
       },
     )
     const envelope = TxEnvelopeTempo.deserialize(
-      (await signTransaction(
-        accessKey,
-        transaction,
+      (await accessKey.signTransaction(
+        transaction as never,
       )) as TxEnvelopeTempo.Serialized,
     )
     if (envelope.signature?.type !== 'keychain')
@@ -1237,10 +1236,10 @@ describe('raw sender verification', () => {
       relay.request({
         method: 'eth_signRawTransaction',
         params: [
-          await signTransaction(accessKey, {
+          await accessKey.signTransaction({
             ...transaction,
             keyAuthorization,
-          } as never),
+          } as never as never),
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1271,10 +1270,10 @@ describe('raw sender verification', () => {
       relay.request({
         method: 'eth_signRawTransaction',
         params: [
-          await signTransaction(accessKey, {
+          await accessKey.signTransaction({
             ...transaction,
             keyAuthorization,
-          } as never),
+          } as never as never),
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1305,10 +1304,10 @@ describe('raw sender verification', () => {
       relay.request({
         method: 'eth_signRawTransaction',
         params: [
-          await signTransaction(accessKey, {
+          await accessKey.signTransaction({
             ...transaction,
             keyAuthorization,
-          } as never),
+          } as never as never),
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1337,7 +1336,7 @@ describe('raw sender verification', () => {
 
     const receipt = (await relay.request({
       method: 'eth_sendRawTransactionSync',
-      params: [await signTransaction(accessKey, transaction)],
+      params: [await accessKey.signTransaction(transaction as never)],
     })) as Record<string, unknown>
 
     const { feePayer, from, status } = receipt
@@ -1370,7 +1369,7 @@ describe('raw sender verification', () => {
 
     const receipt = (await relay.request({
       method: 'eth_sendRawTransactionSync',
-      params: [await signTransaction(accessKey, transaction)],
+      params: [await accessKey.signTransaction(transaction as never)],
     })) as Record<string, unknown>
 
     const { feePayer, from, status } = receipt
@@ -1402,7 +1401,7 @@ describe('raw sender verification', () => {
     )
     await relay.request({
       method: 'eth_sendRawTransactionSync',
-      params: [await signTransaction(accessKey, transaction)],
+      params: [await accessKey.signTransaction(transaction as never)],
     })
     // Gas estimation rejects the consumed authorization, so attach it after preparation.
     const { request: replay } = await CoreActions_.transaction.prepare(caller, {
@@ -1415,10 +1414,10 @@ describe('raw sender verification', () => {
       relay.request({
         method: 'eth_signRawTransaction',
         params: [
-          await signTransaction(accessKey, {
+          await accessKey.signTransaction({
             ...replay,
             keyAuthorization,
-          } as never),
+          } as never as never),
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1444,10 +1443,13 @@ describe('raw canonical encoding', () => {
           feePayer: true,
         },
       )
-      const signed = reencode(await signTransaction(userAccount, transaction), {
-        field: 'validBefore',
-        fn: () => Hex.fromNumber(9_007_199_254_740_993n),
-      })
+      const signed = reencode(
+        await userAccount.signTransaction(transaction as never),
+        {
+          field: 'validBefore',
+          fn: () => Hex.fromNumber(9_007_199_254_740_993n),
+        },
+      )
 
       await expect(
         relay.request({ method, params: [signed] }),
@@ -1466,10 +1468,13 @@ describe('raw canonical encoding', () => {
         feePayer: true,
       },
     )
-    const signed = reencode(await signTransaction(userAccount, transaction), {
-      field: 'gas',
-      fn: (gas) => Hex.concat('0x00', gas),
-    })
+    const signed = reencode(
+      await userAccount.signTransaction(transaction as never),
+      {
+        field: 'gas',
+        fn: (gas) => Hex.concat('0x00', gas),
+      },
+    )
 
     await expect(
       relay.request({ method: 'eth_sendRawTransactionSync', params: [signed] }),
@@ -1501,9 +1506,8 @@ test('raw sponsorship overrides an envelope fee token with the sponsor token', a
   const partial = TxEnvelopeTempo.serialize(
     {
       ...TxEnvelopeTempo.deserialize(
-        (await signTransaction(
-          userAccount,
-          transaction,
+        (await userAccount.signTransaction(
+          transaction as never,
         )) as TxEnvelopeTempo.Serialized,
       ),
       feeToken: Tempo.pathUsd,
@@ -1607,7 +1611,7 @@ describe('fee token resolver', () => {
 
     const result = (await relay.request({
       method: 'eth_signRawTransaction',
-      params: [await signTransaction(userAccount, transaction)],
+      params: [await userAccount.signTransaction(transaction as never)],
     })) as `0x76${string}`
 
     expect(Transaction.deserialize(result).feeToken).toBe(Tempo.alphaUsd)
@@ -1693,7 +1697,7 @@ describe('fee-payer signature validity', () => {
       await expect(
         relay.request({
           method: 'eth_signRawTransaction',
-          params: [await signTransaction(userAccount, transaction)],
+          params: [await userAccount.signTransaction(transaction as never)],
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 3600 seconds.]`,
@@ -1869,7 +1873,7 @@ describe('rejected broadcasts', () => {
     await expect(
       relay.request({
         method: 'eth_sendRawTransaction',
-        params: [await signTransaction(userAccount, transaction)],
+        params: [await userAccount.signTransaction(transaction as never)],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[RpcResponse.InvalidInputError: fee cap less than base fee: max_fee_per_gas 1, base_fee 600000000]`,
@@ -1957,7 +1961,7 @@ describe('rejected broadcasts', () => {
       await expect(
         relay.request({
           method: 'eth_sendRawTransaction',
-          params: [await signTransaction(userAccount, transaction)],
+          params: [await userAccount.signTransaction(transaction as never)],
         }),
       ).rejects.toThrow()
 
@@ -2028,14 +2032,3 @@ describe('scenarios', () => {
     },
   )
 })
-
-/** Signs a prepared request or filled transaction as `account` through the Tempo envelope. */
-function signTransaction(
-  account: { signTransaction: TempoAccount_.Account['signTransaction'] },
-  request: unknown,
-) {
-  return account.signTransaction(
-    chain_.transaction.toEnvelope(request as never) as never,
-    { chain: chain_ } as never,
-  )
-}

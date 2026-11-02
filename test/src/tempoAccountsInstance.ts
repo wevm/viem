@@ -1,9 +1,8 @@
 import { execFileSync } from 'node:child_process'
 import * as TestContainers from 'prool/testcontainers'
 import { GenericContainer, Wait } from 'testcontainers'
-import { nativeMultisigFactory } from '../../src/tempo/Addresses.js'
 
-/** Creates a node with the configurable account recovery factory configured. */
+/** Creates a node with configurable accounts active from genesis. */
 export function create(options: { image: string; blockTime: string }) {
   const genesis = JSON.parse(
     execFileSync(
@@ -22,7 +21,8 @@ export function create(options: { image: string; blockTime: string }) {
       { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
     ),
   )
-  genesis.config.multisigRecoveryFactory = nativeMultisigFactory
+  // Configurable accounts activate at T14.
+  genesis.config.t14Time = 0
   return TestContainers.Instance.testcontainer({
     name: 'tempo',
     endpoints: { default: { protocol: 'http', port: 8545 } },

@@ -11,7 +11,7 @@ const client = tempo.getClient({ account, feeToken: tempo.pathUsd })
 const hash =
   '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
 
-test('default', async () => {
+test.runIf(tempo.adminKeys)('default', async () => {
   const adminKey = Account.fromP256(P256.randomPrivateKey(), {
     access: account,
   })
@@ -70,18 +70,19 @@ test('behavior: admin: false accepts any active access key', async () => {
 })
 
 test('behavior: account mismatch', async () => {
-  const adminKey = Account.fromP256(P256.randomPrivateKey(), {
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), {
     access: account,
   })
   await Actions.accessKey.authorizeSync(client, {
-    accessKey: adminKey,
-    admin: true,
+    accessKey,
+    expiry: Math.floor((Date.now() + 30_000) / 1000),
   })
 
-  const signature = await adminKey.sign({ hash })
+  const signature = await accessKey.sign({ hash })
 
   const valid = await Actions.accessKey.verifyHash(client, {
     account: account2.address,
+    admin: false,
     hash,
     signature,
   })

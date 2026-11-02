@@ -1,4 +1,5 @@
-import type { Address, Hex } from 'ox'
+import { Hex } from 'ox'
+import type { Address } from 'ox'
 import { Actions, Client } from 'viem'
 
 import * as constants from './constants.js'
@@ -33,4 +34,37 @@ export async function deploy(
   )
   if (!contractAddress) throw new Error('contract deployment failed.')
   return { address: contractAddress, blockNumber }
+}
+
+/**
+ * Deployment bytecode of a contract that emits every call as a log with two
+ * topics: calldata words 0 and 1 are the topics, and the rest of the calldata
+ * is the log data. Use it to emit logs the test contracts cannot, such as
+ * anonymous events.
+ */
+export const loggerBytecode =
+  '0x601580600b6000396000f360403603806040600037602035600035826000a200'
+
+/** Emits a log with two `topics` and `data` from a deployed logger contract. */
+export async function emitLog(
+  client: Client.Client,
+  options: {
+    address: Address.Address
+    data?: Hex.Hex | undefined
+    topics: readonly [Hex.Hex, Hex.Hex]
+  },
+): Promise<Hex.Hex> {
+  const { address, data = '0x', topics } = options
+  const hash = await client.request({
+    method: 'eth_sendTransaction',
+    params: [
+      {
+        from: constants.accounts[0].address,
+        to: address,
+        data: Hex.concat(...topics, data),
+      },
+    ],
+  })
+  await Actions.block.mine(client, { blocks: 1 })
+  return hash
 }

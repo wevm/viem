@@ -113,3 +113,33 @@ test('decorator: threads custom chain properties through publicActions', async (
   expectTypeOf(block.custom).toEqualTypeOf<Hex.Hex | undefined>()
   expectTypeOf(block.number).toEqualTypeOf<bigint>()
 })
+
+test('chain codecs: narrows on includeTransactions and blockTag', async () => {
+  const chain = Chain.from({
+    id: 1,
+    name: 'Ethereum',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: { http: 'https://eth.merkle.io' },
+    codecs: {
+      block: {
+        fromRpc: Block.fromRpc as (
+          rpc: Block.Rpc<boolean, Block.Tag>,
+        ) => Block.Block<boolean, Block.Tag>,
+      },
+    },
+  })
+  const schemaClient = Client.create({ chain, transport: http() })
+
+  const block = await Actions.block.get(schemaClient)
+  expectTypeOf(block.hash).toEqualTypeOf<Hex.Hex>()
+  expectTypeOf(block.transactions).toEqualTypeOf<readonly Hex.Hex[]>()
+
+  const full = await Actions.block.get(schemaClient, {
+    includeTransactions: true,
+  })
+  expectTypeOf(full.transactions[0]!.hash).toEqualTypeOf<Hex.Hex>()
+
+  const pending = await Actions.block.get(schemaClient, { blockTag: 'pending' })
+  expectTypeOf(pending.hash).toEqualTypeOf<null>()
+  expectTypeOf(pending.number).toEqualTypeOf<null>()
+})

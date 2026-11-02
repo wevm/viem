@@ -1,7 +1,6 @@
 import { Hex, Json } from 'ox'
 import { AccountConfig } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
-import { nativeMultisigFactory } from '../Addresses.js'
 import * as Store from '../Store.js'
 import * as Config from './Config.js'
 
@@ -11,9 +10,7 @@ const initialConfig = AccountConfig.from({
   owners: [{ owner, weight: 1 }],
   threshold: 1,
 })
-const address = AccountConfig.getAddress(initialConfig, {
-  factory: nativeMultisigFactory,
-})
+const address = AccountConfig.getAddress(initialConfig)
 const zeroCommitment = Hex.fromNumber(0, { size: 32 })
 const currentConfig = AccountConfig.from({
   ...initialConfig,

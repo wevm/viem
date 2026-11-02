@@ -45,12 +45,27 @@ test('ExtractTransaction: tempo transaction converter output', () => {
 test('ExtractBlock: tempo transactions inside blocks', () => {
   type Block = Chain.ExtractBlock<typeof tempo, true>
 
-  expectTypeOf<Block['transactions'][number]>().toEqualTypeOf<
-    Hex.Hex | Chain.ExtractTransaction<typeof tempo>
+  expectTypeOf<Block['transactions']>().toEqualTypeOf<
+    readonly Chain.ExtractTransaction<typeof tempo>[]
   >()
   expectTypeOf<
     Extract<Block['transactions'][number], { type: 'tempo' }>['nonce']
   >().toEqualTypeOf<bigint>()
+  expectTypeOf<Block['hash']>().toEqualTypeOf<Hex.Hex>()
+  expectTypeOf<Block['number']>().toEqualTypeOf<bigint>()
+})
+
+test('ExtractBlock: transaction hashes by default', () => {
+  type Block = Chain.ExtractBlock<typeof tempo>
+
+  expectTypeOf<Block['transactions']>().toEqualTypeOf<readonly Hex.Hex[]>()
+})
+
+test('ExtractBlock: pending blocks', () => {
+  type Block = Chain.ExtractBlock<typeof tempo, false, 'pending'>
+
+  expectTypeOf<Block['hash']>().toEqualTypeOf<null>()
+  expectTypeOf<Block['number']>().toEqualTypeOf<null>()
 })
 
 test('ExtractTransactionReceipt: tempo receipt converter output', () => {

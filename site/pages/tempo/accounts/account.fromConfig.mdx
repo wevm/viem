@@ -74,35 +74,23 @@ recover it from the account's `ConfigurableAccountConfigUpdated` events.
 
 ### Upgraded Account
 
-For an account upgraded in place with [`accounts.upgradeSync`](/tempo/actions/accounts.upgradeSync),
-pass the upgraded address with the installed config as a current config.
+For an account upgraded in place with [`accounts.upgrade`](/tempo/actions/accounts.upgrade), pass
+the upgraded address and the owners and threshold it installed as `upgrade`.
 
 ```ts twoslash
-import { Account, Client, http } from 'viem/tempo'
-
-const client = Client.create({ transport: http() })
-const root = Account.fromSecp256k1(
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-)
-const owner = Account.fromSecp256k1(
-  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
-)
-
-const { config } = await client.accounts.upgradeSync({
-  account: root,
-  owners: [{ owner: owner.address, weight: 1 }],
-  threshold: 1,
-})
-if (!config) throw new Error('Upgrade is pending.')
+import { Account } from 'viem/tempo'
 
 const account = Account.fromConfig({
-  address: root.address,
-  owners: [owner],
-  salt: config.salt,
-  threshold: config.threshold,
-  version: config.version,
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  upgrade: {
+    owners: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8'],
+    threshold: 1,
+  },
 })
 ```
+
+The upgrade installs version `1` of the account's config. After a later config update, use the
+current config fields instead.
 
 ### Address Only
 
@@ -220,15 +208,16 @@ so ERC-1271 verifiers do not accept their signatures.
 
 - **Type:** `Account.fromConfig.Parameters`
 
-An initial config, a stable address with its current config, or an address without a retained
-config.
+An initial config, a stable address with its current config, an upgraded address with its
+installed owners, or an address without a retained config.
 
 #### value.address
 
 - **Type:** `'infer' | Address | undefined`
 
 Omit this field or set it to `infer` to derive an account from a version-zero config. For a current
-config, pass the account's stable address. Pass an `Address` as `value` when no config is needed.
+config or an upgrade, pass the account's stable address. Pass an `Address` as `value` when no
+config is needed.
 
 #### value.owners
 
@@ -259,3 +248,36 @@ config and required for a current config.
 
 The nonzero current config version. For an initial config, omit this field or pass `0` when
 spreading a normalized `AccountConfig.Config` value.
+
+#### value.upgrade
+
+- **Type:** `{ owners: readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]; threshold?: number }`
+
+The owners and threshold installed by [`accounts.upgrade`](/tempo/actions/accounts.upgrade). Pass
+it with the upgraded account's `address`, instead of `owners`, `salt`, `threshold`, and `version`.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromConfig({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  upgrade: { // [!code focus]
+    owners: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8'], // [!code focus]
+    threshold: 1, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+##### value.upgrade.owners
+
+- **Type:** `readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]`
+
+The owners installed by the upgrade. Passing a local account makes it available for local
+aggregation.
+
+##### value.upgrade.threshold
+
+- **Type:** `number`
+- **Default:** `1`
+
+The approval weight installed by the upgrade.

@@ -1,5 +1,5 @@
-import { AbiEvent, Log } from 'ox'
-import type { Address, Block, Errors, Hex } from 'ox'
+import { Log } from 'ox'
+import type { AbiEvent, Address, Block, Errors } from 'ox'
 
 import { HttpError } from '../../../utils/RpcClient.js'
 import type * as Client from '../../Client.js'
@@ -15,6 +15,7 @@ import { uninstall } from '../filter/uninstall.js'
 import { getSubscribe } from '../internal/getSubscribe.js'
 import { createFilter } from './createFilter.js'
 import { getLogs } from './getLogs.js'
+import * as internal from './internal.js'
 
 /**
  * Watches incoming event logs, returning a watcher handle.
@@ -228,15 +229,7 @@ export function watch<
       return
     }
 
-    const topics = (() => {
-      if (!events) return undefined
-      if (event)
-        return AbiEvent.encode(
-          event,
-          ...((args !== undefined ? [args] : []) as []),
-        ).topics
-      return [events.map((event) => AbiEvent.encode(event).topics[0])]
-    })() as readonly Hex.Hex[] | undefined
+    const topics = internal.getTopics({ args, event, events })
 
     const observerId = stringify([
       'event.watch',
@@ -264,7 +257,7 @@ export function watch<
               if (!active) return
               const log = Log.fromRpc(data.result as never)
               const logs = events
-                ? AbiEvent.extractLogs(events, [log], { args, strict })
+                ? internal.extractLogs(events, [log], { args, strict })
                 : [log]
               if (logs.length === 0) return
               emit.onLogs(logs)

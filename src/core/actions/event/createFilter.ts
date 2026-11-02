@@ -1,11 +1,12 @@
-import { AbiEvent, Filter as OxFilter } from 'ox'
-import type { Address, Block, Errors, Hex } from 'ox'
+import { Filter as OxFilter } from 'ox'
+import type { AbiEvent, Address, Block, Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 import type { OneOf } from '../../internal/types.js'
 import type { Filter } from '../filter/Filter.js'
 import { requestScope } from '../filter/internal/requestScope.js'
 import type { getLogs } from './getLogs.js'
+import * as internal from './internal.js'
 
 /**
  * Creates a filter to listen for new event logs (`eth_newFilter`).
@@ -57,15 +58,7 @@ export async function createFilter<
 
   const events = events_ ?? (event ? [event] : undefined)
 
-  const topics = (() => {
-    if (!events) return undefined
-    if (event)
-      return AbiEvent.encode(
-        event,
-        ...((args !== undefined ? [args] : []) as []),
-      ).topics
-    return [events.map((event) => AbiEvent.encode(event).topics[0])]
-  })() as readonly Hex.Hex[] | undefined
+  const topics = internal.getTopics({ args, event, events })
 
   const getRequest = requestScope(client, { method: 'eth_newFilter' })
   const id = await client.request({
