@@ -1828,6 +1828,7 @@ describe('anonymous', () => {
     const topics = anonymousTopics({
       abi: [abi[0]],
       args: { from },
+      eventName: 'Foo',
     })
     const data =
       '0x0000000000000000000000000000000000000000000000000000000000000001'
