@@ -284,19 +284,43 @@ export async function waitForTransactionReceipt<
           if (retrying) return
 
           try {
-            // If we already have a valid receipt, let's check if we have enough
-            // confirmations. If we do, then we can resolve.
+            // A reorg can remove a receipt or change its execution outcome.
             if (receipt) {
+              const receipt_ = await getAction(
+                client,
+                getTransactionReceipt,
+                'getTransactionReceipt',
+              )({ hash: receipt.transactionHash }).catch((error) => {
+                if (error instanceof TransactionReceiptNotFoundError)
+                  return undefined
+                throw error
+              })
+              receipt = receipt_
+              if (!receipt_) {
+                transaction = undefined
+                replacementResponse = undefined
+                return
+              }
               if (
                 confirmations > 1 &&
-                (!receipt.blockNumber ||
-                  blockNumber - receipt.blockNumber + 1n < confirmations)
+                (!receipt_.blockNumber ||
+                  blockNumber - receipt_.blockNumber + 1n < confirmations)
               )
                 return
 
+              const replacement = replacementResponse
+              if (replacement) {
+                if (replacement.transaction.blockHash !== receipt_.blockHash)
+                  replacement.transaction = (await getAction(
+                    client,
+                    getTransaction,
+                    'getTransaction',
+                  )({ hash: receipt_.transactionHash })) as Transaction
+                replacement.transactionReceipt = receipt_
+              }
               done(() => {
-                if (replacementResponse) emit.onReplaced?.(replacementResponse)
-                emit.resolve(receipt!)
+                if (replacement) emit.onReplaced?.(replacement)
+                emit.resolve(receipt_)
               })
               return
             }

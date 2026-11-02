@@ -8,7 +8,15 @@ import {
   InvalidInputRpcError,
   type ReplacementReturnType,
 } from 'viem'
-import { getTransactionReceipt } from 'viem/actions'
+import {
+  getRawTransaction,
+  getTransaction,
+  getTransactionReceipt,
+  revert,
+  sendRawTransaction,
+  setCode,
+  snapshot,
+} from 'viem/actions'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
@@ -645,6 +653,150 @@ describe('replaced transactions', () => {
 })
 
 describe('args: confirmations', () => {
+  test.each([false, true])(
+    'returns the current receipt after a reorg (replacement: %s)',
+    async (replaced) => {
+      const pool = Pool.define({
+        instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+      })
+      onTestFinished(() => pool.destroyAll())
+      const node = await pool.start(1)
+      const testClient = createTestClient({
+        chain: mainnet,
+        mode: 'anvil',
+        transport: http(node.url),
+      })
+      const address = '0x1000000000000000000000000000000000000001'
+      // Succeeds once, sets slot zero to one, and reverts on later calls.
+      await setCode(testClient, {
+        address,
+        bytecode: '0x60005415600c5760006000fd5b600160005500',
+      })
+      const id = await snapshot(testClient)
+      const hash = await sendTransaction(testClient, {
+        account: sourceAccount.address,
+        gas: 100_000n,
+        gasPrice: parseGwei('2'),
+        nonce: 0,
+        to: address,
+      })
+      const replacementHash = replaced
+        ? await sendTransaction(testClient, {
+            account: sourceAccount.address,
+            gas: 100_000n,
+            gasPrice: parseGwei('20'),
+            nonce: 0,
+            to: address,
+          })
+        : hash
+      await mine(testClient, { blocks: 1 })
+      const serializedTransaction = await getRawTransaction(testClient, {
+        hash: replacementHash,
+      })
+      const original = await getTransactionReceipt(testClient, {
+        hash: replacementHash,
+      })
+      const replacements: ReplacementReturnType[] = []
+      const client = createPublicClient({
+        chain: mainnet,
+        pollingInterval: 50,
+        transport: http(node.url, {
+          async onFetchResponse(response) {
+            const { result } = await response.clone().json()
+            if (
+              result?.blockHash !== original.blockHash ||
+              !('status' in result)
+            )
+              return
+
+            // Reorder the calls on a new chain while the old receipt is in flight.
+            await revert(testClient, { id })
+            await sendTransaction(testClient, {
+              account: targetAccount.address,
+              gas: 100_000n,
+              gasPrice: parseGwei('20'),
+              to: address,
+            })
+            await mine(testClient, { blocks: 3 })
+            await sendRawTransaction(testClient, { serializedTransaction })
+            await mine(testClient, { blocks: 3 })
+          },
+        }),
+      })
+
+      const receipt = await client.waitForTransactionReceipt({
+        confirmations: 3,
+        hash,
+        onReplaced: (replacement) => replacements.push(replacement),
+        replacement: {
+          from: sourceAccount.address,
+          input: '0x',
+          nonce: 0,
+          to: address,
+          value: 0n,
+        },
+        timeout: 5_000,
+      })
+
+      expect(original.status).toMatchInlineSnapshot('"success"')
+      expect(receipt.status).toMatchInlineSnapshot('"reverted"')
+      expect(receipt).toEqual(
+        await getTransactionReceipt(testClient, { hash: replacementHash }),
+      )
+      if (replaced) {
+        expect(replacements).toHaveLength(1)
+        expect(replacements[0]!.transactionReceipt).toEqual(receipt)
+        expect(replacements[0]!.transaction).toEqual(
+          await getTransaction(testClient, { hash: replacementHash }),
+        )
+      } else expect(replacements).toMatchInlineSnapshot('[]')
+    },
+  )
+
+  test('does not confirm a receipt removed by a reorg', async () => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const testClient = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      transport: http(node.url),
+    })
+    const id = await snapshot(testClient)
+    const hash = await sendTransaction(testClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    await mine(testClient, { blocks: 1 })
+    const original = await getTransactionReceipt(testClient, { hash })
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 50,
+      transport: http(node.url, {
+        async onFetchResponse(response) {
+          const { result } = await response.clone().json()
+          if (result?.blockHash !== original.blockHash || !('status' in result))
+            return
+
+          await revert(testClient, { id })
+          await mine(testClient, { blocks: 3 })
+        },
+      }),
+    })
+
+    await expect(
+      client.waitForTransactionReceipt({
+        checkReplacement: false,
+        confirmations: 3,
+        hash,
+        timeout: 500,
+      }),
+    ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
+  })
+
   test('waits for confirmations', async () => {
     setup()
 
