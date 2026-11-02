@@ -2,20 +2,21 @@ name: Prepublish
 
 on:
   push:
-    branches: [main]
+    branches: [v3]
   pull_request:
+    branches: [v3]
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, closed]
 
 permissions: {} # each job should declare only the permissions it needs
 
 jobs:
-  # Packs the prerelease at `0.0.0-v3-<sha>` on main, or `0.0.0-v3-pr-<number>-<short sha>` on a pull request.
+  # Packs the prerelease at `0.0.0-v3-<sha>` on `v3`, or `0.0.0-v3-pr-<number>-<short sha>` on a pull request.
   # It runs the commit's code and its dependencies' install scripts, so it holds no npm identity.
   pack:
     name: Pack prerelease
     # A pull request publishes only from a branch of this repository, which only maintainers can push.
     if: >-
-      github.repository == 'wevm/viem-v3' && (
+      github.repository == 'wevm/viem' && (
         github.event_name == 'push' || (
           github.event.action != 'closed' &&
           !github.event.pull_request.draft &&
@@ -46,7 +47,7 @@ jobs:
             echo "tag=pr-$PULL_REQUEST" >> "$GITHUB_OUTPUT"
             echo "version=0.0.0-v3-pr-$PULL_REQUEST-${SHA:0:7}" >> "$GITHUB_OUTPUT"
           else
-            # A short SHA can repeat across main's history, and npm never republishes a version, so main takes the full SHA.
+            # A short SHA can repeat across the branch's history, and npm never republishes a version, so `v3` takes the full SHA.
             echo "tag=main-v3" >> "$GITHUB_OUTPUT"
             echo "version=0.0.0-v3-$SHA" >> "$GITHUB_OUTPUT"
           fi
@@ -89,13 +90,13 @@ jobs:
       group: ${{ github.workflow }}-publish-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: false
     permissions:
-      contents: read # read the current commit of main
+      contents: read # read the current commit of v3
       id-token: write # authenticate to npm via trusted publishing
       pull-requests: write # comment the prerelease on the pull request
 
     steps:
       # A rerun or a queued run can start after a newer commit, and a pull request can become a draft first.
-      # Only the current commit of main, or of an open and ready pull request, publishes and moves the dist-tag.
+      # Only the current commit of v3, or of an open and ready pull request, publishes and moves the dist-tag.
       - name: Check commit
         id: current
         env:
@@ -106,11 +107,11 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
             current="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PULL_REQUEST" --jq ".state == \"open\" and (.draft | not) and .head.sha == \"$SHA\"")"
           else
-            current="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq ".sha == \"$SHA\"")"
+            current="$(gh api "repos/$GITHUB_REPOSITORY/commits/v3" --jq ".sha == \"$SHA\"")"
           fi
           echo "publish=$current" >> "$GITHUB_OUTPUT"
           if [ "$current" != true ]; then
-            echo "Skipped \`$SHA\`, which is not the current commit of main or of an open, ready pull request." >> "$GITHUB_STEP_SUMMARY"
+            echo "Skipped \`$SHA\`, which is not the current commit of v3 or of an open, ready pull request." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Set up Node
@@ -209,7 +210,7 @@ jobs:
   cleanup:
     name: Remove prerelease tag
     if: >-
-      github.repository == 'wevm/viem-v3' &&
+      github.repository == 'wevm/viem' &&
       github.event.action == 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.type != 'Bot'
