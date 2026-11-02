@@ -12,6 +12,15 @@ export const accountImplementation =
 export const accountKeychain = '0xaAAAaaAA00000000000000000000000000000000'
 export const accountRegistrar = '0x7702ac0000000000000000000000000000000000'
 export const addressRegistry = '0xfdc0000000000000000000000000000000000000'
+/**
+ * Attested Key Registry precompile (TIP-1161), which holds attested signer policies and their program keys.
+ *
+ * This is the address of the experimental node implementation. TIP-1161 proposes
+ * `0x1161000000000000000000000000000000000000`.
+ *
+ * @experimental
+ */
+export const attestedKeyRegistry = '0xA77e570000000000000000000000000000000000'
 export const configurableAccount = '0xAACC000000000000000000000000000000000000'
 /** Current consensus committee precompile address, used with `Abis.currentCommittee` to read committee members. */
 export const currentCommittee = '0xC077e00000000000000000000000000000000000'

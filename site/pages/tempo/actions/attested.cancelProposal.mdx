@@ -1,0 +1,100 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `attested.cancelProposal`
+
+Cancels a pending measurement or trust anchor of an attested signer policy. The policy owner or guardian calls it.
+
+:::warning
+Experimental. Attested signers ([TIP-1159](https://github.com/tempoxyz/tempo/pull/8822)) are a draft and are not active on any public Tempo network. This action targets the experimental node implementation, whose registry address differs from the TIP.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.attested.cancelProposalSync({
+  policyId: '0x...',
+  entry: '0x...',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+`attested.cancelProposalSync` waits for the transaction to be included. To wait for inclusion yourself, use `attested.cancelProposal`, which returns the transaction hash:
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.attested.cancelProposal({
+  policyId: '0x...',
+  entry: '0x...',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+```
+
+## Return Value
+
+### cancelProposal
+
+`Hash`
+
+The transaction hash.
+
+### cancelProposalSync
+
+```ts
+type ReturnType = {
+  /** Policy ID. */
+  policyId: Hex
+  /** Cancelled measurement or trust anchor. */
+  entry: Hex
+  /** Whether the entry is a trust anchor. */
+  isAnchor: boolean
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The `ProposalCancelled` event's arguments and the transaction receipt.
+
+## Parameters
+
+### entry
+
+- **Type:** `Hex`
+
+Pending measurement or trust anchor to cancel.
+
+### isAnchor (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether `entry` is a trust anchor.
+
+### policyId
+
+- **Type:** `Hex`
+
+Policy ID.
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether `cancelProposalSync` throws if the transaction reverts. `cancelProposalSync` only.
+
+<WriteParameters />

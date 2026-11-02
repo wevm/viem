@@ -2591,6 +2591,11 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
+              text: 'Attested Signer',
+              link: '/tempo/accounts/account.fromAttested',
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'Configurable',
               link: '/tempo/accounts/account.fromConfig',
             },
@@ -2746,6 +2751,65 @@ export default defineConfig({
                 {
                   text: 'watchRebalanceSwap',
                   link: '/tempo/actions/amm.watchRebalanceSwap',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'Attested Signers',
+              collapsed: true,
+              items: [
+                {
+                  text: 'cancelProposal',
+                  link: '/tempo/actions/attested.cancelProposal',
+                },
+                {
+                  text: 'computePolicyId',
+                  link: '/tempo/actions/attested.computePolicyId',
+                },
+                {
+                  text: 'createPolicy',
+                  link: '/tempo/actions/attested.createPolicy',
+                },
+                {
+                  text: 'getKeyValidUntil',
+                  link: '/tempo/actions/attested.getKeyValidUntil',
+                },
+                {
+                  text: 'getMeasurementActiveAt',
+                  link: '/tempo/actions/attested.getMeasurementActiveAt',
+                },
+                {
+                  text: 'getPolicy',
+                  link: '/tempo/actions/attested.getPolicy',
+                },
+                {
+                  text: 'pause',
+                  link: '/tempo/actions/attested.pause',
+                },
+                {
+                  text: 'proposeMeasurement',
+                  link: '/tempo/actions/attested.proposeMeasurement',
+                },
+                {
+                  text: 'registerKey',
+                  link: '/tempo/actions/attested.registerKey',
+                },
+                {
+                  text: 'removeMeasurement',
+                  link: '/tempo/actions/attested.removeMeasurement',
+                },
+                {
+                  text: 'revokeKeys',
+                  link: '/tempo/actions/attested.revokeKeys',
+                },
+                {
+                  text: 'setMaxKeyLifetime',
+                  link: '/tempo/actions/attested.setMaxKeyLifetime',
+                },
+                {
+                  text: 'unpause',
+                  link: '/tempo/actions/attested.unpause',
                 },
               ],
             },

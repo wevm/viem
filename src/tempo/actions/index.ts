@@ -2,6 +2,8 @@
 export * as accessKey from './accessKey.js'
 export * as accounts from './accounts.js'
 export * as amm from './amm.js'
+/** @experimental */
+export * as attested from './attested.js'
 export * as channel from './channel.js'
 export * as dex from './dex.js'
 export * as earn from './earn.js'

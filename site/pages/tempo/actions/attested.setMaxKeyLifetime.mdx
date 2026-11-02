@@ -1,0 +1,93 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `attested.setMaxKeyLifetime`
+
+Changes the key lifetime cap of an attested signer policy. A decrease applies at once. An increase applies after the policy's delay. The policy owner calls it.
+
+:::warning
+Experimental. Attested signers ([TIP-1159](https://github.com/tempoxyz/tempo/pull/8822)) are a draft and are not active on any public Tempo network. This action targets the experimental node implementation, whose registry address differs from the TIP.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.attested.setMaxKeyLifetimeSync({
+  policyId: '0x...',
+  maxKeyLifetime: 3_600,
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+`attested.setMaxKeyLifetimeSync` waits for the transaction to be included. To wait for inclusion yourself, use `attested.setMaxKeyLifetime`, which returns the transaction hash:
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.attested.setMaxKeyLifetime({
+  policyId: '0x...',
+  maxKeyLifetime: 3_600,
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+```
+
+## Return Value
+
+### setMaxKeyLifetime
+
+`Hash`
+
+The transaction hash.
+
+### setMaxKeyLifetimeSync
+
+```ts
+type ReturnType = {
+  /** Policy ID. */
+  policyId: Hex
+  /** New key lifetime cap, in seconds. */
+  newMaxKeyLifetime: bigint
+  /** When the cap applies, in Unix seconds. */
+  effectiveAt: bigint
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The `MaxKeyLifetimeChanged` event's arguments and the transaction receipt.
+
+## Parameters
+
+### maxKeyLifetime
+
+- **Type:** `number`
+
+Longest registration of a program key, in seconds. Between 1 second and 7 days.
+
+### policyId
+
+- **Type:** `Hex`
+
+Policy ID.
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether `setMaxKeyLifetimeSync` throws if the transaction reverts. `setMaxKeyLifetimeSync` only.
+
+<WriteParameters />

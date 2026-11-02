@@ -3,13 +3,21 @@ import * as Address from 'ox/Address'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { AccountConfig, Channel, Period, SignatureEnvelope } from 'ox/tempo'
+import {
+  AccountConfig,
+  AttestedSigner,
+  Channel,
+  KeyAuthorization,
+  Period,
+  SignatureEnvelope,
+} from 'ox/tempo'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
+import { hashMessage } from '../utils/signature/hashMessage.js'
 import * as Account from './Account.js'
 import * as Scopes from './Scopes.js'
 import * as Transaction from './Transaction.js'
@@ -20,6 +28,250 @@ const privateKey_secp256k1 =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
+
+describe('fromAttested', () => {
+  // Inputs of tempoxyz/id `services/attested-signer/src/encoding.rs`
+  // (`signature_encoding_digest_and_address`), which asserts the address
+  // `0xc9c72810362348e09b52987695042f894d9f5352`.
+  const policyId =
+    '0xadbe28853696826a0cd6f2dcc61811025e4d954b6be3912b44aa51ae65a0339c'
+  const userTag = `0x${'33'.repeat(32)}` as const
+
+  // A local P256 key stands in for the signer program's program key.
+  const programKey = P256.getPublicKey({ privateKey: privateKey_p256 })
+  function signer(
+    options: {
+      policyId?: `0x${string}` | undefined
+      userTag?: `0x${string}` | undefined
+    } = {},
+  ) {
+    const fields = {
+      policyId: options.policyId ?? policyId,
+      programKey,
+      slot: 1,
+      userTag: options.userTag ?? userTag,
+      validUntil: 1_800_000_600,
+    } as const
+    return async ({ hash }: { hash: `0x${string}` }) =>
+      SignatureEnvelope.serialize(
+        SignatureEnvelope.from({
+          ...fields,
+          signature: P256.sign({
+            payload: AttestedSigner.getSignPayload({
+              ...fields,
+              payload: hash,
+            }),
+            privateKey: privateKey_p256,
+          }),
+        }),
+      )
+  }
+
+  test('default', () => {
+    const account = Account.fromAttested({ policyId, sign: signer(), userTag })
+
+    const {
+      sign: _sign,
+      signKeyAuthorization: _signKeyAuthorization,
+      signMessage: _signMessage,
+      signTransaction: _signTransaction,
+      signTypedData: _signTypedData,
+      ...rest
+    } = account
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "address": "0xc9c72810362348E09b52987695042F894d9f5352",
+        "keyType": "attested",
+        "policyId": "0xadbe28853696826a0cd6f2dcc61811025e4d954b6be3912b44aa51ae65a0339c",
+        "publicKey": "0x",
+        "source": "attested",
+        "type": "local",
+        "userTag": "0x3333333333333333333333333333333333333333333333333333333333333333",
+      }
+    `)
+  })
+
+  test('sign', async () => {
+    const account = Account.fromAttested({ policyId, sign: signer(), userTag })
+    const hash = keccak256('0x1234')
+
+    const signature = SignatureEnvelope.from(await account.sign({ hash }))
+
+    expect(signature.type).toBe('attested')
+    expect(
+      SignatureEnvelope.verify(signature, {
+        address: account.address,
+        payload: hash,
+      }),
+    ).toBe(true)
+  })
+
+  test('signMessage', async () => {
+    const account = Account.fromAttested({ policyId, sign: signer(), userTag })
+
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(
+      SignatureEnvelope.verify(SignatureEnvelope.from(signature), {
+        address: account.address,
+        payload: hashMessage('hello'),
+      }),
+    ).toBe(true)
+  })
+
+  test('signTransaction', async () => {
+    const account = Account.fromAttested({ policyId, sign: signer(), userTag })
+    const request = {
+      calls: [],
+      chainId: 1,
+      maxFeePerGas: parseGwei('10'),
+      to: '0x0000000000000000000000000000000000000001',
+      value: 0n,
+    } as const
+
+    const serialized = await account.signTransaction(request)
+    const { signature } = Transaction.deserialize(
+      serialized as Transaction.TransactionSerializedTempo,
+    ) as { signature: SignatureEnvelope.SignatureEnvelope }
+    const payload = keccak256(await Transaction.serialize(request))
+
+    expect(serialized.slice(0, 4)).toBe('0x76')
+    expect(signature.type).toBe('attested')
+    expect(
+      SignatureEnvelope.extractAddress({ payload, signature }),
+    ).toMatchInlineSnapshot(`"0xc9c72810362348e09b52987695042f894d9f5352"`)
+    expect(
+      SignatureEnvelope.verify(signature, {
+        address: account.address,
+        payload,
+      }),
+    ).toBe(true)
+  })
+
+  test('signKeyAuthorization', async () => {
+    const account = Account.fromAttested({ policyId, sign: signer(), userTag })
+    const accessKey = Account.fromP256(privateKey_p256, { access: account })
+
+    const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+      chainId: 1n,
+      expiry: 1_800_000_000,
+    })
+    const payload = KeyAuthorization.getSignPayload(keyAuthorization)
+
+    expect(keyAuthorization.signature.type).toBe('attested')
+    expect(
+      SignatureEnvelope.verify(keyAuthorization.signature, {
+        address: account.address,
+        payload,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: configurable account owner', async () => {
+    const owner = Account.fromAttested({ policyId, sign: signer(), userTag })
+    const account = Account.fromConfig({ owners: [owner] })
+    const hash = keccak256('0x1234')
+
+    const signature = SignatureEnvelope.from(await account.sign({ hash }))
+    if (signature.type !== 'configurable')
+      throw new Error('Expected configurable account signature.')
+    const [approval] = signature.signatures
+    const digest = AccountConfig.getSignPayload({
+      account: account.address,
+      config: account.config,
+      payload: hash,
+    })
+
+    expect(approval?.type).toBe('attested')
+    expect(
+      SignatureEnvelope.verify(approval!, {
+        address: owner.address,
+        payload: digest,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: configurable account owner approves a transaction', async () => {
+    const owner = Account.fromAttested({ policyId, sign: signer(), userTag })
+    const config = AccountConfig.from({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    })
+    const request = {
+      accountSimulation: { approvals: [{ owner: owner.address }], config },
+      calls: [],
+      chainId: 1,
+      from: AccountConfig.getAddress(config),
+      maxFeePerGas: parseGwei('10'),
+    } as const
+
+    const approval = SignatureEnvelope.from(
+      await owner.signTransaction(request),
+    )
+    const { accountSimulation: _, ...unsigned } = request
+    const digest = AccountConfig.getSignPayload({
+      account: request.from,
+      config,
+      payload: keccak256(await Transaction.serialize(unsigned)),
+    })
+
+    expect(approval.type).toBe('attested')
+    expect(
+      SignatureEnvelope.verify(approval, {
+        address: owner.address,
+        payload: digest,
+      }),
+    ).toBe(true)
+  })
+
+  test('error: signer returns a signature of another type', async () => {
+    const account = Account.fromAttested({
+      policyId,
+      sign: async ({ hash }) =>
+        SignatureEnvelope.serialize(
+          SignatureEnvelope.from(
+            Secp256k1.sign({ payload: hash, privateKey: privateKey_secp256k1 }),
+          ),
+        ),
+      userTag,
+    })
+
+    await expect(
+      account.sign({ hash: keccak256('0x1234') }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected an attested signature from the signer, but got \`secp256k1\`.]`,
+    )
+  })
+
+  test('error: signer signs for another user', async () => {
+    const account = Account.fromAttested({
+      policyId,
+      sign: signer({ userTag: `0x${'44'.repeat(32)}` }),
+      userTag,
+    })
+
+    await expect(
+      account.sign({ hash: keccak256('0x1234') }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: The attested signature does not verify for 0xc9c72810362348E09b52987695042F894d9f5352 and hash 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432.]`,
+    )
+  })
+
+  test('error: signer signs another hash', async () => {
+    const sign = signer()
+    const account = Account.fromAttested({
+      policyId,
+      sign: () => sign({ hash: keccak256('0x5678') }),
+      userTag,
+    })
+
+    await expect(
+      account.sign({ hash: keccak256('0x1234') }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: The attested signature does not verify for 0xc9c72810362348E09b52987695042F894d9f5352 and hash 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432.]`,
+    )
+  })
+})
 
 describe('fromConfig', () => {
   test('behavior: custom local owner', async () => {

@@ -1,0 +1,47 @@
+# `attested.computePolicyId`
+
+Computes the ID of the attested signer policy that `creator` creates with `salt`: `keccak256(abi.encode(creator, salt))`. The same creator and salt give the same ID on every chain.
+
+:::warning
+Experimental. Attested signers ([TIP-1159](https://github.com/tempoxyz/tempo/pull/8822)) are a draft and are not active on any public Tempo network. This action targets the experimental node implementation, whose registry address differs from the TIP.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const policyId = await client.attested.computePolicyId({
+  creator: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  salt: '0x47f68d242efeca60f5fed1c5436bcb5a5e4f5d4af98e8a29ca67af4c9060b907',
+})
+// @log: '0xadbe28853696826a0cd6f2dcc61811025e4d954b6be3912b44aa51ae65a0339c'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+`Hex`
+
+The policy ID.
+
+## Parameters
+
+### creator
+
+- **Type:** `Address`
+
+Account that creates the policy.
+
+### salt
+
+- **Type:** `Hex`
+
+Caller-chosen salt of the policy ID.

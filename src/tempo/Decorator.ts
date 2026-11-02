@@ -6,6 +6,7 @@ import type { Chain } from '../types/chain.js'
 import * as accessKeyActions from './actions/accessKey.js'
 import * as accountsActions from './actions/accounts.js'
 import * as ammActions from './actions/amm.js'
+import * as attestedActions from './actions/attested.js'
 import * as channelActions from './actions/channel.js'
 import * as dexActions from './actions/dex.js'
 import * as earnActions from './actions/earn.js'
@@ -971,6 +972,673 @@ type DecoratorBase<
     watchRebalanceSwap: (
       parameters: ammActions.watchRebalanceSwap.Parameters,
     ) => () => void
+  }
+  attested: {
+    /**
+     * Cancels a pending measurement or trust anchor of an attested signer policy. The policy owner or guardian calls it.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.cancelProposal({
+     *   policyId: '0x...',
+     *   entry: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    cancelProposal: (
+      parameters: attestedActions.cancelProposal.Parameters<chain, account>,
+    ) => Promise<attestedActions.cancelProposal.ReturnValue>
+    /**
+     * Cancels a pending measurement or trust anchor of an attested signer policy. The policy owner or guardian calls it. Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.cancelProposalSync({
+     *   policyId: '0x...',
+     *   entry: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    cancelProposalSync: (
+      parameters: attestedActions.cancelProposalSync.Parameters<chain, account>,
+    ) => Promise<attestedActions.cancelProposalSync.ReturnValue>
+    /**
+     * Computes the ID of the attested signer policy that `creator` creates with `salt`:
+     * `keccak256(abi.encode(creator, salt))`, as the Attested Key Registry derives it.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const policyId = await client.attested.computePolicyId({
+     *   creator: '0x...',
+     *   salt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The policy ID.
+     */
+    computePolicyId: (
+      parameters: attestedActions.computePolicyId.Parameters,
+    ) => Promise<attestedActions.computePolicyId.ReturnValue>
+    /**
+     * Creates an attested signer policy. Its initial measurements are active at once. The policy ID is derived from the caller and `salt` (see {@link computePolicyId}).
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.createPolicy({
+     *   salt: '0x...',
+     *   scheme: 1,
+     *   delay: 86_400,
+     *   maxKeyLifetime: 3600,
+     *   measurements: ['0x...'],
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    createPolicy: (
+      parameters: attestedActions.createPolicy.Parameters<chain, account>,
+    ) => Promise<attestedActions.createPolicy.ReturnValue>
+    /**
+     * Creates an attested signer policy. Its initial measurements are active at once. The policy ID is derived from the caller and `salt` (see {@link computePolicyId}). Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.createPolicySync({
+     *   salt: '0x...',
+     *   scheme: 1,
+     *   delay: 86_400,
+     *   maxKeyLifetime: 3600,
+     *   measurements: ['0x...'],
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    createPolicySync: (
+      parameters: attestedActions.createPolicySync.Parameters<chain, account>,
+    ) => Promise<attestedActions.createPolicySync.ReturnValue>
+    /**
+     * Gets when a program key's registration in an attested signer policy expires.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const validUntil = await client.attested.getKeyValidUntil({
+     *   policyId: '0x...',
+     *   programKey: '0x04...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns When the registration expires, in Unix seconds, or `0` if no key slot holds the key as current.
+     */
+    getKeyValidUntil: (
+      parameters: attestedActions.getKeyValidUntil.Parameters,
+    ) => Promise<attestedActions.getKeyValidUntil.ReturnValue>
+    /**
+     * Gets when a measurement becomes active in an attested signer policy.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const activeAt = await client.attested.getMeasurementActiveAt({
+     *   policyId: '0x...',
+     *   measurement: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The activation time, in Unix seconds, or `0` if the policy does not list the measurement.
+     */
+    getMeasurementActiveAt: (
+      parameters: attestedActions.getMeasurementActiveAt.Parameters,
+    ) => Promise<attestedActions.getMeasurementActiveAt.ReturnValue>
+    /**
+     * Gets an attested signer policy's roles and settings.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const policy = await client.attested.getPolicy({
+     *   policyId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The policy. Its `owner` is the zero address if the policy does not exist.
+     */
+    getPolicy: (
+      parameters: attestedActions.getPolicy.Parameters,
+    ) => Promise<attestedActions.getPolicy.ReturnValue>
+    /**
+     * Pauses an attested signer policy. Registrations fail and attested signatures for the policy are rejected until it is unpaused. The policy owner or guardian calls it.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.pause({
+     *   policyId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    pause: (
+      parameters: attestedActions.pause.Parameters<chain, account>,
+    ) => Promise<attestedActions.pause.ReturnValue>
+    /**
+     * Pauses an attested signer policy. Registrations fail and attested signatures for the policy are rejected until it is unpaused. The policy owner or guardian calls it. Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.pauseSync({
+     *   policyId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    pauseSync: (
+      parameters: attestedActions.pauseSync.Parameters<chain, account>,
+    ) => Promise<attestedActions.pauseSync.ReturnValue>
+    /**
+     * Proposes a measurement for an attested signer policy. It becomes active after the policy's delay. The policy owner calls it.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.proposeMeasurement({
+     *   policyId: '0x...',
+     *   measurement: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    proposeMeasurement: (
+      parameters: attestedActions.proposeMeasurement.Parameters<chain, account>,
+    ) => Promise<attestedActions.proposeMeasurement.ReturnValue>
+    /**
+     * Proposes a measurement for an attested signer policy. It becomes active after the policy's delay. The policy owner calls it. Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.proposeMeasurementSync({
+     *   policyId: '0x...',
+     *   measurement: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    proposeMeasurementSync: (
+      parameters: attestedActions.proposeMeasurementSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<attestedActions.proposeMeasurementSync.ReturnValue>
+    /**
+     * Registers a program key into a key slot of an attested signer policy from an attestation document, ending the key the slot held. Anyone can call it, because the document authenticates itself.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.registerKey({
+     *   policyId: '0x...',
+     *   slot: 0,
+     *   document: '0x...',
+     *   programKey: '0x04...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    registerKey: (
+      parameters: attestedActions.registerKey.Parameters<chain, account>,
+    ) => Promise<attestedActions.registerKey.ReturnValue>
+    /**
+     * Registers a program key into a key slot of an attested signer policy from an attestation document, ending the key the slot held. Anyone can call it, because the document authenticates itself. Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.registerKeySync({
+     *   policyId: '0x...',
+     *   slot: 0,
+     *   document: '0x...',
+     *   programKey: '0x04...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    registerKeySync: (
+      parameters: attestedActions.registerKeySync.Parameters<chain, account>,
+    ) => Promise<attestedActions.registerKeySync.ReturnValue>
+    /**
+     * Removes a measurement from an attested signer policy and revokes every program key of the policy. The policy owner or guardian calls it.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.removeMeasurement({
+     *   policyId: '0x...',
+     *   measurement: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    removeMeasurement: (
+      parameters: attestedActions.removeMeasurement.Parameters<chain, account>,
+    ) => Promise<attestedActions.removeMeasurement.ReturnValue>
+    /**
+     * Removes a measurement from an attested signer policy and revokes every program key of the policy. The policy owner or guardian calls it. Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.removeMeasurementSync({
+     *   policyId: '0x...',
+     *   measurement: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    removeMeasurementSync: (
+      parameters: attestedActions.removeMeasurementSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<attestedActions.removeMeasurementSync.ReturnValue>
+    /**
+     * Revokes every program key of an attested signer policy. Approved signer programs register new keys afterwards. The policy owner or guardian calls it.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.revokeKeys({
+     *   policyId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    revokeKeys: (
+      parameters: attestedActions.revokeKeys.Parameters<chain, account>,
+    ) => Promise<attestedActions.revokeKeys.ReturnValue>
+    /**
+     * Revokes every program key of an attested signer policy. Approved signer programs register new keys afterwards. The policy owner or guardian calls it. Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.revokeKeysSync({
+     *   policyId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    revokeKeysSync: (
+      parameters: attestedActions.revokeKeysSync.Parameters<chain, account>,
+    ) => Promise<attestedActions.revokeKeysSync.ReturnValue>
+    /**
+     * Changes the longest registration of a program key for an attested signer policy. A decrease applies at once, and an increase applies after the policy's delay. The policy owner calls it.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.setMaxKeyLifetime({
+     *   policyId: '0x...',
+     *   maxKeyLifetime: 3600,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    setMaxKeyLifetime: (
+      parameters: attestedActions.setMaxKeyLifetime.Parameters<chain, account>,
+    ) => Promise<attestedActions.setMaxKeyLifetime.ReturnValue>
+    /**
+     * Changes the longest registration of a program key for an attested signer policy. A decrease applies at once, and an increase applies after the policy's delay. The policy owner calls it. Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.setMaxKeyLifetimeSync({
+     *   policyId: '0x...',
+     *   maxKeyLifetime: 3600,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    setMaxKeyLifetimeSync: (
+      parameters: attestedActions.setMaxKeyLifetimeSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<attestedActions.setMaxKeyLifetimeSync.ReturnValue>
+    /**
+     * Unpauses an attested signer policy. The policy owner calls it.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.attested.unpause({
+     *   policyId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    unpause: (
+      parameters: attestedActions.unpause.Parameters<chain, account>,
+    ) => Promise<attestedActions.unpause.ReturnValue>
+    /**
+     * Unpauses an attested signer policy. The policy owner calls it. Waits for the transaction receipt.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.attested.unpauseSync({
+     *   policyId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    unpauseSync: (
+      parameters: attestedActions.unpauseSync.Parameters<chain, account>,
+    ) => Promise<attestedActions.unpauseSync.ReturnValue>
   }
   channel: {
     /**
@@ -6214,6 +6882,11 @@ export type Decorator<
     DecoratorBase<chain, account>['amm'],
     typeof ammActions
   >
+  /** @experimental */
+  attested: DecorateNamespace<
+    DecoratorBase<chain, account>['attested'],
+    typeof attestedActions
+  >
   channel: DecorateNamespace<
     DecoratorBase<chain, account>['channel'],
     typeof channelActions
@@ -6340,6 +7013,30 @@ export function decorator() {
         'watchBurn',
         'watchMint',
         'watchRebalanceSwap',
+      ]),
+      attested: bindActions(client, attestedActions, [
+        'cancelProposal',
+        'cancelProposalSync',
+        'computePolicyId',
+        'createPolicy',
+        'createPolicySync',
+        'getKeyValidUntil',
+        'getMeasurementActiveAt',
+        'getPolicy',
+        'pause',
+        'pauseSync',
+        'proposeMeasurement',
+        'proposeMeasurementSync',
+        'registerKey',
+        'registerKeySync',
+        'removeMeasurement',
+        'removeMeasurementSync',
+        'revokeKeys',
+        'revokeKeysSync',
+        'setMaxKeyLifetime',
+        'setMaxKeyLifetimeSync',
+        'unpause',
+        'unpauseSync',
       ]),
       channel: bindActions(client, channelActions, [
         'close',

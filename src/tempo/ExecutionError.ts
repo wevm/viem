@@ -43,8 +43,11 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'AddressNotReserved()': 'Address is not reserved.',
   'AddressReserved()': 'Address is reserved.',
   'AlreadyInitialized()': 'Already initialized.',
+  'AlreadyListed()': 'The entry is already active or pending.',
   'AmountExceedsDeposit()': 'Amount exceeds deposit.',
   'AmountNotIncreasing()': 'Amount is not increasing.',
+  'AnchorNotActive()':
+    'The attestation relies on a trust anchor that is not active.',
   'BelowMinimumOrderSize(uint128)':
     'Order size is below the minimum allowed ({0}).',
   'CallNotAllowed()': 'This call is not allowed.',
@@ -57,6 +60,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'ChannelNotFound()': 'Channel not found.',
   'CloseNotReady()': 'Channel is not ready to close.',
   'ContractPaused()': 'Contract is paused.',
+  'DelayTooLong()': 'The delay exceeds the maximum.',
   'DepositBlockCapacityExceeded(uint64)':
     'The deposit capacity per block exceeds the maximum ({0}).',
   'DepositOverflow()': 'Deposit overflow.',
@@ -93,6 +97,8 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidAccount()': 'Invalid account.',
   'InvalidAdmin()': 'Invalid administrator.',
   'InvalidAmount()': 'Invalid amount.',
+  'InvalidAnchor()': 'The trust anchor is invalid for this scheme.',
+  'InvalidAttestation()': 'The attestation document is invalid.',
   'InvalidBaseToken()':
     'This token is not a valid base token for the requested pair.',
   'InvalidBouncebackRecipient()': 'Invalid bounceback recipient.',
@@ -113,6 +119,8 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidFormat()': 'Invalid format.',
   'InvalidKeyAuthorizationWitness()': 'Invalid key authorization witness.',
   'InvalidKeyId()': 'Invalid key ID.',
+  'InvalidKeyLifetime()':
+    'The key lifetime cap is zero or exceeds the maximum.',
   'InvalidLeader()': 'Invalid leader.',
   'InvalidLogoURI()': 'Invalid logo URI.',
   'InvalidMasterAddress()': 'Invalid master address.',
@@ -124,6 +132,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidPayee()': 'Invalid payee.',
   'InvalidPayload()': 'Invalid payload.',
   'InvalidPolicyType()': 'Invalid policy type.',
+  'InvalidProgramKey()': 'The program key is not a valid P256 public key.',
   'InvalidProof()': 'Invalid proof.',
   'InvalidProofOfPossession()': 'Invalid proof of possession.',
   'InvalidPublicKey()': 'Invalid public key.',
@@ -137,6 +146,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidSignature()': 'Invalid signature.',
   'InvalidSignatureFormat()': 'Invalid signature format.',
   'InvalidSignatureType()': 'Invalid signature type.',
+  'InvalidSlot()': 'The key slot is out of range.',
   'InvalidSpendingLimit()': 'Invalid spending limit.',
   'InvalidSupplyCap()': 'Invalid supply cap.',
   'InvalidSwapCalculation()': 'Invalid swap calculation.',
@@ -162,6 +172,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'MasterIdCollision(address)': 'Master ID collision with {0}.',
   'MaxInputExceeded()':
     'The required input exceeds the slippage maximum — try increasing slippage tolerance.',
+  'MeasurementNotActive()': 'The measurement is not active in the policy.',
   'MigrationNotComplete()': 'Migration is not complete.',
   'MustDelegateCall()': 'A delegate call is required.',
   'NoEncryptionKeyAtBlock(uint64)': 'No encryption key exists at block {0}.',
@@ -176,10 +187,12 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'NotIp(string,string)': '"{0}" is not a valid IP address.',
   'NotIpPort(string,string)': '"{0}" is not a valid IP:port.',
   'NotIpPort(string,string,string)': '"{1}" is not a valid IP:port for {0}.',
+  'NotListed()': 'The entry is not listed.',
   'NotOwner()': 'The caller is not an owner.',
   'NotPauseAuthority()': 'The caller is not the pause authority.',
   'NotPayeeOrOperator()': 'Not payee or operator.',
   'NotPayer()': 'Not payer.',
+  'NotPending()': 'The entry is not pending.',
   'NotPendingAdmin()': 'The caller is not the pending administrator.',
   'NotSelf()': 'The caller must be the contract itself.',
   'NotSequencer()': 'The caller is not a sequencer.',
@@ -190,7 +203,9 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
     'A trading pair for these tokens has already been created.',
   'PairDoesNotExist()': 'No trading pair exists for these tokens.',
   'PermitExpired()': 'Permit has expired.',
+  'PolicyExists()': 'Policy already exists.',
   'PolicyForbids()': 'Forbidden by policy.',
+  'PolicyIsPaused()': 'Policy is paused.',
   'PolicyNotFound()': 'Policy not found.',
   'PolicyNotSimple()': 'Policy is not a simple policy.',
   'PortalIsPaused()': 'The portal is paused.',
@@ -206,6 +221,8 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'SignatureTypeMismatch(uint8,uint8)':
     'Signature type mismatch. Expected {0}, got {1}.',
   'SpendingLimitExceeded()': 'Spending limit exceeded.',
+  'StaleAttestation()':
+    'The attestation document is too old, too far in the future, or expired.',
   'StaleLeadershipEpoch(uint64,uint64)':
     'Stale leadership epoch. Expected {0}, got {1}.',
   'SupplyCapExceeded()': 'Supply cap exceeded.',
@@ -219,6 +236,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'TokenMetadataTooLong()': 'Token metadata is too long.',
   'TokenNotEnabled()': 'The token is not enabled.',
   'TokenTransferPolicyNotSet()': 'The token transfer policy is not set.',
+  'TooManyEntries()': 'Too many entries.',
   'TooManyOwners()': 'There are too many owners.',
   'TransferFailed()': 'The transfer failed.',
   'Unauthorized()': 'Unauthorized.',
@@ -227,6 +245,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'UnauthorizedConfigurableAccountCaller()':
     'Unauthorized configurable account caller.',
   'Uninitialized()': 'Uninitialized.',
+  'UnknownScheme()': 'The attestation scheme is unknown or not active.',
   'UpgradeMustBeOnlyCall()':
     'The upgrade must be the only call in the transaction.',
   'ValidatorAlreadyDeactivated()': 'Validator is already deactivated.',
@@ -234,6 +253,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'ValidatorNotFound()': 'Validator not found.',
   'VirtualAddressNotAllowed()': 'Virtual address is not allowed.',
   'VirtualAddressUnregistered()': 'Virtual address is not registered.',
+  'ZeroAddress()': 'The address is the zero address.',
   'ZeroDeposit()': 'Deposit cannot be zero.',
   'ZeroPublicKey()': 'Public key cannot be zero.',
 }

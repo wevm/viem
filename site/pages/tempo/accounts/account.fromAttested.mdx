@@ -1,0 +1,100 @@
+# `Account.fromAttested`
+
+Instantiates an attested signer account ([TIP-1159](https://github.com/tempoxyz/tempo/pull/8822)). Its address derives from a policy ID and a user tag. A signer program in a trusted execution environment signs for it with a program key that the Attested Key Registry holds as current.
+
+:::warning
+Experimental. Attested signers are a draft and are not active on any public Tempo network.
+:::
+
+## Usage
+
+The account delegates every signature to `sign`. It passes the context digest, such as a transaction's signing hash, and expects the signer program's serialized attested (`0x06`) signature.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromAttested({
+  policyId: '0xadbe28853696826a0cd6f2dcc61811025e4d954b6be3912b44aa51ae65a0339c',
+  userTag: '0x3333333333333333333333333333333333333333333333333333333333333333',
+  async sign({ hash }) {
+    const response = await fetch('https://signer.example/sign', {
+      body: JSON.stringify({ hash }),
+      method: 'POST',
+    })
+    const { signature } = await response.json()
+    return signature
+  },
+})
+
+console.log('Address:', account.address)
+// @log: Address: 0xc9c72810362348E09b52987695042F894D9f5352
+```
+
+The account checks that each signature verifies for its address and the digest. The node also checks the Attested Key Registry, which a local check cannot read.
+
+### Configurable Account Owner
+
+An attested signer can own a [configurable account](/tempo/accounts/account.fromConfig). Its approvals sign the owner approval digest, as other owners do.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+declare const attested: Account.AttestedAccount
+// ---cut---
+const account = Account.fromConfig({
+  owners: [attested], // [!code focus]
+})
+```
+
+## Return Type
+
+```ts
+type ReturnType = AttestedAccount
+
+type AttestedAccount = {
+  /** Address derived from the policy ID and the user tag. */
+  address: Address
+  /** Key type. */
+  keyType: 'attested'
+  /** Attested Key Registry policy ID. */
+  policyId: Hex
+  /** Always `0x`: the program key is in each signature. */
+  publicKey: Hex
+  /** Account source. */
+  source: 'attested'
+  /** Account type. */
+  type: 'local'
+  /** Tag of the user whose address the account signs for. */
+  userTag: Hex
+  /** Signs a hash. Returns a serialized attested signature. */
+  sign: (parameters: { hash: Hex }) => Promise<Hex>
+  /** Signs a key authorization as the account. */
+  signKeyAuthorization: (key, parameters) => Promise<KeyAuthorization.Signed>
+  /** Signs an EIP-191 message. */
+  signMessage: (parameters: { message: SignableMessage }) => Promise<Hex>
+  /** Signs a transaction, or a configurable account owner approval. */
+  signTransaction: (transaction, options?) => Promise<Hex>
+  /** Signs EIP-712 typed data. */
+  signTypedData: (typedData) => Promise<Hex>
+}
+```
+
+## Parameters
+
+### policyId
+
+- **Type:** `Hex`
+
+Attested Key Registry policy ID. See [`attested.createPolicy`](/tempo/actions/attested.createPolicy).
+
+### sign
+
+- **Type:** `(parameters: { hash: Hex }) => Promise<Hex>`
+
+Requests the signer program's attested signature over a context digest, and returns the serialized `0x06` signature.
+
+### userTag
+
+- **Type:** `Hex`
+
+Tag of the user whose address the account signs for. The signer program derives it from the user's identity.

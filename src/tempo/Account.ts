@@ -6,6 +6,7 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import {
   AccountConfig,
+  AttestedSigner,
   Channel,
   KeyAuthorization,
   SignatureEnvelope,
@@ -116,6 +117,158 @@ export declare namespace from {
   }
     ? AccessKeyAccount
     : RootAccount
+}
+
+/**
+ * Attested signer account (TIP-1159) returned by {@link fromAttested}.
+ *
+ * Its address derives from a policy ID and a user tag. A signer program in a
+ * trusted execution environment signs for it with a program key that the
+ * Attested Key Registry holds as current.
+ *
+ * @experimental
+ */
+export type AttestedAccount = RequiredBy<
+  LocalAccount<'attested'>,
+  'sign' | 'signMessage' | 'signTypedData'
+> & {
+  /** Key type. */
+  keyType: 'attested'
+  /** Attested Key Registry policy ID. */
+  policyId: Hex.Hex
+  /** Signs a hash. Returns a serialized attested (`0x06`) signature. */
+  sign: (parameters: { hash: Hex.Hex }) => Promise<Hex.Hex>
+  /** Sign key authorization. */
+  signKeyAuthorization: RootAccount['signKeyAuthorization']
+  /** Sign transaction fn. */
+  signTransaction: Account_base['signTransaction']
+  /** Tag of the user whose address the account signs for. */
+  userTag: Hex.Hex
+}
+
+/**
+ * Instantiates an attested signer account (TIP-1159), whose signatures come
+ * from a remote signer program.
+ *
+ * `sign` receives the context digest, such as a transaction's signing hash, and
+ * returns the signer program's serialized attested (`0x06`) signature over it.
+ * The account checks that each signature verifies for its address and digest.
+ * The node also checks the Attested Key Registry, which this check cannot see.
+ *
+ * @example
+ * ```ts
+ * import { Account } from 'viem/tempo'
+ *
+ * const account = Account.fromAttested({
+ *   policyId: '0x...',
+ *   userTag: '0x...',
+ *   async sign({ hash }) {
+ *     const response = await fetch('https://signer.example/sign', {
+ *       body: JSON.stringify({ hash }),
+ *       method: 'POST',
+ *     })
+ *     const { signature } = await response.json()
+ *     return signature
+ *   },
+ * })
+ * ```
+ *
+ * @experimental
+ * @param options - Options.
+ * @returns Attested signer account.
+ */
+export function fromAttested(options: fromAttested.Options): AttestedAccount {
+  const { policyId, userTag } = options
+  const address = Address.checksum(
+    AttestedSigner.getAddress({ policyId, userTag }),
+  )
+
+  async function sign(parameters: { hash: Hex.Hex }) {
+    const { hash } = parameters
+    const signature = await options.sign({ hash })
+    const envelope = SignatureEnvelope.from(signature)
+    if (envelope.type !== 'attested')
+      throw new Error(
+        `Expected an attested signature from the signer, but got \`${envelope.type}\`.`,
+      )
+    if (!SignatureEnvelope.verify(envelope, { address, payload: hash }))
+      throw new Error(
+        `The attested signature does not verify for ${address} and hash ${hash}.`,
+      )
+    return SignatureEnvelope.serialize(envelope)
+  }
+
+  const account: AttestedAccount = {
+    address,
+    keyType: 'attested',
+    policyId,
+    publicKey: '0x',
+    sign,
+    async signKeyAuthorization(key, parameters) {
+      return await signKeyAuthorization(account, { ...parameters, key })
+    },
+    async signMessage({ message }) {
+      return await sign({ hash: hashMessage(message) })
+    },
+    async signTransaction(transaction, options) {
+      const { serializer = Transaction.serialize } = options ?? {}
+      const presign =
+        'feePayerSignature' in transaction && transaction.feePayerSignature
+          ? { ...transaction, feePayerSignature: null }
+          : transaction
+      const payload = keccak256(await serializer(presign))
+
+      // Configurable account owner approval: return this owner's serialized
+      // approval over the owner approval digest, as other owners do.
+      const { accountSimulation, from } = transaction as {
+        accountSimulation?: { config: AccountConfig.Config } | undefined
+        from?: Address.Address | undefined
+      }
+      if (accountSimulation) {
+        if (!from)
+          throw new Error(
+            'A configurable account sender is required for signing.',
+          )
+        return await sign({
+          hash: AccountConfig.getSignPayload({
+            account: from,
+            config: AccountConfig.from(accountSimulation.config),
+            payload,
+          }),
+        })
+      }
+
+      const signature = await sign({ hash: payload })
+      return await serializer(
+        transaction,
+        SignatureEnvelope.from(signature) as never,
+      )
+    },
+    async signTypedData(typedData) {
+      return await sign({ hash: hashTypedData(typedData) })
+    },
+    source: 'attested',
+    type: 'local',
+    userTag,
+  }
+  return account
+}
+
+export declare namespace fromAttested {
+  type Options = {
+    /** Attested Key Registry policy ID. */
+    policyId: Hex.Hex
+    /**
+     * Requests the signer program's attested signature over a context digest.
+     * Returns the serialized attested (`0x06`) signature.
+     */
+    sign: (parameters: {
+      /** Context digest to sign, such as a transaction's signing hash. */
+      hash: Hex.Hex
+    }) => Promise<Hex.Hex>
+    /** Tag of the user whose address the account signs for. */
+    userTag: Hex.Hex
+  }
 }
 
 /**
@@ -426,7 +579,7 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
           throw new Error(
             'A local owner account is required to approve a configurable account transaction.',
           )
-        if (owner.source !== 'root')
+        if (owner.source !== 'root' && owner.source !== 'attested')
           throw new Error(
             'A Tempo owner account is required to approve a configurable account transaction.',
           )
@@ -560,7 +713,7 @@ async function signConfigurable(
   parameters: {
     config?: AccountConfig.Config | undefined
     payload: Hex.Hex
-    signatures?: readonly SignatureEnvelope.Primitive[] | undefined
+    signatures?: readonly SignatureEnvelope.OwnerApproval[] | undefined
   },
 ): Promise<SignatureEnvelope.Configurable> {
   const { config, payload, signatures: providedSignatures = [] } = parameters

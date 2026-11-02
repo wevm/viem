@@ -180,7 +180,9 @@ export function formatTransactionRequest(
   const [keyType, keyData] = (() => {
     const type = signer && 'keyType' in signer ? signer.keyType : signer?.source
     if (!type) return [request.keyType, shimKeyData(request.keyData)]
-    if (type === 'webAuthn')
+    // An attested signature also reads the Attested Key Registry, which no key
+    // type hint prices, so it takes the conservative WebAuthn hint.
+    if (type === 'webAuthn' || type === 'attested')
       // Send a 2-byte big-endian length hint (1400 = 0x0578) instead of a
       // 1400-byte dummy blob.  The node's gas estimator expects key_data to
       // be 1, 2, or 4 bytes encoding the desired WebAuthn signature size;

@@ -1,0 +1,47 @@
+# `attested.getMeasurementActiveAt`
+
+Gets when a measurement becomes active in an attested signer policy.
+
+:::warning
+Experimental. Attested signers ([TIP-1159](https://github.com/tempoxyz/tempo/pull/8822)) are a draft and are not active on any public Tempo network. This action targets the experimental node implementation, whose registry address differs from the TIP.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const activeAt = await client.attested.getMeasurementActiveAt({
+  policyId: '0x...',
+  measurement: '0x...',
+})
+// @log: 1_800_086_400
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+`number`
+
+The activation time, in Unix seconds, or `0` if the policy does not list the measurement. A time in the future means the proposal is pending.
+
+## Parameters
+
+### measurement
+
+- **Type:** `Hex`
+
+Measurement of a signer program.
+
+### policyId
+
+- **Type:** `Hex`
+
+Policy ID.
