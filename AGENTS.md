@@ -208,6 +208,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Example: recover the signer from a `getSignPayload` payload.
 - **Aggregate varying parameterized results for inline snapshots**; Vitest cannot write different inline snapshots at the same assertion location.
 - **Snapshot whole objects, omit nondeterministic properties**; destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
+- **Transaction errors carry chain-dependent values**; assert error types and receipt behavior rather than snapshotting transaction hashes, deployed addresses, or signed transaction bytes from shared Anvil state.
 - **Prefer whole-response snapshots over dynamic fixtures**; snapshot whole decoded responses.
   - Use deterministic data, like a pinned fork block anvil caches.
   - Omit nondeterministic values before snapshotting.
