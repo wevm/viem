@@ -1,9 +1,11 @@
+import { encodeAbiParameters, encodeEventTopics } from 'viem'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { waitForTransactionReceipt } from '../../actions/public/waitForTransactionReceipt.js'
 import { base } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
+import type { Hex } from '../../types/misc.js'
 import { getAddress } from '../address/getAddress.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
 import { decodeEventLog } from './decodeEventLog.js'
@@ -1482,4 +1484,480 @@ test('errors: invalid bool', () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+const from = '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'
+
+function anonymousTopics(
+  parameters: Parameters<typeof encodeEventTopics>[0],
+): [Hex, ...Hex[]] | [] {
+  const topics = encodeEventTopics(parameters).filter(
+    (topic): topic is Hex => typeof topic === 'string',
+  )
+  const [topic, ...rest] = topics
+  if (!topic) return []
+  return [topic, ...rest]
+}
+
+describe('anonymous', () => {
+  test('indexed address and non-indexed string', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'note', type: 'string' },
+        ],
+        name: 'Message',
+        type: 'event',
+      },
+    ] as const
+    const event = decodeEventLog({
+      abi,
+      data: encodeAbiParameters([{ type: 'string' }], ['hello']),
+      topics: anonymousTopics({
+        abi,
+        args: { from },
+        eventName: 'Message',
+      }),
+    })
+    expect(event).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "note": "hello",
+        },
+        "eventName": "Message",
+      }
+    `)
+  })
+
+  test('indexed arguments only', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [{ indexed: true, name: 'from', type: 'address' }],
+        name: 'Ping',
+        type: 'event',
+      },
+    ] as const
+    expect(
+      decodeEventLog({
+        abi,
+        data: '0x',
+        topics: anonymousTopics({
+          abi,
+          args: { from },
+          eventName: 'Ping',
+        }),
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+        },
+        "eventName": "Ping",
+      }
+    `)
+  })
+
+  test('no indexed arguments', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [{ indexed: false, name: 'note', type: 'string' }],
+        name: 'Note',
+        type: 'event',
+      },
+    ] as const
+    expect(
+      decodeEventLog({
+        abi,
+        data: encodeAbiParameters([{ type: 'string' }], ['hello']),
+        topics: [],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "note": "hello",
+        },
+        "eventName": "Note",
+      }
+    `)
+  })
+
+  test('leading non-indexed argument', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: false, name: 'title', type: 'string' },
+          { indexed: true, name: 'message', type: 'string' },
+        ],
+        name: 'Bar',
+        type: 'event',
+      },
+    ] as const
+    const message =
+      '0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8'
+    expect(
+      decodeEventLog({
+        abi,
+        data: encodeAbiParameters([{ type: 'string' }], ['title']),
+        topics: [message],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "message": "0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8",
+          "title": "title",
+        },
+        "eventName": "Bar",
+      }
+    `)
+  })
+
+  test('signature match wins over an anonymous event in the same ABI', () => {
+    const signature = toEventSelector('Transfer(address,uint256)')
+    const event = decodeEventLog({
+      abi: [
+        {
+          anonymous: true,
+          inputs: [
+            { indexed: true, name: 'from', type: 'address' },
+            { indexed: true, name: 'value', type: 'uint256' },
+          ],
+          name: 'Anon',
+          type: 'event',
+        },
+        {
+          inputs: [
+            { indexed: true, name: 'from', type: 'address' },
+            { indexed: false, name: 'value', type: 'uint256' },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      topics: [
+        signature,
+        '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      ],
+    })
+    expect(event).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "value": 1n,
+        },
+        "eventName": "Transfer",
+      }
+    `)
+    expect(
+      decodeEventLog({
+        abi: [
+          {
+            anonymous: true,
+            inputs: [
+              { indexed: true, name: 'from', type: 'address' },
+              { indexed: true, name: 'value', type: 'uint256' },
+            ],
+            name: 'Anon',
+            type: 'event',
+          },
+          {
+            inputs: [
+              { indexed: true, name: 'from', type: 'address' },
+              { indexed: false, name: 'value', type: 'uint256' },
+            ],
+            name: 'Transfer',
+            type: 'event',
+          },
+        ],
+        data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        eventName: 'Anon',
+        topics: [
+          signature,
+          '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "value": 1n,
+        },
+        "eventName": "Transfer",
+      }
+    `)
+  })
+
+  test('anonymous event is not requested in a mixed ABI without eventName', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'a', type: 'address' },
+          { indexed: true, name: 'b', type: 'address' },
+        ],
+        name: 'Anon',
+        type: 'event',
+      },
+      {
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'value', type: 'uint256' },
+        ],
+        name: 'Transfer',
+        type: 'event',
+      },
+    ] as const
+    // A log from another contract: an unknown signature and one indexed
+    // argument, so the topic count fits `Anon`.
+    const topics = [
+      toEventSelector('Deposit(address,uint256)'),
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    ] as const
+
+    expect(() =>
+      decodeEventLog({ abi, data: '0x', topics: [...topics] }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEventSignatureNotFoundError: Encoded event signature "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c" not found on ABI.
+      Make sure you are using the correct ABI and that the event exists on it.
+      You can look up the signature here: https://4byte.sourcify.dev/?q=0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c.
+
+      Docs: https://viem.sh/docs/contract/decodeEventLog
+      Version: viem@x.y.z]
+    `)
+    expect(
+      decodeEventLog({
+        abi,
+        data: '0x',
+        eventName: 'Anon',
+        topics: [...topics],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "a": "0x8bFC6cDa04EB5B0d3c460751C2402c5C5CC9109C",
+          "b": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+        },
+        "eventName": "Anon",
+      }
+    `)
+  })
+
+  test('eventName does not skip the indexed arity check', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [{ indexed: true, name: 'a', type: 'address' }],
+        name: 'Foo',
+        type: 'event',
+      },
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'a', type: 'address' },
+          { indexed: true, name: 'b', type: 'address' },
+        ],
+        name: 'Foo',
+        type: 'event',
+      },
+    ] as const
+    const a =
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac'
+    const b =
+      '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+    expect(
+      decodeEventLog({
+        abi,
+        data: '0x',
+        eventName: 'Foo',
+        topics: [a, b],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "a": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "b": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        },
+        "eventName": "Foo",
+      }
+    `)
+    expect(() =>
+      decodeEventLog({
+        abi: [abi[0]],
+        data: '0x',
+        eventName: 'Foo',
+        topics: [a, b],
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEventSignatureNotFoundError: Encoded event signature "0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac" not found on ABI.
+      Make sure you are using the correct ABI and that the event exists on it.
+      You can look up the signature here: https://4byte.sourcify.dev/?q=0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac.
+
+      Docs: https://viem.sh/docs/contract/decodeEventLog
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('same-name overloads with the same arity need a narrowed abi', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'value', type: 'uint256' },
+        ],
+        name: 'Foo',
+        type: 'event',
+      },
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'note', type: 'string' },
+        ],
+        name: 'Foo',
+        type: 'event',
+      },
+    ] as const
+    const topics = anonymousTopics({
+      abi: [abi[0]],
+      args: { from },
+      eventName: 'Foo',
+    })
+    const data =
+      '0x0000000000000000000000000000000000000000000000000000000000000001'
+
+    expect(() =>
+      decodeEventLog({ abi, data, eventName: 'Foo', topics }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEventAmbiguityError: Ambiguous anonymous event log.
+
+      Matched \`Foo\`, \`Foo\`.
+      These events take the same number of indexed topics.
+      Pass an \`abi\` that holds only the event to decode.
+
+      Docs: https://viem.sh/docs/contract/decodeEventLog
+      Version: viem@x.y.z]
+    `)
+    expect(
+      decodeEventLog({ abi: [abi[0]], data, eventName: 'Foo', topics }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "value": 1n,
+        },
+        "eventName": "Foo",
+      }
+    `)
+  })
+
+  test('same indexed arity is ambiguous without eventName', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'value', type: 'uint256' },
+        ],
+        name: 'Count',
+        type: 'event',
+      },
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'note', type: 'string' },
+        ],
+        name: 'Message',
+        type: 'event',
+      },
+    ] as const
+    const topics = anonymousTopics({
+      abi: [abi[1]],
+      args: { from },
+      eventName: 'Message',
+    })
+    expect(() =>
+      decodeEventLog({
+        abi,
+        data: encodeAbiParameters([{ type: 'string' }], ['hello']),
+        topics,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEventAmbiguityError: Ambiguous anonymous event log.
+
+      Matched \`Count\`, \`Message\`.
+      These events take the same number of indexed topics.
+      Pass \`eventName\` to choose one.
+
+      Docs: https://viem.sh/docs/contract/decodeEventLog
+      Version: viem@x.y.z]
+    `)
+    expect(
+      decodeEventLog({
+        abi,
+        data: encodeAbiParameters([{ type: 'string' }], ['hello']),
+        eventName: 'Message',
+        topics,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "note": "hello",
+        },
+        "eventName": "Message",
+      }
+    `)
+  })
+
+  test('eventName selects an anonymous event with the same shape', () => {
+    const abi = [
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'value', type: 'uint256' },
+        ],
+        name: 'First',
+        type: 'event',
+      },
+      {
+        anonymous: true,
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'value', type: 'uint256' },
+        ],
+        name: 'Second',
+        type: 'event',
+      },
+    ] as const
+    const topics = anonymousTopics({
+      abi: [abi[0]],
+      args: { from },
+      eventName: 'First',
+    })
+    expect(
+      decodeEventLog({
+        abi,
+        data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        eventName: 'Second',
+        topics,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "args": {
+          "from": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+          "value": 1n,
+        },
+        "eventName": "Second",
+      }
+    `)
+  })
 })

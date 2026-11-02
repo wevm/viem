@@ -1,4 +1,4 @@
-import type { Abi, AbiParameter } from 'abitype'
+import type { Abi, AbiEvent, AbiParameter } from 'abitype'
 
 import {
   AbiDecodingDataSizeTooSmallError,
@@ -12,6 +12,7 @@ import {
   DecodeLogTopicsMismatch,
   type DecodeLogTopicsMismatchErrorType,
 } from '../../errors/abi.js'
+import { BaseError } from '../../errors/base.js'
 import { PositionOutOfBoundsError } from '../../errors/cursor.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
@@ -84,6 +85,7 @@ export type DecodeEventLogReturnType<
 
 export type DecodeEventLogErrorType =
   | AbiDecodingDataSizeTooSmallErrorType
+  | AbiEventAmbiguityErrorType
   | AbiEventSignatureEmptyTopicsErrorType
   | AbiEventSignatureNotFoundErrorType
   | DecodeAbiParametersErrorType
@@ -107,23 +109,81 @@ export function decodeEventLog<
   const {
     abi,
     data,
+    eventName,
     strict: strict_,
     topics,
   } = parameters as DecodeEventLogParameters
 
   const strict = strict_ ?? true
-  const [signature, ...argTopics] = topics
-  if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
-
-  const abiItem = abi.find(
-    (x) =>
-      x.type === 'event' &&
-      signature === toEventSelector(formatAbiItem(x) as EventDefinition),
+  const events = abi.filter(
+    (item): item is AbiEvent => item.type === 'event' && 'name' in item,
   )
+  // Anonymous events omit the signature topic, so `topics[0]` is an indexed
+  // argument. A signature match still wins when the log has one.
+  const signature = topics[0]
+  const bySelector = signature
+    ? events.find(
+        (item) =>
+          !item.anonymous &&
+          signature === toEventSelector(formatAbiItem(item) as EventDefinition),
+      )
+    : undefined
+  const candidates = bySelector
+    ? [bySelector]
+    : anonymousCandidates(events, topics.length, eventName)
 
-  if (!(abiItem && 'name' in abiItem) || abiItem.type !== 'event')
+  if (candidates.length > 1)
+    throw new AbiEventAmbiguityError(candidates.map((item) => item.name))
+  const abiItem = candidates[0]
+  if (!abiItem) {
+    if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
     throw new AbiEventSignatureNotFoundError(signature, { docsPath })
+  }
 
+  return decodeMatchedEventLog({
+    abiItem,
+    argTopics: abiItem.anonymous ? topics : topics.slice(1),
+    data,
+    strict,
+  }) as DecodeEventLogReturnType<abi, eventName, topics, data, strict>
+}
+
+function anonymousCandidates(
+  events: readonly AbiEvent[],
+  topicCount: number,
+  eventName: string | undefined,
+) {
+  // Nothing in a log identifies an anonymous event, so any log with the same
+  // topic count fits it. Anonymous events are only considered when requested:
+  // `eventName` names one, or every event in the ABI is anonymous. Otherwise a
+  // log from another contract is decoded as the anonymous event.
+  const requested = (() => {
+    if (eventName) return events.filter((item) => item.name === eventName)
+    if (events.every((item) => item.anonymous)) return events
+    return []
+  })()
+  // `eventName` does not skip the arity check, or a same-name overload with
+  // extra topics is guessed.
+  return requested.filter(
+    (item) => item.anonymous && indexedCount(item) === topicCount,
+  )
+}
+
+function indexedCount(item: AbiEvent) {
+  return item.inputs?.filter((input) => input.indexed).length ?? 0
+}
+
+function decodeMatchedEventLog({
+  abiItem,
+  argTopics,
+  data,
+  strict,
+}: {
+  abiItem: AbiEvent
+  argTopics: readonly Hex[]
+  data: Hex | undefined
+  strict: boolean
+}): DecodeEventLogReturnType {
   const { name, inputs } = abiItem
   const isUnnamed = inputs?.some((x) => !('name' in x && x.name))
 
@@ -216,7 +276,7 @@ export function decodeEventLog<
   return {
     eventName: name,
     args: Object.values(args).length > 0 ? args : undefined,
-  } as unknown as DecodeEventLogReturnType<abi, eventName, topics, data, strict>
+  } as DecodeEventLogReturnType
 }
 
 function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {
@@ -229,4 +289,31 @@ function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {
     return value
   const decodedArg = decodeAbiParameters([param], value) || []
   return decodedArg[0]
+}
+
+/** Error type thrown when an anonymous event log matches more than one event. */
+export type AbiEventAmbiguityErrorType = AbiEventAmbiguityError & {
+  name: 'AbiEventAmbiguityError'
+}
+/**
+ * Thrown by {@link decodeEventLog} when an anonymous event log fits more than
+ * one requested anonymous event with the same number of indexed inputs.
+ */
+export class AbiEventAmbiguityError extends BaseError {
+  constructor(eventNames: readonly string[]) {
+    // `eventName` cannot choose between overloads that share a name, so those
+    // need an ABI narrowed to one event.
+    const distinct = new Set(eventNames).size === eventNames.length
+    super('Ambiguous anonymous event log.', {
+      docsPath,
+      metaMessages: [
+        `Matched ${eventNames.map((name) => `\`${name}\``).join(', ')}.`,
+        'These events take the same number of indexed topics.',
+        distinct
+          ? 'Pass `eventName` to choose one.'
+          : 'Pass an `abi` that holds only the event to decode.',
+      ],
+      name: 'AbiEventAmbiguityError',
+    })
+  }
 }

@@ -3,6 +3,8 @@ import type { AbiEvent, Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
+  AbiEventSignatureEmptyTopicsError,
+  AbiEventSignatureNotFoundError,
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
@@ -20,7 +22,10 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
-import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
+import {
+  AbiEventAmbiguityError,
+  decodeEventLog,
+} from '../../utils/abi/decodeEventLog.js'
 import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,
@@ -382,6 +387,17 @@ export function watchEvent<
               const formatted = formatLog(log, { args, eventName })
               onLogs([formatted] as any)
             } catch (err) {
+              // A topic filter cannot select an anonymous event, so the
+              // subscription can deliver logs that match no requested event.
+              // Skip them when the watch names events, as the polling path
+              // does.
+              if (
+                (events_ || strict_) &&
+                (err instanceof AbiEventAmbiguityError ||
+                  err instanceof AbiEventSignatureEmptyTopicsError ||
+                  err instanceof AbiEventSignatureNotFoundError)
+              )
+                return
               let eventName: string | undefined
               let isUnnamed: boolean | undefined
               if (

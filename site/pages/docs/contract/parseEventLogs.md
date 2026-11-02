@@ -8,6 +8,12 @@ Extracts & decodes logs matching the provided `abi` (and optional `eventName`) f
 
 Useful for decoding logs on Transaction Receipts.
 
+Anonymous events are only matched when `eventName` names them, or when every event in `abi` is anonymous. Nothing in a log identifies an anonymous event, so a log from another contract could otherwise fit one.
+
+A log matches an anonymous event when its topic count equals the event's indexed argument count, and its first topic is not another event's signature.
+
+A log that fits several anonymous events is left out. Pass `eventName` to choose one.
+
 ## Install
 
 ```ts

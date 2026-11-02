@@ -3,6 +3,8 @@ import type { Abi, Address, ExtractAbiEvent } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
+  AbiEventSignatureEmptyTopicsError,
+  AbiEventSignatureNotFoundError,
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
@@ -20,7 +22,10 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
-import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
+import {
+  AbiEventAmbiguityError,
+  decodeEventLog,
+} from '../../utils/abi/decodeEventLog.js'
 import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,
@@ -340,6 +345,11 @@ export function watchContractEvent<
             return client.transport
           })()
 
+          // A topic filter cannot select an anonymous event, so the
+          // subscription can deliver logs that match no requested event. Skip
+          // them when the watch names an event, as the polling path does.
+          const skipUnmatched = Boolean(eventName || strict_)
+
           const topics: LogTopic[] = eventName
             ? encodeEventTopics({
                 abi: abi,
@@ -354,18 +364,26 @@ export function watchContractEvent<
               if (!active) return
               const log = data.result
               try {
-                const { eventName, args } = decodeEventLog({
+                const decoded = decodeEventLog({
                   abi: abi,
                   data: log.data,
+                  eventName,
                   topics: log.topics as any,
                   strict: strict_,
                 })
                 const formatted = formatLog(log, {
-                  args,
-                  eventName: eventName as string,
+                  args: decoded.args,
+                  eventName: decoded.eventName as string,
                 })
                 emit.onLogs([formatted] as any)
               } catch (err) {
+                if (
+                  skipUnmatched &&
+                  (err instanceof AbiEventAmbiguityError ||
+                    err instanceof AbiEventSignatureEmptyTopicsError ||
+                    err instanceof AbiEventSignatureNotFoundError)
+                )
+                  return
                 let eventName: string | undefined
                 let isUnnamed: boolean | undefined
                 if (

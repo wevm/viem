@@ -1350,6 +1350,8 @@ export {
   decodeErrorResult,
 } from './utils/abi/decodeErrorResult.js'
 export {
+  AbiEventAmbiguityError,
+  type AbiEventAmbiguityErrorType,
   type DecodeEventLogErrorType,
   type DecodeEventLogParameters,
   type DecodeEventLogReturnType,

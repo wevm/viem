@@ -15,6 +15,7 @@ All errors in viem extend the [`BaseError`](https://github.com/wevm/viem/blob/ma
 ### `AbiErrorInputsNotFoundError`
 ### `AbiErrorNotFoundError`
 ### `AbiErrorSignatureNotFoundError`
+### `AbiEventAmbiguityError`
 ### `AbiEventNotFoundError`
 ### `AbiEventSignatureEmptyTopicsError`
 ### `AbiEventSignatureNotFoundError`

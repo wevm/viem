@@ -287,6 +287,7 @@ test('exports', () => {
       "decodeAbiParameters",
       "decodeDeployData",
       "decodeErrorResult",
+      "AbiEventAmbiguityError",
       "decodeEventLog",
       "decodeFunctionData",
       "decodeFunctionResult",
