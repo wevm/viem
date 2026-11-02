@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const eni = /*#__PURE__*/ defineChain({
+export const eni = /*#__PURE__*/ Chain.from({
   id: 173,
   name: 'ENI Mainnet',
   nativeCurrency: {
@@ -8,14 +9,13 @@ export const eni = /*#__PURE__*/ defineChain({
     name: 'ENI',
     symbol: 'ENI',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.eniac.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.eniac.network' },
   blockExplorers: {
-    default: {
-      name: 'ENI Explorer',
-      url: 'https://scan.eniac.network',
-    },
+    name: 'ENI Explorer',
+    url: 'https://scan.eniac.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

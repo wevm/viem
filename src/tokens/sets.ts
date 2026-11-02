@@ -1,6 +1,6 @@
 // Generated with `pnpm gen:tokenlist`. Do not modify manually.
 
-import type { Tokens } from './defineToken.js'
+import type { Tokens } from '../core/Token.js'
 import { alphausd } from './definitions/alphausd.js'
 import { betausd } from './definitions/betausd.js'
 import { brla } from './definitions/brla.js'

@@ -1,0 +1,77 @@
+---
+description: Create ML-DSA-44 key pairs and use post-quantum signatures with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Post-Quantum
+
+## Overview
+
+[`MlDsa44`](/docs/utilities/mldsa44) implements the ML-DSA-44 digital signature scheme from
+[FIPS 204](https://csrc.nist.gov/pubs/fips/204/final). ML-DSA is designed to resist attacks from
+classical and quantum computers.
+
+ML-DSA-44 private keys are 32-byte seeds. Public keys are 1,312 bytes and signatures are 2,420
+bytes, so protocols and storage formats must account for their size.
+
+## Recipes
+
+These recipes assume you have [installed and set up Viem](/docs).
+
+### Create a Key Pair
+
+Use [`MlDsa44.createKeyPair`](/docs/utilities/mldsa44/createKeyPair) to create a private seed and
+its corresponding public key.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"94bbe6d1cf40a1c79f9fad15c78a8488ea4cadfb28c5df8153ad0924bcf5a6ec","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBZAGwBE4AQwAsIyiDhohHJAE4qvGGADmafEgDsVaaRUwGiEH0GjxixmFyIADFQDG+GUPs1yiOQF8K6bNYLEZBI09Hj2EGBSnFikjERCNADSMBiInAAGNrQAJMBSsaqe6RJSMoYiAGyKymoaiACMdtQy+oYgMXEJMMkYEryW1gBMDk6kLm5IABzevjh4hCTkOnRt4ZFcWACuAEb99j1pmTl5aAUqRSW6hgCsk9Wq6vI6LQZ4W7uM+yl9A0jDII5nK4gohBjYZtQ/PNAktqCsmKx2FwTMIxJcylp/koHnVtM09K8jCizD8rH8RkCJogAMwiCGYOZGBZBZahIwAM02YFcjAinHspBgXR6AAUhIxSAAeAA6IAAEnRZQA+AAUECwaF5kQA/GliWIAHQCoVJFJiiUGgDyGq1cBl8sVICVnAAPpwubB2QMoABKPUCVEiI2C4Vm8WkA0AJQMm1IYAAKn57QraMrpWAwEJmPAsC4YPyQ6aMObYVAIPYEEYAMKF+CcIScKwAdx4ABkALT8ADKAEF22JOABrFLRcP8iJwRhSSwqTgQdn16KxeI0IcjoRgKCcRhoODp8KkQVwNibmfRHZ7NcYA3p9Px/D5jor/PDjDbuCcdT56mDdvbDCrnAMAwFuKrpIAfcDpD6nDsqQEDMJwABiACSIpdpwYIiFenD6FYYyanygAoBOmX78huESfEIvDbmAbiAqo+bsuwCHzvWYBtp2vZLp0q6vganD3vm9QUNS9S/v+NDpu8l6vu+nCwG4zCWFOmr2FRvBvnQuabiBMFwQhO4GsEQgqJWyDICAdBZlgSgSOk9m7p+TYQHAvBCHA+DpiwbAcJwwA8AGZicJ4enwZwADkEC0OFt7chOXD+U+oYYBQ54fF8b4hQAvAFpiGsayUliqPrpvZxQALoUBZuZjMwEjqgRkScO2AkPnONoTp+EA4coZBdJ+bWybmFogJVFmCmgsaRBIgk9XhXRbkNY5rNIymqJw2wQOo3HPmxW7SZ8V5wEZ5WVZIVxTE02K1Eg9TUs8BKrLWorhqSQwUmMwLuCIgyeGd4SwAiPkJblgbBaFCHhUQjAwMwAD0myarwcAxWA+7xX5O3JalB0ZeDOX6kGBVFkVPoSNm0hIKAKzKJOER4LuICeJ4QA="}
+import { MlDsa44 } from 'viem/utils'
+
+const { privateKey, publicKey } = MlDsa44.createKeyPair()
+```
+
+Keep the private key secret. Store or distribute the public key to verifiers.
+
+### Sign and Verify Data
+
+Use [`MlDsa44.sign`](/docs/utilities/mldsa44/sign) and
+[`MlDsa44.verify`](/docs/utilities/mldsa44/verify) with the same payload and optional context.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"5d422cb92c15fba20d6b2db5a36809ceca05edfd3cff48ef458b74bd57e5fae6","data":"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"}
+import { Hex, MlDsa44 } from 'viem/utils'
+
+const { privateKey, publicKey } = MlDsa44.createKeyPair()
+const payload = Hex.fromString('Approve document 42')
+const context = Hex.fromString('example.com:documents')
+
+const signature = MlDsa44.sign({ context, payload, privateKey })
+const valid = MlDsa44.verify({ context, payload, publicKey, signature })
+```
+
+A different payload, public key, signature, or context causes verification to return `false`.
+
+## Best Practices
+
+### Separate Protocols with a Context
+
+Use a stable context to separate signatures created for different protocols. FIPS 204 limits the
+context to 255 bytes.
+
+### Protect Private Keys
+
+Treat the 32-byte seed as secret key material. Generate it with a cryptographically secure random
+source, avoid logging it, and keep it outside long-lived application state when possible.
+
+### Plan for Larger Values
+
+Check every transport, database field, contract, and message format that stores public keys or
+signatures. ML-DSA-44 values are much larger than common elliptic-curve keys and signatures.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:fingerprint" title="Post-Quantum Passkeys" description="Derive an ML-DSA-44 key from a WebAuthn PRF." to="/docs/guides/post-quantum/passkeys" />
+  <Card icon="lucide:braces" title="MlDsa44 Reference" description="Browse the complete ML-DSA-44 utility API." to="/docs/utilities/mldsa44" />
+</Cards>

@@ -1,177 +1,171 @@
-import type { Abi, AbiStateMutability, Address } from 'abitype'
-import { TokenId } from 'ox/tempo'
-import type { Account } from '../../accounts/types.js'
-import { readContract } from '../../actions/public/readContract.js'
-import type { Client } from '../../clients/createClient.js'
-import type { Transport } from '../../clients/transports/createTransport.js'
-import type { ResolvedToken, Token } from '../../tokens/defineToken.js'
-import type { Chain } from '../../types/chain.js'
+import type { Abi, Address } from 'ox'
+
+import type * as Client from '../../core/Client.js'
+import { read as core_read } from '../../core/actions/contract/read.js'
+import type { write } from '../../core/actions/contract/write.js'
+import type { writeSync } from '../../core/actions/contract/writeSync.js'
 import type {
+  ContractFunctionArgs,
   ContractFunctionName,
-  ContractFunctionParameters,
-  ExtractAbiItem,
-} from '../../types/contract.js'
-import type { Hex } from '../../types/misc.js'
-import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
-import { encodeFunctionData } from '../../utils/index.js'
+} from '../../core/actions/internal/contract.js'
+import {
+  dispatchSend as core_dispatchSend,
+  dispatchWrite as core_dispatchWrite,
+  findDeclaredToken,
+  resolveToken as resolveErc20Token,
+} from '../../core/actions/token/internal.js'
+import type { send } from '../../core/actions/transaction/send.js'
+import type { sendSync } from '../../core/actions/transaction/sendSync.js'
 import * as Abis from '../Abis.js'
+import { type Hints, withExecutionError } from './errors.js'
+
+export {
+  defineCall,
+  estimateWrite,
+  simulateWrite,
+} from '../../core/actions/token/internal.js'
 
 /**
- * Resolves the token contract `address` and `decimals` from a `token`, which is
- * a token symbol declared on the client's `tokens` array, a TIP20 token id, or
- * a contract `address`.
+ * Dispatches a write action to `write` or `writeSync`, throwing a
+ * `TempoExecutionError` for decoded Tempo precompile errors.
+ */
+export async function dispatchWrite<
+  action extends typeof write | typeof writeSync,
+>(
+  action: action,
+  client: Client.Client,
+  options: object,
+  hints?: Hints | undefined,
+): Promise<dispatchWrite.ReturnType<action>> {
+  return withExecutionError(() => core_dispatchWrite(action, client, options), {
+    client,
+    hints,
+    parameters: options,
+  })
+}
+
+export declare namespace dispatchWrite {
+  type ReturnType<action> = core_dispatchWrite.ReturnType<action>
+}
+
+/**
+ * Dispatches a batched transaction to `transaction.send` or
+ * `transaction.sendSync`, throwing a `TempoExecutionError` for decoded Tempo
+ * precompile errors.
+ */
+export async function dispatchSend<
+  action extends typeof send | typeof sendSync,
+>(
+  action: action,
+  client: Client.Client,
+  options: object,
+  hints?: Hints | undefined,
+): Promise<dispatchSend.ReturnType<action>> {
+  return withExecutionError(() => core_dispatchSend(action, client, options), {
+    client,
+    hints,
+    parameters: options,
+  })
+}
+
+export declare namespace dispatchSend {
+  type ReturnType<action> = core_dispatchSend.ReturnType<action>
+}
+
+/**
+ * Reads a contract, throwing a `TempoExecutionError` for decoded Tempo
+ * precompile errors.
+ */
+export async function read<
+  const abi extends Abi.Abi | readonly unknown[],
+  functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+  const args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  as extends 'Object' | 'Array' = 'Object',
+>(
+  client: Client.Client,
+  options: core_read.Options<abi, functionName, args, as>,
+): Promise<core_read.ReturnType<abi, functionName, args, as>> {
+  return withExecutionError(() => core_read(client, options), {
+    client,
+    parameters: options,
+  })
+}
+
+export declare namespace read {
+  type Options<
+    abi extends Abi.Abi | readonly unknown[] = Abi.Abi,
+    functionName extends ContractFunctionName<abi, 'pure' | 'view'> =
+      ContractFunctionName<abi, 'pure' | 'view'>,
+    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
+      ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+    as extends 'Object' | 'Array' = 'Object',
+  > = core_read.Options<abi, functionName, args, as>
+  type ReturnType<
+    abi extends Abi.Abi | readonly unknown[] = Abi.Abi,
+    functionName extends ContractFunctionName<abi, 'pure' | 'view'> =
+      ContractFunctionName<abi, 'pure' | 'view'>,
+    args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
+      ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+    as extends 'Object' | 'Array' = 'Object',
+  > = core_read.ReturnType<abi, functionName, args, as>
+}
+
+/**
+ * Resolves the token contract `address` and `decimals` from a `token`, which
+ * is a token symbol declared on the client's `tokens` array or a contract
+ * `address`.
  *
- * When `token` is a declared symbol, the `address` and `decimals` are read from
- * the client's declared `tokens` (`decimals` can be overridden via the explicit
- * `decimals`). When `token` is a token id or address, its `decimals` is inferred
- * from the client's declared `tokens` when the address matches a declared token,
- * otherwise taken from the explicit `decimals`.
+ * When `token` is a declared symbol, the `address` and `decimals` are read
+ * from the client's declared `tokens` (`decimals` can be overridden via the
+ * explicit `decimals`). When `token` is an address, its `decimals` is
+ * inferred from the client's declared `tokens` when the address matches a
+ * declared token, otherwise taken from the explicit `decimals`.
  *
- * When `client` is omitted, `token` must be a token id or address (symbols
- * cannot be resolved), and `decimals` is only taken from the explicit
- * `decimals`.
- *
- * @param client - Client (optional).
- * @param parameters - Parameters.
- * @returns The resolved `address` and `decimals`.
+ * When `client` is omitted, `token` must be an address (symbols cannot be
+ * resolved), and `decimals` is only taken from the explicit `decimals`.
  */
 export function resolveToken(
-  client: Client<Transport, Chain | undefined> | undefined,
+  client: Client.Client | undefined,
   parameters: resolveToken.Parameters,
-): { address: Address; decimals: number | undefined } {
+): { address: Address.Address; decimals: number | undefined } {
   const { decimals, token } = parameters
 
-  if (client && typeof token === 'string') {
-    const declared = findDeclaredTokenBySymbol(client, token)
-    if (declared)
-      return {
-        address: declared.address,
-        decimals: decimals ?? declared.decimals,
-      }
+  // Symbols resolve through the client's declared tokens.
+  if (!token.startsWith('0x')) {
+    if (!client)
+      throw new Error(
+        `Token "${token}" is not an address. Symbols require a Client with declared \`tokens\`.`,
+      )
+    return resolveErc20Token(client, { decimals, token })
   }
 
-  const address = TokenId.toAddress(token as TokenId.TokenIdOrAddress)
-  return {
-    address,
-    decimals: decimals ?? (client ? inferDecimals(client, address) : undefined),
-  }
+  const address = token as Address.Address
+  const declared = client ? findDeclaredToken(client, address) : undefined
+  return { address, decimals: decimals ?? declared?.decimals }
 }
 
-export namespace resolveToken {
-  export type Parameters = {
+export declare namespace resolveToken {
+  type Parameters = {
     /** Decimals, if provided explicitly. */
     decimals?: number | undefined
-    /** Token symbol (declared on the client's `tokens` array), TIP20 token id, or contract address. */
-    token: TokenId.TokenIdOrAddress | (string & {})
+    /** Token symbol (declared on the client's `tokens` array) or contract address. */
+    token: Address.Address | (string & {})
   }
-}
-
-/**
- * Finds the declared {@link ResolvedToken} on the client's `tokens` array matching
- * `token`, which is either a token symbol, a TIP20 token id, or a contract
- * `address`, resolved for the client's `chain.id`. Returns `undefined` when no
- * declared token matches, or the matching token has no address for the client's
- * chain.
- *
- * @param client - Client.
- * @param token - Token symbol (declared on the client's `tokens` array), TIP20 token id, or contract address.
- * @returns The matching declared token config, or `undefined`.
- */
-export function findDeclaredToken(
-  client: Client<Transport, Chain | undefined>,
-  token: TokenId.TokenIdOrAddress | (string & {}),
-): ResolvedToken | undefined {
-  const tokens = client.tokens
-  const chainId = client.chain?.id
-  if (!tokens || chainId === undefined) return undefined
-
-  if (typeof token === 'string') {
-    const declared = findDeclaredTokenBySymbol(client, token)
-    if (declared) return declared
-  }
-
-  const address = TokenId.toAddress(token as TokenId.TokenIdOrAddress)
-  for (const token_ of tokens) {
-    const resolved = resolveTokenForChain(token_, chainId)
-    if (resolved && isAddressEqual(resolved.address, address)) return resolved
-  }
-  return undefined
-}
-
-/**
- * Finds a declared token by `symbol` (case-insensitively) on the client's
- * `tokens` array, resolved for the client's `chain.id`. @internal
- */
-function findDeclaredTokenBySymbol(
-  client: Client<Transport, Chain | undefined>,
-  symbol: string,
-): ResolvedToken | undefined {
-  const tokens = client.tokens
-  const chainId = client.chain?.id
-  if (!tokens || chainId === undefined) return undefined
-
-  const lowerSymbol = symbol.toLowerCase()
-  for (const token of tokens) {
-    if (token.symbol?.toLowerCase() === lowerSymbol)
-      return resolveTokenForChain(token, chainId)
-  }
-  return undefined
-}
-
-/**
- * Resolves a {@link Token} to a {@link ResolvedToken} for `chainId`, or
- * `undefined` when the token has no address for `chainId`. @internal
- */
-function resolveTokenForChain(
-  token: Token,
-  chainId: number,
-): ResolvedToken | undefined {
-  const address = (token.addresses as Record<number, Address>)[chainId]
-  if (!address) return undefined
-  return {
-    address,
-    currency: token.currency,
-    decimals: token.decimals,
-    name: token.name,
-    popular: token.popular,
-    symbol: token.symbol,
-  }
-}
-
-/**
- * Infers a token's `decimals` from the client's `tokens` array by matching
- * `address` against each token's address for the client's `chain.id`.
- * @internal
- */
-function inferDecimals(
-  client: Client<Transport, Chain | undefined>,
-  address: Address,
-): number | undefined {
-  const tokens = client.tokens
-  const chainId = client.chain?.id
-  if (tokens && chainId !== undefined)
-    for (const token of tokens) {
-      const resolved = resolveTokenForChain(token, chainId)
-      if (resolved && isAddressEqual(resolved.address, address))
-        return resolved.decimals
-    }
-  return undefined
 }
 
 /**
  * Resolves token decimals, fetching from the token contract when they are not
- * provided explicitly or declared on the chain.
- * @internal
+ * provided explicitly or declared on the client's `tokens` array.
  */
 export async function resolveTokenWithDecimals(
-  client: Client<Transport, Chain | undefined>,
+  client: Client.Client,
   parameters: resolveToken.Parameters,
-): Promise<{ address: Address; decimals: number }> {
+): Promise<{ address: Address.Address; decimals: number }> {
   const { address, decimals } = resolveToken(client, parameters)
   if (decimals !== undefined) return { address, decimals }
   return {
     address,
-    decimals: await readContract(client, {
+    decimals: await core_read(client, {
       abi: Abis.tip20,
       address,
       functionName: 'decimals',
@@ -180,10 +174,34 @@ export async function resolveTokenWithDecimals(
 }
 
 /**
- * Picks the transaction-override fields shared by Tempo write actions (including
- * Tempo-specific fields), so the action-specific args (`token`, `amount`, `to`,
- * etc.) don't leak into `estimateContractGas` / `simulateContract` requests.
- * @internal
+ * Parameters of an action's `.call` builder: the call arguments, optionally
+ * preceded by a Client. The Client is used to resolve token symbols declared
+ * on its `tokens` array and to infer token `decimals`. When the Client is
+ * omitted, `token` must be a TIP-20 token id or contract `address`, and
+ * formatted `amount` values must carry explicit `decimals`.
+ */
+export type CallParameters<
+  args,
+  client extends Client.Client = Client.Client,
+  // Note: mutable (non-`readonly`) tuples, so bound decorator helpers can
+  // pattern-match these parameters.
+> = [client: client, args: args] | [args: args]
+
+/**
+ * Splits {@link CallParameters} into `[client, args]`, with an `undefined`
+ * client when the caller omitted it.
+ */
+export function resolveCallParameters<args, client extends Client.Client>(
+  parameters: CallParameters<args, client>,
+): readonly [client: client | undefined, args: args] {
+  if (parameters.length === 2) return parameters
+  return [undefined, parameters[0]]
+}
+
+/**
+ * Picks the transaction-override fields shared by Tempo write actions
+ * (including Tempo-specific fields), so action-specific args (`token`,
+ * `amount`, `to`, etc.) don't leak into gas-estimation or simulation requests.
  */
 export function pickWriteParameters(parameters: Record<string, unknown>) {
   const {
@@ -218,100 +236,18 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
   }
 }
 
-/** @internal */
+/** Picks receipt-waiting fields shared by synchronous Tempo write actions. */
 export function pickWriteSyncParameters(parameters: Record<string, unknown>) {
-  const { pollingInterval, timeout } = parameters
-  return { pollingInterval, timeout }
-}
-
-/**
- * Parameters of an action's `.call` builder: the call arguments, optionally
- * preceded by a Client. The Client is used to resolve token symbols declared
- * on its `tokens` array and to infer token `decimals`. When the Client is
- * omitted, `token` must be a TIP20 token id or contract `address`, and
- * formatted `amount` values must carry explicit `decimals`.
- */
-export type CallParameters<
-  args,
-  client extends Client<
-    Transport,
-    Chain | undefined,
-    Account | undefined
-  > = Client<Transport, Chain | undefined>,
-  // Note: mutable (non-`readonly`) tuples, so bound decorator helpers can
-  // pattern-match these parameters (see `BoundHelper` in `../Decorator.ts`).
-> = [client: client, args: args] | [args: args]
-
-/**
- * Splits {@link CallParameters} into `[client, args]`, with an `undefined`
- * client when the caller omitted it.
- * @internal
- */
-export function resolveCallParameters<
-  args,
-  client extends Client<Transport, Chain | undefined, Account | undefined>,
->(
-  parameters: CallParameters<args, client>,
-): readonly [client: client | undefined, args: args] {
-  if (parameters.length === 2) return parameters
-  return [undefined, parameters[0]]
-}
-
-export function defineCall<
-  const abi extends Abi,
-  const functionName extends ContractFunctionName<abi, AbiStateMutability>,
-  call extends ContractFunctionParameters<
-    abi,
-    AbiStateMutability,
-    functionName
-  >,
->(
-  call:
-    | call
-    | ContractFunctionParameters<abi, AbiStateMutability, functionName>,
-): ContractFunctionParameters<
-  [ExtractAbiItem<abi, functionName>],
-  AbiStateMutability,
-  functionName
-> & {
-  data: Hex
-  to: Address
-} {
-  return {
-    ...(call as any),
-    // Precompile errors bubble up across contracts (e.g. `AccountKeychain` errors from a TIP-20 `transfer`).
-    abi: [...call.abi, ...Abis.coreErrors],
-    data: encodeFunctionData(call as never),
-    to: call.address,
-  } as const
-}
-
-/**
- * Normalizes a value into a structured-clone compatible format.
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone
- * @internal
- */
-export function normalizeValue<type>(value: type): type {
-  if (Array.isArray(value)) return value.map(normalizeValue) as never
-  if (typeof value === 'function') return undefined as never
-  if (typeof value !== 'object' || value === null) return value
-  if (Object.getPrototypeOf(value) !== Object.prototype)
-    try {
-      return structuredClone(value)
-    } catch {
-      return undefined as never
-    }
-
-  const normalized: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(value)) normalized[k] = normalizeValue(v)
-  return normalized as never
+  const { pollingInterval, throwOnReceiptRevert, timeout } = parameters
+  return { pollingInterval, throwOnReceiptRevert, timeout }
 }
 
 /** 12-byte prefix shared by TIP-20 token addresses; shorter prefixes are cheap to grind with CREATE2. */
 const tip20Prefix = '0x20c000000000000000000000'
 
 /** Whether `address` carries the TIP-20 token address prefix. */
-export function isTip20(address: string | undefined): address is Address {
+export function isTip20(
+  address: string | undefined,
+): address is Address.Address {
   return !!address?.toLowerCase().startsWith(tip20Prefix)
 }

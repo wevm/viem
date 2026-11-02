@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const lumoz = /*#__PURE__*/ defineChain({
+export const lumoz = /*#__PURE__*/ Chain.from({
   id: 96_370,
   name: 'Lumoz',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const lumoz = /*#__PURE__*/ defineChain({
     symbol: 'MOZ',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.lumoz.org'],
-    },
+    http: 'https://rpc.lumoz.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Lumoz Scan',
-      url: 'https://scan.lumoz.info',
-    },
+    name: 'Lumoz Scan',
+    url: 'https://scan.lumoz.info',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

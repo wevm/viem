@@ -1,335 +1,284 @@
-import { Instance, Server } from 'prool'
+import { Provider } from 'ox'
+import { Instance } from 'prool'
+import { Client, custom, http } from 'viem'
 
-import { mainnet, optimism, sepolia, zksync } from '../../src/chains/index.js'
-import { ipc } from '../../src/clients/transports/ipc.js'
-import {
-  type Account,
-  type Address,
-  type Chain,
-  type Client,
-  type ClientConfig,
-  createClient,
-  type ExactPartial,
-  http,
-  type ParseAccount,
-  type Tokens,
-  type Transport,
-  webSocket,
-} from '../../src/index.js'
-import { createSiweMessage } from '../../src/siwe/index.js'
-import { ProviderRpcError } from '../../src/types/eip1193.js'
-import { accounts, poolId } from './constants.js'
+import * as constants from './constants.js'
 
-export const anvilMainnet = defineAnvil({
-  chain: mainnet,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://ethereum.reth.rs/rpc'),
-  forkBlockNumber: 22263623n,
-  noMining: true,
-  port: 8545,
-})
-
-export const anvilSepolia = defineAnvil({
-  chain: sepolia,
-  forkUrl: getEnv(
-    'VITE_ANVIL_FORK_URL_SEPOLIA',
-    'https://rpc.sepolia.ethpandaops.io',
-  ),
-  // The public Sepolia RPC only retains state for the most recent blocks, so
-  // a pinned block ages out of its retention window within hours. Resolve a
-  // fresh fork block on startup instead.
-  forkBlockNumber: undefined,
-  noMining: true,
-  port: 8845,
-})
-
-export const anvilOptimism = defineAnvil({
-  chain: optimism,
-  forkUrl: getEnv(
-    'VITE_ANVIL_FORK_URL_OPTIMISM',
-    'https://mainnet.optimism.io',
-  ),
-  forkBlockNumber: 147000000n,
-  port: 8645,
-})
-
-export const anvilZksync = defineAnvil({
-  chain: zksync,
-  forkUrl: getEnv(
-    'VITE_ANVIL_FORK_URL_ZKSYNC',
-    'https://mainnet.era.zksync.io',
-  ),
-  forkBlockNumber: 25734n,
-  port: 8745,
-})
-
-////////////////////////////////////////////////////////////
-// Utilities
-
-async function getRecentBlockNumber(forkUrl: string): Promise<bigint> {
-  const response = await fetch(forkUrl, {
-    body: JSON.stringify({
-      id: 1,
-      jsonrpc: '2.0',
-      method: 'eth_blockNumber',
-      params: [],
-    }),
-    headers: { 'Content-Type': 'application/json' },
-    method: 'POST',
-  })
-  if (!response.ok)
-    throw new Error(
-      `Failed to fetch block number from ${forkUrl}: ${response.status} ${response.statusText}.`,
-    )
-  const { result } = (await response.json()) as { result?: `0x${string}` }
-  if (!result) throw new Error(`Invalid block number from ${forkUrl}.`)
-  // Trail the chain head so every node behind a load balancer has the state.
-  return BigInt(result) - 32n
-}
-
-function getEnv(key: string, fallback: string): string {
-  if (typeof process.env[key] === 'string' && process.env[key]?.trim() !== '')
-    return process.env[key] as string
-  // biome-ignore lint/suspicious/noConsole: _
-  console.warn(
-    `\`process.env.${key}\` not found. Falling back to \`${fallback}\`.`,
-  )
-  return fallback
-}
-
-type DefineAnvilParameters<
-  chain extends Chain,
-  forkBlockNumber extends bigint | undefined = bigint,
-> = Omit<Instance.anvil.Parameters, 'forkBlockNumber' | 'forkUrl'> & {
-  chain: chain
-  forkBlockNumber: forkBlockNumber
-  forkUrl: string
+export type DefineAnvilParameters = Instance.anvil.Parameters & {
+  /** Initializes every pooled instance after startup. */
+  initialize?: ((rpcUrl: string) => Promise<void>) | undefined
+  /** Proxy port the prool server listens on. */
   port: number
 }
 
-type DefineAnvilReturnType<
-  chain extends Chain,
-  forkBlockNumber extends bigint | undefined = bigint,
-> = {
-  chain: chain
-  clientConfig: ClientConfig<Transport, chain, undefined>
-  forkBlockNumber: forkBlockNumber
-  forkUrl: string
-  getClient<
-    config extends ExactPartial<
-      Omit<ClientConfig, 'account' | 'chain'> & {
-        account?: true | Address | Account | undefined
-        chain?: false | undefined
-      }
-    >,
-  >(
-    config?: config | undefined,
-  ): Client<
-    config['transport'] extends Transport ? config['transport'] : Transport,
-    config['chain'] extends false ? undefined : chain,
-    config['account'] extends Address
-      ? ParseAccount<config['account']>
-      : config['account'] extends Account
-        ? config['account']
-        : config['account'] extends true
-          ? ParseAccount<(typeof accounts)[0]['address']>
-          : undefined,
-    undefined,
-    { mode: 'anvil' },
-    config['tokens'] extends Tokens ? config['tokens'] : undefined
-  >
+export type Anvil = {
+  forkBlockNumber: bigint
+  forkUrl: Instance.anvil.Parameters['forkUrl']
+  instance: Instance.Instance
   port: number
   rpcUrl: {
     http: string
     ipc: string
     ws: string
   }
-  restart(): Promise<void>
-  start(): Promise<() => Promise<void>>
 }
 
-function defineAnvil<
-  const chain extends Chain,
-  const forkBlockNumber extends bigint | undefined,
->(
-  parameters: DefineAnvilParameters<chain, forkBlockNumber>,
-): DefineAnvilReturnType<chain, forkBlockNumber> {
-  const {
-    chain: chain_,
-    forkUrl,
-    forkBlockNumber,
-    port,
-    ...options
-  } = parameters
+/** Defines a prool-managed anvil instance, proxied per pool id. */
+export function defineAnvil(parameters: DefineAnvilParameters): Anvil {
+  const { initialize, port, ...options } = parameters
   const rpcUrl = {
-    http: `http://127.0.0.1:${port}/${poolId}`,
-    ipc: `/tmp/anvil-${poolId}.ipc`,
-    ws: `ws://127.0.0.1:${port}/${poolId}`,
-  } as const
-
-  const chain = {
-    ...chain_,
-    name: `${chain_.name} (Local)`,
-    rpcUrls: {
-      default: {
-        http: [rpcUrl.http],
-        webSocket: [rpcUrl.ws],
-      },
-    },
-  } as const satisfies Chain
-
-  const clientConfig = {
-    batch: {
-      multicall: process.env.VITE_BATCH_MULTICALL === 'true',
-    },
-    chain,
-    pollingInterval: 100,
-    transport(args) {
-      const { config, request, value } = (() => {
-        if (process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')
-          return webSocket(rpcUrl.ws)(args)
-        if (process.env.VITE_NETWORK_TRANSPORT_MODE === 'ipc')
-          return ipc(rpcUrl.ipc)(args)
-        return http(rpcUrl.http)(args)
-      })()
-
-      return {
-        config,
-        async request({ method, params }: any, opts: any = {}) {
-          if (method === 'eth_requestAccounts') {
-            return [accounts[0].address] as any
-          }
-          if (method === 'personal_sign') {
-            method = 'eth_sign'
-            params = [params[1], params[0]]
-          }
-          if (method === 'wallet_watchAsset') {
-            if (params.type === 'ERC721') {
-              throw new ProviderRpcError(
-                -32602,
-                'Token type ERC721 not supported.',
-              )
-            }
-            return true
-          }
-          if (method === 'wallet_addEthereumChain') return null
-          if (method === 'wallet_switchEthereumChain') {
-            if (params[0].chainId === '0xfa') {
-              throw new ProviderRpcError(-4902, 'Unrecognized chain.')
-            }
-            return null
-          }
-          if (
-            method === 'wallet_getPermissions' ||
-            method === 'wallet_requestPermissions'
-          )
-            return [
-              {
-                invoker: 'https://example.com',
-                parentCapability: 'eth_accounts',
-                caveats: [
-                  {
-                    type: 'filterResponse',
-                    value: ['0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb'],
-                  },
-                ],
-              },
-            ]
-          if (method === 'wallet_sendTransaction') {
-            method = 'eth_sendTransaction'
-          }
-          if (method === 'wallet_connect') {
-            const capabilities = params[0].capabilities
-              ? {
-                  ...(params[0].capabilities?.signInWithEthereum
-                    ? {
-                        signInWithEthereum: {
-                          message: createSiweMessage({
-                            ...params[0].capabilities?.signInWithEthereum,
-                            address: accounts[0].address,
-                            chainId: Number(chain.id),
-                            domain: 'example.com',
-                            issuedAt: new Date('2024-01-01T00:00:00.000Z'),
-                            expirationTime: new Date(
-                              '2024-01-01T00:00:00.000Z',
-                            ),
-                            notBefore: new Date('2024-01-01T00:00:00.000Z'),
-                            uri: 'https://example.com',
-                            version: '1',
-                          }),
-                          signature:
-                            '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
-                        },
-                      }
-                    : {}),
-                  ...(params[0].capabilities?.addSubAccount
-                    ? {
-                        subAccounts: [
-                          {
-                            address: accounts[1].address,
-                          },
-                        ],
-                      }
-                    : {}),
-                }
-              : {}
-            return {
-              accounts: [
-                {
-                  address: accounts[0].address,
-                  capabilities,
-                },
-              ],
-            } as any
-          }
-          if (method === 'wallet_disconnect') {
-            return null
-          }
-          if (method === 'wallet_addSubAccount')
-            return {
-              address: accounts[1].address,
-            } as any
-
-          return request({ method, params }, opts)
-        },
-        value,
-      }
-    },
-  } as const satisfies ClientConfig
-
+    http: `http://127.0.0.1:${port}/${constants.poolId}`,
+    ipc: `/tmp/anvil-${constants.poolId}.ipc`,
+    ws: `ws://127.0.0.1:${port}/${constants.poolId}`,
+  }
+  const instance = initialize
+    ? defineInitializedAnvil(options, initialize)
+    : Instance.anvil(options)
   return {
-    chain,
-    clientConfig,
-    forkBlockNumber,
-    forkUrl,
-    getClient(config) {
-      return (
-        createClient({
-          ...clientConfig,
-          ...config,
-          account:
-            config?.account === true ? accounts[0].address : config?.account,
-          chain: config?.chain === false ? undefined : chain,
-          transport: clientConfig.transport,
-        }) as any
-      ).extend(() => ({ mode: 'anvil' })) as never
-    },
-    rpcUrl,
+    forkBlockNumber: BigInt(parameters.forkBlockNumber ?? 0),
+    forkUrl: parameters.forkUrl,
+    instance,
     port,
-    async restart() {
-      await fetch(`${rpcUrl.http}/restart`)
+    rpcUrl,
+  }
+}
+
+/** Returns a Client pointed at an anvil instance. */
+export function getClient(anvil: Anvil) {
+  return Client.create({
+    transport: http(anvil.rpcUrl.http),
+  })
+}
+
+/**
+ * Returns a Client backed by an EIP-1193 provider that emulates wallet-only
+ * JSON-RPC methods (which anvil does not implement) and delegates everything
+ * else to the anvil instance.
+ */
+export function getWalletClient(
+  anvil: Anvil,
+  options: getWalletClient.Options = {},
+) {
+  const node = http(anvil.rpcUrl.http).setup({})
+  const provider = Provider.from({
+    async request({ method, params }: any) {
+      if (method === 'eth_requestAccounts')
+        return [constants.accounts[0].address]
+      if (method === 'personal_sign')
+        return node.request({
+          method: 'eth_sign',
+          params: [params[1], params[0]],
+        })
+      if (method === 'wallet_addEthereumChain') return null
+      if (method === 'wallet_connect')
+        return {
+          accounts: [
+            {
+              address: constants.accounts[0].address,
+              capabilities: params[0]?.capabilities ?? {},
+            },
+          ],
+        }
+      if (method === 'wallet_disconnect') return null
+      if (method === 'wallet_getAssets') {
+        const [{ assetTypeFilter, chainFilter }] = params
+        const assets: Record<
+          string,
+          readonly { type: string; [key: string]: unknown }[]
+        > = {
+          '0x1': [
+            {
+              address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+              balance: '0x5f5e100',
+              metadata: { decimals: 6, name: 'USD Coin', symbol: 'USDC' },
+              type: 'erc20',
+            },
+            {
+              address: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
+              balance: '0x1',
+              metadata: {
+                name: 'Bored Ape',
+                symbol: 'BAYC',
+                tokenId: '0x22b8',
+              },
+              type: 'erc721',
+            },
+            {
+              address: '0x0000000000000000000000000000000000001155',
+              balance: '0x64',
+              metadata: {},
+              type: 'erc1155',
+            },
+            { balance: '0xde0b6b3a7640000', type: 'native' },
+          ],
+          '0x2105': [
+            {
+              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+              balance: '0x2faf080',
+              metadata: { decimals: 6, name: 'USD Coin', symbol: 'USDC' },
+              type: 'erc20',
+            },
+            { balance: '0x6f05b59d3b20000', type: 'native' },
+          ],
+        }
+        return Object.fromEntries(
+          Object.entries(assets)
+            .filter(
+              ([chainId]) => !chainFilter || chainFilter.includes(chainId),
+            )
+            .map(([chainId, assets]) => [
+              chainId,
+              assets.filter(
+                (asset) =>
+                  !assetTypeFilter || assetTypeFilter.includes(asset.type),
+              ),
+            ]),
+        )
+      }
+      if (method === 'wallet_switchEthereumChain') {
+        if (params[0].chainId === '0xfa')
+          throw new Provider.ProviderRpcError(4902, 'Unrecognized chain.')
+        return null
+      }
+      if (method === 'wallet_watchAsset') {
+        if (params[0].type === 'ERC721')
+          throw new Provider.ProviderRpcError(
+            -32602,
+            'Token type ERC721 not supported.',
+          )
+        return true
+      }
+      if (
+        method === 'wallet_getPermissions' ||
+        method === 'wallet_requestPermissions'
+      )
+        return [
+          {
+            invoker: 'https://example.com',
+            parentCapability: 'eth_accounts',
+            caveats: [
+              {
+                type: 'filterResponse',
+                value: ['0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb'],
+              },
+            ],
+          },
+        ]
+      return node.request({ method, params })
     },
-    async start() {
-      return await Server.create({
-        instance: Instance.anvil({
-          chainId: chain.id,
-          forkUrl,
-          forkBlockNumber:
-            forkBlockNumber ?? (await getRecentBlockNumber(forkUrl)),
-          hardfork: 'Prague',
-          ...options,
-        }),
-        port,
-      }).start()
-    },
-  } as const
+  })
+  return Client.create({
+    account: options.account,
+    transport: custom(provider),
+  })
+}
+
+export declare namespace getWalletClient {
+  type Options = {
+    account?: Client.create.Options['account'] | undefined
+  }
+}
+
+export const mainnet = defineAnvil({
+  chainId: 1,
+  forkBlockNumber: 24_000_000n,
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://ethereum.reth.rs/rpc'),
+  hardfork: 'Prague',
+  initialize: clearInheritedAccountCode,
+  noMining: true,
+  port: Number(getEnv('VITE_ANVIL_PORT', '8545')),
+})
+
+/**
+ * Non-fork instance for tests that do not need mainnet state. Unknown-hash
+ * lookups answer locally (a fork forwards them upstream, adding unbounded
+ * latency to pending-transaction polls).
+ */
+export const local = defineAnvil({
+  chainId: 1,
+  hardfork: 'Prague',
+  noMining: true,
+  port: Number(getEnv('VITE_ANVIL_PORT_LOCAL', '8645')),
+})
+
+/**
+ * Non-fork instance seeded with a fixed, immutable block history (see
+ * `fee/getHistory.test.ts`). Tests must not mine or send beyond the seed so
+ * historical queries stay deterministic.
+ */
+export const history = defineAnvil({
+  chainId: 1,
+  hardfork: 'Prague',
+  noMining: true,
+  port: Number(getEnv('VITE_ANVIL_PORT_HISTORY', '8745')),
+})
+
+/** Optimism fork for OP Stack codec and action tests. */
+export const optimism = defineAnvil({
+  chainId: 10,
+  forkBlockNumber: 147_000_000n,
+  forkUrl: getEnv(
+    'VITE_ANVIL_FORK_URL_OPTIMISM',
+    'https://optimism.gateway.tenderly.co',
+  ),
+  hardfork: 'Prague',
+  noMining: true,
+  port: Number(getEnv('VITE_ANVIL_PORT_OPTIMISM', '8845')),
+})
+
+function getEnv(key: string, fallback: string): string {
+  if (typeof process.env[key] === 'string' && process.env[key]?.trim() !== '')
+    return process.env[key] as string
+  return fallback
+}
+
+function defineInitializedAnvil(
+  parameters: Instance.anvil.Parameters,
+  initialize: (rpcUrl: string) => Promise<void>,
+) {
+  return Instance.define(() => {
+    let stop: (() => void) | undefined
+    return {
+      host: parameters.host ?? 'localhost',
+      name: 'anvil',
+      port: parameters.port ?? 8545,
+      async start({ port }) {
+        const instance = Instance.anvil(parameters).create({ port })
+        stop = await instance.start()
+        try {
+          await initialize(`http://${instance.host}:${instance.port}`)
+        } catch (error) {
+          await stop()
+          stop = undefined
+          throw error
+        }
+      },
+      async stop() {
+        await stop?.()
+      },
+    }
+  })()
+}
+
+/** Removes inherited EIP-7702 delegations from public dev accounts. */
+async function clearInheritedAccountCode(rpcUrl: string) {
+  const response = await fetch(rpcUrl, {
+    body: JSON.stringify(
+      constants.accounts.map((account, id) => ({
+        id,
+        jsonrpc: '2.0',
+        method: 'anvil_setCode',
+        params: [account.address, '0x'],
+      })),
+    ),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+  })
+  if (!response.ok)
+    throw new Error(`Anvil setup failed with status ${response.status}.`)
+
+  type Response = { error?: { message: string } | undefined }
+  const values = (await response.json()) as readonly Response[]
+  const error = values.find((value) => value.error)?.error
+  if (error) throw new Error(error.message)
 }

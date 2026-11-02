@@ -1,0 +1,24 @@
+import {
+  type RequestListener,
+  createServer as createHttpServer,
+} from 'node:http'
+import type { AddressInfo } from 'node:net'
+
+/** A minimal real HTTP server for tests. */
+export function createServer(
+  handler: RequestListener,
+): Promise<{ close: () => Promise<unknown>; url: string }> {
+  const server = createHttpServer(handler)
+
+  const closeAsync = () =>
+    new Promise((resolve, reject) =>
+      server.close((err) => (err ? reject(err) : resolve(undefined))),
+    )
+
+  return new Promise((resolve) => {
+    server.listen(() => {
+      const { port } = server.address() as AddressInfo
+      resolve({ close: closeAsync, url: `http://localhost:${port}` })
+    })
+  })
+}

@@ -1,24 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const lumiaTestnet = /*#__PURE__*/ defineChain({
+export const lumiaTestnet = /*#__PURE__*/ Chain.from({
   id: 1952959480,
   name: 'Lumia Testnet',
-  network: 'LumiaTestnet',
   nativeCurrency: {
     name: 'Lumia',
     symbol: 'LUMIA',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.lumia.org'],
-    },
+    http: 'https://testnet-rpc.lumia.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Lumia Testnet Explorer',
-      url: 'https://testnet-explorer.lumia.org/',
-    },
+    name: 'Lumia Testnet Explorer',
+    url: 'https://testnet-explorer.lumia.org/',
   },
   contracts: {
     multicall3: {

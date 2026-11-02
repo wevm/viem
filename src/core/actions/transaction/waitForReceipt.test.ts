@@ -1,0 +1,1506 @@
+import { Address, Value } from 'ox'
+import { describe, expect, test } from 'vitest'
+
+import { Actions, Chain, Client, custom, http, testActions } from 'viem'
+
+import * as anvil from '~test/anvil.js'
+import * as constants from '~test/constants.js'
+import * as Http from '~test/http.js'
+import { wait } from '../../internal/wait.js'
+import { WaitForReceiptTimeoutError } from './waitForReceipt.js'
+
+const client = Client.create({
+  transport: http(anvil.local.rpcUrl.http),
+  pollingInterval: 100,
+})
+const testClient = client.extend(testActions())
+
+// A JSON-RPC server that forwards to the anvil instance (so every response is
+// a real, valid wire shape) but lets a test override specific methods on
+// specific calls. `intercept` returns `{ result }` / `{ error }` to override,
+// or `undefined` to forward to anvil. This drives the not-found / retry /
+// error branches deterministically without mocks.
+function proxyServer(
+  intercept: (
+    method: string,
+    callIndex: number,
+    params: readonly unknown[],
+  ) =>
+    | { result?: unknown; error?: { code: number; message: string } }
+    | undefined,
+) {
+  const counts: Record<string, number> = {}
+  return Http.createServer(async (req, res) => {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', async () => {
+      const request = JSON.parse(body)
+      const requests = Array.isArray(request) ? request : [request]
+      const responses = await Promise.all(
+        requests.map(async (r) => {
+          const index = (counts[r.method] = (counts[r.method] ?? 0) + 1) - 1
+          const override = intercept(r.method, index, r.params ?? [])
+          if (override)
+            return { id: r.id, jsonrpc: '2.0' as const, ...override }
+          const upstream = await fetch(anvil.local.rpcUrl.http, {
+            body: JSON.stringify(r),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+          })
+          return { ...(await upstream.json()), id: r.id }
+        }),
+      )
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify(Array.isArray(request) ? responses : responses[0]))
+    })
+  })
+}
+
+const source = constants.accounts[0]
+const target = constants.accounts[1]
+const to = target.address
+
+// Mines `blocks` one at a time with a gap between each, so the receipt watcher
+// gets a fresh tick once the receipt is queryable (it can briefly lag the head).
+async function mineSlowly(blocks: number) {
+  for (let i = 0; i < blocks; i++) {
+    await testClient.block.mine({ blocks: 1 })
+    await wait(150)
+  }
+}
+
+// Replacement detection requires the watcher to observe the original (pending)
+// transaction before it is replaced. Block until the node reports it in the
+// pool (so the watcher's eager transaction lookup can capture it), then add a
+// small margin.
+async function whenPendingObserved(hash: `0x${string}`) {
+  while (true) {
+    const found = await Actions.transaction
+      .get(client, { hash })
+      .then(() => true)
+      .catch(() => false)
+    if (found) break
+    await wait(50)
+  }
+  await wait(600)
+}
+
+async function setup() {
+  await testClient.address.setBalance({
+    address: source.address,
+    value: source.balance,
+  })
+  await testClient.address.setBalance({
+    address: target.address,
+    value: target.balance,
+  })
+  await testClient.block.setNextBaseFeePerGas({
+    baseFeePerGas: Value.fromGwei('10'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+}
+
+test('default: waits for a receipt (send -> mine -> wait)', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  const receipt = await Actions.transaction.waitForReceipt(client, { hash })
+    .receipt
+
+  expect(receipt.status).toBe('success')
+  expect(receipt.transactionHash).toBe(hash)
+})
+
+test('onReceipt: notifies a listener with the receipt', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  const watcher = Actions.transaction.waitForReceipt(client, { hash })
+  const received = await new Promise<{ transactionHash: `0x${string}` }>(
+    (resolve) => watcher.onReceipt((receipt) => resolve(receipt)),
+  )
+
+  expect(received.transactionHash).toBe(hash)
+})
+
+test('onReceipt: fires immediately once the receipt has resolved', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  const watcher = Actions.transaction.waitForReceipt(client, { hash })
+  await watcher.receipt
+
+  // Listener registered after resolution still fires (with the cached receipt),
+  // and `onError` / `onReplaced` become no-ops.
+  const late = await new Promise<`0x${string}`>((resolve) => {
+    const off = watcher.onReceipt((receipt) => resolve(receipt.transactionHash))
+    off()
+  })
+  expect(late).toBe(hash)
+
+  let errored = false
+  watcher.onError(() => {
+    errored = true
+  })()
+  watcher.onReplaced(() => {})()
+  expect(errored).toBe(false)
+})
+
+test('off: tears down and leaves the receipt pending', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  const watcher = Actions.transaction.waitForReceipt(client, { hash })
+  let resolved = false
+  watcher.receipt.then(() => {
+    resolved = true
+  })
+  watcher.off()
+  watcher.off() // idempotent
+
+  // Registering after `off` is a no-op and never fires.
+  let fired = false
+  watcher.onReceipt(() => {
+    fired = true
+  })()
+  watcher.onReplaced(() => {
+    fired = true
+  })()
+  watcher.onError(() => {
+    fired = true
+  })()
+
+  await testClient.block.mine({ blocks: 1 })
+  await wait(300)
+
+  expect(resolved).toBe(false)
+  expect(fired).toBe(false)
+})
+
+test('waits for a receipt (send -> wait -> mine)', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  const [receipt] = await Promise.all([
+    Actions.transaction.waitForReceipt(client, { hash }).receipt,
+    (async () => {
+      await wait(150)
+      await mineSlowly(2)
+    })(),
+  ])
+
+  expect(receipt.status).toBe('success')
+})
+
+test('waits for multiple confirmations', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  const [receipt] = await Promise.all([
+    Actions.transaction.waitForReceipt(client, { confirmations: 3, hash })
+      .receipt,
+    (async () => {
+      await wait(150)
+      await mineSlowly(3)
+    })(),
+  ])
+
+  expect(receipt.status).toBe('success')
+})
+
+test('resolves identical receipts in parallel (observer dedupe)', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  const [a, b, c] = await Promise.all([
+    Actions.transaction.waitForReceipt(client, { hash }).receipt,
+    Actions.transaction.waitForReceipt(client, { hash }).receipt,
+    Actions.transaction.waitForReceipt(client, { hash }).receipt,
+  ])
+
+  expect(a).toEqual(b)
+  expect(b).toEqual(c)
+})
+
+test('parallel waits with different confirmations settle independently', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  // Different behavior options must not share a poll: the three-confirmation
+  // wait must not settle with the single-confirmation wait's semantics.
+  const fast = Actions.transaction.waitForReceipt(client, { hash })
+  const slow = Actions.transaction.waitForReceipt(client, {
+    confirmations: 3,
+    hash,
+  })
+  let slowResolved = false
+  slow.receipt.then(() => {
+    slowResolved = true
+  })
+
+  const receipt = await fast.receipt
+  expect(receipt.status).toBe('success')
+  await wait(300)
+  expect(slowResolved).toBe(false)
+
+  await mineSlowly(2)
+  const slowReceipt = await slow.receipt
+  expect(slowReceipt.transactionHash).toBe(hash)
+})
+
+test('parallel waits with different retry delays settle independently', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  // The node never surfaces the transaction, so each wait's eager transaction
+  // lookup exhausts its retries (paced by its `retryDelay`) before the
+  // already-available receipt resolves. Distinct function delays must not
+  // share an observer, or the fast wait inherits the slow wait's pacing.
+  const server = await proxyServer((method) =>
+    method === 'eth_getTransactionByHash' ? { result: null } : undefined,
+  )
+  try {
+    const proxyClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 100,
+    })
+
+    const slow = Actions.transaction.waitForReceipt(proxyClient, {
+      hash,
+      retryCount: 2,
+      retryDelay: () => 800,
+    })
+    const fast = Actions.transaction.waitForReceipt(proxyClient, {
+      hash,
+      retryCount: 2,
+      retryDelay: () => 50,
+    })
+    let slowResolved = false
+    slow.receipt.then(() => {
+      slowResolved = true
+    })
+
+    const receipt = await fast.receipt
+    expect(receipt.transactionHash).toBe(hash)
+    expect(slowResolved).toBe(false)
+
+    const slowReceipt = await slow.receipt
+    expect(slowReceipt.transactionHash).toBe(hash)
+  } finally {
+    await server.close()
+  }
+})
+
+test('throws on timeout', async () => {
+  await setup()
+  await expect(
+    Actions.transaction.waitForReceipt(client, {
+      checkReplacement: false,
+      hash: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      timeout: 500,
+    }).receipt,
+  ).rejects.toThrowError(WaitForReceiptTimeoutError)
+})
+
+test('onError: notifies a listener on timeout', async () => {
+  await setup()
+  const watcher = Actions.transaction.waitForReceipt(client, {
+    checkReplacement: false,
+    hash: '0x0000000000000000000000000000000000000000000000000000000000000002',
+    timeout: 500,
+  })
+
+  const error = await new Promise<Error>((resolve) =>
+    watcher.onError((error) => resolve(error)),
+  )
+
+  expect(error).toBeInstanceOf(WaitForReceiptTimeoutError)
+
+  // Listener registered after the error still fires immediately.
+  const late = await new Promise<Error>((resolve) => {
+    const off = watcher.onError((error) => resolve(error))
+    off()
+  })
+  expect(late).toBeInstanceOf(WaitForReceiptTimeoutError)
+})
+
+test('detects a repriced transaction', async () => {
+  await setup()
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  let replacement: Actions.transaction.waitForReceipt.ReplacementReturnType
+  const watcher = Actions.transaction.waitForReceipt(client, { hash })
+  watcher.onReplaced((response) => {
+    replacement = response
+  })
+  const [receipt] = await Promise.all([
+    watcher.receipt,
+    (async () => {
+      await whenPendingObserved(hash)
+      await Actions.transaction.send(client, {
+        account: source.address,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('2'),
+        nonce,
+        to,
+        value: Value.fromEther('1'),
+      })
+      await mineSlowly(2)
+    })(),
+  ])
+
+  expect(receipt.status).toBe('success')
+  expect(replacement!.reason).toBe('repriced')
+  expect(replacement!.replacedTransaction.hash).toBe(hash)
+  expect(replacement!.transaction.hash).not.toBe(hash)
+})
+
+test('detects a repriced transaction when the node returns differently-cased addresses', async () => {
+  await setup()
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  // Checksum pending transaction addresses; anvil returns mined ones lowercase.
+  const checksumClient = Client.create({
+    pollingInterval: 100,
+    transport: custom({
+      async request(options) {
+        if (options.method !== 'eth_getTransactionByHash')
+          return client.request(options)
+        const transaction = await client.request({
+          method: 'eth_getTransactionByHash',
+          params: options.params,
+        })
+        if (!transaction || transaction.blockNumber !== null) return transaction
+        return {
+          ...transaction,
+          from: Address.checksum(transaction.from),
+          to: Address.checksum(transaction.to!),
+        }
+      },
+    }),
+  })
+
+  let replacement: Actions.transaction.waitForReceipt.ReplacementReturnType
+  const watcher = Actions.transaction.waitForReceipt(checksumClient, {
+    hash,
+    timeout: 10_000,
+  })
+  watcher.onReplaced((response) => {
+    replacement = response
+  })
+  const [receipt] = await Promise.all([
+    watcher.receipt,
+    (async () => {
+      await whenPendingObserved(hash)
+      await Actions.transaction.send(client, {
+        account: source.address,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('2'),
+        nonce,
+        to,
+        value: Value.fromEther('1'),
+      })
+      await mineSlowly(2)
+    })(),
+  ])
+
+  expect(receipt.status).toBe('success')
+  expect(replacement!.reason).toBe('repriced')
+  expect(replacement!.transaction.hash).not.toBe(hash)
+})
+
+test('detects a cancelled transaction', async () => {
+  await setup()
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  let replacement: Actions.transaction.waitForReceipt.ReplacementReturnType
+  const watcher = Actions.transaction.waitForReceipt(client, { hash })
+  watcher.onReplaced((response) => {
+    replacement = response
+  })
+  await Promise.all([
+    watcher.receipt,
+    (async () => {
+      await whenPendingObserved(hash)
+      await Actions.transaction.send(client, {
+        account: source.address,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('2'),
+        nonce,
+        to: source.address,
+        value: 0n,
+      })
+      await mineSlowly(2)
+    })(),
+  ])
+
+  expect(replacement!.reason).toBe('cancelled')
+})
+
+test('detects a replaced transaction', async () => {
+  await setup()
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  let replacement: Actions.transaction.waitForReceipt.ReplacementReturnType
+  const watcher = Actions.transaction.waitForReceipt(client, { hash })
+  watcher.onReplaced((response) => {
+    replacement = response
+  })
+  await Promise.all([
+    watcher.receipt,
+    (async () => {
+      await whenPendingObserved(hash)
+      await Actions.transaction.send(client, {
+        account: source.address,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('2'),
+        nonce,
+        to,
+        value: Value.fromEther('2'),
+      })
+      await mineSlowly(2)
+    })(),
+  ])
+
+  expect(replacement!.reason).toBe('replaced')
+})
+
+test('timeout: 0 disables the timeout timer', async () => {
+  await setup()
+  const watcher = Actions.transaction.waitForReceipt(client, {
+    hash: '0x0000000000000000000000000000000000000000000000000000000000000003',
+    timeout: 0,
+  })
+  // No timer is scheduled; the watcher polls until torn down.
+  await wait(200)
+  watcher.off()
+})
+
+test('listeners: unregister functions remove pending listeners', async () => {
+  await setup()
+  const watcher = Actions.transaction.waitForReceipt(client, {
+    hash: '0x0000000000000000000000000000000000000000000000000000000000000004',
+    timeout: 60_000,
+  })
+
+  let fired = false
+  const offReceipt = watcher.onReceipt(() => {
+    fired = true
+  })
+  const offReplaced = watcher.onReplaced(() => {
+    fired = true
+  })
+  const offError = watcher.onError(() => {
+    fired = true
+  })
+  offReceipt()
+  offReplaced()
+  offError()
+
+  await wait(200)
+  watcher.off()
+
+  expect(fired).toBe(false)
+})
+
+test('rethrows a non-not-found error from the node', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  // `retryCount: 0` surfaces the error without transport retry backoff.
+  const server = await proxyServer((method) =>
+    method === 'eth_getTransactionReceipt'
+      ? { error: { code: -32603, message: 'boom' } }
+      : undefined,
+  )
+  try {
+    const proxyClient = Client.create({
+      transport: http(server.url, { retryCount: 0 }),
+      pollingInterval: 100,
+    })
+
+    await expect(
+      Actions.transaction.waitForReceipt(proxyClient, {
+        checkReplacement: false,
+        hash,
+      }).receipt,
+    ).rejects.toThrowError()
+  } finally {
+    await server.close()
+  }
+})
+
+test('retries fetching a transaction that the node surfaces slowly', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  // The node reports the receipt + transaction as missing on the first lookup
+  // (eager + first tick), then surfaces them: exercises the retry/backoff path.
+  const server = await proxyServer((method, index) => {
+    if (method === 'eth_getTransactionReceipt' && index === 0)
+      return { result: null }
+    if (method === 'eth_getTransactionByHash' && index === 0)
+      return { result: null }
+    return undefined
+  })
+  try {
+    const proxyClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 100,
+    })
+
+    const receipt = await Actions.transaction.waitForReceipt(proxyClient, {
+      hash,
+    }).receipt
+
+    expect(receipt.transactionHash).toBe(hash)
+  } finally {
+    await server.close()
+  }
+})
+
+test('confirmations: waits across blocks when the receipt lands later', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  // Start waiting before the tx is mined (so the eager receipt lookup misses),
+  // then mine: the tick that first sees the receipt has a single confirmation
+  // (not yet enough), so it keeps polling until another block lands.
+  const [receipt] = await Promise.all([
+    Actions.transaction.waitForReceipt(client, { confirmations: 2, hash })
+      .receipt,
+    (async () => {
+      await wait(200)
+      await mineSlowly(2)
+    })(),
+  ])
+
+  expect(receipt.status).toBe('success')
+})
+
+test('retrying: retries the transaction lookup while blocks advance', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  // The node reports the tx as missing for the first few lookups (with a slow
+  // retry backoff), while blocks keep advancing. The lookup retries until the
+  // tx surfaces, then the receipt resolves.
+  const server = await proxyServer((method, index) => {
+    if (method === 'eth_getTransactionReceipt' && index === 0)
+      return { result: null }
+    if (method === 'eth_getTransactionByHash' && index < 3)
+      return { result: null }
+    return undefined
+  })
+  try {
+    const proxyClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 50,
+    })
+
+    const [receipt] = await Promise.all([
+      Actions.transaction.waitForReceipt(proxyClient, {
+        hash,
+        retryCount: 6,
+        retryDelay: () => 150,
+      }).receipt,
+      mineSlowly(4),
+    ])
+
+    expect(receipt.transactionHash).toBe(hash)
+  } finally {
+    await server.close()
+  }
+})
+
+test('replacement: retries scanning a block the node has not synced yet', async () => {
+  await setup()
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  // The first block scan returns an unsynced (null) block, so the scan retries
+  // with backoff before forwarding to the real block.
+  const server = await proxyServer((method, index) =>
+    method === 'eth_getBlockByNumber' && index === 0
+      ? { result: null }
+      : undefined,
+  )
+  try {
+    const proxyClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 100,
+    })
+
+    let replacement: Actions.transaction.waitForReceipt.ReplacementReturnType
+    const watcher = Actions.transaction.waitForReceipt(proxyClient, {
+      hash,
+      retryDelay: () => 50,
+    })
+    watcher.onReplaced((response) => {
+      replacement = response
+    })
+
+    const [receipt] = await Promise.all([
+      watcher.receipt,
+      (async () => {
+        await whenPendingObserved(hash)
+        await Actions.transaction.send(client, {
+          account: source.address,
+          maxFeePerGas: Value.fromGwei('20'),
+          maxPriorityFeePerGas: Value.fromGwei('2'),
+          nonce,
+          to,
+          value: Value.fromEther('1'),
+        })
+        await mineSlowly(3)
+      })(),
+    ])
+
+    expect(receipt.status).toBe('success')
+    expect(replacement!.reason).toBe('repriced')
+  } finally {
+    await server.close()
+  }
+})
+
+test('replacement: waits for confirmations after detecting a replacement', async () => {
+  await setup()
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  // The replacement is detected the moment it is mined (one confirmation),
+  // which is not yet enough, so it keeps the replacement while polling until
+  // another block lands, then calls `onReplaced` and resolves with the
+  // replacement's receipt.
+  const watcher = Actions.transaction.waitForReceipt(client, {
+    confirmations: 2,
+    hash,
+  })
+  const reasons: string[] = []
+  watcher.onReplaced(({ reason }) => reasons.push(reason))
+
+  const [receipt] = await Promise.all([
+    watcher.receipt,
+    (async () => {
+      await whenPendingObserved(hash)
+      await Actions.transaction.send(client, {
+        account: source.address,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('2'),
+        nonce,
+        to,
+        value: Value.fromEther('1'),
+      })
+      await mineSlowly(3)
+    })(),
+  ])
+
+  expect(receipt.status).toBe('success')
+  expect(receipt.transactionHash).not.toBe(hash)
+  expect(reasons).toMatchInlineSnapshot(`
+    [
+      "repriced",
+    ]
+  `)
+})
+
+test('replacement: surfaces a block-scan error to onError', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  // The original transaction is observed pending, but scanning the candidate
+  // block fails with a non-retryable error, which surfaces to the receipt
+  // promise (and `onError`). `retryCount: 0` surfaces the error without
+  // transport retry backoff.
+  const server = await proxyServer((method) =>
+    method === 'eth_getBlockByNumber'
+      ? { error: { code: -32603, message: 'boom' } }
+      : undefined,
+  )
+  try {
+    await whenPendingObserved(hash)
+    const proxyClient = Client.create({
+      transport: http(server.url, { retryCount: 0 }),
+      pollingInterval: 100,
+    })
+
+    await expect(
+      Actions.transaction.waitForReceipt(proxyClient, { hash }).receipt,
+    ).rejects.toThrowError()
+  } finally {
+    await testClient.block.mine({ blocks: 1 })
+    await server.close()
+  }
+})
+
+test('resolves identical receipts across sequential waits', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  const a = await Actions.transaction.waitForReceipt(client, { hash }).receipt
+  const b = await Actions.transaction.waitForReceipt(client, { hash }).receipt
+  const c = await Actions.transaction.waitForReceipt(client, { hash }).receipt
+
+  expect(a).toEqual(b)
+  expect(b).toEqual(c)
+})
+
+test('concurrent waits do not leave a stale observer behind (mined)', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+  const options = { checkReplacement: false, hash, timeout: 0 } as const
+
+  const [a, b] = await Promise.all([
+    Actions.transaction.waitForReceipt(client, options).receipt,
+    Actions.transaction.waitForReceipt(client, options).receipt,
+  ])
+  // Both callers settled, so a later wait for the same hash must start its
+  // own lookup instead of joining a cached observer nothing polls for.
+  const c = await Promise.race([
+    Actions.transaction.waitForReceipt(client, options).receipt,
+    wait(2_000).then(() => 'stalled' as const),
+  ])
+
+  expect(a).toEqual(b)
+  expect(c).toEqual(a)
+})
+
+test('concurrent waits do not leave a stale observer behind (polling)', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  const options = { checkReplacement: false, hash, timeout: 0 } as const
+
+  const first = Actions.transaction.waitForReceipt(client, options)
+  const second = Actions.transaction.waitForReceipt(client, options)
+  await wait(300)
+  await mineSlowly(1)
+  const [a, b] = await Promise.all([first.receipt, second.receipt])
+  const c = await Promise.race([
+    Actions.transaction.waitForReceipt(client, options).receipt,
+    wait(2_000).then(() => 'stalled' as const),
+  ])
+
+  expect(a).toEqual(b)
+  expect(c).toEqual(a)
+})
+
+test('repriced: resolves when the replacement is mined across skipped blocks', async () => {
+  await setup()
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  let replacement: Actions.transaction.waitForReceipt.ReplacementReturnType
+  const watcher = Actions.transaction.waitForReceipt(client, { hash })
+  watcher.onReplaced((response) => {
+    replacement = response
+  })
+
+  const [receipt] = await Promise.all([
+    watcher.receipt,
+    (async () => {
+      await whenPendingObserved(hash)
+      await Actions.transaction.send(client, {
+        account: source.address,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('2'),
+        nonce,
+        to,
+        value: Value.fromEther('1'),
+      })
+      // Mine several blocks at once: the watcher only sees the head jump, so it
+      // must backfill the skipped block numbers to find the replacement.
+      await testClient.block.mine({ blocks: 5 })
+    })(),
+  ])
+
+  expect(receipt.status).toBe('success')
+  expect(replacement!.reason).toBe('repriced')
+})
+
+test('chain: supportsTransactionReplacementDetection: false', async () => {
+  await setup()
+  const chainClient = Client.create({
+    chain: Chain.from({
+      id: 1,
+      name: 'Anvil',
+      nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+      rpcUrls: { http: anvil.local.rpcUrl.http },
+      supportsTransactionReplacementDetection: false,
+    }),
+    pollingInterval: 100,
+    transport: http(anvil.local.rpcUrl.http),
+  })
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  let replaced = false
+  const watcher = Actions.transaction.waitForReceipt(chainClient, {
+    hash,
+    timeout: 3_000,
+  })
+  watcher.onReplaced(() => {
+    replaced = true
+  })
+
+  // Replacement detection is disabled by the chain configuration.
+  await whenPendingObserved(hash)
+  await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('20'),
+    maxPriorityFeePerGas: Value.fromGwei('2'),
+    nonce,
+    to,
+    value: Value.fromEther('2'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  await expect(watcher.receipt).rejects.toThrowError(WaitForReceiptTimeoutError)
+  expect(replaced).toBe(false)
+})
+
+describe('chain: transaction.replacement', () => {
+  /** Creates a client whose chain declares the `replacement` hooks. */
+  function chainClient(
+    replacement: Chain.Chain.Transaction.Replacement,
+    url: string = anvil.local.rpcUrl.http,
+  ) {
+    return Client.create({
+      chain: Chain.from({
+        id: 1,
+        name: 'Anvil',
+        nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+        rpcUrls: { http: anvil.local.rpcUrl.http },
+        transaction: { replacement },
+      }),
+      pollingInterval: 100,
+      transport: http(url, { retryCount: 0 }),
+    })
+  }
+
+  test('ignores a same-nonce transaction in a different slot', async () => {
+    await setup()
+    const nonce = await Actions.address.getTransactionCount(client, {
+      address: source.address,
+      blockTag: 'pending',
+    })
+    const hash = await Actions.transaction.send(client, {
+      account: source.address,
+      maxFeePerGas: Value.fromGwei('10'),
+      maxPriorityFeePerGas: Value.fromGwei('1'),
+      nonce,
+      to,
+      value: Value.fromEther('1'),
+    })
+    const slotClient = chainClient({
+      getKey: (transaction: { hash: string }) =>
+        transaction.hash === hash ? 'awaited' : 'other',
+    })
+    const reasons: string[] = []
+    const watcher = Actions.transaction.waitForReceipt(slotClient, {
+      hash,
+      timeout: 3_000,
+    })
+    watcher.onReplaced(({ reason }) => reasons.push(reason))
+    await whenPendingObserved(hash)
+    await Actions.transaction.send(client, {
+      account: source.address,
+      maxFeePerGas: Value.fromGwei('20'),
+      maxPriorityFeePerGas: Value.fromGwei('2'),
+      nonce,
+      to,
+      value: Value.fromEther('1'),
+    })
+    await testClient.block.mine({ blocks: 1 })
+
+    await expect(watcher.receipt).rejects.toThrowError(
+      WaitForReceiptTimeoutError,
+    )
+    expect(reasons).toMatchInlineSnapshot(`[]`)
+  })
+
+  test('uses the chain replacement reason', async () => {
+    await setup()
+    const nonce = await Actions.address.getTransactionCount(client, {
+      address: source.address,
+      blockTag: 'pending',
+    })
+    const hash = await Actions.transaction.send(client, {
+      account: source.address,
+      maxFeePerGas: Value.fromGwei('10'),
+      maxPriorityFeePerGas: Value.fromGwei('1'),
+      nonce,
+      to,
+      value: Value.fromEther('1'),
+    })
+    const reasonClient = chainClient({
+      getKey: () => 'slot',
+      getReason: () => 'cancelled',
+    })
+    const reasons: string[] = []
+
+    const watcher = Actions.transaction.waitForReceipt(reasonClient, {
+      hash,
+      timeout: 10_000,
+    })
+    watcher.onReplaced(({ reason }) => reasons.push(reason))
+    const [receipt, replacementHash] = await Promise.all([
+      watcher.receipt,
+      (async () => {
+        await whenPendingObserved(hash)
+        const replacementHash = await Actions.transaction.send(client, {
+          account: source.address,
+          maxFeePerGas: Value.fromGwei('20'),
+          maxPriorityFeePerGas: Value.fromGwei('2'),
+          nonce,
+          to,
+          value: Value.fromEther('1'),
+        })
+        await mineSlowly(2)
+        return replacementHash
+      })(),
+    ])
+
+    expect(receipt.transactionHash).toBe(replacementHash)
+    expect(reasons).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+  })
+
+  test('does not search for a replacement of a mined transaction', async () => {
+    await setup()
+    const hash = await Actions.transaction.send(client, {
+      account: source.address,
+      to,
+      value: Value.fromEther('1'),
+    })
+    // A sibling in the same block shares the awaited transaction's slot.
+    await Actions.transaction.send(client, {
+      account: source.address,
+      to,
+      value: Value.fromEther('2'),
+    })
+    await testClient.block.mine({ blocks: 1 })
+    const expected = await Actions.transaction.getReceipt(client, { hash })
+
+    // The node lags on the first receipt reads of the transaction, while
+    // transaction and block reads are current.
+    let missing = 3
+    const server = await proxyServer((method, _index, params) =>
+      method === 'eth_getTransactionReceipt' &&
+      params[0] === hash &&
+      missing-- > 0
+        ? { result: null }
+        : undefined,
+    )
+    try {
+      const slotClient = chainClient({ getKey: () => 'slot' }, server.url)
+      const reasons: string[] = []
+
+      const watcher = Actions.transaction.waitForReceipt(slotClient, {
+        hash,
+        timeout: 10_000,
+      })
+      watcher.onReplaced(({ reason }) => reasons.push(reason))
+      const [receipt] = await Promise.all([
+        watcher.receipt,
+        (async () => {
+          // The first tick processes the block holding both transactions.
+          await wait(500)
+          await mineSlowly(5)
+        })(),
+      ])
+
+      expect(receipt).toEqual(expected)
+      expect(reasons).toMatchInlineSnapshot(`[]`)
+    } finally {
+      await server.close()
+    }
+  })
+})
+
+describe('options: replacement', () => {
+  // Sends a transaction and a cancel at its nonce, so the node drops the
+  // transaction from its pool, then mines the cancel.
+  async function replaceTransaction(blocks: number) {
+    await setup()
+    const nonce = await Actions.address.getTransactionCount(client, {
+      address: source.address,
+      blockTag: 'pending',
+    })
+    const hash = await Actions.transaction.send(client, {
+      account: source.address,
+      maxFeePerGas: Value.fromGwei('20'),
+      maxPriorityFeePerGas: Value.fromGwei('1'),
+      nonce,
+      to,
+      value: Value.fromEther('1'),
+    })
+    const cancelHash = await Actions.transaction.send(client, {
+      account: source.address,
+      maxFeePerGas: Value.fromGwei('40'),
+      maxPriorityFeePerGas: Value.fromGwei('10'),
+      nonce,
+      to: source.address,
+      value: 0n,
+    })
+    await testClient.block.mine({ blocks })
+    const replacement = {
+      from: source.address,
+      input: '0x',
+      nonce,
+      to,
+      value: Value.fromEther('1'),
+    } as const
+    return { cancelHash, hash, replacement }
+  }
+
+  test('detects a replacement mined before the wait starts', async () => {
+    const { cancelHash, hash, replacement } = await replaceTransaction(2)
+    const replacements: Actions.transaction.waitForReceipt.ReplacementReturnType[] =
+      []
+    const watcher = Actions.transaction.waitForReceipt(client, {
+      hash,
+      replacement,
+      timeout: 5_000,
+    })
+    watcher.onReplaced((response) => replacements.push(response))
+    const receipt = await watcher.receipt
+
+    expect(receipt.transactionHash).toBe(cancelHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+    expect(replacements[0]!.replacedTransaction).toEqual({
+      ...replacement,
+      hash,
+      nonce: BigInt(replacement.nonce),
+    })
+    expect(replacements[0]!.transaction.hash).toBe(cancelHash)
+    expect(replacements[0]!.transactionReceipt).toEqual(receipt)
+  })
+
+  test.each([-32601, -32004])(
+    'scans blocks when the lookup fails with code %i',
+    async (code) => {
+      const { cancelHash, hash, replacement } = await replaceTransaction(1)
+      const server = await proxyServer((method) =>
+        method === 'eth_getTransactionBySenderAndNonce'
+          ? { error: { code, message: 'method not supported' } }
+          : undefined,
+      )
+      try {
+        const proxyClient = Client.create({
+          transport: http(server.url, { retryCount: 0 }),
+          pollingInterval: 100,
+        })
+        const reasons: string[] = []
+
+        const watcher = Actions.transaction.waitForReceipt(proxyClient, {
+          hash,
+          replacement,
+          timeout: 5_000,
+        })
+        watcher.onReplaced(({ reason }) => reasons.push(reason))
+        const receipt = await watcher.receipt
+
+        expect(receipt.transactionHash).toBe(cancelHash)
+        expect(reasons).toEqual(['cancelled'])
+      } finally {
+        await server.close()
+      }
+    },
+  )
+
+  test('waits for confirmations of a replacement', async () => {
+    const { cancelHash, hash, replacement } = await replaceTransaction(1)
+    const reasons: string[] = []
+
+    const watcher = Actions.transaction.waitForReceipt(client, {
+      confirmations: 2,
+      hash,
+      replacement,
+      timeout: 10_000,
+    })
+    watcher.onReplaced(({ reason }) => reasons.push(reason))
+    const [receipt] = await Promise.all([watcher.receipt, mineSlowly(3)])
+
+    expect(receipt.transactionHash).toBe(cancelHash)
+    expect(reasons).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+  })
+
+  test('waits for the transaction when it holds its nonce slot', async () => {
+    await setup()
+    const nonce = await Actions.address.getTransactionCount(client, {
+      address: source.address,
+      blockTag: 'pending',
+    })
+    const hash = await Actions.transaction.send(client, {
+      account: source.address,
+      nonce,
+      to,
+      value: Value.fromEther('1'),
+    })
+    await testClient.block.mine({ blocks: 1 })
+    const expected = await Actions.transaction.getReceipt(client, { hash })
+
+    // The node no longer returns the transaction by hash, and lags on its
+    // first receipt reads.
+    const server = await proxyServer((method, index) => {
+      if (method === 'eth_getTransactionByHash') return { result: null }
+      if (method === 'eth_getTransactionReceipt' && index < 2)
+        return { result: null }
+      return undefined
+    })
+    try {
+      const proxyClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 100,
+      })
+      const reasons: string[] = []
+
+      // RPC hashes are lowercase, so an uppercase hash still matches.
+      const watcher = Actions.transaction.waitForReceipt(proxyClient, {
+        hash: `0x${hash.slice(2).toUpperCase()}`,
+        replacement: { from: source.address, nonce },
+        timeout: 10_000,
+      })
+      watcher.onReplaced(({ reason }) => reasons.push(reason))
+      const [receipt] = await Promise.all([watcher.receipt, mineSlowly(4)])
+
+      expect(receipt).toEqual(expected)
+      expect(reasons).toMatchInlineSnapshot(`[]`)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('looks up the transaction again after a failed lookup', async () => {
+    const { cancelHash, hash, replacement } = await replaceTransaction(2)
+    // The first lookup fails, as on a node behind the latest block.
+    const server = await proxyServer((method, index) =>
+      method === 'eth_getTransactionBySenderAndNonce' && index === 0
+        ? { error: { code: -32000, message: 'header not found' } }
+        : undefined,
+    )
+    try {
+      const proxyClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 100,
+      })
+      const reasons: string[] = []
+
+      const watcher = Actions.transaction.waitForReceipt(proxyClient, {
+        hash,
+        replacement,
+        timeout: 10_000,
+      })
+      watcher.onReplaced(({ reason }) => reasons.push(reason))
+      const [receipt] = await Promise.all([watcher.receipt, mineSlowly(4)])
+
+      expect(receipt.transactionHash).toBe(cancelHash)
+      expect(reasons).toMatchInlineSnapshot(`
+        [
+          "cancelled",
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('waits for the receipt of a replacement', async () => {
+    const { cancelHash, hash, replacement } = await replaceTransaction(1)
+    // The first receipt read of the replacement misses, as on a lagging node.
+    let missing = 1
+    const server = await proxyServer((method, _index, params) =>
+      method === 'eth_getTransactionReceipt' &&
+      params[0] === cancelHash &&
+      missing-- > 0
+        ? { result: null }
+        : undefined,
+    )
+    try {
+      const proxyClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 100,
+      })
+      const reasons: string[] = []
+
+      const watcher = Actions.transaction.waitForReceipt(proxyClient, {
+        hash,
+        replacement,
+        timeout: 10_000,
+      })
+      watcher.onReplaced(({ reason }) => reasons.push(reason))
+      const [receipt] = await Promise.all([watcher.receipt, mineSlowly(4)])
+
+      expect(receipt.transactionHash).toBe(cancelHash)
+      expect(reasons).toMatchInlineSnapshot(`
+        [
+          "cancelled",
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('rejects when the receipt of a replacement fails', async () => {
+    const { cancelHash, hash, replacement } = await replaceTransaction(2)
+    const server = await proxyServer((method, _index, params) =>
+      method === 'eth_getTransactionReceipt' && params[0] === cancelHash
+        ? { error: { code: -32000, message: 'receipt unavailable' } }
+        : undefined,
+    )
+    try {
+      const proxyClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 100,
+      })
+
+      await expect(
+        Actions.transaction.waitForReceipt(proxyClient, {
+          hash,
+          replacement,
+          timeout: 5_000,
+        }).receipt,
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidInputError: receipt unavailable]`,
+      )
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('ignores it on chains with their own replacement keys', async () => {
+    const { hash, replacement } = await replaceTransaction(1)
+    const keyClient = Client.create({
+      chain: Chain.from({
+        id: 1,
+        name: 'Anvil',
+        nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+        rpcUrls: { http: anvil.local.rpcUrl.http },
+        transaction: {
+          replacement: {
+            getKey: (transaction: { nonce: bigint }) =>
+              `0:${transaction.nonce}`,
+          },
+        },
+      }),
+      pollingInterval: 100,
+      transport: http(anvil.local.rpcUrl.http),
+    })
+    const reasons: string[] = []
+    const watcher = Actions.transaction.waitForReceipt(keyClient, {
+      hash,
+      replacement,
+      timeout: 2_000,
+    })
+    watcher.onReplaced(({ reason }) => reasons.push(reason))
+
+    await expect(watcher.receipt).rejects.toThrowError(
+      WaitForReceiptTimeoutError,
+    )
+    expect(reasons).toMatchInlineSnapshot(`[]`)
+  })
+
+  test('rejects when onReplaced throws', async () => {
+    const { hash, replacement } = await replaceTransaction(2)
+
+    const watcher = Actions.transaction.waitForReceipt(client, {
+      hash,
+      replacement,
+      timeout: 5_000,
+    })
+    watcher.onReplaced(() => {
+      throw new Error('onReplaced failed')
+    })
+
+    await expect(watcher.receipt).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: onReplaced failed]`,
+    )
+  })
+
+  test('ignores it when checkReplacement is false', async () => {
+    const { hash, replacement } = await replaceTransaction(2)
+
+    await expect(
+      Actions.transaction.waitForReceipt(client, {
+        checkReplacement: false,
+        hash,
+        replacement,
+        timeout: 1_000,
+      }).receipt,
+    ).rejects.toThrowError(WaitForReceiptTimeoutError)
+  })
+})

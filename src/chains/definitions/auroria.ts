@@ -1,24 +1,23 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const auroria = /*#__PURE__*/ defineChain({
+export const auroria = /*#__PURE__*/ Chain.from({
   id: 205205,
   name: 'Auroria Testnet',
-  network: 'auroria',
   nativeCurrency: {
     name: 'Auroria Stratis',
     symbol: 'tSTRAX',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://auroria.rpc.stratisevm.com'],
-    },
+    http: 'https://auroria.rpc.stratisevm.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Auroria Testnet Explorer',
-      url: 'https://auroria.explorer.stratisevm.com',
-    },
+    name: 'Auroria Testnet Explorer',
+    url: 'https://auroria.explorer.stratisevm.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

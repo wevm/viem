@@ -1,7 +1,7 @@
-import type * as Hex from 'ox/Hex'
-import * as Json from 'ox/Json'
+import type { Hex } from 'ox'
+import { Json } from 'ox'
 import { AccountOperation, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../core/Errors.js'
 import type * as Store from '../Store.js'
 
 /** Bounds parsing and serialization work if a store returns unexpectedly large data. */
@@ -157,7 +157,7 @@ function assertHash(operation: AccountOperation.Operation) {
       ? {
           account: operation.account,
           config: operation.config,
-          transaction: operation.transaction,
+          transaction: operation.transaction as TxEnvelopeTempo.Serialized,
           type: operation.type,
         }
       : {
@@ -182,12 +182,12 @@ function submissionKey(hash: Hex.Hex, submissionId: Hex.Hex) {
 }
 
 /** Thrown when a stored account operation is malformed or unsupported. */
-export class InvalidStoreValueError extends BaseError {
+export class InvalidStoreValueError extends BaseError<Error | undefined> {
+  override name = 'Accounts.Operation.InvalidStoreValueError'
   /** Creates an invalid store value error. */
   constructor(options: InvalidStoreValueError.Options = {}) {
     super('Stored account operation is malformed or unsupported.', {
       cause: options.cause as Error | undefined,
-      name: 'Accounts.Operation.InvalidStoreValueError',
     })
   }
 }
@@ -200,12 +200,14 @@ export declare namespace InvalidStoreValueError {
   }
 }
 
-/** Thrown when an account operation cannot be updated due to contention. */
-class StoreConflictError extends BaseError {
+/** Thrown When an account operation cannot be updated due to contention. */
+export class StoreConflictError extends BaseError<Error | undefined> {
+  override name = 'Accounts.Operation.StoreConflictError'
   /** Creates a store conflict error. */
   constructor() {
-    super('Account operation could not be updated after repeated conflicts.', {
-      name: 'Accounts.Operation.StoreConflictError',
-    })
+    super(
+      'Account operation could not be updated after repeated conflicts.',
+      {},
+    )
   }
 }

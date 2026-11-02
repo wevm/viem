@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "types": "../../_types/experimental/erc7846/index.d.ts",
-  "module": "../../_esm/experimental/erc7846/index.js",
-  "main": "../../_cjs/experimental/erc7846/index.js"
-}

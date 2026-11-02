@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const rootPorcini = /*#__PURE__*/ defineChain({
+export const rootPorcini = /*#__PURE__*/ Chain.from({
   id: 7672,
   name: 'The Root Network - Porcini',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const rootPorcini = /*#__PURE__*/ defineChain({
     symbol: 'XRP',
   },
   rpcUrls: {
-    default: {
-      http: ['https://porcini.rootnet.app/archive'],
-      webSocket: ['wss://porcini.rootnet.app/archive/ws'],
-    },
+    http: 'https://porcini.rootnet.app/archive',
+    ws: 'wss://porcini.rootnet.app/archive/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Rootscan',
-      url: 'https://porcini.rootscan.io',
-    },
+    name: 'Rootscan',
+    url: 'https://porcini.rootscan.io',
   },
   contracts: {
     multicall3: {

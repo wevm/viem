@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const omax = /*#__PURE__*/ defineChain({
+export const omax = /*#__PURE__*/ Chain.from({
   id: 311,
   name: 'Omax Mainnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const omax = /*#__PURE__*/ defineChain({
     name: 'OMAX',
     symbol: 'OMAX',
   },
-  rpcUrls: {
-    default: { http: ['https://mainapi.omaxray.com'] },
-  },
+  rpcUrls: { http: 'https://mainapi.omaxray.com' },
   blockExplorers: {
-    default: {
-      name: 'Omax Explorer',
-      url: 'https://omaxscan.com',
-    },
+    name: 'Omax Explorer',
+    url: 'https://omaxscan.com',
   },
   testnet: false,
 })

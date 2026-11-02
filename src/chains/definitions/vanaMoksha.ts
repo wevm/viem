@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const vanaMoksha = /*#__PURE__*/ defineChain({
+export const vanaMoksha = /*#__PURE__*/ Chain.from({
   id: 14800,
   name: 'Vana Moksha Testnet',
   blockTime: 6_000,
@@ -9,17 +10,14 @@ export const vanaMoksha = /*#__PURE__*/ defineChain({
     name: 'Vana',
     symbol: 'VANA',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.moksha.vana.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.moksha.vana.org' },
   blockExplorers: {
-    default: {
-      name: 'Vana Moksha Testnet',
-      url: 'https://moksha.vanascan.io',
-      apiUrl: 'https://moksha.vanascan.io/api',
-    },
+    name: 'Vana Moksha Testnet',
+    url: 'https://moksha.vanascan.io',
+    apiUrl: 'https://moksha.vanascan.io/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xD8d2dFca27E8797fd779F8547166A2d3B29d360E',
       blockCreated: 732283,

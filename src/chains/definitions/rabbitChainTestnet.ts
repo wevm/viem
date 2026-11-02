@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const rabbitChainTestnet = /*#__PURE__*/ defineChain({
+export const rabbitChainTestnet = /*#__PURE__*/ Chain.from({
   id: 9280,
   name: 'Rabbit Chain Testnet',
   nativeCurrency: {
@@ -9,13 +9,11 @@ export const rabbitChainTestnet = /*#__PURE__*/ defineChain({
     symbol: 'tRAB',
   },
   rpcUrls: {
-    default: { http: ['https://rpc-testnet.rabbitchain.org'] },
+    http: ['https://rpc-testnet.rabbitchain.org'],
   },
   blockExplorers: {
-    default: {
-      name: 'Rabbit Chain Testnet Explorer',
-      url: 'https://explorer-testnet.rabbitchain.org',
-    },
+    name: 'Rabbit Chain Testnet Explorer',
+    url: 'https://explorer-testnet.rabbitchain.org',
   },
   testnet: true,
 })

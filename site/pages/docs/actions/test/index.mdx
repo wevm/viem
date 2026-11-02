@@ -1,0 +1,251 @@
+import { Card, Cards } from 'vocs'
+
+# Test Actions
+
+## Overview
+
+Test Actions modify a local test node such as
+[Anvil](https://book.getfoundry.sh/anvil/),
+[Hardhat](https://hardhat.org/), or
+[Ganache](https://github.com/trufflesuite/ganache).
+
+Use these actions to mine blocks, modify accounts, manage snapshots, and inspect the transaction
+pool during tests.
+
+Pass `testActions()` to [`.extend()`](/docs/clients/create#extending-a-client) to add Test Actions
+to a Client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @twoslash-cache: {"v":1,"hash":"d766aa28f19159bc5bd68860c9d87919efdd22bea3a0dfc7898958c11eaf19cb","data":"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"}
+import { client } from './viem.config'
+
+await client.block.mine({ blocks: 1 })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// @twoslash-cache: {"v":1,"hash":"095a62dce144c29ca808d9394ac3e8fc21dada321ca1ac79a93a065d231e229f","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBhAG0ZhgGVOGgCGHJAE4qvQQHM0+JADYq40vJgNEIPgKGUQ/MLkQAGKgGN8EsVZrlEUgL4V02MwWJkjNengAFGL8YnAAlJwAZgCuYA6MEGCc+GhoWAA8pGIA7px0NGBQcJwARhAQcmLJALzRIXAwAHyBMaS8APyInKKkjGDynAA+nHGwUf0wUBScEFhoiWBwXSlpWAB0APLzi3BZuU3h3QASa/s5TQA6YMGhEZxgYszwWPYwq+nXLGwcH1hGUAgVgQum4pBgYhoJWqnGOABU4QAFTgAKQAypsAHIAWgASojuJw0Nklj80OtOAB1fCCB4QTgAAzavAZnEYJSwpGIjFg03qvF4JVK9gA1tc0PSlO8bGJ+gByErjMQxXhceFIzj4wkAVVxABl1n4xPIQchkCA6E8sHIjAy7Wg4F9WOwuMAePxBGgZql0pwXNEucxOHKiAJmHKnWTOG7mLKwKYuP6ooHg6GYMwAPQy/pwCNga5WJKiThWD1CTh1fSe9ZWcGQmCBYDXTgl2z9bqx/oJijNokkuBk7o+rCBOXDuCIDMZ7T4dbPUgiuTrRJy8I9sAucLXO0MkAAXT3Ig0OgAjAB2WQKJRIAAs6gkWh0BDWRhMZksIBl2QcvkQ57cHg4HghAkOQ6gFEEISMGEkSxPECxJES8BoAAggkRYZMw0DvAUgjFJwACy2EVpwlwgNUoa8GRLRzAhSwrFCqHoUsWw7BhWGwIc3SBKWBhoN0VZCOsgloJENRNEhohoXRcDrAAIjAhbZBKpCYdhVw3FBMEPE8LxvJJTEyZGLoGdJuwAkCIIgAAQsasxRAZnD2DJnDBGAlEZrYpBQLYaAZvI1T2DSkTlGMRL0mIpFgMAAACJgilFInXC41zrvIXIxDgUBlBgOnPAObwzDkjBKESNKcLASmQuwCqMhxMCsv0ABWik0Nl/QSvkoG5c5izrNciJhCUnUMiJNZ1jQDK1Qy6y4UUM2cChgr0sVsBLGV7wibV4IAI4xMhPQ2OmYjXMVpVSo5zxKNAJRROwdXYaygTXLF8VRYxZlFusaJHbGyXXOEhr3iaSBmhatBWjaVA7g6xm/G6InemsMwfcxJRJimIZhnm3wmTGcYJn6AYQEGWPplmbZLHmBZFlwvGeiRY21hCNCNr22ZgB2BPaOuLbEtUA4ukOayBGuyWA3NUCBKjMmNpw9XdHKFGMLwcp+uEW6PDksp02W5KlLwQIinOkxywbRsTpwJ7q9cuQ6yWevrLt+2iHLV2EFAivK7wAD6jRoLZvDVFYMByjMrzZMwlvIHK5i0IAZARh8GceJ3uNtgDu+6HiAogSDoABMADMl4DNef4nvemjaHgMvmbIkxIB+X7Ob+RcAdQnjAT4YHUBBui3NB9yFksXDe90yYk+suLaG0YBwp4GRNskLacHWgJgLwuU8t0hcnoXhdngA3L2LZr0km95TA3RkSh7kq2Rx/L6fELrxfjwLCQ3BtOC8QYN0S8r0AavF+59cqVRYA0boJ4AAcj8gErzPhvXKjxnjXxAAAUSlKQB+J8gGIIvnADAzByi8DQeguExwcFPz9HAhBICkGrywFYbU7RLYAPgcAsQr9crDjQbwqcJ585nnWOYER6wTyIGgQAVhvFIqhHDOHcM4DkS2ZEVGTgzII4RojRESOkbI+RK8XCPxcBpXGvxvZGFzpIRAUjoEl0UMoWxldHx4EsfXUwSAK6fi8i3Jwrh3AdyAroECvhwIBF0MPYs9MhACUdiJDIE9mBTxnqQOeC92HPy4aAtkntOC733kfXB+DkG6TQbfSihislKPfowT+39BBWD/tGXBgCSkVUUhAwUUDYGtLodkhhKCr6kQwVgqpeD6EEKISQshFDxnGOKZM3KpAmEsO6S06hbSll/D4WsDRWixG6MkTIuRIBaHwPaeokZ6iBFCMOeI45Bizm4IWRuJoMwxgwAmKYPkpx0iJIaM0D5RQvmTD5JkzUMA9rIX/n0ls7toBoJnD7ewhY4iw2eZsleEcnjLG6J875Uxzk0NwdPNAs9544G6O0lCUAoDgjgHAZAe4THDA2YA6e0LRCwqxfCmciKRnIvNqUWyjQABiMAYDjMATiqOKwCVguJa8jlqT0lUthHQVlIx1g6s4FIa2WFwScB1RSEYEKTUmJmOanVJimhWOPNIGQxgrxOLUNQB81dIl61fA3RAxcfF2B/E4Pe7dMDBO8KBPwfcQDmK4CJe1ecvHmHsc60urqXGer0N6jxZh/XNyDUgfO+dQ2dxCd3KNESQBwWYiWCaMBEmBhSeStJlL60QvadvfJe8D7EvaUM8pd8qKYq2QMt+kI6kwC/qQH+TSeUKPaeA2M6yYHEpHTUspIzME0mwcOjh7TCHEMqLMyhu6WzKv6UolZzDWFzr3ds3hIz+GaLuToh5+jTmrovTkq5aiJy3O0WIvRJz5m2uBeMMFMw/mZCiIC95owQWEvBaSqFLt+Lso4QivJZFkWoogOix0p6gGyrxfB8DPylXErJRSzw1Ltm0vpfAJlLLkpsohZy1Dt74GYaRUoH2wrRUwAlVKwjMq7ByvxQhxVLzKOqtbScTVLHtW6qkWeeW7B3gmtY7gi1yUaJsSWHEvi40WYwFYjJDIJquLuiMwkyz1whkFRDrWkzFlgR4DBCZ6EUVXr9AStcJKG5mxJKct5uKvmopwn7GSf6yRqjZVoosEIoW3r+cpjF22RRkvheuGhNFQgYsUhmpLQIJrwiNWGuVb9YhcqdS4dlXqX0jQgxQOaS0rAoYgBho6MAsbozWc9DMSLAsowYxJqmbGcNXTy25omYmpM0yZg5rma4NMR4Oz4ozR2zN6xs2XhzLmXYea9n5qSIWnAhunY4OsYcot1ybm3HaLOR5E3lykQ4subqNCuMiXWn1ni/XWF8QWxA+cAmAS8KEnu/gnyBE5HMMgmBIgcxWEkpt1GcCL0WaOreeSCk9qx+u1BIyKn30I328d9Tp2NOaRCtdOTF2QKtr03liicn9s3WMkTX6GEHpmZuuZhHz3VJyVetZbC4Ws4YQ+siT6DmvqA08z9wuGE/pADc59AGjnvpA7ptlCqfmuastwSmrl7oc1ybBe6F0xoJpsYIt1cg01IDe+6quT4OZ/bMHeAN35HCFpLeGyHFaYdaSHrTJyg7x6Nqoy2jJBOcmdrx0U6h5Oic30HeM8nH9J0NN/pxiZ2OOlWC6ZbFdEvU/DLIlusg0rudTMPaQ/nJ6KPx4YaLm96GLn3r2Y+vZ/77kK4/eX7Zqv1dy8A48of1DXmmMmxHyitvTz73e04l3X3M3uOML673+a/fOADxD8t4SYdw5wBwDAkQTuCw4CcM4MHBTNEN3gOE5Ur9RjuqQDa/WhKL68TefOK+0gGaT4b+LonuzugOgae+xagSYah+kax+kEdwkQw4AKD+LQzIKwvQ/QgwIw+uUwMwCWRYKww4ZmuwaBjQVmUGFBzQc+w4T+oIda0IyQ6oyI6IWIeIBIfYw2LoFI1ItIkAjIzI5WnAcOoYvIMw9+goZQoo4oko5UHMtUSoKoaoCIyIWonAuoBoTWporWEM7WuA0M9o3WvWCMesSMvoo282E2PWzo8M02h2s2wWZMi2lMy2+Y8Q4eMSXAlYW2dau2LY+2Dh8YR2y8oBN+fwo444GiM4c4ZAi4pmK4YsG4msmcB4z2duUi/qjujit4wBwEL4OaEBPufiXihcB+XcCBvclasOXIZ+iO+Q9AeE3QGQtcX0CkVUKkGQZE3s1ELQUQnMrk3hhm1YCSqOMeaqbareF8ie3ayedOgyG66elSZO2ytSlOM6NOw+heDOy6zO86axSxoy26teyu9efOVeAuLeKe2y7e6ytOdePCPeMufeGuA+k+pxkuF8o+f6bx8uHxguoGpGoKPykGd+sGYGIJBBnekKXKaGDxfK10WGFovGuG+GnxxG8qkm5G0myGzakxtGhe9GDKTGWqMJ7GMKMJgC3GgqvG/GYQgmkqGJYmJG+BUA1xKq+JcmGqtAZJmmKmamRqmmZq2mNqyUVqop6wZJbJhwFYEkbRLEHR7A1UqklmYkEkY0tmOqdqVAgIbmug6CTRRQFWm0esyiJU+AX+wogw4I+JUwOUjIAxM0v+f4Kg3uORH2+Rugks4BiAbqu+v45RsBpaEaYS1RIeyBpkaM3R5EGeIAemMkDEyEn0LE2w5mPRcZVmPEesIxQkIk6pUZMk8kikypXRGZKxZidhXACpCAuplkeAtkgwEADkjETkaMrk3snkEgPkkI/kgUR0IUeGmWtWWWYAfmYAAWKUYAaUGUWUDpDmrwIcRUFpX+lUpZNUJQDI9UjUYALUP47UQg9IMA3UbZdE/UYAg0jK4UjITMdaU0m5s0RpUAC0S0cAK0PIggJp3+aA20KGB0cAv0J0YAZ0lpF0rZmGt090W5j0rkL0YWY570yZaM30gFMWgMOhoMehkMhhnWxhc+ZhfEFhWAKMSFLkVh426YOMVZfWnYIRThmMC2FMcY7hq20SZpvhRm22rM7CQRtF3Yx2UWZ2N2yRm4j5hQUsNZbs2EXsg6asm4msdsJU621Y5sVgxszApsboqlIope6cilusRmzsyEbs/KeSSsg6fs2ggcwcoc4cLJ3QMcKcScscCccoac92Gcj26ROcDqf4Z43iHpTiJ43i6+IBpFdcW+/2/pQOe+J45gLg2chYsATA1FBFA2fwJFUk7Z5FLhVFUYbo3sRMzhjFS21MpgtAUYUSBlDMHF1YXFDYPFlM3Q3svM3Bl2aGwld2EsT50s4VRYos4QRgV0YgSAoAc0cAiwNcCALgLgQAA="}
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+```
+
+:::
+
+### Test Node Modes
+
+Most Test Actions accept a `mode` option for the target node implementation.
+Supported modes are `'anvil'` (default), `'hardhat'`, and `'ganache'`.
+
+Set `mode` on `testActions()` to apply one mode to every decorated action.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"0ff36d1045fd57dcaf3b7f066eea026e025b79c16d20ebaf67d53e96acdf1e03","data":"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"}
+import { Client, http, testActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(
+  testActions({ mode: 'hardhat' }), // [!code focus]
+)
+```
+
+### Accounts
+
+<Cards>
+  <Card
+    title="Impersonate Account"
+    description="Send transactions as another account."
+    icon="lucide:user-round-cog"
+    to="/docs/actions/test/address/impersonate"
+  />
+  <Card
+    title="Stop Impersonating"
+    description="Stop impersonating an account."
+    icon="lucide:user-round-x"
+    to="/docs/actions/test/address/stopImpersonating"
+  />
+  <Card
+    title="Set Balance"
+    description="Set an account's native currency balance."
+    icon="lucide:wallet-cards"
+    to="/docs/actions/test/address/setBalance"
+  />
+  <Card
+    title="Set Bytecode"
+    description="Set the bytecode at an address."
+    icon="lucide:binary"
+    to="/docs/actions/test/address/setCode"
+  />
+  <Card
+    title="Set Nonce"
+    description="Set an account's transaction nonce."
+    icon="lucide:hash"
+    to="/docs/actions/test/address/setNonce"
+  />
+  <Card
+    title="Set Storage"
+    description="Set a value in an account's storage."
+    icon="lucide:database"
+    to="/docs/actions/test/address/setStorageAt"
+  />
+</Cards>
+
+### Blocks and Time
+
+<Cards>
+  <Card
+    title="Get Automine"
+    description="Read whether automining is enabled."
+    icon="lucide:circle-check"
+    to="/docs/actions/test/block/getAutomine"
+  />
+  <Card
+    title="Set Automine"
+    description="Enable or disable automining."
+    icon="lucide:toggle-right"
+    to="/docs/actions/test/block/setAutomine"
+  />
+  <Card
+    title="Mine Blocks"
+    description="Mine one or more blocks."
+    icon="lucide:blocks"
+    to="/docs/actions/test/block/mine"
+  />
+  <Card
+    title="Increase Time"
+    description="Increase the node's timestamp."
+    icon="lucide:clock-plus"
+    to="/docs/actions/test/block/increaseTime"
+  />
+  <Card
+    title="Set Next Timestamp"
+    description="Set the next block's timestamp."
+    icon="lucide:calendar-clock"
+    to="/docs/actions/test/block/setNextTimestamp"
+  />
+  <Card
+    title="Set Timestamp Interval"
+    description="Set the interval between block timestamps."
+    icon="lucide:timer"
+    to="/docs/actions/test/block/setTimestampInterval"
+  />
+  <Card
+    title="Remove Timestamp Interval"
+    description="Remove the block timestamp interval."
+    icon="lucide:timer-off"
+    to="/docs/actions/test/block/removeTimestampInterval"
+  />
+  <Card
+    title="Set Interval Mining"
+    description="Set the interval between mined blocks."
+    icon="lucide:clock-3"
+    to="/docs/actions/test/block/setIntervalMining"
+  />
+  <Card
+    title="Set Coinbase"
+    description="Set the coinbase address for new blocks."
+    icon="lucide:circle-dollar-sign"
+    to="/docs/actions/test/block/setCoinbase"
+  />
+  <Card
+    title="Set Gas Limit"
+    description="Set the gas limit for new blocks."
+    icon="lucide:gauge"
+    to="/docs/actions/test/block/setGasLimit"
+  />
+  <Card
+    title="Set Next Base Fee"
+    description="Set the next block's base fee."
+    icon="lucide:badge-dollar-sign"
+    to="/docs/actions/test/block/setNextBaseFeePerGas"
+  />
+</Cards>
+
+### Node Configuration
+
+<Cards>
+  <Card
+    title="Set Logging"
+    description="Enable or disable node logging."
+    icon="lucide:scroll-text"
+    to="/docs/actions/test/node/setLoggingEnabled"
+  />
+  <Card
+    title="Set Minimum Gas Price"
+    description="Set the node's minimum gas price."
+    icon="lucide:badge-dollar-sign"
+    to="/docs/actions/test/node/setMinGasPrice"
+  />
+  <Card
+    title="Set Fork RPC URL"
+    description="Change the upstream RPC URL for a fork."
+    icon="lucide:git-fork"
+    to="/docs/actions/test/node/setRpcUrl"
+  />
+</Cards>
+
+### State
+
+<Cards>
+  <Card
+    title="Dump State"
+    description="Serialize the current node state."
+    icon="lucide:download"
+    to="/docs/actions/test/state/dump"
+  />
+  <Card
+    title="Load State"
+    description="Load a serialized node state."
+    icon="lucide:upload"
+    to="/docs/actions/test/state/load"
+  />
+  <Card
+    title="Reset State"
+    description="Reset the node or its fork configuration."
+    icon="lucide:rotate-ccw"
+    to="/docs/actions/test/state/reset"
+  />
+  <Card
+    title="Snapshot State"
+    description="Create a snapshot of the current state."
+    icon="lucide:camera"
+    to="/docs/actions/test/state/snapshot"
+  />
+  <Card
+    title="Revert State"
+    description="Restore a previously created snapshot."
+    icon="lucide:undo-2"
+    to="/docs/actions/test/state/revert"
+  />
+</Cards>
+
+### Transaction Pool
+
+<Cards>
+  <Card
+    title="Drop Transaction"
+    description="Remove a transaction from the pool."
+    icon="lucide:trash-2"
+    to="/docs/actions/test/txpool/dropTransaction"
+  />
+  <Card
+    title="Get Pool Status"
+    description="Read pending and queued transaction counts."
+    icon="lucide:list-checks"
+    to="/docs/actions/test/txpool/getStatus"
+  />
+  <Card
+    title="Inspect Pool"
+    description="Inspect pending and queued transactions."
+    icon="lucide:scan-search"
+    to="/docs/actions/test/txpool/inspect"
+  />
+</Cards>

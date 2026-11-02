@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const reactiveTestnet = /*#__PURE__*/ defineChain({
+export const reactiveTestnet = /*#__PURE__*/ Chain.from({
   id: 5_318_007,
   name: 'Reactive Lasna Testnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const reactiveTestnet = /*#__PURE__*/ defineChain({
     name: 'Lasna React',
     symbol: 'lREACT',
   },
-  rpcUrls: {
-    default: { http: ['https://lasna-rpc.rnk.dev'] },
-  },
+  rpcUrls: { http: 'https://lasna-rpc.rnk.dev' },
   blockExplorers: {
-    default: {
-      name: 'Reactscan',
-      url: 'https://lasna.reactscan.net',
-    },
+    name: 'Reactscan',
+    url: 'https://lasna.reactscan.net',
   },
   testnet: true,
 })

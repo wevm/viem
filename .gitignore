@@ -1,18 +1,14 @@
-_cjs
-_esm
-_types
+/dist
 *.local
 .DS_Store
 .attest
 .eslintcache
 .next
-bench
 cache
 coverage
 node_modules
 tsconfig*.tsbuildinfo
 wagmi
-src/node/trustedSetups_esm.ts
 **/trusted-setups/**/*.txt
 .idea
 .pnpm-store
@@ -28,7 +24,8 @@ tasks
 
 # tests
 generated.ts
-vectors/**/*.json
+# Committed so tests/CI can import contract artifacts without running Foundry.
+!contracts/generated.ts
 
 # docs
 site/.cache
@@ -37,3 +34,4 @@ site/pages.gen.ts
 .vercel
 vocs.config.tsx.timestamp*
 _
+.claude/

@@ -14,15 +14,15 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import type { LocalAccount } from '../../../accounts/types.js'
-import { getBlockNumber } from '../../../actions/public/getBlockNumber.js'
-import { readContract } from '../../../actions/public/readContract.js'
-import { type Client, createClient } from '../../../clients/createClient.js'
-import { http } from '../../../clients/transports/http.js'
-import { maxUint256 } from '../../../constants/number.js'
-import * as AccessKey from '../../actions/accessKey.js'
+import type * as TransactionRequest from 'ox/tempo/TransactionRequest'
+import type { Local as LocalAccount } from '../../../core/Account.js'
+import { getNumber as getBlockNumber } from '../../../core/actions/block/getNumber.js'
+import { read as readContract } from '../../../core/actions/contract/read.js'
+import { type Client, create as createClient } from '../../../core/Client.js'
+import { http } from '../../../core/transports/http.js'
+import * as AccessKey from '../../actions/accessKey/index.js'
+import * as Expiry from '../../Expiry.js'
 import type * as Relay from '../../Relay.js'
-import * as Transaction from '../../Transaction.js'
 import * as Accounts from './accounts.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
@@ -274,7 +274,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
 
 /** Checks a prepared transaction with its chain ID. Rejected fills fall back to sender payment; rejected raw submissions return a refusal. */
 export type Validate = (
-  request: Transaction.TransactionRequest & {
+  request: TransactionRequest.TransactionRequest & {
     chainId?: number | Hex.Hex | undefined
   },
 ) => Validation | Promise<Validation>
@@ -344,7 +344,7 @@ async function shouldSponsor(options: shouldSponsor.Options) {
   const verdict = await validate({
     ...transaction,
     from: sender,
-  } as Transaction.TransactionRequest)
+  } as TransactionRequest.TransactionRequest)
   return verdict === true
 }
 
@@ -362,7 +362,7 @@ declare namespace shouldSponsor {
 /** Returns whether a raw Tempo transaction is explicitly requesting sponsorship. */
 function requestsRawSponsorship(serialized: `0x${string}`) {
   if (!Utils.isSerializedTempoTransaction(serialized)) return false
-  const transaction = Transaction.deserialize(serialized)
+  const transaction = TxEnvelopeTempo.deserialize(serialized)
   return (
     'feePayerSignature' in transaction && transaction.feePayerSignature === null
   )
@@ -475,7 +475,7 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
         'Transaction encoding is not canonical. Re-encode it with in-range field values.',
     })
 
-  const transaction = Transaction.deserialize(serialized)
+  const transaction = TxEnvelopeTempo.deserialize(serialized)
 
   // Sponsorship only applies after sender has signed original transaction.
   if (!transaction.signature)
@@ -509,7 +509,7 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
 
   if (validate) {
     const verdict = await validate(
-      transaction_sponsored as Transaction.TransactionRequest,
+      transaction_sponsored as TransactionRequest.TransactionRequest,
     )
     if (verdict !== true)
       throw new RpcResponse.InvalidParamsError(
@@ -833,6 +833,9 @@ function isBaseFeeRejection(error: unknown) {
   return false
 }
 
+/** Largest uint256, the nonce key of the expiring nonce lane. */
+const maxUint256 = 2n ** 256n - 1n
+
 /** Default longest validity, in seconds, of a returned fee-payer signature. */
 const defaultValidity = 3_600
 
@@ -849,7 +852,7 @@ namespace Validity {
     // Generated expiring windows stay under the protocol limit to allow for clock skew against the node.
     const max =
       options.nonceKey === maxUint256
-        ? Math.min(limit(options), Transaction.expiringNonceMaxExpiry - skew)
+        ? Math.min(limit(options), Expiry.expiringNonceMax - skew)
         : limit(options)
     // A step of at most a tenth of the limit keeps every generated window at least 90% of it.
     const step = Math.min(validityStep, Math.ceil(max / 10))
@@ -907,7 +910,7 @@ namespace Validity {
   function limit(options: generate.Options) {
     const { nonceKey, validity } = options
     if (nonceKey !== maxUint256) return validity
-    return Math.min(validity, Transaction.expiringNonceMaxExpiry)
+    return Math.min(validity, Expiry.expiringNonceMax)
   }
 }
 

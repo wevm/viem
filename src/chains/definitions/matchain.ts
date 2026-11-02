@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const matchain = /*#__PURE__*/ defineChain({
+export const matchain = /*#__PURE__*/ Chain.from({
   id: 698,
   name: 'Matchain',
   nativeCurrency: {
@@ -8,13 +9,12 @@ export const matchain = /*#__PURE__*/ defineChain({
     symbol: 'BNB',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.matchain.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.matchain.io' },
   blockExplorers: {
-    default: {
-      name: 'Matchain Scan',
-      url: 'https://matchscan.io',
-    },
+    name: 'Matchain Scan',
+    url: 'https://matchscan.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

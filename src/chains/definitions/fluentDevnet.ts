@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const fluentDevnet = /*#__PURE__*/ defineChain({
+export const fluentDevnet = /*#__PURE__*/ Chain.from({
   id: 20_993,
   name: 'Fluent Devnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const fluentDevnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.devnet.fluent.xyz'],
-    },
+    http: 'https://rpc.devnet.fluent.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Fluent Devnet Explorer',
-      url: 'https://devnet.fluentscan.xyz',
-    },
+    name: 'Fluent Devnet Explorer',
+    url: 'https://devnet.fluentscan.xyz',
   },
   testnet: true,
 })

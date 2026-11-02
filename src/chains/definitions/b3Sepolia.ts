@@ -1,8 +1,8 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
 const sourceId = 168_587_773 // base-sepolia
 
-export const b3Sepolia = /*#__PURE__*/ defineChain({
+export const b3Sepolia = /*#__PURE__*/ Chain.from({
   id: 1993,
   name: 'B3 Sepolia',
   nativeCurrency: {
@@ -11,15 +11,11 @@ export const b3Sepolia = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.b3.fun/http'],
-    },
+    http: 'https://sepolia.b3.fun/http',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia.explorer.b3.fun',
-    },
+    name: 'Blockscout',
+    url: 'https://sepolia.explorer.b3.fun',
   },
   contracts: {
     multicall3: {

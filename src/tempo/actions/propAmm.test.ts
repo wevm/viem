@@ -1,23 +1,16 @@
-import * as Hex from 'ox/Hex'
-import { decodeFunctionData, parseUnits } from 'viem'
-import {
-  deployContract,
-  getBlock,
-  getTransaction,
-  readContract,
-  sendTransactionSync,
-  simulateContract,
-  waitForTransactionReceipt,
-  writeContractSync,
-} from 'viem/actions'
-import { Abis, Actions, Addresses, tempoActions } from 'viem/tempo'
+import { AbiFunction, Hex, Value } from 'viem/utils'
+import { Actions as CoreActions, Client, http } from 'viem'
+import { Abis, Account, Actions, Addresses, tempoActions } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, getClient, setupToken } from '~test/tempo/config.js'
+import * as tempo from '~test/tempo.js'
 import * as Contracts from '~test/tempo/propAmmContracts.js'
 
-const account = accounts[0]
-const recipient = accounts[1]
-const client = getClient({ account }).extend(tempoActions())
+const accounts = tempo.accounts.map((account) =>
+  Account.fromSecp256k1(account.privateKey),
+)
+const account = accounts[0]!
+const recipient = accounts[1]!
+const client = tempo.getClient({ account }).extend(tempoActions())
 const customerId = Hex.fromString('propamm-local-test', { size: 32 })
 const zeroMemo = Hex.fromString('', { size: 32 })
 
@@ -88,14 +81,16 @@ describe('recipientAllowed', () => {
 describe('getSwapQuote', () => {
   test('requires a taker when the client has no account', async () => {
     await expect(
-      getClient().extend(tempoActions()).propAmm.getSwapQuote({
-        amountIn: 1n,
-        baseToQuote: true,
-        customerId,
-        mode: 'exactInput',
-        pool: stack.pool,
-        recipient: recipient.address,
-      }),
+      Client.create({ chain: client.chain, transport: http(tempo.rpcUrl) })
+        .extend(tempoActions())
+        .propAmm.getSwapQuote({
+          amountIn: 1n,
+          baseToQuote: true,
+          customerId,
+          mode: 'exactInput',
+          pool: stack.pool,
+          recipient: recipient.address,
+        }),
     ).rejects.toThrow('A taker or client account is required to quote.')
   })
 
@@ -119,7 +114,10 @@ describe('getSwapQuote', () => {
       }),
     ).toEqual(explicit)
     await expect(
-      Actions.propAmm.getSwapQuote(getClient(), options),
+      Actions.propAmm.getSwapQuote(
+        Client.create({ chain: client.chain, transport: http(tempo.rpcUrl) }),
+        options,
+      ),
     ).rejects.toThrow('Could not find an Account')
   })
 
@@ -153,21 +151,26 @@ describe('getSwapQuote', () => {
       }),
     ).toEqual(initialA)
     expect(
-      await getClient().extend(tempoActions()).propAmm.getSwapQuote({
-        account: account.address,
-        amountIn: 1n,
-        baseToQuote: true,
-        customerId: routeA,
-        mode: 'exactInput',
-        pool: stack.pool,
-        recipient: recipient.address,
-      }),
+      await Client.create({
+        chain: client.chain,
+        transport: http(tempo.rpcUrl),
+      })
+        .extend(tempoActions())
+        .propAmm.getSwapQuote({
+          account: account.address,
+          amountIn: 1n,
+          baseToQuote: true,
+          customerId: routeA,
+          mode: 'exactInput',
+          pool: stack.pool,
+          recipient: recipient.address,
+        }),
     ).toEqual(initialA)
     await client.propAmm.swapSync({
       amountIn: 1n,
       baseToQuote: true,
       customerId: routeA,
-      deadline: (await getBlock(client)).timestamp + 120n,
+      deadline: (await CoreActions.block.get(client)).timestamp + 120n,
       expectedOraclePrice: initialA.price,
       minAmountOut: initialA.amountOut,
       minimumOracleUpdatedAt: initialA.updatedAt,
@@ -184,7 +187,7 @@ describe('getSwapQuote', () => {
 describe('swap', () => {
   test('approves quote input and returns the swap hash', async () => {
     const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
-      amountIn: parseUnits('1', 6),
+      amountIn: Value.from('1', 6),
       baseToQuote: false,
       customerId,
       mode: 'exactInput',
@@ -199,10 +202,10 @@ describe('swap', () => {
       token: stack.quote,
     })
     const parameters = {
-      amountIn: parseUnits('1', 6),
+      amountIn: Value.from('1', 6),
       baseToQuote: false,
       customerId,
-      deadline: (await getBlock(client)).timestamp + 120n,
+      deadline: (await CoreActions.block.get(client)).timestamp + 120n,
       expectedOraclePrice: price,
       minAmountOut: amountOut,
       minimumOracleUpdatedAt: updatedAt,
@@ -219,23 +222,24 @@ describe('swap', () => {
       'success',
       'success',
     ])
-    const overridden = await client.propAmm.swap.simulate({
+    const overridden = await Actions.propAmm.swap.simulate(client, {
       ...parameters,
-      stateOverrides: [{ address: stack.pool, code: '0x60006000fd' }],
+      stateOverride: { [stack.pool]: { code: '0x60006000fd' } },
     })
-    expect(
-      overridden.results.map((result) => result.status),
-    ).toMatchInlineSnapshot(`
+    expect(overridden.results.map((result) => result.status))
+      .toMatchInlineSnapshot(`
       [
         "success",
         "failure",
       ]
     `)
     const hash = await client.propAmm.swap(parameters)
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const receipt = await CoreActions.transaction.waitForReceipt(client, {
+      hash,
+    }).receipt
     expect(receipt.status).toBe('success')
     await Actions.token.approveSync(client, {
-      amount: parseUnits('1000', 6),
+      amount: Value.from('1000', 6),
       spender: stack.pool,
       token: stack.quote,
     })
@@ -263,7 +267,7 @@ describe('swap', () => {
       price: buyPrice,
       updatedAt: buyUpdatedAt,
     } = await client.propAmm.getSwapQuote({
-      amountOut: parseUnits('1', 6),
+      amountOut: Value.from('1', 6),
       baseToQuote: true,
       customerId,
       mode: 'exactOutput',
@@ -271,10 +275,10 @@ describe('swap', () => {
       recipient: recipient.address,
     })
     const trade = await client.propAmm.swapSync({
-      amountOut: parseUnits('1', 6),
+      amountOut: Value.from('1', 6),
       baseToQuote: true,
       customerId,
-      deadline: (await getBlock(client)).timestamp + 120n,
+      deadline: (await CoreActions.block.get(client)).timestamp + 120n,
       expectedOraclePrice: buyPrice,
       maxAmountIn: amountIn,
       minimumOracleUpdatedAt: buyUpdatedAt,
@@ -301,7 +305,7 @@ describe('swap', () => {
       baseToQuote: true,
       mode: 'exactInput' as const,
       customerId,
-      deadline: (await getBlock(client)).timestamp + 120n,
+      deadline: (await CoreActions.block.get(client)).timestamp + 120n,
       expectedOraclePrice: price,
       minAmountOut: amountOut,
       minimumOracleUpdatedAt: updatedAt,
@@ -312,34 +316,34 @@ describe('swap', () => {
     }
     const call = Actions.propAmm.swap.call(options)
     await expect(
-      simulateContract(client, { ...call, account: accounts[2] }),
+      CoreActions.contract.simulate(client, { ...call, account: accounts[2]! }),
     ).rejects.toThrow()
     await expect(
-      simulateContract(client, {
+      CoreActions.contract.simulate(client, {
         ...Actions.propAmm.swap.call({ ...options, deadline: 1n }),
         account,
       }),
     ).rejects.toThrow()
     await expect(
-      simulateContract(client, {
+      CoreActions.contract.simulate(client, {
         ...Actions.propAmm.swap.call({
           ...options,
-          minAmountOut: parseUnits('1000', 6),
+          minAmountOut: Value.from('1000', 6),
         }),
         account,
       }),
     ).rejects.toThrow()
     await expect(
-      simulateContract(client, {
+      CoreActions.contract.simulate(client, {
         ...Actions.propAmm.swap.call({
           ...options,
-          recipient: accounts[2].address,
+          recipient: accounts[2]!.address,
         }),
         account,
       }),
     ).rejects.toThrow()
     await expect(
-      simulateContract(client, {
+      CoreActions.contract.simulate(client, {
         ...Actions.propAmm.swap.call({
           ...options,
           expectedOraclePrice: price + 1n,
@@ -348,7 +352,7 @@ describe('swap', () => {
       }),
     ).rejects.toThrow()
     await expect(
-      simulateContract(client, {
+      CoreActions.contract.simulate(client, {
         ...Actions.propAmm.swap.call({
           ...options,
           minimumOracleUpdatedAt: updatedAt + 1n,
@@ -372,7 +376,7 @@ describe('swap', () => {
       amountIn: 1_000_000n,
       baseToQuote: true,
       customerId,
-      deadline: (await getBlock(client)).timestamp + 120n,
+      deadline: (await CoreActions.block.get(client)).timestamp + 120n,
       expectedOraclePrice: price,
       minAmountOut: amountOut,
       minimumOracleUpdatedAt: updatedAt,
@@ -382,32 +386,32 @@ describe('swap', () => {
       recipient: recipient.address,
       tradeId: Hex.random(32),
     })
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Abis.directPropAmm,
       address: stack.pool,
       functionName: 'pause',
     })
     await expect(
-      simulateContract(client, { ...call, account }),
+      CoreActions.contract.simulate(client, { ...call, account }),
     ).rejects.toThrow()
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Abis.directPropAmm,
       address: stack.pool,
       functionName: 'unpause',
     })
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Contracts.mockOracle.abi,
       address: stack.oracle,
       args: [price, 1n],
       functionName: 'setPrice',
     })
     await expect(
-      simulateContract(client, { ...call, account }),
+      CoreActions.contract.simulate(client, { ...call, account }),
     ).rejects.toThrow()
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Contracts.mockOracle.abi,
       address: stack.oracle,
-      args: [price, (await getBlock(client)).timestamp],
+      args: [price, (await CoreActions.block.get(client)).timestamp],
       functionName: 'setPrice',
     })
   })
@@ -426,7 +430,7 @@ describe('swap', () => {
       amountOut: 1_000_000n,
       baseToQuote: true,
       customerId,
-      deadline: (await getBlock(client)).timestamp + 120n,
+      deadline: (await CoreActions.block.get(client)).timestamp + 120n,
       expectedOraclePrice: price,
       maxAmountIn: amountIn,
       minimumOracleUpdatedAt: updatedAt,
@@ -436,26 +440,26 @@ describe('swap', () => {
       recipient: recipient.address,
       tradeId: Hex.random(32),
     }
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Abis.tip20,
       address: stack.base,
       args: [stack.pool, 0n],
       functionName: 'approve',
     })
     await expect(
-      simulateContract(client, {
+      CoreActions.contract.simulate(client, {
         ...Actions.propAmm.swap.call(options),
         account,
       }),
     ).rejects.toThrow()
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Abis.tip20,
       address: stack.base,
-      args: [stack.pool, parseUnits('1000', 6)],
+      args: [stack.pool, Value.from('1000', 6)],
       functionName: 'approve',
     })
     await expect(
-      simulateContract(client, {
+      CoreActions.contract.simulate(client, {
         ...Actions.propAmm.swap.call({
           ...options,
           maxAmountIn: amountIn - 1n,
@@ -481,7 +485,7 @@ describe('swap', () => {
       spender: stack.pool,
       token: stack.base,
     })
-    const before = await readContract(client, {
+    const before = await CoreActions.contract.read(client, {
       abi: Abis.tip20,
       address: stack.quote,
       args: [recipient.address],
@@ -498,7 +502,7 @@ describe('swap', () => {
         amountIn,
         baseToQuote: true,
         customerId,
-        deadline: (await getBlock(client)).timestamp + 120n,
+        deadline: (await CoreActions.block.get(client)).timestamp + 120n,
         expectedOraclePrice: price,
         minAmountOut: amountOut,
         minimumOracleUpdatedAt: updatedAt,
@@ -509,12 +513,15 @@ describe('swap', () => {
         tradeId,
       }),
     ]
-    const simulation = await Actions.simulate.simulateCalls(client, { calls })
+    const simulation = await CoreActions.multicall(client, {
+      calls,
+      mode: 'simulate',
+    })
     expect(simulation.results.map((result) => result.status)).toEqual([
       'success',
       'success',
     ])
-    const receipt = await sendTransactionSync(client, { calls })
+    const receipt = await CoreActions.transaction.sendSync(client, { calls })
     expect(receipt.status).toBe('success')
     expect(
       Actions.propAmm.swap.extractEvent(receipt.logs, {
@@ -522,7 +529,7 @@ describe('swap', () => {
         tradeId,
       }).args.amountOut,
     ).toBe(amountOut)
-    const after = await readContract(client, {
+    const after = await CoreActions.contract.read(client, {
       abi: Abis.tip20,
       address: stack.quote,
       args: [recipient.address],
@@ -530,7 +537,7 @@ describe('swap', () => {
     })
     expect(after - before).toBe(amountOut)
     await Actions.token.approveSync(client, {
-      amount: parseUnits('1000', 6),
+      amount: Value.from('1000', 6),
       spender: stack.pool,
       token: stack.base,
     })
@@ -550,29 +557,26 @@ describe('swapSync', () => {
       account: account.address,
     })
     const earliestDeadline = BigInt(Math.floor(Date.now() / 1000) + 300)
-    const trade = await Actions.propAmm.swapSync(getClient(), {
+    const trade = await Actions.propAmm.swapSync(tempo.getClient(), {
       ...request,
       account,
       customerId: undefined,
     })
     const latestDeadline = BigInt(Math.floor(Date.now() / 1000) + 300)
-    const transaction = await getTransaction(client, {
+    const transaction = await CoreActions.transaction.get(client, {
       hash: trade.receipt.transactionHash,
     })
-    const call = decodeFunctionData({
-      abi: Abis.directPropAmm,
-      data: transaction.calls![1]!.data!,
-    })
-    expect(call.functionName).toBe('swapExactInput')
-    if (call.functionName !== 'swapExactInput')
-      throw new Error('Expected an exact-input swap.')
-    expect(call.args[6]).toBeGreaterThanOrEqual(earliestDeadline)
-    expect(call.args[6]).toBeLessThanOrEqual(latestDeadline)
+    const call = AbiFunction.decodeData(
+      AbiFunction.fromAbi(Abis.directPropAmm, 'swapExactInput'),
+      transaction.calls![1]!.data!,
+    )
+    expect(call[6]).toBeGreaterThanOrEqual(earliestDeadline)
+    expect(call[6]).toBeLessThanOrEqual(latestDeadline)
     expect(trade.customerId.toLowerCase()).toBe(
       `0x${'0'.repeat(24)}${account.address.slice(2).toLowerCase()}`,
     )
     expect(trade.tradeId).toMatch(/^0x[0-9a-f]{64}$/)
-    expect(call.args[5]).toBe(trade.tradeId)
+    expect(call[5]).toBe(trade.tradeId)
     expect(trade.tokenIn).toBe(stack.base)
     expect(trade.tokenOut).toBe(stack.quote)
     const after = await Actions.token.getBalance(client, {
@@ -583,7 +587,7 @@ describe('swapSync', () => {
   })
 
   test('quotes, simulates, approves, and sells base for quote', async () => {
-    const amountIn = parseUnits('2', 6)
+    const amountIn = Value.from('2', 6)
     const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
       amountIn,
       baseToQuote: true,
@@ -593,8 +597,8 @@ describe('swapSync', () => {
       recipient: recipient.address,
       taker: account.address,
     })
-    expect(amountOut).toBe(parseUnits('2.5', 6))
-    const deadline = (await getBlock(client)).timestamp + 120n
+    expect(amountOut).toBe(Value.from('2.5', 6))
+    const deadline = (await CoreActions.block.get(client)).timestamp + 120n
     const options = {
       amountIn,
       baseToQuote: true,
@@ -614,7 +618,7 @@ describe('swapSync', () => {
       spender: stack.pool,
       token: stack.base,
     })
-    const before = await readContract(client, {
+    const before = await CoreActions.contract.read(client, {
       abi: Abis.tip20,
       address: stack.quote,
       args: [recipient.address],
@@ -624,7 +628,7 @@ describe('swapSync', () => {
     expect(trade.amountOut).toBe(amountOut)
     expect(trade.tokenIn).toBe(stack.base)
     expect(trade.tokenOut).toBe(stack.quote)
-    const after = await readContract(client, {
+    const after = await CoreActions.contract.read(client, {
       abi: Abis.tip20,
       address: stack.quote,
       args: [recipient.address],
@@ -632,14 +636,14 @@ describe('swapSync', () => {
     })
     expect(after - before).toBe(amountOut)
     await Actions.token.approveSync(client, {
-      amount: parseUnits('1000', 6),
+      amount: Value.from('1000', 6),
       spender: stack.pool,
       token: stack.base,
     })
   })
 
   test('quotes and buys an exact amount of base', async () => {
-    const amountOut = parseUnits('1', 6)
+    const amountOut = Value.from('1', 6)
     const { amountIn, request } = await Actions.propAmm.getSwapQuote(client, {
       amountOut,
       baseToQuote: false,
@@ -649,7 +653,7 @@ describe('swapSync', () => {
       recipient: recipient.address,
       taker: account.address,
     })
-    const before = await readContract(client, {
+    const before = await CoreActions.contract.read(client, {
       abi: Abis.tip20,
       address: stack.base,
       args: [recipient.address],
@@ -662,7 +666,7 @@ describe('swapSync', () => {
     })
     const trade = await Actions.propAmm.swapSync(client, request)
     expect(trade.amountIn).toBe(amountIn)
-    const after = await readContract(client, {
+    const after = await CoreActions.contract.read(client, {
       abi: Abis.tip20,
       address: stack.base,
       args: [recipient.address],
@@ -670,7 +674,7 @@ describe('swapSync', () => {
     })
     expect(after - before).toBe(amountOut)
     await Actions.token.approveSync(client, {
-      amount: parseUnits('1000', 6),
+      amount: Value.from('1000', 6),
       spender: stack.pool,
       token: stack.quote,
     })
@@ -681,23 +685,28 @@ async function deploy<const abi extends readonly unknown[]>(
   bytecode: `0x${string}`,
   args: readonly unknown[],
 ) {
-  const hash = await deployContract(client, { abi, args, bytecode } as never)
-  const receipt = await waitForTransactionReceipt(client, { hash })
+  const hash = await CoreActions.contract.deploy(client, {
+    abi,
+    args,
+    bytecode,
+  } as never)
+  const receipt = await CoreActions.transaction.waitForReceipt(client, { hash })
+    .receipt
   if (!receipt.contractAddress)
     throw new Error('Contract deployment returned no address.')
   return receipt.contractAddress
 }
 
 async function setup() {
-  const { token: base } = await setupToken(client, {
+  const { token: base } = await tempo.setupToken(client, {
     name: 'Base',
     symbol: 'BASE',
   })
-  const { token: quote } = await setupToken(client, {
+  const { token: quote } = await tempo.setupToken(client, {
     name: 'Quote',
     symbol: 'QUOTE',
   })
-  const { timestamp } = await getBlock(client)
+  const { timestamp } = await CoreActions.block.get(client)
   const oracle = await deploy(
     Contracts.mockOracle.abi,
     Contracts.mockOracle.bytecode,
@@ -718,38 +727,38 @@ async function setup() {
     ],
   )
   for (const token of [base, quote]) {
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Abis.tip20,
       address: token,
-      args: [pool, parseUnits('1000', 6)],
+      args: [pool, Value.from('1000', 6)],
       functionName: 'approve',
     })
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Abis.directPropAmm,
       address: pool,
-      args: [token, parseUnits('500', 6), zeroMemo],
+      args: [token, Value.from('500', 6), zeroMemo],
       functionName: 'fund',
     })
   }
-  await writeContractSync(client, {
+  await CoreActions.contract.writeSync(client, {
     abi: Abis.directPropAmm,
     address: pool,
     args: [account.address, true],
     functionName: 'setTakerAllowed',
   })
-  await writeContractSync(client, {
+  await CoreActions.contract.writeSync(client, {
     abi: Abis.directPropAmm,
     address: pool,
     args: [recipient.address, true],
     functionName: 'setRecipientAllowed',
   })
-  await writeContractSync(client, {
+  await CoreActions.contract.writeSync(client, {
     abi: Abis.directPropAmm,
     address: pool,
     args: [account.address, true],
     functionName: 'setRecipientAllowed',
   })
-  await writeContractSync(client, {
+  await CoreActions.contract.writeSync(client, {
     abi: Abis.directPropAmm,
     address: pool,
     functionName: 'unpause',

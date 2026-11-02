@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const agungTestnet = /*#__PURE__*/ defineChain({
+export const agungTestnet = /*#__PURE__*/ Chain.from({
   id: 9990,
   name: 'Agung Network',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const agungTestnet = /*#__PURE__*/ defineChain({
     symbol: 'AGNG',
   },
   rpcUrls: {
-    default: {
-      http: ['https://wss-async.agung.peaq.network'],
-      webSocket: ['wss://wss-async.agung.peaq.network'],
-    },
+    http: 'https://wss-async.agung.peaq.network',
+    ws: 'wss://wss-async.agung.peaq.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Subscan',
-      url: 'https://agung-testnet.subscan.io',
-    },
+    name: 'Subscan',
+    url: 'https://agung-testnet.subscan.io',
   },
   testnet: true,
 })

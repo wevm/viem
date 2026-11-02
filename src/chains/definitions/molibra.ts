@@ -1,18 +1,14 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const molibra = /*#__PURE__*/ defineChain({
+export const molibra = /*#__PURE__*/ Chain.from({
   id: 20226,
   name: 'Molibra',
   nativeCurrency: { name: 'Molibra', symbol: 'MOLI', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://molibra.org'],
-    },
+    http: 'https://molibra.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Moliscan',
-      url: 'https://molibra.org/molibra/moliscan',
-    },
+    name: 'Moliscan',
+    url: 'https://molibra.org/molibra/moliscan',
   },
 })

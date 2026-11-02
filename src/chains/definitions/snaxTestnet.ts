@@ -1,25 +1,20 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const snaxTestnet = /*#__PURE__*/ defineChain({
+export const snaxTestnet = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 13001,
-  network: 'snaxchain-testnet',
   name: 'SnaxChain Testnet',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.snaxchain.io'],
-    },
+    http: 'https://testnet.snaxchain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Snax Explorer',
-      url: 'https://testnet-explorer.snaxchain.io',
-      apiUrl: 'https://testnet-explorer.snaxchain.io/api',
-    },
+    name: 'Snax Explorer',
+    url: 'https://testnet-explorer.snaxchain.io',
+    apiUrl: 'https://testnet-explorer.snaxchain.io/api',
   },
   contracts: {
     ...chainConfig.contracts,

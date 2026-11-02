@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const rei = /*#__PURE__*/ defineChain({
+export const rei = /*#__PURE__*/ Chain.from({
   id: 47805,
   name: 'REI Mainnet',
   nativeCurrency: {
@@ -9,16 +10,15 @@ export const rei = /*#__PURE__*/ defineChain({
     symbol: 'REI',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.rei.network'],
-      webSocket: ['wss://rpc.rei.network'],
-    },
+    http: 'https://rpc.rei.network',
+    ws: 'wss://rpc.rei.network',
   },
   blockExplorers: {
-    default: {
-      name: 'REI Scan',
-      url: 'https://scan.rei.network',
-    },
+    name: 'REI Scan',
+    url: 'https://scan.rei.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

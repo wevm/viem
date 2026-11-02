@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const zenchainTestnet = /*#__PURE__*/ defineChain({
+export const zenchainTestnet = /*#__PURE__*/ Chain.from({
   id: 8408,
   name: 'ZenChain Testnet',
   nativeCurrency: {
@@ -9,10 +9,8 @@ export const zenchainTestnet = /*#__PURE__*/ defineChain({
     symbol: 'ZTC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://zenchain-testnet.api.onfinality.io/public'],
-      webSocket: ['wss://zenchain-testnet.api.onfinality.io/public-ws'],
-    },
+    http: 'https://zenchain-testnet.api.onfinality.io/public',
+    ws: 'wss://zenchain-testnet.api.onfinality.io/public-ws',
   },
   contracts: {
     multicall3: {
@@ -21,10 +19,8 @@ export const zenchainTestnet = /*#__PURE__*/ defineChain({
     },
   },
   blockExplorers: {
-    default: {
-      name: 'Zentrace',
-      url: 'https://zentrace.io',
-    },
+    name: 'Zentrace',
+    url: 'https://zentrace.io',
   },
   testnet: true,
 })

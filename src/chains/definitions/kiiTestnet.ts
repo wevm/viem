@@ -1,24 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const kiiTestnetOro = /*#__PURE__*/ defineChain({
+export const kiiTestnetOro = /*#__PURE__*/ Chain.from({
   id: 1336,
   name: 'Kii Testnet Oro',
-  network: 'kii-testnet-oro',
   nativeCurrency: {
     name: 'Kii',
     symbol: 'KII',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://json-rpc.uno.sentry.testnet.v3.kiivalidator.com'],
-    },
+    http: 'https://json-rpc.uno.sentry.testnet.v3.kiivalidator.com',
   },
   blockExplorers: {
-    default: {
-      name: 'KiiExplorer',
-      url: 'https://testnet.explorer.kiichain.io',
-    },
+    name: 'KiiExplorer',
+    url: 'https://testnet.explorer.kiichain.io',
   },
   testnet: true,
 })

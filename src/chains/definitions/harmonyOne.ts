@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const harmonyOne = /*#__PURE__*/ defineChain({
+export const harmonyOne = /*#__PURE__*/ Chain.from({
   id: 1_666_600_000,
   name: 'Harmony One',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const harmonyOne = /*#__PURE__*/ defineChain({
     symbol: 'ONE',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://1666600000.rpc.thirdweb.com'] },
-  },
+  rpcUrls: { http: 'https://1666600000.rpc.thirdweb.com' },
   blockExplorers: {
-    default: {
-      name: 'Harmony Explorer',
-      url: 'https://explorer.harmony.one',
-    },
+    name: 'Harmony Explorer',
+    url: 'https://explorer.harmony.one',
   },
   contracts: {
     multicall3: {

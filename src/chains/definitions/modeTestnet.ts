@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const modeTestnet = /*#__PURE__*/ defineChain({
+export const modeTestnet = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 919,
   name: 'Mode Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.mode.network'],
-    },
+    http: 'https://sepolia.mode.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia.explorer.mode.network',
-      apiUrl: 'https://sepolia.explorer.mode.network/api',
-    },
+    name: 'Blockscout',
+    url: 'https://sepolia.explorer.mode.network',
+    apiUrl: 'https://sepolia.explorer.mode.network/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x2634BD65ba27AB63811c74A63118ACb312701Bfa',

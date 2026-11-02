@@ -1,22 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const lumiaMainnet = /*#__PURE__*/ defineChain({
+export const lumiaMainnet = /*#__PURE__*/ Chain.from({
   id: 994873017,
   name: 'Lumia Mainnet',
-  network: 'LumiaMainnet',
   nativeCurrency: { name: 'Lumia', symbol: 'LUMIA', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.lumia.org'],
-    },
+    http: 'https://mainnet-rpc.lumia.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Lumia Explorer',
-      url: 'https://explorer.lumia.org/',
-    },
+    name: 'Lumia Explorer',
+    url: 'https://explorer.lumia.org/',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 3975939,

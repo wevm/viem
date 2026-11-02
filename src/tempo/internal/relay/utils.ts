@@ -4,8 +4,8 @@ import {
   KeyAuthorization,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import type { Client } from '../../../clients/createClient.js'
-import { UnknownRpcError } from '../../../errors/rpc.js'
+import type { Client } from '../../../core/Client.js'
+import { UnknownRpcError } from '../../../core/RpcError.js'
 
 export function resolveChainId(value: unknown) {
   if (typeof value === 'number') return value
@@ -23,10 +23,10 @@ export function formatFillTransactionRequest(
   value: Record<string, unknown>,
 ) {
   if (value.type === '0x76') return { ...value }
-  const format = client.chain?.formatters?.transactionRequest?.format
+  const format = client.chain?.codecs?.transactionRequest?.toRpc
   if (!format) return value
   return {
-    ...format({ ...value } as never, 'fillTransaction'),
+    ...(format({ ...value } as never) as Record<string, unknown>),
     // Keep the selected token until the request leaves the plugin pipeline.
     ...(value.feeToken !== undefined ? { feeToken: value.feeToken } : {}),
   } as Record<string, unknown>
@@ -148,7 +148,18 @@ export function toRpcError(error: unknown): RpcResponse.BaseError {
               message: candidate.message,
               data: candidate.data,
             }
-    current = candidate.cause
+    // The RPC parser wraps unrecognized codes in an InternalError with the original error as data.
+    const data = candidate.data
+    current =
+      current instanceof RpcResponse.InternalError &&
+      data &&
+      typeof data === 'object' &&
+      'code' in data &&
+      typeof data.code === 'number' &&
+      'message' in data &&
+      data.message === candidate.message
+        ? data
+        : candidate.cause
   }
   if (!deepest)
     return new RpcResponse.InternalError({

@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Removed a trailing slash to the ZKsync explorer URL.
+Removed a trailing slash from the ZKsync explorer URL.

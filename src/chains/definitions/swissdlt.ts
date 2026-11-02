@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const swissdlt = /*#__PURE__*/ defineChain({
+export const swissdlt = /*#__PURE__*/ Chain.from({
   id: 94,
   name: 'SwissDLT Mainnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const swissdlt = /*#__PURE__*/ defineChain({
     symbol: 'BCTS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.swissdlt.ch'],
-    },
+    http: 'https://rpc.swissdlt.ch',
   },
   blockExplorers: {
-    default: {
-      name: 'SwissDLT Explorer',
-      url: 'https://explorer.swissdlt.ch',
-    },
+    name: 'SwissDLT Explorer',
+    url: 'https://explorer.swissdlt.ch',
   },
   testnet: false,
 })

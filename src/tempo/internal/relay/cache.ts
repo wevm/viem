@@ -1,4 +1,4 @@
-import { withTimeout } from '../../../utils/promise/withTimeout.js'
+import { withTimeout } from '../../../core/internal/promise.js'
 import type * as Store_ from '../../Store.js'
 
 export type Store = Store_.Store

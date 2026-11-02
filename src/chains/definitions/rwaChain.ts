@@ -1,29 +1,27 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 8453 // base
 
-export const rwaChain = /*#__PURE__*/ defineChain({
+export const rwaChain = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 7741,
   name: 'RWA Chain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   blockTime: 1_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.rwa-chain.io'],
-      webSocket: ['wss://ws.rwa-chain.io'],
-    },
+    http: 'https://rpc.rwa-chain.io',
+    ws: 'wss://ws.rwa-chain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'RWA Chain Explorer',
-      url: 'https://explorer.rwa-chain.io',
-      apiUrl: 'https://explorer.rwa-chain.io/api',
-    },
+    name: 'RWA Chain Explorer',
+    url: 'https://explorer.rwa-chain.io',
+    apiUrl: 'https://explorer.rwa-chain.io/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 0,

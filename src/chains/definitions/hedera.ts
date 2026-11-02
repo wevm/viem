@@ -1,24 +1,23 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const hedera = /*#__PURE__*/ defineChain({
+export const hedera = /*#__PURE__*/ Chain.from({
   id: 295,
   name: 'Hedera Mainnet',
-  network: 'hedera-mainnet',
   nativeCurrency: {
     symbol: 'HBAR',
     name: 'HBAR',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.hashio.io/api'],
-    },
+    http: 'https://mainnet.hashio.io/api',
   },
   blockExplorers: {
-    default: {
-      name: 'Hashscan',
-      url: 'https://hashscan.io/mainnet',
-    },
+    name: 'Hashscan',
+    url: 'https://hashscan.io/mainnet',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

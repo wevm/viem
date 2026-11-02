@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const quai = /*#__PURE__*/ defineChain({
+export const quai = /*#__PURE__*/ Chain.from({
   id: 9,
   name: 'Quai Network Mainnet',
   nativeCurrency: {
@@ -8,15 +8,11 @@ export const quai = /*#__PURE__*/ defineChain({
     name: 'Quai',
     symbol: 'QUAI',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.quai.network/cyprus1'] },
-  },
+  rpcUrls: { http: 'https://rpc.quai.network/cyprus1' },
   blockExplorers: {
-    default: {
-      name: 'Quaiscan',
-      url: 'https://quaiscan.io',
-      apiUrl: 'https://quaiscan.io/api',
-    },
+    name: 'Quaiscan',
+    url: 'https://quaiscan.io',
+    apiUrl: 'https://quaiscan.io/api',
   },
   testnet: false,
 })

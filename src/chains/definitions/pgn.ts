@@ -1,24 +1,20 @@
-import { formatters } from '../../op-stack/formatters.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import { codecs } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
-export const pgn = /*#__PURE__*/ defineChain({
+export const pgn = /*#__PURE__*/ Chain.from({
+  codecs,
   id: 424,
-  network: 'pgn',
   name: 'PGN',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.publicgoods.network'],
-    },
+    http: 'https://rpc.publicgoods.network',
   },
   blockExplorers: {
-    default: {
-      name: 'PGN Explorer',
-      url: 'https://explorer.publicgoods.network',
-      apiUrl: 'https://explorer.publicgoods.network/api',
-    },
+    name: 'PGN Explorer',
+    url: 'https://explorer.publicgoods.network',
+    apiUrl: 'https://explorer.publicgoods.network/api',
   },
   contracts: {
     l2OutputOracle: {
@@ -41,6 +37,5 @@ export const pgn = /*#__PURE__*/ defineChain({
       },
     },
   },
-  formatters,
   sourceId,
 })

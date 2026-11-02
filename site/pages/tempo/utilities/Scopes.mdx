@@ -17,6 +17,7 @@ can call.
 ### TIP-20 Scopes
 
 ```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"4ba1c32ae0a43e87e79bf91f8dcdfffce832db15ce9cad2661aa9ee268daed78","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBlAYwhwIqcNAEMOSAJxUANjDABzNPiQA2KmNIKYDRCD4D4lEDMZhciAAxVe+caN41yiSQF8K6bBYLEyxmvR4/GAinHD8gog8EfAAdAY4ADwAOiCWtABMlryWuXn5BYVFxQCMqRScqemikpYArJK8AEZNqQB8yAC6xiLiugAsAMyy8koqiOrU4tq6IOGGQiZmFhk2dqQOTmrunjh4hCTkGnSzLGwc0Qs9mrp1k3KKymoa0zp4CUayy0jDILb2jj8iAyO2oXn2viO1BOeAAZgBXMCORgQMCcNCMLBZFJpTLZYoEwkEsogNoAClEUCgpHgcCiVTxOSJzOZJIAlFEPnBYgAVTHYhlZJkskVFEltYxQCC8BB6ADCNNENDgnFEnF4ohkMjCMU4TXhjBksFInFh7FVnB5AEkAAoAWiy6IgAGt5LF/KIFLLkMgQHQcKQWPIxDJKGB4VrOp1hDc1L8HmMkHUXlo3noMVjLMZTOYfmsAVsXKDMHs9Ac/MdAnoyVhSIYOBg2eiNiFYWQomSBBjUXAAPycmLcgDyWG7IU4AB9OIjYLDllAmwBeNqXQTxGI49JC0U7gokioMmr1RotdrXPpIEolZMmUZPRAADhTMzwaBbcDbUJzFl+/w2gOcVQSmLcEy0hfwYWrWt60wJsaV4TFGGDPsokVKUwBkDBOAAA3SAASYAREDRRXGwrpJ2nMBZ3nSVpVlEAACUYAQrAkLALhNRkCAAHdTFCM0TTgGA5EcdgVWUJUwnhLBzi4eDEODTgaSIxhkR7d0YwvRASkGaxb0ecYSj0zQXz0eTWOQ7NvkQfp83/Qt+lcaM/mgbwznYLhgFXeBOFcU062YTgAHIiCQ5gAHoaFYCAguSMA4uCUJ5kEThF04ZA4s4bzuQzLIySCrd8V3YqSiCtlYjfURWzIMlgEyrKlOYhT2LpdKCtoDU2yaUQmmY0Qup6vqBt6zqYG6kb+rGwagujerXDZCg4u6KhmB0UQkFAE55DgFEwFfBBXFcIA==="}
 import { Scopes } from 'viem/tempo'
 
 const scopes = [
@@ -29,6 +30,7 @@ const scopes = [
 ### Target Scopes
 
 ```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"423ee18a34c2b5225d28099df88351b8ab7be45d32b22488cc7f79f64ec8cf3f","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBlAYwhwIqcNAEMOSAJxUANjDABzNPiQA2KmNIKYDRCD4D4lEDMZhciAAxVe+caN41yiSQF8K6bBYLEyxmvR4/GAinJraaIg8/IIAdAAq4hEAPAA6IJa0AEyWvJb5BYVFxSWlAIzpAHzGIuK6ACwAzLLySiqI6tRJOnjhPbJmFlk2dqQOTmrunjh4hCTkGnS6ICxsHNGGQiC1EogArMMmrcpqGt3LBoLGpuZIh7b2jn6IZXtT1F6zvgvUS3gAZgBXMCORgQMBhc5pDLZXKleEI+EVECVAAUoigUFI8DgUXSmRyeURxOJyIAlFFLvAElD8bCiSTGSVkdUqFAILwEHoAMLY0Q0OCcUScXiiGQyThwGIwTgAI0BjBksFInH+7CFEPEssYaDGpAwkK0Oli/lECi5yGQIDoOFILHkYhklDAgPFAF03cJNLo9tIjooTh0zkbln0GANboh7qNxs8sll3pgZno5n5FoE9MFQlLNpTpXBYlToQS4Uyy4VkRROHTRJJLL7eLLZVVkG6at6kGUyn65AH2p0w3gc1cIxZ6iNHhMOonPinvv4/pnwaEw3nNjSQ8X6eWd5YWe26p3Gode21Tl0Q71ztdBkg9hOxk9nAmPB9kz55guMyBUVhSIYOAwMlJRgORHHYKIt1retJEbZsUVROBQJgcDSDxGFoIbJt0irAQ0DBEIAH41ziAB5LB8OXTgAB9OGBWB/kGKBgIAXkqDY4iLOlCV3ctK2rDC6yw+DWRAdlOTwABBcUIAAd0FUVxUFZh+VsMwFDCfAZSQsC0HVcFNJlMMTS9Q8XkaHtjnaAAOYMIiHZDUJvSN7xAB5HynNxXyTbxUx+AJll/f9bUwYDsV4RgsEYB04GIzg+XZMAZANAADTIABJgBEO1FFcFLWxouiwAYpjjHErkQAAJRQyLorALgxRkOTTFCNUVR0lC9NIQVlH5SVASwNYuHC2qHXi+BdUYUFlxM7YOxeVRbP9M8XmsC97L0Eaopi5yLE6dzY2cepXE9NzoG8VZ2C4YAOPgThXFVf9mE4AByIhouYAB6GhWAgF7UjAAGsy4MNOBY26CzDVEXpLBleJJMoXrJAGgeXLhhzu8HkABzhDQiWIOtQ6HMkw2CmxeqtgBx3Hxoi7b6txThkBh2hRX+GBZVEWUUNEdnOe5tmOa5nm+eFwX+ZgF7PWp1wyQoAG2yoZgdFEJBQCWeQ4AI3oEFcVwgA==="}
 import { Scopes } from 'viem/tempo'
 
 const target = Scopes.target('0x20c0000000000000000000000000000000000001')
@@ -43,6 +45,7 @@ const scopes = [
 ### Contract Scopes
 
 ```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"896ababd2e2ef774da2cb854ffcf21e001b853feb3e2164f7ad58bfcc2e18a24","data":"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"}
 import { Scopes, Selectors } from 'viem/tempo'
 
 const tip20 = Scopes.contract(
@@ -57,7 +60,7 @@ const scopes = [
 ]
 ```
 
-## Return Type
+## Return Value
 
 Each builder returns a scope object.
 
@@ -71,12 +74,6 @@ type Scope = {
 
 ## Functions
 
-### `Scopes.tip20`
-
-- **Type:** `(address: Address) => Scopes.Tip20`
-
-Creates a typed scope builder for a TIP-20 token using [`Selectors.tip20`](/tempo/utilities/Selectors).
-
 ### `Scopes.contract`
 
 - **Type:** `(address: Address, selectors: Scopes.SelectorMap) => Scopes.Contract`
@@ -87,8 +84,13 @@ Creates a typed scope builder from any selector map.
 
 - **Type:** `(address: Address) => Scopes.Target`
 
-Creates a scope builder for an arbitrary target. Use `target.any()` to allow any selector on the
-target, or `target.selector(selector, options)` to allow a specific selector.
+Creates a scope builder for an arbitrary target. Use `target.any()` to allow any selector on the target, or `target.selector(selector, options)` to allow a specific selector.
+
+### `Scopes.tip20`
+
+- **Type:** `(address: Address) => Scopes.Tip20`
+
+Creates a typed scope builder for a TIP-20 token using [`Selectors.tip20`](/tempo/utilities/Selectors).
 
 ## Parameters
 
@@ -102,8 +104,7 @@ Contract address the access key can call.
 
 - **Type:** `Scopes.SelectorMap`
 
-Selector map used by [`Scopes.contract`](#scopescontract). Generated selector maps are exported from
-[`Selectors`](/tempo/utilities/Selectors).
+Selector map used by [`Scopes.contract`](#scopescontract). Generated selector maps are exported from [`Selectors`](/tempo/utilities/Selectors).
 
 ### recipients
 

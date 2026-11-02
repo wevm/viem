@@ -1,11 +1,14 @@
+import { Secp256k1 } from 'ox'
+import { TxEnvelopeTempo } from 'ox/tempo'
 import fc from 'fast-check'
+import { custom } from 'viem'
+import { tempoLocalnet } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
 import { fuzzParameters } from '~test/tempo/fuzz.js'
-import { tempoLocalnet } from '../chains/index.js'
-import { custom } from '../clients/transports/custom.js'
-import * as Transaction from './Transaction.js'
 import { withRelay } from './Transport.js'
 
+const privateKey =
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const method = fc.constantFrom(
   'eth_sendRawTransaction' as const,
   'eth_sendRawTransactionSync' as const,
@@ -24,25 +27,46 @@ describe('withRelay: fuzz', () => {
         fc.array(method, { minLength: 1, maxLength: 20 }),
         fc.scheduler(),
         async (policy, methods, scheduler) => {
-          const serialized = await Promise.all(
-            methods.map((_, index) =>
-              Transaction.serialize({
-                calls: [{ to: address(index) }],
-                chainId: tempoLocalnet.id,
-                feePayer: true,
+          const envelopes = methods.map((_, index) =>
+            TxEnvelopeTempo.from({
+              calls: [{ to: address(index) }],
+              chainId: tempoLocalnet.id,
+              feePayerSignature: null,
+              gas: 100_000n,
+              maxFeePerGas: 1_000_000_000n,
+              nonce: BigInt(index),
+            }),
+          )
+          const serialized = envelopes.map((envelope) =>
+            TxEnvelopeTempo.serialize(envelope, {
+              signature: Secp256k1.sign({
+                payload: TxEnvelopeTempo.getSignPayload(envelope),
+                privateKey,
               }),
-            ),
+            }),
+          )
+          const handoffs = envelopes.map((envelope) =>
+            TxEnvelopeTempo.serialize(envelope, {
+              format: 'feePayer',
+              signature: Secp256k1.sign({
+                payload: TxEnvelopeTempo.getSignPayload(envelope),
+                privateKey,
+              }),
+            }),
           )
           const signed = new Map(
-            serialized.map((transaction, index) => [
+            handoffs.map((transaction, index) => [
               transaction,
-              `0x${(index + 1).toString(16).padStart(64, '0')}`,
+              `0x${(index + 1).toString(16).padStart(64, '0')}` as const,
             ]),
           )
-          const methodByTransaction = new Map(
-            serialized.map((transaction, index) => [
+          const methodByTransaction = new Map<
+            `0x${string}`,
+            (typeof methods)[number]
+          >(
+            handoffs.map((transaction, index) => [
               transaction,
-              methods[index],
+              methods[index]!,
             ]),
           )
           const transactionBySignature = new Map(
@@ -54,35 +78,29 @@ describe('withRelay: fuzz', () => {
           const defaultRequests: RequestRecord[] = []
           const relayRequests: RequestRecord[] = []
 
-          const defaultTransport = custom(
-            {
-              async request({ method, params }) {
-                defaultRequests.push({ method, serialized: params[0] })
-                return params[0]
-              },
+          const defaultTransport = custom({
+            async request({ method, params }) {
+              defaultRequests.push({ method, serialized: params[0] })
+              return params[0]
             },
-            { retryCount: 0 },
-          )
-          const relayTransport = custom(
-            {
-              async request({ method, params }) {
-                const transaction = params[0]
-                relayRequests.push({ method, serialized: transaction })
-                const result =
-                  policy === 'sign-only'
-                    ? signed.get(transaction)
-                    : `0x${transaction.slice(-64)}`
-                return scheduler.schedule(
-                  Promise.resolve(result),
-                  `${method}:${transaction.slice(-8)}`,
-                )
-              },
+          })
+          const relayTransport = custom({
+            async request({ method, params }) {
+              const transaction = params[0]
+              relayRequests.push({ method, serialized: transaction })
+              const result =
+                policy === 'sign-only'
+                  ? signed.get(transaction)
+                  : `0x${transaction.slice(-64)}`
+              return scheduler.schedule(
+                Promise.resolve(result),
+                `${method}:${transaction.slice(-8)}`,
+              )
             },
-            { retryCount: 0 },
-          )
+          })
           const transport = withRelay(defaultTransport, relayTransport, {
             policy,
-          })({ chain: tempoLocalnet, retryCount: 0 })
+          }).setup({ chain: tempoLocalnet, retryCount: 0 })
 
           const pending = Promise.all(
             methods.map((method, index) =>
@@ -96,7 +114,7 @@ describe('withRelay: fuzz', () => {
 
           expect(relayRequests).toHaveLength(methods.length)
           for (const request of relayRequests) {
-            expect(serialized).toContain(request.serialized)
+            expect(handoffs).toContain(request.serialized)
             expect(request.method).toBe(
               policy === 'sign-only'
                 ? 'eth_signRawTransaction'
@@ -111,11 +129,9 @@ describe('withRelay: fuzz', () => {
               expect(transaction).toBeDefined()
               expect(request.method).toBe(methodByTransaction.get(transaction!))
             }
-            for (const [index, transaction] of serialized.entries())
+            for (const [index, transaction] of handoffs.entries())
               expect(results[index]).toBe(signed.get(transaction))
-          } else {
-            expect(defaultRequests).toHaveLength(0)
-          }
+          } else expect(defaultRequests).toHaveLength(0)
         },
       ),
       fuzzParameters(100),
@@ -127,37 +143,38 @@ describe('withRelay: fuzz', () => {
       fc.asyncProperty(
         fc.array(method, { minLength: 1, maxLength: 20 }),
         async (methods) => {
-          const serialized = await Promise.all(
-            methods.map((_, index) =>
-              Transaction.serialize({
-                calls: [{ to: address(index) }],
-                chainId: tempoLocalnet.id,
+          const serialized = methods.map((_, index) => {
+            const envelope = TxEnvelopeTempo.from({
+              calls: [{ to: address(index) }],
+              chainId: tempoLocalnet.id,
+              gas: 100_000n,
+              maxFeePerGas: 1_000_000_000n,
+              nonce: BigInt(index),
+            })
+            return TxEnvelopeTempo.serialize(envelope, {
+              signature: Secp256k1.sign({
+                payload: TxEnvelopeTempo.getSignPayload(envelope),
+                privateKey,
               }),
-            ),
-          )
+            })
+          })
           const defaultRequests: RequestRecord[] = []
           const relayRequests: RequestRecord[] = []
-          const defaultTransport = custom(
-            {
-              async request({ method, params }) {
-                defaultRequests.push({ method, serialized: params[0] })
-                return params[0]
-              },
+          const defaultTransport = custom({
+            async request({ method, params }) {
+              defaultRequests.push({ method, serialized: params[0] })
+              return params[0]
             },
-            { retryCount: 0 },
-          )
-          const relayTransport = custom(
-            {
-              async request({ method, params }) {
-                relayRequests.push({ method, serialized: params[0] })
-              },
+          })
+          const relayTransport = custom({
+            async request({ method, params }) {
+              relayRequests.push({ method, serialized: params[0] })
             },
-            { retryCount: 0 },
-          )
-          const transport = withRelay(
-            defaultTransport,
-            relayTransport,
-          )({ chain: tempoLocalnet, retryCount: 0 })
+          })
+          const transport = withRelay(defaultTransport, relayTransport).setup({
+            chain: tempoLocalnet,
+            retryCount: 0,
+          })
 
           await Promise.all(
             methods.map((method, index) =>

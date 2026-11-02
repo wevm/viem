@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const gensyn = /*#__PURE__*/ defineChain({
+export const gensyn = /*#__PURE__*/ Chain.from({
   id: 685_689,
   name: 'Gensyn Mainnet',
   nativeCurrency: {
@@ -8,16 +9,13 @@ export const gensyn = /*#__PURE__*/ defineChain({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://gensyn-mainnet.g.alchemy.com/public'] },
-  },
+  rpcUrls: { http: 'https://gensyn-mainnet.g.alchemy.com/public' },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://gensyn-mainnet.explorer.alchemy.com',
-    },
+    name: 'Blockscout',
+    url: 'https://gensyn-mainnet.explorer.alchemy.com',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 0,

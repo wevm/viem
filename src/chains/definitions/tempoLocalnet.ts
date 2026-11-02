@@ -1,7 +1,7 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../tempo/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const tempoLocalnet = /*#__PURE__*/ defineChain({
+export const tempoLocalnet = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 1337,
   name: 'Tempo',
@@ -11,7 +11,5 @@ export const tempoLocalnet = /*#__PURE__*/ defineChain({
     symbol: 'USD',
     decimals: 6,
   },
-  rpcUrls: {
-    default: { http: ['http://localhost:8545'] },
-  },
+  rpcUrls: { http: 'http://localhost:8545' },
 })

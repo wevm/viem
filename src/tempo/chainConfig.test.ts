@@ -1,620 +1,317 @@
-import { Transaction } from 'viem/tempo'
-import { describe, expect, test, vi } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
-import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
-import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import {
-  getTransaction,
-  getTransactionReceipt,
-  prepareTransactionRequest,
-  sendTransactionSync,
-  signTransaction,
-  verifyHash,
-} from '../actions/index.js'
-import { mainnet, tempoLocalnet } from '../chains/index.js'
-import { createClient, http } from '../index.js'
-import { defineChain } from '../utils/chain/defineChain.js'
-import { hashMessage, keccak256 } from '../utils/index.js'
-import { withResolvers } from '../utils/promise/withResolvers.js'
-import * as accessKeyActions from './actions/accessKey.js'
-import { chainConfig } from './chainConfig.js'
-import {
-  Account,
-  Addresses,
-  KeyAuthorizationManager,
+  Address,
+  Hash,
+  Hex,
   P256,
+  Secp256k1,
+  Signature,
   WebCryptoP256,
-} from './index.js'
+} from 'ox'
+import {
+  AccountConfig,
+  KeyAuthorization,
+  SignatureEnvelope,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
+import { afterAll, describe, expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
 
-const client = getClient({
-  account: accounts.at(0)!,
-})
+import { Client, Actions as CoreActions, http } from 'viem'
+import { tempoLocalnet, tempoModerato } from 'viem/chains'
+import { Account, Actions, KeyAuthorizationManager } from 'viem/tempo'
 
-const maxUint256 = 2n ** 256n - 1n
+import {
+  chainConfig,
+  type Envelope,
+  type TransactionRequest,
+} from './chainConfig.js'
 
-describe('prepareTransactionRequest', () => {
-  describe('behavior: expiring nonce discriminators', () => {
-    test.each([
-      { nonceKey: 'expiring' as const },
-      { nonceKey: maxUint256 },
-      { feePayer: true as const },
-    ])(
-      'preserves caller input in the preparation hook for %o',
-      async (mode) => {
-        const nonces = [undefined, 0, 42, Number.MAX_SAFE_INTEGER] as const
-        const requests = await Promise.all(
-          nonces.map((nonce) => {
-            const request = { ...mode, nonce, chain: client.chain }
-            return chainConfig.prepareTransactionRequest[0](request, {
-              client,
-              phase: 'beforeFillTransaction',
-            })
-          }),
-        )
+const privateKey =
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+const sender: Address.Address = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
-        const [random, ...explicit] = requests.map(({ nonce }) => nonce)
-        expect(Number.isSafeInteger(random)).toBe(true)
-        expect(explicit).toMatchInlineSnapshot(`
-        [
-          0,
-          42,
-          9007199254740991,
-        ]
+/** Serializes a key authorization, ignoring casing and number types normalized by storage. */
+const serializeKeyAuthorization = (
+  keyAuthorization: KeyAuthorization.KeyAuthorization | undefined,
+) =>
+  keyAuthorization && KeyAuthorization.serialize(keyAuthorization).toLowerCase()
+
+const { fromRpc, toRpc } = chainConfig.codecs.transactionRequest
+const { transaction } = chainConfig
+const [prepare] = transaction.prepare
+
+// Tempo-path helpers; the hooks return `undefined` only for non-tempo shapes.
+const toEnvelope = (request: Parameters<typeof transaction.toEnvelope>[0]) =>
+  transaction.toEnvelope(request)!
+const getSignPayload = (envelope: Envelope) =>
+  transaction.getSignPayload(envelope)!
+const serialize = (
+  envelope: Envelope,
+  options?: Parameters<typeof transaction.serialize>[1],
+) => transaction.serialize(envelope, options)!
+
+/** A client for hermetic prepare-hook branches (never dispatches). */
+const client = Client.create({ transport: http('http://localhost') })
+
+// Node-backed suites boot one dedicated Tempo node for this file.
+const node = tempo.defineNode()
+afterAll(() => node.stop())
+
+const baseRequest = {
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69n,
+      data: '0xdeadbeef',
+    },
+  ],
+  chainId: 1337,
+  gas: 21000n,
+  maxFeePerGas: 1000000000n,
+  maxPriorityFeePerGas: 100000000n,
+  nonce: 7,
+  feeToken: '0x20c0000000000000000000000000000000000000',
+} as const
+
+// Signed vectors are unavailable: the reference uses bigints while ox uses hex.
+const v2 = {
+  unsigned:
+    '0x76f8498205398405f5e100843b9aca00825208dcdb9470997970c51812dc3a010c7d01b50e0d17dc79c84584deadbeefc0800780809420c000000000000000000000000000000000000080c0',
+  signPayload:
+    '0x8c1d0f4b0de98848bacdc07a4f5c35e7e6acccc2e55dc55102af100ac4a6af4a',
+  feePayerUnsigned:
+    '0x76f58205398405f5e100843b9aca00825208dcdb9470997970c51812dc3a010c7d01b50e0d17dc79c84584deadbeefc0800780808000c0',
+  feePayerSignPayload:
+    '0x27a1d2cc435a884343962c59c5decc918ec2aaa2bc057503c1151d2c69eb89e2',
+  expiring:
+    '0x76f86d8205398405f5e100843b9aca00825208dcdb9470997970c51812dc3a010c7d01b50e0d17dc79c84584deadbeefc0a0ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8084686b0e00809420c000000000000000000000000000000000000080c0',
+  window:
+    '0x76f8868205398405f5e100843b9aca00825208dcdb9470997970c51812dc3a010c7d01b50e0d17dc79c84584deadbeeff838f79470997970c51812dc3a010c7d01b50e0d17dc79c8e1a0000000000000000000000000000000000000000000000000000000000000000180078084686af5009420c000000000000000000000000000000000000080c0',
+  lifted:
+    '0x76f8458205398405f5e100843b9aca00825208d8d79470997970c51812dc3a010c7d01b50e0d17dc79c84580c0800780809420c000000000000000000000000000000000000080c0',
+  zeroCall:
+    '0x76f8458205398405f5e100843b9aca00825208d8d79400000000000000000000000000000000000000008080c0800780809420c000000000000000000000000000000000000080c0',
+} as const
+
+describe('codecs.transactionRequest', () => {
+  test('preserves an external fee payer URL', () => {
+    const request = toRpc({
+      ...baseRequest,
+      feePayer: 'https://relay.example',
+    } as never)
+
+    expect(request.feePayer).toMatchInlineSnapshot(`"https://relay.example"`)
+  })
+
+  test('encodes a tempo request', () => {
+    expect(toRpc({ ...baseRequest, from: sender })).toMatchInlineSnapshot(`
+        {
+          "calls": [
+            {
+              "data": "0xdeadbeef",
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "value": "0x45",
+            },
+          ],
+          "chainId": "0x539",
+          "feeToken": "0x20c0000000000000000000000000000000000000",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gas": "0x5208",
+          "maxFeePerGas": "0x3b9aca00",
+          "maxPriorityFeePerGas": "0x5f5e100",
+          "nonce": "0x7",
+          "type": "0x76",
+        }
       `)
-      },
-    )
+  })
 
-    test.each([
-      { nonceKey: 'expiring' as const },
-      { nonceKey: maxUint256 },
-      { feePayer: true as const },
-    ])('preserves caller input for %o', async (mode) => {
-      const nonces = [undefined, 0, 42, Number.MAX_SAFE_INTEGER] as const
-      const requests = await Promise.all(
-        nonces.map((nonce) =>
-          prepareTransactionRequest(client, {
-            ...mode,
-            nonce,
-            parameters: [],
-            validAfter: 1_800_000_000,
-            validBefore: 1_800_000_025,
-          }),
-        ),
-      )
+  test('lifts flat `to`/`value`/`data` into `calls`', () => {
+    const rpc = toRpc({
+      feeToken: baseRequest.feeToken,
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69n,
+    }) as Record<string, unknown>
+    expect(rpc.calls).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x",
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "value": "0x45",
+        },
+      ]
+    `)
+    expect(rpc.to).toBeUndefined()
+    expect(rpc.value).toBeUndefined()
+    expect(rpc.data).toBeUndefined()
+  })
 
-      const [random, ...explicit] = requests.map(({ nonce }) => nonce)
-      expect(Number.isSafeInteger(random)).toBe(true)
-      expect(explicit).toMatchInlineSnapshot(`
-        [
-          0,
-          42,
-          9007199254740991,
-        ]
-      `)
-      for (const request of requests) {
-        expect(request.nonceKey).toBe(maxUint256)
-        expect(request.validAfter).toBe(1_800_000_000)
-        expect(request.validBefore).toBe(1_800_000_025)
-      }
-    })
+  test('defaults a call-less request to the zero address', () => {
+    const rpc = toRpc({
+      feeToken: baseRequest.feeToken,
+    }) as Record<string, unknown>
+    expect(rpc.calls).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x",
+          "to": "0x0000000000000000000000000000000000000000",
+          "value": "0x",
+        },
+      ]
+    `)
+  })
 
-    test('preserves caller input when concurrency enables expiring nonces', async () => {
-      const requests = await Promise.all(
-        [42, 43].map((nonce) =>
-          prepareTransactionRequest(client, {
-            nonce,
-            parameters: ['nonce'],
-          }),
-        ),
-      )
-
-      expect(requests.map(({ nonce }) => nonce)).toMatchInlineSnapshot(`
-        [
-          42,
-          43,
-        ]
-      `)
-      for (const request of requests) expect(request.nonceKey).toBe(maxUint256)
-    })
-
-    test('preserves discriminators through signing and repeated preparation', async () => {
-      const transaction = {
-        chainId: client.chain.id,
-        calls: [{ to: accounts[1].address }],
-        gas: 100_000n,
-        maxFeePerGas: 1n,
-        maxPriorityFeePerGas: 0n,
-        nonceKey: maxUint256,
-        validAfter: 1_800_000_000,
-        validBefore: 1_800_000_025,
-      } as const
-      const serialized = await Promise.all(
-        [0, 42, Number.MAX_SAFE_INTEGER].map(async (nonce) => {
-          const request = await prepareTransactionRequest(client, {
-            ...transaction,
-            nonce,
-            parameters: ['nonce'],
-          })
-          const repeated = await prepareTransactionRequest(client, {
-            ...request,
-            parameters: ['nonce'],
-          })
-
-          expect(repeated).toEqual(request)
-
-          const signed = await client.account.signTransaction({
-            ...transaction,
-            nonce: request.nonce,
-          })
-
-          expect(
-            await client.account.signTransaction({
-              ...transaction,
-              nonce: repeated.nonce,
-            }),
-          ).toBe(signed)
-          return signed
+  test('threads wire fields the generic encoding drops', () => {
+    const rpc = toRpc({
+      ...baseRequest,
+      capabilities: { balanceDiffs: true },
+      keyData: '0x0578',
+      keyId: '0xcccccccccccccccccccccccccccccccccccccccc',
+      keyType: 'webAuthn',
+      accountSimulation: {
+        approvals: [{ owner: sender, keyType: 'secp256k1' }],
+        config: AccountConfig.from({
+          version: 0n,
+          salt: AccountConfig.zeroSalt,
+          threshold: 2,
+          owners: [
+            { owner: sender, weight: 1 },
+            { owner: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', weight: 1 },
+          ],
         }),
-      )
-
-      expect(
-        serialized.map(
-          (transaction) => Transaction.deserialize(transaction).nonce,
-        ),
-      ).toMatchInlineSnapshot(`
-        [
-          0,
-          42,
-          9007199254740991,
-        ]
-      `)
-      expect(new Set(serialized).size).toBe(3)
-    })
-  })
-
-  test('behavior: expiring nonces for feePayer transactions', async () => {
-    const now = Math.floor(Date.now() / 1000)
-    const requests = await Promise.all([
-      prepareTransactionRequest(client, { feePayer: true }),
-      prepareTransactionRequest(client, { feePayer: true }),
-      prepareTransactionRequest(client, { feePayer: true }),
-    ])
-
-    // All feePayer transactions use expiring nonces (nonceKey = uint256.max)
-    expect(requests[0]?.nonceKey).toBe(maxUint256)
-    expect(requests[1]?.nonceKey).toBe(maxUint256)
-    expect(requests[2]?.nonceKey).toBe(maxUint256)
-
-    // Each gets a distinct nonce discriminator
-    const nonces = requests.map((request) => request.nonce)
-    expect(nonces.every((nonce) => Number.isSafeInteger(nonce))).toBe(true)
-    expect(new Set(nonces).size).toBe(3)
-
-    // All should be immediately valid
-    expect(requests[0]?.validAfter).toBeUndefined()
-    expect(requests[1]?.validAfter).toBeUndefined()
-    expect(requests[2]?.validAfter).toBeUndefined()
-
-    // All should have validBefore set 270 seconds ahead
-    expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now + 270)
-    expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 271)
-  })
-
-  test('behavior: explicit nonceKey overrides expiring nonce', async () => {
-    const requests = await Promise.all([
-      prepareTransactionRequest(client, {
-        feePayer: true,
-        nonceKey: 42n,
-      }),
-      prepareTransactionRequest(client, { feePayer: true }),
-      prepareTransactionRequest(client, {
-        feePayer: true,
-        nonceKey: 100n,
-      }),
-    ])
-
-    // Explicit nonceKey uses 2D nonce mode
-    expect(requests[0]?.nonceKey).toBe(42n)
-    expect(requests[0]?.validBefore).toBeUndefined()
-
-    // Default feePayer uses expiring nonces
-    expect(requests[1]?.nonceKey).toBe(maxUint256)
-    expect(requests[1]?.validBefore).toBeDefined()
-
-    expect(requests[2]?.nonceKey).toBe(100n)
-    expect(requests[2]?.validBefore).toBeUndefined()
-  })
-
-  test('behavior: default nonceKey when feePayer is not set', async () => {
-    const request = await prepareTransactionRequest(client, {})
-    expect(request?.nonceKey).toBe(undefined)
-    expect(request?.validBefore).toBeUndefined()
-  })
-
-  test('behavior: does not set gas when gas is not prepared', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: accounts.at(0)!,
-    })
-    const request = await prepareTransactionRequest(client, {
-      account: accessKey,
-      feePayer: true,
-      parameters: [],
-    })
-
-    expect(request.gas).toBeUndefined()
-  })
-
-  test('behavior: bumps prepared gas for sponsored access keys', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: accounts.at(0)!,
-    })
-    const request = await prepareTransactionRequest(client, {
-      account: accessKey,
-      feePayer: true,
-      gas: 33_000n,
-      parameters: [],
-    })
-
-    // 5,000 for the fee payer's signature and fee token, plus 10,000 for the access-key signature.
-    expect(request.gas).toBe(48_000n)
-  })
-
-  test('behavior: bumps prepared gas for sponsored transactions', async () => {
-    const request = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(generatePrivateKey()),
-      feePayer: true,
-      gas: 33_000n,
-      parameters: [],
-    })
-
-    expect(request.gas).toBe(38_000n)
-  })
-
-  test('behavior: nonceKey expiring uses expiring nonces', async () => {
-    const now = Math.floor(Date.now() / 1000)
-    const request = await prepareTransactionRequest(client, {
-      nonceKey: 'expiring',
-    })
-    expect(request?.nonceKey).toBe(maxUint256)
-    expect(Number.isSafeInteger(request?.nonce)).toBe(true)
-    expect(request?.validBefore).toBeGreaterThanOrEqual(now + 270)
-    expect(request?.validBefore).toBeLessThanOrEqual(now + 271)
-  })
-
-  test('behavior: numeric expiring nonce sentinel gets a validity window', async () => {
-    const now = Math.floor(Date.now() / 1000)
-    const request = await prepareTransactionRequest(client, {
-      nonceKey: maxUint256,
-      parameters: [],
-    })
-
-    expect(request.nonceKey).toBe(maxUint256)
-    expect(Number.isSafeInteger(request.nonce)).toBe(true)
-    expect(request.validBefore).toBeGreaterThanOrEqual(now + 270)
-    expect(request.validBefore).toBeLessThanOrEqual(now + 271)
-  })
-
-  test('behavior: explicit validity window is preserved', async () => {
-    const customValidAfter = Math.floor(Date.now() / 1000) - 15
-    const customValidBefore = Math.floor(Date.now() / 1000) + 15
-    const request = await prepareTransactionRequest(client, {
-      feePayer: true,
-      validAfter: customValidAfter,
-      validBefore: customValidBefore,
-    })
-    expect(request?.nonceKey).toBe(maxUint256)
-    expect(request?.validAfter).toBe(customValidAfter)
-    expect(request?.validBefore).toBe(customValidBefore)
-  })
-
-  test('behavior: expiring nonces do not consume a sequential nonce', async () => {
-    const consume = vi.fn(async () => 7)
-    const request = await prepareTransactionRequest(client, {
-      feePayer: true,
-      nonceManager: {
-        consume,
-        get: vi.fn(async () => 7),
-        increment: vi.fn(),
-        reset: vi.fn(),
       },
-      parameters: ['nonce'],
+    }) as Record<string, unknown>
+    expect(rpc.capabilities).toEqual({ balanceDiffs: true })
+    expect(rpc.keyData).toBe('0x0578')
+    expect(rpc.keyId).toBe('0xcccccccccccccccccccccccccccccccccccccccc')
+    expect(rpc.keyType).toBe('webAuthn')
+    expect(rpc.configurableAccountSimulation).toMatchObject({
+      approvals: [{ owner: sender, keyType: 'secp256k1' }],
     })
-
-    expect(consume).not.toHaveBeenCalled()
-    expect(request.nonceKey).toBe(maxUint256)
-    expect(Number.isSafeInteger(request.nonce)).toBe(true)
   })
 
-  test('behavior: protocol nonce key consumes a sequential nonce', async () => {
-    const consume = vi.fn(async () => 7)
-    const nonceManager = {
-      consume,
-      get: vi.fn(async () => 7),
-      increment: vi.fn(),
-      reset: vi.fn(),
-    }
-
-    const protocol = await prepareTransactionRequest(client, {
-      nonceKey: 0n,
-      nonceManager,
-      parameters: ['nonce'],
-    })
-    expect(protocol.nonceKey).toBe(0n)
-    expect(protocol.nonce).toBe(7)
-    expect(consume).toHaveBeenCalledTimes(1)
-
-    const parallel = await prepareTransactionRequest(client, {
-      nonceKey: 42n,
-      nonceManager,
-      parameters: ['nonce'],
-    })
-    expect(parallel.nonceKey).toBe(42n)
-    expect(parallel.nonce).toBe(0)
-    expect(consume).toHaveBeenCalledTimes(1)
+  test('shims key data longer than 4 bytes into a length hint', () => {
+    const rpc = toRpc({
+      ...baseRequest,
+      keyData: `0x${'aa'.repeat(1400)}`,
+      keyType: 'webAuthn',
+    }) as Record<string, unknown>
+    // 1400 bytes → 0x0578 big-endian length hint.
+    expect(rpc.keyData).toBe('0x0578')
+    // 4 bytes and below pass through.
+    expect(
+      (
+        toRpc({ ...baseRequest, keyData: '0x01020304' }) as Record<
+          string,
+          unknown
+        >
+      ).keyData,
+    ).toBe('0x01020304')
   })
 
-  test('behavior: detects concurrent JSON-RPC address accounts', async () => {
-    const address = accounts.at(0)!.address
-    const requests = await Promise.all([
-      prepareTransactionRequest(client, {
-        account: address,
-        parameters: [],
-      }),
-      prepareTransactionRequest(client, {
-        account: address.toLowerCase() as typeof address,
-        parameters: [],
-      }),
-    ])
+  test('feePayer: strips `feeToken` until the fee payer has signed', () => {
+    const pending = toRpc({
+      ...baseRequest,
+      feePayer: true,
+    }) as Record<string, unknown>
+    expect(pending.feeToken).toBeUndefined()
+    expect(pending.feePayer).toBe(true)
 
-    expect(requests[0].nonceKey).toBe(maxUint256)
-    expect(requests[1].nonceKey).toBe(maxUint256)
-  })
-
-  test('behavior: detects concurrency before asynchronous account preparation', async () => {
-    let reads = 0
-    let releaseSecondRead: (() => void) | undefined
-    const secondRead = new Promise<undefined>((resolve) => {
-      releaseSecondRead = () => resolve(undefined)
-    })
-    const keyAuthorizationManager = KeyAuthorizationManager.from({
-      store: {
-        getItem() {
-          reads++
-          if (reads === 1) return undefined
-          return secondRead
-        },
-        removeItem() {},
-        setItem() {},
+    const signed = toRpc({
+      ...baseRequest,
+      feePayer: true,
+      feePayerSignature: {
+        r: '0x1111111111111111111111111111111111111111111111111111111111111111',
+        s: '0x2222222222222222222222222222222222222222222222222222222222222222',
+        yParity: 1,
       },
-    })
-    const account = Account.fromP256(generatePrivateKey(), {
-      access: accounts.at(0)!,
-      keyAuthorizationManager,
-    })
-
-    const firstPromise = prepareTransactionRequest(client, {
-      account,
-      parameters: [],
-    })
-    const secondPromise = prepareTransactionRequest(client, {
-      account,
-      parameters: [],
-    })
-    const first = await firstPromise
-    releaseSecondRead?.()
-    const second = await secondPromise
-
-    expect(first.nonceKey).toBe(maxUint256)
-    expect(second.nonceKey).toBe(maxUint256)
+    }) as Record<string, unknown>
+    expect(signed.feeToken).toBe(baseRequest.feeToken)
   })
 
-  test('behavior: staggered requests use sequential nonces', async () => {
-    const entered_1 = withResolvers<void>()
-    const entered_2 = withResolvers<void>()
-    const release = withResolvers<void>()
-    let getCount = 0
-    const keyAuthorizationManager = KeyAuthorizationManager.from({
-      store: {
-        async getItem() {
-          getCount++
-          if (getCount === 1) entered_1.resolve()
-          if (getCount === 2) entered_2.resolve()
-          await release.promise
-          return undefined
-        },
-        removeItem() {},
-        setItem() {},
-      },
-    })
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: accounts.at(0)!,
-      keyAuthorizationManager,
-    })
-    let nonce = 7
-    const consume = vi.fn(async () => nonce++)
-    const nonceManager = {
-      consume,
-      get: vi.fn(async () => nonce),
-      increment: vi.fn(),
-      reset: vi.fn(),
-    }
-
-    const request_1 = prepareTransactionRequest(client, {
-      account: accessKey,
-      nonceManager,
-      parameters: ['nonce'],
-    })
-    await entered_1.promise
-    const request_2 = prepareTransactionRequest(client, {
-      account: accessKey,
-      nonceManager,
-      parameters: ['nonce'],
-    })
-    await entered_2.promise
-    release.resolve()
-
-    const requests = await Promise.all([request_1, request_2])
-    expect(requests.map((request) => request.nonce)).toEqual([7, 8])
-    expect(requests.map((request) => request.nonceKey)).toEqual([
-      undefined,
-      undefined,
-    ])
-    expect(consume).toHaveBeenCalledTimes(2)
+  test('feePayer: encodes a fee payer account as `true`', () => {
+    const rpc = toRpc({
+      ...baseRequest,
+      feePayer: { address: sender, type: 'json-rpc' },
+    }) as Record<string, unknown>
+    expect(rpc.feePayer).toBe(true)
+    expect(rpc.feeToken).toBe(baseRequest.feeToken)
   })
 
-  test('behavior: sendTransaction with expiring nonces', async () => {
-    const receipts = await Promise.all([
-      sendTransactionSync(client, {
-        to: '0x0000000000000000000000000000000000000000',
-      }),
-      sendTransactionSync(client, {
-        to: '0x0000000000000000000000000000000000000001',
-      }),
-      sendTransactionSync(client, {
-        to: '0x0000000000000000000000000000000000000002',
-      }),
-    ])
-    // biome-ignore lint/suspicious/noTsIgnore: previous versions of TS (in CI) mark this as infinite instantiation
-    // @ts-ignore
-    const transactions = await Promise.all([
-      getTransaction(client, {
-        hash: receipts[0].transactionHash,
-      }),
-      getTransaction(client, {
-        hash: receipts[1].transactionHash,
-      }),
-      getTransaction(client, {
-        hash: receipts[2].transactionHash,
-      }),
-    ])
-    // Concurrent transactions automatically use expiring nonces
-    expect(transactions[0].nonceKey).toBe(maxUint256)
-    expect(transactions[1].nonceKey).toBe(maxUint256)
-    expect(transactions[2].nonceKey).toBe(maxUint256)
+  test('strips client-side configurable account fields', () => {
+    const rpc = toRpc({
+      ...baseRequest,
+      owner: Account.fromSecp256k1(privateKey),
+      signatures: ['0xdeadbeef'],
+    }) as Record<string, unknown>
+    expect(rpc.owner).toBeUndefined()
+    expect(rpc.signatures).toBeUndefined()
   })
 
-  test('behavior: feeToken from chain config', async () => {
-    const chainWithFeeToken = defineChain({
-      ...tempoLocalnet,
-      feeToken,
-    })
-    const clientWithFeeToken = getClient({
-      account: accounts.at(0)!,
-      chain: chainWithFeeToken,
-    })
-    const request = await prepareTransactionRequest(clientWithFeeToken, {})
-    expect(request.feeToken).toBe(feeToken)
-  })
-
-  test('behavior: keyAuthorizationManager attaches pending key authorization', async () => {
-    const rootAccount = accounts.at(0)!
-    const keyAuthorizationManager = KeyAuthorizationManager.memory()
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: rootAccount,
-      keyAuthorizationManager,
-    })
-    const expiry = Math.floor((Date.now() + 30_000) / 1000)
-    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
-      account: rootAccount,
-      accessKey,
-      expiry,
-    })
-
-    await keyAuthorizationManager.set(
+  test('routes non-tempo requests to the generic encoding', () => {
+    expect(
+      toRpc({
+        from: sender,
+        gas: 21000n,
+        maxFeePerGas: 1000000000n,
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toMatchInlineSnapshot(`
       {
-        address: accessKey.address,
-        accessKey: accessKey.accessKeyAddress,
-        chainId: client.chain.id,
-      },
-      keyAuthorization,
-    )
-
-    const request = await prepareTransactionRequest(client, {
-      account: accessKey,
-      parameters: ['chainId'],
-    })
-
-    expect(request.keyAuthorization).toEqual(keyAuthorization)
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gas": "0x5208",
+        "maxFeePerGas": "0x3b9aca00",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "0x2",
+        "value": "0x1",
+      }
+    `)
   })
 
-  test('behavior: keyAuthorizationManager reads metadata without client account', async () => {
-    const rootAccount = accounts.at(0)!
-    const keyAuthorizationManager = KeyAuthorizationManager.memory()
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: rootAccount,
-      keyAuthorizationManager,
-    })
-    const accessKeyClient = getClient({
-      account: accessKey,
-    })
-    const expiry = Math.floor((Date.now() + 30_000) / 1000)
-    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
-      account: rootAccount,
-      accessKey,
-      expiry,
-    })
-
-    await keyAuthorizationManager.set(
+  test('decodes an RPC request', () => {
+    const request = fromRpc({
+      calls: [
+        {
+          data: '0xdeadbeef',
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: '0x45',
+        },
+      ],
+      chainId: '0x539',
+      feeToken: '0x20c0000000000000000000000000000000000000',
+      keyId: '0xcccccccccccccccccccccccccccccccccccccccc',
+      nonce: '0x7',
+      type: '0x76',
+    }) as Record<string, unknown>
+    expect(request).toMatchInlineSnapshot(`
       {
-        address: accessKey.address,
-        accessKey: accessKey.accessKeyAddress,
-        chainId: accessKeyClient.chain.id,
-      },
-      keyAuthorization,
-    )
-
-    const requestSpy = vi.spyOn(accessKeyClient, 'request')
-    const request = await prepareTransactionRequest(accessKeyClient, {
-      parameters: ['chainId'],
-    })
-    const requestCalls = requestSpy.mock.calls as [
-      { method: string; params?: readonly unknown[] },
-    ][]
-    const metadataCall = requestCalls.find(([request]) => {
-      if (request.method !== 'eth_call') return false
-      const call = request.params?.[0] as { to?: string } | undefined
-      return call?.to?.toLowerCase() === Addresses.accountKeychain.toLowerCase()
-    })
-    const call = metadataCall?.[0].params?.[0] as
-      | { from?: string | undefined }
-      | undefined
-
-    expect(request.keyAuthorization).toEqual(keyAuthorization)
-    expect(call?.from).toBeUndefined()
+        "calls": [
+          {
+            "data": "0xdeadbeef",
+            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "value": 69n,
+          },
+        ],
+        "chainId": 1337,
+        "feeToken": "0x20c0000000000000000000000000000000000000",
+        "keyId": "0xcccccccccccccccccccccccccccccccccccccccc",
+        "nonce": 7n,
+        "type": "tempo",
+      }
+    `)
   })
 
-  test('behavior: keyAuthorizationManager removes authorization for authorized key', async () => {
-    const rootAccount = accounts.at(0)!
-    const keyAuthorizationManager = KeyAuthorizationManager.memory()
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: rootAccount,
-      keyAuthorizationManager,
-    })
-    const expiry = Math.floor((Date.now() + 30_000) / 1000)
-    const key = {
-      address: accessKey.address,
-      accessKey: accessKey.accessKeyAddress,
-      chainId: client.chain.id,
-    }
-    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
-      account: rootAccount,
-      accessKey,
-      expiry,
-    })
-
-    await accessKeyActions.authorizeSync(client, { accessKey, expiry })
-    await keyAuthorizationManager.set(key, keyAuthorization)
-
-    const request = await prepareTransactionRequest(client, {
-      account: accessKey,
-      parameters: ['chainId'],
-    })
-
-    expect(request.keyAuthorization).toBeUndefined()
-    expect(await keyAuthorizationManager.get(key)).toBeUndefined()
+  test('chain definitions carry the converter', () => {
+    const rpc = tempoModerato.codecs.transactionRequest.toRpc(
+      baseRequest,
+    ) as Record<string, unknown>
+    expect(rpc.type).toBe('0x76')
+    expect(rpc.feeToken).toBe(baseRequest.feeToken)
   })
 })
 
+/** A mainnet expiring nonce transaction whose nonce exceeds `Number.MAX_SAFE_INTEGER`. */
 const expiringNonceTransaction = {
   accessList: [],
   aaAuthorizationList: [],
@@ -662,400 +359,1315 @@ const expiringNonceTransaction = {
   validBefore: '0x6ae0cb0d',
 } as const
 
-describe('formatters', () => {
-  test('transaction formatter (getTransaction)', async () => {
-    const receipt = await sendTransactionSync(client, {
-      to: '0x0000000000000000000000000000000000000000',
-      feeToken,
-    })
-    const transaction = await getTransaction(client, {
-      hash: receipt.transactionHash,
-    })
-    expect(transaction.hash).toBe(receipt.transactionHash)
-    expect(transaction.blockTimestamp).toBeTypeOf('bigint')
-    expect(transaction.type).toBe('tempo')
-    expect(transaction.calls).toBeDefined()
-    expect(transaction.signature).toBeDefined()
-    expect(transaction.feeToken).toBe(feeToken)
-  })
-
-  test('behavior: transaction formatter accepts expiring nonces above 2^53', () => {
-    const transaction = chainConfig.formatters.transaction.format(
-      expiringNonceTransaction as never,
+describe('codecs.transaction', () => {
+  test('decodes expiring nonces above 2^53 exactly', () => {
+    const transaction = chainConfig.codecs.transaction.fromRpc(
+      expiringNonceTransaction as unknown as Parameters<
+        typeof chainConfig.codecs.transaction.fromRpc
+      >[0],
     )
-
-    expect(transaction.type).toBe('tempo')
-    expect(transaction.nonce).toBe(0xe723b82c0de6fb54n)
-    expect(transaction.nonceKey).toBe(
-      0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn,
-    )
-    expect(transaction.gasPrice).toBe(0x23c34600n)
-    expect('aaAuthorizationList' in transaction).toBe(false)
+    expect(transaction).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "blockHash": "0x2a1be7bdf66a1d611af5af52d961261bd8f2f49fd6131ec00d702b585dca6f45",
+        "blockNumber": 46158546n,
+        "blockTimestamp": 1793116882n,
+        "calls": [
+          {
+            "data": "0xa9059cbb0000000000000000000000004c2c0f0bb2631b02ac9299c59690914ee7a200b8000000000000000000000000000000000000000000000000000000000052b3e0",
+            "to": "0x20c0000000000000000000006a37da5c996874be",
+            "value": 0n,
+          },
+        ],
+        "chainId": 4217,
+        "feePayerSignature": {
+          "r": "0x7c4ef2a5e8e020d72493c05b7973ebcef0d67229042de01a0a07d64933f8880f",
+          "s": "0x2298cf0122f6e8e6cd9d6bec68a06e75176f0e8231b81ad35430065b49323bc9",
+          "v": 27,
+          "yParity": 0,
+        },
+        "feeToken": "0x20c0000000000000000000000000000000000000",
+        "from": "0xec069186420e91902de5343393503d635ea90382",
+        "gas": 595666n,
+        "gasPrice": 600000000n,
+        "hash": "0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239",
+        "maxFeePerGas": 1200000000n,
+        "maxPriorityFeePerGas": 0n,
+        "nonce": 16655358346297539412n,
+        "nonceKey": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        "signature": {
+          "signature": {
+            "r": "0x20b5df0d1c766184d8d3867f4322fc6980bd6c8cf3cd41ceb4620fafb7e9f7fd",
+            "s": "0x567734f30f9b8e9cbf71eb2be871a3a5eecf773da2feb74eda0fe82d52d83813",
+            "yParity": 0,
+          },
+          "type": "secp256k1",
+        },
+        "transactionIndex": 0,
+        "type": "tempo",
+        "validBefore": 1793116941,
+      }
+    `)
   })
-
-  test('behavior: serializes formatted expiring nonces exactly', async () => {
-    const transaction = chainConfig.formatters.transaction.format(
-      expiringNonceTransaction as never,
+  test('decoded expiring nonces serialize to the mined transaction', () => {
+    const transaction = chainConfig.codecs.transaction.fromRpc(
+      expiringNonceTransaction as unknown as Parameters<
+        typeof chainConfig.codecs.transaction.fromRpc
+      >[0],
     )
-
-    const serialized = await Transaction.serialize(transaction as never)
-
-    expect(keccak256(serialized)).toBe(expiringNonceTransaction.hash)
+    if (transaction.type !== 'tempo') throw new Error('expected tempo')
+    const serialized = serialize(
+      TxEnvelopeTempo.from({ ...transaction, nonce: transaction.nonce }),
+    )
+    expect(Hash.keccak256(serialized)).toBe(expiringNonceTransaction.hash)
   })
+})
 
-  test('behavior: block formatter formats Tempo transactions', () => {
-    const block = chainConfig.formatters.block.format({
+describe('codecs.block', () => {
+  test('decodes Tempo transactions inside blocks', () => {
+    const block = chainConfig.codecs.block.fromRpc({
       number: '0x2c052d2',
-      transactions: [expiringNonceTransaction],
+      transactions: [
+        expiringNonceTransaction,
+        '0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239',
+      ],
+    } as unknown as Parameters<typeof chainConfig.codecs.block.fromRpc>[0])
+    const [transaction, hash] = block.transactions
+    expect({
+      hash,
+      number: block.number,
+      transaction:
+        typeof transaction === 'object'
+          ? {
+              nonce: transaction.nonce,
+              nonceKey: transaction.nonceKey,
+              type: transaction.type,
+            }
+          : transaction,
+    }).toMatchInlineSnapshot(`
+      {
+        "hash": "0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239",
+        "number": 46158546n,
+        "transaction": {
+          "nonce": 16655358346297539412n,
+          "nonceKey": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+          "type": "tempo",
+        },
+      }
+    `)
+  })
+})
+
+describe('transaction.toEnvelope', () => {
+  test('builds a tempo envelope (lifting flat fields)', () => {
+    const envelope = toEnvelope({
+      chainId: 1337,
+      feeToken: baseRequest.feeToken,
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69n,
+    } as never)
+    expect(envelope).toMatchInlineSnapshot(`
+      {
+        "calls": [
+          {
+            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "value": 69n,
+          },
+        ],
+        "chainId": 1337,
+        "feeToken": "0x20c0000000000000000000000000000000000000",
+        "type": "tempo",
+      }
+    `)
+  })
+
+  test('defaults a data-less call to the zero address', () => {
+    const envelope = toEnvelope({
+      chainId: 1337,
+      feeToken: baseRequest.feeToken,
+    } as never)
+    expect(envelope.calls).toMatchInlineSnapshot(`
+      [
+        {
+          "to": "0x0000000000000000000000000000000000000000",
+        },
+      ]
+    `)
+  })
+
+  test('threads structural metadata and strips wire hints', () => {
+    const config = AccountConfig.from({
+      threshold: 1,
+      owners: [{ owner: sender, weight: 1 }],
+    })
+    const accountSimulation = { account: sender, config, approvals: [] }
+    const owner = Account.fromSecp256k1(privateKey)
+    const envelope = toEnvelope({
+      ...baseRequest,
+      feePayer: true,
+      keyData: '0x0578',
+      keyId: '0xcccccccccccccccccccccccccccccccccccccccc',
+      keyType: 'webAuthn',
+      accountSimulation,
+      owner,
+      signatures: ['0xdeadbeef'],
+    } as never) as Envelope & Record<string, unknown>
+    expect(envelope.feePayer).toBe(true)
+    expect(envelope.accountSimulation).toEqual(accountSimulation)
+    expect(envelope.owner).toBe(owner)
+    expect(envelope.signatures).toEqual(['0xdeadbeef'])
+    expect(envelope.keyData).toBeUndefined()
+    expect(envelope.keyId).toBeUndefined()
+    expect(envelope.keyType).toBeUndefined()
+    expect(envelope.feePayerSignature).toBeNull()
+  })
+
+  test('delegates non-tempo requests to the core default', () => {
+    expect(
+      transaction.toEnvelope({
+        chainId: 1,
+        maxFeePerGas: 1000000000n,
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toBeUndefined()
+  })
+})
+
+describe('transaction.getSignPayload', () => {
+  test('matches the v2 sign payload', () => {
+    expect(getSignPayload(toEnvelope(baseRequest as never))).toBe(
+      v2.signPayload,
+    )
+  })
+
+  test('sponsorship: excludes `feeToken` from the sender payload', () => {
+    const payload = getSignPayload(
+      toEnvelope({ ...baseRequest, feePayer: true } as never),
+    )
+    expect(payload).toBe(v2.feePayerSignPayload)
+    expect(payload).not.toBe(v2.signPayload)
+  })
+
+  test('delegates non-tempo envelopes to the core default', () => {
+    expect(
+      transaction.getSignPayload({
+        chainId: 1,
+        maxFeePerGas: 1000000000n,
+        nonce: 0n,
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toBeUndefined()
+  })
+})
+
+describe('transaction.serialize', () => {
+  test('matches the v2 unsigned serialization', () => {
+    expect(serialize(toEnvelope(baseRequest as never))).toBe(v2.unsigned)
+  })
+
+  test('matches the v2 sponsorship presign serialization', () => {
+    expect(
+      serialize(toEnvelope({ ...baseRequest, feePayer: true } as never)),
+    ).toBe(v2.feePayerUnsigned)
+  })
+
+  test('matches the v2 prefilled fee-payer presign serialization', () => {
+    // Fee payer signature prefilled (e.g. by `eth_fillTransaction`), sender
+    // not yet signed: the presign form keeps the fee-payer marker.
+    const envelope = toEnvelope({
+      ...baseRequest,
+      feePayerSignature: {
+        r: '0x1111111111111111111111111111111111111111111111111111111111111111',
+        s: '0x2222222222222222222222222222222222222222222222222222222222222222',
+        yParity: 1,
+      },
+    } as never)
+    expect(serialize({ ...envelope, feePayerSignature: null })).toBe(
+      v2.feePayerUnsigned,
+    )
+  })
+
+  test('matches the v2 expiring-nonce serialization', () => {
+    expect(
+      serialize(
+        toEnvelope({
+          ...baseRequest,
+          nonce: 0,
+          nonceKey: 2n ** 256n - 1n,
+          validBefore: 1751846400,
+        } as never),
+      ),
+    ).toBe(v2.expiring)
+  })
+
+  test('matches the v2 validAfter + accessList serialization', () => {
+    expect(
+      serialize(
+        toEnvelope({
+          ...baseRequest,
+          accessList: [
+            {
+              address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+              storageKeys: [
+                '0x0000000000000000000000000000000000000000000000000000000000000001',
+              ],
+            },
+          ],
+          validAfter: 1751840000,
+        } as never),
+      ),
+    ).toBe(v2.window)
+  })
+
+  test('matches the v2 lifted-call serialization', () => {
+    expect(
+      serialize(
+        toEnvelope({
+          chainId: 1337,
+          gas: 21000n,
+          maxFeePerGas: 1000000000n,
+          maxPriorityFeePerGas: 100000000n,
+          nonce: 7,
+          feeToken: baseRequest.feeToken,
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: 69n,
+        } as never),
+      ),
+    ).toBe(v2.lifted)
+  })
+
+  test('matches the v2 zero-call serialization', () => {
+    expect(
+      serialize(
+        toEnvelope({
+          chainId: 1337,
+          gas: 21000n,
+          maxFeePerGas: 1000000000n,
+          maxPriorityFeePerGas: 100000000n,
+          nonce: 7,
+          feeToken: baseRequest.feeToken,
+        } as never),
+      ),
+    ).toBe(v2.zeroCall)
+  })
+
+  test('signed: the sender is recoverable from the serialization', () => {
+    const envelope = toEnvelope(baseRequest as never)
+    const signature = Secp256k1.sign({
+      payload: getSignPayload(envelope),
+      privateKey,
+    })
+    const serialized = serialize(envelope, {
+      signature: SignatureEnvelope.from(signature),
+    })
+    const deserialized = TxEnvelopeTempo.deserialize(
+      serialized as `0x76${string}`,
+    )
+    expect(deserialized.signature?.type).toBe('secp256k1')
+    expect(
+      SignatureEnvelope.extractAddress({
+        payload: getSignPayload(envelope),
+        signature: deserialized.signature!,
+      }).toLowerCase(),
+    ).toBe(sender)
+  })
+
+  test('sponsorship handoff: serializes in the fee payer format', () => {
+    const envelope = toEnvelope({ ...baseRequest, feePayer: true } as never)
+    const signature = Secp256k1.sign({
+      payload: getSignPayload(envelope),
+      privateKey,
+    })
+    const serialized = serialize(envelope, {
+      signature: SignatureEnvelope.from(signature),
+    })
+    expect(serialized.startsWith('0x78')).toBe(true)
+    // The sender address is embedded so the fee payer knows which account to
+    // cover fees for.
+    expect(serialized.includes(sender.slice(2))).toBe(true)
+  })
+
+  test('sponsorship complete: both signatures ride the broadcast envelope', () => {
+    const envelope = toEnvelope(baseRequest as never)
+    const signature = Secp256k1.sign({
+      payload: getSignPayload({ ...envelope, feePayerSignature: null }),
+      privateKey,
+    })
+    const serialized = serialize({ ...envelope, feePayer: true } as Envelope, {
+      signature: SignatureEnvelope.from(signature),
+    })
+    const withFeePayer = serialize(
+      {
+        ...envelope,
+        feePayer: true,
+        feePayerSignature: Signature.from({
+          r: '0x1111111111111111111111111111111111111111111111111111111111111111',
+          s: '0x2222222222222222222222222222222222222222222222222222222222222222',
+          yParity: 1,
+        }),
+      } as Envelope,
+      { signature: SignatureEnvelope.from(signature) },
+    )
+    const deserialized = TxEnvelopeTempo.deserialize(
+      withFeePayer as `0x76${string}`,
+    )
+    expect(deserialized.feePayerSignature).toBeTruthy()
+    // The broadcast envelope carries `feeToken` again (the fee payer signed
+    // over it); the handoff envelope does not.
+    expect(deserialized.feeToken).toBe(baseRequest.feeToken)
+    expect(serialized.startsWith('0x78')).toBe(true)
+  })
+
+  test('configurable: combines owner approvals into the signature envelope', () => {
+    const ownerKeys = [
+      privateKey,
+      '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+    ] as const
+    const config = AccountConfig.from({
+      threshold: 2,
+      owners: ownerKeys.map((privateKey) => ({
+        owner: Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey })),
+        weight: 1,
+      })),
+    })
+
+    const envelope = toEnvelope({
+      ...baseRequest,
+      from: AccountConfig.getAddress(config),
+      accountSimulation: {
+        account: AccountConfig.getAddress(config),
+        config,
+        approvals: [],
+      },
+      nonce: 0,
     } as never)
 
-    const [transaction] =
-      block.transactions as readonly Transaction.Transaction[]
-    expect(block.number).toBe(0x2c052d2n)
-    expect(transaction?.type).toBe('tempo')
-    expect(transaction?.nonce).toBe(0xe723b82c0de6fb54n)
-    expect(transaction && 'aaAuthorizationList' in transaction).toBe(false)
-  })
-
-  test('transactionReceipt formatter (getTransactionReceipt)', async () => {
-    const feePayerClient = getClient({
-      account: accounts.at(1)!,
+    const payload = getSignPayload(envelope)
+    const digest = AccountConfig.getSignPayload({
+      payload,
+      account: AccountConfig.getAddress(config),
+      config,
     })
-    const receipt = await sendTransactionSync(feePayerClient, {
-      to: '0x0000000000000000000000000000000000000000',
-      feePayer: accounts.at(0)!,
-    })
-    const fullReceipt = await getTransactionReceipt(client, {
-      hash: receipt.transactionHash,
-    })
-    expect(fullReceipt.transactionHash).toBe(receipt.transactionHash)
-    expect(fullReceipt.feePayer?.toLowerCase()).toBe(
-      accounts.at(0)!.address.toLowerCase(),
+    const signatures = ownerKeys.map((privateKey) =>
+      Signature.toHex(Secp256k1.sign({ payload: digest, privateKey })),
     )
-  })
-})
 
-describe('serializers', () => {
-  test('transaction serializer (signTransaction)', async () => {
-    const request = await prepareTransactionRequest(client, {
-      feeToken,
-      to: '0x0000000000000000000000000000000000000000',
+    const serialized = serialize({ ...envelope, signatures } as Envelope)
+    const deserialized = TxEnvelopeTempo.deserialize(
+      serialized as `0x76${string}`,
+    )
+    expect(deserialized.signature?.type).toBe('configurable')
+    if (deserialized.signature?.type !== 'configurable')
+      throw new Error('unreachable')
+    expect(deserialized.signature.config).toMatchObject({
+      threshold: 2,
+      version: 0n,
     })
-    const serialized = await signTransaction(client, request as never)
-    expect(serialized).toBeDefined()
-    expect(typeof serialized).toBe('string')
-    expect(serialized.startsWith('0x76')).toBe(true)
+  })
+
+  test('configurable: carries the config with an explicit nonce key', () => {
+    const config = AccountConfig.from({
+      threshold: 1,
+      owners: [{ owner: sender, weight: 1 }],
+    })
+
+    const envelope = toEnvelope({
+      ...baseRequest,
+      from: AccountConfig.getAddress(config),
+      accountSimulation: {
+        account: AccountConfig.getAddress(config),
+        config,
+        approvals: [],
+      },
+      nonce: 0,
+      nonceKey: 1n,
+    } as never)
+
+    const payload = getSignPayload(envelope)
+    const digest = AccountConfig.getSignPayload({
+      payload,
+      account: AccountConfig.getAddress(config),
+      config,
+    })
+    const signatures = [
+      Signature.toHex(Secp256k1.sign({ payload: digest, privateKey })),
+    ]
+
+    const serialized = serialize({ ...envelope, signatures } as Envelope)
+    const deserialized = TxEnvelopeTempo.deserialize(
+      serialized as `0x76${string}`,
+    )
+    expect(deserialized.signature?.type).toBe('configurable')
+    if (deserialized.signature?.type !== 'configurable')
+      throw new Error('unreachable')
+    expect(deserialized.signature.config).toEqual(config)
+  })
+
+  test('2D nonces: explicit nonceKey round-trips through serialization', () => {
+    const envelope = toEnvelope({
+      ...baseRequest,
+      nonce: 0,
+      nonceKey: 69n,
+    } as never)
+    expect(TxEnvelopeTempo.deserialize(serialize(envelope) as `0x76${string}`))
+      .toMatchInlineSnapshot(`
+      {
+        "calls": [
+          {
+            "data": "0xdeadbeef",
+            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "value": 69n,
+          },
+        ],
+        "chainId": 1337,
+        "feeToken": "0x20c0000000000000000000000000000000000000",
+        "gas": 21000n,
+        "maxFeePerGas": 1000000000n,
+        "maxPriorityFeePerGas": 100000000n,
+        "nonce": 0n,
+        "nonceKey": 69n,
+        "type": "tempo",
+      }
+    `)
+  })
+
+  test('delegates non-tempo envelopes to the core default', () => {
+    expect(
+      transaction.serialize({
+        chainId: 1,
+        maxFeePerGas: 1000000000n,
+        nonce: 0n,
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toBeUndefined()
   })
 })
 
+describe('transaction.prepare', () => {
+  test.each(['expiring', 2n ** 256n - 1n] as const)(
+    'expiring nonce: preserves an explicit nonce for %s',
+    async (nonceKey) => {
+      const request = await prepare(
+        { feeToken: baseRequest.feeToken, nonceKey, nonce: 42 },
+        { client, phase: 'beforeFillTransaction' },
+      )
+
+      expect(request.nonce).toMatchInlineSnapshot(`42`)
+    },
+  )
+
+  test('resolves the tempo type from tempo fields', async () => {
+    const request = await prepare(
+      { feeToken: baseRequest.feeToken },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.type).toBe('tempo')
+  })
+
+  test('resolves the tempo type from the signing account', async () => {
+    for (const account of [
+      { address: sender, source: 'accessKey', keyType: 'secp256k1' },
+      Account.fromConfig({ owners: [sender] }),
+      { address: sender, keyType: 'p256' },
+      { address: sender, keyType: 'webAuthn' },
+    ]) {
+      const request = await prepare(
+        { account, to: sender },
+        { client, phase: 'beforeFillTransaction' },
+      )
+      expect(request.type).toBe('tempo')
+    }
+    // A plain secp256k1 account does not imply tempo.
+    const request = await prepare(
+      { account: { address: sender, keyType: 'secp256k1' }, to: sender },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.type).toBeUndefined()
+  })
+
+  test('derives key hints from the signing account', async () => {
+    const webAuthn = await prepare(
+      {
+        account: {
+          address: sender,
+          accessKeyAddress: '0xcccccccccccccccccccccccccccccccccccccccc',
+          keyType: 'webAuthn',
+          source: 'accessKey',
+        },
+        to: sender,
+      },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(webAuthn.keyType).toBe('webAuthn')
+    expect(webAuthn.keyData).toBe('0x0578')
+    expect(webAuthn.keyId).toBe('0xcccccccccccccccccccccccccccccccccccccccc')
+
+    const p256 = await prepare(
+      { account: { address: sender, keyType: 'p256' }, to: sender },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(p256.keyType).toBe('p256')
+    expect(p256.keyData).toBeUndefined()
+
+    // Unknown account kinds leave explicit request hints alone.
+    const explicit = await prepare(
+      {
+        account: { address: sender, keyType: 'custom', source: 'custom' },
+        keyType: 'p256',
+        to: sender,
+      },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(explicit.keyType).toBe('p256')
+  })
+
+  test('configurable: derives the sender and weighted gas-model hints', async () => {
+    const account = Account.fromConfig({
+      threshold: 2,
+      owners: [
+        { owner: sender, weight: 2 },
+        { owner: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', weight: 1 },
+        { owner: '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc', weight: 1 },
+      ],
+    })
+    const request = await prepare(
+      { account, to: sender },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.from).toBe(account.address)
+    expect(request.accountSimulation).toMatchObject({
+      config: { threshold: 2 },
+    })
+    expect(
+      (request as TransactionRequest).accountSimulation?.approvals,
+    ).toHaveLength(1)
+    expect(
+      (request as TransactionRequest).accountSimulation?.approvals[0],
+    ).toMatchObject({ owner: sender })
+    expect(request.account).toBe(account)
+  })
+
+  test('configurable: inferred from a configurable account (which is kept)', async () => {
+    const account = Account.fromConfig({
+      threshold: 2,
+      owners: [
+        { owner: sender, weight: 1 },
+        { owner: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', weight: 1 },
+      ],
+    })
+    const request = await prepare(
+      { account, to: sender },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.from).toBe(account.address)
+    expect(
+      (request as TransactionRequest).accountSimulation?.approvals,
+    ).toHaveLength(2)
+    expect(request.account).toBe(account)
+  })
+
+  test.each(['expiring', 2n ** 256n - 1n] as const)(
+    'expiring nonce: random discriminator and validity window for %s',
+    async (nonceKey) => {
+      const now = Math.floor(Date.now() / 1000)
+      const requests = await Promise.all(
+        Array.from({ length: 3 }, () =>
+          prepare(
+            { feeToken: baseRequest.feeToken, nonceKey },
+            { client, phase: 'beforeFillTransaction' },
+          ),
+        ),
+      )
+
+      const nonces = requests.map(({ nonce }) => nonce as number)
+      expect(new Set(nonces).size).toBe(3)
+      for (const request of requests) {
+        expect(request.nonceKey).toBe(2n ** 256n - 1n)
+        expect(Number.isSafeInteger(request.nonce)).toBe(true)
+        expect(request.nonce).toBeLessThan(2 ** 48)
+        expect(request.validAfter).toBeUndefined()
+        expect(request.validBefore).toBeGreaterThanOrEqual(now + 270)
+        expect(request.validBefore).toBeLessThanOrEqual(now + 271)
+      }
+    },
+  )
+
+  test('expiring nonce: concurrent JSON-RPC address accounts', async () => {
+    const [first, second] = await Promise.all([
+      prepare(
+        { account: sender, feeToken: baseRequest.feeToken },
+        { client, phase: 'beforeFillTransaction' },
+      ),
+      prepare(
+        {
+          account: Address.checksum(sender),
+          feeToken: baseRequest.feeToken,
+        },
+        { client, phase: 'beforeFillTransaction' },
+      ),
+    ])
+    expect(first.nonceKey).toBe(2n ** 256n - 1n)
+    expect(second.nonceKey).toBe(2n ** 256n - 1n)
+  })
+
+  test('expiring nonce: implied by a fee payer', async () => {
+    const request = await prepare(
+      { feePayer: true, feeToken: baseRequest.feeToken },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.nonceKey).toBe(2n ** 256n - 1n)
+  })
+
+  test('expiring nonce: explicit validity window is preserved', async () => {
+    const request = await prepare(
+      {
+        feeToken: baseRequest.feeToken,
+        nonceKey: 'expiring',
+        validAfter: 21,
+        validBefore: 42,
+      },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.nonceKey).toBe(2n ** 256n - 1n)
+    expect(request.validAfter).toBe(21)
+    expect(request.validBefore).toBe(42)
+  })
+
+  test('expiring nonce: explicit nonceKey wins over a fee payer', async () => {
+    const request = await prepare(
+      { feePayer: true, feeToken: baseRequest.feeToken, nonceKey: 69n },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.nonceKey).toBe(69n)
+    expect(request.nonce).toBe(0)
+  })
+
+  test('configurable: explicit simulation is preserved without a configurable account', async () => {
+    const config = AccountConfig.from({
+      threshold: 1,
+      owners: [{ owner: sender, weight: 1 }],
+    })
+    const accountSimulation = { account: sender, config, approvals: [] }
+    const request = await prepare(
+      { accountSimulation },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.accountSimulation).toBe(accountSimulation)
+  })
+
+  test('expiring nonce: never inferred for configurable account senders', async () => {
+    const account = Account.fromConfig({
+      threshold: 1,
+      owners: [{ owner: sender, weight: 1 }],
+    })
+    const request = await prepare(
+      { feePayer: true, account },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.nonceKey).toBeUndefined()
+  })
+
+  test('protocol nonce key (0) leaves the nonce to core', async () => {
+    const request = await prepare(
+      { feeToken: baseRequest.feeToken, nonceKey: 0n },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.nonceKey).toBe(0n)
+    expect(request.nonce).toBeUndefined()
+    expect(request.validBefore).toBeUndefined()
+  })
+
+  test('explicit nonceKey (2D nonces) defaults the nonce', async () => {
+    const request = await prepare(
+      { feeToken: baseRequest.feeToken, nonceKey: 69n },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.nonceKey).toBe(69n)
+    expect(request.nonce).toBe(0)
+  })
+
+  test('defaults `feeToken` from the chain', async () => {
+    const chain = tempoModerato.extend({
+      feeToken: '0x20c0000000000000000000000000000000000001',
+    })
+    const request = await prepare(
+      { chain, to: sender },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.feeToken).toBe('0x20c0000000000000000000000000000000000001')
+  })
+
+  test('afterFillParameters: bumps gas for sponsored large signatures', async () => {
+    const unprepared = await prepare(
+      {
+        account: { address: sender, source: 'accessKey' },
+        feePayer: true,
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(unprepared.gas).toBeUndefined()
+
+    // The fee payer's signature and fee token cost 5,000 gas on their own.
+    const sponsored = await prepare(
+      { feePayer: true, gas: 100_000n },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(sponsored.gas).toBe(105_000n)
+
+    const webAuthn = await prepare(
+      {
+        feePayer: true,
+        gas: 100_000n,
+        keyAuthorization: { signature: { type: 'webAuthn' } },
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(webAuthn.gas).toBe(125_000n)
+
+    const accessKey = await prepare(
+      {
+        account: { address: sender, source: 'accessKey' },
+        feePayer: true,
+        gas: 100_000n,
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(accessKey.gas).toBe(115_000n)
+
+    // Owner approvals cover the gas limit, so it stays.
+    const approved = await prepare(
+      {
+        account: { address: sender, source: 'accessKey' },
+        feePayer: true,
+        gas: 100_000n,
+        signatures: ['0x01'],
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(approved.gas).toBe(100_000n)
+
+    const signed = await prepare(
+      {
+        account: { address: sender, source: 'accessKey' },
+        feePayer: true,
+        feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 },
+        gas: 100_000n,
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(signed.gas).toBe(100_000n)
+
+    // No fee payer, no bump.
+    const plain = await prepare(
+      {
+        account: { address: sender, source: 'accessKey' },
+        gas: 100_000n,
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(plain.gas).toBe(100_000n)
+  })
+
+  // The pending key authorization refresh reads the on-chain
+  // AccountKeychain (`getKey`) before attaching or dropping.
+  test(
+    'protocol nonce key (0): prepares the protocol nonce (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const funder = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+      const client = tempo.getClient({ account, rpcUrl: await node.start() })
+      await Actions.token.transferSync(funder, {
+        amount: 1_000_000n,
+        to: account.address,
+        token: tempo.pathUsd,
+      })
+      await CoreActions.transaction.sendSync(client, {
+        feeToken: tempo.pathUsd,
+        nonceKey: 0n,
+        to: sender,
+      })
+
+      const { request } = await CoreActions.transaction.prepare(client, {
+        feeToken: tempo.pathUsd,
+        nonceKey: 0n,
+        to: sender,
+      })
+
+      expect({
+        nonce: request.nonce,
+        nonceKey: request.nonceKey,
+      }).toMatchInlineSnapshot(`
+        {
+          "nonce": 1,
+          "nonceKey": 0n,
+        }
+      `)
+    },
+  )
+
+  test(
+    'keyAuthorization: attaches a pending authorization (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const root = Account.fromSecp256k1(privateKey)
+      const manager = KeyAuthorizationManager.memory()
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+        keyAuthorizationManager: manager,
+      })
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        key: accessKey,
+      })
+      const key = {
+        address: root.address,
+        accessKey: accessKey.accessKeyAddress!,
+        chainId: tempoLocalnet.id,
+      }
+      await manager.set(key, keyAuthorization)
+
+      const request = await prepare(
+        { account: accessKey, chainId: tempoLocalnet.id, to: sender },
+        { client, phase: 'beforeFillTransaction' },
+      )
+      expect(
+        serializeKeyAuthorization(
+          request.keyAuthorization as KeyAuthorization.Signed,
+        ),
+      ).toBe(serializeKeyAuthorization(keyAuthorization))
+      expect(serializeKeyAuthorization(await manager.get(key))).toBe(
+        serializeKeyAuthorization(keyAuthorization),
+      )
+    },
+  )
+
+  test(
+    'keyAuthorization: reads keychain metadata without a client account (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = Client.create({
+        chain: tempoLocalnet,
+        transport: http(await node.start()),
+      })
+      const root = Account.fromSecp256k1(privateKey)
+      const manager = KeyAuthorizationManager.memory()
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+        keyAuthorizationManager: manager,
+      })
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        key: accessKey,
+      })
+      await manager.set(
+        {
+          address: root.address,
+          accessKey: accessKey.accessKeyAddress!,
+          chainId: tempoLocalnet.id,
+        },
+        keyAuthorization,
+      )
+
+      const request = await prepare(
+        { account: accessKey, chainId: tempoLocalnet.id, to: sender },
+        { client, phase: 'beforeFillTransaction' },
+      )
+      expect(
+        serializeKeyAuthorization(
+          request.keyAuthorization as KeyAuthorization.Signed,
+        ),
+      ).toBe(serializeKeyAuthorization(keyAuthorization))
+    },
+  )
+
+  test(
+    'keyAuthorization: removes the pending authorization once the key is registered on-chain (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const manager = KeyAuthorizationManager.memory()
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+        keyAuthorizationManager: manager,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+      })
+
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        key: accessKey,
+      })
+      const key = {
+        address: root.address,
+        accessKey: accessKey.accessKeyAddress!,
+        chainId: tempoLocalnet.id,
+      }
+      await manager.set(key, keyAuthorization)
+
+      const request = await prepare(
+        { account: accessKey, chainId: tempoLocalnet.id, to: sender },
+        { client, phase: 'beforeFillTransaction' },
+      )
+      expect(request.keyAuthorization).toBeUndefined()
+      expect(await manager.get(key)).toBeUndefined()
+    },
+  )
+
+  test('keyAuthorization: drops expired pending authorizations', async () => {
+    const { memory } = await import('./KeyAuthorizationManager.js')
+    const manager = memory()
+    const accessKey: Address.Address =
+      '0xcccccccccccccccccccccccccccccccccccccccc'
+    const key = { address: sender, accessKey, chainId: 1337 }
+    await manager.set(
+      key,
+      await Account.signKeyAuthorization(Account.fromSecp256k1(privateKey), {
+        chainId: 1337,
+        expiry: 1, // long expired
+        key: { address: accessKey, type: 'secp256k1' },
+      }),
+    )
+
+    const request = await prepare(
+      {
+        account: {
+          address: sender,
+          accessKeyAddress: accessKey,
+          keyAuthorizationManager: manager,
+          keyType: 'secp256k1',
+          source: 'accessKey',
+        },
+        chainId: 1337,
+        to: sender,
+      },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.keyAuthorization).toBeUndefined()
+    expect(await manager.get(key)).toBeUndefined()
+  })
+})
+
+// Keychain lookups (`getKey`) and code probes back the envelope
+// verification modes.
 describe('verifyHash', () => {
-  test('p256: valid signature', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const account = Account.fromP256(privateKey)
+  const hash = Hash.keccak256(Hex.fromString('hello tempo'))
+  const otherHash = Hash.keccak256(Hex.fromString('other payload'))
+  const expiry = () => Math.floor(Date.now() / 1000) + 3600
 
-    const hash = hashMessage('hello world')
+  test('p256: valid signature (tempo node)', { timeout: 120_000 }, async () => {
+    const client = tempo.getClient({ rpcUrl: await node.start() })
+    const account = Account.fromP256(P256.randomPrivateKey())
     const signature = await account.sign({ hash })
-
-    expect(
-      await verifyHash(client, {
+    await expect(
+      chainConfig.verifyHash(client, {
         address: account.address,
         hash,
         signature,
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
   })
 
-  test('p256: invalid signature returns false', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const account = Account.fromP256(privateKey)
+  test(
+    'p256: invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash: otherHash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
 
-    const hash = hashMessage('hello world')
-    const wrongHash = hashMessage('wrong message')
-    const signature = await account.sign({ hash })
+  test(
+    'p256: wrong address returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromP256(P256.randomPrivateKey())
+      const other = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: other.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
 
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        hash: wrongHash,
-        signature,
-      }),
-    ).toBe(false)
-  })
+  test(
+    'webCrypto: valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromWebCryptoP256(
+        await WebCryptoP256.createKeyPair(),
+      )
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
+  )
 
-  test('webCrypto: valid signature', async () => {
-    const keyPair = await WebCryptoP256.createKeyPair()
-    const account = Account.fromWebCryptoP256(keyPair)
+  test(
+    'webCrypto: invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromWebCryptoP256(
+        await WebCryptoP256.createKeyPair(),
+      )
+      const signature = await account.sign({ hash: otherHash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
 
-    const hash = hashMessage('hello world')
-    const signature = await account.sign({ hash })
+  test(
+    'webCrypto: wrong address returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromWebCryptoP256(
+        await WebCryptoP256.createKeyPair(),
+      )
+      const other = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: other.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
 
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        hash,
-        signature,
-      }),
-    ).toBe(true)
-  })
+  test(
+    'headlessWebAuthn: valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://localhost',
+        rpId: 'localhost',
+      })
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
+  )
 
-  test('webCrypto: invalid signature returns false', async () => {
-    const keyPair = await WebCryptoP256.createKeyPair()
-    const account = Account.fromWebCryptoP256(keyPair)
+  test(
+    'headlessWebAuthn: invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://localhost',
+        rpId: 'localhost',
+      })
+      const signature = await account.sign({ hash: otherHash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
 
-    const hash = hashMessage('hello world')
-    const wrongHash = hashMessage('wrong message')
-    const signature = await account.sign({ hash })
+  test(
+    'headlessWebAuthn: wrong address returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://localhost',
+        rpId: 'localhost',
+      })
+      const other = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: other.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
 
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        hash: wrongHash,
-        signature,
-      }),
-    ).toBe(false)
-  })
+  test(
+    'accessKey (keychain): valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(tempo.accounts[1]!.privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: expiry(),
+      })
 
-  test('headlessWebAuthn: valid signature', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const account = Account.fromHeadlessWebAuthn(privateKey, {
-      rpId: 'example.com',
-      origin: 'https://example.com',
-    })
+      const signature = await accessKey.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: root.address,
+          hash,
+          mode: 'allowAccessKey',
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
+  )
 
-    const hash = hashMessage('hello world')
-    const signature = await account.sign({ hash })
+  test(
+    'accessKey (keychain): secp256k1 valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(tempo.accounts[2]!.privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
+        access: root,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: expiry(),
+      })
 
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        hash,
-        signature,
-      }),
-    ).toBe(true)
-  })
+      const signature = await accessKey.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: root.address,
+          hash,
+          mode: 'allowAccessKey',
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
+  )
 
-  test('headlessWebAuthn: invalid signature returns false', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const account = Account.fromHeadlessWebAuthn(privateKey, {
-      rpId: 'example.com',
-      origin: 'https://example.com',
-    })
+  test(
+    'accessKey (keychain): invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(tempo.accounts[3]!.privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: expiry(),
+      })
 
-    const hash = hashMessage('hello world')
-    const wrongHash = hashMessage('wrong message')
-    const signature = await account.sign({ hash })
+      const signature = await accessKey.sign({ hash: otherHash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: root.address,
+          hash,
+          mode: 'allowAccessKey',
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
 
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        hash: wrongHash,
-        signature,
-      }),
-    ).toBe(false)
-  })
+  test(
+    'accessKey (keychain): revoked key returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(tempo.accounts[4]!.privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: expiry(),
+      })
+      await Actions.accessKey.revokeSync(client, { accessKey })
 
-  test('p256: wrong address returns false', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const account = Account.fromP256(privateKey)
+      const signature = await accessKey.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: root.address,
+          hash,
+          mode: 'allowAccessKey',
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
 
-    // Create a different account to use as the wrong address
-    const wrongAccount = Account.fromP256(P256.randomPrivateKey())
-
-    const hash = hashMessage('hello world')
-    const signature = await account.sign({ hash })
-
-    // Try to verify the signature with the wrong address - should fail
-    expect(
-      await verifyHash(client, {
-        address: wrongAccount.address,
-        hash,
-        signature,
-      }),
-    ).toBe(false)
-  })
-
-  test('webCrypto: wrong address returns false', async () => {
-    const keyPair = await WebCryptoP256.createKeyPair()
-    const account = Account.fromWebCryptoP256(keyPair)
-
-    // Create a different account to use as the wrong address
-    const wrongKeyPair = await WebCryptoP256.createKeyPair()
-    const wrongAccount = Account.fromWebCryptoP256(wrongKeyPair)
-
-    const hash = hashMessage('hello world')
-    const signature = await account.sign({ hash })
-
-    // Try to verify the signature with the wrong address - should fail
-    expect(
-      await verifyHash(client, {
-        address: wrongAccount.address,
-        hash,
-        signature,
-      }),
-    ).toBe(false)
-  })
-
-  test('headlessWebAuthn: wrong address returns false', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const account = Account.fromHeadlessWebAuthn(privateKey, {
-      rpId: 'example.com',
-      origin: 'https://example.com',
-    })
-
-    // Create a different account to use as the wrong address
-    const wrongAccount = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
-      rpId: 'example.com',
-      origin: 'https://example.com',
-    })
-
-    const hash = hashMessage('hello world')
-    const signature = await account.sign({ hash })
-
-    // Try to verify the signature with the wrong address - should fail
-    expect(
-      await verifyHash(client, {
-        address: wrongAccount.address,
-        hash,
-        signature,
-      }),
-    ).toBe(false)
-  })
-
-  test('accessKey: valid signature', async () => {
-    const rootAccount = accounts.at(0)!
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: rootAccount,
-    })
-
-    await accessKeyActions.authorizeSync(client, {
-      accessKey,
-      expiry: Math.floor((Date.now() + 30_000) / 1000),
-    })
-
-    const hash = hashMessage('hello world')
-    const signature = await accessKey.sign({ hash })
-
-    expect(
-      await verifyHash(client, {
-        address: accessKey.address,
-        hash,
-        signature,
-        mode: 'allowAccessKey',
-      }),
-    ).toBe(true)
-  })
-
-  test('accessKey: secp256k1 valid signature', async () => {
-    const rootAccount = accounts.at(0)!
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
-      access: rootAccount,
-    })
-
-    await accessKeyActions.authorizeSync(client, {
-      accessKey,
-      expiry: Math.floor((Date.now() + 30_000) / 1000),
-    })
-
-    const hash = hashMessage('hello world')
-    const signature = await accessKey.sign({ hash })
-
-    expect(
-      await verifyHash(client, {
-        address: accessKey.address,
-        hash,
-        signature,
-        mode: 'allowAccessKey',
-      }),
-    ).toBe(true)
-  })
-
-  test('accessKey: invalid signature returns false', async () => {
-    const rootAccount = accounts.at(0)!
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: rootAccount,
-    })
-
-    await accessKeyActions.authorizeSync(client, {
-      accessKey,
-      expiry: Math.floor((Date.now() + 30_000) / 1000),
-    })
-
-    const hash = hashMessage('hello world')
-    const wrongHash = hashMessage('wrong message')
-    const signature = await accessKey.sign({ hash })
-
-    expect(
-      await verifyHash(client, {
-        address: accessKey.address,
-        hash: wrongHash,
-        signature,
-        mode: 'allowAccessKey',
-      }),
-    ).toBe(false)
-  })
-
-  test('accessKey: revoked key returns false', async () => {
-    const rootAccount = accounts.at(0)!
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: rootAccount,
-    })
-
-    await accessKeyActions.authorizeSync(client, {
-      accessKey,
-      expiry: Math.floor((Date.now() + 30_000) / 1000),
-    })
-
-    const hash = hashMessage('hello world')
-    const signature = await accessKey.sign({ hash })
-
-    // Revoke the key
-    await accessKeyActions.revokeSync(client, { accessKey })
-
-    expect(
-      await verifyHash(client, {
-        address: accessKey.address,
-        hash,
-        signature,
-        mode: 'allowAccessKey',
-      }),
-    ).toBe(false)
-  })
-
-  test('behavior: non-tempo chain', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const account = Account.fromP256(privateKey)
-
-    const hash = hashMessage('hello world')
-    const signature = await account.sign({ hash })
-
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        chain: mainnet,
-        hash,
-        signature,
-      }),
-    ).toBe(false)
-  })
-
-  test('behavior: non-tempo chain (client)', async () => {
-    const client = createClient({
-      chain: mainnet,
-      transport: http('https://eth.drpc.org'),
-    })
-
-    const privateKey = P256.randomPrivateKey()
-    const account = Account.fromP256(privateKey)
-
-    const hash = hashMessage('hello world')
-    const signature = await account.sign({ hash })
-
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        hash,
-        signature,
-      }),
-    ).toBe(false)
-  })
+  test(
+    'falls back to `verifyDefault` for non-envelope signatures (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const signature = Signature.toHex(
+        Secp256k1.sign({ payload: hash, privateKey }),
+      )
+      await expect(
+        chainConfig.verifyHash(client, { address: sender, hash, signature }),
+      ).resolves.toBe(true)
+    },
+  )
 })

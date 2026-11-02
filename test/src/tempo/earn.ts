@@ -1,41 +1,32 @@
-import { Hex } from 'ox'
+import { AbiEvent, Hex } from 'ox'
+import type { Abi, Address } from 'ox'
+import { Actions } from 'viem'
+import type { Account } from 'viem'
 import {
-  readContract,
-  sendTransactionSync,
-  writeContractSync,
-} from '../../../src/actions/index.js'
-import {
-  type Abi,
-  type Address,
-  type Chain,
-  type Client,
-  type EncodeDeployDataParameters,
-  encodeDeployData,
-  encodeFunctionData,
-  parseEventLogs,
-  type Transport,
-  type Account as viem_Account,
-} from '../../../src/index.js'
-import * as Abis from '../../../src/tempo/Abis.js'
-import * as Addresses from '../../../src/tempo/Addresses.js'
-import * as TempoActions from '../../../src/tempo/actions/index.js'
-import type { Account } from '../../../src/tempo/index.js'
-import { accounts, addresses, setupToken } from './config.js'
+  Account as TempoAccount,
+  Abis,
+  Actions as TempoActions,
+  Addresses,
+} from 'viem/tempo'
+
+import * as tempo from '../tempo.js'
 import * as EarnContracts from './earnContracts.js'
+
+type EarnClient = ReturnType<typeof tempo.getClient>
 
 /**
  * Deploys a full local Earn stack from the vendored artifacts, mirroring
  * `earn/localnet/foundry/script/DeployLocalEarn.s.sol`: `Simple4626Vault`
  * venue -> `ERC4626Engine` -> `EarnVault` and `EarnFees` implementations ->
  * `EarnFactory` -> `factory.deploy` -> `engine.initializeEarnVault`. Deploys are sequential
- * so each fixture contract address can be recovered independently.
+ * since Tempo allows one contract creation per transaction.
  */
 export async function deployEarnStack(
-  client: Client<Transport, Chain, viem_Account>,
+  client: EarnClient,
   options: deployEarnStack.Options = {},
-): Promise<deployEarnStack.ReturnValue> {
+): Promise<deployEarnStack.ReturnType> {
   const {
-    asset = addresses.alphaUsd,
+    asset = tempo.alphaUsd,
     controls = {},
     deploymentId = Hex.random(32),
     fees = inertFees,
@@ -67,7 +58,7 @@ export async function deployEarnStack(
     bytecode: EarnContracts.earnFactory.bytecode,
   })
 
-  const receipt = await writeContractSync(client, {
+  const receipt = await Actions.contract.writeSync(client, {
     abi: Abis.earnFactory,
     address: factory,
     args: [
@@ -92,10 +83,9 @@ export async function deployEarnStack(
     ],
     functionName: 'deploy',
   })
-  const [deployed] = parseEventLogs({
-    abi: Abis.earnFactory,
+  const [deployed] = AbiEvent.extractLogs(Abis.earnFactory, receipt.logs, {
     eventName: 'EarnStackDeployed',
-    logs: receipt.logs,
+    strict: true,
   })
   if (!deployed) throw new Error('`EarnStackDeployed` event not found.')
   const {
@@ -104,7 +94,7 @@ export async function deployEarnStack(
     earnVault: adapter,
   } = deployed.args
 
-  await writeContractSync(client, {
+  await Actions.contract.writeSync(client, {
     abi: Abis.erc4626Engine,
     address: engine,
     args: [adapter],
@@ -116,13 +106,13 @@ export async function deployEarnStack(
     asset,
     // Demo-only yield injection: adds venue assets without minting shares.
     async donate(assets: bigint) {
-      await writeContractSync(client, {
+      await Actions.contract.writeSync(client, {
         abi: Abis.tip20,
         address: asset,
         args: [venue, assets],
         functionName: 'approve',
       })
-      await writeContractSync(client, {
+      await Actions.contract.writeSync(client, {
         abi: EarnContracts.simple4626Vault.abi,
         address: venue,
         args: [assets],
@@ -138,51 +128,12 @@ export async function deployEarnStack(
   }
 }
 
-export declare namespace deployEarnStack {
-  export type Options = {
-    /** Venue base asset (TIP-20). @default `addresses.alphaUsd` */
-    asset?: Address | undefined
-    /** Control seat configuration. */
-    controls?:
-      | {
-          /** Engine migration policy. @default `'operatorEnabled'` */
-          migrationMode?: 'operatorEnabled' | 'userOnly' | undefined
-        }
-      | undefined
-    /** Share-token namespace id. @default random */
-    deploymentId?: Hex.Hex | undefined
-    /** `FeeInit` passed to `factory.deploy`. @default inert (caps set, no config) */
-    fees?: FeeInit | undefined
-  }
-
-  export type ReturnValue = {
-    /** Deployed `EarnVault` proxy. */
-    adapter: Address
-    /** Venue base asset. */
-    asset: Address
-    /** Injects venue yield via `Simple4626Vault.donate`. */
-    donate: (assets: bigint) => Promise<void>
-    /** Deployed `ERC4626Engine`. */
-    engine: Address
-    /** Deployed `EarnFactory`. */
-    factory: Address
-    /** Deployed `EarnFees` clone. */
-    fees: Address
-    /** Seat accounts wired into the deployment. */
-    seats: Seats
-    /** TIP-20 share token issued by the vault. */
-    shareToken: Address
-    /** Deployed `Simple4626Vault` venue. */
-    venue: Address
-  }
-}
-
 /** Deploys the reviewed Earn factories and an ERC-4626 venue for deployment tests. */
 export async function deployEarnFactories(
-  client: Client<Transport, Chain, viem_Account>,
+  client: EarnClient,
   options: deployEarnFactories.Options = {},
-): Promise<deployEarnFactories.ReturnValue> {
-  const asset = options.asset ?? addresses.alphaUsd
+): Promise<deployEarnFactories.ReturnType> {
+  const asset = options.asset ?? tempo.alphaUsd
   const venue = await deployContract(client, {
     abi: EarnContracts.simple4626Vault.abi,
     args: [asset, 'Tempo Earn Test Vault', 'teTEST', 6],
@@ -221,17 +172,56 @@ export async function deployEarnFactories(
 
 export declare namespace deployEarnFactories {
   export type Options = {
-    /** Venue base asset. @default `addresses.alphaUsd` */
-    asset?: Address | undefined
+    /** Venue base asset. @default `tempo.alphaUsd` */
+    asset?: Address.Address | undefined
   }
 
-  export type ReturnValue = {
-    asset: Address
+  export type ReturnType = {
+    asset: Address.Address
     factories: {
-      earn: Address
-      erc4626Engine: Address
+      earn: Address.Address
+      erc4626Engine: Address.Address
     }
-    venue: Address
+    venue: Address.Address
+  }
+}
+
+export declare namespace deployEarnStack {
+  export type Options = {
+    /** Venue base asset (TIP-20). @default `tempo.alphaUsd` */
+    asset?: Address.Address | undefined
+    /** Control seat configuration. */
+    controls?:
+      | {
+          /** Engine migration policy. @default `'operatorEnabled'` */
+          migrationMode?: 'operatorEnabled' | 'userOnly' | undefined
+        }
+      | undefined
+    /** Share-token namespace id. @default random */
+    deploymentId?: Hex.Hex | undefined
+    /** `FeeInit` passed to `factory.deploy`. @default inert (caps set, no config) */
+    fees?: FeeInit | undefined
+  }
+
+  export type ReturnType = {
+    /** Deployed `EarnVault` proxy. */
+    adapter: Address.Address
+    /** Venue base asset. */
+    asset: Address.Address
+    /** Injects venue yield via `Simple4626Vault.donate`. */
+    donate: (assets: bigint) => Promise<void>
+    /** Deployed `ERC4626Engine`. */
+    engine: Address.Address
+    /** Deployed `EarnFactory`. */
+    factory: Address.Address
+    /** Deployed `EarnFees` clone. */
+    fees: Address.Address
+    /** Seat accounts wired into the deployment. */
+    seats: Seats
+    /** TIP-20 share token issued by the vault. */
+    shareToken: Address.Address
+    /** Deployed `Simple4626Vault` venue. */
+    venue: Address.Address
   }
 }
 
@@ -239,19 +229,19 @@ export declare namespace deployEarnFactories {
  * Deploys a Zone-only Earn gateway and enables the stack's tokens in the Zone.
  */
 export async function deployEarnGateway(
-  client: Client<Transport, Chain, viem_Account>,
+  client: EarnClient,
   options: deployEarnGateway.Options,
-): Promise<deployEarnGateway.ReturnValue> {
+): Promise<deployEarnGateway.ReturnType> {
   const { adapter, portalClient } = options
   const portal = options.zonePortal
 
   const [asset, shareToken] = await Promise.all([
-    readContract(client, {
+    Actions.contract.read(client, {
       abi: Abis.earnVault,
       address: adapter,
       functionName: 'asset',
     }),
-    readContract(client, {
+    Actions.contract.read(client, {
       abi: Abis.earnVault,
       address: adapter,
       functionName: 'earnShare',
@@ -270,12 +260,12 @@ export async function deployEarnGateway(
     bytecode: EarnContracts.earnRouter.bytecode,
   })
   if (!options.tokenAuthority) {
-    const role = await readContract(client, {
+    const role = await Actions.contract.read(client, {
       abi: EarnContracts.demoTokenAuthority.abi,
       address: tokenAuthority,
       functionName: 'UNWRAPPER_ROLE',
     })
-    await writeContractSync(client, {
+    await Actions.contract.writeSync(client, {
       abi: EarnContracts.demoTokenAuthority.abi,
       address: tokenAuthority,
       args: [role, gateway],
@@ -283,22 +273,20 @@ export async function deployEarnGateway(
     })
   }
   for (const token of [options.privateAsset, shareToken]) {
-    const enabled = await readContract(client, {
+    const enabled = await Actions.contract.read(client, {
       abi: portalAbi,
       address: portal,
       args: [token],
       functionName: 'isTokenEnabled',
     })
     if (!enabled)
-      await sendTransactionSync(portalClient, {
-        data: encodeFunctionData({
-          abi: portalAbi,
-          args: [token],
-          functionName: 'enableToken',
-        }),
+      await Actions.contract.writeSync(portalClient, {
+        abi: portalAbi,
+        address: portal,
+        args: [token],
+        functionName: 'enableToken',
         // The Zone sequencer shares this signer, so portal writes use expiring nonces.
         nonceKey: 'expiring',
-        to: portal,
       })
   }
 
@@ -308,30 +296,30 @@ export async function deployEarnGateway(
 export declare namespace deployEarnGateway {
   export type Options = {
     /** `EarnVault` whose tokens are enabled in the Zone. */
-    adapter: Address
+    adapter: Address.Address
     /** Private stablecoin accepted by the router. */
-    privateAsset: Address
+    privateAsset: Address.Address
     /** Portal administrator client. */
-    portalClient: Client<Transport, Chain, viem_Account>
+    portalClient: EarnClient
     /** Token authority for the private and vault asset pair. A demo authority is deployed by default. */
-    tokenAuthority?: Address | undefined
+    tokenAuthority?: Address.Address | undefined
     /** Only Zone accepted by the router. */
     zoneId: number
     /** Zone portal on the parent chain. */
-    zonePortal: Address
+    zonePortal: Address.Address
   }
 
-  export type ReturnValue = {
+  export type ReturnType = {
     /** Deployed Zone-only Earn gateway. */
-    gateway: Address
+    gateway: Address.Address
   }
 }
 
 async function deployDemoTokenAuthority(
-  client: Client<Transport, Chain, viem_Account>,
-  parameters: { privateAsset: Address; vaultAsset: Address },
+  client: EarnClient,
+  options: { privateAsset: Address.Address; vaultAsset: Address.Address },
 ) {
-  const { token: reserveToken } = await setupToken(client, {
+  const { token: reserveToken } = await tempo.setupToken(client, {
     name: 'Earn Test Reserve',
     symbol: 'etRESERVE',
   })
@@ -340,36 +328,32 @@ async function deployDemoTokenAuthority(
     args: [reserveToken, client.account.address],
     bytecode: EarnContracts.demoTokenAuthority.bytecode,
   })
-  for (const token of [
-    reserveToken,
-    parameters.privateAsset,
-    parameters.vaultAsset,
-  ])
+  for (const token of [reserveToken, options.privateAsset, options.vaultAsset])
     await TempoActions.token.grantRolesSync(client, {
       roles: ['issuer'],
       to: authority,
       token,
     })
 
-  const bridgeRole = await readContract(client, {
+  const bridgeRole = await Actions.contract.read(client, {
     abi: EarnContracts.demoTokenAuthority.abi,
     address: authority,
     functionName: 'BRIDGE_ECOSYSTEM_CONTRACT_ROLE',
   })
-  await writeContractSync(client, {
+  await Actions.contract.writeSync(client, {
     abi: EarnContracts.demoTokenAuthority.abi,
     address: authority,
     args: [bridgeRole, client.account.address],
     functionName: 'grantRole',
   })
-  for (const token of [parameters.privateAsset, parameters.vaultAsset]) {
-    await writeContractSync(client, {
+  for (const token of [options.privateAsset, options.vaultAsset]) {
+    await Actions.contract.writeSync(client, {
       abi: EarnContracts.demoTokenAuthority.abi,
       address: authority,
       args: [token, 1_000_000_000_000n],
       functionName: 'setTxnMintLimit',
     })
-    await writeContractSync(client, {
+    await Actions.contract.writeSync(client, {
       abi: EarnContracts.demoTokenAuthority.abi,
       address: authority,
       args: [token, client.account.address, 1_000_000_000_000n],
@@ -382,7 +366,7 @@ async function deployDemoTokenAuthority(
 /** `FeeConfig` shape for `factory.deploy`. */
 export type FeeInit = {
   excess: {
-    account: Address
+    account: Address.Address
     annualTargetRateBps: number
     enabled: boolean
     excessFeeRateBps: number
@@ -391,21 +375,21 @@ export type FeeInit = {
   fixedFees: readonly [FixedFee, FixedFee, FixedFee, FixedFee]
 }
 
-type FixedFee = { account: Address; rateBps: number }
+type FixedFee = { account: Address.Address; rateBps: number }
 
 type Seats = {
   /** Cancel-to-stored-receiver liveness seat. */
-  asyncJanitor: Account.RootAccount
+  asyncJanitor: TempoAccount.RootAccount
   /** Pause-only emergency seat. */
-  emergencyGuardian: Account.RootAccount
+  emergencyGuardian: TempoAccount.RootAccount
   /** Adapter governance seat (the deployer). */
-  operator: viem_Account
+  operator: Account.Account
 }
 
 /** Seat accounts wired into every harness deployment. Indices are dedicated to earn; other suites use `accounts[19]` as the validator. */
 export const seats = {
-  asyncJanitor: accounts[16],
-  emergencyGuardian: accounts[17],
+  asyncJanitor: TempoAccount.fromSecp256k1(tempo.accounts[16].privateKey),
+  emergencyGuardian: TempoAccount.fromSecp256k1(tempo.accounts[17].privateKey),
 } as const
 
 const zeroAddress = '0x0000000000000000000000000000000000000000' as const
@@ -443,15 +427,15 @@ const portalAbi = [
 ] as const
 
 // One top-level CREATE per Tempo transaction; the receipt carries the address.
-async function deployContract<const abi extends Abi | readonly unknown[]>(
-  client: Client<Transport, Chain, viem_Account>,
-  parameters: EncodeDeployDataParameters<abi>,
+async function deployContract<const abi extends Abi.Abi | readonly unknown[]>(
+  client: EarnClient,
+  options: Actions.contract.deploySync.Options<abi, EarnClient['chain']>,
 ) {
-  const { abi, args, bytecode } = parameters as EncodeDeployDataParameters
-  const receipt = await sendTransactionSync(client, {
-    data: encodeDeployData({ abi, args, bytecode }),
-  })
-  if (!receipt.contractAddress)
+  const { contractAddress } = await Actions.contract.deploySync<
+    EarnClient['chain'],
+    abi
+  >(client, options)
+  if (!contractAddress)
     throw new Error('contract creation returned no address.')
-  return receipt.contractAddress
+  return contractAddress
 }

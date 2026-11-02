@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const jovay = /*#__PURE__*/ defineChain({
+export const jovay = /*#__PURE__*/ Chain.from({
   id: 5_734_951,
   name: 'Jovay Mainnet',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const jovay = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.jovay.io'],
-    },
+    http: 'https://rpc.jovay.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Jovay Explorer',
-      url: 'https://explorer.jovay.io/l2',
-    },
+    name: 'Jovay Explorer',
+    url: 'https://explorer.jovay.io/l2',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

@@ -1,8 +1,8 @@
 import type { Address } from 'abitype'
 import { RpcResponse } from 'ox'
-import { readContract } from '../../../actions/public/readContract.js'
-import type { Client } from '../../../clients/createClient.js'
-import { erc20Abi } from '../../../constants/abis.js'
+import { read as readContract } from '../../../core/actions/contract/read.js'
+import type { Client } from '../../../core/Client.js'
+import * as Abis from '../../../utils/Abis.js'
 import { tokens as tokenSets } from '../../../tokens/sets.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'
@@ -189,7 +189,7 @@ export async function resolveTokenMetadata(
 async function readErc20Metadata(client: Client, token: Address) {
   const read = <const functionName extends 'decimals' | 'name' | 'symbol'>(
     functionName: functionName,
-  ) => readContract(client, { abi: erc20Abi, address: token, functionName })
+  ) => readContract(client, { abi: Abis.erc20, address: token, functionName })
   const [decimals, symbol, name] = await Promise.all([
     read('decimals'),
     read('symbol'),

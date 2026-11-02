@@ -5,7 +5,6 @@ import * as tokens from './index.js'
 test('exports', () => {
   expect(Object.keys(tokens)).toMatchInlineSnapshot(`
     [
-      "defineToken",
       "alphausd",
       "betausd",
       "brla",

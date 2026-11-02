@@ -2,11 +2,11 @@ import type { Address } from 'abitype'
 import type * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import type { AccountConfig } from 'ox/tempo'
-import type { LocalAccount } from '../accounts/types.js'
-import type { Client as Client_ } from '../clients/createClient.js'
-import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
-import type { EIP1193RequestOptions } from '../types/eip1193.js'
-import type { MaybePromise } from '../types/utils.js'
+import type { Local as LocalAccount } from '../core/Account.js'
+import type { Client as Client_ } from '../core/Client.js'
+import { ChainNotConfiguredError } from '../core/Client.js'
+import type { MaybePromise } from '../core/internal/types.js'
+import type * as Transport from '../core/Transport.js'
 import * as Accounts from './internal/relay/accounts.js'
 import * as AutoSwap from './internal/relay/autoSwap.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
@@ -17,6 +17,8 @@ import * as Simulate from './internal/relay/simulate.js'
 import * as internal from './internal/relay.js'
 import type * as Store from './Store.js'
 
+type EIP1193RequestOptions = NonNullable<Parameters<Transport.RequestFn>[1]>
+
 /**
  * Creates a relay with RPC and Fetch handlers backed by a client or chain resolver.
  *
@@ -25,12 +27,12 @@ import type * as Store from './Store.js'
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Relay } from 'viem/tempo'
  *
  * const relay = Relay.create({
- *   client: createClient({ chain: tempo, transport: http() }),
+ *   client: Client.create({ chain: tempo, transport: http() }),
  * })
  * export default { fetch: relay.fetch }
  * ```
@@ -190,7 +192,7 @@ export declare namespace create {
  * import { http } from 'viem'
  * import { Relay } from 'viem/tempo'
  *
- * const rpc = http('https://rpc.tempo.xyz')({})
+ * const rpc = http('https://rpc.tempo.xyz').setup()
  * const handle = Relay.handleRequest(rpc.request, {
  *   plugins: [
  *     {
@@ -413,9 +415,9 @@ export declare namespace autoSwap {
  *
  * @example
  * ```ts
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account } from 'viem'
  * import { Relay } from 'viem/tempo'
- * const plugin = Relay.feePayer({ account: privateKeyToAccount('0x...') })
+ * const plugin = Relay.feePayer({ account: Account.fromPrivateKey('0x...') })
  * ```
  * @param options - Sponsor account, policy, and display metadata.
  * @returns A fee-payer relay plugin.
@@ -450,7 +452,7 @@ export declare namespace feePayer {
     url?: string | undefined
     /** Only `true` authorizes sponsorship. Rejected fills fall back to sender-paid transactions. */
     validate?: Sponsorship.Validate | undefined
-    /** Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills without `validBefore` receive one; `eth_signRawTransaction` requires one. Expiring nonce transactions are capped at `Transaction.expiringNonceMaxExpiry`. @default 3600 */
+    /** Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills without `validBefore` receive one; `eth_signRawTransaction` requires one. Expiring nonce transactions are capped at `Expiry.expiringNonceMax`. @default 3600 */
     validity?: number | undefined
   }
   /** Result of a sponsorship policy check. */
@@ -495,8 +497,7 @@ declare const keyAuthorizationBrand: unique symbol
  *
  * @example
  * ```ts
- * import { http } from 'viem'
- * import { Relay, Store, withRelay } from 'viem/tempo'
+ * import { http, Relay, Store, withRelay } from 'viem/tempo'
  *
  * const transport = withRelay(http(), {
  *   plugins: [Relay.keyAuthorization({ store: Store.memory() })],

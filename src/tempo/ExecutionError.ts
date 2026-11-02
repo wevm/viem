@@ -1,19 +1,20 @@
-import type { Hex } from '../types/misc.js'
-import type { UnionOmit } from '../types/utils.js'
-import {
-  type DecodeErrorResultReturnType,
-  decodeErrorResult,
-} from '../utils/abi/decodeErrorResult.js'
-import { formatAbiItem } from '../utils/abi/formatAbiItem.js'
-import { toFunctionSelector } from '../utils/hash/toFunctionSelector.js'
+import type { Hex } from 'ox/Hex'
+import { AbiError, AbiItem } from 'ox'
+import type { UnionOmit } from '../core/internal/types.js'
 import * as Abis from './Abis.js'
 
 type AllAbis = typeof Abis.coreErrors
 type AbiErrorName = Extract<AllAbis[number], { type: 'error' }>['name']
 
-type DecodedError<error = DecodeErrorResultReturnType<AllAbis>> =
-  error extends DecodeErrorResultReturnType<AllAbis>
-    ? Omit<error, 'args'> & {
+type DecodedError<
+  error = AbiError.extract.ReturnType<AbiError.extract.ExtractError<AllAbis>>,
+> =
+  error extends AbiError.extract.ReturnType<
+    AbiError.extract.ExtractError<AllAbis>
+  >
+    ? {
+        abiItem: error['error']
+        errorName: error['error']['name']
         args: error['args'] | undefined
         data: Hex
         message: string
@@ -478,11 +479,16 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
   const data = extractRevertData(error)
   if (data) {
     try {
-      const decoded = decodeErrorResult({ abi: Abis.coreErrors, data })
+      const decoded = AbiError.extract(Abis.coreErrors, data)
+      const { hash: _, ...abiItem } = decoded.error as typeof decoded.error & {
+        hash?: Hex
+      }
       const template =
-        messages[formatAbiItem(decoded.abiItem) as keyof typeof messages]
+        messages[AbiItem.getSignature(decoded.error) as keyof typeof messages]
       return {
-        ...decoded,
+        abiItem,
+        errorName: decoded.error.name,
+        args: decoded.args,
         data,
         message: template
           ? interpolate(template, decoded.args as readonly unknown[])
@@ -493,7 +499,7 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
         const abiItem = Abis.coreErrors.find(
           (item) =>
             item.type === 'error' &&
-            toFunctionSelector(formatAbiItem(item)) === data.toLowerCase(),
+            AbiItem.getSelector(item) === data.toLowerCase(),
         )
         if (abiItem?.type === 'error')
           return {
@@ -501,7 +507,8 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
             args: undefined,
             data,
             errorName: abiItem.name,
-            message: messages[formatAbiItem(abiItem) as keyof typeof messages]!,
+            message:
+              messages[AbiItem.getSignature(abiItem) as keyof typeof messages]!,
           } as DecodedError
       }
     }
@@ -518,9 +525,10 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
     return {
       abiItem,
       args: undefined,
-      data: toFunctionSelector(formatAbiItem(abiItem)),
+      data: AbiItem.getSelector(abiItem),
       errorName: abiItem.name,
-      message: messages[formatAbiItem(abiItem) as keyof typeof messages]!,
+      message:
+        messages[AbiItem.getSignature(abiItem) as keyof typeof messages]!,
     } as DecodedError
 
   // Human-readable names cannot distinguish overloads with different templates.
