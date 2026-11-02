@@ -97,3 +97,7 @@ export type { KeyAuthorizationOperation as z_AccountKeyAuthorizationOperation } 
 export type { Configurable as z_SignatureEnvelopeConfigurable } from 'ox/tempo/SignatureEnvelope'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
 export type { Primitive as z_SignatureEnvelopePrimitive } from 'ox/tempo/SignatureEnvelope'
+/** @deprecated Compiler support for declaration emit, not Viem API. */
+export type { OneOf as z_OneOf } from 'ox/_types/core/internal/types'
+/** @deprecated Compiler support for declaration emit, not Viem API. */
+export type { UnionCompute as z_UnionCompute } from 'ox/_types/core/internal/types'

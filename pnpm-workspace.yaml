@@ -38,6 +38,11 @@ auditConfig:
     - GHSA-7pqw-9j4j-h8q3
     - GHSA-mrhx-c7xc-m3w5 # zod 3 has no patched release and is only used by development tooling.
     - GHSA-8g5g-mxqh-grgj # vite 6.4.4 has no patched release and is only used by test tooling.
+    - GHSA-587h-7wmj-h5pm # vite-plus 0.1 bundles a vulnerable Vite dev server; only fixed in the vite-plus 1.x major.
+    - GHSA-698v-4r3x-3vcv # vite-plus 0.1 bundles a vulnerable Vite dev server; only fixed in the vite-plus 1.x major.
+    - GHSA-r825-w8mm-5pxw # vite-plus 0.1 bundles a vulnerable Vite dev server; only fixed in the vite-plus 1.x major.
+    - GHSA-rq7h-c2jc-7f22 # vite-plus 0.1 bundles a vulnerable Vite dev server; only fixed in the vite-plus 1.x major.
+    - GHSA-9jrq-w75r-8gcw # vite-plus 0.1 bundles a vulnerable Vite dev server; only fixed in the vite-plus 1.x major.
     - GHSA-3g3m-2fjr-6pw4 # glob and minimatch are patched only in majors archiver cannot use.
     - GHSA-g3hv-75wg-m249 # glob and minimatch are patched only in majors archiver cannot use.
 
@@ -127,6 +132,7 @@ overrides:
   smol-toml@<=1.8.0: 1.9.0
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
   next@>=16.0.0-beta.0 <16.4.1: 16.4.1
+  fast-uri@>=2.0.0 <2.4.8: 2.4.8
   fast-uri@>=3.0.0 <3.1.9: 3.1.9
   fast-uri@>=4.0.0 <4.2.3: 4.2.3
   sharp@<0.35.5: 0.35.5
@@ -190,7 +196,7 @@ catalog:
   testcontainers: ^11.10.0
   typescript: 7.0.2
   viem-v2: npm:viem@2.55.10
-  vite: ^8.0.16
+  vite: ^8.1.6
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
   vite-plus: 0.1.24
   vocs: ^2.10.1
