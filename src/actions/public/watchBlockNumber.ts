@@ -38,7 +38,11 @@ export type WatchBlockNumberParameters<
         }
       : never)
   | {
-      /** Whether or not to emit the missed block numbers to the callback. */
+      /**
+       * Whether or not to emit the missed block numbers to the callback.
+       * Defaults to `true` when the polling interval is longer than half the
+       * chain's block time, otherwise `false`.
+       */
       emitMissed?: boolean | undefined
       /** Whether or not to emit the latest block number to the callback when the subscription opens. */
       emitOnBegin?: boolean | undefined
@@ -84,7 +88,7 @@ export function watchBlockNumber<
   client: Client<transport, chain>,
   {
     emitOnBegin = false,
-    emitMissed = false,
+    emitMissed: emitMissed_,
     onBlockNumber,
     onError,
     poll: poll_,
@@ -106,6 +110,11 @@ export function watchBlockNumber<
       return false
     return true
   })()
+  // Polling less than twice per block skips blocks, so emit the missed
+  // ones unless told otherwise.
+  const blockTime = client.chain?.blockTime
+  const emitMissed =
+    emitMissed_ ?? (blockTime !== undefined && pollingInterval > blockTime / 2)
 
   let prevBlockNumber: GetBlockNumberReturnType | undefined
 
