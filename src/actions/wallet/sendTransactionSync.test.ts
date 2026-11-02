@@ -1,3 +1,4 @@
+import { stringToHex, toBlobs } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { getSmartAccounts_07 } from '~test/account-abstraction.js'
 import { anvilMainnet } from '~test/anvil.js'
@@ -26,11 +27,10 @@ import {
 import type { Account } from '../../types/account.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
-import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
-import { stringToHex, toHex } from '../../utils/encoding/toHex.js'
+import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   createNonceManager,
@@ -1662,12 +1662,9 @@ describe('local account', () => {
       await mine(client, { blocks: 1 })
     })
 
-    test.each([
-      ['no hash', () => undefined],
-      ['a different hash', () => `0x${'00'.repeat(32)}`],
-    ])('returns the receipt when the error holds %s', async (_, getData) => {
+    test('returns the receipt when the error holds no hash', async () => {
       await setup()
-      const node = await createNode(getData)
+      const node = await createNode(() => undefined)
 
       const [receipt, hash] = await Promise.all([
         sendTransaction(node.client, {

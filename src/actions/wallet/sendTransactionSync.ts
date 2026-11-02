@@ -54,6 +54,7 @@ import {
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import { isHash } from '../../utils/hash/isHash.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
@@ -442,16 +443,20 @@ export async function sendTransactionSync<
         // receipt (EIP-7966).
         const timeoutError =
           err instanceof BaseError
-            ? err.walk((e) => (e as { code?: unknown } | null)?.code === 4)
+            ? (err.walk((e) => (e as { code?: unknown } | null)?.code === 4) as
+                | (Error & { data?: unknown })
+                | null)
             : null
         if (!timeoutError) throw err
 
         // The pending transaction holds the nonce, so keep it.
         nonceManagerParameters = undefined
 
-        // Derive the hash from the sent bytes rather than trust the one in
-        // the error.
+        // Prefer the node's hash, since a relay (such as a fee payer) can
+        // change the bytes it broadcasts. Without one, derive it locally.
         const hash = (() => {
+          const { data } = timeoutError
+          if (typeof data === 'string' && isHash(data)) return data
           // An EIP-4844 network wrapper holds the signed payload, then the
           // blobs, commitments, and proofs. The hash covers only the payload.
           if (sliceHex(serializedTransaction, 0, 1) === '0x03') {
