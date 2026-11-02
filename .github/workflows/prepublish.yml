@@ -47,7 +47,7 @@ jobs:
             echo "version=0.0.0-v3-pr-$PULL_REQUEST-${SHA:0:7}" >> "$GITHUB_OUTPUT"
           else
             # A short SHA can repeat across main's history, and npm never republishes a version, so main takes the full SHA.
-            echo "tag=v3" >> "$GITHUB_OUTPUT"
+            echo "tag=main-v3" >> "$GITHUB_OUTPUT"
             echo "version=0.0.0-v3-$SHA" >> "$GITHUB_OUTPUT"
           fi
 
@@ -76,7 +76,7 @@ jobs:
           path: ${{ runner.temp }}/prerelease/*.tgz
           retention-days: 1
 
-  # Publishes the pack to npm under the dist-tag `v3` or `pr-<number>`.
+  # Publishes the pack to npm under the dist-tag `main-v3` or `pr-<number>`.
   # It alone holds the OIDC token that npm trusts, and runs none of the commit's code.
   publish:
     name: Publish prerelease
