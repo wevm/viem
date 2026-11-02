@@ -291,9 +291,14 @@ function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {
   return decodedArg[0]
 }
 
+/** Error type thrown when an anonymous event log matches more than one event. */
 export type AbiEventAmbiguityErrorType = AbiEventAmbiguityError & {
   name: 'AbiEventAmbiguityError'
 }
+/**
+ * Thrown by {@link decodeEventLog} when an anonymous event log fits more than
+ * one requested anonymous event with the same number of indexed inputs.
+ */
 export class AbiEventAmbiguityError extends BaseError {
   constructor(eventNames: readonly string[]) {
     // `eventName` cannot choose between overloads that share a name, so those

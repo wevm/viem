@@ -1,3 +1,4 @@
+import { encodeAbiParameters, encodeEventTopics } from 'viem'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { waitForTransactionReceipt } from '../../actions/public/waitForTransactionReceipt.js'
@@ -8,8 +9,6 @@ import type { Hex } from '../../types/misc.js'
 import { getAddress } from '../address/getAddress.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
 import { decodeEventLog } from './decodeEventLog.js'
-import { encodeAbiParameters } from './encodeAbiParameters.js'
-import { encodeEventTopics } from './encodeEventTopics.js'
 
 test('Transfer()', () => {
   const event = decodeEventLog({

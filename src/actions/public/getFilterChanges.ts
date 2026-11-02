@@ -195,6 +195,7 @@ export async function getFilterChanges<
     >
   return parseEventLogs({
     abi: filter.abi,
+    eventName: filter.eventName,
     logs: formattedLogs,
     strict,
   }) as unknown as GetFilterChangesReturnType<
