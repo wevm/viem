@@ -207,17 +207,17 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
   () => {
     test('valid request', async () => {
       const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-      const { id, ...version } = await new Promise<any>((resolve) =>
+      const { id, ...response } = await new Promise<any>((resolve) =>
         socketClient.request({
-          body: { method: 'web3_clientVersion' },
+          body: { method: 'eth_chainId' },
           onResponse: resolve,
         }),
       )
       expect(id).toBeDefined()
-      expect(version).toMatchInlineSnapshot(`
+      expect(response).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.7.1",
+        "result": "0x1",
       }
     `)
       expect(socketClient.requests.size).toBe(0)
@@ -724,14 +724,14 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
   () => {
     test('valid request', async () => {
       const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-      const { id, ...version } = await client.requestAsync({
-        body: { method: 'web3_clientVersion' },
+      const { id, ...response } = await client.requestAsync({
+        body: { method: 'eth_chainId' },
       })
       expect(id).toBeDefined()
-      expect(version).toMatchInlineSnapshot(`
+      expect(response).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.7.1",
+        "result": "0x1",
       }
     `)
       expect(client.requests.size).toBe(0)

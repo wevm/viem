@@ -157,14 +157,29 @@ test('args: maxFeePerGas', async () => {
 })
 
 test('args: maxPriorityFeePerGas', async () => {
-  expect(
-    await estimateGas(client, {
+  await expect(() =>
+    estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       maxPriorityFeePerGas: parseGwei('2'),
       value: parseEther('1'),
     }),
-  ).toMatchInlineSnapshot('21000n')
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [EstimateGasExecutionError: Invalid parameters were provided to the RPC method.
+    Double check you have provided the correct parameters.
+
+    URL: http://localhost
+    Request body: {"method":"eth_estimateGas","params":[{"from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","maxPriorityFeePerGas":"0x77359400","to":"0x70997970c51812dc3a010c7d01b50e0d17dc79c8","value":"0xde0b6b3a7640000"}]}
+     
+    Estimate Gas Arguments:
+      from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:                    0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+      value:                 1 ETH
+      maxPriorityFeePerGas:  2 gwei
+
+    Details: Invalid input: \`max_priority_fee_per_gas\` greater than \`max_fee_per_gas\`
+    Version: viem@x.y.z]
+  `)
 })
 
 test('args: gas', async () => {

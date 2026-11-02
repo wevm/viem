@@ -15,13 +15,13 @@ describe('request', () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     expect(
       await client.request({
-        body: { method: 'web3_clientVersion' },
+        body: { method: 'eth_chainId' },
       }),
     ).toMatchInlineSnapshot(`
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.7.1",
+        "result": "0x1",
       }
     `)
   })
@@ -30,13 +30,13 @@ describe('request', () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     expect(
       await client.request({
-        body: { method: 'web3_clientVersion' },
+        body: { method: 'eth_chainId' },
       }),
     ).toMatchInlineSnapshot(`
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.7.1",
+        "result": "0x1",
       }
     `)
   })
@@ -625,22 +625,19 @@ describe('http (batch)', () => {
 
     expect(
       await client.request({
-        body: [
-          { method: 'web3_clientVersion' },
-          { method: 'web3_clientVersion' },
-        ],
+        body: [{ method: 'eth_chainId' }, { method: 'eth_chainId' }],
       }),
     ).toMatchInlineSnapshot(`
       [
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.7.1",
+          "result": "0x1",
         },
         {
           "id": 2,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.7.1",
+          "result": "0x1",
         },
       ]
     `)
@@ -652,7 +649,7 @@ describe('http (batch)', () => {
     expect(
       await client.request({
         body: [
-          { method: 'web3_clientVersion' },
+          { method: 'eth_chainId' },
           { method: 'eth_getBlockByHash', params: ['0x0', false] },
         ],
       }),
@@ -661,7 +658,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.7.1",
+          "result": "0x1",
         },
         {
           "error": {
@@ -680,14 +677,14 @@ describe('http (batch)', () => {
 
     expect(
       await client.request({
-        body: [{ method: 'web3_clientVersion' }, { method: 'eth_wagmi' }],
+        body: [{ method: 'eth_chainId' }, { method: 'eth_wagmi' }],
       }),
     ).toMatchInlineSnapshot(`
       [
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.7.1",
+          "result": "0x1",
         },
         {
           "error": {

@@ -13,7 +13,7 @@ runs:
     - name: Set up foundry
       uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@8963daf30237417f873c8e2f17e3bf9415e3a7b9
       with:
-        version: v1.7.1
+        version: v1.8.7
 
     - name: Set up pnpm
       uses: wevm/actions/.github/actions/pnpm@8963daf30237417f873c8e2f17e3bf9415e3a7b9
