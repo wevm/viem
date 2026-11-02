@@ -119,7 +119,6 @@ test('sends transaction', async () => {
     transactionHash: null,
   }).toMatchInlineSnapshot(`
     {
-      "blobGasPrice": 1n,
       "blockHash": null,
       "blockNumber": null,
       "blockTimestamp": null,
@@ -179,7 +178,6 @@ test('sends transaction (w/ formatter)', async () => {
     transactionHash: null,
   }).toMatchInlineSnapshot(`
     {
-      "blobGasPrice": 1n,
       "blockHash": null,
       "blockNumber": null,
       "blockTimestamp": null,
@@ -380,7 +378,6 @@ describe('args: gasPrice', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -472,7 +469,6 @@ describe('args: maxFeePerGas', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -569,7 +565,6 @@ describe('args: maxPriorityFeePerGas', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -623,7 +618,6 @@ describe('args: maxPriorityFeePerGas', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -681,7 +675,6 @@ describe('args: nonce', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -871,7 +864,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -920,7 +912,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -1037,7 +1028,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -1094,7 +1084,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -1151,7 +1140,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -1210,7 +1198,6 @@ describe('local account', () => {
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
-          "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
           "blockTimestamp": null,
@@ -1252,10 +1239,10 @@ describe('local account', () => {
           account: privateKeyToAccount(sourceAccount.privateKey),
           to: targetAccount.address,
           value: parseEther('1'),
+          gas: 21000n,
           maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
         [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
         This error could arise when the account does not have enough funds to:
@@ -1271,12 +1258,12 @@ describe('local account', () => {
           from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
           to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
           value:         1 ETH
+          gas:           21000
           maxFeePerGas:  10000000000010 gwei
 
         Details: Insufficient funds for gas * price + value
         Version: viem@x.y.z]
-      `,
-      )
+      `)
     })
   })
 
@@ -1298,13 +1285,12 @@ describe('local account', () => {
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
-          "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
           "blockTimestamp": null,
           "contractAddress": null,
           "cumulativeGasUsed": 21000n,
-          "effectiveGasPrice": 11700000000n,
+          "effectiveGasPrice": 13750000000n,
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gasUsed": 21000n,
           "logs": [],
@@ -1357,7 +1343,6 @@ describe('local account', () => {
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
-          "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
           "blockTimestamp": null,
@@ -1423,7 +1408,6 @@ describe('local account', () => {
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
-          "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
           "blockTimestamp": null,

@@ -1620,7 +1620,7 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 11700000000n,
+        "maxFeePerGas": 17000000000n,
         "maxPriorityFeePerGas": 5000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",

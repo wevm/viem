@@ -133,13 +133,12 @@ test('errors: rpc error', async () => {
   await expect(() =>
     transport.request({ method: 'eth_wagmi' }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
-    Double check you have provided the correct parameters.
+    [MethodNotFoundRpcError: The method "eth_wagmi" does not exist / is not available.
 
     URL: http://localhost
     Request body: {"method":"eth_wagmi"}
 
-    Details: data did not match any variant of untagged enum EthRpcCall
+    Details: Method not found
     Version: viem@x.y.z]
   `)
 })

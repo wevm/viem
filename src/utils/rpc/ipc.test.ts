@@ -54,17 +54,17 @@ describe('getIpcRpcClient', () => {
 describe('request', () => {
   test('valid request', async () => {
     const rpcClient = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
-    const { id, ...version } = await new Promise<any>((resolve) =>
+    const { id, ...response } = await new Promise<any>((resolve) =>
       rpcClient.request({
-        body: { method: 'web3_clientVersion' },
+        body: { method: 'eth_chainId' },
         onResponse: resolve,
       }),
     )
     expect(id).toBeDefined()
-    expect(version).toMatchInlineSnapshot(`
+    expect(response).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.7.1",
+        "result": "0x1",
       }
     `)
     expect(rpcClient.requests.size).toBe(0)
@@ -103,8 +103,8 @@ describe('request', () => {
       `
       {
         "error": {
-          "code": -32602,
-          "message": "data did not match any variant of untagged enum EthRpcCall",
+          "code": -32601,
+          "message": "Method not found",
         },
         "id": 1,
         "jsonrpc": "2.0",
@@ -296,7 +296,7 @@ describe('request (subscription)', () => {
       {
         "error": {
           "code": -32602,
-          "message": "data did not match any variant of untagged enum EthRpcCall",
+          "message": "unknown variant \`fakeHeadz\`, expected one of \`newHeads\`, \`logs\`, \`newPendingTransactions\`, \`syncing\`, \`transactionReceipts\`",
         },
         "id": 1,
         "jsonrpc": "2.0",
@@ -308,14 +308,14 @@ describe('request (subscription)', () => {
 describe('requestAsync', () => {
   test('valid request', async () => {
     const client = await getIpcRpcClient(anvilMainnet.rpcUrl.ipc)
-    const { id, ...version } = await client.requestAsync({
-      body: { method: 'web3_clientVersion' },
+    const { id, ...response } = await client.requestAsync({
+      body: { method: 'eth_chainId' },
     })
     expect(id).toBeDefined()
-    expect(version).toMatchInlineSnapshot(`
+    expect(response).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.7.1",
+        "result": "0x1",
       }
     `)
     expect(client.requests.size).toBe(0)
@@ -395,8 +395,8 @@ describe('requestAsync', () => {
       `
       {
         "error": {
-          "code": -32602,
-          "message": "data did not match any variant of untagged enum EthRpcCall",
+          "code": -32601,
+          "message": "Method not found",
         },
         "id": 1,
         "jsonrpc": "2.0",

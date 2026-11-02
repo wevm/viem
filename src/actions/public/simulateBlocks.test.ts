@@ -48,6 +48,7 @@ test('default', async () => {
         "data": "0x",
         "gasUsed": 21000n,
         "logs": [],
+        "maxUsedGas": 21000n,
         "result": null,
         "status": "success",
       },
@@ -55,6 +56,7 @@ test('default', async () => {
         "data": "0x",
         "gasUsed": 21000n,
         "logs": [],
+        "maxUsedGas": 21000n,
         "result": null,
         "status": "success",
       },
@@ -62,6 +64,7 @@ test('default', async () => {
         "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
         "gasUsed": 24371n,
         "logs": [],
+        "maxUsedGas": 24371n,
         "result": "wagmi",
         "status": "success",
       },
@@ -173,7 +176,7 @@ test('behavior: gas too low', async () => {
     `
     [IntrinsicGasTooHighError: The amount of gas provided for the transaction exceeds the limit allowed for the block.
 
-    Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
+    Details: err: intrinsic gas too high -- CallGasCostMoreThanGasLimit
     Version: viem@x.y.z]
   `,
   )
@@ -236,6 +239,7 @@ test('behavior: contract function does not exist', async () => {
     Version: viem@x.y.z],
         "gasUsed": 28585n,
         "logs": [],
+        "maxUsedGas": 28585n,
         "status": "failure",
       },
     ]
@@ -280,6 +284,7 @@ test('behavior: contract function does not exist', async () => {
     Version: viem@x.y.z],
         "gasUsed": 21277n,
         "logs": [],
+        "maxUsedGas": 21277n,
         "status": "failure",
       },
     ]
@@ -324,6 +329,7 @@ test('behavior: contract revert', async () => {
     Version: viem@x.y.z],
         "gasUsed": 23813n,
         "logs": [],
+        "maxUsedGas": 23813n,
         "status": "failure",
       },
     ]
