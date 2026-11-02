@@ -18,6 +18,7 @@ import { BaseError } from '../../errors/base.js'
 import {
   TransactionReceiptRevertedError,
   type TransactionReceiptRevertedErrorType,
+  WaitForTransactionReceiptTimeoutError,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -50,6 +51,7 @@ import {
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import { isHash } from '../../utils/hash/isHash.js'
 import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
 import {
@@ -421,15 +423,53 @@ export async function sendTransactionSync<
             transaction: request as never,
           })
         : signedTransaction
-      return (await getAction(
-        client,
-        sendRawTransactionSync,
-        'sendRawTransactionSync',
-      )({
-        serializedTransaction,
-        throwOnReceiptRevert,
-        timeout: parameters.timeout,
-      })) as never
+      const start = Date.now()
+      try {
+        return (await getAction(
+          client,
+          sendRawTransactionSync,
+          'sendRawTransactionSync',
+        )({
+          serializedTransaction,
+          throwOnReceiptRevert,
+          timeout: parameters.timeout,
+        })) as never
+      } catch (err) {
+        // The node accepted the transaction but stopped waiting for its
+        // receipt (EIP-7966).
+        const timeoutError =
+          err instanceof BaseError
+            ? (err.walk((e) => (e as { code?: unknown } | null)?.code === 4) as
+                | (Error & { data?: unknown })
+                | null)
+            : null
+        if (!timeoutError) throw err
+
+        // The pending transaction holds the nonce, so keep it.
+        nonceManagerParameters = undefined
+
+        const { data: hash } = timeoutError
+        if (typeof hash !== 'string' || !isHash(hash)) throw err
+
+        const remaining = timeout - (Date.now() - start)
+        // The node used up `timeout` before it answered.
+        if (remaining <= 0)
+          throw new WaitForTransactionReceiptTimeoutError({ hash })
+
+        const receipt = await getAction(
+          client,
+          waitForTransactionReceipt,
+          'waitForTransactionReceipt',
+        )({
+          checkReplacement: false,
+          hash,
+          pollingInterval,
+          timeout: remaining,
+        })
+        if (throwOnReceiptRevert && receipt.status === 'reverted')
+          throw new TransactionReceiptRevertedError({ receipt })
+        return receipt as never
+      }
     }
 
     if (account?.type === 'smart')

@@ -1,3 +1,4 @@
+import { BaseError } from '../../errors/base.js'
 import { ExecutionRevertedError } from '../../errors/node.js'
 import {
   TransactionRejectedRpcError,
@@ -163,6 +164,16 @@ export function fallback<const transports extends readonly Transport[]>(
               })
 
               if (shouldThrow_(err as Error)) throw err
+
+              // The node accepted the transaction but stopped waiting for its
+              // receipt (EIP-7966), so do not send it to the next one. Custom
+              // transports wrap the provider's error, so check the causes too.
+              if (
+                method === 'eth_sendRawTransactionSync' &&
+                err instanceof BaseError &&
+                err.walk((e) => (e as { code?: unknown } | null)?.code === 4)
+              )
+                throw err
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err
