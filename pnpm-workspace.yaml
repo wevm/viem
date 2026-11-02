@@ -150,6 +150,7 @@ overrides:
 
 patchedDependencies:
   vocs@2.10.1: patches/vocs@2.10.1.patch
+  waku@1.0.0-rc.1: patches/waku@1.0.0-rc.1.patch
 
 provenance: true
 
