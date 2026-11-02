@@ -41,6 +41,9 @@ import {
   assertCurrentChain,
 } from '../../utils/chain/assertCurrentChain.js'
 import { concat } from '../../utils/data/concat.js'
+import { sliceHex } from '../../utils/data/slice.js'
+import { fromRlp } from '../../utils/encoding/fromRlp.js'
+import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   type GetTransactionErrorReturnType,
   getTransactionError,
@@ -52,6 +55,7 @@ import {
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { isHash } from '../../utils/hash/isHash.js'
+import { keccak256 } from '../../utils/hash/keccak256.js'
 import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
 import {
@@ -448,8 +452,20 @@ export async function sendTransactionSync<
         // The pending transaction holds the nonce, so keep it.
         nonceManagerParameters = undefined
 
-        const { data: hash } = timeoutError
-        if (typeof hash !== 'string' || !isHash(hash)) throw err
+        // Prefer the node's hash, since a relay (such as a fee payer) can
+        // change the bytes it broadcasts. Without one, derive it locally.
+        const hash = (() => {
+          const { data } = timeoutError
+          if (typeof data === 'string' && isHash(data)) return data
+          // An EIP-4844 network wrapper holds the signed payload, then the
+          // blobs, commitments, and proofs. The hash covers only the payload.
+          if (sliceHex(serializedTransaction, 0, 1) === '0x03') {
+            const fields = fromRlp(sliceHex(serializedTransaction, 1))
+            if (fields.length === 4 && Array.isArray(fields[0]))
+              return keccak256(concat(['0x03', toRlp(fields[0])]))
+          }
+          return keccak256(serializedTransaction)
+        })()
 
         const remaining = timeout - (Date.now() - start)
         // The node used up `timeout` before it answered.
