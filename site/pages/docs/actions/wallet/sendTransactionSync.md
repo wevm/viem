@@ -460,7 +460,7 @@ const receipt = await walletClient.sendTransactionSync({
 ## Tips
 
 - For dapps: When using this action, it is assumed that the user has connected to their wallet (e.g. given permission for the dapp to access their accounts via [`requestAddresses`](/docs/actions/wallet/requestAddresses)). You can also check if the user has granted access to their accounts via [`getAddresses`](/docs/actions/wallet/getAddresses)
-- For Local Accounts: the node may stop waiting before the receipt arrives, after it has accepted the transaction (`eth_sendRawTransactionSync` error code 4). Viem then keeps checking for the receipt until `timeout` runs out, and the [Nonce Manager](/docs/accounts/local/createNonceManager) keeps the nonce in use. To check, Viem needs the transaction hash in that error, as [EIP-7966](https://eips.ethereum.org/EIPS/eip-7966) requires.
+- For Local Accounts: the node may stop waiting before the receipt arrives, after it has accepted the transaction (`eth_sendRawTransactionSync` error code 4). Viem then keeps checking for the receipt until `timeout` runs out, and the [Nonce Manager](/docs/accounts/local/createNonceManager) keeps the nonce in use. Viem derives the transaction hash from the signed transaction, so it does not depend on the hash in the error ([EIP-7966](https://eips.ethereum.org/EIPS/eip-7966)).
 
 ## JSON-RPC Methods
 

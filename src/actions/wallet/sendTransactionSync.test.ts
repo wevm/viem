@@ -1660,6 +1660,28 @@ describe('local account', () => {
       await mine(client, { blocks: 1 })
     })
 
+    test.each([
+      ['no hash', () => undefined],
+      ['a different hash', () => `0x${'00'.repeat(32)}`],
+    ])('returns the receipt when the error holds %s', async (_, getData) => {
+      await setup()
+      const node = await createNode(getData)
+
+      const [receipt, hash] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        node.pooled.then(async (hash) => {
+          await mine(client, { blocks: 1 })
+          return hash
+        }),
+      ])
+
+      expect(receipt.transactionHash).toBe(hash)
+    })
+
     test('keeps the nonce', async () => {
       await setup()
       const node = await createNode(() => undefined)
@@ -1678,23 +1700,11 @@ describe('local account', () => {
       await expect(() =>
         sendTransaction(node.client, {
           account,
+          timeout: 1_000,
           to: targetAccount.address,
           value: parseEther('1'),
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [TransactionExecutionError: RPC Request failed.
-
-        URL: http://localhost
-        Request body: {"method":"eth_sendRawTransactionSync","params":["0x02f875018203fd843b9aca008502b95fd5008252089470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c001a0552ed0f8053733716dc9703ae1c015f3086f131047a4254c19701589242fc808a004ebf2665331fad0b2e17bbf7fe35d8bcebc05a6a0a88699143452c143b56273"]}
-         
-        Request Arguments:
-          from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-          to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
-          value:  1 ETH
-
-        Details: Transaction confirmation timeout
-        Version: viem@x.y.z]
-      `)
+      ).rejects.toThrow('Timed out while waiting for transaction with hash')
       const hash = await node.pooled
       const nonce = await account.nonceManager!.consume({
         address: account.address,

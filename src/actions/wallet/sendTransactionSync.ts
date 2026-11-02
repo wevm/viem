@@ -51,7 +51,7 @@ import {
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
-import { isHash } from '../../utils/hash/isHash.js'
+import { keccak256 } from '../../utils/hash/keccak256.js'
 import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
 import {
@@ -439,17 +439,16 @@ export async function sendTransactionSync<
         // receipt (EIP-7966).
         const timeoutError =
           err instanceof BaseError
-            ? (err.walk((e) => (e as { code?: unknown } | null)?.code === 4) as
-                | (Error & { data?: unknown })
-                | null)
+            ? err.walk((e) => (e as { code?: unknown } | null)?.code === 4)
             : null
         if (!timeoutError) throw err
 
         // The pending transaction holds the nonce, so keep it.
         nonceManagerParameters = undefined
 
-        const { data: hash } = timeoutError
-        if (typeof hash !== 'string' || !isHash(hash)) throw err
+        // Derive the hash from the sent bytes rather than trust the one in
+        // the error.
+        const hash = keccak256(serializedTransaction)
 
         const remaining = timeout - (Date.now() - start)
         // The node used up `timeout` before it answered.
