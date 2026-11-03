@@ -1,4 +1,5 @@
 import * as Gateway from '../Gateway.js'
+import * as Ndjson from '../internal/ndjson.js'
 
 /**
  * Embeds text with a Gateway model. Paid per request.
@@ -211,7 +212,7 @@ export async function* streamText(
           total_tokens?: number | undefined
         } | null
       }
-  for await (const event of Gateway.events<Raw>(response)) {
+  for await (const event of Ndjson.read<Raw>(response)) {
     if (event.type !== 'done') {
       yield event
       continue

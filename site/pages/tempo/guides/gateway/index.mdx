@@ -21,15 +21,17 @@ Viem's [`gatewayActions`](/tempo/utilities/Gateway) give you typed methods for e
 account pays any `402 Payment Required` the Gateway answers: a local account through
 [`mppx`](https://mpp.dev/sdk/typescript), and [Tempo Wallet](/tempo/guides/gateway/tempo-wallet) through the Accounts SDK.
 
-```ts
+```ts twoslash
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
 
+const account = privateKeyToAccount(generatePrivateKey())
 const client = createClient({ account }).extend(gatewayActions())
 
 const { text } = await client.ai.generateText({ model: '@cf/zai-org/glm-5.3', prompt: 'hi' })
 ```
 
-### How payment works
+### How Payment Works
 
 1. Your app calls a paid route, such as `client.ai.generateText`.
 2. The Gateway answers `402` with an MPP challenge naming its price, currency and recipient.

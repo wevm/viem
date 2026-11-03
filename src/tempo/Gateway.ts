@@ -16,7 +16,16 @@ export type Capabilities = {
     /** Price per CPU core-second in currency units. */
     cpuPerSecond: number
     /** Defaults of `compute.create`. */
-    defaults: { cpu: number; image: string; memory: number; timeout: number }
+    defaults: {
+      /** CPU cores. */
+      cpu: number
+      /** Container image. */
+      image: string
+      /** Memory in MiB. */
+      memory: number
+      /** Seconds the sandbox may live. */
+      timeout: number
+    }
     /** Price per GPU-second in currency units, by GPU type. */
     gpusPerSecond: Record<string, number>
     /** Price per GiB-second of memory in currency units. */
@@ -404,52 +413,5 @@ export class VersionConflictError extends RequestError {
       name: 'Gateway.VersionConflictError',
       shortMessage: 'Stored version does not match ifVersion.',
     })
-  }
-}
-
-/**
- * Reads a Gateway NDJSON stream, one event per line. An `error` event throws a
- * {@link RequestError}.
- *
- * @internal
- */
-export async function* events<event extends { type: string }>(
-  response: Response,
-): AsyncGenerator<event> {
-  if (!response.body) return
-
-  const reader = response.body.getReader()
-  const decoder = new TextDecoder()
-  let buffer = ''
-
-  try {
-    for (;;) {
-      const { done, value } = await reader.read()
-      buffer += decoder.decode(value, { stream: !done })
-
-      const lines = buffer.split('\n')
-      buffer = done ? '' : (lines.pop() ?? '')
-
-      for (const line of lines) {
-        if (!line.trim()) continue
-
-        const event = JSON.parse(line) as event & {
-          code?: string
-          detail?: string
-        }
-        if (event.type === 'error')
-          throw new RequestError({
-            code: event.code ?? 'upstream_failed',
-            detail: event.detail ?? '',
-            status: 502,
-            url: response.url,
-          })
-        yield event
-      }
-
-      if (done) return
-    }
-  } finally {
-    reader.releaseLock()
   }
 }

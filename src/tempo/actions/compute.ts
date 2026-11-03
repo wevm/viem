@@ -1,4 +1,5 @@
 import * as Gateway from '../Gateway.js'
+import * as Ndjson from '../internal/ndjson.js'
 
 /**
  * GPU types a Gateway sandbox can run on.
@@ -567,7 +568,8 @@ export declare namespace status {
 }
 
 /**
- * Terminates a sandbox. Unused time is not refunded. Paid per request.
+ * Terminates a sandbox. The Gateway credits the unused rest of its lease back
+ * to the payment channel. Paid per request.
  *
  * @experimental
  *
@@ -608,6 +610,8 @@ export declare namespace terminate {
   type ReturnValue = {
     /** Exit code of the sandbox, or `null`. */
     exitCode: number | null
+    /** Amount credited back for the unused lease, in currency units. */
+    refunded: number
     /** Sandbox ID. */
     sandboxId: string
     /** Sandbox status. */
@@ -770,7 +774,7 @@ export async function* stream(
     path: '/compute/stream',
     signal,
   })
-  yield* Gateway.events<stream.Event>(response)
+  yield* Ndjson.read<stream.Event>(response)
 }
 
 export declare namespace stream {
@@ -829,7 +833,7 @@ export async function* logs(
     path: '/compute/logs',
     signal,
   })
-  yield* Gateway.events<logs.Event>(response)
+  yield* Ndjson.read<logs.Event>(response)
 }
 
 export declare namespace logs {

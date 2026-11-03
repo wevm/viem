@@ -36,7 +36,7 @@ const entry = await client.kv.set({
   key: 'description',
   value: { object: 'descriptions/latest.txt' },
 })
-// @log: { expiresAt: null, key: 'description', value: { object: 'descriptions/latest.txt' }, version: 1 }
+// @log: { expiresAt: 1801440000000, key: 'description', value: { object: 'descriptions/latest.txt' }, version: 1 }
 ```
 
 ### Compute
@@ -139,7 +139,7 @@ const client = createClient({ account }).extend(
 | `ai.generateText` | Generates text from a `prompt` or `messages`. |
 | `ai.streamText` | Yields text and reasoning deltas as they are generated, then usage. |
 | `bucket.delete` | Deletes an object. |
-| `bucket.get` | Reads an object as a `ReadableStream`, or `null`. |
+| `bucket.get` | Reads an object's metadata and `body` stream, or `null`. |
 | `bucket.head` | Reads object metadata, or `null`. |
 | `bucket.list` | Lists objects by key prefix. |
 | `bucket.put` | Writes a `Blob`, `Uint8Array`, `ArrayBuffer`, or string for a retention period. |

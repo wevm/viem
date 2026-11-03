@@ -25,6 +25,7 @@ const sandboxes = new Map<
   { gpu: string | null; image: string; running: boolean }
 >()
 const files = new Map<string, Uint8Array>()
+let cancelled = false
 
 function problem(status: number, code: string, detail: string) {
   return Response.json(
@@ -153,6 +154,23 @@ async function handle(request: Request) {
           paidUntil: 600_000,
         })
       case '/v1/compute/stream':
+        if (input.command?.[0] === 'forever') {
+          request.signal.addEventListener('abort', () => {
+            cancelled = true
+          })
+          return new Response(
+            new ReadableStream({
+              start(controller) {
+                controller.enqueue(
+                  new TextEncoder().encode(
+                    `${JSON.stringify({ data: 'tick\n', type: 'stdout' })}\n`,
+                  ),
+                )
+              },
+            }),
+            { headers: { 'content-type': 'application/x-ndjson' } },
+          )
+        }
         if (input.command?.[0] === 'fail')
           return ndjson([
             { data: 'partial', type: 'stdout' },
@@ -839,6 +857,29 @@ describe('compute', () => {
         },
       }
     `)
+  })
+
+  test('behavior: stopping a stream early cancels it', async () => {
+    const gateway = Gateway.from({ app: 'compute', fetch: paidFetch, url })
+    const { sandboxId } = await Actions.compute.create(gateway, {})
+
+    for await (const event of Actions.compute.stream(gateway, {
+      command: ['forever'],
+      sandboxId,
+    })) {
+      expect(event).toMatchInlineSnapshot(`
+        {
+          "data": "tick
+        ",
+          "type": "stdout",
+        }
+      `)
+      break
+    }
+    for (let i = 0; i < 100 && !cancelled; i++)
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(cancelled).toBe(true)
   })
 
   test('behavior: metering and streaming', async () => {

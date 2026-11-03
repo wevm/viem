@@ -73,7 +73,10 @@ channel.
 
 ```ts
 import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
 
 const mppx = Mppx.create({
   methods: [tempo({ account, autoSwap: true, maxDeposit: '1' })],
@@ -119,16 +122,16 @@ app, such as `project-${id}`. A project then sees only its own keys, objects and
 tenant never touches another's data.
 
 ```ts
-import { Actions, Gateway } from 'viem/tempo'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
 
 function forProject(id: string) {
-  return Gateway.from({
-    app: `project-${id}`,
-    fetch: mppx.fetch,
-  })
+  return createClient({ account }).extend(gatewayActions({ app: `project-${id}` })) // [!code focus]
 }
 
-await Actions.kv.set(forProject('a1b2c3'), { key: 'status', value: 'running' })
+await forProject('a1b2c3').kv.set({ key: 'status', value: 'running' })
 ```
 
 An app name must match `[a-z0-9][a-z0-9-]{0,62}`; anything else throws `Gateway.InvalidAppError`.
@@ -137,11 +140,14 @@ An app name must match `[a-z0-9][a-z0-9-]{0,62}`; anything else throws `Gateway.
 
 ```ts
 import { Gateway } from 'viem/tempo'
+import { client } from './viem.config'
 
 try {
-  await client.ai.generateText({ model, prompt })
+  await client.ai.generateText({ model: '@cf/zai-org/glm-5.3', prompt: 'hi' })
 } catch (error) {
-  if (error instanceof Gateway.PaymentRequiredError) {
+  if (error instanceof Gateway.MppxNotInstalledError) { // [!code focus]
+    // A local account pays through mppx: install it.
+  } else if (error instanceof Gateway.PaymentRequiredError) { // [!code focus]
     // The fetch could not pay: pass a payment-aware fetch, or fund the wallet.
   } else if (error instanceof Gateway.RequestError) {
     console.error(error.status, error.code, error.detail)

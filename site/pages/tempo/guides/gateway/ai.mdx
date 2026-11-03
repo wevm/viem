@@ -18,12 +18,23 @@ ends. Set `maxOutputTokens` to what you need so a call doesn't hold more of your
 
 ## Recipes
 
-These recipes assume you have a client [connected and paying](/tempo/guides/gateway/connect).
+These recipes assume a Client that pays the Gateway, in `viem.config.ts` ([Connect & Pay](/tempo/guides/gateway/connect) covers other ways to pay):
+
+```ts [viem.config.ts]
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+export const client = createClient({ account }).extend(gatewayActions())
+```
 
 ### Pick a Model
 
 ```ts
-const { models, tokens } = await client.gateway.getCapabilities()
+import { client } from './viem.config'
+
+const { models, tokens } = await client.gateway.getCapabilities() // [!code focus]
 const model = models.generate[0] // models.embed lists embedding models
 // tokens[model]: { input, output } in USD per million tokens
 ```
@@ -33,20 +44,24 @@ const model = models.generate[0] // models.embed lists embedding models
 Pass a `prompt`, or `messages` for a conversation.
 
 ```ts
-const { text, usage } = await client.ai.generateText({
-  maxOutputTokens: 256,
-  model: '@cf/zai-org/glm-5.3',
-  prompt: 'Summarize Tempo in one sentence.',
-})
+import { client } from './viem.config'
+
+const { text, usage } = await client.ai.generateText({ // [!code focus]
+  maxOutputTokens: 256, // [!code focus]
+  model: '@cf/zai-org/glm-5.3', // [!code focus]
+  prompt: 'Summarize Tempo in one sentence.', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts
+import { client } from './viem.config'
+
 const { text } = await client.ai.generateText({
   maxOutputTokens: 512,
-  messages: [
-    { content: 'You answer in one short paragraph.', role: 'system' },
-    { content: 'What is a payment channel?', role: 'user' },
-  ],
+  messages: [ // [!code focus]
+    { content: 'You answer in one short paragraph.', role: 'system' }, // [!code focus]
+    { content: 'What is a payment channel?', role: 'user' }, // [!code focus]
+  ], // [!code focus]
   model: '@cf/zai-org/glm-5.3',
 })
 ```
@@ -57,32 +72,43 @@ const { text } = await client.ai.generateText({
 final event with usage. An error from the Gateway mid-stream throws `Gateway.RequestError`.
 
 ```ts
-for await (const event of client.ai.streamText({
+import { client } from './viem.config'
+
+for await (const event of client.ai.streamText({ // [!code focus]
   model: '@cf/zai-org/glm-5.3',
   prompt: 'Write a haiku about stablecoins.',
 })) {
-  if (event.type === 'text') process.stdout.write(event.delta)
+  if (event.type === 'text') process.stdout.write(event.delta) // [!code focus]
 }
 ```
 
-Pass a `signal` to stop a stream early; you pay only for the tokens generated.
+Pass a `signal` to stop a stream early, or `break` out of the loop: the request is cancelled, and you pay only
+for the tokens generated.
 
 ```ts
-const controller = new AbortController()
-setTimeout(() => controller.abort(), 5_000)
+import { client } from './viem.config'
 
-for await (const event of client.ai.streamText({ model, prompt, signal: controller.signal })) {
-  // ...
+const controller = new AbortController() // [!code focus]
+setTimeout(() => controller.abort(), 5_000) // [!code focus]
+
+for await (const event of client.ai.streamText({
+  model: '@cf/zai-org/glm-5.3',
+  prompt: 'Write a long story about stablecoins.',
+  signal: controller.signal, // [!code focus]
+})) {
+  if (event.type === 'text') process.stdout.write(event.delta)
 }
 ```
 
 ### Embed Text
 
 ```ts
-const { embeddings } = await client.ai.embed({
-  input: ['Tempo is a payments chain.', 'Viem is a TypeScript interface for Ethereum.'],
-  model: '@cf/baai/bge-m3',
-})
+import { client } from './viem.config'
+
+const { embeddings } = await client.ai.embed({ // [!code focus]
+  input: ['Tempo is a payments chain.', 'Viem is a TypeScript interface for Ethereum.'], // [!code focus]
+  model: '@cf/baai/bge-m3', // [!code focus]
+}) // [!code focus]
 ```
 
 ### Keep a Conversation
@@ -91,20 +117,29 @@ Store the history in the Gateway's key-value store so it survives across session
 app namespace as the rest of your data.
 
 ```ts
-const key = `chats/${chatId}`
-const saved = await client.kv.get({ key })
-const messages = [
-  ...((saved?.value as { messages?: Message[] })?.messages ?? []),
-  { content: question, role: 'user' },
-]
+import { client } from './viem.config'
 
-const { text } = await client.ai.generateText({ maxOutputTokens: 512, messages, model })
+type Message = { content: string; role: 'assistant' | 'system' | 'user' }
 
-await client.kv.set({
-  ifVersion: saved?.version ?? null,
-  key,
-  value: { messages: [...messages, { content: text, role: 'assistant' }] },
-})
+async function ask(chatId: string, question: string) {
+  const key = `chats/${chatId}`
+  const saved = await client.kv.get({ key }) // [!code focus]
+  const history = (saved?.value as { messages: Message[] } | undefined)?.messages ?? []
+  const messages: Message[] = [...history, { content: question, role: 'user' }]
+
+  const { text } = await client.ai.generateText({
+    maxOutputTokens: 512,
+    messages,
+    model: '@cf/zai-org/glm-5.3',
+  })
+
+  await client.kv.set({ // [!code focus]
+    ifVersion: saved?.version ?? null, // [!code focus]
+    key, // [!code focus]
+    value: { messages: [...messages, { content: text, role: 'assistant' }] }, // [!code focus]
+  }) // [!code focus]
+  return text
+}
 ```
 
 ## See More

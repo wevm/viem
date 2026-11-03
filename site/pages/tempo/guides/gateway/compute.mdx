@@ -18,13 +18,23 @@ paid by the second:
 - `compute.create` pays up front for a `lease` (seconds) at the sandbox's GPU, CPU and memory rate.
 - `compute.renew` pays for more seconds, up to the sandbox's `timeout`.
 - The Gateway terminates a sandbox about a minute after its `paidUntil`.
-- `compute.terminate` ends it early and refunds the unused rest of the lease.
+- `compute.terminate` ends it early. The Gateway credits the unused rest of a lease back to your payment
+  channel and returns the amount as `refunded`.
 
 Rates are in `(await client.gateway.getCapabilities()).compute`.
 
 ## Recipes
 
-These recipes assume you have a client [connected and paying](/tempo/guides/gateway/connect).
+These recipes assume a Client that pays the Gateway, in `viem.config.ts` ([Connect & Pay](/tempo/guides/gateway/connect) covers other ways to pay):
+
+```ts [viem.config.ts]
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+export const client = createClient({ account }).extend(gatewayActions())
+```
 
 ### Run a Command
 
@@ -32,12 +42,14 @@ These recipes assume you have a client [connected and paying](/tempo/guides/gate
 strings; wrap shell code in `['sh', '-c', '...']`.
 
 ```ts
-const { sandboxId } = await client.compute.create({ lease: 120, timeout: 600 })
+import { client } from './viem.config'
 
-const { exitCode, stdout } = await client.compute.exec({
-  command: ['python', '-c', 'print(2 ** 64)'],
-  sandboxId,
-})
+const { sandboxId } = await client.compute.create({ lease: 120, timeout: 600 }) // [!code focus]
+
+const { exitCode, stdout } = await client.compute.exec({ // [!code focus]
+  command: ['python', '-c', 'print(2 ** 64)'], // [!code focus]
+  sandboxId, // [!code focus]
+}) // [!code focus]
 
 await client.compute.terminate({ sandboxId })
 ```
@@ -48,11 +60,13 @@ Layer `apt` and `pip` packages on an image. The Gateway builds the layered image
 sandboxes start fast.
 
 ```ts
+import { client } from './viem.config'
+
 const { sandboxId } = await client.compute.create({
-  apt: ['git'],
-  image: 'python:3.12-slim',
-  pip: ['numpy', 'pandas'],
+  apt: ['git'], // [!code focus]
+  image: 'python:3.12-slim', // [!code focus]
   lease: 300,
+  pip: ['numpy', 'pandas'], // [!code focus]
 })
 ```
 
@@ -61,10 +75,14 @@ const { sandboxId } = await client.compute.create({
 `compute.stream` runs a command and yields its output as it is written, then its exit.
 
 ```ts
-for await (const event of client.compute.stream({
-  command: ['sh', '-c', 'for i in 1 2 3; do echo $i; sleep 1; done'],
-  sandboxId,
-})) {
+import { client } from './viem.config'
+
+const { sandboxId } = await client.compute.create({ lease: 120 })
+
+for await (const event of client.compute.stream({ // [!code focus]
+  command: ['sh', '-c', 'for i in 1 2 3; do echo $i; sleep 1; done'], // [!code focus]
+  sandboxId, // [!code focus]
+})) { // [!code focus]
   if (event.type === 'stdout') process.stdout.write(event.data)
   if (event.type === 'exit') console.log('exit', event.exitCode)
 }
@@ -76,8 +94,12 @@ For work longer than 120 seconds, write your files, start a background job with 
 with `logs`. Renew the lease while it runs, and terminate when it ends so you stop paying.
 
 ```ts
+import { client } from './viem.config'
+
+const script = 'import torch; print(torch.cuda.get_device_name(0))'
+
 const sandbox = await client.compute.create({
-  gpu: 'T4',
+  gpu: 'T4', // [!code focus]
   image: 'pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime',
   lease: 600,
   timeout: 3_600,
@@ -85,25 +107,25 @@ const sandbox = await client.compute.create({
 
 await client.compute.write({ path: '/root/train.py', sandboxId: sandbox.sandboxId, value: script })
 
-const job = await client.compute.spawn({
-  command: ['python', 'train.py'],
-  sandboxId: sandbox.sandboxId,
-  workdir: '/root',
-})
+const job = await client.compute.spawn({ // [!code focus]
+  command: ['python', 'train.py'], // [!code focus]
+  sandboxId: sandbox.sandboxId, // [!code focus]
+  workdir: '/root', // [!code focus]
+}) // [!code focus]
 
-const renewal = setInterval(
-  () => client.compute.renew({ sandboxId: sandbox.sandboxId, seconds: 300 }),
-  4 * 60_000,
-)
+const renewal = setInterval( // [!code focus]
+  () => client.compute.renew({ sandboxId: sandbox.sandboxId, seconds: 300 }), // [!code focus]
+  4 * 60_000, // [!code focus]
+) // [!code focus]
 
 try {
-  for await (const event of client.compute.logs({ logPath: job.logPath, sandboxId: sandbox.sandboxId })) {
+  for await (const event of client.compute.logs({ logPath: job.logPath, sandboxId: sandbox.sandboxId })) { // [!code focus]
     if (event.type === 'log') process.stdout.write(event.data)
     if (event.type === 'exit') console.log('exit', event.exitCode)
   }
 } finally {
   clearInterval(renewal)
-  await client.compute.terminate({ sandboxId: sandbox.sandboxId })
+  await client.compute.terminate({ sandboxId: sandbox.sandboxId }) // [!code focus]
 }
 ```
 
@@ -112,15 +134,17 @@ try {
 `ports` (up to 4) are served over public HTTPS tunnels. `tunnels` is keyed by the ports you pass.
 
 ```ts
+import { client } from './viem.config'
+
 const { sandboxId, tunnels } = await client.compute.create({
   lease: 900,
-  ports: [8000],
+  ports: [8000], // [!code focus]
   timeout: 900,
 })
 
 await client.compute.spawn({ command: ['python', '-m', 'http.server', '8000'], sandboxId })
 
-console.log(tunnels[8000]) // https://…
+console.log(tunnels[8000]) // https://… // [!code focus]
 ```
 
 ### Save & Restore a Sandbox
@@ -129,9 +153,13 @@ console.log(tunnels[8000]) // https://…
 skip setup.
 
 ```ts
-const { snapshot } = await client.compute.snapshot({ sandboxId })
+import { client } from './viem.config'
 
-const restored = await client.compute.create({ lease: 300, snapshot })
+const { sandboxId } = await client.compute.create({ lease: 300, pip: ['numpy'] })
+
+const { snapshot } = await client.compute.snapshot({ sandboxId }) // [!code focus]
+
+const restored = await client.compute.create({ lease: 300, snapshot }) // [!code focus]
 ```
 
 ### Clean Up
@@ -139,8 +167,10 @@ const restored = await client.compute.create({ lease: 300, snapshot })
 List what is still running and terminate it, for example when a job is cancelled.
 
 ```ts
-const { sandboxes } = await client.compute.list()
-for (const { sandboxId } of sandboxes) await client.compute.terminate({ sandboxId })
+import { client } from './viem.config'
+
+const { sandboxes } = await client.compute.list() // [!code focus]
+for (const { sandboxId } of sandboxes) await client.compute.terminate({ sandboxId }) // [!code focus]
 ```
 
 ## See More

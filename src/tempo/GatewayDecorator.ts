@@ -219,9 +219,11 @@ export type Decorator = {
   /** Sandboxed CPU and GPU compute, private to the payer and app. */
   compute: {
     /**
-     * Starts a sandbox for `timeout` seconds from a container image, with
-     * optional `apt/pip` layers, or from a snapshot. Paid up front by GPU, CPU,
-     * memory, and timeout. `ports` are served over public HTTPS tunnels.
+     * Starts a sandbox that can live up to `timeout` seconds, from a container
+     * image with optional `apt/pip` layers or from a snapshot. Compute is
+     * metered: creation pays for `lease` seconds at the sandbox's GPU, CPU, and
+     * memory rate, and `renew` pays for more. `ports` are served over public
+     * HTTPS tunnels.
      *
      * @experimental
      *
@@ -396,7 +398,7 @@ export type Decorator = {
       parameters: computeActions.status.Parameters,
     ) => Promise<computeActions.status.ReturnValue>
     /**
-     * Terminates a sandbox. Unused time is not refunded. Paid per request.
+     * Terminates a sandbox. The Gateway credits the unused rest of its lease back to the payment channel. Paid per request.
      *
      * @experimental
      *
