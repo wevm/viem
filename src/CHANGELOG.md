@@ -1,5 +1,49 @@
 # viem
 
+## 2.57.15
+
+### Patch Changes
+
+- [#5339](https://github.com/wevm/viem/pull/5339) [`a864b864b8b9031d970910fb8247471924d09280`](https://github.com/wevm/viem/commit/a864b864b8b9031d970910fb8247471924d09280) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `getAbiItem` to throw `AbiItemAmbiguityError` for overloads that JavaScript cannot distinguish, such as `bytes` vs `bytes32`, `uint256` vs `int256`, and `uint256[]` vs `uint256[2]`, while resolving distinguishable values by byte length and integer range.
+
+- [#5321](https://github.com/wevm/viem/pull/5321) [`af062571382ec3631cf1901aeda9b58a87c8fad5`](https://github.com/wevm/viem/commit/af062571382ec3631cf1901aeda9b58a87c8fad5) Thanks [@evanaronson](https://github.com/evanaronson)! - Removed a trailing slash to the ZKsync explorer URL.
+
+- [#5358](https://github.com/wevm/viem/pull/5358) [`179a53682d9bf2ac2b7a65a86ec312fca0c7c9a8`](https://github.com/wevm/viem/commit/179a53682d9bf2ac2b7a65a86ec312fca0c7c9a8) Thanks [@Turkchain1919](https://github.com/Turkchain1919)! - Added Turkchain Mainnet (Chain ID: 1919) to the supported chains.
+
+- [#5375](https://github.com/wevm/viem/pull/5375) [`bb12b94649962cd7f03c339c226399c614b49805`](https://github.com/wevm/viem/commit/bb12b94649962cd7f03c339c226399c614b49805) Thanks [@jxom](https://github.com/jxom)! - Fixed `decodeEventLog` and `parseEventLogs` to decode anonymous event logs when `eventName` names the event or every event in `abi` is anonymous, as with `getLogs` and `watchEvent` given a single anonymous `event`.
+
+- [#5364](https://github.com/wevm/viem/pull/5364) [`8f2a79ba8b4d235a24c4c101f4ef04a824c3e429`](https://github.com/wevm/viem/commit/8f2a79ba8b4d235a24c4c101f4ef04a824c3e429) Thanks [@jxom](https://github.com/jxom)! - **ccip:** Applied the HTTP transport timeout (including its override) and 10 MiB response cap to CCIP-Read gateway requests, refused non-HTTP(S) gateway URLs (including `data:` URLs, which previously worked), and limited one lookup to 4 nested callbacks, 4 nested local batches, 256 gateway requests and 16 concurrent requests.
+
+- [#5372](https://github.com/wevm/viem/pull/5372) [`f32ef6c41e623683b99989422eac7ac6cea5c107`](https://github.com/wevm/viem/commit/f32ef6c41e623683b99989422eac7ac6cea5c107) Thanks [@jxom](https://github.com/jxom)! - Fixed `estimateGas` and `estimateContractGas` returning a gas limit filled by `eth_fillTransaction` that ignored `blockNumber`, `blockTag`, and `stateOverride`.
+
+- [#5360](https://github.com/wevm/viem/pull/5360) [`41801d827e339b96d1b4dd775f4dd379f17cc610`](https://github.com/wevm/viem/commit/41801d827e339b96d1b4dd775f4dd379f17cc610) Thanks [@jxom](https://github.com/jxom)! - Raised the default expiring nonce `validBefore` from 25 to 270 seconds, capped `Relay.feePayer` expiring nonce windows at 300 seconds, added `Transaction.expiringNonceMaxExpiry`, and replaced the random expiring nonce `validAfter` with a random `nonce` discriminator.
+
+- [#5360](https://github.com/wevm/viem/pull/5360) [`41801d827e339b96d1b4dd775f4dd379f17cc610`](https://github.com/wevm/viem/commit/41801d827e339b96d1b4dd775f4dd379f17cc610) Thanks [@jxom](https://github.com/jxom)! - Fixed sponsored `prepareTransactionRequest` fills keeping a requested `feeToken` that the fee payer did not sign, which made the fee payer signature invalid.
+
+- [#5378](https://github.com/wevm/viem/pull/5378) [`cbdd61078378012368464c9b0e4a76804a5ea987`](https://github.com/wevm/viem/commit/cbdd61078378012368464c9b0e4a76804a5ea987) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `fillTransaction` and `prepareTransactionRequest` returning `gasPrice` next to EIP-1559 fees on Anvil, which made `estimateGas` and `sendTransaction` fail on Anvil 1.8.5 and later with "both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) specified".
+
+- [#5346](https://github.com/wevm/viem/pull/5346) [`7156f80f77c47c0a3f9df479b0a6e856029edb3b`](https://github.com/wevm/viem/commit/7156f80f77c47c0a3f9df479b0a6e856029edb3b) Thanks [@KieranAltman](https://github.com/KieranAltman)! - Updated HashKey Chain and HashKey Chain Testnet display names, native currency name, and block explorer URLs.
+
+- [#5373](https://github.com/wevm/viem/pull/5373) [`ddc2d365d093793f9d8f5818743f169c98eed8d7`](https://github.com/wevm/viem/commit/ddc2d365d093793f9d8f5818743f169c98eed8d7) Thanks [@jxom](https://github.com/jxom)! - Added an optional `nonce` to `NonceManager` `reset` parameters, which `sendTransaction` and `sendTransactionSync` now set to the consumed nonce when a send fails after `consume` returned.
+
+- [#5371](https://github.com/wevm/viem/pull/5371) [`035c519b6b6b3f179fa741953751a501f05132a2`](https://github.com/wevm/viem/commit/035c519b6b6b3f179fa741953751a501f05132a2) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseTransaction` to accept an EIP-7702 authorization `yParity` from 2 to 255 so a serialized transaction parses back, and made `recoverAuthorizationAddress` throw `InvalidYParityError` (and `verifyAuthorization` return `false`) for a `yParity` other than 0 or 1, which EIP-7702 treats as having no authority.
+
+- [#5318](https://github.com/wevm/viem/pull/5318) [`57db085e896dfee3a3387fb7573bf7f7ebc6170d`](https://github.com/wevm/viem/commit/57db085e896dfee3a3387fb7573bf7f7ebc6170d) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseTransaction` not raising `TipAboveFeeCapError` when the encoded `maxFeePerGas` is zero.
+
+- [#5377](https://github.com/wevm/viem/pull/5377) [`42c41ca3c42792e56a2e1f64d3007c28adc9fbba`](https://github.com/wevm/viem/commit/42c41ca3c42792e56a2e1f64d3007c28adc9fbba) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `sendTransactionSync` and `writeContractSync` failing at once and freeing the nonce when the node had accepted the transaction but stopped waiting for its receipt (`eth_sendRawTransactionSync` error code 4), even if the error had no transaction hash, and stopped `fallback` from sending that transaction to the next node.
+
+- [#5388](https://github.com/wevm/viem/pull/5388) [`141f8c0ed7f5fdeafbfc514131781638e9340bd9`](https://github.com/wevm/viem/commit/141f8c0ed7f5fdeafbfc514131781638e9340bd9) Thanks [@jxom](https://github.com/jxom)! - Added `Account.serialize` and `Account.deserialize` to `viem/tempo`, which store a configurable account (TIP-1107) as JSON and rebuild it with passkey owners that sign, and `Account.AddressMismatchError` for a version-zero config that does not derive the stored address. Added a `keyAuthorization` option to access key accounts, which attaches a signed key authorization to the account's transactions until the chain registers the access key.
+
+- [#5318](https://github.com/wevm/viem/pull/5318) [`57db085e896dfee3a3387fb7573bf7f7ebc6170d`](https://github.com/wevm/viem/commit/57db085e896dfee3a3387fb7573bf7f7ebc6170d) Thanks [@jxom](https://github.com/jxom)! - Fixed `maxPriorityFeePerGas` above a `maxFeePerGas` of `0n` not raising `TipAboveFeeCapError` or `MaxFeePerGasTooLowError` (including in actions that validate requests before calling the node, such as `call` and `estimateGas`), and fixed fee error messages dropping `0n` values.
+
+- [#5370](https://github.com/wevm/viem/pull/5370) [`18b6b9041ef9d19421d182e6b0ca4b1caf5be09e`](https://github.com/wevm/viem/commit/18b6b9041ef9d19421d182e6b0ca4b1caf5be09e) Thanks [@jxom](https://github.com/jxom)! - Fixed `validateTypedData` (and so `hashTypedData` and `signTypedData`) accepting field types that are not EIP-712 types, such as `uint7`, `uint264`, `uint08`, `int0` or `bytes0`, and field types that reference a struct missing from `types`, including in structs only referenced as array elements; it now throws `InvalidTypedDataTypeError`.
+
+- [#5345](https://github.com/wevm/viem/pull/5345) [`b019bf82f2eb0927c375cbdd32bb9c06095edea3`](https://github.com/wevm/viem/commit/b019bf82f2eb0927c375cbdd32bb9c06095edea3) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed `formatUserOperationReceipt` (used by `getUserOperationReceipt` and `waitForUserOperationReceipt`) to format `nonce` as a `bigint`.
+
+- [#5381](https://github.com/wevm/viem/pull/5381) [`5d11346a9be71deceb3ee4998cbc281a57c2887a`](https://github.com/wevm/viem/commit/5d11346a9be71deceb3ee4998cbc281a57c2887a) Thanks [@jxom](https://github.com/jxom)! - Limited the default catch-up of `watchBlocks` to 100 missed blocks, so a longer gap emits only the latest block.
+
+- [#5380](https://github.com/wevm/viem/pull/5380) [`b650f56c15ea3f7a08a0e1f4afa178bfc206b576`](https://github.com/wevm/viem/commit/b650f56c15ea3f7a08a0e1f4afa178bfc206b576) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `watchBlocks` and `watchBlockNumber` skipping blocks over HTTP on fast chains such as Monad and Arbitrum, and `watchBlocks` falling behind while it caught up on missed blocks.
+
 ## 2.57.14
 
 ### Patch Changes
