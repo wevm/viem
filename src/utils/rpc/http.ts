@@ -134,6 +134,16 @@ export function getHttpRpcClient(
               timeout > 0 ? timeoutSignal : null,
             ])
             try {
+              // Keep a plain object so `onRequest` hooks can spread it.
+              const headers_: Record<string, string> = {}
+              for (const init of [
+                headers_url,
+                { 'Content-Type': 'application/json' },
+                headers,
+              ])
+                new Headers(init).forEach((value, key) => {
+                  headers_[key] = value
+                })
               const init: RequestInit = {
                 ...fetchOptions,
                 body: Array.isArray(body)
@@ -149,11 +159,7 @@ export function getHttpRpcClient(
                       id: body.id ?? idCache.take(),
                       ...body,
                     }),
-                headers: {
-                  ...headers_url,
-                  'Content-Type': 'application/json',
-                  ...headers,
-                },
+                headers: headers_,
                 method: method || 'POST',
                 signal,
               }
