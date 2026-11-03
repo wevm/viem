@@ -1635,23 +1635,23 @@ describe('local account', () => {
       await setup()
       const node = await createNode((hash) => hash)
 
-      await expect(() =>
-        sendTransaction(node.client, {
-          account: privateKeyToAccount(sourceAccount.privateKey),
-          timeout: 1_000,
-          to: targetAccount.address,
-          value: parseEther('1'),
-        }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [TransactionExecutionError: Timed out while waiting for transaction with hash "0xcfadf13a6d4f54a8d85c1453fc787c3db27397def8cfa034b584fc454f21567f" to be confirmed.
+      const error = await sendTransaction(node.client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        timeout: 1_000,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }).catch((error: Error) => error)
+      const hash = await node.pooled
 
-        Request Arguments:
-          from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-          to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
-          value:  1 ETH
-
-        Version: viem@x.y.z]
-      `)
+      // The hash depends on the chain state, so the assertions compare it
+      // with the one that the node pooled.
+      expect(error).toBeInstanceOf(Error)
+      expect((error as Error).name).toMatchInlineSnapshot(
+        `"TransactionExecutionError"`,
+      )
+      expect((error as Error).message).toContain(
+        `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,
+      )
 
       await mine(client, { blocks: 1 })
     })
