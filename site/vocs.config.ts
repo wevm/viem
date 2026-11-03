@@ -2511,6 +2511,31 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Gateway',
+              badge: { text: 'EXP', variant: 'warning' },
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/guides/gateway' },
+                {
+                  text: 'Connect & Pay',
+                  link: '/tempo/guides/gateway/connect',
+                },
+                {
+                  text: 'Use with Tempo Wallet',
+                  link: '/tempo/guides/gateway/tempo-wallet',
+                },
+                { text: 'Run Inference', link: '/tempo/guides/gateway/ai' },
+                {
+                  text: 'Store Objects & State',
+                  link: '/tempo/guides/gateway/storage',
+                },
+                {
+                  text: 'Run Sandboxes',
+                  link: '/tempo/guides/gateway/compute',
+                },
+              ],
+            },
+            {
               badge: { text: 'EXP', variant: 'warning' },
               text: 'PropAMM',
               collapsed: true,
@@ -3535,6 +3560,11 @@ export default defineConfig({
                   link: '/tempo/utilities/TempoAddress.validate',
                 },
               ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'Gateway',
+              link: '/tempo/utilities/Gateway',
             },
             {
               badge: { text: 'EXP', variant: 'warning' },

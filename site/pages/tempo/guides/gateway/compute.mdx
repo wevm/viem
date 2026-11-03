@@ -1,0 +1,191 @@
+---
+description: Start CPU or GPU sandboxes on a Tempo Gateway, run commands and background jobs, expose ports, and pay by the second from a Tempo wallet.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Run Sandboxes
+
+:::warning
+The Gateway API is experimental and may change in future releases.
+:::
+
+## Overview
+
+`client.compute` starts sandboxes from a container image, on CPU or a GPU, and runs commands in them. Compute is
+paid by the second:
+
+- `compute.create` pays up front for a `lease` (seconds) at the sandbox's GPU, CPU and memory rate.
+- `compute.renew` pays for more seconds, up to the sandbox's `timeout`.
+- The Gateway terminates a sandbox about a minute after its `paidUntil`.
+- `compute.terminate` ends it early. The Gateway credits the unused rest of a lease back to your payment
+  channel and returns the amount as `refunded`.
+
+Rates are in `(await client.gateway.getCapabilities()).compute`.
+
+## Recipes
+
+These recipes assume a Client that pays the Gateway, in `viem.config.ts` ([Connect & Pay](/tempo/guides/gateway/connect) covers other ways to pay):
+
+```ts [viem.config.ts]
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+export const client = createClient({ account }).extend(gatewayActions())
+```
+
+### Run a Command
+
+`compute.exec` runs a command for up to 120 seconds and returns its output. Commands are argv arrays, not shell
+strings; wrap shell code in `['sh', '-c', '...']`.
+
+```ts
+import { client } from './viem.config'
+
+const { sandboxId } = await client.compute.create({ lease: 120, timeout: 600 }) // [!code focus]
+
+const { exitCode, stdout } = await client.compute.exec({ // [!code focus]
+  command: ['python', '-c', 'print(2 ** 64)'], // [!code focus]
+  sandboxId, // [!code focus]
+}) // [!code focus]
+
+await client.compute.terminate({ sandboxId })
+```
+
+### Install Packages
+
+Layer `apt` and `pip` packages on an image. The Gateway builds the layered image once and caches it, so later
+sandboxes start fast.
+
+```ts
+import { client } from './viem.config'
+
+const { sandboxId } = await client.compute.create({
+  apt: ['git'], // [!code focus]
+  image: 'python:3.12-slim', // [!code focus]
+  lease: 300,
+  pip: ['numpy', 'pandas'], // [!code focus]
+})
+```
+
+### Stream Output
+
+`compute.stream` runs a command and yields its output as it is written, then its exit.
+
+```ts
+import { client } from './viem.config'
+
+const { sandboxId } = await client.compute.create({ lease: 120 })
+
+for await (const event of client.compute.stream({ // [!code focus]
+  command: ['sh', '-c', 'for i in 1 2 3; do echo $i; sleep 1; done'], // [!code focus]
+  sandboxId, // [!code focus]
+})) { // [!code focus]
+  if (event.type === 'stdout') process.stdout.write(event.data)
+  if (event.type === 'exit') console.log('exit', event.exitCode)
+}
+```
+
+### Run a Long Job on a GPU
+
+For work longer than 120 seconds, write your files, start a background job with `spawn`, and follow its log
+with `logs`. Renew the lease while it runs, and terminate when it ends so you stop paying.
+
+```ts
+import { client } from './viem.config'
+
+const script = 'import torch; print(torch.cuda.get_device_name(0))'
+
+const sandbox = await client.compute.create({
+  gpu: 'T4', // [!code focus]
+  image: 'pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime',
+  lease: 600,
+  timeout: 3_600,
+})
+
+await client.compute.write({ path: '/root/train.py', sandboxId: sandbox.sandboxId, value: script })
+
+const job = await client.compute.spawn({ // [!code focus]
+  command: ['python', 'train.py'], // [!code focus]
+  sandboxId: sandbox.sandboxId, // [!code focus]
+  workdir: '/root', // [!code focus]
+}) // [!code focus]
+
+const renewal = setInterval( // [!code focus]
+  () => client.compute.renew({ sandboxId: sandbox.sandboxId, seconds: 300 }), // [!code focus]
+  4 * 60_000, // [!code focus]
+) // [!code focus]
+
+try {
+  for await (const event of client.compute.logs({ logPath: job.logPath, sandboxId: sandbox.sandboxId })) { // [!code focus]
+    if (event.type === 'log') process.stdout.write(event.data)
+    if (event.type === 'exit') console.log('exit', event.exitCode)
+  }
+} finally {
+  clearInterval(renewal)
+  await client.compute.terminate({ sandboxId: sandbox.sandboxId }) // [!code focus]
+}
+```
+
+### Serve a Port
+
+`ports` (up to 4) are served over public HTTPS tunnels. `tunnels` is keyed by the ports you pass.
+
+```ts
+import { client } from './viem.config'
+
+const { sandboxId, tunnels } = await client.compute.create({
+  lease: 900,
+  ports: [8000], // [!code focus]
+  timeout: 900,
+})
+
+await client.compute.spawn({ command: ['python', '-m', 'http.server', '8000'], sandboxId })
+
+console.log(tunnels[8000]) // https://… // [!code focus]
+```
+
+### Save & Restore a Sandbox
+
+`compute.snapshot` saves a sandbox's filesystem for 30 days. Start a new sandbox from it instead of an image to
+skip setup.
+
+```ts
+import { client } from './viem.config'
+
+const { sandboxId } = await client.compute.create({ lease: 300, pip: ['numpy'] })
+
+const { snapshot } = await client.compute.snapshot({ sandboxId }) // [!code focus]
+
+const restored = await client.compute.create({ lease: 300, snapshot }) // [!code focus]
+```
+
+### Clean Up
+
+List what is still running and terminate it, for example when a job is cancelled.
+
+```ts
+import { client } from './viem.config'
+
+const { sandboxes } = await client.compute.list() // [!code focus]
+for (const { sandboxId } of sandboxes) await client.compute.terminate({ sandboxId }) // [!code focus]
+```
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:database"
+    title="Store Objects & State"
+    description="Save sandbox results to a bucket or key-value store."
+    to="/tempo/guides/gateway/storage"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="Gateway"
+    description="Reference for every compute method."
+    to="/tempo/utilities/Gateway"
+  />
+</Cards>

@@ -1,0 +1,171 @@
+---
+description: Store files in a private bucket and JSON state in a versioned key-value store on a Tempo Gateway, paid from a Tempo wallet.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Store Objects & State
+
+:::warning
+The Gateway API is experimental and may change in future releases.
+:::
+
+## Overview
+
+The Gateway gives every wallet and app two stores:
+
+- **Bucket**: objects of any size up to the Gateway's limit, kept for a retention period you pay for. Use it for
+  files, uploads, reports and model outputs.
+- **Key-value**: JSON values with a version number, for state, settings, counters and indexes. Writes can be
+  conditional on the version, so concurrent writers never overwrite each other.
+
+Both are private to the paying wallet and the app. Missing keys and objects return `null` rather than throwing.
+
+## Recipes
+
+These recipes assume a Client that pays the Gateway, in `viem.config.ts` ([Connect & Pay](/tempo/guides/gateway/connect) covers other ways to pay):
+
+```ts [viem.config.ts]
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+export const client = createClient({ account }).extend(gatewayActions())
+```
+
+### Store a File
+
+`bucket.put` takes a `Blob`, `Uint8Array`, `ArrayBuffer` or string, and a `retention` in seconds. The object
+expires after it.
+
+```ts
+import { client } from './viem.config'
+
+const { etag, expiresAt, size } = await client.bucket.put({ // [!code focus]
+  key: 'reports/2026-11-03.md', // [!code focus]
+  retention: 30 * 86_400, // [!code focus]
+  value: new Blob(['# Daily report'], { type: 'text/markdown' }), // [!code focus]
+}) // [!code focus]
+```
+
+### Read a File
+
+`bucket.get` returns the object's metadata and a `body` stream, or `null` when there is no object.
+`bucket.head` reads only its metadata.
+
+```ts
+import { client } from './viem.config'
+
+const object = await client.bucket.get({ key: 'reports/2026-11-03.md' }) // [!code focus]
+if (object) {
+  const text = await new Response(object.body).text() // [!code focus]
+}
+
+const metadata = await client.bucket.head({ key: 'reports/2026-11-03.md' }) // [!code focus]
+// { contentType, etag, expiresAt, key, size, uploadedAt } | null
+```
+
+### List & Delete Files
+
+```ts
+import { client } from './viem.config'
+
+const { objects } = await client.bucket.list({ prefix: 'reports/' }) // [!code focus]
+
+await client.bucket.delete({ key: 'reports/2026-11-03.md' }) // [!code focus]
+```
+
+### Read & Write State
+
+`kv.set` stores any JSON value and returns it with its `version`. `ttl` (seconds) expires it; without one it is
+kept for the Gateway's longest retention.
+
+```ts
+import { client } from './viem.config'
+
+const entry = await client.kv.set({ key: 'settings', value: { theme: 'dark' } }) // [!code focus]
+// { expiresAt, key, value: { theme: 'dark' }, version: 1 }
+
+const current = await client.kv.get({ key: 'settings' }) // [!code focus]
+// the same entry, or null
+```
+
+### Create a Key Only Once
+
+`ifVersion: null` writes only if the key doesn't exist yet. Use it to claim a name or initialize state exactly
+once.
+
+```ts
+import { Gateway } from 'viem/tempo'
+import { client } from './viem.config'
+
+async function claim(name: string, owner: string) {
+  try {
+    await client.kv.set({ ifVersion: null, key: `usernames/${name}`, value: { owner } }) // [!code focus]
+  } catch (error) {
+    if (error instanceof Gateway.VersionConflictError) throw new Error(`${name} is taken`) // [!code focus]
+    throw error
+  }
+}
+```
+
+### Update State Safely
+
+Pass the version you read as `ifVersion`. If someone else wrote in between, `kv.set` throws
+`Gateway.VersionConflictError`: read again and retry.
+
+```ts
+import { Gateway } from 'viem/tempo'
+import { client } from './viem.config'
+
+async function increment(key: string) {
+  while (true) {
+    const current = await client.kv.get({ key })
+    const count = ((current?.value as { count?: number } | undefined)?.count ?? 0) + 1
+    try {
+      return await client.kv.set({
+        ifVersion: current?.version ?? null, // [!code focus]
+        key,
+        value: { count },
+      })
+    } catch (error) {
+      if (!(error instanceof Gateway.VersionConflictError)) throw error // [!code focus]
+    }
+  }
+}
+```
+
+### Index Objects with State
+
+Keep large data in the bucket and a small index in key-value, so a page can list items without reading every
+object.
+
+```ts
+import { client } from './viem.config'
+
+async function upload(file: File) {
+  const key = `uploads/${crypto.randomUUID()}`
+  const { size } = await client.bucket.put({ key, retention: 7 * 86_400, value: file }) // [!code focus]
+  await client.kv.set({ key: `index/${key}`, value: { name: file.name, size } }) // [!code focus]
+}
+
+const { entries } = await client.kv.list({ prefix: 'index/uploads/' }) // [!code focus]
+```
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:cpu"
+    title="Run Sandboxes"
+    description="Start CPU or GPU sandboxes, run commands and long jobs, and pay by the second."
+    to="/tempo/guides/gateway/compute"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="Gateway"
+    description="Reference for every bucket and kv method."
+    to="/tempo/utilities/Gateway"
+  />
+</Cards>
