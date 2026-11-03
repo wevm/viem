@@ -4,6 +4,7 @@ import { describe, expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/abis.js'
 
+import { AbiItemAmbiguityError } from '../../errors/abi.js'
 import { toBytes } from '../index.js'
 import { getAbiItem, getAmbiguousTypes, isArgOfType } from './getAbiItem.js'
 
@@ -945,6 +946,84 @@ test('overloads: ambiguious types', () => {
   `)
 })
 
+test.each([
+  ['bytes', 'string'],
+  ['string', 'bytes'],
+] as const)('overloads: %s vs %s', (first, second) => {
+  expect(
+    getAbiItem({
+      abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
+      name: 'foo',
+      args: ['hello'],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "type": "string",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+
+  expect(
+    getAbiItem({
+      abi: parseAbi([`function foo(${first}[])`, `function foo(${second}[])`]),
+      name: 'foo',
+      args: [['hello', 'world']],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "type": "string[]",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+
+  expect(
+    getAbiItem({
+      abi: parseAbi([`function foo((${first}))`, `function foo((${second}))`]),
+      name: 'foo',
+      args: [['hello']],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "type": "string",
+            },
+          ],
+          "type": "tuple",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
+      name: 'foo',
+      args: ['0x68656c6c6f'],
+    }),
+  ).toThrowError(AbiItemAmbiguityError)
+})
+
 test('overloads: bytes32 vs bytes', () => {
   expect(() =>
     getAbiItem({
@@ -1476,7 +1555,9 @@ describe.each([
   { arg: false, abiParameter: { type: 'bool' }, expected: true },
   { arg: 'true', abiParameter: { type: 'bool' }, expected: false },
   // bytes
-  { arg: 'foo', abiParameter: { type: 'bytes' }, expected: true },
+  { arg: 'foo', abiParameter: { type: 'bytes' }, expected: false },
+  { arg: '0x666f6f', abiParameter: { type: 'bytes' }, expected: true },
+  { arg: '0x', abiParameter: { type: 'bytes' }, expected: true },
   { arg: 'foo', abiParameter: { type: 'bytes32' }, expected: false },
   { arg: toBytes('foo'), abiParameter: { type: 'bytes' }, expected: true },
   { arg: 1, abiParameter: { type: 'bytes32' }, expected: false },

@@ -2,6 +2,7 @@ import { parseAbi } from 'abitype'
 import { erc20Abi } from 'abitype/abis'
 import { encodeFunctionData } from 'viem'
 import { expect, test } from 'vitest'
+import { AbiItemAmbiguityError } from '../../errors/abi.js'
 import { prepareEncodeFunctionData } from './prepareEncodeFunctionData.js'
 
 test('foo()', () => {
@@ -249,6 +250,39 @@ test('overloads: distinguishable values in either ABI order', () => {
       ],
     ]
   `)
+})
+
+test.each([
+  ['bytes', 'string'],
+  ['string', 'bytes'],
+] as const)('overloads: %s vs %s', (first, second) => {
+  expect(
+    encodeFunctionData({
+      abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
+      functionName: 'foo',
+      args: ['hello'],
+    }),
+  ).toMatchInlineSnapshot(
+    `"0xf31a69690000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000"`,
+  )
+
+  expect(
+    encodeFunctionData({
+      abi: parseAbi([`function foo(${first}[])`, `function foo(${second}[])`]),
+      functionName: 'foo',
+      args: [['hello']],
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x223f0b60000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000"`,
+  )
+
+  expect(() =>
+    encodeFunctionData({
+      abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
+      functionName: 'foo',
+      args: ['0x68656c6c6f'],
+    }),
+  ).toThrowError(AbiItemAmbiguityError)
 })
 
 test('overloads: bytes32 vs bytes', () => {
