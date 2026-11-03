@@ -21,7 +21,7 @@ const account = privateKeyToAccount('0x...')
 const client = createClient({ account }).extend(gatewayActions())
 
 const { text } = await client.ai.generateText({
-  model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+  model: '@cf/zai-org/glm-5.3',
   prompt: 'Describe this app in one sentence.',
 })
 

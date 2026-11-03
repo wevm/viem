@@ -52,16 +52,16 @@ const { text } = await client.ai.generateText({ // [!code focus]
 
 ### Top Up with MACH
 
-The Gateway is paid in MACH. `Mach.fund` opens MACH checkout in Tempo Wallet (card or Apple Pay), pre-filled with
-an amount. Offer it when `accessKey.getRemainingLimit` or the user's balance is low.
+The Gateway is paid in MACH. [`wallet.deposit`](/tempo/actions/wallet.deposit) opens Tempo Wallet's deposit flow,
+pre-filled with MACH and an amount. Offer it when the user's balance or `accessKey.getRemainingLimit` is low.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Mach } from 'accounts'
-import { provider } from './viem.config'
+import { Actions } from 'viem/tempo'
+import { client, mach } from './viem.config'
 
-await Mach.fund(provider, { amount: '10', displayName: 'My App' }) // [!code focus]
+await Actions.wallet.deposit(client, { amount: '10', token: mach }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -94,7 +94,7 @@ const client = (await getConnectorClient(config)).extend(gatewayActions()) // [!
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include `/snippets/tempo/tempo-wallet.config.ts:setup]
+// [!include ~/snippets/tempo/tempo-wallet.config.ts:setup]
 ```
 
 :::

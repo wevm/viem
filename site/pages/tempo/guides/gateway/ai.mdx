@@ -133,14 +133,20 @@ for await (const event of client.ai.streamText({
 
 ### Embed Text
 
+Pick an embedding model from `models.embed`: a Gateway lists only the models it serves, and the list can be empty.
+
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
+const { models } = await client.gateway.getCapabilities()
+const [model] = models.embed // [!code focus]
+if (!model) throw new Error('This Gateway serves no embedding models.')
+
 const { embeddings } = await client.ai.embed({ // [!code focus]
   input: ['Tempo is a payments chain.', 'Viem is a TypeScript interface for Ethereum.'], // [!code focus]
-  model: '@cf/baai/bge-m3', // [!code focus]
+  model, // [!code focus]
 }) // [!code focus]
 ```
 
