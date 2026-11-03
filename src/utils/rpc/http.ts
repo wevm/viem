@@ -134,13 +134,16 @@ export function getHttpRpcClient(
               timeout > 0 ? timeoutSignal : null,
             ])
             try {
-              const headers_ = new Headers({
-                ...headers_url,
-                'Content-Type': 'application/json',
-              })
-              new Headers(headers).forEach((value, key) => {
-                headers_.set(key, value)
-              })
+              // Keep a plain object so `onRequest` hooks can spread it.
+              const headers_: Record<string, string> = {}
+              for (const init of [
+                headers_url,
+                { 'Content-Type': 'application/json' },
+                headers,
+              ])
+                new Headers(init).forEach((value, key) => {
+                  headers_[key] = value
+                })
               const init: RequestInit = {
                 ...fetchOptions,
                 body: Array.isArray(body)

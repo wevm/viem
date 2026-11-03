@@ -861,6 +861,43 @@ describe('request', () => {
     await server.close()
   })
 
+  test('behavior: onFetchRequest spreads headers', async () => {
+    const server = await createHttpServer((req, res) => {
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          result: {
+            authorization: req.headers.authorization,
+            contentType: req.headers['content-type'],
+            foo: req.headers['x-foo'],
+          },
+        }),
+      )
+    })
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const url = new URL(server.url)
+    url.username = 'testuser'
+    url.password = 'testpass'
+
+    const transport = http(url.toString(), {
+      onFetchRequest(_, init) {
+        return { ...init, headers: { ...init.headers, 'X-Foo': 'bar' } }
+      },
+    })({})
+
+    expect(
+      await transport.request({ method: 'web3_clientVersion' }),
+    ).toMatchInlineSnapshot(`
+      {
+        "authorization": "Basic dGVzdHVzZXI6dGVzdHBhc3M=",
+        "contentType": "application/json",
+        "foo": "bar",
+      }
+    `)
+  })
+
   test('behavior: onFetchResponse', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))
