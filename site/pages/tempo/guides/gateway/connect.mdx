@@ -1,0 +1,205 @@
+---
+description: Connect viem to a Tempo Gateway and pay for its routes from a local account, a Tempo Wallet access key, or a Gateway API key.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Connect & Pay
+
+:::warning
+The Gateway API is experimental and may change in future releases.
+:::
+
+## Overview
+
+Every Gateway method goes through the `fetch` you give `gatewayActions`. That `fetch` decides who pays.
+A plain `fetch` reaches only the free routes, such as capabilities; paid routes throw
+`Gateway.PaymentRequiredError`. To pay, use one of three patterns:
+
+| Pattern | Who signs payments | Use it for |
+| --- | --- | --- |
+| Local account | Your private key, through `mppx` | Scripts, servers and agents you run |
+| Tempo Wallet access key | A short-lived key the user approves with a spending limit | Browser apps paid by their users |
+| Gateway API key | The Gateway, from a key funded by a wallet | Tools that only take an API key, and one operator key serving many tenants |
+
+## Recipes
+
+### Read Capabilities
+
+`client.gateway.getCapabilities` is free and works with a plain `fetch`. It returns the chain, accepted currencies, the payment recipient,
+prices, size limits, models and compute rates. Read it to pick models and to show prices before a user pays.
+
+```ts
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const client = createClient().extend(gatewayActions())
+
+const { currencies, models, prices } = await client.gateway.getCapabilities()
+```
+
+### Use the Defaults
+
+`gatewayActions()` with no options reaches the Tempo Gateway at `https://gateway.tempo-dev.workers.dev` in the `default` app with `globalThis.fetch`, which pays for nothing. Pass `fetch` to pay, `app` to keep your data apart, and `url` to use another Gateway.
+
+```ts
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const client = createClient().extend(gatewayActions())
+
+const capabilities = await client.gateway.getCapabilities()
+```
+
+### Pay from a Local Account
+
+For a script or a server, give `mppx` an account and pass its `fetch` to `gatewayActions`.
+`maxDeposit` caps how much each payment channel locks up; the rest stays in the wallet.
+
+```ts
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+const mppx = Mppx.create({
+  methods: [tempo({ account, maxDeposit: '1' })],
+  polyfill: false,
+})
+
+export const client = createClient({ account }).extend(
+  gatewayActions({ fetch: mppx.fetch }),
+)
+```
+
+The Gateway accepts only its advertised currencies (`capabilities.currencies`). A wallet that holds a different
+stablecoin can let `mppx` swap it through the stablecoin DEX when it opens or tops up a channel:
+
+```ts
+const mppx = Mppx.create({
+  methods: [tempo({ account, autoSwap: true, maxDeposit: '1' })],
+  polyfill: false,
+})
+```
+
+### Pay from a User's Tempo Wallet
+
+In a browser app, don't ask the user to sign every call. Generate an access key, have the user approve it once
+in Tempo Wallet with a spending limit and an expiry, then let that key pay the Gateway. This is how the
+Gateway's own web app pays for inference and sandboxes.
+
+```ts
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+
+// 1. A fresh key that lives in the browser.
+const key = generatePrivateKey()
+const access = Account.fromSecp256k1(key)
+
+// 2. The user approves it in Tempo Wallet with `wallet_connect` and an
+//    `authorizeAccessKey` request: a limit (for example 2 MACH for a day) and
+//    scopes for the payment-channel escrow's `open`, `topUp`, `requestClose`
+//    and `withdraw`.
+//    `approveAccessKey` stands for your app's call to Tempo Wallet.
+const { address } = await approveAccessKey(access)
+
+// 3. The access key signs for the user's account.
+const account = Account.fromSecp256k1(key, { access: address })
+```
+
+Then pay with it as with a local account. The user's wallet holds the money; the key can spend only what they
+approved, only until it expires.
+
+```ts
+import { Mppx, tempo } from 'mppx/client'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const mppx = Mppx.create({
+  methods: [tempo.session({ account, maxDeposit: '0.5' })],
+  polyfill: false,
+})
+
+const client = createClient({ account }).extend(
+  gatewayActions({ fetch: mppx.fetch }),
+)
+```
+
+:::tip
+Read the remaining allowance with [`accessKey.getRemainingLimit`](/tempo/actions/accessKey.getRemainingLimit)
+to show the user what is left before you ask them to approve a new key.
+:::
+
+### Pay with a Gateway API Key
+
+A Gateway can exchange an access key for an `sk-tempo-` API key. Requests that carry it as a bearer token
+are paid by the Gateway from that key's own channel, so they never answer `402`. Use it where a tool takes only
+an API key, or when one operator key serves many tenants. Wrap `fetch` to add the header:
+
+```ts
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const apiKey = process.env.GATEWAY_API_KEY!
+
+const client = createClient().extend(
+  gatewayActions({
+    fetch: (input, init) =>
+      fetch(input, {
+        ...init,
+        headers: { ...init.headers, authorization: `Bearer ${apiKey}` },
+      }),
+  }),
+)
+```
+
+### Isolate Tenants with Apps
+
+Data is scoped by wallet and `app`. When one wallet or API key serves many users or projects, give each its own
+app, such as `project-${id}`. A project then sees only its own keys, objects and sandboxes, and deleting a
+tenant never touches another's data.
+
+```ts
+import { Actions, Gateway } from 'viem/tempo'
+
+function forProject(id: string) {
+  return Gateway.from({
+    app: `project-${id}`,
+    fetch: mppx.fetch,
+  })
+}
+
+await Actions.kv.set(forProject('a1b2c3'), { key: 'status', value: 'running' })
+```
+
+An app name must match `[a-z0-9][a-z0-9-]{0,62}`; anything else throws `Gateway.InvalidAppError`.
+
+### Handle Payment Errors
+
+```ts
+import { Gateway } from 'viem/tempo'
+
+try {
+  await client.ai.generateText({ model, prompt })
+} catch (error) {
+  if (error instanceof Gateway.PaymentRequiredError) {
+    // The fetch could not pay: pass a payment-aware fetch, or fund the wallet.
+  } else if (error instanceof Gateway.RequestError) {
+    console.error(error.status, error.code, error.detail)
+  }
+}
+```
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:sparkles"
+    title="Run Inference"
+    description="Generate, stream and embed text, metered per token."
+    to="/tempo/guides/gateway/ai"
+  />
+  <Card
+    icon="lucide:plug"
+    title="Payment Channels"
+    description="How the channels that pay the Gateway open, settle and close."
+    to="/tempo/guides/payment-channels"
+  />
+</Cards>

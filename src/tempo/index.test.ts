@@ -33,6 +33,8 @@ test('exports tempo', () => {
       "ExecutionError",
       "Expiry",
       "Formatters",
+      "Gateway",
+      "gatewayActions",
       "Hardfork",
       "KeyAuthorizationManager",
       "P256",

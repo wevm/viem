@@ -1,0 +1,161 @@
+---
+description: Start CPU or GPU sandboxes on a Tempo Gateway, run commands and background jobs, expose ports, and pay by the second from a Tempo wallet.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Run Sandboxes
+
+:::warning
+The Gateway API is experimental and may change in future releases.
+:::
+
+## Overview
+
+`client.compute` starts sandboxes from a container image, on CPU or a GPU, and runs commands in them. Compute is
+paid by the second:
+
+- `compute.create` pays up front for a `lease` (seconds) at the sandbox's GPU, CPU and memory rate.
+- `compute.renew` pays for more seconds, up to the sandbox's `timeout`.
+- The Gateway terminates a sandbox about a minute after its `paidUntil`.
+- `compute.terminate` ends it early and refunds the unused rest of the lease.
+
+Rates are in `(await client.gateway.getCapabilities()).compute`.
+
+## Recipes
+
+These recipes assume you have a client [connected and paying](/tempo/guides/gateway/connect).
+
+### Run a Command
+
+`compute.exec` runs a command for up to 120 seconds and returns its output. Commands are argv arrays, not shell
+strings; wrap shell code in `['sh', '-c', '...']`.
+
+```ts
+const { sandboxId } = await client.compute.create({ lease: 120, timeout: 600 })
+
+const { exitCode, stdout } = await client.compute.exec({
+  command: ['python', '-c', 'print(2 ** 64)'],
+  sandboxId,
+})
+
+await client.compute.terminate({ sandboxId })
+```
+
+### Install Packages
+
+Layer `apt` and `pip` packages on an image. The Gateway builds the layered image once and caches it, so later
+sandboxes start fast.
+
+```ts
+const { sandboxId } = await client.compute.create({
+  apt: ['git'],
+  image: 'python:3.12-slim',
+  pip: ['numpy', 'pandas'],
+  lease: 300,
+})
+```
+
+### Stream Output
+
+`compute.stream` runs a command and yields its output as it is written, then its exit.
+
+```ts
+for await (const event of client.compute.stream({
+  command: ['sh', '-c', 'for i in 1 2 3; do echo $i; sleep 1; done'],
+  sandboxId,
+})) {
+  if (event.type === 'stdout') process.stdout.write(event.data)
+  if (event.type === 'exit') console.log('exit', event.exitCode)
+}
+```
+
+### Run a Long Job on a GPU
+
+For work longer than 120 seconds, write your files, start a background job with `spawn`, and follow its log
+with `logs`. Renew the lease while it runs, and terminate when it ends so you stop paying.
+
+```ts
+const sandbox = await client.compute.create({
+  gpu: 'T4',
+  image: 'pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime',
+  lease: 600,
+  timeout: 3_600,
+})
+
+await client.compute.write({ path: '/root/train.py', sandboxId: sandbox.sandboxId, value: script })
+
+const job = await client.compute.spawn({
+  command: ['python', 'train.py'],
+  sandboxId: sandbox.sandboxId,
+  workdir: '/root',
+})
+
+const renewal = setInterval(
+  () => client.compute.renew({ sandboxId: sandbox.sandboxId, seconds: 300 }),
+  4 * 60_000,
+)
+
+try {
+  for await (const event of client.compute.logs({ logPath: job.logPath, sandboxId: sandbox.sandboxId })) {
+    if (event.type === 'log') process.stdout.write(event.data)
+    if (event.type === 'exit') console.log('exit', event.exitCode)
+  }
+} finally {
+  clearInterval(renewal)
+  await client.compute.terminate({ sandboxId: sandbox.sandboxId })
+}
+```
+
+### Serve a Port
+
+`ports` (up to 4) are served over public HTTPS tunnels. `tunnels` is keyed by the ports you pass.
+
+```ts
+const { sandboxId, tunnels } = await client.compute.create({
+  lease: 900,
+  ports: [8000],
+  timeout: 900,
+})
+
+await client.compute.spawn({ command: ['python', '-m', 'http.server', '8000'], sandboxId })
+
+console.log(tunnels[8000]) // https://…
+```
+
+### Save & Restore a Sandbox
+
+`compute.snapshot` saves a sandbox's filesystem for 30 days. Start a new sandbox from it instead of an image to
+skip setup.
+
+```ts
+const { snapshot } = await client.compute.snapshot({ sandboxId })
+
+const restored = await client.compute.create({ lease: 300, snapshot })
+```
+
+### Clean Up
+
+List what is still running and terminate it, for example when a job is cancelled.
+
+```ts
+const { sandboxes } = await client.compute.list()
+for (const { sandboxId } of sandboxes) await client.compute.terminate({ sandboxId })
+```
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:database"
+    title="Store Objects & State"
+    description="Save sandbox results to a bucket or key-value store."
+    to="/tempo/guides/gateway/storage"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="Gateway"
+    description="Reference for every compute method."
+    to="/tempo/utilities/Gateway"
+  />
+</Cards>

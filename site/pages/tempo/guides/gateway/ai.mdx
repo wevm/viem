@@ -1,0 +1,125 @@
+---
+description: Generate, stream and embed text on a Tempo Gateway, paid per token from a Tempo wallet.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Run Inference
+
+:::warning
+The Gateway API is experimental and may change in future releases.
+:::
+
+## Overview
+
+`client.ai` reaches the Gateway's models. Calls are metered per token: each request reserves the most it can
+cost, which `maxOutputTokens` bounds, and the unused part is credited back to your payment channel when it
+ends. Set `maxOutputTokens` to what you need so a call doesn't hold more of your channel than it uses.
+
+## Recipes
+
+These recipes assume you have a client [connected and paying](/tempo/guides/gateway/connect).
+
+### Pick a Model
+
+```ts
+const { models, tokens } = await client.gateway.getCapabilities()
+const model = models.generate[0] // models.embed lists embedding models
+// tokens[model]: { input, output } in USD per million tokens
+```
+
+### Generate Text
+
+Pass a `prompt`, or `messages` for a conversation.
+
+```ts
+const { text, usage } = await client.ai.generateText({
+  maxOutputTokens: 256,
+  model: '@cf/zai-org/glm-5.3',
+  prompt: 'Summarize Tempo in one sentence.',
+})
+```
+
+```ts
+const { text } = await client.ai.generateText({
+  maxOutputTokens: 512,
+  messages: [
+    { content: 'You answer in one short paragraph.', role: 'system' },
+    { content: 'What is a payment channel?', role: 'user' },
+  ],
+  model: '@cf/zai-org/glm-5.3',
+})
+```
+
+### Stream Text
+
+`ai.streamText` is an async iterator. It yields `text` and `reasoning` deltas as the model writes, then a
+final event with usage. An error from the Gateway mid-stream throws `Gateway.RequestError`.
+
+```ts
+for await (const event of client.ai.streamText({
+  model: '@cf/zai-org/glm-5.3',
+  prompt: 'Write a haiku about stablecoins.',
+})) {
+  if (event.type === 'text') process.stdout.write(event.delta)
+}
+```
+
+Pass a `signal` to stop a stream early; you pay only for the tokens generated.
+
+```ts
+const controller = new AbortController()
+setTimeout(() => controller.abort(), 5_000)
+
+for await (const event of client.ai.streamText({ model, prompt, signal: controller.signal })) {
+  // ...
+}
+```
+
+### Embed Text
+
+```ts
+const { embeddings } = await client.ai.embed({
+  input: ['Tempo is a payments chain.', 'Viem is a TypeScript interface for Ethereum.'],
+  model: '@cf/baai/bge-m3',
+})
+```
+
+### Keep a Conversation
+
+Store the history in the Gateway's key-value store so it survives across sessions and devices, in the same
+app namespace as the rest of your data.
+
+```ts
+const key = `chats/${chatId}`
+const saved = await client.kv.get({ key })
+const messages = [
+  ...((saved?.value as { messages?: Message[] })?.messages ?? []),
+  { content: question, role: 'user' },
+]
+
+const { text } = await client.ai.generateText({ maxOutputTokens: 512, messages, model })
+
+await client.kv.set({
+  ifVersion: saved?.version ?? null,
+  key,
+  value: { messages: [...messages, { content: text, role: 'assistant' }] },
+})
+```
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:database"
+    title="Store Objects & State"
+    description="Keep files in a bucket and JSON state in a versioned key-value store."
+    to="/tempo/guides/gateway/storage"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="Gateway"
+    description="Reference for every ai method."
+    to="/tempo/utilities/Gateway"
+  />
+</Cards>
