@@ -1,7 +1,11 @@
+import type { Address } from 'abitype'
 import type { Account } from '../accounts/types.js'
+import { readContract } from '../actions/public/readContract.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
+import { erc20Abi } from '../constants/abis.js'
 import type { Chain } from '../types/chain.js'
+import { formatUnits } from '../utils/unit/formatUnits.js'
 import * as aiActions from './actions/ai.js'
 import * as bucketActions from './actions/bucket.js'
 import * as computeActions from './actions/compute.js'
@@ -744,18 +748,26 @@ export declare namespace decorator {
 /**
  * Pays Gateway requests with the Client's account through `mppx`. Requests go
  * through `globalThis.fetch` until the Gateway first asks for payment, so free
- * routes work without `mppx` installed; `mppx` is loaded then and pays from
- * there on.
+ * routes work without `mppx` installed. `mppx` is loaded then, paying in the
+ * Gateway currency the account holds most of, with a channel deposit capped at
+ * that balance (and at 1). When the account runs out, the next request reads
+ * its balances again, so funding it is enough to continue.
  */
 function pay(
   client: Client<Transport, Chain | undefined, Account | undefined>,
 ): Gateway.Fetch {
   let mppx: Promise<Gateway.Fetch> | undefined
+  let funds: Funds | undefined
   return async (input, init) => {
     if (!mppx) {
       const response = await globalThis.fetch(input, init)
       if (response.status !== 402) return response
       await response.body?.cancel().catch(() => {})
+      funds = await balances(client, new URL(input).origin)
+      const [best] = funds.balances
+      if (!best || best.amount === 0n)
+        throw new Gateway.InsufficientFundsError(funds)
+      const cap = best.amount < 1_000_000n ? best.amount : 1_000_000n
       mppx = load().then(
         ({ Mppx, tempo }) =>
           Mppx.create({
@@ -772,8 +784,15 @@ function pay(
                     throw new Gateway.ChainMismatchError({ chainId, expected })
                   return client
                 },
+                maxDeposit: formatUnits(cap, 6),
               }),
             ],
+            orderChallenges: (candidates) =>
+              [...candidates].sort(
+                (a, b) =>
+                  Number(!isCurrency(a, best.currency)) -
+                  Number(!isCurrency(b, best.currency)),
+              ),
             polyfill: false,
           }).fetch,
         (error: unknown) => {
@@ -782,19 +801,78 @@ function pay(
         },
       )
     }
-    return (await mppx)(input, init)
+    try {
+      return await (await mppx)(input, init)
+    } catch (error) {
+      if (!(error instanceof Error) || !isUnderfunded(error)) throw error
+      mppx = undefined
+      throw new Gateway.InsufficientFundsError({
+        ...(funds ?? { address: '0x', balances: [] }),
+        cause: error,
+      })
+    }
   }
+}
+
+type Funds = Gateway.InsufficientFundsError.Parameters
+
+/** Reads the account's balance of each Gateway currency, largest first. */
+async function balances(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  origin: string,
+): Promise<Funds> {
+  const address = client.account!.address
+  const response = await globalThis.fetch(`${origin}/v1/capabilities`)
+  const { currencies } = (await response.json()) as {
+    currencies: Record<string, Address>
+  }
+  const balances = await Promise.all(
+    Object.entries(currencies).map(async ([symbol, currency]) => ({
+      amount: (await readContract(client, {
+        abi: erc20Abi,
+        address: currency,
+        args: [address],
+        functionName: 'balanceOf',
+      })) as bigint,
+      currency,
+      symbol: symbol.toUpperCase(),
+    })),
+  )
+  return {
+    address,
+    balances: balances.sort((a, b) => (b.amount > a.amount ? 1 : -1)),
+  }
+}
+
+function isCurrency(candidate: unknown, currency: Address) {
+  const requested = (
+    candidate as { challenge?: { request?: { currency?: string } } }
+  ).challenge?.request?.currency
+  return requested?.toLowerCase() === currency.toLowerCase()
+}
+
+/** Whether a payment failed because the account could not cover it. */
+function isUnderfunded(error: Error) {
+  for (let cause: unknown = error; cause instanceof Error; cause = cause.cause)
+    if (/InsufficientBalance|exceeds local maxDeposit/.test(cause.message))
+      return true
+  return false
 }
 
 type MppxClient = {
   Mppx: {
-    create: (options: { methods: readonly unknown[]; polyfill: boolean }) => {
+    create: (options: {
+      methods: readonly unknown[]
+      orderChallenges: (candidates: readonly unknown[]) => unknown[]
+      polyfill: boolean
+    }) => {
       fetch: Gateway.Fetch
     }
   }
   tempo: (options: {
     account: unknown
     getClient: (parameters: { chainId?: number | undefined }) => unknown
+    maxDeposit: string
   }) => unknown
 }
 
