@@ -270,11 +270,11 @@ export async function put(
   const { key, retention, signal, value } = parameters
   const body =
     typeof value === 'string' ? new TextEncoder().encode(value) : value
-  const size = body instanceof Blob ? body.size : body.byteLength
+  const size = isBlob(body) ? body.size : body.byteLength
   const contentType =
     parameters.contentType ??
     (typeof value === 'string' ? 'text/plain;charset=utf-8' : undefined) ??
-    (value instanceof Blob && value.type ? value.type : undefined) ??
+    (isBlob(value) && value.type ? value.type : undefined) ??
     'application/octet-stream'
   const response = await Gateway.request(gateway, {
     body: body as BodyInit,
@@ -311,4 +311,14 @@ export declare namespace put {
   type ReturnValue = Metadata
 
   type ErrorType = Gateway.request.ErrorType
+}
+
+/** Detects a `Blob` without `instanceof`, so ones from another realm count. */
+function isBlob(value: unknown): value is Blob {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Blob).arrayBuffer === 'function' &&
+    typeof (value as Blob).size === 'number'
+  )
 }

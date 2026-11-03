@@ -245,13 +245,13 @@ export async function request(
 ): Promise<Response> {
   const { body, method = 'POST', path, signal } = options
   const url = `${gateway.url}/v1${path}`
+  const headers = new Headers(options.headers)
+  if (!headers.has('gateway-app')) headers.set('gateway-app', gateway.app)
+  if (typeof body === 'string' && !headers.has('content-type'))
+    headers.set('content-type', 'application/json')
   const response = await gateway.fetch(url, {
     method,
-    headers: {
-      'content-type': 'application/json',
-      'gateway-app': gateway.app,
-      ...options.headers,
-    },
+    headers,
     ...(body !== undefined ? { body } : {}),
     ...(signal ? { signal } : {}),
   })
@@ -381,6 +381,26 @@ export class PaymentRequiredError extends RequestError {
       shortMessage:
         'Gateway requires payment. Pass a payment-aware fetch, such as mppx, to Gateway.from.',
     })
+  }
+}
+
+/**
+ * Thrown when the Gateway asks for payment on a different chain than the
+ * Client's.
+ *
+ * @experimental
+ */
+export class ChainMismatchError extends BaseError {
+  constructor({ chainId, expected }: { chainId: number; expected: number }) {
+    super(
+      `The Gateway asks for payment on chain ${chainId}, but the Client is on chain ${expected}.`,
+      {
+        metaMessages: [
+          'Create the Client on the chain the Gateway is paid on (see getCapabilities().chainId).',
+        ],
+        name: 'Gateway.ChainMismatchError',
+      },
+    )
   }
 }
 

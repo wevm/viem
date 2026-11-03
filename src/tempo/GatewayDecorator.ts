@@ -741,25 +741,47 @@ export declare namespace decorator {
   type Options = Gateway.from.Options
 }
 
-/** Pays Gateway requests with the Client's account through `mppx`, loaded on first use. */
+/**
+ * Pays Gateway requests with the Client's account through `mppx`. Requests go
+ * through `globalThis.fetch` until the Gateway first asks for payment, so free
+ * routes work without `mppx` installed; `mppx` is loaded then and pays from
+ * there on.
+ */
 function pay(
   client: Client<Transport, Chain | undefined, Account | undefined>,
 ): Gateway.Fetch {
   let mppx: Promise<Gateway.Fetch> | undefined
   return async (input, init) => {
-    mppx ??= load().then(
-      ({ Mppx, tempo }) =>
-        Mppx.create({
-          methods: [
-            tempo({ account: client.account, getClient: () => client }),
-          ],
-          polyfill: false,
-        }).fetch,
-      (error: unknown) => {
-        mppx = undefined
-        throw new Gateway.MppxNotInstalledError({ cause: error as Error })
-      },
-    )
+    if (!mppx) {
+      const response = await globalThis.fetch(input, init)
+      if (response.status !== 402) return response
+      await response.body?.cancel().catch(() => {})
+      mppx = load().then(
+        ({ Mppx, tempo }) =>
+          Mppx.create({
+            methods: [
+              tempo({
+                account: client.account,
+                getClient: ({ chainId }) => {
+                  const expected = client.chain?.id
+                  if (
+                    chainId !== undefined &&
+                    expected !== undefined &&
+                    chainId !== expected
+                  )
+                    throw new Gateway.ChainMismatchError({ chainId, expected })
+                  return client
+                },
+              }),
+            ],
+            polyfill: false,
+          }).fetch,
+        (error: unknown) => {
+          mppx = undefined
+          throw new Gateway.MppxNotInstalledError({ cause: error as Error })
+        },
+      )
+    }
     return (await mppx)(input, init)
   }
 }
@@ -770,7 +792,10 @@ type MppxClient = {
       fetch: Gateway.Fetch
     }
   }
-  tempo: (options: { account: unknown; getClient: () => unknown }) => unknown
+  tempo: (options: {
+    account: unknown
+    getClient: (parameters: { chainId?: number | undefined }) => unknown
+  }) => unknown
 }
 
 /**

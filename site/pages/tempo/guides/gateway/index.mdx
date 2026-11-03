@@ -22,14 +22,16 @@ account pays any `402 Payment Required` the Gateway answers: a local account thr
 [`mppx`](https://mpp.dev/sdk/typescript), and [Tempo Wallet](/tempo/guides/gateway/tempo-wallet) through the Accounts SDK.
 
 ```ts twoslash
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
 
-const account = privateKeyToAccount(generatePrivateKey())
-const client = createClient({ account }).extend(gatewayActions())
+const client = createClient().extend(gatewayActions())
 
-const { text } = await client.ai.generateText({ model: '@cf/zai-org/glm-5.3', prompt: 'hi' })
+// Free: no payment needed.
+const { models, prices } = await client.gateway.getCapabilities()
 ```
+
+Paid calls, such as `client.ai.generateText`, need a funded Client: see [Connect & Pay](/tempo/guides/gateway/connect)
+for a local account or [Use with Tempo Wallet](/tempo/guides/gateway/tempo-wallet) for a user's wallet.
 
 ### How Payment Works
 

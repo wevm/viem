@@ -651,7 +651,7 @@ export async function write(
   const { path, sandboxId, signal, value } = parameters
   const body =
     typeof value === 'string' ? new TextEncoder().encode(value) : value
-  const size = body instanceof Blob ? body.size : body.byteLength
+  const size = isBlob(body) ? body.size : body.byteLength
   const response = await Gateway.request(gateway, {
     body: body as BodyInit,
     headers: {
@@ -778,7 +778,14 @@ export async function* stream(
 }
 
 export declare namespace stream {
-  type Parameters = exec.Parameters
+  type Parameters = Omit<exec.Parameters, 'timeout'> & {
+    /**
+     * Command timeout in seconds, at most `limits.streamSeconds` (3600).
+     *
+     * @default 600
+     */
+    timeout?: number | undefined
+  }
 
   type Event =
     | {
@@ -874,4 +881,14 @@ export declare namespace logs {
       }
 
   type ErrorType = Gateway.request.ErrorType
+}
+
+/** Detects a `Blob` without `instanceof`, so ones from another realm count. */
+function isBlob(value: unknown): value is Blob {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Blob).arrayBuffer === 'function' &&
+    typeof (value as Blob).size === 'number'
+  )
 }

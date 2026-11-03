@@ -47,6 +47,11 @@ function metadata(key: string, object: StoredObject) {
 
 async function handle(request: Request) {
   const { pathname } = new URL(request.url)
+  if (pathname === '/v1/echo')
+    return Response.json({
+      app: request.headers.get('gateway-app'),
+      contentType: request.headers.get('content-type'),
+    })
   if (pathname === '/v1/capabilities')
     return Response.json({ chainId: 4217, version: '2026-10-22' })
 
@@ -397,6 +402,42 @@ test('getCapabilities', async () => {
 })
 
 describe('request', () => {
+  test('behavior: content type', async () => {
+    const gateway = Gateway.from({ app: 'my-app', url })
+
+    const json = await Gateway.request(gateway, { body: '{}', path: '/echo' })
+    const blob = await Gateway.request(gateway, {
+      body: new Blob(['hi']),
+      path: '/echo',
+    })
+    const custom = await Gateway.request(gateway, {
+      body: '{}',
+      headers: { 'Content-Type': 'text/plain' },
+      path: '/echo',
+    })
+
+    expect({
+      blob: await blob.json(),
+      custom: await custom.json(),
+      json: await json.json(),
+    }).toMatchInlineSnapshot(`
+      {
+        "blob": {
+          "app": "my-app",
+          "contentType": null,
+        },
+        "custom": {
+          "app": "my-app",
+          "contentType": "text/plain",
+        },
+        "json": {
+          "app": "my-app",
+          "contentType": "application/json",
+        },
+      }
+    `)
+  })
+
   test('behavior: payment required', async () => {
     const gateway = Gateway.from({ app: 'my-app', url })
 

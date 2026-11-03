@@ -68,9 +68,11 @@ The Gateway is paid in MACH. `Mach.fund` opens MACH checkout in Tempo Wallet (ca
 an amount. Offer it when `accessKey.getRemainingLimit` or the user's balance is low.
 
 ```ts
-import { Mach } from 'accounts'
+import { Mach, Provider, tempoWallet } from 'accounts'
 
-await Mach.fund(provider, { amount: '10', displayName: 'My App' })
+const provider = Provider.create({ adapter: tempoWallet() })
+
+await Mach.fund(provider, { amount: '10', displayName: 'My App' }) // [!code focus]
 ```
 
 ### Use with Wagmi
@@ -108,6 +110,8 @@ const provider = Provider.create({
   adapter: tempoWallet(),
   mpp: { polyfill: false }, // [!code focus]
 })
+
+await provider.request({ method: 'wallet_connect' })
 
 const mppx = Mppx.create({ // [!code focus]
   methods: [tempo(provider.getMppxParameters())], // [!code focus]

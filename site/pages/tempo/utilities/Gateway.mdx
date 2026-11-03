@@ -166,6 +166,7 @@ const client = createClient({ account }).extend(
 | Error | Thrown when |
 | --- | --- |
 | `Gateway.MppxNotInstalledError` | A Client with a local account paid a request, but `mppx` is not installed. |
+| `Gateway.ChainMismatchError` | The Gateway asked for payment on a different chain than the Client's. |
 | `Gateway.InvalidAppError` | `app` does not match `[a-z0-9][a-z0-9-]{0,62}`. |
 | `Gateway.PaymentRequiredError` | A paid route was called without a payment-aware `fetch`. |
 | `Gateway.RequestError` | The Gateway responded with a problem; see `code`, `detail`, and `status`. |
