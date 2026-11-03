@@ -17,19 +17,14 @@ object storage, key-value state and sandboxed CPU or GPU compute, and charges ea
 [MPP](https://mpp.dev) payment session funded by the caller's wallet. There is no signup, no billing setup
 and no API key to provision: whoever can pay can call it.
 
-Viem's [`gatewayActions`](/tempo/utilities/Gateway) give you typed methods for every route. Viem does not
-implement payments itself: you pass it a payment-aware `fetch`, such as the one
-[`mppx`](https://mpp.dev/sdk/typescript) creates, and it pays any `402 Payment Required` the Gateway answers.
+Viem's [`gatewayActions`](/tempo/utilities/Gateway) give you typed methods for every route. A Client with an
+account pays any `402 Payment Required` the Gateway answers: a local account through
+[`mppx`](https://mpp.dev/sdk/typescript), and [Tempo Wallet](/tempo/guides/gateway/tempo-wallet) through the Accounts SDK.
 
 ```ts
-import { Mppx, tempo } from 'mppx/client'
 import { createClient, gatewayActions } from 'viem/tempo'
 
-const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
-
-const client = createClient({ account }).extend(
-  gatewayActions({ fetch: mppx.fetch }),
-)
+const client = createClient({ account }).extend(gatewayActions())
 
 const { text } = await client.ai.generateText({ model: '@cf/zai-org/glm-5.3', prompt: 'hi' })
 ```
@@ -53,6 +48,12 @@ two apps paid by the same wallet never see each other's keys or objects.
     title="Connect & Pay"
     description="Pay from a local account, a Tempo Wallet access key, or a Gateway API key."
     to="/tempo/guides/gateway/connect"
+  />
+  <Card
+    icon="lucide:app-window"
+    title="Use with Tempo Wallet"
+    description="Let users pay from Tempo Wallet with an access key they approve once."
+    to="/tempo/guides/gateway/tempo-wallet"
   />
   <Card
     icon="lucide:sparkles"

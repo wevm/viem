@@ -376,6 +376,24 @@ export class PaymentRequiredError extends RequestError {
 }
 
 /**
+ * Thrown when a Client with an account pays the Gateway but `mppx` is not
+ * installed.
+ *
+ * @experimental
+ */
+export class MppxNotInstalledError extends BaseError {
+  constructor({ cause }: { cause?: Error | undefined } = {}) {
+    super('mppx is required to pay the Gateway with the Client account.', {
+      cause,
+      metaMessages: [
+        'Install it (npm i mppx), or pass a payment-aware fetch to gatewayActions.',
+      ],
+      name: 'Gateway.MppxNotInstalledError',
+    })
+  }
+}
+
+/**
  * Thrown when `kv.set` with `ifVersion` does not match the stored version.
  *
  * @experimental

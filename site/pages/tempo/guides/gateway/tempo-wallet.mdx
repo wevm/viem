@@ -1,0 +1,147 @@
+---
+description: Pay a Tempo Gateway from a user's Tempo Wallet with the Accounts SDK, using an access key the user approves once.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Use with Tempo Wallet
+
+:::warning
+The Gateway API is experimental and may change in future releases.
+:::
+
+## Overview
+
+In a browser app, the user's [Tempo Wallet](https://wallet.tempo.xyz) pays the Gateway. The
+[Accounts SDK](https://github.com/tempoxyz/accounts) connects to it, asks the user once to approve an access key
+with a spending limit and an expiry, then makes `globalThis.fetch` pay any `402 Payment Required` with that key.
+No prompt per request, and the key can spend only what the user approved.
+
+`gatewayActions` uses `globalThis.fetch` for a Client whose account comes from a wallet, so a Client built on
+the Accounts SDK provider pays the Gateway with no payment setup in your code.
+
+## Recipes
+
+### Connect Tempo Wallet
+
+Create a provider with the `tempoWallet` adapter and an access-key policy, connect, and build a Client on it.
+The policy below lets the key spend up to 5 MACH for a day, and only on the payment-channel escrow the Gateway
+is paid through.
+
+```ts
+import { Expiry, Mach, Provider, tempoWallet } from 'accounts'
+import { custom, parseUnits } from 'viem'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const escrow = '0x4d50500000000000000000000000000000000000'
+
+const provider = Provider.create({ // [!code focus]
+  accessKey: { // [!code focus]
+    authorize: () => ({ // [!code focus]
+      expiry: Expiry.days(1), // [!code focus]
+      limits: [{ limit: parseUnits('5', 6), token: Mach.token.address }], // [!code focus]
+      scopes: [ // [!code focus]
+        { address: escrow, selector: '0xedc53b00' }, // open // [!code focus]
+        { address: escrow, selector: '0xdc48471e' }, // topUp // [!code focus]
+        { address: escrow, selector: '0x675402e5' }, // requestClose // [!code focus]
+        { address: escrow, selector: '0x41e2c664' }, // withdraw // [!code focus]
+      ], // [!code focus]
+    }), // [!code focus]
+  }, // [!code focus]
+  adapter: tempoWallet(), // [!code focus]
+}) // [!code focus]
+
+const { accounts } = await provider.request({ method: 'wallet_connect' })
+const account = accounts[0]!.address
+
+const client = createClient({ account, transport: custom(provider) }).extend(
+  gatewayActions(),
+)
+
+const { text } = await client.ai.generateText({
+  model: '@cf/zai-org/glm-5.3',
+  prompt: 'Say hello.',
+})
+```
+
+### Top Up with MACH
+
+The Gateway is paid in MACH. `Mach.fund` opens MACH checkout in Tempo Wallet (card or Apple Pay), pre-filled with
+an amount. Offer it when `accessKey.getRemainingLimit` or the user's balance is low.
+
+```ts
+import { Mach } from 'accounts'
+
+await Mach.fund(provider, { amount: '10', displayName: 'My App' })
+```
+
+### Use with Wagmi
+
+With Wagmi, put the same policy on the `tempoWallet` connector and extend its Client.
+
+```ts
+import { getConnectorClient } from '@wagmi/core'
+import { gatewayActions } from 'viem/tempo'
+import { createConfig, http } from 'wagmi'
+import { tempo } from 'wagmi/chains'
+import { tempoWallet } from 'wagmi/connectors'
+
+export const config = createConfig({
+  chains: [tempo],
+  // `authorize` is the access-key policy from Connect Tempo Wallet.
+  connectors: [tempoWallet({ accessKey: { authorize } })], // [!code focus]
+  transports: { [tempo.id]: http() },
+})
+
+const client = (await getConnectorClient(config)).extend(gatewayActions()) // [!code focus]
+```
+
+### Pay Without the Fetch Polyfill
+
+Where `globalThis.fetch` can't be replaced (such as Cloudflare Workers), or with `mpp: { polyfill: false }`, build
+the payment-aware `fetch` from the provider and pass it to `gatewayActions`.
+
+```ts
+import { Provider, tempoWallet } from 'accounts'
+import { Mppx, tempo } from 'mppx/client'
+import { custom } from 'viem'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const provider = Provider.create({
+  adapter: tempoWallet(),
+  mpp: { polyfill: false }, // [!code focus]
+})
+
+const mppx = Mppx.create({ // [!code focus]
+  methods: [tempo(provider.getMppxParameters())], // [!code focus]
+  polyfill: false, // [!code focus]
+}) // [!code focus]
+
+const client = createClient({ transport: custom(provider) }).extend(
+  gatewayActions({ fetch: mppx.fetch }), // [!code focus]
+)
+```
+
+## Best Practices
+
+- **Ask for a small, short-lived limit.** A day and a few dollars of MACH covers most sessions; the user approves
+  a new key when it runs out.
+- **Use an `app` per product.** Data is scoped by wallet and `app`, so the same user's data in two of your
+  products stays apart.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="Connect & Pay"
+    description="Other ways to pay: a local account, your own mppx client, or a Gateway API key."
+    to="/tempo/guides/gateway/connect"
+  />
+  <Card
+    icon="lucide:key-round"
+    title="Access Keys"
+    description="How access keys, limits and scopes work on Tempo."
+    to="/tempo/guides/access-keys"
+  />
+</Cards>

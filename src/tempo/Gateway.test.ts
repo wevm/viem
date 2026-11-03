@@ -1,8 +1,10 @@
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { createRequestListener } from '@remix-run/node-fetch-server'
+import { privateKeyToAccount } from 'viem/accounts'
 import { Actions, createClient, Gateway, gatewayActions } from 'viem/tempo'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { accounts } from '~test/constants.js'
 
 type Entry = {
   expiresAt: number
@@ -982,5 +984,32 @@ describe('gatewayActions', () => {
         "version": "2026-10-22",
       }
     `)
+  })
+
+  test('behavior: pays with the client account', async () => {
+    const account = privateKeyToAccount(accounts[0].privateKey)
+    const client = createClient({ account }).extend(gatewayActions({ url }))
+
+    expect(await client.gateway.getCapabilities()).toMatchInlineSnapshot(`
+      {
+        "chainId": 4217,
+        "version": "2026-10-22",
+      }
+    `)
+    await expect(
+      client.kv.get({ key: 'greeting' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: No method found for challenges: . Available: tempo.charge, tempo.session]`,
+    )
+  })
+
+  test('behavior: json-rpc account uses globalThis.fetch', async () => {
+    const client = createClient({
+      account: '0x0000000000000000000000000000000000000001',
+    }).extend(gatewayActions({ url }))
+
+    await expect(client.kv.get({ key: 'greeting' })).rejects.toBeInstanceOf(
+      Gateway.PaymentRequiredError,
+    )
   })
 })

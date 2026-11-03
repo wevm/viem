@@ -2520,6 +2520,10 @@ export default defineConfig({
                   text: 'Connect & Pay',
                   link: '/tempo/guides/gateway/connect',
                 },
+                {
+                  text: 'Use with Tempo Wallet',
+                  link: '/tempo/guides/gateway/tempo-wallet',
+                },
                 { text: 'Run Inference', link: '/tempo/guides/gateway/ai' },
                 {
                   text: 'Store Objects & State',

@@ -216,9 +216,13 @@
     }
   },
   "peerDependencies": {
+    "mppx": ">=0.17.0",
     "typescript": ">=5.0.4"
   },
   "peerDependenciesMeta": {
+    "mppx": {
+      "optional": true
+    },
     "typescript": {
       "optional": true
     }

@@ -24,12 +24,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { embeddings } = await client.ai.embed({
@@ -51,12 +49,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { text } = await client.ai.generateText({
@@ -79,12 +75,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * for await (const event of client.ai.streamText({
@@ -111,12 +105,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * await client.bucket.delete({ key: 'notes/today.txt' })
@@ -136,12 +128,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const object = await client.bucket.get({ key: 'notes/today.txt' })
@@ -161,12 +151,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const metadata = await client.bucket.head({ key: 'notes/today.txt' })
@@ -185,12 +173,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { objects } = await client.bucket.list({ prefix: 'notes/' })
@@ -210,12 +196,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const metadata = await client.bucket.put({
@@ -243,12 +227,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const sandbox = await client.compute.create({
@@ -272,12 +254,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { stdout } = await client.compute.exec({
@@ -299,12 +279,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { sandboxes } = await client.compute.list()
@@ -324,12 +302,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const log = await client.compute.read({
@@ -352,12 +328,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { snapshot } = await client.compute.snapshot({
@@ -379,12 +353,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const job = await client.compute.spawn({
@@ -406,12 +378,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { status } = await client.compute.status({
@@ -432,12 +402,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * await client.compute.terminate({ sandboxId: sandbox.sandboxId })
@@ -456,12 +424,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * await client.compute.write({
@@ -485,12 +451,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * await client.compute.renew({ sandboxId: sandbox.sandboxId, seconds: 300 })
@@ -510,12 +474,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * for await (const event of client.compute.stream({
@@ -540,12 +502,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * for await (const event of client.compute.logs({
@@ -596,12 +556,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { deleted } = await client.kv.delete({ key: 'counter' })
@@ -621,12 +579,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const entry = await client.kv.get({ key: 'counter' })
@@ -646,12 +602,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const { entries } = await client.kv.list({ prefix: 'settings/' })
@@ -674,12 +628,10 @@ export type Decorator = {
      *
      * @example
      * ```ts
-     * import { Mppx, tempo } from 'mppx/client'
      * import { createClient, gatewayActions } from 'viem/tempo'
      *
-     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
      * const client = createClient({ account }).extend(
-     *   gatewayActions({ fetch: mppx.fetch }),
+     *   gatewayActions(),
      * )
      *
      * const entry = await client.kv.set({
@@ -703,20 +655,18 @@ export type Decorator = {
  * sandboxed compute (`client.compute`), and key-value state (`client.kv`) to a
  * Client.
  *
- * Viem does not pay for requests: pass a payment-aware `fetch`, such as
- * `mppx`'s client fetch. Data is scoped by chain, the paying wallet, and `app`.
+ * When the Client has a local account, requests are paid with it through
+ * `mppx` (an optional peer dependency, loaded on the first request). Other
+ * Clients use `globalThis.fetch`, which the Accounts SDK makes payment-aware
+ * for Tempo Wallet. Pass `fetch` to pay another way. Data is scoped by chain, the paying wallet, and `app`.
  *
  * @experimental
  *
  * @example
  * ```ts
- * import { Mppx, tempo } from 'mppx/client'
  * import { createClient, gatewayActions } from 'viem/tempo'
  *
- * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
- * const client = createClient({ account }).extend(
- *   gatewayActions({ fetch: mppx.fetch }),
- * )
+ * const client = createClient({ account }).extend(gatewayActions())
  *
  * const { text } = await client.ai.generateText({
  *   model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
@@ -729,53 +679,103 @@ export type Decorator = {
  * @returns A Client decorator.
  */
 export function decorator(options: decorator.Options = {}) {
-  const gateway = Gateway.from(options)
   return <
     transport extends Transport,
     chain extends Chain | undefined,
     account extends Account | undefined,
   >(
-    _client: Client<transport, chain, account>,
-  ): Decorator => ({
-    ai: {
-      embed: (parameters) => aiActions.embed(gateway, parameters),
-      generateText: (parameters) => aiActions.generateText(gateway, parameters),
-      streamText: (parameters) => aiActions.streamText(gateway, parameters),
-    },
-    bucket: {
-      delete: (parameters) => bucketActions.delete(gateway, parameters),
-      get: (parameters) => bucketActions.get(gateway, parameters),
-      head: (parameters) => bucketActions.head(gateway, parameters),
-      list: (parameters) => bucketActions.list(gateway, parameters),
-      put: (parameters) => bucketActions.put(gateway, parameters),
-    },
-    compute: {
-      create: (parameters) => computeActions.create(gateway, parameters),
-      exec: (parameters) => computeActions.exec(gateway, parameters),
-      list: (parameters) => computeActions.list(gateway, parameters),
-      logs: (parameters) => computeActions.logs(gateway, parameters),
-      read: (parameters) => computeActions.read(gateway, parameters),
-      renew: (parameters) => computeActions.renew(gateway, parameters),
-      snapshot: (parameters) => computeActions.snapshot(gateway, parameters),
-      spawn: (parameters) => computeActions.spawn(gateway, parameters),
-      status: (parameters) => computeActions.status(gateway, parameters),
-      stream: (parameters) => computeActions.stream(gateway, parameters),
-      terminate: (parameters) => computeActions.terminate(gateway, parameters),
-      write: (parameters) => computeActions.write(gateway, parameters),
-    },
-    gateway: {
-      getCapabilities: (parameters) =>
-        gatewayActions.getCapabilities(gateway, parameters),
-    },
-    kv: {
-      delete: (parameters) => kvActions.delete(gateway, parameters),
-      get: (parameters) => kvActions.get(gateway, parameters),
-      list: (parameters) => kvActions.list(gateway, parameters),
-      set: (parameters) => kvActions.set(gateway, parameters),
-    },
-  })
+    client: Client<transport, chain, account>,
+  ): Decorator => {
+    const gateway = Gateway.from({
+      ...options,
+      fetch:
+        options.fetch ??
+        (client.account?.type === 'local' ? pay(client) : undefined),
+    })
+    return {
+      ai: {
+        embed: (parameters) => aiActions.embed(gateway, parameters),
+        generateText: (parameters) =>
+          aiActions.generateText(gateway, parameters),
+        streamText: (parameters) => aiActions.streamText(gateway, parameters),
+      },
+      bucket: {
+        delete: (parameters) => bucketActions.delete(gateway, parameters),
+        get: (parameters) => bucketActions.get(gateway, parameters),
+        head: (parameters) => bucketActions.head(gateway, parameters),
+        list: (parameters) => bucketActions.list(gateway, parameters),
+        put: (parameters) => bucketActions.put(gateway, parameters),
+      },
+      compute: {
+        create: (parameters) => computeActions.create(gateway, parameters),
+        exec: (parameters) => computeActions.exec(gateway, parameters),
+        list: (parameters) => computeActions.list(gateway, parameters),
+        logs: (parameters) => computeActions.logs(gateway, parameters),
+        read: (parameters) => computeActions.read(gateway, parameters),
+        renew: (parameters) => computeActions.renew(gateway, parameters),
+        snapshot: (parameters) => computeActions.snapshot(gateway, parameters),
+        spawn: (parameters) => computeActions.spawn(gateway, parameters),
+        status: (parameters) => computeActions.status(gateway, parameters),
+        stream: (parameters) => computeActions.stream(gateway, parameters),
+        terminate: (parameters) =>
+          computeActions.terminate(gateway, parameters),
+        write: (parameters) => computeActions.write(gateway, parameters),
+      },
+      gateway: {
+        getCapabilities: (parameters) =>
+          gatewayActions.getCapabilities(gateway, parameters),
+      },
+      kv: {
+        delete: (parameters) => kvActions.delete(gateway, parameters),
+        get: (parameters) => kvActions.get(gateway, parameters),
+        list: (parameters) => kvActions.list(gateway, parameters),
+        set: (parameters) => kvActions.set(gateway, parameters),
+      },
+    }
+  }
 }
 
 export declare namespace decorator {
   type Options = Gateway.from.Options
+}
+
+/** Pays Gateway requests with the Client's account through `mppx`, loaded on first use. */
+function pay(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+): Gateway.Fetch {
+  let mppx: Promise<Gateway.Fetch> | undefined
+  return async (input, init) => {
+    mppx ??= load().then(
+      ({ Mppx, tempo }) =>
+        Mppx.create({
+          methods: [
+            tempo({ account: client.account, getClient: () => client }),
+          ],
+          polyfill: false,
+        }).fetch,
+      (error: unknown) => {
+        mppx = undefined
+        throw new Gateway.MppxNotInstalledError({ cause: error as Error })
+      },
+    )
+    return (await mppx)(input, init)
+  }
+}
+
+type MppxClient = {
+  Mppx: {
+    create: (options: { methods: readonly unknown[]; polyfill: boolean }) => {
+      fetch: Gateway.Fetch
+    }
+  }
+  tempo: (options: { account: unknown; getClient: () => unknown }) => unknown
+}
+
+/**
+ * Loads `mppx/client`. The specifier is cast so TypeScript doesn't pull the
+ * optional peer dependency's types into Viem's, while bundlers still see a
+ * literal import.
+ */
+function load(): Promise<MppxClient> {
+  return import('mppx/client' as string)
 }

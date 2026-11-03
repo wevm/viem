@@ -18,8 +18,8 @@ A plain `fetch` reaches only the free routes, such as capabilities; paid routes 
 
 | Pattern | Who signs payments | Use it for |
 | --- | --- | --- |
-| Local account | Your private key, through `mppx` | Scripts, servers and agents you run |
-| Tempo Wallet access key | A short-lived key the user approves with a spending limit | Browser apps paid by their users |
+| Local account | The Client's account, through `mppx` | Scripts, servers and agents you run |
+| Tempo Wallet | An access key the user approves once, through the Accounts SDK | Browser apps paid by their users |
 | Gateway API key | The Gateway, from a key funded by a wallet | Tools that only take an API key, and one operator key serving many tenants |
 
 ## Recipes
@@ -39,7 +39,7 @@ const { currencies, models, prices } = await client.gateway.getCapabilities()
 
 ### Use the Defaults
 
-`gatewayActions()` with no options reaches the Tempo Gateway at `https://gateway.tempo-dev.workers.dev` in the `default` app with `globalThis.fetch`, which pays for nothing. Pass `fetch` to pay, `app` to keep your data apart, and `url` to use another Gateway.
+`gatewayActions()` with no options reaches the Tempo Gateway at `https://gateway.tempo-dev.workers.dev` in the `default` app. A Client with a local account pays with it; other Clients use `globalThis.fetch`. Pass `app` to keep your data apart, `url` to use another Gateway, and `fetch` to pay another way.
 
 ```ts
 import { createClient, gatewayActions } from 'viem/tempo'
@@ -51,70 +51,32 @@ const capabilities = await client.gateway.getCapabilities()
 
 ### Pay from a Local Account
 
-For a script or a server, give `mppx` an account and pass its `fetch` to `gatewayActions`.
-`maxDeposit` caps how much each payment channel locks up; the rest stays in the wallet.
+For a script, server or agent, install `mppx` (`npm i mppx`) and give the Client a local account.
+`gatewayActions` pays every request with it, loading `mppx` on the first one. Without `mppx`, paid requests
+throw `Gateway.MppxNotInstalledError`.
 
 ```ts
-import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
 
 const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
 
-const mppx = Mppx.create({
-  methods: [tempo({ account, maxDeposit: '1' })],
-  polyfill: false,
-})
-
-export const client = createClient({ account }).extend(
-  gatewayActions({ fetch: mppx.fetch }),
-)
+export const client = createClient({ account }).extend(gatewayActions())
 ```
 
-The Gateway accepts only its advertised currencies (`capabilities.currencies`). A wallet that holds a different
-stablecoin can let `mppx` swap it through the stablecoin DEX when it opens or tops up a channel:
+### Configure Payments
 
-```ts
-const mppx = Mppx.create({
-  methods: [tempo({ account, autoSwap: true, maxDeposit: '1' })],
-  polyfill: false,
-})
-```
-
-### Pay from a User's Tempo Wallet
-
-In a browser app, don't ask the user to sign every call. Generate an access key, have the user approve it once
-in Tempo Wallet with a spending limit and an expiry, then let that key pay the Gateway. This is how the
-Gateway's own web app pays for inference and sandboxes.
-
-```ts
-import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
-
-// 1. A fresh key that lives in the browser.
-const key = generatePrivateKey()
-const access = Account.fromSecp256k1(key)
-
-// 2. The user approves it in Tempo Wallet with `wallet_connect` and an
-//    `authorizeAccessKey` request: a limit (for example 2 MACH for a day) and
-//    scopes for the payment-channel escrow's `open`, `topUp`, `requestClose`
-//    and `withdraw`.
-//    `approveAccessKey` stands for your app's call to Tempo Wallet.
-const { address } = await approveAccessKey(access)
-
-// 3. The access key signs for the user's account.
-const account = Account.fromSecp256k1(key, { access: address })
-```
-
-Then pay with it as with a local account. The user's wallet holds the money; the key can spend only what they
-approved, only until it expires.
+To tune payments, create the `mppx` client yourself and pass its `fetch`. `maxDeposit` caps how much each
+payment channel locks up. The Gateway accepts only its advertised currencies (`capabilities.currencies`), and
+`autoSwap` lets a wallet holding another stablecoin swap through the stablecoin DEX when it opens or tops up a
+channel.
 
 ```ts
 import { Mppx, tempo } from 'mppx/client'
 import { createClient, gatewayActions } from 'viem/tempo'
 
 const mppx = Mppx.create({
-  methods: [tempo.session({ account, maxDeposit: '0.5' })],
+  methods: [tempo({ account, autoSwap: true, maxDeposit: '1' })],
   polyfill: false,
 })
 
@@ -123,10 +85,10 @@ const client = createClient({ account }).extend(
 )
 ```
 
-:::tip
-Read the remaining allowance with [`accessKey.getRemainingLimit`](/tempo/actions/accessKey.getRemainingLimit)
-to show the user what is left before you ask them to approve a new key.
-:::
+### Pay from Tempo Wallet
+
+In a browser app, let users pay from Tempo Wallet: the Accounts SDK asks them once to approve an access key with
+a spending limit, then pays every Gateway request with it. See [Use with Tempo Wallet](/tempo/guides/gateway/tempo-wallet).
 
 ### Pay with a Gateway API Key
 

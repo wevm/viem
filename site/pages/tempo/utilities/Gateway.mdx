@@ -6,23 +6,19 @@ Wallet-paid inference, object storage, sandboxed compute, and key-value state on
 This API is experimental and may change in future releases.
 :::
 
-A Gateway charges each operation through an [MPP](https://mpp.dev) session paid by the caller's wallet. AI operations are metered per token: a request reserves the most it can cost and the unused part is credited back to the session. Viem does not implement payments: the app passes a payment-aware `fetch`, such as [`mppx`](https://mpp.dev/sdk/typescript)'s client fetch. Stored data is private to the chain, the paying wallet, and the app namespace.
+A Gateway charges each operation through an [MPP](https://mpp.dev) session paid by the caller's wallet. AI operations are metered per token: a request reserves the most it can cost and the unused part is credited back to the session. A Client with a local account pays with it through [`mppx`](https://mpp.dev/sdk/typescript), an optional peer dependency loaded on the first request. A Client on a wallet, such as [Tempo Wallet](/tempo/guides/gateway/tempo-wallet) through the Accounts SDK, uses `globalThis.fetch`, which the Accounts SDK makes payment-aware. Pass `fetch` to pay another way. Stored data is private to the chain, the paying wallet, and the app namespace.
 
 ## Usage
 
 Extend a Client with `gatewayActions` to add `client.ai`, `client.bucket`, `client.compute`, and `client.kv`.
 
 ```ts
-import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
 
 const account = privateKeyToAccount('0x...')
-const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
 
-const client = createClient({ account }).extend(
-  gatewayActions({ fetch: mppx.fetch }),
-)
+const client = createClient({ account }).extend(gatewayActions())
 
 const { text } = await client.ai.generateText({
   model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
@@ -123,10 +119,16 @@ const capabilities = await client.gateway.getCapabilities()
 The Gateway accepts its advertised currencies only. A wallet holding another stablecoin can swap through the stablecoin DEX when opening or topping up its session with `mppx`'s `autoSwap`.
 
 ```ts
+import { Mppx, tempo } from 'mppx/client'
+
 const mppx = Mppx.create({
   methods: [tempo({ account, autoSwap: true, maxDeposit: '1' })],
   polyfill: false,
 })
+
+const client = createClient({ account }).extend(
+  gatewayActions({ fetch: mppx.fetch }),
+)
 ```
 
 ## Methods
@@ -163,6 +165,7 @@ const mppx = Mppx.create({
 
 | Error | Thrown when |
 | --- | --- |
+| `Gateway.MppxNotInstalledError` | A Client with a local account paid a request, but `mppx` is not installed. |
 | `Gateway.InvalidAppError` | `app` does not match `[a-z0-9][a-z0-9-]{0,62}`. |
 | `Gateway.PaymentRequiredError` | A paid route was called without a payment-aware `fetch`. |
 | `Gateway.RequestError` | The Gateway responded with a problem; see `code`, `detail`, and `status`. |
