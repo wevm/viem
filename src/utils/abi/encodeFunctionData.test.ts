@@ -1,7 +1,8 @@
 import { parseAbi } from 'abitype'
 import { erc20Abi } from 'abitype/abis'
-import { AbiItemAmbiguityError, encodeFunctionData } from 'viem'
+import { encodeFunctionData } from 'viem'
 import { expect, test } from 'vitest'
+import { AbiItemAmbiguityError } from '../../errors/abi.js'
 import { prepareEncodeFunctionData } from './prepareEncodeFunctionData.js'
 
 test('foo()', () => {
@@ -254,7 +255,7 @@ test('overloads: distinguishable values in either ABI order', () => {
 test.each([
   ['bytes', 'string'],
   ['string', 'bytes'],
-])('overloads: %s vs %s', (first, second) => {
+] as const)('overloads: %s vs %s', (first, second) => {
   expect(
     encodeFunctionData({
       abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),

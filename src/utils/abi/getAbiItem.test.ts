@@ -1,10 +1,10 @@
 import { type AbiParameter, parseAbi, parseAbiParameters } from 'abitype'
 
-import { AbiItemAmbiguityError } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/abis.js'
 
+import { AbiItemAmbiguityError } from '../../errors/abi.js'
 import { toBytes } from '../index.js'
 import { getAbiItem, getAmbiguousTypes, isArgOfType } from './getAbiItem.js'
 
@@ -949,7 +949,7 @@ test('overloads: ambiguious types', () => {
 test.each([
   ['bytes', 'string'],
   ['string', 'bytes'],
-])('overloads: %s vs %s', (first, second) => {
+] as const)('overloads: %s vs %s', (first, second) => {
   expect(
     getAbiItem({
       abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
