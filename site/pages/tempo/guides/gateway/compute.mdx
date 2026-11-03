@@ -25,23 +25,16 @@ Rates are in `(await client.gateway.getCapabilities()).compute`.
 
 ## Recipes
 
-These recipes assume a Client that pays the Gateway, in `viem.config.ts` ([Connect & Pay](/tempo/guides/gateway/connect) covers other ways to pay):
-
-```ts [viem.config.ts]
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, gatewayActions } from 'viem/tempo'
-
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
-
-export const client = createClient({ account }).extend(gatewayActions())
-```
+These recipes assume you have [set up a Gateway client](/tempo/guides/gateway/connect).
 
 ### Run a Command
 
 `compute.exec` runs a command for up to 120 seconds and returns its output. Commands are argv arrays, not shell
 strings; wrap shell code in `['sh', '-c', '...']`.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { sandboxId } = await client.compute.create({ lease: 120, timeout: 600 }) // [!code focus]
@@ -54,12 +47,20 @@ const { exitCode, stdout } = await client.compute.exec({ // [!code focus]
 await client.compute.terminate({ sandboxId })
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Install Packages
 
 Layer `apt` and `pip` packages on an image. The Gateway builds the layered image once and caches it, so later
 sandboxes start fast.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { sandboxId } = await client.compute.create({
@@ -70,11 +71,19 @@ const { sandboxId } = await client.compute.create({
 })
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Stream Output
 
 `compute.stream` runs a command and yields its output as it is written, then its exit.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { sandboxId } = await client.compute.create({ lease: 120 })
@@ -88,12 +97,20 @@ for await (const event of client.compute.stream({ // [!code focus]
 }
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Run a Long Job on a GPU
 
 For work longer than 120 seconds, write your files, start a background job with `spawn`, and follow its log
 with `logs`. Renew the lease while it runs, and terminate when it ends so you stop paying.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const script = 'import torch; print(torch.cuda.get_device_name(0))'
@@ -129,11 +146,19 @@ try {
 }
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Serve a Port
 
 `ports` (up to 4) are served over public HTTPS tunnels. `tunnels` is keyed by the ports you pass.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { sandboxId, tunnels } = await client.compute.create({
@@ -147,12 +172,20 @@ await client.compute.spawn({ command: ['python', '-m', 'http.server', '8000'], s
 console.log(tunnels[8000]) // https://… // [!code focus]
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Save & Restore a Sandbox
 
 `compute.snapshot` saves a sandbox's filesystem for 30 days. Start a new sandbox from it instead of an image to
 skip setup.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { sandboxId } = await client.compute.create({ lease: 300, pip: ['numpy'] })
@@ -162,16 +195,30 @@ const { snapshot } = await client.compute.snapshot({ sandboxId }) // [!code focu
 const restored = await client.compute.create({ lease: 300, snapshot }) // [!code focus]
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Clean Up
 
 List what is still running and terminate it, for example when a job is cancelled.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { sandboxes } = await client.compute.list() // [!code focus]
 for (const { sandboxId } of sandboxes) await client.compute.terminate({ sandboxId }) // [!code focus]
 ```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
 
 ## See More
 
