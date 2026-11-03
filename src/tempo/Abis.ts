@@ -9918,55 +9918,59 @@ export const directPropAmm = [
   },
 ] as const
 
-export const core = [
-  ...accountKeychain,
-  ...addressRegistry,
-  ...configurableAccount,
-  ...currentCommittee,
-  ...feeAmm,
-  ...feeManager,
-  ...nonce,
-  ...receivePolicyGuard,
-  ...signatureVerifier,
-  ...stablecoinDex,
-  ...storageCredits,
-  ...tip20,
-  ...tip20ChannelReserve,
-  ...tip20Factory,
-  ...tip403Registry,
-  ...validatorConfig,
-  ...validatorConfigV2,
-  ...zoneFactory,
-  ...zonePortal,
-  ...zoneVerifier,
-] as const
+export const core = /* @__PURE__ */ (() =>
+  [
+    ...accountKeychain,
+    ...addressRegistry,
+    ...configurableAccount,
+    ...currentCommittee,
+    ...feeAmm,
+    ...feeManager,
+    ...nonce,
+    ...receivePolicyGuard,
+    ...signatureVerifier,
+    ...stablecoinDex,
+    ...storageCredits,
+    ...tip20,
+    ...tip20ChannelReserve,
+    ...tip20Factory,
+    ...tip403Registry,
+    ...validatorConfig,
+    ...validatorConfigV2,
+    ...zoneFactory,
+    ...zonePortal,
+    ...zoneVerifier,
+  ] as const)()
 
-export const earn = [
-  ...earnContributionController,
-  ...earnEngine,
-  ...earnEngineAsyncRedeem,
-  ...earnEngineInKindDeposit,
-  ...earnFactory,
-  ...earnFees,
-  ...earnMerkleRewardDistributor,
-  ...earnRewardsFactory,
-  ...earnRouter,
-  ...earnVault,
-  ...erc4626Engine,
-  ...erc4626EngineFactory,
-  ...vedaEngine,
-] as const
+export const earn = /* @__PURE__ */ (() =>
+  [
+    ...earnContributionController,
+    ...earnEngine,
+    ...earnEngineAsyncRedeem,
+    ...earnEngineInKindDeposit,
+    ...earnFactory,
+    ...earnFees,
+    ...earnMerkleRewardDistributor,
+    ...earnRewardsFactory,
+    ...earnRouter,
+    ...earnVault,
+    ...erc4626Engine,
+    ...erc4626EngineFactory,
+    ...vedaEngine,
+  ] as const)()
 
-export const zone = [
-  ...zoneInbox,
-  ...zoneMessenger,
-  ...zoneOutbox,
-  ...zonePortalPreT13Retired,
-] as const
+export const zone = /* @__PURE__ */ (() =>
+  [
+    ...zoneInbox,
+    ...zoneMessenger,
+    ...zoneOutbox,
+    ...zonePortalPreT13Retired,
+  ] as const)()
 
-export const propAmm = [...directPropAmm] as const
+export const propAmm = /* @__PURE__ */ (() => [...directPropAmm] as const)()
 
-export const all = [...core, ...earn, ...zone, ...propAmm] as const
+export const all = /* @__PURE__ */ (() =>
+  [...core, ...earn, ...zone, ...propAmm] as const)()
 
 /** Deduplicated errors of `core`, for decoding reverts that bubble up across precompiles. */
 export const coreErrors = [

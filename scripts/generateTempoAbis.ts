@@ -55,7 +55,7 @@ function propAmmAdapter(): SourceAdapter {
       )
         throw new Error('The propAMM artifact has no swapExactInput function.')
       const current = context.read(output)
-      const groupIndex = current.indexOf('\nexport const core = [')
+      const groupIndex = current.indexOf('\nexport const core = ')
       if (groupIndex === -1) throw new Error('Could not find Tempo ABI groups.')
       const markerIndex = current.indexOf('// Source: tempoxyz/propAMM@')
       const base = current
@@ -82,13 +82,13 @@ function propAmmAdapter(): SourceAdapter {
       const grouped = groups
         .map(
           ([name, names]) =>
-            `export const ${name} = [\n${names.map((item) => `  ...${item},`).join('\n')}\n] as const`,
+            `export const ${name} = /* @__PURE__ */ (() =>\n  [\n${names.map((item) => `  ...${item},`).join('\n')}\n] as const)()`,
         )
         .join('\n\n')
       console.log(`  DirectPropAMM ABI at ${commit.slice(0, 7)}`)
       return [
         {
-          content: `${base}\n\n// Source: tempoxyz/propAMM@${commit}\n\nexport const directPropAmm = ${JSON.stringify(artifact.abi)} as const\n\n${grouped}\n\nexport const all = [\n${groups.map(([name]) => `  ...${name},`).join('\n')}\n] as const\n`,
+          content: `${base}\n\n// Source: tempoxyz/propAMM@${commit}\n\nexport const directPropAmm = ${JSON.stringify(artifact.abi)} as const\n\n${grouped}\n\nexport const all = /* @__PURE__ */ (() =>\n  [\n${groups.map(([name]) => `  ...${name},`).join('\n')}\n] as const)()\n`,
           path: output,
         },
         {
@@ -637,7 +637,7 @@ function zonesAdapter(): SourceAdapter {
       })
 
       let abis = context.read(outputs.abis)
-      const groupIndex = abis.indexOf('\nexport const core = [')
+      const groupIndex = abis.indexOf('\nexport const core = ')
       if (groupIndex === -1) throw new Error('Could not find Tempo ABI groups.')
       abis = abis.slice(0, groupIndex).trimEnd()
       const appended: string[] = []
@@ -713,11 +713,11 @@ function zonesAdapter(): SourceAdapter {
       abis += `\n${groups
         .map(
           ([group, names]) =>
-            `export const ${group} = [\n${names.map((name) => `  ...${name},`).join('\n')}\n] as const`,
+            `export const ${group} = /* @__PURE__ */ (() =>\n  [\n${names.map((name) => `  ...${name},`).join('\n')}\n] as const)()`,
         )
         .join(
           '\n\n',
-        )}\n\nexport const all = [\n${groups.map(([group]) => `  ...${group},`).join('\n')}\n] as const\n`
+        )}\n\nexport const all = /* @__PURE__ */ (() =>\n  [\n${groups.map(([group]) => `  ...${group},`).join('\n')}\n] as const)()\n`
       console.log(
         `  ${definitions.size} ABIs from ${sourceFiles.length + 1} contract files at ${commit.slice(0, 7)}`,
       )
