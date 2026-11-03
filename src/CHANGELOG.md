@@ -1,5 +1,19 @@
 # viem
 
+## 2.57.16
+
+### Patch Changes
+
+- [#5395](https://github.com/wevm/viem/pull/5395) [`c60ca26e030706610bcf61689331008a30a3db2a`](https://github.com/wevm/viem/commit/c60ca26e030706610bcf61689331008a30a3db2a) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: `gatewayActions` paid in the Gateway currency the Client account held most of, threw `Gateway.InsufficientFundsError` (with the account's balances) when it couldn't pay, and explained how to pay in `Gateway.PaymentRequiredError`.
+
+- [#5392](https://github.com/wevm/viem/pull/5392) [`9348d386a9f62fd6713124e25360d6040e4a34cf`](https://github.com/wevm/viem/commit/9348d386a9f62fd6713124e25360d6040e4a34cf) Thanks [@gakonst](https://github.com/gakonst)! - Stopped retrying JSON-RPC method-not-found (`-32601`) and method-not-supported (`-32004`) errors from non-2xx HTTP responses, since a retry gets the same refusal.
+
+- [#5392](https://github.com/wevm/viem/pull/5392) [`9348d386a9f62fd6713124e25360d6040e4a34cf`](https://github.com/wevm/viem/commit/9348d386a9f62fd6713124e25360d6040e4a34cf) Thanks [@gakonst](https://github.com/gakonst)! - Reduced per-request overhead of the `http`, `webSocket` and `ipc` transports by building the `onFetchRequest` `Request` only when the hook is set and the `TimeoutError` only when a request times out, and fetched the withdrawal receipt once in the ZKsync `finalizeWithdrawal` and `isWithdrawalFinalized` actions.
+
+- [#5392](https://github.com/wevm/viem/pull/5392) [`9348d386a9f62fd6713124e25360d6040e4a34cf`](https://github.com/wevm/viem/commit/9348d386a9f62fd6713124e25360d6040e4a34cf) Thanks [@gakonst](https://github.com/gakonst)! - Cached signature hashes in `toSignatureHash`, so selector lookups in `decodeFunctionData`, `decodeEventLog`, `decodeErrorResult` and `encodeFunctionData` no longer hash every ABI item on each call.
+
+- [#5391](https://github.com/wevm/viem/pull/5391) [`721d6824516514195c0a98971731c6d81b2f9032`](https://github.com/wevm/viem/commit/721d6824516514195c0a98971731c6d81b2f9032) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added experimental `Gateway` and `gatewayActions` (`client.ai`, `client.bucket`, `client.compute`, `client.kv`), with standalone `Actions.ai`, `Actions.bucket`, `Actions.compute`, and `Actions.kv`, with `client.gateway.getCapabilities`, `Actions.gateway.getCapabilities` and defaults for every option (`gatewayActions()`), for wallet-paid inference (including streamed text), object storage, metered and streamed CPU and GPU compute, and key-value state on a Tempo Gateway paid with a local Client account through the optional `mppx` peer dependency, with Tempo Wallet through the Accounts SDK, or with an app-supplied payment-aware `fetch`.
+
 ## 2.57.15
 
 ### Patch Changes
