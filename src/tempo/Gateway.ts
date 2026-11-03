@@ -132,8 +132,14 @@ export function from(options: from.Options = {}): Gateway {
   return {
     app,
     fetch: options.fetch ?? ((input, init) => globalThis.fetch(input, init)),
-    url: url.replace(/\/+$/, ''),
+    url: trimSlashes(url),
   }
+}
+
+function trimSlashes(url: string) {
+  let end = url.length
+  while (end > 0 && url[end - 1] === '/') end--
+  return url.slice(0, end)
 }
 
 export declare namespace from {
