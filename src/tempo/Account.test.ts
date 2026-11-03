@@ -218,6 +218,125 @@ describe('fromConfig', () => {
   })
 })
 
+describe('deserialize', () => {
+  const owner = Account.fromSecp256k1(privateKey_secp256k1)
+
+  test('behavior: initial config', () => {
+    const account = Account.fromConfig({ owners: [owner] })
+
+    const deserialized = Account.deserialize(
+      JSON.parse(JSON.stringify(Account.serialize(account))),
+    )
+
+    expect(deserialized.address).toBe(account.address)
+    expect(deserialized.config).toEqual(account.config)
+    expect(deserialized.owners).toEqual([])
+  })
+
+  test('behavior: current config', () => {
+    const account = Account.fromConfig({
+      address: '0x0000000000000000000000000000000000000001',
+      owners: [owner],
+      salt: AccountConfig.zeroSalt,
+      threshold: 1,
+      version: 2,
+    })
+
+    const deserialized = Account.deserialize(Account.serialize(account))
+
+    expect(deserialized.address).toBe(account.address)
+    expect(deserialized.config?.version).toBe(2n)
+  })
+
+  test('behavior: address-only account', () => {
+    const deserialized = Account.deserialize({
+      address: '0x0000000000000000000000000000000000000001',
+    })
+
+    expect(deserialized.config).toBeUndefined()
+  })
+
+  test('behavior: passkey owner signs', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }))
+    const passkey = Address.fromPublicKey(PublicKey.fromHex(publicKey))
+    const other = P256.randomPrivateKey()
+    const account = Account.fromConfig({ owners: [passkey] })
+
+    const deserialized = Account.deserialize(Account.serialize(account), {
+      credentials: [
+        {
+          id: 'other',
+          publicKey: PublicKey.toHex(P256.getPublicKey({ privateKey: other })),
+        },
+        { id: 'passkey', publicKey, rpId: 'example.com' },
+      ],
+    })
+
+    expect(deserialized.owners.map((owner) => owner.address)).toEqual([
+      Address.checksum(passkey),
+    ])
+  })
+
+  test('error: address mismatch', () => {
+    const account = Account.fromConfig({ owners: [owner] })
+
+    expect(() =>
+      Account.deserialize({
+        ...Account.serialize(account),
+        address: '0x0000000000000000000000000000000000000001',
+      }),
+    ).toThrowError(Account.AddressMismatchError)
+  })
+})
+
+describe('keyAuthorization', () => {
+  test('behavior: holds the authorization until removed', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: root })
+    const chainId = client.chain!.id
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: BigInt(chainId),
+    })
+
+    const account = Account.fromP256(privateKey_p256, {
+      access: root,
+      keyAuthorization,
+    })
+    const entry = {
+      accessKey: account.accessKeyAddress,
+      address: root.address,
+      chainId,
+    }
+
+    expect(await account.keyAuthorizationManager!.get(entry)).toBe(
+      keyAuthorization,
+    )
+    expect(
+      await account.keyAuthorizationManager!.get({ ...entry, chainId: 1 }),
+    ).toBeUndefined()
+    await account.keyAuthorizationManager!.remove(entry)
+    expect(await account.keyAuthorizationManager!.get(entry)).toBeUndefined()
+  })
+
+  test('error: authorization of another key', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: root })
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+    })
+
+    expect(() =>
+      Account.fromSecp256k1(privateKey_secp256k1, {
+        access: root,
+        keyAuthorization,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Key authorization does not authorize this access key.]`,
+    )
+  })
+})
+
 describe('fromSecp256k1', () => {
   test('default', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
