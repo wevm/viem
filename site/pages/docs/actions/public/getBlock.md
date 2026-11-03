@@ -44,15 +44,16 @@ import { publicClient } from './client'
 async function getBlockNumberAtOrBefore(
   timestamp: bigint,
 ): Promise<bigint | undefined> {
-  const end = await publicClient.getBlock({ blockTag: 'latest' })
-  if (end.timestamp <= timestamp) return end.number
+  const latest = await publicClient.getBlock({ blockTag: 'latest' })
+  if (latest.timestamp <= timestamp) return latest.number
 
-  const start = await publicClient.getBlock({ blockNumber: 0n })
-  if (start.timestamp > timestamp) return undefined
+  const genesis = await publicClient.getBlock({ blockNumber: 0n })
+  if (genesis.timestamp > timestamp) return undefined
 
   let low = 0n
-  let high = end.number - 1n
+  let high = latest.number - 1n
   while (low < high) {
+    // Round up so low advances when two candidates remain.
     const mid = (low + high + 1n) / 2n
     const block = await publicClient.getBlock({ blockNumber: mid })
     if (block.timestamp <= timestamp) low = mid
