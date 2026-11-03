@@ -32,6 +32,8 @@ The `http` Transport supports Batch JSON-RPC. This means that multiple JSON-RPC 
 
 The Transport will batch up Actions over a given period and execute them in a single Batch JSON-RPC HTTP request. By default, this period is a [zero delay](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop#zero_delays) meaning that the batch request will be executed at the end of the current [JavaScript message queue](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop#queue). Consumers can specify a custom time period `wait` (in ms).
 
+Batching is scoped to each `http()` instance. Reuse the same transport to batch requests across clients.
+
 You can enable Batch JSON-RPC by setting the `batch` flag to `true`:
 
 ```ts twoslash

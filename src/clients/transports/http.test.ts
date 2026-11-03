@@ -1,10 +1,11 @@
 import type { IncomingHttpHeaders } from 'node:http'
-import { assertType, describe, expect, test } from 'vitest'
+import { createPublicClient, fallback, type HttpTransport, http } from 'viem'
+import { assertType, describe, expect, onTestFinished, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer } from '~test/utils.js'
 import { localhost } from '../../chains/index.js'
+import type { RpcRequest } from '../../types/rpc.js'
 import { wait } from '../../utils/wait.js'
-import { type HttpTransport, http } from './http.js'
 
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')
@@ -233,6 +234,138 @@ describe('request', () => {
     expect(count).toEqual(2)
 
     await server.close()
+  })
+
+  test.each([false, true])(
+    'batch separates authorization headers (fallback: %s)',
+    async (useFallback) => {
+      const server = await createHttpServer(async (req, res) => {
+        let body = ''
+        for await (const chunk of req) body += chunk
+        const requests = JSON.parse(body) as readonly RpcRequest[]
+        const result = req.headers.authorization === 'Bearer a' ? '0x1' : '0xa'
+
+        res.setHeader('Content-Type', 'application/json')
+        res.end(
+          JSON.stringify(
+            requests.map(({ id }) => ({ jsonrpc: '2.0', id, result })),
+          ),
+        )
+      })
+      onTestFinished(async () => {
+        await server.close()
+      })
+      const createClient = (authorization: string) => {
+        const transport = http(server.url, {
+          batch: true,
+          fetchOptions: { headers: { Authorization: authorization } },
+          retryCount: 0,
+        })
+        return createPublicClient({
+          transport: useFallback ? fallback([transport]) : transport,
+        })
+      }
+      const a = createClient('Bearer a')
+      const b = createClient('Bearer b')
+
+      const results = await Promise.all([a.getChainId(), b.getChainId()])
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          1,
+          10,
+        ]
+      `)
+    },
+  )
+
+  test.each([false, true])(
+    'batch shares requests from the same HTTP factory (fallback: %s)',
+    async (useFallback) => {
+      const server = await createHttpServer(async (req, res) => {
+        let body = ''
+        for await (const chunk of req) body += chunk
+        const requests = JSON.parse(body) as readonly RpcRequest[]
+        const result = requests.map(({ method }) => method)
+
+        res.setHeader('Content-Type', 'application/json')
+        res.end(
+          JSON.stringify(
+            requests.map(({ id }) => ({ jsonrpc: '2.0', id, result })),
+          ),
+        )
+      })
+      onTestFinished(async () => {
+        await server.close()
+      })
+      const transport = http(server.url, { batch: true })
+      const factory = useFallback ? fallback([transport]) : transport
+      const a = factory({})
+      const b = factory({})
+
+      const results = await Promise.all([
+        a.request({ method: 'eth_a' }),
+        b.request({ method: 'eth_b' }),
+      ])
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          [
+            "eth_a",
+            "eth_b",
+          ],
+          [
+            "eth_a",
+            "eth_b",
+          ],
+        ]
+      `)
+    },
+  )
+
+  test('batch separates default URLs from the same HTTP factory', async () => {
+    const createServer = (result: string) =>
+      createHttpServer(async (req, res) => {
+        let body = ''
+        for await (const chunk of req) body += chunk
+        const requests = JSON.parse(body) as readonly RpcRequest[]
+
+        res.setHeader('Content-Type', 'application/json')
+        res.end(
+          JSON.stringify(
+            requests.map(({ id }) => ({ jsonrpc: '2.0', id, result })),
+          ),
+        )
+      })
+    const a = await createServer('0x1')
+    onTestFinished(async () => {
+      await a.close()
+    })
+    const b = await createServer('0xa')
+    onTestFinished(async () => {
+      await b.close()
+    })
+    const transport = http(undefined, { batch: true })
+    const createClient = (url: string) =>
+      createPublicClient({
+        chain: {
+          ...localhost,
+          rpcUrls: { default: { http: [url] } },
+        },
+        transport,
+      })
+
+    const results = await Promise.all([
+      createClient(a.url).getChainId(),
+      createClient(b.url).getChainId(),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        1,
+        10,
+      ]
+    `)
   })
 
   test('batch separates requests by signal', async () => {

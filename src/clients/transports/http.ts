@@ -11,6 +11,7 @@ import {
   getHttpRpcClient,
   type HttpRpcClientOptions,
 } from '../../utils/rpc/http.js'
+import { uid } from '../../utils/uid.js'
 
 import {
   type CreateTransportErrorType,
@@ -24,7 +25,7 @@ export type HttpTransportConfig<
   raw extends boolean = false,
 > = {
   /**
-   * Whether to enable Batch JSON-RPC.
+   * Whether to enable Batch JSON-RPC. Requests are batched per `http()` instance.
    * @link https://www.jsonrpc.org/specification#batch
    */
   batch?:
@@ -118,6 +119,7 @@ export function http<
     retryDelay,
     raw,
   } = config
+  const batchId = uid()
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
     const { batchSize = 1000, wait = 0 } =
       typeof batch === 'object' ? batch : {}
@@ -147,7 +149,7 @@ export function http<
             : undefined
 
           const { schedule } = createBatchScheduler({
-            id: `${url_}.${getSignalId(options?.signal)}`,
+            id: `${batchId}.${url_}.${getSignalId(options?.signal)}`,
             wait,
             shouldSplitBatch(requests) {
               return requests.length > batchSize
