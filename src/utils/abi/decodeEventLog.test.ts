@@ -1716,16 +1716,16 @@ describe('anonymous', () => {
     // A log from another contract: an unknown signature and one indexed
     // argument, so the topic count fits `Anon`.
     const topics = [
-      toEventSelector('Deposit(address,uint256)'),
+      '0x0000000000000000000000008bfc6cda04eb5b0d3c460751c2402c5c5cc9109c',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
     ] as const
 
     expect(() =>
       decodeEventLog({ abi, data: '0x', topics: [...topics] }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [AbiEventSignatureNotFoundError: Encoded event signature "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c" not found on ABI.
+      [AbiEventSignatureNotFoundError: Encoded event signature "0x0000000000000000000000008bfc6cda04eb5b0d3c460751c2402c5c5cc9109c" not found on ABI.
       Make sure you are using the correct ABI and that the event exists on it.
-      You can look up the signature here: https://4byte.sourcify.dev/?q=0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c.
+      You can look up the signature here: https://4byte.sourcify.dev/?q=0x0000000000000000000000008bfc6cda04eb5b0d3c460751c2402c5c5cc9109c.
 
       Docs: https://viem.sh/docs/contract/decodeEventLog
       Version: viem@x.y.z]
