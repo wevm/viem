@@ -284,8 +284,6 @@ export async function waitForTransactionReceipt<
           if (retrying) return
 
           try {
-            // If we already have a valid receipt, let's check if we have enough
-            // confirmations. If we do, then we can resolve.
             if (receipt) {
               if (
                 confirmations > 1 &&
@@ -294,9 +292,48 @@ export async function waitForTransactionReceipt<
               )
                 return
 
+              // A reorg can remove a receipt or change its execution outcome,
+              // so it is refreshed once it has enough confirmations. Other
+              // errors keep the cached receipt for the next block.
+              const receipt_ = await getAction(
+                client,
+                getTransactionReceipt,
+                'getTransactionReceipt',
+              )({ hash: receipt.transactionHash }).catch((error) =>
+                error instanceof TransactionReceiptNotFoundError
+                  ? null
+                  : undefined,
+              )
+              if (receipt_ === undefined) return
+              if (!receipt_) {
+                receipt = undefined
+                // The replaced transaction stays known, so the block scan can
+                // find its replacement again.
+                if (!replacementResponse) transaction = undefined
+                replacementResponse = undefined
+                return
+              }
+              receipt = receipt_
+              if (
+                confirmations > 1 &&
+                (!receipt_.blockNumber ||
+                  blockNumber - receipt_.blockNumber + 1n < confirmations)
+              )
+                return
+
+              const replacement = replacementResponse
+              if (replacement) {
+                if (replacement.transaction.blockHash !== receipt_.blockHash)
+                  replacement.transaction = (await getAction(
+                    client,
+                    getTransaction,
+                    'getTransaction',
+                  )({ hash: receipt_.transactionHash })) as Transaction
+                replacement.transactionReceipt = receipt_
+              }
               done(() => {
-                if (replacementResponse) emit.onReplaced?.(replacementResponse)
-                emit.resolve(receipt!)
+                if (replacement) emit.onReplaced?.(replacement)
+                emit.resolve(receipt_)
               })
               return
             }
