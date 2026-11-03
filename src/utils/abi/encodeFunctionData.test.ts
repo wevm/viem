@@ -1,6 +1,6 @@
 import { parseAbi } from 'abitype'
 import { erc20Abi } from 'abitype/abis'
-import { encodeFunctionData } from 'viem'
+import { AbiItemAmbiguityError, encodeFunctionData } from 'viem'
 import { expect, test } from 'vitest'
 import { prepareEncodeFunctionData } from './prepareEncodeFunctionData.js'
 
@@ -251,10 +251,13 @@ test('overloads: distinguishable values in either ABI order', () => {
   `)
 })
 
-test('overloads: string vs bytes', () => {
+test.each([
+  ['bytes', 'string'],
+  ['string', 'bytes'],
+])('overloads: %s vs %s', (first, second) => {
   expect(
     encodeFunctionData({
-      abi: parseAbi(['function foo(bytes)', 'function foo(string)']),
+      abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
       functionName: 'foo',
       args: ['hello'],
     }),
@@ -264,7 +267,7 @@ test('overloads: string vs bytes', () => {
 
   expect(
     encodeFunctionData({
-      abi: parseAbi(['function foo(bytes[])', 'function foo(string[])']),
+      abi: parseAbi([`function foo(${first}[])`, `function foo(${second}[])`]),
       functionName: 'foo',
       args: [['hello']],
     }),
@@ -274,21 +277,11 @@ test('overloads: string vs bytes', () => {
 
   expect(() =>
     encodeFunctionData({
-      abi: parseAbi(['function foo(bytes)', 'function foo(string)']),
+      abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
       functionName: 'foo',
       args: ['0x68656c6c6f'],
     }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
-
-    \`string\` in \`foo(string)\`, and
-    \`bytes\` in \`foo(bytes)\`
-
-    These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
-
-    Version: viem@x.y.z]
-  `)
+  ).toThrowError(AbiItemAmbiguityError)
 })
 
 test('overloads: bytes32 vs bytes', () => {

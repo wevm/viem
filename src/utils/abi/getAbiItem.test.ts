@@ -1,5 +1,6 @@
 import { type AbiParameter, parseAbi, parseAbiParameters } from 'abitype'
 
+import { AbiItemAmbiguityError } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/abis.js'
@@ -945,10 +946,13 @@ test('overloads: ambiguious types', () => {
   `)
 })
 
-test('overloads: string vs bytes', () => {
+test.each([
+  ['bytes', 'string'],
+  ['string', 'bytes'],
+])('overloads: %s vs %s', (first, second) => {
   expect(
     getAbiItem({
-      abi: parseAbi(['function foo(bytes)', 'function foo(string)']),
+      abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
       name: 'foo',
       args: ['hello'],
     }),
@@ -968,7 +972,7 @@ test('overloads: string vs bytes', () => {
 
   expect(
     getAbiItem({
-      abi: parseAbi(['function foo(bytes[])', 'function foo(string[])']),
+      abi: parseAbi([`function foo(${first}[])`, `function foo(${second}[])`]),
       name: 'foo',
       args: [['hello', 'world']],
     }),
@@ -988,7 +992,7 @@ test('overloads: string vs bytes', () => {
 
   expect(
     getAbiItem({
-      abi: parseAbi(['function foo((bytes))', 'function foo((string))']),
+      abi: parseAbi([`function foo((${first}))`, `function foo((${second}))`]),
       name: 'foo',
       args: [['hello']],
     }),
@@ -1013,21 +1017,11 @@ test('overloads: string vs bytes', () => {
 
   expect(() =>
     getAbiItem({
-      abi: parseAbi(['function foo(bytes)', 'function foo(string)']),
+      abi: parseAbi([`function foo(${first})`, `function foo(${second})`]),
       name: 'foo',
       args: ['0x68656c6c6f'],
     }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
-
-    \`string\` in \`foo(string)\`, and
-    \`bytes\` in \`foo(bytes)\`
-
-    These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
-
-    Version: viem@x.y.z]
-  `)
+  ).toThrowError(AbiItemAmbiguityError)
 })
 
 test('overloads: bytes32 vs bytes', () => {
