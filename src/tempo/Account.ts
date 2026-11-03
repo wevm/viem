@@ -17,6 +17,7 @@ import type {
   Account as viem_Account,
 } from '../accounts/types.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
+import { BaseError } from '../errors/base.js'
 import type { TransactionSerializable } from '../types/transaction.js'
 import type { OneOf, RequiredBy } from '../types/utils.js'
 import { hashAuthorization } from '../utils/authorization/hashAuthorization.js'
@@ -93,6 +94,73 @@ export type AccessKeyAccount = Account_base<'accessKey'> & {
 
 export type Account = OneOf<RootAccount | AccessKeyAccount>
 
+/**
+ * Rebuilds a configurable account (TIP-1107) from the value of {@link serialize},
+ * such as one read from storage, without a request.
+ *
+ * Passkeys among `credentials` sign as owners when their public key derives an
+ * owner's address; others are ignored. A version-zero config must derive
+ * `address`, and a later version keeps `address`.
+ *
+ * @example
+ * ```ts
+ * import { Account } from 'viem/tempo'
+ *
+ * const account = Account.deserialize(JSON.parse(localStorage.getItem('account')!), {
+ *   credentials: [credential],
+ * })
+ * ```
+ *
+ * @param value Serialized account.
+ * @param options Options.
+ * @returns Configurable account.
+ */
+export function deserialize(
+  value: Serialized,
+  options: deserialize.Options = {},
+): ConfigurableAccount {
+  const { address, config } = value
+  const { credentials = [], getFn } = options
+  if (!config) return fromConfig(address)
+
+  const owners = config.owners.map(({ owner, weight }) => {
+    const credential = credentials.find((credential) =>
+      Address.isEqual(
+        Address.fromPublicKey(PublicKey.fromHex(credential.publicKey)),
+        owner,
+      ),
+    )
+    if (!credential) return { owner, weight }
+    const { rpId } = credential
+    return { owner: fromWebAuthnP256(credential, { getFn, rpId }), weight }
+  })
+  const { salt, threshold } = config
+  const version = BigInt(config.version)
+  const account =
+    version === 0n
+      ? fromConfig({ owners, salt, threshold })
+      : fromConfig({ address, owners, salt, threshold, version })
+  if (!Address.isEqual(account.address, address))
+    throw new AddressMismatchError({ address, derived: account.address })
+  return account
+}
+
+export declare namespace deserialize {
+  export type Credential = fromWebAuthnP256.Credential & {
+    /** Relying party ID of the passkey, such as `example.com`. */
+    rpId?: string | undefined
+  }
+
+  export type Options = {
+    /** Passkeys that may hold owner keys of the account. */
+    credentials?: readonly Credential[] | undefined
+    /** Runs a passkey owner's ceremony in place of `navigator.credentials.get`. */
+    getFn?: fromWebAuthnP256.Options['getFn'] | undefined
+  }
+
+  export type ErrorType = AddressMismatchError | Error
+}
+
 /** Instantiates an Account. */
 export function from<const parameters extends from.Parameters>(
   parameters: parameters | from.Parameters,
@@ -137,13 +205,19 @@ export function fromHeadlessWebAuthn<
   privateKey: Hex.Hex,
   options: options | fromHeadlessWebAuthn.Options,
 ): fromHeadlessWebAuthn.ReturnValue<options> {
-  const { access, keyAuthorizationManager, rpId, origin, internal_version } =
-    options
+  const {
+    access,
+    keyAuthorization,
+    keyAuthorizationManager,
+    rpId,
+    origin,
+    internal_version,
+  } = options
 
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
-    ...(access ? { access, keyAuthorizationManager } : {}),
+    ...(access ? { access, keyAuthorization, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'webAuthn',
     publicKey,
@@ -176,7 +250,10 @@ export declare namespace fromHeadlessWebAuthn {
   > &
     Pick<
       from.Parameters,
-      'access' | 'internal_version' | 'keyAuthorizationManager'
+      | 'access'
+      | 'internal_version'
+      | 'keyAuthorization'
+      | 'keyAuthorizationManager'
     > & {
       rpId: string
       origin: string
@@ -203,11 +280,16 @@ export function fromP256<const options extends fromP256.Options>(
   privateKey: Hex.Hex,
   options: options | fromP256.Options = {},
 ): fromP256.ReturnValue<options> {
-  const { access, keyAuthorizationManager, internal_version } = options
+  const {
+    access,
+    keyAuthorization,
+    keyAuthorizationManager,
+    internal_version,
+  } = options
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
-    ...(access ? { access, keyAuthorizationManager } : {}),
+    ...(access ? { access, keyAuthorization, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'p256',
     publicKey,
@@ -225,7 +307,10 @@ export function fromP256<const options extends fromP256.Options>(
 export declare namespace fromP256 {
   export type Options = Pick<
     from.Parameters,
-    'access' | 'internal_version' | 'keyAuthorizationManager'
+    | 'access'
+    | 'internal_version'
+    | 'keyAuthorization'
+    | 'keyAuthorizationManager'
   >
 
   export type ReturnValue<options extends Options = Options> =
@@ -249,11 +334,16 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
   privateKey: Hex.Hex,
   options: options | fromSecp256k1.Options = {},
 ): fromSecp256k1.ReturnValue<options> {
-  const { access, keyAuthorizationManager, internal_version } = options
+  const {
+    access,
+    keyAuthorization,
+    keyAuthorizationManager,
+    internal_version,
+  } = options
   const publicKey = Secp256k1.getPublicKey({ privateKey })
 
   return from({
-    ...(access ? { access, keyAuthorizationManager } : {}),
+    ...(access ? { access, keyAuthorization, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'secp256k1',
     publicKey,
@@ -268,7 +358,10 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
 export declare namespace fromSecp256k1 {
   export type Options = Pick<
     from.Parameters,
-    'access' | 'internal_version' | 'keyAuthorizationManager'
+    | 'access'
+    | 'internal_version'
+    | 'keyAuthorization'
+    | 'keyAuthorizationManager'
   >
 
   export type ReturnValue<options extends Options = Options> =
@@ -745,11 +838,16 @@ export function fromWebCryptoP256<
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
   options: options | fromWebCryptoP256.Options = {},
 ): fromWebCryptoP256.ReturnValue<options> {
-  const { access, keyAuthorizationManager, internal_version } = options
+  const {
+    access,
+    keyAuthorization,
+    keyAuthorizationManager,
+    internal_version,
+  } = options
   const { publicKey, privateKey } = keyPair
 
   return from({
-    ...(access ? { access, keyAuthorizationManager } : {}),
+    ...(access ? { access, keyAuthorization, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'p256',
     publicKey,
@@ -768,7 +866,10 @@ export function fromWebCryptoP256<
 export declare namespace fromWebCryptoP256 {
   export type Options = Pick<
     from.Parameters,
-    'access' | 'internal_version' | 'keyAuthorizationManager'
+    | 'access'
+    | 'internal_version'
+    | 'keyAuthorization'
+    | 'keyAuthorizationManager'
   >
 
   export type ReturnValue<options extends Options = Options> =
@@ -1114,14 +1215,49 @@ declare namespace fromRoot {
 
 // biome-ignore lint/correctness/noUnusedVariables: _
 function fromAccessKey(parameters: fromAccessKey.Parameters): AccessKeyAccount {
-  const { access, keyAuthorizationManager } = parameters
+  const { access, keyAuthorization } = parameters
   const { address: parentAddress } = parseAccount(access)
-  const account = fromBase({ ...parameters, parentAddress })
+  const accessKeyAddress = Address.fromPublicKey(parameters.publicKey)
+  if (
+    keyAuthorization &&
+    !Address.isEqual(keyAuthorization.address, accessKeyAddress)
+  )
+    throw new Error('Key authorization does not authorize this access key.')
+  const keyAuthorizationManager =
+    parameters.keyAuthorizationManager ??
+    (keyAuthorization ? pending(keyAuthorization) : undefined)
+  const account = fromBase({
+    ...parameters,
+    keyAuthorizationManager,
+    parentAddress,
+  })
   return {
     ...account,
-    accessKeyAddress: Address.fromPublicKey(parameters.publicKey),
+    accessKeyAddress,
     keyAuthorizationManager,
     source: 'accessKey',
+  }
+}
+
+/**
+ * Returns a key authorization manager that holds `keyAuthorization` until the
+ * chain registers its access key.
+ */
+function pending(
+  keyAuthorization: KeyAuthorization.Signed,
+): KeyAuthorizationManager {
+  let value: KeyAuthorization.Signed | undefined = keyAuthorization
+  const matches = (key: { accessKey: Address.Address; chainId: number }) =>
+    Address.isEqual(key.accessKey, keyAuthorization.address) &&
+    BigInt(key.chainId) === BigInt(keyAuthorization.chainId)
+  return {
+    get: (key) => (matches(key) ? value : undefined),
+    remove(key) {
+      if (matches(key)) value = undefined
+    },
+    set(key, next) {
+      if (matches(key)) value = next
+    },
   }
 }
 
@@ -1133,6 +1269,12 @@ declare namespace fromAccessKey {
      * the parent account's address as the keychain address.
      */
     access: viem_Account | Address.Address
+    /**
+     * Signed key authorization of the access key, which the account attaches
+     * to its transactions until the chain registers the access key. Ignored
+     * when `keyAuthorizationManager` is set.
+     */
+    keyAuthorization?: KeyAuthorization.Signed | undefined
     /** Pending key authorization manager. */
     keyAuthorizationManager?: KeyAuthorizationManager | undefined
   }
@@ -1187,6 +1329,50 @@ export declare namespace resolveAccessKey {
   type ReturnType = {
     accessKeyAddress: Address.Address
     keyType: SignatureEnvelope.Type
+  }
+}
+
+/**
+ * Returns a configurable account (TIP-1107) as JSON-safe public values: its
+ * address and, when known, its config. {@link deserialize} rebuilds it.
+ *
+ * @example
+ * ```ts
+ * import { Account } from 'viem/tempo'
+ *
+ * localStorage.setItem('account', JSON.stringify(Account.serialize(account)))
+ * ```
+ *
+ * @param account Configurable account.
+ * @returns Serialized account.
+ */
+export function serialize(account: ConfigurableAccount): Serialized {
+  const { address, config } = account
+  return {
+    address,
+    ...(config ? { config: AccountConfig.toRpc(config) } : {}),
+  }
+}
+
+/** Configurable account as JSON, which {@link serialize} returns and {@link deserialize} rebuilds. */
+export type Serialized = {
+  /** Account address. */
+  address: Address.Address
+  /** Current config, in RPC format. Absent for an address-only account. */
+  config?: AccountConfig.Rpc | undefined
+}
+
+/** Thrown when a version-zero config does not derive the account's address. */
+export class AddressMismatchError extends BaseError {
+  /** Address the config derives. */
+  readonly derived: Address.Address
+
+  constructor(options: { address: Address.Address; derived: Address.Address }) {
+    const { address, derived } = options
+    super(`Account config derives ${derived}, not ${address}.`, {
+      name: 'Account.AddressMismatchError',
+    })
+    this.derived = derived
   }
 }
 
