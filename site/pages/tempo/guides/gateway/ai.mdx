@@ -18,20 +18,13 @@ ends. Set `maxOutputTokens` to what you need so a call doesn't hold more of your
 
 ## Recipes
 
-These recipes assume a Client that pays the Gateway, in `viem.config.ts` ([Connect & Pay](/tempo/guides/gateway/connect) covers other ways to pay):
-
-```ts [viem.config.ts]
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, gatewayActions } from 'viem/tempo'
-
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
-
-export const client = createClient({ account }).extend(gatewayActions())
-```
+These recipes assume you have [set up a Gateway client](/tempo/guides/gateway/connect).
 
 ### Pick a Model
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { models, tokens } = await client.gateway.getCapabilities() // [!code focus]
@@ -39,11 +32,19 @@ const model = models.generate[0] // models.embed lists embedding models
 // tokens[model]: { input, output } in USD per million tokens
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Generate Text
 
 Pass a `prompt`, or `messages` for a conversation.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { text, usage } = await client.ai.generateText({ // [!code focus]
@@ -53,7 +54,15 @@ const { text, usage } = await client.ai.generateText({ // [!code focus]
 }) // [!code focus]
 ```
 
-```ts
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { text } = await client.ai.generateText({
@@ -66,12 +75,20 @@ const { text } = await client.ai.generateText({
 })
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Stream Text
 
 `ai.streamText` is an async iterator. It yields `text` and `reasoning` deltas as the model writes, then a
 final event with usage. An error from the Gateway mid-stream throws `Gateway.RequestError`.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 for await (const event of client.ai.streamText({ // [!code focus]
@@ -82,10 +99,18 @@ for await (const event of client.ai.streamText({ // [!code focus]
 }
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 Pass a `signal` to stop a stream early, or `break` out of the loop: the request is cancelled, and you pay only
 for the tokens generated.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const controller = new AbortController() // [!code focus]
@@ -100,23 +125,45 @@ for await (const event of client.ai.streamText({
 }
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Embed Text
 
-```ts
+Pick an embedding model from `models.embed`: a Gateway lists only the models it serves, and the list can be empty.
+
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
+
+const { models } = await client.gateway.getCapabilities()
+const [model] = models.embed // [!code focus]
+if (!model) throw new Error('This Gateway serves no embedding models.')
 
 const { embeddings } = await client.ai.embed({ // [!code focus]
   input: ['Tempo is a payments chain.', 'Viem is a TypeScript interface for Ethereum.'], // [!code focus]
-  model: '@cf/baai/bge-m3', // [!code focus]
+  model, // [!code focus]
 }) // [!code focus]
 ```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
 
 ### Keep a Conversation
 
 Store the history in the Gateway's key-value store so it survives across sessions and devices, in the same
 app namespace as the rest of your data.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 type Message = { content: string; role: 'assistant' | 'system' | 'user' }
@@ -141,6 +188,12 @@ async function ask(chatId: string, question: string) {
   return text
 }
 ```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
 
 ## See More
 

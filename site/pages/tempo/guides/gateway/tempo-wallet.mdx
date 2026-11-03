@@ -17,78 +17,75 @@ In a browser app, the user's [Tempo Wallet](https://wallet.tempo.xyz) pays the G
 with a spending limit and an expiry, then makes `globalThis.fetch` pay any `402 Payment Required` with that key.
 No prompt per request, and the key can spend only what the user approved.
 
-The provider also gives you a Viem Client with `provider.getClient()`. Extend it with `gatewayActions()` and it
+The provider gives you a Viem Client with `provider.getClient()`. Extend it with `gatewayActions()` and it
 pays the Gateway through `globalThis.fetch`, with no payment setup in your code.
 
 ## Recipes
 
+These recipes assume a Tempo Wallet Client in `viem.config.ts`: a provider with the `tempoWallet` adapter, an
+access-key policy (`authorize`) that lets the key spend up to 5 MACH for a day, only on the payment-channel escrow
+the Gateway is paid through, and the provider's Client extended with `gatewayActions`.
+
 ### Connect Tempo Wallet
 
-Create a provider with the `tempoWallet` adapter and an access-key policy, connect, and extend the provider's
-Client with `gatewayActions`.
-The policy below lets the key spend up to 5 MACH for a day, and only on the payment-channel escrow the Gateway
-is paid through.
+Connect once: the user approves the access key in Tempo Wallet. Every Gateway call after that is paid with it,
+without a prompt.
 
-```ts
-import { Expiry, Mach, Provider, tempoWallet } from 'accounts'
-import { parseUnits } from 'viem'
-import { gatewayActions } from 'viem/tempo'
+:::code-group
 
-const escrow = '0x4d50500000000000000000000000000000000000'
+```ts twoslash [example.ts]
+import { client, provider } from './viem.config'
 
-const provider = Provider.create({ // [!code focus]
-  accessKey: { // [!code focus]
-    authorize: () => ({ // [!code focus]
-      expiry: Expiry.days(1), // [!code focus]
-      limits: [{ limit: parseUnits('5', 6), token: Mach.token.address }], // [!code focus]
-      scopes: [ // [!code focus]
-        { address: escrow, selector: '0xedc53b00' }, // open // [!code focus]
-        { address: escrow, selector: '0xdc48471e' }, // topUp // [!code focus]
-        { address: escrow, selector: '0x675402e5' }, // requestClose // [!code focus]
-        { address: escrow, selector: '0x41e2c664' }, // withdraw // [!code focus]
-      ], // [!code focus]
-    }), // [!code focus]
-  }, // [!code focus]
-  adapter: tempoWallet(), // [!code focus]
+await provider.request({ method: 'wallet_connect' }) // [!code focus]
+
+const { text } = await client.ai.generateText({ // [!code focus]
+  model: '@cf/zai-org/glm-5.3', // [!code focus]
+  prompt: 'Say hello.', // [!code focus]
 }) // [!code focus]
-
-await provider.request({ method: 'wallet_connect' })
-
-const client = provider.getClient().extend(gatewayActions()) // [!code focus]
-
-const { text } = await client.ai.generateText({
-  model: '@cf/zai-org/glm-5.3',
-  prompt: 'Say hello.',
-})
 ```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/tempo-wallet.config.ts:setup]
+```
+
+:::
 
 ### Top Up with MACH
 
-The Gateway is paid in MACH. `Mach.fund` opens MACH checkout in Tempo Wallet (card or Apple Pay), pre-filled with
-an amount. Offer it when `accessKey.getRemainingLimit` or the user's balance is low.
+The Gateway is paid in MACH. [`wallet.deposit`](/tempo/actions/wallet.deposit) opens Tempo Wallet's deposit flow,
+pre-filled with MACH and an amount. Offer it when the user's balance or `accessKey.getRemainingLimit` is low.
 
-```ts
-import { Mach, Provider, tempoWallet } from 'accounts'
+:::code-group
 
-const provider = Provider.create({ adapter: tempoWallet() })
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client, mach } from './viem.config'
 
-await Mach.fund(provider, { amount: '10', displayName: 'My App' }) // [!code focus]
+await Actions.wallet.deposit(client, { amount: '10', token: mach }) // [!code focus]
 ```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/tempo-wallet.config.ts:setup]
+```
+
+:::
 
 ### Use with Wagmi
 
-With Wagmi, put the same policy on the `tempoWallet` connector and extend its Client.
+With Wagmi, give the `tempoWallet` connector the same access-key policy and extend its Client.
 
-```ts
+:::code-group
+
+```ts [example.ts]
 import { getConnectorClient } from '@wagmi/core'
 import { gatewayActions } from 'viem/tempo'
 import { createConfig, http } from 'wagmi'
 import { tempo } from 'wagmi/chains'
 import { tempoWallet } from 'wagmi/connectors'
+import { authorize } from './viem.config'
 
 export const config = createConfig({
   chains: [tempo],
-  // `authorize` is the access-key policy from Connect Tempo Wallet.
   connectors: [tempoWallet({ accessKey: { authorize } })], // [!code focus]
   transports: { [tempo.id]: http() },
 })
@@ -96,12 +93,18 @@ export const config = createConfig({
 const client = (await getConnectorClient(config)).extend(gatewayActions()) // [!code focus]
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/tempo-wallet.config.ts:setup]
+```
+
+:::
+
 ### Pay Without the Fetch Polyfill
 
 Where `globalThis.fetch` can't be replaced (such as Cloudflare Workers), or with `mpp: { polyfill: false }`, build
 the payment-aware `fetch` from the provider and pass it to `gatewayActions`.
 
-```ts
+```ts twoslash
 import { Provider, tempoWallet } from 'accounts'
 import { Mppx, tempo } from 'mppx/client'
 import { gatewayActions } from 'viem/tempo'

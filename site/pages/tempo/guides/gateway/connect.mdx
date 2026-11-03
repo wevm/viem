@@ -29,7 +29,7 @@ A plain `fetch` reaches only the free routes, such as capabilities; paid routes 
 `client.gateway.getCapabilities` is free and works with a plain `fetch`. It returns the chain, accepted currencies, the payment recipient,
 prices, size limits, models and compute rates. Read it to pick models and to show prices before a user pays.
 
-```ts
+```ts twoslash
 import { createClient, gatewayActions } from 'viem/tempo'
 
 const client = createClient().extend(gatewayActions())
@@ -41,7 +41,7 @@ const { currencies, models, prices } = await client.gateway.getCapabilities()
 
 `gatewayActions()` with no options reaches the Tempo Gateway at `https://gateway.tempo-dev.workers.dev` in the `default` app. A Client with a local account pays with it; other Clients use `globalThis.fetch`. Pass `app` to keep your data apart, `url` to use another Gateway, and `fetch` to pay another way.
 
-```ts
+```ts twoslash
 import { createClient, gatewayActions } from 'viem/tempo'
 
 const client = createClient().extend(gatewayActions())
@@ -55,7 +55,7 @@ For a script, server or agent, install `mppx` (`npm i mppx`) and give the Client
 `gatewayActions` pays every request with it, loading `mppx` on the first one. Without `mppx`, paid requests
 throw `Gateway.MppxNotInstalledError`.
 
-```ts
+```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
 
@@ -71,7 +71,7 @@ payment channel locks up. The Gateway accepts only its advertised currencies (`c
 `autoSwap` lets a wallet holding another stablecoin swap through the stablecoin DEX when it opens or tops up a
 channel.
 
-```ts
+```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
@@ -99,7 +99,7 @@ A Gateway can exchange an access key for an `sk-tempo-` API key. Requests that c
 are paid by the Gateway from that key's own channel, so they never answer `402`. Use it where a tool takes only
 an API key, or when one operator key serves many tenants. Wrap `fetch` to add the header:
 
-```ts
+```ts twoslash
 import { createClient, gatewayActions } from 'viem/tempo'
 
 const apiKey = process.env.GATEWAY_API_KEY!
@@ -121,7 +121,7 @@ Data is scoped by wallet and `app`. When one wallet or API key serves many users
 app, such as `project-${id}`. A project then sees only its own keys, objects and sandboxes, and deleting a
 tenant never touches another's data.
 
-```ts
+```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
 
@@ -138,7 +138,9 @@ An app name must match `[a-z0-9][a-z0-9-]{0,62}`; anything else throws `Gateway.
 
 ### Handle Payment Errors
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { Gateway } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -154,6 +156,12 @@ try {
   }
 }
 ```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
 
 ## See More
 

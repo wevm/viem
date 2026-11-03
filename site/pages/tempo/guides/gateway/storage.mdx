@@ -23,23 +23,16 @@ Both are private to the paying wallet and the app. Missing keys and objects retu
 
 ## Recipes
 
-These recipes assume a Client that pays the Gateway, in `viem.config.ts` ([Connect & Pay](/tempo/guides/gateway/connect) covers other ways to pay):
-
-```ts [viem.config.ts]
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, gatewayActions } from 'viem/tempo'
-
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
-
-export const client = createClient({ account }).extend(gatewayActions())
-```
+These recipes assume you have [set up a Gateway client](/tempo/guides/gateway/connect).
 
 ### Store a File
 
 `bucket.put` takes a `Blob`, `Uint8Array`, `ArrayBuffer` or string, and a `retention` in seconds. The object
 expires after it.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { etag, expiresAt, size } = await client.bucket.put({ // [!code focus]
@@ -49,12 +42,20 @@ const { etag, expiresAt, size } = await client.bucket.put({ // [!code focus]
 }) // [!code focus]
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Read a File
 
 `bucket.get` returns the object's metadata and a `body` stream, or `null` when there is no object.
 `bucket.head` reads only its metadata.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const object = await client.bucket.get({ key: 'reports/2026-11-03.md' }) // [!code focus]
@@ -66,9 +67,17 @@ const metadata = await client.bucket.head({ key: 'reports/2026-11-03.md' }) // [
 // { contentType, etag, expiresAt, key, size, uploadedAt } | null
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### List & Delete Files
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { objects } = await client.bucket.list({ prefix: 'reports/' }) // [!code focus]
@@ -76,12 +85,20 @@ const { objects } = await client.bucket.list({ prefix: 'reports/' }) // [!code f
 await client.bucket.delete({ key: 'reports/2026-11-03.md' }) // [!code focus]
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Read & Write State
 
 `kv.set` stores any JSON value and returns it with its `version`. `ttl` (seconds) expires it; without one it is
 kept for the Gateway's longest retention.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const entry = await client.kv.set({ key: 'settings', value: { theme: 'dark' } }) // [!code focus]
@@ -91,12 +108,20 @@ const current = await client.kv.get({ key: 'settings' }) // [!code focus]
 // the same entry, or null
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Create a Key Only Once
 
 `ifVersion: null` writes only if the key doesn't exist yet. Use it to claim a name or initialize state exactly
 once.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { Gateway } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -110,12 +135,20 @@ async function claim(name: string, owner: string) {
 }
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Update State Safely
 
 Pass the version you read as `ifVersion`. If someone else wrote in between, `kv.set` throws
 `Gateway.VersionConflictError`: read again and retry.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { Gateway } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -136,12 +169,20 @@ async function increment(key: string) {
 }
 ```
 
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Index Objects with State
 
 Keep large data in the bucket and a small index in key-value, so a page can list items without reading every
 object.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 async function upload(file: File) {
@@ -152,6 +193,12 @@ async function upload(file: File) {
 
 const { entries } = await client.kv.list({ prefix: 'index/uploads/' }) // [!code focus]
 ```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
 
 ## See More
 
