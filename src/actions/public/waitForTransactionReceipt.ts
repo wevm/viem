@@ -284,23 +284,36 @@ export async function waitForTransactionReceipt<
           if (retrying) return
 
           try {
-            // A reorg can remove a receipt or change its execution outcome.
             if (receipt) {
+              if (
+                confirmations > 1 &&
+                (!receipt.blockNumber ||
+                  blockNumber - receipt.blockNumber + 1n < confirmations)
+              )
+                return
+
+              // A reorg can remove a receipt or change its execution outcome,
+              // so it is refreshed once it has enough confirmations. Other
+              // errors keep the cached receipt for the next block.
               const receipt_ = await getAction(
                 client,
                 getTransactionReceipt,
                 'getTransactionReceipt',
-              )({ hash: receipt.transactionHash }).catch((error) => {
-                if (error instanceof TransactionReceiptNotFoundError)
-                  return undefined
-                throw error
-              })
-              receipt = receipt_
+              )({ hash: receipt.transactionHash }).catch((error) =>
+                error instanceof TransactionReceiptNotFoundError
+                  ? null
+                  : undefined,
+              )
+              if (receipt_ === undefined) return
               if (!receipt_) {
-                transaction = undefined
+                receipt = undefined
+                // The replaced transaction stays known, so the block scan can
+                // find its replacement again.
+                if (!replacementResponse) transaction = undefined
                 replacementResponse = undefined
                 return
               }
+              receipt = receipt_
               if (
                 confirmations > 1 &&
                 (!receipt_.blockNumber ||

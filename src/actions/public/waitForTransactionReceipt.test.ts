@@ -797,6 +797,98 @@ describe('args: confirmations', () => {
     ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
   })
 
+  test('finds a replacement again after a reorg removes it', async () => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const testClient = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      transport: http(node.url),
+    })
+    const id = await snapshot(testClient)
+    const hash = await sendTransaction(testClient, {
+      account: sourceAccount.address,
+      gasPrice: parseGwei('2'),
+      nonce: 0,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    let replacementHash: `0x${string}` | undefined
+    let serializedTransaction: `0x${string}` | undefined
+    let stage = 'pending'
+    const replacements: ReplacementReturnType[] = []
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 50,
+      transport: http(node.url, {
+        async onFetchResponse(response) {
+          const { result } = await response.clone().json()
+
+          // Replace the transaction once the wait has seen it pending.
+          if (
+            stage === 'pending' &&
+            result?.hash === hash &&
+            result.blockNumber === null
+          ) {
+            stage = 'replaced'
+            replacementHash = await sendTransaction(testClient, {
+              account: sourceAccount.address,
+              gasPrice: parseGwei('20'),
+              nonce: 0,
+              to: targetAccount.address,
+              value: parseEther('1'),
+            })
+            await mine(testClient, { blocks: 1 })
+            return
+          }
+
+          // Remove the replacement once its receipt is found.
+          if (
+            stage === 'replaced' &&
+            result?.transactionHash === replacementHash
+          ) {
+            stage = 'removed'
+            serializedTransaction = await getRawTransaction(testClient, {
+              hash: replacementHash!,
+            })
+            await revert(testClient, { id })
+            await mine(testClient, { blocks: 3 })
+            return
+          }
+
+          // Mine the replacement again once the wait sees it removed.
+          if (stage === 'removed' && result === null) {
+            stage = 'restored'
+            await sendRawTransaction(testClient, {
+              serializedTransaction: serializedTransaction!,
+            })
+            await setIntervalMining(testClient, { interval: 1 })
+          }
+        },
+      }),
+    })
+
+    const receipt = await client.waitForTransactionReceipt({
+      confirmations: 3,
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      timeout: 5_000,
+    })
+
+    expect(receipt).toEqual(
+      await getTransactionReceipt(testClient, { hash: replacementHash! }),
+    )
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "repriced",
+      ]
+    `)
+    expect(replacements[0]!.transactionReceipt).toEqual(receipt)
+  })
+
   test('waits for confirmations', async () => {
     setup()
 
