@@ -1,10 +1,10 @@
 import type { IncomingHttpHeaders } from 'node:http'
-import { assertType, describe, expect, test } from 'vitest'
+import { type HttpTransport, http } from 'viem'
+import { assertType, describe, expect, onTestFinished, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer } from '~test/utils.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
-import { type HttpTransport, http } from './http.js'
 
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')
@@ -650,8 +650,62 @@ describe('request', () => {
 
     await transport.request({ method: 'eth_blockNumber' })
     expect(headers['x-wagmi']).toBeDefined()
+    expect(headers['content-type']).toMatchInlineSnapshot(`"application/json"`)
 
     await server.close()
+  })
+
+  test('behavior: fetchOptions.headers', async () => {
+    const server = await createHttpServer((req, res) => {
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          result: {
+            authorization: req.headers.authorization,
+            contentType: req.headers['content-type'],
+          },
+        }),
+      )
+    })
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const url = new URL(server.url)
+    url.username = 'testuser'
+    url.password = 'testpass'
+    const headers = {
+      Authorization: 'Bearer custom-token',
+      'cOnTent-TyPe': 'application/custom-json',
+    }
+
+    const results = []
+    for (const headers_ of [
+      headers,
+      new Headers(headers),
+      Object.entries(headers),
+    ]) {
+      const transport = http(url.toString(), {
+        fetchOptions: { headers: headers_ },
+      })({})
+      results.push(await transport.request({ method: 'web3_clientVersion' }))
+    }
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "authorization": "Bearer custom-token",
+          "contentType": "application/custom-json",
+        },
+        {
+          "authorization": "Bearer custom-token",
+          "contentType": "application/custom-json",
+        },
+        {
+          "authorization": "Bearer custom-token",
+          "contentType": "application/custom-json",
+        },
+      ]
+    `)
   })
 
   test('behavior: onFetchRequest', async () => {

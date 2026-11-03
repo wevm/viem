@@ -128,6 +128,13 @@ export function getHttpRpcClient(
               timeout > 0 ? timeoutSignal : null,
             ])
             try {
+              const headers_ = new Headers({
+                ...headers_url,
+                'Content-Type': 'application/json',
+              })
+              new Headers(headers).forEach((value, key) => {
+                headers_.set(key, value)
+              })
               const init: RequestInit = {
                 ...fetchOptions,
                 body: Array.isArray(body)
@@ -143,11 +150,7 @@ export function getHttpRpcClient(
                       id: body.id ?? idCache.take(),
                       ...body,
                     }),
-                headers: {
-                  ...headers_url,
-                  'Content-Type': 'application/json',
-                  ...headers,
-                },
+                headers: headers_,
                 method: method || 'POST',
                 signal,
               }
