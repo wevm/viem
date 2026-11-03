@@ -1446,6 +1446,102 @@ describe('behavior', () => {
       expect(retryCount).toBe(0)
     })
 
+    test('non-deterministic RpcRequestError (403)', async () => {
+      // Only the first request is refused.
+      const refusals = [{ error: { code: -32000, message: 'rate limited' } }]
+      const server = await createHttpServer((_req, res) => {
+        const refusal = refusals.shift()
+        if (refusal) {
+          res.writeHead(403, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify(refusal))
+          return
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+
+      expect(
+        await buildRequest(request(server.url), {
+          retryCount: 1,
+          retryDelay: 0,
+        })({ method: 'eth_blockNumber' }),
+      ).toMatchInlineSnapshot(`"0x1"`)
+    })
+
+    test('deterministic MethodNotFoundRpcError (403)', async () => {
+      // A retry would receive the second, successful response.
+      const responses = [
+        {
+          status: 403,
+          body: {
+            error: {
+              code: MethodNotFoundRpcError.code,
+              message: 'method not allowed',
+            },
+          },
+        },
+        { status: 200, body: { result: '0x1' } },
+      ]
+      const server = await createHttpServer((_req, res) => {
+        const { status, body } = responses.shift()!
+        res.writeHead(status, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(body))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url), {
+          retryCount: 1,
+          retryDelay: 0,
+        })({ method: 'eth_wagmi' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [MethodNotFoundRpcError: The method "eth_wagmi" does not exist / is not available.
+
+        Status: 403
+        URL: http://localhost
+        Request body: {"method":"eth_wagmi"}
+
+        Details: method not allowed
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('deterministic MethodNotSupportedRpcError (403)', async () => {
+      // A retry would receive the second, successful response.
+      const responses = [
+        {
+          status: 403,
+          body: {
+            error: {
+              code: MethodNotSupportedRpcError.code,
+              message: 'method not supported',
+            },
+          },
+        },
+        { status: 200, body: { result: '0x1' } },
+      ]
+      const server = await createHttpServer((_req, res) => {
+        const { status, body } = responses.shift()!
+        res.writeHead(status, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(body))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url), {
+          retryCount: 1,
+          retryDelay: 0,
+        })({ method: 'eth_wagmi' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [MethodNotSupportedRpcError: Method "eth_wagmi" is not supported.
+
+        Status: 403
+        URL: http://localhost
+        Request body: {"method":"eth_wagmi"}
+
+        Details: method not supported
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('deterministic RpcError', async () => {
       let retryCount = -1
       const server = await createHttpServer((_req, res) => {
@@ -1606,6 +1702,64 @@ describe('shouldRetry', () => {
 
   test('LimitExceededRpcError', () => {
     expect(shouldRetry(new LimitExceededRpcError({} as any))).toBe(true)
+  })
+
+  test('LimitExceededRpcError (403)', () => {
+    expect(
+      shouldRetry(
+        new LimitExceededRpcError(
+          new RpcRequestError({
+            body: {},
+            error: { code: LimitExceededRpcError.code, message: '' },
+            status: 403,
+            url: '',
+          }),
+        ),
+      ),
+    ).toBe(true)
+  })
+
+  test('MethodNotFoundRpcError (403)', () => {
+    expect(
+      shouldRetry(
+        new MethodNotFoundRpcError(
+          new RpcRequestError({
+            body: {},
+            error: { code: MethodNotFoundRpcError.code, message: '' },
+            status: 403,
+            url: '',
+          }),
+        ),
+      ),
+    ).toBe(false)
+  })
+
+  test('MethodNotSupportedRpcError (500)', () => {
+    expect(
+      shouldRetry(
+        new MethodNotSupportedRpcError(
+          new RpcRequestError({
+            body: {},
+            error: { code: MethodNotSupportedRpcError.code, message: '' },
+            status: 500,
+            url: '',
+          }),
+        ),
+      ),
+    ).toBe(false)
+  })
+
+  test('RpcRequestError (403)', () => {
+    expect(
+      shouldRetry(
+        new RpcRequestError({
+          body: {},
+          error: { code: -32000, message: '' },
+          status: 403,
+          url: '',
+        }),
+      ),
+    ).toBe(true)
   })
 
   test('RPC code 429 (batch rate-limit, e.g. Alchemy HTTP 200 + JSON body)', () => {

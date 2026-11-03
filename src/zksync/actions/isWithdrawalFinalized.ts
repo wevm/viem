@@ -78,11 +78,11 @@ export async function isWithdrawalFinalized<
 
   if (!l2Client.chain) throw new ChainNotFoundError()
 
-  const { log } = await getWithdrawalLog(l2Client, { hash, index })
-  const { l2ToL1LogIndex } = await getWithdrawalL2ToL1Log(l2Client, {
-    hash,
-    index,
-  })
+  // Both read the same receipt, which concurrent requests fetch once.
+  const [{ log }, { l2ToL1LogIndex }] = await Promise.all([
+    getWithdrawalLog(l2Client, { hash, index }),
+    getWithdrawalL2ToL1Log(l2Client, { hash, index }),
+  ])
 
   // `getLogProof` is called not to get proof but
   // to get the index of the corresponding L2->L1 log,
