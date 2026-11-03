@@ -335,7 +335,7 @@ test('https://github.com/wevm/viem/issues/2888', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidStructTypeError: Struct type "bytes32" is invalid.
 
-    Struct type must contain only letters, digits, "_" and "$", and must not be a Solidity type.
+    Struct type must contain only letters, digits, "_", "$" and ":", and must not be a Solidity type.
 
     Version: viem@x.y.z]
   `)
@@ -373,6 +373,21 @@ test('struct type: with $', () => {
   )
 })
 
+test('struct type: with colon', () => {
+  expect(
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        'Order:1': [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Order:1',
+      message: { amount: 1n },
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x3465390e0ea754dae581e653862bc7f8b71258ad85150e27ad18d87dd63fe6ab"`,
+  )
+})
+
 test('struct type: array of a Solidity type', () => {
   expect(() =>
     hashTypedData({
@@ -387,7 +402,7 @@ test('struct type: array of a Solidity type', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidStructTypeError: Struct type "uint256[]" is invalid.
 
-    Struct type must contain only letters, digits, "_" and "$", and must not be a Solidity type.
+    Struct type must contain only letters, digits, "_", "$" and ":", and must not be a Solidity type.
 
     Version: viem@x.y.z]
   `)

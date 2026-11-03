@@ -202,12 +202,13 @@ function isSolidityType(type: string) {
 
 /** @internal */
 function validateReference(type: string) {
-  // Struct type must contain only letters, digits, `_` and `$`, and must not be
-  // a Solidity type, so it cannot shadow a Solidity type or an array of one. A
-  // struct such as `intent` or `bytesInfo` is valid, while `uint7` or `bytes33`
-  // is rejected, since other implementations parse it as a Solidity type.
+  // Struct type must contain only letters, digits, `_`, `$` and `:`, and must
+  // not be a Solidity type, so it cannot shadow a Solidity type or an array of
+  // one. A struct such as `intent` or `bytesInfo` is valid, while `uint7` or
+  // `bytes33` is rejected, since other implementations parse it as a Solidity
+  // type.
   if (
-    !/^[A-Za-z0-9_$]+$/.test(type) ||
+    !/^[A-Za-z0-9_$:]+$/.test(type) ||
     type === 'address' ||
     type === 'bool' ||
     type === 'string' ||

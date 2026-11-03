@@ -326,7 +326,7 @@ describe('validateTypedData', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidStructTypeError: Struct type "bytes32" is invalid.
 
-      Struct type must contain only letters, digits, "_" and "$", and must not be a Solidity type.
+      Struct type must contain only letters, digits, "_", "$" and ":", and must not be a Solidity type.
 
       Version: viem@x.y.z]
     `)
