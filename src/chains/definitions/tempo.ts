@@ -17,6 +17,10 @@ export const tempo = /*#__PURE__*/ defineChain({
     erc4626EngineFactory: {
       address: '0xd43D00981222a8db444A528E69f19E3cE5A7D2Ff',
     },
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 0,
+    },
   },
   name: 'Tempo Mainnet',
   nativeCurrency: {

@@ -18,6 +18,10 @@ export const tempoModerato = /*#__PURE__*/ defineChain({
     erc4626EngineFactory: {
       address: '0x0d57c10249eb3a92b7d81bBA6221F80F2865448A',
     },
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 0,
+    },
   },
   name: 'Tempo Testnet (Moderato)',
   nativeCurrency: {
