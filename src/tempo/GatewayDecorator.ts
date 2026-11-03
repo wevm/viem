@@ -797,16 +797,41 @@ function pay(
         },
       )
     }
-    try {
-      return await (await mppx)(input, init)
-    } catch (error) {
-      if (!(error instanceof Error) || !isUnderfunded(error)) throw error
+    const underfunded = async (error: unknown) => {
+      if (!(error instanceof Error) || !isUnderfunded(error)) return error
       mppx = undefined
-      throw new Gateway.InsufficientFundsError({
-        ...(funds ?? { address: '0x', balances: [] }),
+      const current = await balances(client, new URL(input).origin).catch(
+        () => funds,
+      )
+      return new Gateway.InsufficientFundsError({
+        ...(current ?? { address: '0x', balances: [] }),
         cause: error,
       })
     }
+    const response = await (await mppx)(input, init).catch(async (error) => {
+      throw await underfunded(error)
+    })
+    if (!response.body) return response
+    const reader = response.body.getReader()
+    const body = new ReadableStream<Uint8Array>({
+      cancel: (reason) => reader.cancel(reason),
+      async pull(controller) {
+        try {
+          const { done, value } = await reader.read()
+          if (done) controller.close()
+          else controller.enqueue(value)
+        } catch (error) {
+          controller.error(await underfunded(error))
+        }
+      },
+    })
+    const wrapped = new Response(body, {
+      headers: response.headers,
+      status: response.status,
+      statusText: response.statusText,
+    })
+    Object.defineProperty(wrapped, 'url', { value: response.url })
+    return wrapped
   }
 }
 
@@ -819,9 +844,13 @@ async function balances(
 ): Promise<Funds> {
   const address = client.account!.address
   const response = await globalThis.fetch(`${origin}/v1/capabilities`)
-  const { currencies } = (await response.json()) as {
+  const { chainId, currencies } = (await response.json()) as {
+    chainId: number
     currencies: Record<string, Address>
   }
+  const expected = client.chain?.id
+  if (expected !== undefined && chainId !== expected)
+    throw new Gateway.ChainMismatchError({ chainId, expected })
   const balances = await Promise.all(
     Object.entries(currencies).map(async ([symbol, currency]) => ({
       amount: (await readContract(client, {

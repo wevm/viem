@@ -2,9 +2,10 @@ import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
 import { Actions, createClient, Gateway, gatewayActions } from 'viem/tempo'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, chain, getClient } from '~test/tempo/config.js'
 
 type Entry = {
   expiresAt: number
@@ -54,7 +55,7 @@ async function handle(request: Request) {
     })
   if (pathname === '/v1/capabilities')
     return Response.json({
-      chainId: 4217,
+      chainId: chain.id,
       currencies: { pathusd: '0x20c0000000000000000000000000000000000000' },
       version: '2026-10-22',
     })
@@ -397,9 +398,10 @@ describe('from', () => {
 test('getCapabilities', async () => {
   const gateway = Gateway.from({ app: 'my-app', url })
 
-  expect(await Gateway.getCapabilities(gateway)).toMatchInlineSnapshot(`
+  const { chainId: _, ...capabilities } = await Gateway.getCapabilities(gateway)
+
+  expect(capabilities).toMatchInlineSnapshot(`
     {
-      "chainId": 4217,
       "currencies": {
         "pathusd": "0x20c0000000000000000000000000000000000000",
       },
@@ -1067,9 +1069,11 @@ describe('gatewayActions', () => {
   test('behavior: getCapabilities', async () => {
     const client = createClient().extend(gatewayActions({ url }))
 
-    expect(await client.gateway.getCapabilities()).toMatchInlineSnapshot(`
+    const { chainId: _, ...capabilities } =
+      await client.gateway.getCapabilities()
+
+    expect(capabilities).toMatchInlineSnapshot(`
       {
-        "chainId": 4217,
         "currencies": {
           "pathusd": "0x20c0000000000000000000000000000000000000",
         },
@@ -1087,6 +1091,17 @@ describe('gatewayActions', () => {
       client.kv.get({ key: 'greeting' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: No method found for challenges: . Available: tempo.charge, tempo.session]`,
+    )
+  })
+
+  test('behavior: chain mismatch', async () => {
+    const client = getClient({
+      account: accounts[0],
+      chain: tempoModerato,
+    }).extend(gatewayActions({ url }))
+
+    await expect(client.kv.get({ key: 'greeting' })).rejects.toBeInstanceOf(
+      Gateway.ChainMismatchError,
     )
   })
 
