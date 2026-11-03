@@ -5,7 +5,6 @@ import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import { erc20Abi } from '../constants/abis.js'
 import type { Chain } from '../types/chain.js'
-import { formatUnits } from '../utils/unit/formatUnits.js'
 import * as aiActions from './actions/ai.js'
 import * as bucketActions from './actions/bucket.js'
 import * as computeActions from './actions/compute.js'
@@ -749,9 +748,8 @@ export declare namespace decorator {
  * Pays Gateway requests with the Client's account through `mppx`. Requests go
  * through `globalThis.fetch` until the Gateway first asks for payment, so free
  * routes work without `mppx` installed. `mppx` is loaded then, paying in the
- * Gateway currency the account holds most of, with a channel deposit capped at
- * that balance (and at 1). When the account runs out, the next request reads
- * its balances again, so funding it is enough to continue.
+ * Gateway currency the account holds most of. When the account runs out, the
+ * next request reads its balances again, so funding it is enough to continue.
  */
 function pay(
   client: Client<Transport, Chain | undefined, Account | undefined>,
@@ -767,7 +765,6 @@ function pay(
       const [best] = funds.balances
       if (!best || best.amount === 0n)
         throw new Gateway.InsufficientFundsError(funds)
-      const cap = best.amount < 1_000_000n ? best.amount : 1_000_000n
       mppx = load().then(
         ({ Mppx, tempo }) =>
           Mppx.create({
@@ -784,7 +781,6 @@ function pay(
                     throw new Gateway.ChainMismatchError({ chainId, expected })
                   return client
                 },
-                maxDeposit: formatUnits(cap, 6),
               }),
             ],
             orderChallenges: (candidates) =>
@@ -854,8 +850,7 @@ function isCurrency(candidate: unknown, currency: Address) {
 /** Whether a payment failed because the account could not cover it. */
 function isUnderfunded(error: Error) {
   for (let cause: unknown = error; cause instanceof Error; cause = cause.cause)
-    if (/InsufficientBalance|exceeds local maxDeposit/.test(cause.message))
-      return true
+    if (/InsufficientBalance/.test(cause.message)) return true
   return false
 }
 
@@ -872,7 +867,6 @@ type MppxClient = {
   tempo: (options: {
     account: unknown
     getClient: (parameters: { chainId?: number | undefined }) => unknown
-    maxDeposit: string
   }) => unknown
 }
 

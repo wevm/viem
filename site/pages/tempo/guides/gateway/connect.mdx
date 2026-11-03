@@ -70,8 +70,8 @@ The Gateway is paid in the currencies `getCapabilities().currencies` lists (MACH
 with OUSD: send it from any wallet or exchange that supports Tempo. MACH can only be minted to an account,
 through Tempo Wallet's deposit flow, not transferred to a new address.
 
-On the first paid request, `gatewayActions` reads the account's balances, pays in the currency it holds most of,
-and caps the payment-channel deposit at that balance. An account that holds neither throws
+On the first paid request, `gatewayActions` reads the account's balances and pays in the currency it holds
+most of. An account that holds neither throws
 `Gateway.InsufficientFundsError` before signing anything; after you fund it, the next request goes through.
 
 :::code-group
