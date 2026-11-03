@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import { BaseError } from '../errors/base.js'
+import { formatUnits } from '../utils/unit/formatUnits.js'
 
 /**
  * Free discovery document of a Gateway.
@@ -379,8 +380,47 @@ export class PaymentRequiredError extends RequestError {
     super(parameters, {
       name: 'Gateway.PaymentRequiredError',
       shortMessage:
-        'Gateway requires payment. Pass a payment-aware fetch, such as mppx, to Gateway.from.',
+        'Gateway requires payment. Give the Client an account (with mppx installed), or pass a payment-aware fetch to gatewayActions.',
     })
+  }
+}
+
+/**
+ * Thrown when the Client's account holds too little of the Gateway's
+ * currencies to pay for a request.
+ *
+ * @experimental
+ */
+export class InsufficientFundsError extends BaseError {
+  /** The paying account. */
+  address: Address
+  /** The account's balance of each Gateway currency, in base units. */
+  balances: InsufficientFundsError.Parameters['balances']
+
+  constructor({ address, balances, cause }: InsufficientFundsError.Parameters) {
+    const held = balances
+      .map(({ amount, symbol }) => `${formatUnits(amount, 6)} ${symbol}`)
+      .join(' and ')
+    super(
+      `The account ${address} can't pay the Gateway${held ? `: it holds ${held}` : ''}.`,
+      {
+        ...(cause ? { cause } : {}),
+        metaMessages: [
+          'Fund it with OUSD (send it from any wallet), or with MACH through Tempo Wallet (wallet.deposit). MACH cannot be transferred to a new address.',
+        ],
+        name: 'Gateway.InsufficientFundsError',
+      },
+    )
+    this.address = address
+    this.balances = balances
+  }
+}
+
+export declare namespace InsufficientFundsError {
+  type Parameters = {
+    address: Address
+    balances: readonly { amount: bigint; currency: Address; symbol: string }[]
+    cause?: Error | undefined
   }
 }
 

@@ -1,10 +1,10 @@
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { privateKeyToAccount } from 'viem/accounts'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { Actions, createClient, Gateway, gatewayActions } from 'viem/tempo'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { accounts } from '~test/constants.js'
+import { accounts, getClient } from '~test/tempo/config.js'
 
 type Entry = {
   expiresAt: number
@@ -53,7 +53,11 @@ async function handle(request: Request) {
       contentType: request.headers.get('content-type'),
     })
   if (pathname === '/v1/capabilities')
-    return Response.json({ chainId: 4217, version: '2026-10-22' })
+    return Response.json({
+      chainId: 4217,
+      currencies: { pathusd: '0x20c0000000000000000000000000000000000000' },
+      version: '2026-10-22',
+    })
 
   const app = request.headers.get('gateway-app')
   if (!app) return problem(400, 'invalid_request', 'Gateway-App is required.')
@@ -396,6 +400,9 @@ test('getCapabilities', async () => {
   expect(await Gateway.getCapabilities(gateway)).toMatchInlineSnapshot(`
     {
       "chainId": 4217,
+      "currencies": {
+        "pathusd": "0x20c0000000000000000000000000000000000000",
+      },
       "version": "2026-10-22",
     }
   `)
@@ -1063,25 +1070,49 @@ describe('gatewayActions', () => {
     expect(await client.gateway.getCapabilities()).toMatchInlineSnapshot(`
       {
         "chainId": 4217,
+        "currencies": {
+          "pathusd": "0x20c0000000000000000000000000000000000000",
+        },
         "version": "2026-10-22",
       }
     `)
   })
 
   test('behavior: pays with the client account', async () => {
-    const account = privateKeyToAccount(accounts[0].privateKey)
-    const client = createClient({ account }).extend(gatewayActions({ url }))
+    const client = getClient({ account: accounts[0] }).extend(
+      gatewayActions({ url }),
+    )
 
-    expect(await client.gateway.getCapabilities()).toMatchInlineSnapshot(`
-      {
-        "chainId": 4217,
-        "version": "2026-10-22",
-      }
-    `)
     await expect(
       client.kv.get({ key: 'greeting' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: No method found for challenges: . Available: tempo.charge, tempo.session]`,
+    )
+  })
+
+  test('behavior: unfunded account', async () => {
+    const client = getClient({
+      account: privateKeyToAccount(generatePrivateKey()),
+    }).extend(gatewayActions({ url }))
+
+    const error = await client.kv
+      .get({ key: 'greeting' })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(Gateway.InsufficientFundsError)
+    expect(error.balances).toMatchInlineSnapshot(`
+      [
+        {
+          "amount": 0n,
+          "currency": "0x20c0000000000000000000000000000000000000",
+          "symbol": "PATHUSD",
+        },
+      ]
+    `)
+    expect(
+      error.shortMessage.replace(/0x[0-9a-fA-F]{40}/, '0x…'),
+    ).toMatchInlineSnapshot(
+      `"The account 0x… can't pay the Gateway: it holds 0 PATHUSD."`,
     )
   })
 

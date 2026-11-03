@@ -64,6 +64,38 @@ const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
 export const client = createClient({ account }).extend(gatewayActions())
 ```
 
+### Fund an Account
+
+The Gateway is paid in the currencies `getCapabilities().currencies` lists (MACH and OUSD). Fund a local account
+with OUSD: send it from any wallet or exchange that supports Tempo. MACH can only be minted to an account,
+through Tempo Wallet's deposit flow, not transferred to a new address.
+
+On the first paid request, `gatewayActions` reads the account's balances and pays in the currency it holds
+most of. An account that holds neither throws
+`Gateway.InsufficientFundsError` before signing anything; after you fund it, the next request goes through.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Gateway } from 'viem/tempo'
+import { client } from './viem.config'
+
+try {
+  await client.kv.get({ key: 'greeting' })
+} catch (error) {
+  if (error instanceof Gateway.InsufficientFundsError) { // [!code focus]
+    console.log(error.address, error.balances) // [!code focus]
+    // Ask the user to send OUSD to error.address, then retry.
+  }
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/gateway.config.ts:setup]
+```
+
+:::
+
 ### Configure Payments
 
 To tune payments, create the `mppx` client yourself and pass its `fetch`. `maxDeposit` caps how much each
@@ -147,7 +179,9 @@ import { client } from './viem.config'
 try {
   await client.ai.generateText({ model: '@cf/zai-org/glm-5.3', prompt: 'hi' })
 } catch (error) {
-  if (error instanceof Gateway.MppxNotInstalledError) { // [!code focus]
+  if (error instanceof Gateway.InsufficientFundsError) { // [!code focus]
+    // The account can't cover the request: fund it with OUSD.
+  } else if (error instanceof Gateway.MppxNotInstalledError) { // [!code focus]
     // A local account pays through mppx: install it.
   } else if (error instanceof Gateway.PaymentRequiredError) { // [!code focus]
     // The fetch could not pay: pass a payment-aware fetch, or fund the wallet.

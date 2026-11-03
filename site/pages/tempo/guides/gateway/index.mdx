@@ -21,17 +21,29 @@ Viem's [`gatewayActions`](/tempo/utilities/Gateway) give you typed methods for e
 account pays any `402 Payment Required` the Gateway answers: a local account through
 [`mppx`](https://mpp.dev/sdk/typescript), and [Tempo Wallet](/tempo/guides/gateway/tempo-wallet) through the Accounts SDK.
 
+### Quickstart
+
+1. Create or load an account and fund it with a little OUSD (send it from any wallet; at $0.0001 a read, $1 covers
+   10,000 key-value reads).
+2. Install `mppx` (`npm i mppx`), which pays the Gateway's `402` challenges with that account.
+3. Extend a Client with `gatewayActions()` and call it.
+
 ```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, gatewayActions } from 'viem/tempo'
 
-const client = createClient().extend(gatewayActions())
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const client = createClient({ account }).extend(gatewayActions())
 
-// Free: no payment needed.
-const { models, prices } = await client.gateway.getCapabilities()
+const { text } = await client.ai.generateText({
+  maxOutputTokens: 256,
+  model: '@cf/zai-org/glm-5.3',
+  prompt: 'Say hello in five words.',
+})
 ```
 
-Paid calls, such as `client.ai.generateText`, need a funded Client: see [Connect & Pay](/tempo/guides/gateway/connect)
-for a local account or [Use with Tempo Wallet](/tempo/guides/gateway/tempo-wallet) for a user's wallet.
+An unfunded account throws `Gateway.InsufficientFundsError` with its balances before anything is signed.
+For a user's wallet instead of a key you hold, see [Use with Tempo Wallet](/tempo/guides/gateway/tempo-wallet).
 
 ### How Payment Works
 
