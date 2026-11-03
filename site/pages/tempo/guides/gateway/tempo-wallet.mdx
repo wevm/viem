@@ -17,21 +17,22 @@ In a browser app, the user's [Tempo Wallet](https://wallet.tempo.xyz) pays the G
 with a spending limit and an expiry, then makes `globalThis.fetch` pay any `402 Payment Required` with that key.
 No prompt per request, and the key can spend only what the user approved.
 
-`gatewayActions` uses `globalThis.fetch` for a Client whose account comes from a wallet, so a Client built on
-the Accounts SDK provider pays the Gateway with no payment setup in your code.
+The provider also gives you a Viem Client with `provider.getClient()`. Extend it with `gatewayActions()` and it
+pays the Gateway through `globalThis.fetch`, with no payment setup in your code.
 
 ## Recipes
 
 ### Connect Tempo Wallet
 
-Create a provider with the `tempoWallet` adapter and an access-key policy, connect, and build a Client on it.
+Create a provider with the `tempoWallet` adapter and an access-key policy, connect, and extend the provider's
+Client with `gatewayActions`.
 The policy below lets the key spend up to 5 MACH for a day, and only on the payment-channel escrow the Gateway
 is paid through.
 
 ```ts
 import { Expiry, Mach, Provider, tempoWallet } from 'accounts'
-import { custom, parseUnits } from 'viem'
-import { createClient, gatewayActions } from 'viem/tempo'
+import { parseUnits } from 'viem'
+import { gatewayActions } from 'viem/tempo'
 
 const escrow = '0x4d50500000000000000000000000000000000000'
 
@@ -51,12 +52,9 @@ const provider = Provider.create({ // [!code focus]
   adapter: tempoWallet(), // [!code focus]
 }) // [!code focus]
 
-const { accounts } = await provider.request({ method: 'wallet_connect' })
-const account = accounts[0]!.address
+await provider.request({ method: 'wallet_connect' })
 
-const client = createClient({ account, transport: custom(provider) }).extend(
-  gatewayActions(),
-)
+const client = provider.getClient().extend(gatewayActions()) // [!code focus]
 
 const { text } = await client.ai.generateText({
   model: '@cf/zai-org/glm-5.3',
@@ -104,8 +102,7 @@ the payment-aware `fetch` from the provider and pass it to `gatewayActions`.
 ```ts
 import { Provider, tempoWallet } from 'accounts'
 import { Mppx, tempo } from 'mppx/client'
-import { custom } from 'viem'
-import { createClient, gatewayActions } from 'viem/tempo'
+import { gatewayActions } from 'viem/tempo'
 
 const provider = Provider.create({
   adapter: tempoWallet(),
@@ -117,7 +114,7 @@ const mppx = Mppx.create({ // [!code focus]
   polyfill: false, // [!code focus]
 }) // [!code focus]
 
-const client = createClient({ transport: custom(provider) }).extend(
+const client = provider.getClient().extend(
   gatewayActions({ fetch: mppx.fetch }), // [!code focus]
 )
 ```
