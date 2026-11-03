@@ -783,8 +783,62 @@ describe('request', () => {
 
     await transport.request({ method: 'eth_blockNumber' })
     expect(headers['x-wagmi']).toBeDefined()
+    expect(headers['content-type']).toMatchInlineSnapshot(`"application/json"`)
 
     await server.close()
+  })
+
+  test('behavior: fetchOptions.headers', async () => {
+    const server = await createHttpServer((req, res) => {
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          result: {
+            authorization: req.headers.authorization,
+            contentType: req.headers['content-type'],
+          },
+        }),
+      )
+    })
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const url = new URL(server.url)
+    url.username = 'testuser'
+    url.password = 'testpass'
+    const headers = {
+      Authorization: 'Bearer custom-token',
+      'cOnTent-TyPe': 'application/custom-json',
+    }
+
+    const results = []
+    for (const headers_ of [
+      headers,
+      new Headers(headers),
+      Object.entries(headers),
+    ]) {
+      const transport = http(url.toString(), {
+        fetchOptions: { headers: headers_ },
+      })({})
+      results.push(await transport.request({ method: 'web3_clientVersion' }))
+    }
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "authorization": "Bearer custom-token",
+          "contentType": "application/custom-json",
+        },
+        {
+          "authorization": "Bearer custom-token",
+          "contentType": "application/custom-json",
+        },
+        {
+          "authorization": "Bearer custom-token",
+          "contentType": "application/custom-json",
+        },
+      ]
+    `)
   })
 
   test('behavior: onFetchRequest', async () => {
