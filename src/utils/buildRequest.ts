@@ -310,6 +310,10 @@ export function shouldRetry(error: Error) {
     // reached - reduce calls per second or upgrade your account at
     // quicknode.com" }`.
     if (error.code === -32007) return true
+    // The node does not serve the method, so a retry gets the same refusal
+    // whatever the HTTP status (e.g. a 403 refusing an unserved method).
+    if (error.code === MethodNotFoundRpcError.code) return false
+    if (error.code === MethodNotSupportedRpcError.code) return false
     // A JSON-RPC error from a non-2xx response also retries by its HTTP status.
     if (!status) return false
   }

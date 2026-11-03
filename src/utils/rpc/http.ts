@@ -87,6 +87,12 @@ export type HttpRequestErrorType =
 
 const defaultMaxResponseBodySize = 10_485_760
 
+/**
+ * Rejection of a request that timed out. Replaced by a `TimeoutError`, which
+ * serializes the request body, only once a request actually times out.
+ */
+const timedOut = /*#__PURE__*/ new Error('timed out')
+
 export type HttpRpcClient = {
   request<body extends RpcRequest | RpcRequest[]>(
     params: HttpRequestParameters<body>,
@@ -151,8 +157,9 @@ export function getHttpRpcClient(
                 method: method || 'POST',
                 signal,
               }
-              const request = new Request(url, init)
-              const args = (await onRequest?.(request, init)) ?? {
+              // Only the hook needs a `Request`, which is costly to construct.
+              const args = (onRequest &&
+                (await onRequest(new Request(url, init), init))) ?? {
                 ...init,
                 url,
               }
@@ -171,7 +178,7 @@ export function getHttpRpcClient(
             }
           },
           {
-            errorInstance: new TimeoutError({ body, url }),
+            errorInstance: timedOut,
             timeout,
             signal: true,
           },
@@ -227,6 +234,7 @@ export function getHttpRpcClient(
         return body.map(() => error)
       } catch (err) {
         if (signal_?.aborted) throw getAbortError(signal_)
+        if (err === timedOut) throw new TimeoutError({ body, url })
         if (isAbortError(err)) throw err
         if (err instanceof HttpRequestError) throw err
         if (err instanceof ResponseBodyTooLargeError) throw err

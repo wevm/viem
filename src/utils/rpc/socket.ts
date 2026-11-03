@@ -94,6 +94,12 @@ export const socketClientCache = /*#__PURE__*/ new Map<
   SocketRpcClient<Socket<{}>>
 >()
 
+/**
+ * Rejection of a request that timed out. Replaced by a `TimeoutError`, which
+ * serializes the request body, only once a request actually times out.
+ */
+const timedOut = /*#__PURE__*/ new Error('timed out')
+
 export async function getSocketRpcClient<socket extends {}>(
   parameters: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
@@ -289,22 +295,29 @@ export async function getSocketRpcClient<socket extends {}>(
             onError?.(error as Error)
           }
         },
-        requestAsync({ body, timeout = 10_000 }) {
+        async requestAsync({ body, timeout = 10_000 }) {
           const id = body.id ?? idCache.take()
-          return withTimeout(
-            () =>
-              new Promise<RpcResponse>((onResponse, onError) =>
-                this.request({
-                  body: { ...body, id },
-                  onError,
-                  onResponse,
-                }),
-              ),
-            {
-              errorInstance: new TimeoutError({ body, url }),
-              timeout,
-            },
-          ).finally(() => requests.delete(id))
+          try {
+            return await withTimeout(
+              () =>
+                new Promise<RpcResponse>((onResponse, onError) =>
+                  this.request({
+                    body: { ...body, id },
+                    onError,
+                    onResponse,
+                  }),
+                ),
+              {
+                errorInstance: timedOut,
+                timeout,
+              },
+            )
+          } catch (error) {
+            if (error === timedOut) throw new TimeoutError({ body, url })
+            throw error
+          } finally {
+            requests.delete(id)
+          }
         },
         requests,
         subscriptions,

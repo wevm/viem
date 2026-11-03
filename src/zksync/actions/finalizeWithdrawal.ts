@@ -188,8 +188,11 @@ async function getFinalizeWithdrawalParams<
   parameters: { hash: Hex; index: number },
 ) {
   const { hash } = parameters
-  const { log, l1BatchTxId } = await getWithdrawalLog(client, parameters)
-  const { l2ToL1LogIndex } = await getWithdrawalL2ToL1Log(client, parameters)
+  // Both read the same receipt, which concurrent requests fetch once.
+  const [{ log, l1BatchTxId }, { l2ToL1LogIndex }] = await Promise.all([
+    getWithdrawalLog(client, parameters),
+    getWithdrawalL2ToL1Log(client, parameters),
+  ])
   const sender = slice(log.topics[1]!, 12) as Address
   const proof = await getLogProof(client, {
     txHash: hash,
