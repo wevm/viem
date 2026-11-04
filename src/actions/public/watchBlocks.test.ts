@@ -1,10 +1,12 @@
+import { Instance, Pool } from 'prool'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { createRpcProxy } from '~test/utils.js'
-import { localhost } from '../../chains/index.js'
+import { foundry, localhost } from '../../chains/index.js'
 import { type Client, createClient } from '../../clients/createClient.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
+import { createTestClient } from '../../clients/createTestClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
 import { webSocket } from '../../clients/transports/webSocket.js'
@@ -167,21 +169,24 @@ describe('poll', () => {
     })
 
     test('caps default catch-up without limiting explicit emitMissed', async () => {
+      // Mining 102 blocks on the shared fork can exceed a minute, so mine
+      // them on a fresh local node.
+      const pool = Pool.define({ instance: Instance.anvil({ noMining: true }) })
+      onTestFinished(() => pool.destroyAll())
+      const node = await pool.start(1)
       let mining = Promise.resolve()
-      const url = await createRpcProxy(anvilMainnet.rpcUrl.http, async () => {
+      const url = await createRpcProxy(node.url, async () => {
         await mining
         return undefined
       })
-      const miningClient = anvilMainnet.getClient({
-        transport: http(anvilMainnet.rpcUrl.http, {
-          retryCount: 0,
-          timeout: 60_000,
-        }),
+      const miningClient = createTestClient({
+        chain: foundry,
+        mode: 'anvil',
+        transport: http(node.url, { retryCount: 0 }),
       })
       const fastClient = createClient({
-        ...anvilMainnet.clientConfig,
-        chain: { ...anvilMainnet.chain, blockTime: 4_000 },
-        transport: http(url, { timeout: 60_000 }),
+        chain: { ...foundry, blockTime: 4_000 },
+        transport: http(url),
       })
       const defaultBlocks: OnBlockParameter[] = []
       const blocks: OnBlockParameter[] = []
