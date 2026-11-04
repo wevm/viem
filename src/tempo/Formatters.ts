@@ -176,7 +176,9 @@ export function formatTransactionRequest(
   rpc.data = undefined
   rpc.value = undefined
 
-  const signer = owner ?? account
+  // A call carries no key authorization, so the account's access key would fail
+  // node validation until registered. Calls run as the account unless a key is given.
+  const signer = action === 'call' ? undefined : (owner ?? account)
   const [keyType, keyData] = (() => {
     const type = signer && 'keyType' in signer ? signer.keyType : signer?.source
     if (!type) return [request.keyType, shimKeyData(request.keyData)]

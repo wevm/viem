@@ -218,6 +218,47 @@ describe('formatTransactionRequest', () => {
     expect(rpc.maxPriorityFeePerGas).toBeUndefined()
   })
 
+  test('behavior: call action omits the access key', () => {
+    const account = Account.fromP256(
+      '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28',
+      { access: accounts[0] },
+    )
+    const results = (['call', 'estimateGas', 'fillTransaction'] as const).map(
+      (action) => {
+        const { from, keyId, keyType } = Formatters.formatTransactionRequest(
+          {
+            account,
+            calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+          } as never,
+          action,
+        ) as { from?: string; keyId?: string; keyType?: string }
+        return { action, from, keyId, keyType }
+      },
+    )
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "action": "call",
+          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "keyId": undefined,
+          "keyType": undefined,
+        },
+        {
+          "action": "estimateGas",
+          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "keyId": "0xc3cf8b814b729a1ad648b49fbbded3767bcd35fd",
+          "keyType": "p256",
+        },
+        {
+          "action": "fillTransaction",
+          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "keyId": "0xc3cf8b814b729a1ad648b49fbbded3767bcd35fd",
+          "keyType": "p256",
+        },
+      ]
+    `)
+  })
+
   test('behavior: non-tempo fill requests keep relay capabilities', () => {
     const rpc = Formatters.formatTransactionRequest(
       {
