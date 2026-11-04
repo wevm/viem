@@ -240,8 +240,7 @@ onchain, or whose own witness has been burned, are not saved.
 Anyone can save authorizations for accounts they control. Public relays should
 rate-limit this method at the HTTP layer.
 
-Authorizations signed by an admin access key are rejected, because only the admin
-key can submit them.
+Authorizations must be signed by their account; others are rejected.
 
 ### `eth_fillTransaction`
 

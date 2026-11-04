@@ -162,41 +162,6 @@ test('behavior: does not attach to keys authorized onchain', async () => {
   expect(transaction.keyAuthorization).toBeUndefined()
 })
 
-test.runIf(Tempo.adminKeys)(
-  'behavior: does not save key authorizations signed by an admin key',
-  async () => {
-    const store = Store.memory()
-    const client = createClient({
-      chain: Tempo.chain,
-      transport: withRelay(Tempo.http(), {
-        plugins: [Relay.keyAuthorization({ store })],
-      }),
-    })
-    const adminKey = Account.fromP256(generatePrivateKey(), { access: root })
-    const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
-
-    await Actions.accessKey.authorizeSync(caller, {
-      account: root,
-      accessKey: adminKey,
-      admin: true,
-      feeToken,
-    })
-    await Actions.accessKey.signAuthorization(client, {
-      account: adminKey,
-      accessKey,
-      expiry: expiry(),
-    })
-
-    await expect(
-      fillTransaction(client, {
-        account: accessKey,
-        feeToken,
-        to: zeroAddress,
-      }),
-    ).rejects.toThrow('KeyNotFound')
-  },
-)
-
 test('behavior: keeps an explicit key authorization', async () => {
   const store = Store.memory()
   const client = createClient({
@@ -410,11 +375,10 @@ test('behavior: writes replace malformed values and keep unbounded authorization
     root.address.toLowerCase(),
     accessKey.accessKeyAddress.toLowerCase(),
   ].join(':')
-  const [admin, expiring] = await Promise.all([
+  const [unbounded, expiring] = await Promise.all([
     Actions.accessKey.signAuthorization(caller, {
       account: root,
       accessKey,
-      admin: true,
     }),
     Actions.accessKey.signAuthorization(caller, {
       account: root,
@@ -425,7 +389,7 @@ test('behavior: writes replace malformed values and keep unbounded authorization
   await store.setItem(key, '0xdeadbeef')
 
   const results = [
-    await write(store, { account: root.address, keyAuthorization: admin }),
+    await write(store, { account: root.address, keyAuthorization: unbounded }),
     await write(store, { account: root.address, keyAuthorization: expiring }),
   ]
 
@@ -435,7 +399,7 @@ test('behavior: writes replace malformed values and keep unbounded authorization
       false,
     ]
   `)
-  expect(await store.getItem(key)).toBe(KeyAuthorization.serialize(admin))
+  expect(await store.getItem(key)).toBe(KeyAuthorization.serialize(unbounded))
 })
 
 test('behavior: replaces a pending key authorization whose witness was burned', async () => {

@@ -382,34 +382,4 @@ describe('fromConfig (access key)', () => {
       }),
     ).toBe(false)
   })
-
-  test('error: admin authorization', async () => {
-    const teamConfig = {
-      owners: [accounts[2]],
-      salt: toHex(0x111108, { size: 32 }),
-    }
-    const team = Account.fromConfig(teamConfig)
-    const accessKey = Account.fromConfig(teamConfig, { access: accounts[1] })
-
-    await expect(
-      Actions.accessKey.signAuthorization(client, {
-        account: accounts[1],
-        accessKey,
-        admin: true,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Admin access keys cannot be authorized with configurable accounts.]`,
-    )
-    await expect(
-      Actions.accessKey.signAuthorization(client, {
-        account: team,
-        accessKey: Account.fromSecp256k1(generatePrivateKey(), {
-          access: team,
-        }),
-        admin: true,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Admin access keys cannot be authorized with configurable accounts.]`,
-    )
-  })
 })

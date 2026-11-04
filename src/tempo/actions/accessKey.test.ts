@@ -16,13 +16,7 @@ import {
   withRelay,
 } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import {
-  accounts,
-  adminKeys,
-  feeToken,
-  getClient,
-  http,
-} from '~test/tempo/config.js'
+import { accounts, feeToken, getClient, http } from '~test/tempo/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -195,6 +189,22 @@ describe('saveAuthorization', () => {
 })
 
 describe('signAuthorization', () => {
+  test('error: access key signer', async () => {
+    const signer = Account.fromP256(generatePrivateKey(), { access: account })
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    await expect(
+      actions.accessKey.signAuthorization(client, {
+        account: signer,
+        accessKey,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: An access key cannot sign key authorizations.]`,
+    )
+  })
+
   test('behavior: prepared authorization invokes signer synchronously', async () => {
     let invoked = false
     const sensitiveAccount = {
@@ -898,160 +908,11 @@ describe('watchWitnessBurned', () => {
   })
 })
 
-describe.runIf(adminKeys)('authorize (admin)', () => {
-  test('behavior: admin', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: account,
-    })
-
-    const { receipt } = await actions.accessKey.authorizeSync(client, {
-      accessKey,
-      admin: true,
-    })
-
-    expect(receipt.status).toBe('success')
-
-    const isAdmin = await actions.accessKey.isAdmin(client, {
-      account: account.address,
-      accessKey,
-    })
-    expect(isAdmin).toBe(true)
-  })
-})
-
-describe.runIf(adminKeys)('authorize (admin manages keys)', () => {
-  test('behavior: admin key authorizes another key', async () => {
-    // 1. Root authorizes an admin key.
-    const adminKey = Account.fromP256(generatePrivateKey(), {
-      access: account,
-    })
-    await actions.accessKey.authorizeSync(client, {
-      accessKey: adminKey,
-      admin: true,
-    })
-
-    // 2. The admin key authorizes a new (regular) key on behalf of the account.
-    const childKey = Account.fromP256(generatePrivateKey(), {
-      access: account,
-    })
-    const { receipt } = await actions.accessKey.authorizeSync(client, {
-      account: adminKey,
-      accessKey: childKey,
-      expiry: Math.floor((Date.now() + 30_000) / 1000),
-    })
-
-    expect(receipt.status).toBe('success')
-
-    // 3. Verify the child key is registered on the account.
-    const key = await actions.accessKey.getMetadata(client, {
-      account: account.address,
-      accessKey: childKey,
-    })
-    expect(key.isRevoked).toBe(false)
-    expect(key.address.toLowerCase()).toBe(
-      childKey.accessKeyAddress.toLowerCase(),
-    )
-  })
-})
-
-describe('signAuthorization (admin)', () => {
-  test('behavior: admin', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: account,
-    })
-
-    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
-      account,
-      accessKey,
-      admin: true,
-    })
-
-    expect(keyAuthorization.isAdmin).toBe(true)
-    // Admin authorizations are unrestricted.
-    expect(keyAuthorization.expiry ?? undefined).toBeUndefined()
-    expect(keyAuthorization.limits ?? undefined).toBeUndefined()
-    expect(keyAuthorization.scopes ?? undefined).toBeUndefined()
-  })
-})
-
-describe('isAdmin', () => {
-  test('default', async () => {
-    const accessKey = await setupAccessKey()
-
-    expect(
-      await actions.accessKey.isAdmin(client, {
-        account: account.address,
-        accessKey,
-      }),
-    ).toBe(false)
-  })
-
-  test('behavior: non-existent key', async () => {
-    expect(
-      await actions.accessKey.isAdmin(client, {
-        account: account.address,
-        accessKey: '0x0000000000000000000000000000000000000001',
-      }),
-    ).toBe(false)
-  })
-})
-
-describe('watchAdminAuthorized', () => {
-  test.runIf(adminKeys)('default', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: account,
-    })
-
-    const logs: any[] = []
-    const unwatch = actions.accessKey.watchAdminAuthorized(client, {
-      onAuthorized: (args, log) => {
-        logs.push({ args, log })
-      },
-    })
-
-    await actions.accessKey.authorizeSync(client, {
-      accessKey,
-      admin: true,
-    })
-
-    await setTimeout(500)
-    unwatch()
-
-    expect(logs.length).toBeGreaterThanOrEqual(1)
-    expect(
-      logs.some(
-        (l) =>
-          l.args.publicKey.toLowerCase() ===
-          accessKey.accessKeyAddress.toLowerCase(),
-      ),
-    ).toBe(true)
-  })
-})
-
 describe('verifyHash', () => {
   const hash =
     '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
 
-  test.runIf(adminKeys)('default', async () => {
-    const adminKey = Account.fromP256(generatePrivateKey(), {
-      access: account,
-    })
-    await actions.accessKey.authorizeSync(client, {
-      accessKey: adminKey,
-      admin: true,
-    })
-
-    const signature = await adminKey.sign({ hash })
-
-    const valid = await actions.accessKey.verifyHash(client, {
-      account: account.address,
-      hash,
-      signature,
-    })
-    expect(valid).toBe(true)
-  })
-
-  test('behavior: non-admin key returns false by default', async () => {
+  test('behavior: access key returns false by default', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
     })
@@ -1090,19 +951,20 @@ describe('verifyHash', () => {
     expect(valid).toBe(true)
   })
 
-  test.runIf(adminKeys)('behavior: account mismatch', async () => {
-    const adminKey = Account.fromP256(generatePrivateKey(), {
+  test('behavior: account mismatch', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
     })
     await actions.accessKey.authorizeSync(client, {
-      accessKey: adminKey,
-      admin: true,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
     })
 
-    const signature = await adminKey.sign({ hash })
+    const signature = await accessKey.sign({ hash })
 
     const valid = await actions.accessKey.verifyHash(client, {
       account: account2.address,
+      admin: false,
       hash,
       signature,
     })
@@ -1316,46 +1178,6 @@ describe('errors', () => {
 
     expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
   })
-
-  test.runIf(adminKeys)(
-    'behavior: errors about another key stay off the admin signer',
-    async () => {
-      const adminKey = Account.fromP256(generatePrivateKey(), {
-        access: account,
-      })
-      await actions.accessKey.authorizeSync(client, {
-        accessKey: adminKey,
-        admin: true,
-      })
-      const childKey = Account.fromP256(generatePrivateKey(), {
-        access: account,
-      })
-      const expiry = Math.floor((Date.now() + 30_000) / 1000)
-      await actions.accessKey.authorizeSync(client, {
-        account: adminKey,
-        accessKey: childKey,
-        expiry,
-      })
-
-      const exists = await actions.accessKey
-        .authorize(client, { account: adminKey, accessKey: childKey, expiry })
-        .catch((error) => error)
-      const missing = await actions.accessKey
-        .revokeSync(client, {
-          account: adminKey,
-          accessKey: Account.fromP256(generatePrivateKey(), {
-            access: account,
-          }),
-        })
-        .catch((error) => error)
-
-      expect(exists).toBeInstanceOf(
-        actions.accessKey.AccessKeyAlreadyExistsError,
-      )
-      expect(exists.accessKey).toBe(childKey.accessKeyAddress)
-      expect(missing.name).toBe('TempoExecutionError')
-    },
-  )
 
   test('behavior: action hints come first', async () => {
     const accessKey = await setupAccessKey()

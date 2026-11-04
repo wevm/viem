@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Deprecated the `admin` access key option, which T14 (TIP-1137) removes, and made it throw for configurable accounts.
+`viem/tempo`: Removed admin access keys, which T14 (TIP-1137) retires: the `admin` option on key authorizations, `accessKey.isAdmin`, and `accessKey.watchAdminAuthorized`, so access keys no longer sign key authorizations.

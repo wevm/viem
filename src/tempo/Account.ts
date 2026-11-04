@@ -63,14 +63,7 @@ export type RootAccount = Account_base<'root'> & {
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
       'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
-    > & {
-      /**
-       * Whether to authorize the key as an admin key (TIP-1049).
-       *
-       * @deprecated T14 (TIP-1137) removes admin access keys.
-       */
-      admin?: boolean | undefined
-    },
+    >,
   ) => Promise<KeyAuthorization.Signed>
 }
 
@@ -1125,31 +1118,23 @@ export function getKeyAuthorizationSignPayload(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Hex.Hex {
-  const { admin, chainId, expiry, key, limits, scopes, witness } = parameters
+  const { chainId, expiry, key, limits, scopes, witness } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
-  // Configurable accounts exist only from T14, which rejects admin grants (TIP-1137).
-  if (
-    admin &&
-    (type === 'configurable' ||
-      isConfigurableAccount(account) ||
-      (isAccessKeyAccount(account) && account.keyType === 'configurable'))
-  )
-    throw new Error(
-      'Admin access keys cannot be authorized with configurable accounts.',
-    )
-  const boundFields =
-    isAccessKeyAccount(account) || isConfigurableAccount(account)
-      ? { account: account.address }
-      : {}
-  const restrictions = admin ? {} : { expiry, limits, scopes }
+  if (isAccessKeyAccount(account))
+    throw new Error('An access key cannot sign key authorizations.')
+  // A configurable account binds its authorization to itself.
+  const boundFields = isConfigurableAccount(account)
+    ? { account: account.address }
+    : {}
   return KeyAuthorization.getSignPayload({
     address: accessKeyAddress,
     chainId,
+    expiry,
+    limits,
+    scopes,
     type,
     witness,
-    ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
-    ...restrictions,
   } as never)
 }
 
@@ -1158,7 +1143,6 @@ export async function signKeyAuthorization(
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
   const {
-    admin,
     chainId,
     expiry,
     key,
@@ -1170,22 +1154,11 @@ export async function signKeyAuthorization(
   } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
-  // When the signer is an admin access key, the authorization must be
-  // signed directly by that key and bound to the parent account it acts
-  // on behalf of, so the signed payload cannot be replayed against another
-  // account. [TIP-1049]
-  const isAccessKey = isAccessKeyAccount(account)
   const isConfigurable = isConfigurableAccount(account)
-  const boundFields =
-    isAccessKey || isConfigurable ? { account: account.address } : {}
-
-  // Admin key authorizations are unrestricted and must not carry expiry,
-  // limits, or call scopes (the protocol rejects them). [TIP-1049]
-  const restrictions = admin ? {} : { expiry, limits, scopes }
+  const boundFields = isConfigurable ? { account: account.address } : {}
 
   const hash = getKeyAuthorizationSignPayload(account, parameters)
   const signature = await (async () => {
-    if (isAccessKey) return account.sign({ hash, raw: true })
     if (isConfigurable) {
       if (!configurableState)
         throw new Error(
@@ -1204,12 +1177,13 @@ export async function signKeyAuthorization(
   return KeyAuthorization.from({
     address: accessKeyAddress,
     chainId,
+    expiry,
+    limits,
+    scopes,
     signature: SignatureEnvelope.from(signature),
     type,
     ...(witness ? { witness } : {}),
-    ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
-    ...restrictions,
   } as never)
 }
 
@@ -1218,17 +1192,6 @@ export declare namespace signKeyAuthorization {
     KeyAuthorization.KeyAuthorization,
     'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
-    /**
-     * Whether to authorize the key as an admin key. Admin keys are
-     * unrestricted and can manage the account's other access keys; `expiry`,
-     * `limits`, and `scopes` are ignored. Requires the T6 hardfork. From T14 (TIP-1137) the
-     * chain rejects admin grants, and configurable accounts cannot use them.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     *
-     * @deprecated T14 (TIP-1137) removes admin access keys.
-     */
-    admin?: boolean | undefined
     key: resolveAccessKey.Parameters
     /** @internal Current state used when a configurable account signs the authorization. */
     configurable?:
@@ -1394,38 +1357,29 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters) {
-      const { chainId, expiry, limits, scopes, witness, admin } = parameters
+      const { chainId, expiry, limits, scopes, witness } = parameters
       const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
-      // Configurable accounts exist only from T14, which rejects admin grants (TIP-1137).
-      if (admin && type === 'configurable')
-        throw new Error(
-          'Admin access keys cannot be authorized with configurable accounts.',
-        )
-
-      // Admin key authorizations are unrestricted and must not carry expiry,
-      // limits, or call scopes (the protocol rejects them). [TIP-1049]
-      const restrictions = admin ? {} : { expiry, limits, scopes }
-
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
           address: accessKeyAddress,
           chainId,
+          expiry,
+          limits,
+          scopes,
           type,
           witness,
-          ...(admin ? { isAdmin: true } : {}),
-          ...restrictions,
         } as never),
       })
-      const keyAuthorization = KeyAuthorization.from({
+      return KeyAuthorization.from({
         address: accessKeyAddress,
         chainId,
+        expiry,
+        limits,
+        scopes,
         signature: SignatureEnvelope.from(signature),
         type,
         ...(witness ? { witness } : {}),
-        ...(admin ? { isAdmin: true } : {}),
-        ...restrictions,
       } as never)
-      return keyAuthorization
     },
   }
 }

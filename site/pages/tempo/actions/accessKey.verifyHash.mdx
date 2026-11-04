@@ -8,11 +8,11 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 Verifies that a keychain signature was produced by an active access key for the expected account.
 
-By default (`admin: true`), returns `true` only if the signature was produced by the account's root key or an active admin access key. Set `admin: false` to accept any active access key.
+By default (`admin: true`), returns `true` only if the signature was produced by the account's root key. Set `admin: false` to accept any active access key.
 
 Returns `false` for account mismatches, unknown, revoked, or expired access keys.
 
-From T14 ([TIP-1137](https://tips.sh/1137)), stored admin keys no longer pass `admin: true`, and the key of an account with a config commitment (a configurable or upgraded account) passes neither mode. An inner signature type other than the stored key type returns `false`. Configurable access keys ([TIP-1111](https://tips.sh/1111)) revert as an invalid format; verify them with [`verifyHash`](/docs/actions/public/verifyHash) and `mode: 'allowAccessKey'` instead.
+The key of an account with a config commitment (a configurable or upgraded account) passes neither mode. An inner signature type other than the stored key type returns `false`. Configurable access keys ([TIP-1111](https://tips.sh/1111)) revert as an invalid format; verify them with [`verifyHash`](/docs/actions/public/verifyHash) and `mode: 'allowAccessKey'` instead.
 
 [TIP-1049](https://tips.sh/1049)
 
@@ -60,7 +60,7 @@ Account address the signature is expected to belong to.
 - **Type:** `boolean`
 - **Default:** `true`
 
-Whether to require the signer to be the account's root key or an active admin access key. Set to `false` to accept any active access key. From T14, only the root key of an account without a config commitment passes `true`.
+Whether to require the signer to be the account's root key, which an account with a config commitment does not have. Set to `false` to accept any active access key.
 
 ### hash
 

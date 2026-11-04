@@ -231,27 +231,20 @@ export const chainConfig = {
         (client.transport as { accounts?: boolean }).accounts === true
       if (configurableIdentity) {
         const { account, local } = configurableIdentity
-        if (!account)
+        if (!configurableIdentity.config && !coordinated)
           throw new Error(
-            'A configurable account address is required with a current config.',
+            'An account config is required to prepare a transaction.',
           )
-        const config = await (async () => {
-          if (configurableIdentity.config) return configurableIdentity.config
-          if (!coordinated) return undefined
-          const cachedConfig = await getAction(
+        const config =
+          configurableIdentity.config ??
+          (await getAction(
             client,
             getConfig,
             'getConfig',
-          )({ address: account })
-          if (!cachedConfig)
-            throw new Error(
-              `No current account config is cached for account ${account}. Provide the current config.`,
-            )
-          return cachedConfig
-        })()
+          )({ address: account }))
         if (!config)
           throw new Error(
-            'An account config is required to prepare a transaction.',
+            `No current account config is cached for account ${account}. Provide the current config.`,
           )
         request.from = account
         request.accountSimulation = getAccountSimulation({
@@ -260,16 +253,15 @@ export const chainConfig = {
         })
       }
       if (delegate) {
-        const config = await (async () => {
-          if (delegate.config) return delegate.config
-          if ((client.transport as { accounts?: boolean }).accounts !== true)
-            return undefined
-          return await getAction(
-            client,
-            getConfig,
-            'getConfig',
-          )({ address: delegate.address })
-        })()
+        const config =
+          delegate.config ??
+          ((client.transport as { accounts?: boolean }).accounts === true
+            ? await getAction(
+                client,
+                getConfig,
+                'getConfig',
+              )({ address: delegate.address })
+            : undefined)
         if (!config)
           throw new Error(
             'An account config is required to prepare a transaction.',
@@ -281,32 +273,13 @@ export const chainConfig = {
         }
       }
 
-      // Register concurrency before account preparation performs storage or
-      // network I/O so overlapping requests cannot miss each other.
-      const useExpiringNonce = await (async () => {
-        if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
-          return true
-        if (typeof request.nonceKey !== 'undefined') return false
-        if (configurableIdentity) return false
-        if (request.feePayer && typeof request.nonceKey === 'undefined')
-          return true
-        const account = request.account as
-          | Account
-          | ConfigurableAccount
-          | Address
-          | undefined
-        const address = typeof account === 'string' ? account : account?.address
-        if (address && typeof request.nonceKey === 'undefined')
-          return await Concurrent.detect(address.toLowerCase())
-        return false
-      })()
-
+      // Detect concurrency before further I/O so overlapping requests register in the same tick.
       if (coordinated && typeof request.nonceKey === 'undefined') {
         // A random nonce lane lets a stored approval ceremony remain valid
         // indefinitely without blocking other pending operations.
         request.nonceKey = Hex.toBigInt(Hex.random(31)) + 1n
         request.nonce = 0
-      } else if (useExpiringNonce) {
+      } else if (await useExpiringNonce(request, !!configurableIdentity)) {
         request.nonceKey = maxUint256
         // A random discriminator keeps otherwise identical expiring transactions distinct.
         // 48 bits stay within `Number.MAX_SAFE_INTEGER`.
@@ -562,6 +535,27 @@ export const chainConfig = {
 } as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
+
+/**
+ * Returns whether a request uses an expiring nonce: when asked for, when sponsored,
+ * or when another request for the same sender is in flight.
+ */
+async function useExpiringNonce(
+  request: {
+    account?: Account | ConfigurableAccount | Address | undefined
+    feePayer?: unknown
+    nonceKey?: bigint | number | 'expiring' | undefined
+  },
+  configurable: boolean,
+) {
+  const { account, feePayer, nonceKey } = request
+  if (nonceKey === 'expiring' || nonceKey === maxUint256) return true
+  if (typeof nonceKey !== 'undefined' || configurable) return false
+  if (feePayer) return true
+  const address = typeof account === 'string' ? account : account?.address
+  if (!address) return false
+  return await Concurrent.detect(address.toLowerCase())
+}
 
 /** Builds a bounded account spec for gas simulation. */
 function getAccountSimulation(options: {

@@ -273,7 +273,7 @@ export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
     'SpendingLimitExceeded()': [
       'Raise the spending limit, or wait for a periodic limit to reset.',
     ],
-    'UnauthorizedCaller()': ['Sign with the root key or an admin access key.'],
+    'UnauthorizedCaller()': ['Sign with the root key.'],
     'AmountExceedsDeposit()': [
       'Top up the channel, or use a voucher for a smaller amount.',
     ],

@@ -2340,10 +2340,6 @@ export default defineConfig({
                   link: '/tempo/guides/access-keys/manage',
                 },
                 {
-                  text: 'Admin Access Keys',
-                  link: '/tempo/guides/access-keys/admin',
-                },
-                {
                   text: 'Witnesses',
                   link: '/tempo/guides/access-keys/witnesses',
                 },
@@ -2649,10 +2645,6 @@ export default defineConfig({
                   link: '/tempo/actions/accessKey.getRemainingLimit',
                 },
                 {
-                  text: 'isAdmin',
-                  link: '/tempo/actions/accessKey.isAdmin',
-                },
-                {
                   text: 'isWitnessBurned',
                   link: '/tempo/actions/accessKey.isWitnessBurned',
                 },
@@ -2675,10 +2667,6 @@ export default defineConfig({
                 {
                   text: 'verifyHash',
                   link: '/tempo/actions/accessKey.verifyHash',
-                },
-                {
-                  text: 'watchAdminAuthorized',
-                  link: '/tempo/actions/accessKey.watchAdminAuthorized',
                 },
                 {
                   text: 'watchWitness',
