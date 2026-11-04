@@ -23,6 +23,10 @@ const selectorDefinitions = {
     abi: Abis.configurableAccount,
     selectors: Selectors.configurableAccount,
   },
+  configurableAccountShim: {
+    abi: Abis.configurableAccountShim,
+    selectors: Selectors.configurableAccountShim,
+  },
   currentCommittee: {
     abi: Abis.currentCommittee,
     selectors: Selectors.currentCommittee,
