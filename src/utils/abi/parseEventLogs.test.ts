@@ -838,7 +838,32 @@ describe('args: args', () => {
     })
 
     expect(mismatched).toMatchInlineSnapshot(`[]`)
-    expect(matchedBigInt).toHaveLength(1)
+    expect(matchedBigInt).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "from": "0x0000000000000000000000000000000000000001",
+            "to": "0x0000000000000000000000000000000000000002",
+            "tokenId": 1n,
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x",
+          "eventName": "Transfer",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "0x0000000000000000000000000000000000000000000000000000000000000002",
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
     expect(matchedNumber).toMatchInlineSnapshot(`
       [
         {
@@ -899,7 +924,27 @@ describe('args: args', () => {
     })
 
     expect(mismatched).toMatchInlineSnapshot(`[]`)
-    expect(matchedBigInt).toHaveLength(1)
+    expect(matchedBigInt).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "value": 42n,
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+          "eventName": "Value",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x2a27502c345a4cd966daa061d5537f54cd60d2d20b73680b3bf195c91e806a4b",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
     expect(matchedNumber).toMatchInlineSnapshot(`
       [
         {
