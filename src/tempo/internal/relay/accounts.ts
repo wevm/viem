@@ -247,7 +247,17 @@ async function submit(options: submit.Options) {
       return undefined
     }
   })()
-  const signature = transaction?.signature
+  // A configurable access key (TIP-1111) wraps its owner quorum in a keychain V2 envelope.
+  const { signature, userAddress } = (() => {
+    const signature = transaction?.signature
+    if (
+      signature?.type === 'keychain' &&
+      signature.version === 'v2' &&
+      signature.inner.type === 'configurable'
+    )
+      return { signature: signature.inner, userAddress: signature.userAddress }
+    return { signature, userAddress: undefined }
+  })()
   if (!transaction || signature?.type !== 'configurable') {
     if (
       options.method === 'eth_sendRawTransaction' ||
@@ -286,6 +296,7 @@ async function submit(options: submit.Options) {
     config,
     transaction: serializedUnsigned,
     type: 'transaction',
+    userAddress,
   })
   const incoming = signature.signatures.map((signature) =>
     SignatureEnvelope.serialize(signature),
@@ -336,6 +347,7 @@ async function submit(options: submit.Options) {
         ),
         type: 'transaction',
         updatedAt: now,
+        ...(userAddress ? { userAddress } : {}),
         weight: approvals.weight,
       })
     },
@@ -356,12 +368,14 @@ async function submit(options: submit.Options) {
     commitment: configCommitment,
     config,
   })
-  await cacheNextConfigs({
-    account: signature.account,
-    config,
-    store: options.store,
-    transaction,
-  })
+  // Calls of an access key transaction run as the parent, not the configurable account.
+  if (!userAddress)
+    await cacheNextConfigs({
+      account: signature.account,
+      config,
+      store: options.store,
+      transaction,
+    })
 
   if (operation.type !== 'transaction')
     throw new OperationStore.InvalidStoreValueError()
@@ -1042,7 +1056,7 @@ function pendingResult(
     contractAddress: null,
     cumulativeGasUsed: null,
     effectiveGasPrice: null,
-    from: operation.account,
+    from: operation.userAddress ?? operation.account,
     gasUsed: null,
     logs: [],
     logsBloom: null,
@@ -1193,7 +1207,7 @@ async function toTransaction(
         ...transaction,
         blockHash: null,
         blockNumber: null,
-        from: operation.account,
+        from: operation.userAddress ?? operation.account,
         hash: operation.hash,
         transactionIndex: null,
       } as never,

@@ -98,11 +98,18 @@ export const chainConfig = {
       }
 
       if (request.hash) {
-        if (
-          !request.account ||
-          typeof request.account === 'string' ||
-          request.account.source !== 'configurable'
-        )
+        // A configurable access key (TIP-1111) approves as its delegate, for its parent.
+        const local = (() => {
+          const account = request.account
+          if (!account || typeof account === 'string') return undefined
+          if (account.source === 'configurable')
+            return account as ConfigurableAccount
+          if (account.source === 'accessKey')
+            return (account as { delegate?: ConfigurableAccount | undefined })
+              .delegate
+          return undefined
+        })()
+        if (!request.account || typeof request.account === 'string' || !local)
           throw new Error(
             'A local configurable account is required to approve a stored configurable account transaction.',
           )
@@ -127,7 +134,14 @@ export const chainConfig = {
             : undefined
         if (!operation)
           throw new Error('Expected an account operation transaction.')
-        if (!isAddressEqual(operation.account, request.account.address))
+        const parent = local === request.account ? undefined : request.account
+        if (
+          !isAddressEqual(operation.account, local.address) ||
+          (parent
+            ? !operation.userAddress ||
+              !isAddressEqual(operation.userAddress, parent.address)
+            : !!operation.userAddress)
+        )
           throw new Error(
             'Account operation account does not match the requested account.',
           )
@@ -139,6 +153,7 @@ export const chainConfig = {
           config: operation.config,
           transaction: operation.transaction,
           type: 'transaction',
+          userAddress: operation.userAddress,
         })
         if (hash.toLowerCase() !== request.hash.toLowerCase())
           throw new Error('Account operation hash does not match transaction.')
@@ -149,11 +164,11 @@ export const chainConfig = {
           maxFeePerGas: storedTransaction.maxFeePerGas ?? 0n,
           maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
           account: request.account,
-          from: operation.account,
-          accountSimulation: getAccountSimulation({
-            config: operation.config,
-            local: request.account,
-          }),
+          from: operation.userAddress ?? operation.account,
+          accountSimulation: {
+            ...getAccountSimulation({ config: operation.config, local }),
+            ...(parent ? { signer: local.address } : {}),
+          },
           owner: request.owner,
         } as unknown as typeof r
       }
@@ -211,7 +226,7 @@ export const chainConfig = {
           'A Tempo owner account is required to approve a configurable account transaction.',
         )
       const coordinated =
-        !!configurableIdentity &&
+        (!!configurableIdentity || !!delegate) &&
         !!request.owner &&
         (client.transport as { accounts?: boolean }).accounts === true
       if (configurableIdentity) {
