@@ -201,8 +201,8 @@ const keyAuthorization = await client.accessKey.signAuthorization({
 
 ### Use a Configurable Account as an Access Key
 
-Wrap a configurable account with `Account.fromConfigurable` to make it the access key of a parent
-account. The parent authorizes the configurable account's address with key type `configurable`,
+Pass `access` to [`Account.fromConfig`](/tempo/accounts/account.fromConfig) to make a configurable
+account the access key of a parent account. The parent authorizes the configurable account's address with key type `configurable`,
 and the configurable account's owners then sign as the parent.
 
 :::code-group
@@ -221,10 +221,11 @@ const owner_1 = Account.fromSecp256k1(
 const owner_2 = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
-const team = Account.fromConfig({ owners: [owner_1, owner_2], threshold: 2 })
-
-// 2. Wrap the configurable account as an access key of the parent.
-const accessKey = Account.fromConfigurable(team, { access: treasury }) // [!code focus]
+// 2. Create the configurable account as an access key of the parent.
+const accessKey = Account.fromConfig( // [!code focus]
+  { owners: [owner_1, owner_2], threshold: 2 }, // [!code focus]
+  { access: treasury }, // [!code focus]
+) // [!code focus]
 
 // 3. Authorize it from the parent account.
 await client.accessKey.authorizeSync({
@@ -251,7 +252,7 @@ const { receipt } = await client.token.transferSync({
 :::
 
 The access key signs a keychain signature that wraps the team's owner approvals. Pass
-`keyAuthorization` to `Account.fromConfigurable` to submit a signed authorization with the first
+`keyAuthorization` alongside `access` to submit a signed authorization with the first
 transaction instead. Configurable accounts cannot be admin keys, and requests with `admin: true`
 throw. Requires the T14 hardfork.
 

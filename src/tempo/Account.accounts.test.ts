@@ -17,15 +17,17 @@ const client = tempo.getClient()
 const { accounts, feeToken } = tempo
 const to = '0x0000000000000000000000000000000000000001'
 
-describe('fromConfigurable', () => {
+describe('fromConfig (access key)', () => {
   test('default', async () => {
     const parent = accounts[0]
-    const team = Account.fromConfig({
-      owners: [accounts[2], accounts[3]],
-      salt: toHex(0x111101, { size: 32 }),
-      threshold: 2,
-    })
-    const accessKey = Account.fromConfigurable(team, { access: parent })
+    const accessKey = Account.fromConfig(
+      {
+        owners: [accounts[2], accounts[3]],
+        salt: toHex(0x111101, { size: 32 }),
+        threshold: 2,
+      },
+      { access: parent },
+    )
 
     await Actions.accessKey.authorizeSync(client, {
       account: parent,
@@ -79,12 +81,13 @@ describe('fromConfigurable', () => {
 
   test('behavior: same-transaction authorization', async () => {
     const parent = accounts[0]
-    const team = Account.fromConfig({
+    const teamConfig = {
       owners: [accounts[5], accounts[6]],
       salt: toHex(0x111102, { size: 32 }),
       threshold: 1,
-    })
-    const accessKey = Account.fromConfigurable(team, { access: parent })
+    }
+    const team = Account.fromConfig(teamConfig)
+    const accessKey = Account.fromConfig(teamConfig, { access: parent })
 
     const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
       account: parent,
@@ -118,15 +121,16 @@ describe('fromConfigurable', () => {
 
   test('behavior: attaches its key authorization until the chain registers it', async () => {
     const parent = accounts[0]
-    const team = Account.fromConfig({
+    const teamConfig = {
       owners: [accounts[8]],
       salt: toHex(0x111103, { size: 32 }),
-    })
+    }
+    const team = Account.fromConfig(teamConfig)
     const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
       account: parent,
       accessKey: { address: team.address, type: 'configurable' },
     })
-    const accessKey = Account.fromConfigurable(team, {
+    const accessKey = Account.fromConfig(teamConfig, {
       access: parent,
       keyAuthorization,
     })
@@ -153,12 +157,14 @@ describe('fromConfigurable', () => {
   test('behavior: external owner approvals', async () => {
     const parent = accounts[0]
     const owner_external = accounts[11]
-    const team = Account.fromConfig({
-      owners: [accounts[10], owner_external.address],
-      salt: toHex(0x111104, { size: 32 }),
-      threshold: 2,
-    })
-    const accessKey = Account.fromConfigurable(team, { access: parent })
+    const accessKey = Account.fromConfig(
+      {
+        owners: [accounts[10], owner_external.address],
+        salt: toHex(0x111104, { size: 32 }),
+        threshold: 2,
+      },
+      { access: parent },
+    )
     await Actions.accessKey.authorizeSync(client, {
       account: parent,
       accessKey,
@@ -187,12 +193,14 @@ describe('fromConfigurable', () => {
     const parent = accounts[0]
     const owner_1 = accounts[13]
     const owner_2 = accounts[14]
-    const team = Account.fromConfig({
-      owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x111105, { size: 32 }),
-      threshold: 2,
-    })
-    const accessKey = Account.fromConfigurable(team, { access: parent })
+    const accessKey = Account.fromConfig(
+      {
+        owners: [owner_1.address, owner_2.address],
+        salt: toHex(0x111105, { size: 32 }),
+        threshold: 2,
+      },
+      { access: parent },
+    )
     await Actions.accessKey.authorizeSync(client, {
       account: parent,
       accessKey,
@@ -220,12 +228,14 @@ describe('fromConfigurable', () => {
 
   test('behavior: verifyHash', async () => {
     const parent = accounts[0]
-    const team = Account.fromConfig({
-      owners: [accounts[16], accounts[17]],
-      salt: toHex(0x111106, { size: 32 }),
-      threshold: 2,
-    })
-    const accessKey = Account.fromConfigurable(team, { access: parent })
+    const accessKey = Account.fromConfig(
+      {
+        owners: [accounts[16], accounts[17]],
+        salt: toHex(0x111106, { size: 32 }),
+        threshold: 2,
+      },
+      { access: parent },
+    )
     await Actions.accessKey.authorizeSync(client, {
       account: parent,
       accessKey,
@@ -256,11 +266,13 @@ describe('fromConfigurable', () => {
 
   test('behavior: verifyHash rejects an unauthorized configurable access key', async () => {
     const parent = accounts[0]
-    const team = Account.fromConfig({
-      owners: [accounts[19]],
-      salt: toHex(0x111107, { size: 32 }),
-    })
-    const accessKey = Account.fromConfigurable(team, { access: parent })
+    const accessKey = Account.fromConfig(
+      {
+        owners: [accounts[19]],
+        salt: toHex(0x111107, { size: 32 }),
+      },
+      { access: parent },
+    )
 
     const hash = hashMessage('hello')
     expect(
@@ -275,16 +287,17 @@ describe('fromConfigurable', () => {
 
   test('behavior: verifyHash rejects a grant of another key type', async () => {
     const parent = accounts[0]
-    const team = Account.fromConfig({
+    const teamConfig = {
       owners: [accounts[20]],
       salt: toHex(0x111109, { size: 32 }),
-    })
+    }
+    const team = Account.fromConfig(teamConfig)
     await Actions.accessKey.authorizeSync(client, {
       account: parent,
       accessKey: { address: team.address, type: 'secp256k1' },
       feeToken,
     })
-    const accessKey = Account.fromConfigurable(team, { access: parent })
+    const accessKey = Account.fromConfig(teamConfig, { access: parent })
 
     const hash = hashMessage('hello')
     expect(
@@ -319,11 +332,6 @@ describe('fromConfigurable', () => {
       owners: [{ owner: owner.address, weight: 1 }],
       threshold: 1,
     })
-    const delegate = Account.fromConfig({
-      address: root.address,
-      upgrade: { owners: [owner], threshold: 1 },
-    })
-
     const hash = hashMessage('hello')
     const verify = async (account: Account.AccessKeyAccount) =>
       verifyHash(client, {
@@ -335,7 +343,13 @@ describe('fromConfigurable', () => {
 
     expect({
       delegate: await verify(
-        Account.fromConfigurable(delegate, { access: parent }),
+        Account.fromConfig(
+          {
+            address: root.address,
+            upgrade: { owners: [owner], threshold: 1 },
+          },
+          { access: parent },
+        ),
       ),
       retiredRoot: await verify(
         Account.fromSecp256k1(privateKey, { access: parent }),
@@ -370,11 +384,12 @@ describe('fromConfigurable', () => {
   })
 
   test('error: admin authorization', async () => {
-    const team = Account.fromConfig({
+    const teamConfig = {
       owners: [accounts[2]],
       salt: toHex(0x111108, { size: 32 }),
-    })
-    const accessKey = Account.fromConfigurable(team, { access: accounts[1] })
+    }
+    const team = Account.fromConfig(teamConfig)
+    const accessKey = Account.fromConfig(teamConfig, { access: accounts[1] })
 
     await expect(
       Actions.accessKey.signAuthorization(client, {

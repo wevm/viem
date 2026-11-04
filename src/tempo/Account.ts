@@ -414,8 +414,11 @@ export declare namespace fromSecp256k1 {
  * `ConfigurableAccountConfigUpdated` events (registration emits version `0`),
  * starting from `AccountUpgraded` for an upgraded account.
  *
- * Pass the account to {@link fromConfigurable} to sign as an access key of
- * another account (TIP-1111).
+ * Pass `access` to sign as an access key of another account (TIP-1111). The
+ * parent authorizes the account's address with key type `configurable`, and the
+ * returned access key account signs as the parent: a keychain envelope wraps
+ * the owner quorum over `keccak256(0x04 || hash || parent)`. Requires the T14
+ * hardfork.
  *
  * @example
  * ```ts
@@ -433,23 +436,50 @@ export declare namespace fromSecp256k1 {
  * const transaction = await client.signTransaction(request)
  * ```
  *
+ * @example
+ * ### Access Key
+ *
+ * ```ts
+ * import { Account, Actions } from 'viem/tempo'
+ *
+ * const accessKey = Account.fromConfig(
+ *   { owners: [owner_1, owner_2], threshold: 2 },
+ *   { access: treasury },
+ * )
+ *
+ * await Actions.accessKey.authorizeSync(client, { account: treasury, accessKey })
+ *
+ * await client.sendTransaction({ account: accessKey, calls })
+ * ```
+ *
  * @param value Initial config, current config, upgrade config, or account address.
- * @returns Configurable account.
+ * @param options Options.
+ * @returns Configurable account, or an access key account when `access` is set.
  */
-export function fromConfig(
+export function fromConfig<const options extends fromConfig.Options = {}>(
   value: fromConfig.InitialConfig,
-): ConfigurableAccount<AccountConfig.Config>
-export function fromConfig(
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options, AccountConfig.Config>
+export function fromConfig<const options extends fromConfig.Options = {}>(
   value: fromConfig.CurrentConfig,
-): ConfigurableAccount<AccountConfig.Config>
-export function fromConfig(
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options, AccountConfig.Config>
+export function fromConfig<const options extends fromConfig.Options = {}>(
   value: fromConfig.UpgradeConfig,
-): ConfigurableAccount<AccountConfig.Config>
-export function fromConfig(
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options, AccountConfig.Config>
+export function fromConfig<const options extends fromConfig.Options = {}>(
   address: Address.Address,
-): ConfigurableAccount<undefined>
-export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount
-export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options, undefined>
+export function fromConfig<const options extends fromConfig.Options = {}>(
+  value: fromConfig.Parameters,
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options>
+export function fromConfig(
+  value: fromConfig.Parameters,
+  options: fromConfig.Options = {},
+): ConfigurableAccount | AccessKeyAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
     if ('upgrade' in value) return value.upgrade
@@ -581,6 +611,8 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
       return await account.sign({ hash: hashTypedData(typedData) })
     },
   }
+  if (options.access)
+    return toAccessKey(account, { ...options, access: options.access })
   return account
 }
 
@@ -616,6 +648,20 @@ export declare namespace fromConfig {
     version?: 0 | 0n | undefined
   }
 
+  /** Options for {@link fromConfig}. */
+  export type Options = {
+    /** Parent account whose access key the configurable account is (TIP-1111). */
+    access?: viem_Account | Address.Address | undefined
+    /**
+     * Signed key authorization of the configurable account, which the access key
+     * attaches to its transactions until the chain registers it. Requires
+     * `access`, and is ignored when `keyAuthorizationManager` is set.
+     */
+    keyAuthorization?: KeyAuthorization.Signed | undefined
+    /** Pending key authorization manager. Requires `access`. */
+    keyAuthorizationManager?: KeyAuthorizationManager | undefined
+  }
+
   /** Configurable account owner account or address, optionally with an explicit weight. */
   export type Owner =
     | Address.Address
@@ -632,6 +678,16 @@ export declare namespace fromConfig {
     | CurrentConfig
     | InitialConfig
     | UpgradeConfig
+
+  /** Access key account when `access` is set, otherwise a configurable account. */
+  export type ReturnValue<
+    options extends Options = Options,
+    config extends AccountConfig.Config | undefined =
+      | AccountConfig.Config
+      | undefined,
+  > = options extends { access: viem_Account | Address.Address }
+    ? AccessKeyAccount
+    : ConfigurableAccount<config>
 
   /** Account upgraded in place and the owners and threshold it installed. */
   export type UpgradeConfig = {
@@ -666,40 +722,12 @@ export type ConfigurableAccount<
   owners: readonly LocalAccount[]
 }
 
-/**
- * Instantiates an access key account for a configurable account (TIP-1111)
- * that acts as an access key of a parent account.
- *
- * The parent authorizes the configurable account with key type `configurable`,
- * and its address as the key ID. The returned account then signs as the parent:
- * a keychain envelope wraps the configurable account's owner quorum over
- * `keccak256(0x04 || hash || parent)`, and the parent's owners do not sign.
- *
- * Local owners of the configurable account approve up to its threshold.
- * Transactions also accept external owner approvals through `signatures`, or an
- * `owner` that returns its own approval, as a configurable account does.
- * Requires the T14 hardfork.
- *
- * @example
- * ```ts
- * import { Account, Actions } from 'viem/tempo'
- *
- * const team = Account.fromConfig({ owners: [owner_1, owner_2], threshold: 2 })
- * const accessKey = Account.fromConfigurable(team, { access: treasury })
- *
- * await Actions.accessKey.authorizeSync(client, { account: treasury, accessKey })
- *
- * await client.sendTransaction({ account: accessKey, calls })
- * ```
- *
- * @param account Configurable account that acts as the access key.
- * @param options Options.
- * @returns Access key account.
- */
-export function fromConfigurable(
+/** Wraps a configurable account as an access key of a parent account (TIP-1111). */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+function toAccessKey(
   account: ConfigurableAccount,
-  options: fromConfigurable.Options,
-): fromConfigurable.ReturnValue {
+  options: toAccessKey.Options,
+): AccessKeyAccount {
   const { access, keyAuthorization } = options
   const { address: parentAddress } = parseAccount(access)
   const accessKeyAddress = account.address
@@ -808,21 +836,10 @@ export function fromConfigurable(
   }
 }
 
-export declare namespace fromConfigurable {
-  export type Options = {
-    /** Parent account whose access key the configurable account is. */
+declare namespace toAccessKey {
+  type Options = fromConfig.Options & {
     access: viem_Account | Address.Address
-    /**
-     * Signed key authorization of the configurable account, which the account
-     * attaches to its transactions until the chain registers the access key.
-     * Ignored when `keyAuthorizationManager` is set.
-     */
-    keyAuthorization?: KeyAuthorization.Signed | undefined
-    /** Pending key authorization manager. */
-    keyAuthorizationManager?: KeyAuthorizationManager | undefined
   }
-
-  export type ReturnValue = AccessKeyAccount
 }
 
 function isConfigurableAccount(

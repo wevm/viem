@@ -295,18 +295,20 @@ const { receipt } = await client.accessKey.authorizeSync({ // [!code focus]
 
 ### Authorize a Configurable Account
 
-A [configurable account](/tempo/guides/configurable-accounts) can act as an access key of another account ([TIP-1111](https://tips.sh/1111)). Wrap it with `Account.fromConfigurable` and authorize it like any other key. Its owner quorum then signs as the parent account. Requires the T14 hardfork.
+A [configurable account](/tempo/guides/configurable-accounts) can act as an access key of another account ([TIP-1111](https://tips.sh/1111)). Create it with `access` on [`Account.fromConfig`](/tempo/accounts/account.fromConfig) and authorize it like any other key. Its owner quorum then signs as the parent account. Requires the T14 hardfork.
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
 const account = Account.fromSecp256k1('0x...')
-const team = Account.fromConfig({
-  owners: [Account.fromSecp256k1('0x...'), Account.fromSecp256k1('0x...')],
-  threshold: 2,
-})
-const accessKey = Account.fromConfigurable(team, { access: account }) // [!code focus]
+const accessKey = Account.fromConfig(
+  {
+    owners: [Account.fromSecp256k1('0x...'), Account.fromSecp256k1('0x...')],
+    threshold: 2,
+  },
+  { access: account }, // [!code focus]
+)
 
 const { receipt } = await client.accessKey.authorizeSync({
   account,
@@ -363,7 +365,7 @@ type ReturnType = {
 
 - **Type:** `{ accessKeyAddress: Address; keyType: string } | { address: Address; type: string } | { publicKey: Hex; type: string }`
 
-The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`. For a configurable account acting as the access key, pass the account from [`Account.fromConfigurable`](/tempo/guides/configurable-accounts/access-keys#use-a-configurable-account-as-an-access-key), or its address with type `configurable`.
+The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`. For a configurable account acting as the access key, pass the account from [`Account.fromConfig`](/tempo/accounts/account.fromConfig) with `access`, or its address with type `configurable`.
 
 ### admin (optional)
 

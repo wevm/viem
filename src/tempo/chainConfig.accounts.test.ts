@@ -132,11 +132,13 @@ describe('prepareTransactionRequest', () => {
   })
 
   test('behavior: simulates a configurable access key', async () => {
-    const team = Account.fromConfig({
-      owners: [accounts[1], accounts[2].address],
-      threshold: 2,
-    })
-    const accessKey = Account.fromConfigurable(team, { access: accounts[0] })
+    const accessKey = Account.fromConfig(
+      {
+        owners: [accounts[1], accounts[2].address],
+        threshold: 2,
+      },
+      { access: accounts[0] },
+    )
 
     const request = await prepareTransactionRequest(client, {
       account: accessKey,

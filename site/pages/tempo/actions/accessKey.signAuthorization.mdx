@@ -272,7 +272,7 @@ The account authorizing the access key. For coordinated signing, pass the config
 
 - **Type:** `{ accessKeyAddress: Address; keyType: string } | { address: Address; type: string } | { publicKey: Hex; type: string }`
 
-The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`. For a configurable account acting as the access key, pass the account from [`Account.fromConfigurable`](/tempo/guides/configurable-accounts/access-keys#use-a-configurable-account-as-an-access-key), or its address with type `configurable`.
+The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`. For a configurable account acting as the access key, pass the account from [`Account.fromConfig`](/tempo/accounts/account.fromConfig) with `access`, or its address with type `configurable`.
 
 ### admin (optional)
 

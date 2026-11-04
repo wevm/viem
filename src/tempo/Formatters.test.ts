@@ -295,8 +295,10 @@ describe('formatTransactionRequest', () => {
   })
 
   test('behavior: configurable access key populates keyType and keyId', () => {
-    const team = Account.fromConfig({ owners: [accounts[1]] })
-    const accessKey = Account.fromConfigurable(team, { access: accounts[0] })
+    const accessKey = Account.fromConfig(
+      { owners: [accounts[1]] },
+      { access: accounts[0] },
+    )
 
     const rpc = Formatters.formatTransactionRequest({
       account: accessKey,
