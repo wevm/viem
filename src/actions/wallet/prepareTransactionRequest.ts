@@ -345,13 +345,14 @@ export async function prepareTransactionRequest<
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('beforeFillTransaction')
   ) {
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        client,
-        phase: 'beforeFillTransaction',
-      },
-    )
+    request =
+      (await prepareTransactionRequest.fn(
+        { ...request, chain },
+        {
+          client,
+          phase: 'beforeFillTransaction',
+        },
+      )) ?? request
     nonce ??= request.nonce
     const sender = request.account ?? (request as TransactionRequest).from
     account = sender ? parseAccount(sender) : undefined
@@ -433,121 +434,135 @@ export async function prepareTransactionRequest<
     return false
   })()
 
+  const fill = (request: PrepareTransactionRequestParameters) =>
+    getAction(
+      client,
+      fillTransaction,
+      'fillTransaction',
+    )({ ...request, nonce } as FillTransactionParameters).then((result) => {
+      const {
+        chainId,
+        from,
+        gas,
+        gasPrice,
+        nonce,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        type,
+        ...rest
+      } = result.transaction
+      const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
+      const hasFilledFeePayerSignature =
+        'feePayerSignature' in rest &&
+        rest.feePayerSignature !== null &&
+        typeof rest.feePayerSignature !== 'undefined'
+      const shouldUseFilledFeeToken =
+        typeof feeToken !== 'undefined' &&
+        feeToken !== null &&
+        (!('feeToken' in request) || hasFilledFeePayerSignature)
+      supportsFillTransaction.set(client.uid, true)
+      // The fee payer signs over the filled fee token, so a requested one must not replace or outlive it.
+      type WithFeeToken = { feeToken?: unknown }
+      const { feeToken: _feeToken, ...unsponsored } = request as WithFeeToken
+      return {
+        ...(hasFilledFeePayerSignature ? unsponsored : request),
+        ...(from ? { from } : {}),
+        ...(type && !request.type ? { type } : {}),
+        ...(typeof chainId !== 'undefined' ? { chainId } : {}),
+        ...(typeof gas !== 'undefined' ? { gas } : {}),
+        ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
+        ...(typeof nonce !== 'undefined' ? { nonce } : {}),
+        ...(typeof maxFeePerBlobGas !== 'undefined' &&
+        request.type !== 'legacy' &&
+        request.type !== 'eip2930'
+          ? { maxFeePerBlobGas }
+          : {}),
+        ...(typeof maxFeePerGas !== 'undefined' &&
+        request.type !== 'legacy' &&
+        request.type !== 'eip2930'
+          ? { maxFeePerGas }
+          : {}),
+        ...(typeof maxPriorityFeePerGas !== 'undefined' &&
+        request.type !== 'legacy' &&
+        request.type !== 'eip2930'
+          ? { maxPriorityFeePerGas }
+          : {}),
+        ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
+          ? { nonceKey: rest.nonceKey }
+          : {}),
+        // Validity bounds are part of the fee-payer signing payload.
+        ...('validBefore' in rest &&
+        rest.validBefore !== null &&
+        typeof rest.validBefore !== 'undefined'
+          ? { validBefore: rest.validBefore }
+          : {}),
+        ...('validAfter' in rest &&
+        rest.validAfter !== null &&
+        typeof rest.validAfter !== 'undefined'
+          ? { validAfter: rest.validAfter }
+          : {}),
+        ...('keyAuthorization' in rest &&
+        typeof rest.keyAuthorization !== 'undefined' &&
+        rest.keyAuthorization !== null &&
+        !('keyAuthorization' in request)
+          ? { keyAuthorization: rest.keyAuthorization }
+          : {}),
+        ...('feePayerSignature' in rest &&
+        typeof rest.feePayerSignature !== 'undefined' &&
+        rest.feePayerSignature !== null
+          ? { feePayerSignature: rest.feePayerSignature }
+          : {}),
+        ...(shouldUseFilledFeeToken ? { feeToken } : {}),
+        ...(result.capabilities ? { _capabilities: result.capabilities } : {}),
+      }
+    })
+
+  const recover = (
+    e: unknown,
+    request: PrepareTransactionRequestParameters,
+  ) => {
+    const error = e as FillTransactionErrorType
+
+    if (error.name !== 'TransactionExecutionError') return request
+
+    const nonceMismatch = error.walk?.(
+      (error) => error instanceof FeePayerNonceMismatchError,
+    )
+    if (nonceMismatch) throw e
+
+    const executionReverted = error.walk?.((e) => {
+      const error = e as BaseError
+      return error.name === 'ExecutionRevertedError'
+    })
+    if (executionReverted) throw e
+
+    const unsupported = error.walk?.((e) => {
+      const error = e as BaseError
+      return (
+        error.name === 'MethodNotFoundRpcError' ||
+        error.name === 'MethodNotSupportedRpcError' ||
+        error.message?.includes('eth_fillTransaction is not available')
+      )
+    })
+    if (unsupported) supportsFillTransaction.set(client.uid, false)
+
+    return request
+  }
+
   const fillResult = attemptFill
-    ? await getAction(
-        client,
-        fillTransaction,
-        'fillTransaction',
-      )({ ...request, nonce } as FillTransactionParameters)
-        .then((result) => {
-          const {
-            chainId,
-            from,
-            gas,
-            gasPrice,
-            nonce,
-            maxFeePerBlobGas,
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-            type,
-            ...rest
-          } = result.transaction
-          const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
-          const hasFilledFeePayerSignature =
-            'feePayerSignature' in rest &&
-            rest.feePayerSignature !== null &&
-            typeof rest.feePayerSignature !== 'undefined'
-          const shouldUseFilledFeeToken =
-            typeof feeToken !== 'undefined' &&
-            feeToken !== null &&
-            (!('feeToken' in request) || hasFilledFeePayerSignature)
-          supportsFillTransaction.set(client.uid, true)
-          // The fee payer signs over the filled fee token, so a requested one must not replace or outlive it.
-          type WithFeeToken = { feeToken?: unknown }
-          const { feeToken: _feeToken, ...unsponsored } =
-            request as WithFeeToken
-          return {
-            ...(hasFilledFeePayerSignature ? unsponsored : request),
-            ...(from ? { from } : {}),
-            ...(type && !request.type ? { type } : {}),
-            ...(typeof chainId !== 'undefined' ? { chainId } : {}),
-            ...(typeof gas !== 'undefined' ? { gas } : {}),
-            ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
-            ...(typeof nonce !== 'undefined' ? { nonce } : {}),
-            ...(typeof maxFeePerBlobGas !== 'undefined' &&
-            request.type !== 'legacy' &&
-            request.type !== 'eip2930'
-              ? { maxFeePerBlobGas }
-              : {}),
-            ...(typeof maxFeePerGas !== 'undefined' &&
-            request.type !== 'legacy' &&
-            request.type !== 'eip2930'
-              ? { maxFeePerGas }
-              : {}),
-            ...(typeof maxPriorityFeePerGas !== 'undefined' &&
-            request.type !== 'legacy' &&
-            request.type !== 'eip2930'
-              ? { maxPriorityFeePerGas }
-              : {}),
-            ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
-              ? { nonceKey: rest.nonceKey }
-              : {}),
-            // Validity bounds are part of the fee-payer signing payload.
-            ...('validBefore' in rest &&
-            rest.validBefore !== null &&
-            typeof rest.validBefore !== 'undefined'
-              ? { validBefore: rest.validBefore }
-              : {}),
-            ...('validAfter' in rest &&
-            rest.validAfter !== null &&
-            typeof rest.validAfter !== 'undefined'
-              ? { validAfter: rest.validAfter }
-              : {}),
-            ...('keyAuthorization' in rest &&
-            typeof rest.keyAuthorization !== 'undefined' &&
-            rest.keyAuthorization !== null &&
-            !('keyAuthorization' in request)
-              ? { keyAuthorization: rest.keyAuthorization }
-              : {}),
-            ...('feePayerSignature' in rest &&
-            typeof rest.feePayerSignature !== 'undefined' &&
-            rest.feePayerSignature !== null
-              ? { feePayerSignature: rest.feePayerSignature }
-              : {}),
-            ...(shouldUseFilledFeeToken ? { feeToken } : {}),
-            ...(result.capabilities
-              ? { _capabilities: result.capabilities }
-              : {}),
-          }
-        })
-        .catch((e) => {
-          const error = e as FillTransactionErrorType
-
-          if (error.name !== 'TransactionExecutionError') return request
-
-          const nonceMismatch = error.walk?.(
-            (error) => error instanceof FeePayerNonceMismatchError,
-          )
-          if (nonceMismatch) throw e
-
-          const executionReverted = error.walk?.((e) => {
-            const error = e as BaseError
-            return error.name === 'ExecutionRevertedError'
-          })
-          if (executionReverted) throw e
-
-          const unsupported = error.walk?.((e) => {
-            const error = e as BaseError
-            return (
-              error.name === 'MethodNotFoundRpcError' ||
-              error.name === 'MethodNotSupportedRpcError' ||
-              error.message?.includes('eth_fillTransaction is not available')
-            )
-          })
-          if (unsupported) supportsFillTransaction.set(client.uid, false)
-
-          return request
-        })
+    ? await fill(request).catch(async (error) => {
+        const retry =
+          prepareTransactionRequest?.fn &&
+          prepareTransactionRequest.runAt?.includes('afterFillTransactionError')
+            ? await prepareTransactionRequest.fn(
+                { ...request, chain },
+                { client, error, phase: 'afterFillTransactionError' },
+              )
+            : undefined
+        if (!retry) return recover(error, request)
+        return fill(retry).catch((error) => recover(error, retry))
+      })
     : request
 
   nonce ??= fillResult.nonce
@@ -563,13 +578,14 @@ export async function prepareTransactionRequest<
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('beforeFillParameters')
   ) {
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        client,
-        phase: 'beforeFillParameters',
-      },
-    )
+    request =
+      (await prepareTransactionRequest.fn(
+        { ...request, chain },
+        {
+          client,
+          phase: 'beforeFillParameters',
+        },
+      )) ?? request
   }
 
   let block: Block | undefined
@@ -714,13 +730,14 @@ export async function prepareTransactionRequest<
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('afterFillParameters')
   )
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        client,
-        phase: 'afterFillParameters',
-      },
-    )
+    request =
+      (await prepareTransactionRequest.fn(
+        { ...request, chain },
+        {
+          client,
+          phase: 'afterFillParameters',
+        },
+      )) ?? request
 
   assertRequest(request as AssertRequestParameters)
 
