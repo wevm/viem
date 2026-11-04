@@ -2,7 +2,7 @@ import { setTimeout } from 'node:timers/promises'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import { Period } from 'ox/tempo'
-import { toHex } from 'viem'
+import { isAddressEqual, toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import { fillTransaction } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
@@ -647,6 +647,86 @@ describe('getRemainingLimit', () => {
     })
 
     expect(remaining).toBe(0n)
+  })
+
+  test('behavior: client account is an unregistered access key', async () => {
+    const privateKey = generatePrivateKey()
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey: Account.fromP256(privateKey, { access: account }),
+      limits: [{ token: feeToken, limit: 100_000_000n }],
+    })
+    const accessKey = Account.fromP256(privateKey, {
+      access: account.address,
+      keyAuthorization,
+    })
+    const accessKeyClient = getClient({ account: accessKey })
+    const read = () =>
+      Promise.all([
+        actions.accessKey.getRemainingLimit(accessKeyClient, {
+          account: account.address,
+          accessKey,
+          token: feeToken,
+        }),
+        actions.accessKey.getMetadata(accessKeyClient, { accessKey }),
+        actions.token
+          .getBalance(accessKeyClient, { token: feeToken })
+          .then((balance) => typeof balance.amount),
+      ])
+
+    const pending = await read()
+    const { receipt } = await actions.token.transferSync(accessKeyClient, {
+      amount: 1n,
+      feeToken,
+      to: account2.address,
+      token: feeToken,
+    })
+    const [limit, { address, ...metadata }, balance] = await read()
+
+    expect({
+      pending,
+      registered: [
+        { ...limit, remaining: limit.remaining < 100_000_000n },
+        {
+          ...metadata,
+          address: isAddressEqual(address, accessKey.accessKeyAddress),
+        },
+        balance,
+      ],
+      status: receipt.status,
+    }).toMatchInlineSnapshot(`
+      {
+        "pending": [
+          {
+            "periodEnd": 0n,
+            "remaining": 0n,
+          },
+          {
+            "address": "0x0000000000000000000000000000000000000000",
+            "expiry": 0n,
+            "isRevoked": false,
+            "keyType": "secp256k1",
+            "spendPolicy": "unlimited",
+          },
+          "bigint",
+        ],
+        "registered": [
+          {
+            "periodEnd": 0n,
+            "remaining": true,
+          },
+          {
+            "address": true,
+            "expiry": 18446744073709551615n,
+            "isRevoked": false,
+            "keyType": "p256",
+            "spendPolicy": "limited",
+          },
+          "bigint",
+        ],
+        "status": "success",
+      }
+    `)
   })
 })
 
