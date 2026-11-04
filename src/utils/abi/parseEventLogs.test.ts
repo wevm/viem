@@ -968,6 +968,55 @@ describe('args: args', () => {
     `)
   })
 
+  test('named: non-indexed int8 bigint matches number', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Value',
+        inputs: [{ indexed: false, name: 'value', type: 'int8' }],
+      },
+    ]
+    const topics = encodeEventTopics({ abi, eventName: 'Value' })
+    const data = encodeAbiParameters([{ type: 'int8' }], [-1])
+    const log = { ...baseLog, data, topics } as Log
+
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      eventName: 'Value',
+      args: { value: -1n },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      eventName: 'Value',
+      args: { value: -2n },
+    })
+
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "value": -1,
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "eventName": "Value",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x113b26f4bc19fc026bcd5e57bfbd682edd28b5cf5177e1f6b4dcdc8ba8c52978",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
   test('unnamed: non-indexed string', () => {
     const abi = [
       {
