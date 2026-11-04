@@ -1,0 +1,26 @@
+{
+  "../test/tempo": {
+    "rev": "6dd038de4f854267b489bd6f4fd23bc842d72e12"
+  },
+  "lib/account-abstraction": {
+    "rev": "4cbc06072cdc19fd60f285c5997f4f7f57a588de"
+  },
+  "lib/account-abstraction-v07": {
+    "rev": "f1c5c11b273b7ddae26bb20809419b33ccb8f043"
+  },
+  "lib/forge-std": {
+    "rev": "07263d193d621c4b2b0ce8b4d54af58f6957d97d"
+  },
+  "lib/openzeppelin": {
+    "rev": "b73bcb231fb6f5e7bc973edc75ab7f6c812a2255"
+  },
+  "lib/solady": {
+    "rev": "66162801e022c268a2a0f621ac5eb0df4986f6eb"
+  },
+  "lib/solady-6c2d0da": {
+    "rev": "6c2d0da6397e3c016aabc3f298de1b92c6ce7405"
+  },
+  "lib/solady-dc09481": {
+    "rev": "dc09481c12cc8e8f852279cb1c1ca0f636a4c16f"
+  }
+}

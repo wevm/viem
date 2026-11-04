@@ -1,0 +1,86 @@
+---
+description: Group EIP-8130 calls into atomic phases and send native value with calls
+---
+
+# Calls & Batching
+
+Every EIP-8130 transaction carries a list of **calls** grouped into ordered **phases**. A phase is an atomic batch: if any call in a phase reverts, that phase's state changes are discarded and every later phase is skipped — but completed phases persist, and the transaction is still included (nonce consumed, fee paid). This phased model is what powers deploy-on-first-use, sponsor-then-act, and multi-step flows.
+
+## The `AaCalls` shape
+
+`calls` is a nested array — an array of phases, each an array of `AaCall`:
+
+```ts
+import { parseEther } from 'viem'
+import type { AaCalls } from 'viem/eip8130'
+
+const calls: AaCalls = [
+  // phase 0 — runs first, atomically
+  [{ to: tokenA, data: approveData }],
+  // phase 1 — runs only if phase 0 succeeded
+  [
+    { to: router, data: swapData },
+    { to: recipient, value: parseEther('0.01') },
+  ],
+]
+```
+
+Each `AaCall` is `{ to, data?, value? }`:
+
+- `to` — target address.
+- `data` — calldata (defaults to `'0x'`).
+- `value`: wei to send (defaults to `0n`). Value travels on the wire, and the protocol transfers it from the account to `to` as part of the call.
+
+## Flat vs. phased
+
+`sendTransaction` accepts either shape. A **flat** array is sugar for a single phase; pass a **nested** array to control phases explicitly:
+
+```ts
+import { sendTransaction } from 'viem/eip8130'
+
+// One atomic phase (flat):
+await sendTransaction(client, {
+  account,
+  calls: [{ to: a, data }, { to: b, data }],
+  gas: 300_000n,
+})
+
+// Two phases (nested):
+await sendTransaction(client, {
+  account,
+  calls: [[{ to: a, data }], [{ to: b, data }]],
+  gas: 300_000n,
+})
+```
+
+`estimateGas` and `prepareTransactionRequest` always take the **phased** form (`AaCalls`).
+
+## Value in Calls
+
+Each call is encoded on the wire as `[to, value, data]`, so a call can carry native value directly, with no wallet-side routing. The protocol performs the value transfer as part of the call: if the account cannot cover it, that call reverts and its phase is discarded like any other revert.
+
+```ts
+import { parseEther } from 'viem'
+import { sendTransaction } from 'viem/eip8130'
+
+await sendTransaction(client, {
+  account,
+  calls: [
+    { to: recipient, value: parseEther('0.01') },
+    { to: router, value: parseEther('0.5'), data: swapData },
+  ],
+  gas: 300_000n,
+})
+```
+
+Each call with a non-zero `value` to an address other than the sender adds `TX_VALUE_COST` (`txValueCost`, 6,000 gas) to the intrinsic cost. Self-transfers are free. If the recipient does not exist yet, the usual account-creation charge applies at execution time, so include value-bearing calls when you [estimate gas](/eip8130/sending-a-transaction#estimate-gas).
+
+## Choosing phases
+
+- **Single atomic batch** → one phase. Everything succeeds together or nothing does.
+- **Ordered, independently-committing steps** → multiple phases. Use this for pay-then-act (a [sponsored](/eip8130/sponsoring-transactions) phase-0 token transfer followed by the user's calls), or any flow where an early step must persist even if a later one reverts.
+
+## Next
+
+- Inspect per-phase outcomes on the [receipt](/eip8130/receipts).
+- Attach application data with [metadata](/eip8130/metadata).

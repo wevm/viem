@@ -1680,6 +1680,65 @@ export default defineConfig({
           ],
         },
         {
+          text: 'EIP-8130',
+          items: [
+            {
+              text: 'Overview',
+              link: '/eip8130',
+            },
+            {
+              text: 'Sending a Transaction',
+              link: '/eip8130/sending-a-transaction',
+            },
+            {
+              text: 'Calls & Batching',
+              link: '/eip8130/calls-and-batching',
+            },
+            {
+              text: 'Receipts',
+              link: '/eip8130/receipts',
+            },
+            {
+              text: 'Metadata',
+              link: '/eip8130/metadata',
+            },
+            {
+              text: 'Sponsoring Transactions',
+              link: '/eip8130/sponsoring-transactions',
+            },
+            {
+              text: 'Payer Services (ERC-8168)',
+              link: '/eip8130/payer-services',
+            },
+            {
+              text: 'Keystore (Experimental)',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Creating an Account',
+                  link: '/eip8130/creating-an-account',
+                },
+                {
+                  text: 'Rotating Owners',
+                  link: '/eip8130/rotating-owners',
+                },
+                {
+                  text: 'Session Keys',
+                  link: '/eip8130/session-keys',
+                },
+                {
+                  text: 'Sub Accounts',
+                  link: '/eip8130/sub-accounts',
+                },
+                {
+                  text: 'Signing Messages',
+                  link: '/eip8130/signing-messages',
+                },
+              ],
+            },
+          ],
+        },
+        {
           text: 'ERC-7715',
           items: [
             {

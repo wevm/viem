@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../../_types/experimental/keystore/index.d.ts",
+  "module": "../../_esm/experimental/keystore/index.js",
+  "main": "../../_cjs/experimental/keystore/index.js"
+}

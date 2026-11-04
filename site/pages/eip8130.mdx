@@ -1,0 +1,192 @@
+---
+description: Getting started with the EIP-8130 AA transaction type in Viem
+---
+
+# EIP-8130 (Native Account Abstraction) [Overview]
+
+EIP-8130 defines a native account-abstraction transaction type (`AA_TX_TYPE`, `0x79`). Transactions are sent directly to the chain, with no bundler and no EntryPoint. Viem exposes the transaction type through the `viem/eip8130` entrypoint.
+
+The rollout is split in two:
+
+- **AA transaction type** (`viem/eip8130`): the wire format, signing, 2D nonces, nonce-free mode, phased calls with value, sponsorship, delegation, and receipts. Accounts are EOAs whose secp256k1 key signs the transaction.
+- **Keystore Accounts** (`viem/experimental/keystore`, experimental): smart accounts governed by an onchain Keystore contract, with multiple key types, session keys, sub-accounts, and locking. They plug into the same transaction type through `create` and `config` account changes.
+
+:::warning[Warning]
+EIP-8130 is not yet enabled on mainnet and is currently in audit. Do not rely on it in production yet.
+:::
+
+## What You Get
+
+**Execution**
+- **Guaranteed atomic batching**.
+- **Call phases**: sequentially committed atomic call groups.
+- **Native value in calls**: each call carries its own `value`.
+- **Expiring transactions** and **nonce-free mode**.
+- **2D nonces** for parallel transaction channels.
+
+**Gas Abstraction**
+- **Sponsorship** by a named payer, or by any payer in **open mode**.
+- **ERC-20 gas payment** through a phase-0 token transfer.
+
+**Account**
+- **Explicit delegation**: set EIP-7702-style code on an EOA with a `delegation` account change.
+- **Keystore Accounts** (experimental): see [Keystore Accounts](#keystore-accounts-experimental).
+
+## Mental Model
+
+| Concept | Meaning |
+| --- | --- |
+| **Account** | The sender. For the transaction type, an EOA wrapped with `toEoaAccount`. |
+| **Phase** | An atomic group of calls. Phases run in order, and a revert skips the rest. |
+| **Payer** | Empty for self-pay, a payer address, or `0x00` (`openPayer`) for open mode. |
+| **Account change** | An entry applied before the calls: `delegation` (`0x01`) in the transaction type, plus the Keystore's `create` (`0x02`) and `config` (`0x03`). |
+| **Auth blob** | `sender_auth` or `payer_auth` bytes: a bare 65-byte signature when the signer is recovered, or `authenticator(20) \|\| data` otherwise. |
+
+## Installation
+
+```ts
+import { estimateGas, sendTransaction, toEoaAccount } from 'viem/eip8130'
+```
+
+## Setup
+
+There are three ways to use EIP-8130, from most native to most explicit. They interoperate, so pick per call site.
+
+### 1. Native Core Actions (`eip8130ChainConfig`)
+
+Spread [`eip8130ChainConfig`](/eip8130/sending-a-transaction#native-core-actions) into your chain and EIP-8130 flows through the standard viem actions you already know. Core `client.sendTransaction` submits a native `AA_TX_TYPE` for an EIP-8130 account (gas is estimated for you), and core `client.getTransactionReceipt` / `client.waitForTransactionReceipt` return the `eip8130` receipt fields.
+
+```ts
+import { createClient, http, defineChain } from 'viem'
+import { eip8130ChainConfig, register8130Chains } from 'viem/eip8130'
+
+export const vibenet = defineChain({
+  ...eip8130ChainConfig,
+  id: 84_538_453,
+  name: 'Vibenet Devnet',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['http://127.0.0.1:8545'] } },
+})
+
+export const client = createClient({ chain: vibenet, transport: http() })
+
+// Mark the chain as EIP-8130 enabled (empty by default).
+register8130Chains(vibenet.id)
+```
+
+### 2. Namespaced Client Decorators
+
+`.extend(eip8130Actions())` adds the full read/write suite under `client.eip8130.*`, and `.extend(eip8168Actions())` adds the [payer service](/eip8130/payer-services) flow under `client.payer.*`. These are namespaced (rather than folded into core) because viem's protected actions like `sendTransaction` require core-conforming signatures.
+
+```ts
+import { createClient, http } from 'viem'
+import { eip8130Actions } from 'viem/eip8130'
+import { eip8168Actions, createPayerClient } from 'viem/eip8168'
+import { vibenet } from './viem.config'
+
+const payerClient = createPayerClient({ url: 'https://payer.example.com/v1' })
+
+export const client = createClient({ chain: vibenet, transport: http() })
+  .extend(eip8130Actions())            // client.eip8130.*
+  .extend(eip8168Actions({ payerClient })) // client.payer.*
+
+const hash = await client.eip8130.sendTransaction({ account, calls, gas: 200_000n })
+```
+
+### 3. Standalone Actions
+
+Every action is also importable directly and takes a `Client` as its first argument. Handy when you don't want to extend the client.
+
+```ts
+import { createClient, http } from 'viem'
+import { sendTransaction } from 'viem/eip8130'
+import { vibenet } from './viem.config'
+
+const client = createClient({ chain: vibenet, transport: http() })
+const hash = await sendTransaction(client, { account, calls, gas: 200_000n })
+```
+
+## Keystore Accounts (Experimental)
+
+:::warning[Experimental]
+The Keystore is experimental and ships separately from the AA transaction type. Its APIs live in `viem/experimental/keystore` and may change.
+:::
+
+Keystore accounts are smart accounts governed by an onchain Keystore contract. Each account is controlled by a set of **actors** (keys, each with an **authenticator** contract that validates its auth blob), and `create` and `config` account changes deploy the account and change its actors atomically inside a transaction.
+
+| Concept | Meaning |
+| --- | --- |
+| **Account** | Smart account at a CREATE2 address derived from `userSalt`, wallet `code`, and `initialActors`. |
+| **Actor** | A key authorized on the account (`{ actorId, authenticator }`), built via the [`key`](/eip8130/rotating-owners#actors-and-keys) helpers. |
+| **Authenticator** | A contract that validates an auth blob and returns the `actorId` it authenticates (`bytes32(0)` if invalid). Secp256k1 is built in (`address(1)`); P-256, WebAuthn, and delegate authenticators are contracts. |
+
+Every authenticator implements a single view function. Given a hash and the auth `data`, it returns the actor it proves (or `bytes32(0)`):
+
+```solidity
+interface IAuthenticator {
+  function authenticate(bytes32 hash, bytes data) external view returns (bytes32 actorId);
+}
+```
+
+Keystore reads are available under `client.keystore` with the `keystoreActions` decorator:
+
+```ts
+import { createClient, http } from 'viem'
+import { eip8130Actions } from 'viem/eip8130'
+import { keystoreActions } from 'viem/experimental/keystore'
+
+const client = createClient({ chain: vibenet, transport: http() })
+  .extend(eip8130Actions())
+  .extend(keystoreActions())
+
+const bound = await client.keystore.isActor({ account, actorId })
+```
+
+### Deployment Addresses
+
+Every protocol contract is deployed through a deterministic CREATE2 factory with a per-contract mined salt, so each address is a pure function of its bytecode, so it is **identical on every chain**. The Keystore actions already default to this canonical set, so you normally don't pass any addresses at all.
+
+The keystore itself is enshrined in the execution client and is not configurable: it lives at the fixed `keystoreAddress` constant, so it is not part of the per-chain deployment record. The rest of the addresses fall back to `canonicalEip8130Deployment`, and can be overridden only if a chain ever pins a different set:
+
+```ts
+import { keystoreAddress, getEip8130Deployment, canonicalEip8130Deployment } from 'viem/experimental/keystore'
+
+keystoreAddress                     // Keystore: factory + actor-config registry (enshrined, fixed)
+
+const deployment =
+  getEip8130Deployment(chainId) ?? // per-chain override, if one is ever registered
+  canonicalEip8130Deployment       // canonical default (every chain today)
+
+deployment.accounts.default         // DefaultAccount: delegation target / proxy impl
+deployment.authenticators.p256      // P-256 (webAuthn, delegate, k1, alwaysValid alongside)
+```
+
+The canonical account is **`DefaultAccount`**: the bare building block, and a target an EOA can delegate to explicitly. **`CoinbaseSmartWalletV2`** (the upgradeable implementation, behind an ERC-1967 [`UpgradeableProxy`](https://github.com/base/smart-wallet-v2/blob/master/src/proxy/UpgradeableProxy.sol); 7702 EOAs delegate via [`EIP7702ProxyForEIP8130`](https://github.com/base/smart-wallet-v2/blob/master/src/proxy/EIP7702ProxyForEIP8130.sol)) and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains) are supplied explicitly if you choose those paths.
+
+#### Policies Are App-Level, Not Protocol
+
+Policy contracts are **not** part of the EIP-8130 protocol. A policy-gated actor is simply gated to a `manager` address that forwards committed call plans, and both the manager and the policies it enforces are **extensible**: add a new policy under the same manager, or deploy a whole new manager. Base ships one **audited** `PolicyManager` and one `SessionPolicy` in use today:
+
+```ts
+deployment.policies?.manager        // PolicyManager (audited)
+deployment.policies?.sessionPolicy  // SessionPolicy: the policy in use today
+```
+
+To use your own, point `authorizeActor`'s `policy.manager` at your contract. See [Session Keys](/eip8130/session-keys).
+
+## Guides
+
+- [Sending a Transaction](/eip8130/sending-a-transaction): estimate, delegate, sponsor gas, batch calls.
+- [Calls & Batching](/eip8130/calls-and-batching): atomic phases and value in calls.
+- [Receipts](/eip8130/receipts): receipt status, per-phase statuses, payer, and metadata.
+- [Metadata](/eip8130/metadata): attach opaque, authenticated application data.
+- [Sponsoring Transactions](/eip8130/sponsoring-transactions): pay another account's gas with a co-signing or open payer.
+- [Payer Services (ERC-8168)](/eip8130/payer-services): negotiate sponsorship or token payment with a web service.
+
+### Keystore (Experimental)
+
+- [Creating an Account](/eip8130/creating-an-account): k1, P-256, and passkey accounts.
+- [Rotating Owners](/eip8130/rotating-owners): authorize and revoke actors.
+- [Session Keys](/eip8130/session-keys): policy-gated, scoped signing keys.
+- [Sub Accounts](/eip8130/sub-accounts): many accounts per owner, linked via delegate actors.
+- [Signing Messages](/eip8130/signing-messages): ERC-1271 signatures from Keystore accounts.
