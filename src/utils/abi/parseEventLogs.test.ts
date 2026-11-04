@@ -795,6 +795,134 @@ describe('args: args', () => {
     `)
   })
 
+  test('named: indexed uint256 number matches bigint', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Transfer',
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: true, name: 'to', type: 'address' },
+          { indexed: true, name: 'tokenId', type: 'uint256' },
+        ],
+      },
+    ]
+    const topics = encodeEventTopics({
+      abi,
+      eventName: 'Transfer',
+      args: {
+        from: '0x0000000000000000000000000000000000000001',
+        to: '0x0000000000000000000000000000000000000002',
+        tokenId: 1n,
+      },
+    })
+    const log = { ...baseLog, data: '0x', topics } as Log
+
+    const matchedBigInt = parseEventLogs({
+      abi,
+      logs: [log],
+      eventName: 'Transfer',
+      args: { tokenId: 1n },
+    })
+    const matchedNumber = parseEventLogs({
+      abi,
+      logs: [log],
+      eventName: 'Transfer',
+      args: { tokenId: 1 },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      eventName: 'Transfer',
+      args: { tokenId: 2 },
+    })
+
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matchedBigInt).toHaveLength(1)
+    expect(matchedNumber).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "from": "0x0000000000000000000000000000000000000001",
+            "to": "0x0000000000000000000000000000000000000002",
+            "tokenId": 1n,
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x",
+          "eventName": "Transfer",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "0x0000000000000000000000000000000000000000000000000000000000000002",
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
+  test('named: non-indexed uint256 number matches bigint', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Value',
+        inputs: [{ indexed: false, name: 'value', type: 'uint256' }],
+      },
+    ]
+    const topics = encodeEventTopics({ abi, eventName: 'Value' })
+    const data = encodeAbiParameters([{ type: 'uint256' }], [42n])
+    const log = { ...baseLog, data, topics } as Log
+
+    const matchedBigInt = parseEventLogs({
+      abi,
+      logs: [log],
+      eventName: 'Value',
+      args: { value: 42n },
+    })
+    const matchedNumber = parseEventLogs({
+      abi,
+      logs: [log],
+      eventName: 'Value',
+      args: { value: 42 },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      eventName: 'Value',
+      args: { value: 41 },
+    })
+
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matchedBigInt).toHaveLength(1)
+    expect(matchedNumber).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "value": 42n,
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002a",
+          "eventName": "Value",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x2a27502c345a4cd966daa061d5537f54cd60d2d20b73680b3bf195c91e806a4b",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
   test('unnamed: non-indexed string', () => {
     const abi = [
       {
