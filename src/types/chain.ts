@@ -80,13 +80,19 @@ export type Chain<
 
 type PrepareTransactionRequestPhase =
   | 'beforeFillTransaction'
+  | 'afterFillTransactionError'
   | 'beforeFillParameters'
   | 'afterFillParameters'
 
 type PrepareTransactionRequestFn = (
   args: PrepareTransactionRequestParameters,
-  options: { client: Client; phase: PrepareTransactionRequestPhase },
-) => Promise<PrepareTransactionRequestParameters>
+  options: {
+    client: Client
+    /** Error from `eth_fillTransaction`. Set in the `afterFillTransactionError` phase. */
+    error?: unknown
+    phase: PrepareTransactionRequestPhase
+  },
+) => Promise<PrepareTransactionRequestParameters | undefined>
 
 type ChainVerifyHashFn = (
   client: Client,
@@ -117,6 +123,7 @@ export type ChainConfig<
            * Phases to run the function at.
            *
            * - `beforeFillTransaction`: Before the transaction is attempted to be filled via `eth_fillTransaction`.
+           * - `afterFillTransactionError`: After `eth_fillTransaction` fails. Return a request to retry the fill once with it, or `undefined` to continue without it.
            * - `beforeFillParameters`: Before missing parameters are filled.
            * - `afterFillParameters`: After missing parameters are filled.
            */

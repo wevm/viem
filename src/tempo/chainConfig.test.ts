@@ -1,6 +1,7 @@
 import { Transaction } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { rpcUrl } from '~test/tempo/prool.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import {
@@ -11,6 +12,7 @@ import {
   signTransaction,
   verifyHash,
 } from '../actions/index.js'
+import { supportsFillTransaction } from '../actions/wallet/prepareTransactionRequest.js'
 import { mainnet, tempoLocalnet } from '../chains/index.js'
 import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
@@ -52,7 +54,7 @@ describe('prepareTransactionRequest', () => {
           }),
         )
 
-        const [random, ...explicit] = requests.map(({ nonce }) => nonce)
+        const [random, ...explicit] = requests.map((request) => request?.nonce)
         expect(Number.isSafeInteger(random)).toBe(true)
         expect(explicit).toMatchInlineSnapshot(`
         [
@@ -82,7 +84,7 @@ describe('prepareTransactionRequest', () => {
         ),
       )
 
-      const [random, ...explicit] = requests.map(({ nonce }) => nonce)
+      const [random, ...explicit] = requests.map((request) => request?.nonce)
       expect(Number.isSafeInteger(random)).toBe(true)
       expect(explicit).toMatchInlineSnapshot(`
         [
@@ -612,6 +614,111 @@ describe('prepareTransactionRequest', () => {
 
     expect(request.keyAuthorization).toBeUndefined()
     expect(await keyAuthorizationManager.get(key)).toBeUndefined()
+  })
+
+  test('behavior: keyAuthorizationManager sends a fresh authorization without reading the key', async () => {
+    const rootAccount = accounts.at(0)!
+    const privateKey = generatePrivateKey()
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey: Account.fromP256(privateKey, { access: rootAccount }),
+      expiry,
+    })
+    const accessKey = Account.fromP256(privateKey, {
+      access: rootAccount,
+      keyAuthorization,
+    })
+    const methods: string[] = []
+    const accessKeyClient = getClient({
+      account: accessKey,
+      transport: http(rpcUrl, {
+        onFetchRequest(_request, init) {
+          methods.push(JSON.parse(init.body as string).method)
+        },
+      }),
+    })
+    const to = '0x0000000000000000000000000000000000000000'
+
+    await sendTransactionSync(accessKeyClient, { to })
+    const first = methods.splice(0)
+    await sendTransactionSync(accessKeyClient, { to })
+    const second = methods.splice(0)
+    await sendTransactionSync(accessKeyClient, { to })
+    const third = methods.splice(0)
+
+    expect({ first, second, third }).toMatchInlineSnapshot(`
+      {
+        "first": [
+          "eth_fillTransaction",
+          "eth_sendRawTransactionSync",
+        ],
+        "second": [
+          "eth_fillTransaction",
+          "eth_fillTransaction",
+          "eth_sendRawTransactionSync",
+        ],
+        "third": [
+          "eth_fillTransaction",
+          "eth_sendRawTransactionSync",
+        ],
+      }
+    `)
+    expect(
+      await accessKey.keyAuthorizationManager?.get({
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: client.chain.id,
+      }),
+    ).toBeUndefined()
+  })
+
+  test('behavior: keyAuthorizationManager reads the key when the fill does not run', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const key = {
+      address: accessKey.address,
+      accessKey: accessKey.accessKeyAddress,
+      chainId: client.chain.id,
+    }
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+    await accessKeyActions.authorizeSync(client, { accessKey, expiry })
+    await keyAuthorizationManager.set(key, keyAuthorization)
+    const methods: string[] = []
+    const accessKeyClient = getClient({
+      account: accessKey,
+      transport: http(rpcUrl, {
+        onFetchRequest(_request, init) {
+          methods.push(JSON.parse(init.body as string).method)
+        },
+      }),
+    })
+    supportsFillTransaction.set(accessKeyClient.uid, false)
+
+    const request = await prepareTransactionRequest(accessKeyClient, {
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(request.keyAuthorization).toBeUndefined()
+    expect(await keyAuthorizationManager.get(key)).toBeUndefined()
+    expect(methods).toMatchInlineSnapshot(`
+      [
+        "eth_call",
+        "eth_getTransactionCount",
+        "eth_getBlockByNumber",
+        "eth_maxPriorityFeePerGas",
+        "eth_estimateGas",
+      ]
+    `)
   })
 })
 
