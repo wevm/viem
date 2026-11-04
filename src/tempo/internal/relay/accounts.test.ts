@@ -289,7 +289,7 @@ test('rejects a signed payload conflicting with the client chain', async () => {
 
 describe.runIf(
   import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-179347b',
+    import.meta.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
 )('plugin: accounts', () => {
   beforeAll(async () => {
     await Actions.faucet.fundSync(caller, {
@@ -692,7 +692,7 @@ describe.runIf(
 
 describe.runIf(
   import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-179347b',
+    import.meta.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
 )('plugin: keyAuthorization', () => {
   const relay = Relay.create({
     client: caller,

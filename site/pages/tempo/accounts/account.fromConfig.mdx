@@ -5,8 +5,9 @@ description: Instantiates a configurable account from an initial or current conf
 # `Account.fromConfig`
 
 Instantiates an Account for a [configurable account](https://tips.sh/1107). Omit `address` or set
-it to `infer` to derive the canonical CREATE2 account address. After the config changes, use the
-stable address and pass the current config fields.
+it to `infer` to derive the account address: the last 20 bytes of a keccak256 hash of its
+version-0 config. After the config changes, use the stable address and pass the current config
+fields.
 
 :::warning
 **Experimental.** Configurable account support is experimental and may change in a future release.
@@ -70,7 +71,8 @@ const account = Account.fromConfig({
 ```
 
 Tempo stores the config commitment, not the config fields. Retain each current config or
-recover it from the account's `ConfigurableAccountConfigUpdated` events.
+recover it from the account's `ConfigurableAccountConfigUpdated` events. Registration emits the
+version `0` config, and each config update emits the new one.
 
 ### Upgraded Account
 
@@ -89,8 +91,9 @@ const account = Account.fromConfig({
 })
 ```
 
-The upgrade installs version `1` of the account's config. After a later config update, use the
-current config fields instead.
+The upgrade installs version `1` of the account's config and keeps the existing address. Recover
+that config from the `AccountUpgraded` event, then apply later `ConfigurableAccountConfigUpdated`
+events. After a later config update, use the current config fields instead.
 
 ### Address Only
 
@@ -197,9 +200,13 @@ const valid = await client.verifyMessage({
 
 :::warning
 Signatures verify against the account's current config, so a config update invalidates earlier
-signatures. Configurable accounts have no code and do not implement ERC-1271 `isValidSignature`,
-so ERC-1271 verifiers do not accept their signatures.
+signatures.
 :::
+
+A registered account (after its first transaction or an upgrade) carries the `0xef` account code
+marker. It answers ERC-1271 `isValidSignature` and `onERC721Received` through a protocol shim, so
+ERC-1271 verifiers such as Permit2 accept its signatures. A counterfactual account has no code
+until its first transaction, so only `verifyHash` verifies its signatures.
 
 ## Parameters
 

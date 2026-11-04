@@ -56,6 +56,11 @@ export const configurableAccount = {
   upgradeAccount: '0x5f5fdc31',
 } as const satisfies FunctionSelectors<typeof Abis.configurableAccount>
 
+export const configurableAccountShim = {
+  isValidSignature: '0x1626ba7e',
+  onERC721Received: '0x150b7a02',
+} as const satisfies FunctionSelectors<typeof Abis.configurableAccountShim>
+
 export const currentCommittee = {
   getCommitteeMembers: '0xb2a275f9',
   setCommitteeMembers: '0x229bdd9c',

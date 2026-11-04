@@ -227,8 +227,8 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'UnauthorizedConfigurableAccountCaller()':
     'Unauthorized configurable account caller.',
   'Uninitialized()': 'Uninitialized.',
-  'UpgradeMustBeOnlyCall()':
-    'The upgrade must be the only call in the transaction.',
+  'UpgradeMustBeDirectCall()':
+    'The upgrade must be a top-level call from the account, in a transaction without an authorization list.',
   'ValidatorAlreadyDeactivated()': 'Validator is already deactivated.',
   'ValidatorAlreadyExists()': 'Validator already exists.',
   'ValidatorNotFound()': 'Validator not found.',
@@ -333,8 +333,8 @@ export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
     'UnauthorizedConfigurableAccountCaller()': [
       'Only the configurable account can update its own configuration.',
     ],
-    'UpgradeMustBeOnlyCall()': [
-      'Send `upgradeAccount` as the only call, without a key authorization or authorization list.',
+    'UpgradeMustBeDirectCall()': [
+      'Call `upgradeAccount` directly from the account, signed by its root key, in a transaction without an authorization list.',
     ],
   }
 

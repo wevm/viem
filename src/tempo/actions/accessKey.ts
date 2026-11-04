@@ -134,9 +134,13 @@ export namespace authorize {
     /**
      * Whether to authorize the key as an admin key. Admin keys are unrestricted
      * and can manage the account's other access keys; `expiry`, `limits`, and
-     * `scopes` are ignored. Requires the T6 hardfork; T14 (TIP-1137) removes admin key creation.
+     * `scopes` are ignored. Requires the T6 hardfork. From T14 (TIP-1137) the
+     * chain rejects admin grants and stored admin keys act as access keys
+     * without limits. Throws for configurable accounts, which require T14.
      *
      * [TIP-1049](https://tips.sh/1049)
+     *
+     * @deprecated T14 (TIP-1137) removes admin access keys.
      */
     admin?: boolean | undefined
     /** The chain ID. */
@@ -717,6 +721,10 @@ export namespace getRemainingLimit {
  * Returns `true` for the account's root key or for an active admin access key
  * (see {@link authorize} with `admin: true`).
  *
+ * From T14 (TIP-1137), keys stored as admin act as access keys without limits
+ * and return `false`, and the key of an account with a config commitment (a
+ * configurable or upgraded account) is not an admin key.
+ *
  * [TIP-1049](https://tips.sh/1049)
  *
  * @example
@@ -1091,6 +1099,16 @@ export async function prepareAuthorization<
   if (!account_) throw new Error('account is required.')
   if (!chainId) throw new Error('chainId is required.')
   const parsed = parseAccount(account_)
+  // Configurable accounts exist only from T14, which rejects admin grants (TIP-1137).
+  if (
+    parameters.admin &&
+    (parsed.source === 'configurable' ||
+      resolveAccessKey(parameters.accessKey).keyType === 'configurable' ||
+      (parsed as { keyType?: string | undefined }).keyType === 'configurable')
+  )
+    throw new Error(
+      'Admin access keys cannot be authorized with configurable accounts.',
+    )
   const configurableState = await (async () => {
     if ('configurable' in parameters) return parameters.configurable
     if (parsed.source !== 'configurable') return undefined
@@ -1135,9 +1153,13 @@ export namespace prepareAuthorization {
     /**
      * Whether to authorize the key as an admin key. Admin keys are unrestricted
      * and can manage the account's other access keys; `expiry`, `limits`, and
-     * `scopes` are ignored. Requires the T6 hardfork; T14 (TIP-1137) removes admin key creation.
+     * `scopes` are ignored. Requires the T6 hardfork. From T14 (TIP-1137) the
+     * chain rejects admin grants and stored admin keys act as access keys
+     * without limits. Throws for configurable accounts, which require T14.
      *
      * [TIP-1049](https://tips.sh/1049)
+     *
+     * @deprecated T14 (TIP-1137) removes admin access keys.
      */
     admin?: boolean | undefined
     /** The chain ID. */
@@ -1274,6 +1296,11 @@ export async function signAuthorization<
 
   if (coordinated) {
     const parameters_ = parameters as signAuthorization.CoordinatedParameters
+    // Configurable accounts exist only from T14, which rejects admin grants (TIP-1137).
+    if ('admin' in parameters_ && parameters_.admin)
+      throw new Error(
+        'Admin access keys cannot be authorized with configurable accounts.',
+      )
     const owner_ = parameters_.owner
     if (!owner_ || typeof owner_ === 'string')
       throw new Error(
@@ -1953,6 +1980,12 @@ export declare namespace watchWitnessBurned {
  * Returns `false` for account mismatches, unknown, revoked, or expired
  * access keys. [TIP-1049](https://tips.sh/1049)
  *
+ * From T14 (TIP-1137), stored admin keys no longer pass `admin: true`, the key
+ * of an account with a config commitment (a configurable or upgraded account)
+ * passes neither mode, and an inner signature type other than the stored key
+ * type returns `false`. Configurable access keys (TIP-1111) revert as an
+ * invalid format; verify them with `verifyHash` from `viem/actions` instead.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
@@ -1998,7 +2031,8 @@ export namespace verifyHash {
     /**
      * Whether to require the signer to be the account's root key or an
      * active admin access key. Defaults to `true`. Set to `false` to accept
-     * any active access key.
+     * any active access key. From T14 (TIP-1137), only the root key of an
+     * account without a config commitment passes `true`.
      */
     admin?: boolean | undefined
     /** Original message hash that was signed. */

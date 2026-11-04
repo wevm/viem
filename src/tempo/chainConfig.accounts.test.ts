@@ -1,9 +1,12 @@
-import { AccountConfig } from 'ox/tempo'
+import { Signature } from 'ox'
+import { AccountConfig, KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
+import { toHex } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { Account } from 'viem/tempo'
+import { Account, Actions } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest } from '../actions/index.js'
+import type { RootAccount } from './Account.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -126,6 +129,143 @@ describe('prepareTransactionRequest', () => {
         },
       }
     `)
+  })
+
+  test('behavior: simulates a configurable access key', async () => {
+    const team = Account.fromConfig({
+      owners: [accounts[1], accounts[2].address],
+      threshold: 2,
+    })
+    const accessKey = Account.fromConfigurable(team, { access: accounts[0] })
+
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      parameters: ['chainId'],
+    })
+
+    expect(request.accountSimulation).toMatchInlineSnapshot(`
+      {
+        "approvals": [
+          {
+            "keyType": "secp256k1",
+            "owner": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+          },
+          {
+            "keyData": "0x0578",
+            "keyType": "webAuthn",
+            "owner": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
+          },
+        ],
+        "config": {
+          "owners": [
+            {
+              "owner": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+              "weight": 1,
+            },
+            {
+              "owner": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 2,
+          "version": 0n,
+        },
+        "signer": "0x6A5177760374661B6fb3Dd8445715b2ff417bc8d",
+      }
+    `)
+  })
+
+  test('behavior: simulates a key authorization below its quorum', async () => {
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+    const parent = Account.fromConfig({
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x111201, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: parent,
+    })
+    await Actions.token.transferSync(client, {
+      amount: { formatted: '100' },
+      to: parent.address,
+      token: feeToken,
+    })
+
+    const authorization = await Actions.accessKey.prepareAuthorization(client, {
+      account: parent,
+      accessKey,
+    })
+    const keyAuthorization = (approvals: readonly RootAccount[]) =>
+      Promise.all(
+        approvals.map((owner) =>
+          owner.sign({ hash: authorization.signPayload }),
+        ),
+      ).then((signatures) =>
+        KeyAuthorization.from({
+          account: parent.address,
+          address: accessKey.accessKeyAddress,
+          chainId: BigInt(client.chain.id),
+          signature: SignatureEnvelope.from({
+            account: parent.address,
+            config: parent.config,
+            signatures: signatures.map((signature) => ({
+              signature: Signature.from(signature),
+              type: 'secp256k1' as const,
+            })),
+          }),
+          type: 'secp256k1',
+        } as never),
+      )
+
+    const pending = await prepareTransactionRequest(client, {
+      account: accessKey,
+      calls: [{ to: accounts[3].address }],
+      feeToken,
+      keyAuthorization: await keyAuthorization([owner_1]),
+    })
+    expect(pending.gas).toBeGreaterThan(0n)
+    expect(pending.keyAuthorizationSimulation).toMatchInlineSnapshot(`
+      {
+        "approvals": [
+          {
+            "keyData": "0x0578",
+            "keyType": "webAuthn",
+            "owner": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+          },
+          {
+            "keyData": "0x0578",
+            "keyType": "webAuthn",
+            "owner": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
+          },
+        ],
+        "config": {
+          "owners": [
+            {
+              "owner": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+              "weight": 1,
+            },
+            {
+              "owner": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000111201",
+          "threshold": 2,
+          "version": 0n,
+        },
+        "signer": "0x099645877A63e30615684e184ba55a2AF86D890c",
+      }
+    `)
+
+    const approved = await prepareTransactionRequest(client, {
+      account: accessKey,
+      calls: [{ to: accounts[3].address }],
+      feeToken,
+      keyAuthorization: await keyAuthorization([owner_1, owner_2]),
+    })
+    expect(approved.keyAuthorizationSimulation).toBeUndefined()
   })
 
   test('behavior: rejects nested account simulation', () => {

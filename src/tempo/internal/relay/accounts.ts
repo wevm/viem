@@ -905,30 +905,32 @@ declare namespace cacheNextConfigs {
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function cacheUpgradeConfig(options: cacheUpgradeConfig.Options) {
   const { calls, from, signature } = options.transaction
-  const [call] = calls
   if (
     !from ||
     !signature ||
     signature.type === 'keychain' ||
-    calls.length !== 1 ||
-    !call?.to ||
-    !isAddressEqual(call.to, Addresses.configurableAccount) ||
-    !call.data
+    signature.type === 'configurable'
   )
     return
-  const config = (() => {
-    try {
-      const decoded = decodeFunctionData({
-        abi: Abis.configurableAccount,
-        data: call.data,
-      })
-      if (decoded.functionName !== 'upgradeAccount') return undefined
-      const [threshold, owners] = decoded.args
-      return AccountConfig.fromUpgrade(from, { owners, threshold })
-    } catch {
-      return undefined
-    }
-  })()
+  // `upgradeAccount` may sit anywhere in a batch; a second one reverts.
+  const config = calls
+    .map((call) => {
+      if (!call.to || !call.data) return undefined
+      if (!isAddressEqual(call.to, Addresses.configurableAccount))
+        return undefined
+      try {
+        const decoded = decodeFunctionData({
+          abi: Abis.configurableAccount,
+          data: call.data,
+        })
+        if (decoded.functionName !== 'upgradeAccount') return undefined
+        const [threshold, owners] = decoded.args
+        return AccountConfig.fromUpgrade(from, { owners, threshold })
+      } catch {
+        return undefined
+      }
+    })
+    .find((config) => config !== undefined)
   if (!config) return
   await ConfigStore.write(options.store, {
     address: from,

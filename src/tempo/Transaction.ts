@@ -109,10 +109,12 @@ export type TransactionRequestRpc = OneOf<
   | viem_RpcTransactionRequest
   | (Omit<
       TransactionRequestTempo<Hex.Hex, Hex.Hex, '0x76'>,
-      'accountSimulation'
+      'accountSimulation' | 'keyAuthorizationSimulation'
     > & {
       /** Account simulation spec, named `configurableAccountSimulation` by the node. */
       configurableAccountSimulation?: AccountSimulation.Rpc | undefined
+      /** Owner quorum simulation spec of the account signing `keyAuthorization`. */
+      keyAuthorizationSimulation?: AccountSimulation.Rpc | undefined
     })
 >
 
@@ -151,6 +153,12 @@ export type TransactionRequestTempo<
     feeToken?: TempoAddress.Address | bigint | undefined
     hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
+    /**
+     * Owner quorum to model, for gas estimation, in place of the signature of
+     * `keyAuthorization` while its configurable account signer (TIP-1111) has
+     * not reached its threshold. `signer` is the account that signs it.
+     */
+    keyAuthorizationSimulation?: AccountSimulation.Spec | undefined
     /** Nonce lane, or `'expiring'` for time-bounded transactions. `nonce` can distinguish otherwise identical expiring transactions. */
     nonceKey?: 'expiring' | quantity | undefined
     owner?: RootAccount | undefined
@@ -174,6 +182,7 @@ export type TransactionSerializableTempo<
     feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | null | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
+    keyAuthorizationSimulation?: AccountSimulation.Spec | undefined
     nonceKey?: quantity | undefined
     owner?: RootAccount | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
@@ -226,6 +235,7 @@ export function getType(
     typeof transaction.feeToken !== 'undefined' ||
     typeof transaction.keyAuthorization !== 'undefined' ||
     typeof transaction.accountSimulation !== 'undefined' ||
+    typeof transaction.keyAuthorizationSimulation !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.owner !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
@@ -349,6 +359,7 @@ async function serializeTempo(
     chainId,
     feePayer,
     accountSimulation,
+    keyAuthorizationSimulation: _keyAuthorizationSimulation,
     nonce,
     owner: _owner,
     ...rest
@@ -413,7 +424,6 @@ async function serializeTempo(
     if (signature_provided) return signature_provided
     if (!accountSimulation || !transaction.signatures) return undefined
 
-    const payload = TxTempo.getSignPayload(TxTempo.from(transaction_sender_ox))
     const signatures = transaction.signatures.map((approval) =>
       parseApproval(approval),
     )
@@ -421,16 +431,30 @@ async function serializeTempo(
     const account = transaction.from
     if (!account)
       throw new Error('A configurable account sender is required for signing.')
+    const { signer = account } = accountSimulation
+    // A configurable access key (TIP-1111) approves the keychain digest bound to the sender.
+    const delegated = signer.toLowerCase() !== account.toLowerCase()
+    const payload = TxTempo.getSignPayload(
+      TxTempo.from(transaction_sender_ox),
+      delegated ? { from: account } : {},
+    )
     const sorted = SignatureEnvelope.sortApprovals({
-      account,
+      account: signer,
       config,
       payload,
       signatures,
     })
-    return SignatureEnvelope.from({
-      account,
+    const inner = SignatureEnvelope.from({
+      account: signer,
       config,
       signatures: sorted,
+    })
+    if (!delegated) return inner
+    return SignatureEnvelope.from({
+      inner,
+      type: 'keychain',
+      userAddress: account,
+      version: 'v2',
     })
   })()
 

@@ -174,9 +174,12 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       if (token && (!external || filled.feeToken == null))
         Object.assign(filled, { feeToken: token })
 
+      // Owner approvals still to come change the sender signature or the key authorization the fee payer signs over.
       const defer =
-        typeof normalized.configurableAccountSimulation === 'object' &&
-        normalized.configurableAccountSimulation !== null
+        (typeof normalized.configurableAccountSimulation === 'object' &&
+          normalized.configurableAccountSimulation !== null) ||
+        (typeof normalized.keyAuthorizationSimulation === 'object' &&
+          normalized.keyAuthorizationSimulation !== null)
 
       // Bound before validation so the validated envelope is the one signed, and returned signatures expire.
       const signs = !!options.account && !external && !defer
@@ -242,7 +245,9 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         parameters.feePayer === false ||
         !result.capabilities?.sponsored ||
         (typeof parameters.configurableAccountSimulation === 'object' &&
-          parameters.configurableAccountSimulation !== null)
+          parameters.configurableAccountSimulation !== null) ||
+        (typeof parameters.keyAuthorizationSimulation === 'object' &&
+          parameters.keyAuthorizationSimulation !== null)
       )
         return undefined
       const transaction = Utils.normalizeTempoTransaction(result.tx)
@@ -648,7 +653,7 @@ async function recoverSender(
 
   const sender = await (async () => {
     if (signature.type === 'configurable')
-      return verifyConfigurable(client, { payload, signature })
+      return (await verifyConfigurable(client, { payload, signature })).account
     if (signature.type !== 'keychain') return recoverSigner(payload, signature)
     // Tempo rejects legacy access-key signatures, which do not bind the key to its account.
     if (signature.version !== 'v2')
@@ -657,11 +662,24 @@ async function recoverSender(
       })
 
     const { inner, userAddress } = signature
-    const keyId = recoverSigner(
-      TxEnvelopeTempo.getSignPayload(envelope, { from: userAddress }),
-      inner,
-    )
-    // Only primitive inner signatures recover a key, so the type indexes `keyTypes`.
+    const payload_keychain = TxEnvelopeTempo.getSignPayload(envelope, {
+      from: userAddress,
+    })
+    // A configurable access key (TIP-1111) is its account, once its current quorum approves.
+    const delegate =
+      inner.type === 'configurable'
+        ? await verifyConfigurable(client, {
+            payload: payload_keychain,
+            signature: inner,
+          })
+        : undefined
+    if (delegate && core_Address.isEqual(delegate.account, userAddress))
+      throw new RpcResponse.InvalidParamsError({
+        message: 'A configurable account cannot be its own access key.',
+      })
+    const keyId = delegate
+      ? delegate.account
+      : recoverSigner(payload_keychain, inner)
     if (!keyId) return undefined
     const keyType = keyTypes[inner.type as keyof typeof keyTypes]
 
@@ -682,10 +700,12 @@ async function recoverSender(
         KeyAuthorization.getSignPayload(keyAuthorization)
       const authorizer =
         signature_authorization.type === 'configurable'
-          ? await verifyConfigurable(client, {
-              payload: payload_authorization,
-              signature: signature_authorization,
-            })
+          ? (
+              await verifyConfigurable(client, {
+                payload: payload_authorization,
+                signature: signature_authorization,
+              })
+            ).account
           : recoverSigner(payload_authorization, signature_authorization)
       if (authorizer && core_Address.isEqual(authorizer, userAddress))
         return keyAuthorization
@@ -715,9 +735,14 @@ async function recoverSender(
     const now = BigInt(Math.floor(Date.now() / 1000))
     const authorized = (() => {
       if (key.isRevoked) return false
-      // Without a usable authorization, the key must already be active on chain.
+      // Without a usable authorization, the key must already be active on chain. A delegate
+      // with a config commitment uses its grant whatever key type the grant stores.
       if (!authorization)
-        return key.signatureType === keyType && now < key.expiry
+        return (
+          (key.signatureType === keyType ||
+            (!!delegate && BigInt(delegate.commitment) !== 0n)) &&
+          now < key.expiry
+        )
       // Provisioning fails for an existing key, an expired grant, or a burned witness, so replays never pass.
       if (key.expiry !== 0n || isWitnessBurned) return false
       return authorization.expiry == null || now < BigInt(authorization.expiry)
@@ -742,8 +767,9 @@ async function recoverSender(
 }
 
 /**
- * Returns a configurable signature's account once its config matches the on-chain commitment and
- * its owner approvals of `payload` reach quorum. Raw signing returns before any node checks them.
+ * Returns a configurable signature's account and config commitment once its config matches the
+ * on-chain commitment and its owner approvals of `payload` reach quorum. Raw signing returns
+ * before any node checks them.
  */
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function verifyConfigurable(
@@ -754,7 +780,7 @@ async function verifyConfigurable(
   const { account } = signature
   const config = AccountConfig.from(signature.config)
   const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
-  await Accounts.validateConfig({
+  const commitment = await Accounts.validateConfig({
     account,
     blockNumber,
     client: client as never,
@@ -772,7 +798,7 @@ async function verifyConfigurable(
     throw new RpcResponse.InvalidParamsError({
       message: 'Configurable account approvals do not reach quorum.',
     })
-  return account
+  return { account, commitment }
 }
 
 declare namespace verifyConfigurable {
@@ -806,8 +832,13 @@ function recoverSigner(
   }
 }
 
-/** AccountKeychain signature type ids keyed by primitive signature type. */
-const keyTypes = { p256: 1, secp256k1: 0, webAuthn: 2 } as const
+/** AccountKeychain signature type ids keyed by inner signature type. */
+const keyTypes = {
+  configurable: 3,
+  p256: 1,
+  secp256k1: 0,
+  webAuthn: 2,
+} as const
 
 /** Default lowest base fee Tempo consensus admits (the T7 floor), in attodollars per gas. */
 const defaultMinimumBaseFee = 600_000_000n

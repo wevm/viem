@@ -226,7 +226,11 @@ const { receipt } = await client.accessKey.authorizeSync({
 })
 ```
 
-Once authorized, an admin key can authorize (and manage) other keys on behalf of the account. Pass the admin key as the `account`: viem binds the authorization to the parent account and signs it with the admin key directly.
+:::warning
+Admin keys are deprecated and valid only before T14. From T14 ([TIP-1137](https://tips.sh/1137)), the chain rejects new admin grants, stored admin keys act as access keys without limits, and access keys cannot manage other keys. Configurable accounts require T14, so `admin: true` throws for them.
+:::
+
+Before T14, an admin key can authorize (and manage) other keys on behalf of the account. Pass the admin key as the `account`: viem binds the authorization to the parent account and signs it with the admin key directly.
 
 ```ts twoslash
 // @twoslash-cache: {"v":2,"hash":"8a00d178db746db2e057ce4cd998a7d37e3de64bfe1e3efe3b5731a41cb40363","data":"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="}
@@ -289,6 +293,27 @@ const { receipt } = await client.accessKey.authorizeSync({ // [!code focus]
 }) // [!code focus]
 ```
 
+### Authorize a Configurable Account
+
+A [configurable account](/tempo/guides/configurable-accounts) can act as an access key of another account ([TIP-1111](https://tips.sh/1111)). Wrap it with `Account.fromConfigurable` and authorize it like any other key. Its owner quorum then signs as the parent account. Requires the T14 hardfork.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const team = Account.fromConfig({
+  owners: [Account.fromSecp256k1('0x...'), Account.fromSecp256k1('0x...')],
+  threshold: 2,
+})
+const accessKey = Account.fromConfigurable(team, { access: account }) // [!code focus]
+
+const { receipt } = await client.accessKey.authorizeSync({
+  account,
+  accessKey, // [!code focus]
+})
+```
+
 ### Asynchronous Usage
 
 The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
@@ -338,13 +363,15 @@ type ReturnType = {
 
 - **Type:** `{ accessKeyAddress: Address; keyType: string } | { address: Address; type: string } | { publicKey: Hex; type: string }`
 
-The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`.
+The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`. For a configurable account acting as the access key, pass the account from [`Account.fromConfigurable`](/tempo/guides/configurable-accounts/access-keys#use-a-configurable-account-as-an-access-key), or its address with type `configurable`.
 
 ### admin (optional)
 
 - **Type:** `boolean`
 
 Whether to authorize the key as an admin key. Admin keys are unrestricted and can manage the account's other access keys; `expiry`, `limits`, and `scopes` are ignored. Requires the T6 hardfork ([TIP-1049](https://tips.sh/1049)).
+
+Deprecated: admin keys are valid only before T14. From T14 ([TIP-1137](https://tips.sh/1137)), the chain rejects admin grants and stored admin keys act as access keys without limits. Configurable accounts require T14, so `admin: true` throws for them.
 
 ### expiry (optional)
 

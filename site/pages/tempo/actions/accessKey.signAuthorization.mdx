@@ -272,13 +272,15 @@ The account authorizing the access key. For coordinated signing, pass the config
 
 - **Type:** `{ accessKeyAddress: Address; keyType: string } | { address: Address; type: string } | { publicKey: Hex; type: string }`
 
-The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`.
+The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`. For a configurable account acting as the access key, pass the account from [`Account.fromConfigurable`](/tempo/guides/configurable-accounts/access-keys#use-a-configurable-account-as-an-access-key), or its address with type `configurable`.
 
 ### admin (optional)
 
 - **Type:** `boolean`
 
 Whether to authorize the key as an admin key. Admin keys are unrestricted and can manage the account's other access keys; `expiry`, `limits`, and `scopes` are ignored. Requires the T6 hardfork ([TIP-1049](https://tips.sh/1049)).
+
+Deprecated: admin keys are valid only before T14. From T14 ([TIP-1137](https://tips.sh/1137)), the chain rejects admin grants and stored admin keys act as access keys without limits. Configurable accounts require T14, so `admin: true` throws for them.
 
 ### expiry (optional)
 

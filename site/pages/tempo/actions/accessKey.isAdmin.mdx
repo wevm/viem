@@ -6,6 +6,8 @@ Checks whether an access key is an admin key for an account.
 
 Returns `true` for the account's root key or for an active admin access key (see [`accessKey.authorize`](/tempo/actions/accessKey.authorize) with `admin: true`).
 
+From T14 ([TIP-1137](https://tips.sh/1137)), keys stored as admin act as access keys without limits and return `false`. The key of an account with a config commitment (a configurable or upgraded account) is not an admin key either.
+
 [TIP-1049](https://tips.sh/1049)
 
 ## Usage
