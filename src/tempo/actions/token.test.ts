@@ -5,6 +5,7 @@ import {
   type EIP1193Parameters,
   type EIP1193RequestOptions,
   formatUnits,
+  http,
   type PublicRpcSchema,
   parseUnits,
 } from 'viem'
@@ -19,6 +20,7 @@ import {
   getClient,
   setupToken,
 } from '~test/tempo/config.js'
+import { rpcUrl } from '~test/tempo/prool.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -3345,6 +3347,36 @@ describe('errors', () => {
     })
     expect(error.token.toLowerCase()).toBe(token.toLowerCase())
     expect(error.message).toContain('shortfall:  10000 (10000000000)')
+  })
+
+  test('behavior: insufficient balance resolves without reads', async () => {
+    const { token } = await setupToken(client)
+    const methods: string[] = []
+    const recordingClient = getClient({
+      account,
+      chain: chainWithFeeToken,
+      transport: http(rpcUrl, {
+        onFetchRequest(_request, init) {
+          methods.push(JSON.parse(init.body as string).method)
+        },
+      }),
+    })
+
+    const error = await actions.token
+      .transferSync(recordingClient, {
+        amount: parseUnits('20000', 6),
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientBalanceError)
+    expect(error.decimals).toBe(6)
+    expect(methods).toMatchInlineSnapshot(`
+      [
+        "eth_fillTransaction",
+      ]
+    `)
   })
 
   test('behavior: decodes a reverted receipt by replaying the call', async () => {
