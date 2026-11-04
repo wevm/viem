@@ -109,7 +109,7 @@ export function formatTransactionRequest(
       | undefined
     keyData?: Hex.Hex | undefined
     keyId?: Address | undefined
-    keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
+    keyType?: 'configurable' | 'p256' | 'secp256k1' | 'webAuthn' | undefined
     owner?: viem_Account | ConfigurableAccount | Address | undefined
     signatures?: unknown
   }
@@ -172,16 +172,35 @@ export function formatTransactionRequest(
     rpc.maxPriorityFeePerGas = undefined
   }
 
+  // The node refuses to sign a request that models configurable account approvals.
+  if (action === 'sendTransaction' || action === 'signTransaction') {
+    rpc.configurableAccountSimulation = undefined
+    rpc.keyAuthorizationSimulation = undefined
+  }
+
   rpc.to = undefined
   rpc.data = undefined
   rpc.value = undefined
 
   // A call carries no key authorization, so the account's access key would fail
   // node validation until registered. Calls run as the account unless a key is given.
-  const signer = action === 'call' ? undefined : (owner ?? account)
+  const call = action === 'call'
+  // A configurable access key (TIP-1111) signs as its `keyId` delegate, whichever owner approves.
+  const delegate =
+    !call &&
+    account &&
+    'accessKeyAddress' in account &&
+    account.keyType === 'configurable'
+      ? account
+      : undefined
+  const signer = call ? undefined : (delegate ?? owner ?? account)
+  // The node names the configurable account key type `configurableAccount`.
+  const keyType_request =
+    request.keyType === 'configurable' ? 'configurableAccount' : request.keyType
   const [keyType, keyData] = (() => {
+    if (delegate) return ['configurableAccount', undefined]
     const type = signer && 'keyType' in signer ? signer.keyType : signer?.source
-    if (!type) return [request.keyType, shimKeyData(request.keyData)]
+    if (!type) return [keyType_request, shimKeyData(request.keyData)]
     if (type === 'webAuthn')
       // Send a 2-byte big-endian length hint (1400 = 0x0578) instead of a
       // 1400-byte dummy blob.  The node's gas estimator expects key_data to
@@ -189,7 +208,7 @@ export function formatTransactionRequest(
       // anything else falls back to the 800-byte default.
       return ['webAuthn', '0x0578']
     if (['p256', 'secp256k1'].includes(type)) return [type, undefined]
-    return [request.keyType, shimKeyData(request.keyData)]
+    return [keyType_request, shimKeyData(request.keyData)]
   })()
 
   const keyId =
