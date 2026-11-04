@@ -275,8 +275,7 @@ function includesArgs(parameters: {
         bytesRegex.test(input.type)
       )
         return value.toLowerCase() === arg.toLowerCase()
-      // Decoded integers are `bigint`. Filters may still be JS numbers
-      // (e.g. JSON ABIs / `encodeEventTopics`), so compare numerically.
+      // Normalize number and bigint filters for ABI integer comparison.
       if (
         integerRegex.test(input.type) &&
         (typeof value === 'number' || typeof value === 'bigint') &&
