@@ -13,8 +13,9 @@ import {
   WaitForTransactionReceiptTimeoutError,
   type WaitForTransactionReceiptTimeoutErrorType,
 } from '../../errors/transaction.js'
-import type { ErrorType } from '../../errors/utils.js'
+import { type ErrorType, getAbortError } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
@@ -108,6 +109,12 @@ export type WaitForTransactionReceiptParameters<
       }
     | undefined
   /**
+   * Request cancellation options. Only `signal` is supported.
+   * Aborting stops polling, scoped requests, and retry delays, and rejects with
+   * the signal's reason without cancelling the transaction.
+   */
+  requestOptions?: Pick<EIP1193RequestOptions, 'signal'> | undefined
+  /**
    * Number of times to retry if the transaction or block is not found.
    * @default 6 (exponential backoff)
    */
@@ -180,6 +187,10 @@ export async function waitForTransactionReceipt<
   client: Client<Transport, chain>,
   parameters: WaitForTransactionReceiptParameters<chain>,
 ): Promise<WaitForTransactionReceiptReturnType<chain>> {
+  const signal = parameters.requestOptions?.signal
+  if (signal?.aborted) throw getAbortError(signal)
+  if (signal) client = client.scope({ signal })
+
   const {
     checkReplacement = client.chain?.supportsTransactionReplacementDetection ??
       true,
@@ -245,6 +256,14 @@ export async function waitForTransactionReceipt<
       }, timeout)
     : undefined
 
+  const onAbort = () => {
+    clearTimeout(timer)
+    _unwatch?.()
+    _unobserve?.()
+    reject(getAbortError(signal))
+  }
+  signal?.addEventListener('abort', onAbort, { once: true })
+
   _unobserve = observe(
     observerId,
     { onReplaced, resolve, reject },
@@ -254,6 +273,8 @@ export async function waitForTransactionReceipt<
         getTransactionReceipt,
         'getTransactionReceipt',
       )({ hash }).catch(() => undefined)
+
+      if (signal?.aborted) return
 
       if (receipt && confirmations <= 1) {
         clearTimeout(timer)
@@ -356,6 +377,7 @@ export async function waitForTransactionReceipt<
                 {
                   delay: retryDelay,
                   retryCount,
+                  signal,
                   // A dropped transaction does not reappear, so a known
                   // sender and nonce are looked up without the retries.
                   shouldRetry: ({ error }) =>
@@ -504,6 +526,7 @@ export async function waitForTransactionReceipt<
                   {
                     delay: retryDelay,
                     retryCount,
+                    signal,
                     shouldRetry: ({ error }) =>
                       error instanceof BlockNotFoundError,
                   },
@@ -577,6 +600,7 @@ export async function waitForTransactionReceipt<
   // never start polling again. The timer is cleared here as well, since a
   // caller that resolves through another caller's poll never reaches `done`.
   return promise.finally(() => {
+    signal?.removeEventListener('abort', onAbort)
     clearTimeout(timer)
     _unobserve?.()
   })
