@@ -126,6 +126,47 @@ test.each([2, 3])(
   },
 )
 
+test('reads the receipt of a block mined while a block scan runs', async () => {
+  const pool = Pool.define({
+    instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+  })
+  onTestFinished(() => pool.destroyAll())
+  const node = await pool.start(1)
+  const testClient = createTestClient({
+    chain: mainnet,
+    mode: 'anvil',
+    transport: http(node.url),
+  })
+  const hash = await sendTransaction(testClient, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+
+  // The pending transaction's block is mined while the replacement check
+  // scans a block, and no block follows it.
+  let blocks = 1
+  const proxyUrl = await createRpcProxy(node.url, async ({ method }) => {
+    if (method === 'eth_getBlockByNumber' && blocks-- > 0) {
+      await mine(testClient, { blocks: 1 })
+      await wait(500)
+    }
+    return undefined
+  })
+  const client = createPublicClient({
+    chain: mainnet,
+    pollingInterval: 100,
+    transport: http(proxyUrl),
+  })
+
+  const { status } = await waitForTransactionReceipt(client, {
+    hash,
+    timeout: 5_000,
+  })
+
+  expect(status).toMatchInlineSnapshot(`"success"`)
+})
+
 test('waits for transaction (multiple waterfall)', async () => {
   setup()
 

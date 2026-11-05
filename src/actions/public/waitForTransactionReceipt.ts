@@ -230,6 +230,9 @@ export async function waitForTransactionReceipt<
   // A found replacement, kept while `receipt` waits for confirmations.
   let replacementResponse: ReplacementReturnType<chain> | undefined
   let retrying = false
+  // The latest block number, kept while a lookup runs, since the next block
+  // may never come.
+  let latest: bigint | undefined
 
   let _unobserve: () => void
   let _unwatch: () => void
@@ -241,6 +244,7 @@ export async function waitForTransactionReceipt<
     ? setTimeout(() => {
         _unwatch?.()
         _unobserve?.()
+        latest = undefined
         reject(new WaitForTransactionReceiptTimeoutError({ hash }))
       }, timeout)
     : undefined
@@ -264,6 +268,7 @@ export async function waitForTransactionReceipt<
 
       const handleBlock = async (blockNumber_: bigint) => {
         const done = (fn: () => void) => {
+          latest = undefined
           clearTimeout(timer)
           _unwatch?.()
           fn()
@@ -271,8 +276,6 @@ export async function waitForTransactionReceipt<
         }
 
         let blockNumber = blockNumber_
-
-        if (retrying) return
 
         try {
           if (receipt) {
@@ -567,7 +570,14 @@ export async function waitForTransactionReceipt<
         emitOnBegin: true,
         poll: true,
         pollingInterval,
-        onBlockNumber: handleBlock,
+        async onBlockNumber(blockNumber) {
+          latest = blockNumber
+          while (latest !== undefined && !retrying) {
+            const next = latest
+            latest = undefined
+            await handleBlock(next)
+          }
+        },
       })
     },
   )
