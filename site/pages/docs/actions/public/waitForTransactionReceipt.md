@@ -130,6 +130,30 @@ If the node does not support `eth_getTransactionBySenderAndNonce`, the wait scan
 Chains with their own replacement keys (e.g. Tempo nonce lanes) ignore `replacement`, since a sender and nonce do not identify a nonce slot there.
 :::
 
+### requestOptions.signal (optional)
+
+- **Type:** `AbortSignal`
+
+Stops waiting when the signal is aborted. The promise rejects with the signal's reason (an `AbortError` by default), and the wait removes its observers, aborts its scoped requests, and cancels retry delays. This also works when `timeout` is `0`.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const controller = new AbortController()
+const receipt = publicClient.waitForTransactionReceipt({
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  requestOptions: { signal: controller.signal }, // [!code focus]
+})
+const result = receipt.catch((error: unknown) => error)
+
+controller.abort()
+await result
+```
+
+:::note
+Aborting stops observation; it does not cancel the transaction on-chain. Waits with different signals are isolated, so aborting one does not stop another wait for the same hash. Only `signal` is supported in this action's `requestOptions`.
+:::
+
 ### retryCount (optional)
 
 - **Type:** `number`

@@ -1,8 +1,8 @@
 import { createPublicClient, http } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
-import { test } from 'vitest'
+import { expectTypeOf, test } from 'vitest'
 
-import { mainnet } from '../../chains/index.js'
+import { mainnet, optimism } from '../../chains/index.js'
 
 const client = createPublicClient({ chain: mainnet, transport: http() })
 
@@ -28,4 +28,44 @@ test('args: replacement', () => {
     // @ts-expect-error `nonceKey` is not a field of `replacement`.
     replacement: { from, nonce: 0, nonceKey: 1n },
   })
+})
+
+test('args: requestOptions', () => {
+  const requestOptions = { signal: new AbortController().signal }
+
+  waitForTransactionReceipt(client, { hash, requestOptions })
+  client.waitForTransactionReceipt({ hash, requestOptions })
+  waitForTransactionReceipt(client, {
+    hash,
+    requestOptions: { signal: undefined },
+  })
+
+  waitForTransactionReceipt(client, {
+    hash,
+    // @ts-expect-error `signal` must be an AbortSignal.
+    requestOptions: { signal: true },
+  })
+  waitForTransactionReceipt(client, {
+    hash,
+    // @ts-expect-error Transport retry overrides are not receipt-wait cancellation options.
+    requestOptions: { retryCount: 1 },
+  })
+})
+
+test('return type: requestOptions preserves chain receipt fields', async () => {
+  const client = createPublicClient({ chain: optimism, transport: http() })
+  const requestOptions = { signal: new AbortController().signal }
+
+  const receipt = await waitForTransactionReceipt(client, {
+    hash,
+    requestOptions,
+  })
+  const decoratedReceipt = await client.waitForTransactionReceipt({
+    hash,
+    requestOptions,
+  })
+
+  expectTypeOf(receipt.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(receipt.l1Fee).toEqualTypeOf<bigint | null>()
+  expectTypeOf(decoratedReceipt).toEqualTypeOf<typeof receipt>()
 })
