@@ -25,6 +25,10 @@ export const monad = /*#__PURE__*/ defineChain({
       name: 'MonadVision',
       url: 'https://monadvision.com',
     },
+    valopers: {
+      name: 'Valopers',
+      url: 'https://monad.valopers.com',
+    },
   },
   testnet: false,
   contracts: {
