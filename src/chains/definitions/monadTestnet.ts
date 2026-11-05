@@ -19,6 +19,10 @@ export const monadTestnet = /*#__PURE__*/ defineChain({
       name: 'Monad Testnet explorer',
       url: 'https://testnet.monadexplorer.com',
     },
+    valopers: {
+      name: 'Valopers',
+      url: 'https://testnet.monad.valopers.com',
+    },
   },
   contracts: {
     multicall3: {
