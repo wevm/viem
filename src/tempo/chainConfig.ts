@@ -12,6 +12,7 @@ import { getCode } from '../actions/public/getCode.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { readContract } from '../actions/public/readContract.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
+import type { Client } from '../clients/createClient.js'
 import { maxUint256 } from '../constants/number.js'
 import { BaseError } from '../errors/base.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
@@ -39,6 +40,7 @@ import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
 import { transactionReplacement } from './internal/replacement.js'
+import type * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 import * as Transaction from './Transaction.js'
 
 /** Default distance, in seconds, of a generated expiring nonce `validBefore`. Stays under the 300-second limit to allow for clock skew. */
@@ -77,7 +79,7 @@ export const chainConfig = {
     }),
   },
   prepareTransactionRequest: [
-    async (r, { client, phase }) => {
+    async (r, { client, error, phase }) => {
       const request = r as Transaction.TransactionRequest & {
         account?: Account | ConfigurableAccount | undefined
         chainId?: number | undefined
@@ -94,7 +96,37 @@ export const chainConfig = {
         accountSimulation?: AccountSimulation.Spec | undefined
         keyAuthorizationSimulation?: AccountSimulation.Spec | undefined
         owner?: Account | ConfigurableAccount | Address | undefined
+        parameters?: readonly string[] | undefined
         signatures?: readonly unknown[] | undefined
+      }
+
+      // The node refuses an authorization of a registered key, so the fill retries without it.
+      if (phase === 'afterFillTransactionError') {
+        const refused =
+          error instanceof BaseError &&
+          error.walk((cause) =>
+            (cause as BaseError).details?.includes('KeyAlreadyExists'),
+          )
+        const pending = refused ? await getPending(request) : undefined
+        if (!pending) return undefined
+        await pending.manager.remove(pending.key)
+        const { keyAuthorization: _, ...retry } = request
+        return retry as typeof r
+      }
+
+      // Without a successful fill, the node has not checked the attached authorization.
+      if (phase === 'beforeFillParameters') {
+        if (
+          typeof request.gas !== 'undefined' ||
+          !request.parameters?.includes('gas')
+        )
+          return request as unknown as typeof r
+        const pending = await getPending(request)
+        if (pending && (await isRegistered(client, pending.key))) {
+          await pending.manager.remove(pending.key)
+          delete request.keyAuthorization
+        }
+        return request as unknown as typeof r
       }
 
       if (request.hash) {
@@ -315,21 +347,14 @@ export const chainConfig = {
                 BigInt(keyAuthorization.expiry) <= now
               ) {
                 await keyAuthorizationManager.remove(key)
-              } else {
-                const metadata = await getAction(
-                  client,
-                  getMetadata,
-                  'getMetadata',
-                )({ account: address, accessKey })
-
-                if (
-                  isAddressEqual(metadata.address, accessKey) &&
-                  !metadata.isRevoked &&
-                  metadata.expiry > now
-                )
-                  await keyAuthorizationManager.remove(key)
-                else request.keyAuthorization = keyAuthorization
-              }
+              } else if (
+                // The fill checks the authorization, so it needs no separate read.
+                (request.parameters?.includes('gas') &&
+                  typeof request.gas === 'undefined') ||
+                !(await isRegistered(client, key))
+              )
+                request.keyAuthorization = keyAuthorization
+              else await keyAuthorizationManager.remove(key)
             }
           }
         }
@@ -346,7 +371,14 @@ export const chainConfig = {
 
       return request as unknown as typeof r
     },
-    { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
+    {
+      runAt: [
+        'beforeFillTransaction',
+        'afterFillTransactionError',
+        'beforeFillParameters',
+        'afterFillParameters',
+      ],
+    },
   ],
   serializers: {
     transaction: serializeTransaction,
@@ -535,6 +567,47 @@ export const chainConfig = {
 } as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
+
+/** Returns the access key's pending authorization manager entry when the request carries its authorization. */
+async function getPending(request: {
+  account?: Account | ConfigurableAccount | undefined
+  chain?: Chain | undefined
+  chainId?: number | undefined
+  keyAuthorization?: KeyAuthorization.Signed | null | undefined
+}) {
+  const { account, keyAuthorization } = request
+  if (!keyAuthorization || account?.source !== 'accessKey') return undefined
+  const manager = account.keyAuthorizationManager
+  const chainId = request.chainId ?? request.chain?.id
+  if (!manager || typeof chainId === 'undefined') return undefined
+  const key = {
+    address: account.address,
+    accessKey: account.accessKeyAddress,
+    chainId,
+  }
+  const pending = await manager.get(key)
+  if (
+    !pending ||
+    KeyAuthorization.serialize(pending) !==
+      KeyAuthorization.serialize(keyAuthorization)
+  )
+    return undefined
+  return { key, manager }
+}
+
+/** Whether the chain has registered an access key that is not revoked or expired. */
+async function isRegistered(client: Client, key: KeyAuthorizationManager.Key) {
+  const metadata = await getAction(
+    client,
+    getMetadata,
+    'getMetadata',
+  )({ account: key.address, accessKey: key.accessKey })
+  return (
+    isAddressEqual(metadata.address, key.accessKey) &&
+    !metadata.isRevoked &&
+    metadata.expiry > BigInt(Math.floor(Date.now() / 1000))
+  )
+}
 
 /**
  * Returns whether a request uses an expiring nonce: when asked for, when sponsored,

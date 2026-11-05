@@ -5242,12 +5242,17 @@ export const errorResolvers: Resolvers = {
     // Selector-only revert data carries no arguments.
     const token = context.base.error.args?.[2] as Address | undefined
     if (!token) return undefined
-    const [decimals] = await context.read([
-      { address: token, abi: Abis.tip20, functionName: 'decimals' },
-    ])
+    // TIP-20 decimals are always six.
+    const decimals = isTip20(token)
+      ? 6
+      : (
+          await context.read([
+            { address: token, abi: Abis.tip20, functionName: 'decimals' },
+          ])
+        )[0]?.result
     return new TokenInsufficientBalanceError({
       ...context.base,
-      decimals: decimals?.result,
+      decimals,
     })
   },
   'PolicyForbids()': async (context) => {
