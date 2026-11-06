@@ -30,6 +30,51 @@ const block = await publicClient.getBlock() // [!code focus:99]
 
 :::
 
+## Recipes
+
+### Find a Block by Timestamp
+
+To read historical state at a given time, find the last block whose timestamp is at or before the target Unix timestamp in seconds.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { publicClient } from './client'
+
+async function getBlockNumberAtOrBefore(
+  timestamp: bigint,
+): Promise<bigint | undefined> {
+  const latest = await publicClient.getBlock({ blockTag: 'latest' })
+  if (latest.timestamp <= timestamp) return latest.number
+
+  const genesis = await publicClient.getBlock({ blockNumber: 0n })
+  if (genesis.timestamp > timestamp) return undefined
+
+  let low = 0n
+  let high = latest.number - 1n
+  while (low < high) {
+    // Round up so low advances when two candidates remain.
+    const mid = (low + high + 1n) / 2n
+    const block = await publicClient.getBlock({ blockNumber: mid })
+    if (block.timestamp <= timestamp) low = mid
+    else high = mid - 1n
+  }
+  return low
+}
+
+const blockNumber = await getBlockNumberAtOrBefore(1_700_000_000n) // [!code focus]
+```
+
+```ts twoslash [client.ts] filename="client.ts"
+// [!include ~/snippets/publicClient.ts]
+```
+
+:::
+
+A timestamp before genesis returns `undefined`. A timestamp at or after the latest block returns that block's number. Use `blockTag: 'finalized'` for the upper bound if the result must be finalized.
+
+The search halves the block range with each RPC call. It requires access to historical blocks and assumes their timestamps do not decrease as block numbers increase.
+
 ## Returns
 
 [`Block`](/docs/glossary/types#block)
