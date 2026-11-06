@@ -3,9 +3,9 @@ import type { AbiEvent, Address, Block, Errors } from 'ox'
 
 import { HttpError } from '../../../utils/RpcClient.js'
 import type * as Client from '../../Client.js'
+import { createAsyncIterator } from '../../internal/asyncIterator.js'
 import { observe } from '../../internal/observe.js'
 import { poll } from '../../internal/poll.js'
-import { withResolvers } from '../../internal/promise.js'
 import { stringify } from '../../internal/stringify.js'
 import type { OneOf } from '../../internal/types.js'
 import { getNumber } from '../block/getNumber.js'
@@ -281,83 +281,20 @@ export function watch<
     watch.Emitted<abiEvent, strict>
   > {
     type Item = watch.Emitted<abiEvent, strict>
-    let latest: Item | undefined
-    let error: Error | undefined
-    let pending:
-      | {
-          resolve: (result: IteratorResult<Item>) => void
-          reject: (error: Error) => void
-        }
-      | undefined
-    let done = false
+    return createAsyncIterator<Item>((onData, onError, end) => {
+      const off = watcher.onLogs((logs) => {
+        const value = { logs } as Item
+        onData(value)
+      })
+      const offError = watcher.onError(onError)
+      iteratorEnds.add(end)
 
-    const offLogs = watcher.onLogs((logs) => {
-      const value = { logs } as Item
-      if (pending) {
-        const { resolve } = pending
-        pending = undefined
-        resolve({ done: false, value })
-      } else {
-        latest = value
+      return () => {
+        off()
+        offError()
+        iteratorEnds.delete(end)
       }
     })
-    const offError = watcher.onError((err) => {
-      if (pending) {
-        const { reject } = pending
-        pending = undefined
-        done = true
-        cleanup()
-        reject(err)
-      } else {
-        error = err
-      }
-    })
-
-    function cleanup() {
-      offLogs()
-      offError()
-      iteratorEnds.delete(end)
-    }
-
-    function end() {
-      done = true
-      cleanup()
-      if (pending) {
-        const { resolve } = pending
-        pending = undefined
-        resolve({ done: true, value: undefined })
-      }
-    }
-    iteratorEnds.add(end)
-
-    return {
-      next() {
-        if (latest) {
-          const value = latest
-          latest = undefined
-          return Promise.resolve({ done: false, value })
-        }
-        if (error) {
-          const err = error
-          error = undefined
-          done = true
-          cleanup()
-          return Promise.reject(err)
-        }
-        if (done) return Promise.resolve({ done: true, value: undefined })
-        const { promise, resolve, reject } =
-          withResolvers<IteratorResult<Item>>()
-        pending = { reject, resolve }
-        return promise
-      },
-      return() {
-        end()
-        return Promise.resolve({ done: true, value: undefined })
-      },
-      [Symbol.asyncIterator]() {
-        return this
-      },
-    }
   }
 
   const watcher: watch.Watcher<abiEvent, strict> = {

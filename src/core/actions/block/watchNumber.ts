@@ -2,9 +2,9 @@ import { Hex } from 'ox'
 import type { Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
+import { createAsyncIterator } from '../../internal/asyncIterator.js'
 import { observe } from '../../internal/observe.js'
 import { poll } from '../../internal/poll.js'
-import { withResolvers } from '../../internal/promise.js'
 import { stringify } from '../../internal/stringify.js'
 import { getSubscribe } from '../internal/getSubscribe.js'
 import { getNumber } from './getNumber.js'
@@ -163,86 +163,20 @@ export function watchNumber(
   }
 
   function createIterator(): AsyncIterableIterator<watchNumber.Emitted> {
-    let latest: watchNumber.Emitted | undefined
-    let error: Error | undefined
-    let pending:
-      | {
-          resolve: (result: IteratorResult<watchNumber.Emitted>) => void
-          reject: (error: Error) => void
-        }
-      | undefined
-    let done = false
-
-    const offBlockNumber = watcher.onBlockNumber(
-      (blockNumber, prevBlockNumber) => {
+    return createAsyncIterator<watchNumber.Emitted>((onData, onError, end) => {
+      const off = watcher.onBlockNumber((blockNumber, prevBlockNumber) => {
         const value = { blockNumber, prevBlockNumber }
-        if (pending) {
-          const { resolve } = pending
-          pending = undefined
-          resolve({ done: false, value })
-        } else {
-          // Latest-only: overwrite any unconsumed value.
-          latest = value
-        }
-      },
-    )
-    const offError = watcher.onError((err) => {
-      if (pending) {
-        const { reject } = pending
-        pending = undefined
-        done = true
-        cleanup()
-        reject(err)
-      } else {
-        error = err
+        onData(value)
+      })
+      const offError = watcher.onError(onError)
+      iteratorEnds.add(end)
+
+      return () => {
+        off()
+        offError()
+        iteratorEnds.delete(end)
       }
     })
-
-    function cleanup() {
-      offBlockNumber()
-      offError()
-      iteratorEnds.delete(end)
-    }
-
-    function end() {
-      done = true
-      cleanup()
-      if (pending) {
-        const { resolve } = pending
-        pending = undefined
-        resolve({ done: true, value: undefined })
-      }
-    }
-    iteratorEnds.add(end)
-
-    return {
-      next() {
-        if (latest) {
-          const value = latest
-          latest = undefined
-          return Promise.resolve({ done: false, value })
-        }
-        if (error) {
-          const err = error
-          error = undefined
-          done = true
-          cleanup()
-          return Promise.reject(err)
-        }
-        if (done) return Promise.resolve({ done: true, value: undefined })
-        const { promise, resolve, reject } =
-          withResolvers<IteratorResult<watchNumber.Emitted>>()
-        pending = { reject, resolve }
-        return promise
-      },
-      return() {
-        end()
-        return Promise.resolve({ done: true, value: undefined })
-      },
-      [Symbol.asyncIterator]() {
-        return this
-      },
-    }
   }
 
   const watcher: watchNumber.Watcher = {
