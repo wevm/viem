@@ -30,6 +30,7 @@ const zoneClient = createClient({
   transport,
 })
 const decoratedZoneClient = zoneClient.extend(decorator())
+const decoratedClient = client.extend(decorator())
 
 test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', async () => {
   const prepared = await zoneActions.encryptedDeposit.prepare(client, {
@@ -220,6 +221,8 @@ test('getPortalInfo returns portal metadata and configuration', async () => {
 test('getZoneInfo returns sequencers and the imported Tempo block number', async () => {
   const info = await zoneActions.getZoneInfo(zoneClient)
 
+  expectTypeOf(info.isAccessEnforced).toEqualTypeOf<boolean>()
+  expectTypeOf(info.isGatewayOpen).toEqualTypeOf<boolean>()
   expectTypeOf(info.sequencers).toEqualTypeOf<readonly Address[]>()
   expectTypeOf(info.tempoBlockNumber).toEqualTypeOf<bigint>()
 })
@@ -230,4 +233,69 @@ test('waitForTempoBlock returns zone info', async () => {
   })
 
   expectTypeOf(info).toEqualTypeOf<zoneActions.getZoneInfo.ReturnType>()
+})
+
+test('encryptedDeposit accepts prepared encrypted payloads and sync polling options', async () => {
+  const prepared = await zoneActions.encryptedDeposit.prepare(client, {
+    amount: 1n,
+    recipient: client.account.address,
+    tempoRefundRecipient: client.account.address,
+    token: '0x20c0000000000000000000000000000000000000',
+    zoneId: 1,
+  })
+
+  zoneActions.encryptedDeposit.calls(prepared)
+  expectTypeOf(
+    await zoneActions.encryptedDeposit(client, prepared),
+  ).toEqualTypeOf<Hash>()
+  expectTypeOf(
+    await zoneActions.encryptedDepositSync(client, {
+      ...prepared,
+      pollingInterval: 100,
+      timeout: 1_000,
+    }),
+  ).toEqualTypeOf<zoneActions.encryptedDepositSync.ReturnValue>()
+
+  // @ts-expect-error composable calls require an encrypted payload and key index
+  zoneActions.encryptedDeposit.calls({
+    amount: 1n,
+    recipient: client.account.address,
+    tempoRefundRecipient: client.account.address,
+    token: '0x20c0000000000000000000000000000000000000',
+    zoneId: 1,
+  })
+})
+
+test('encryptedDeposit is the only deposit pair in the public namespace', () => {
+  expectTypeOf(zoneActions).not.toHaveProperty('deposit')
+  expectTypeOf(zoneActions).not.toHaveProperty('depositSync')
+  expectTypeOf(decoratedClient.zone).not.toHaveProperty('deposit')
+  expectTypeOf(decoratedClient.zone).not.toHaveProperty('depositSync')
+})
+
+test('decorated encryptedDeposit preparation helpers return reusable payloads', async () => {
+  const parameters = {
+    amount: 1n,
+    recipient: client.account.address,
+    sender: client.account.address,
+    tempoRefundRecipient: client.account.address,
+    token: '0x20c0000000000000000000000000000000000000',
+    zoneId: 1,
+  } as const
+  const prepared =
+    await decoratedClient.zone.encryptedDeposit.prepare(parameters)
+  const recipient =
+    await decoratedClient.zone.encryptedDeposit.prepareRecipient(parameters)
+
+  expectTypeOf(prepared).toEqualTypeOf<zoneActions.PreparedEncryptedDeposit>()
+  expectTypeOf(
+    recipient,
+  ).toEqualTypeOf<zoneActions.PreparedEncryptedDepositRecipient>()
+  decoratedClient.zone.encryptedDeposit.calls(prepared)
+  expectTypeOf(
+    await decoratedClient.zone.encryptedDeposit(prepared),
+  ).toEqualTypeOf<Hash>()
+  expectTypeOf(
+    await decoratedClient.zone.encryptedDepositSync(prepared),
+  ).toEqualTypeOf<zoneActions.encryptedDepositSync.ReturnValue>()
 })

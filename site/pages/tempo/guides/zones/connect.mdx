@@ -8,18 +8,14 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Zones are private, account-scoped chains on [Tempo](https://tempo.xyz). Each zone is an isolated
-execution environment that keeps balances, transfers, and history invisible to the public chain while
-inheriting the security guarantees of Tempo Mainnet.
+Zones are private, account-scoped chains on [Tempo](https://tempo.xyz). Each zone is an isolated execution environment that keeps balances, transfers, and history invisible to the public chain while inheriting the security guarantees of Tempo Mainnet.
 
-All zone RPC methods require an `X-Authorization-Token` header. The zone `http` transport attaches it
-automatically once you have signed an authorization token.
+All zone RPC methods require an `X-Authorization-Token` header. The zone `http` transport attaches it automatically once you have signed an authorization token.
 
 [See the Tempo Zones specification](https://docs.tempo.xyz/protocol/zones)
 
 :::warning
-Tempo Zones are in early development and available on Tempo Testnet only. Expect breaking changes and
-do not use them in production.
+Tempo Zones are in early development and available on Tempo Testnet only. Expect breaking changes and do not use them in production.
 :::
 
 ## Setup
@@ -48,9 +44,7 @@ bun i viem
 
 ### Configure a Zone Client
 
-Configure a [Viem Client](/docs/clients/custom) with [`Zone.a`](/tempo/chains#zones) and the Zone
-`http` transport. `Zone.a` includes its public RPC URL, so `http()` reads the endpoint from the chain
-definition.
+Configure a [Viem Client](/docs/clients/custom) with [`Zone.a`](/tempo/chains#zones) and the Zone `http` transport. `Zone.a` includes its public RPC URL, so `http()` reads the endpoint from the chain definition.
 
 ```ts twoslash [zones.config.ts] filename="zones.config.ts"
 // [!include ~/snippets/tempo/zones.config.ts:setup]
@@ -58,10 +52,7 @@ definition.
 
 ### Sign an Authorization Token
 
-Before making any zone RPC requests, sign an authorization token with
-[`zone.signAuthorizationToken`](/tempo/actions/zone.signAuthorizationToken). This authenticates your
-account with the zone sequencer, and the zone `http` transport attaches the signed token as the
-`X-Authorization-Token` header on subsequent requests.
+Before making any zone RPC requests, sign an authorization token with [`zone.signAuthorizationToken`](/tempo/actions/zone.signAuthorizationToken). This authenticates your account with the zone sequencer, and the zone `http` transport attaches the signed token as the `X-Authorization-Token` header on subsequent requests.
 
 :::code-group
 
@@ -80,8 +71,7 @@ const { token } = await client.zone.signAuthorizationToken()
 
 ### Use Zone Actions
 
-Once authenticated, use [Zone Actions](/tempo/actions) to interact with your zone, such as
-[`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) to read the zone's id, chain id, and sequencers.
+Once authenticated, use [Zone Actions](/tempo/actions) to interact with your zone, such as [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) to read the zone's id, chain id, and sequencers.
 
 :::code-group
 
@@ -104,21 +94,15 @@ const info = await client.zone.getZoneInfo()
 
 ### Reuse a Persisted Token
 
-The signed token is persisted with [`Store`](/tempo/utilities/Store). By default,
-[`Store.defaultStore`](/tempo/utilities/Store.defaultStore) selects an in-memory store in Node.js
-or `sessionStorage` in browsers. A connected session reuses the token instead of signing each
-request again. Provide a custom `store` to control where the token is stored.
+The signed token is persisted with [`Store`](/tempo/utilities/Store). By default, [`Store.defaultStore`](/tempo/utilities/Store.defaultStore) selects an in-memory store in Node.js or `sessionStorage` in browsers. A connected session reuses the token instead of signing each request again. Provide a custom `store` to control where the token is stored.
 
 ### Check Token Expiry
 
-Authorization tokens expire. Read the current token's account and expiry with
-[`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) and re-sign before
-it lapses to avoid failed RPC reads.
+Authorization tokens expire. Read the current token's account and expiry with [`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) and re-sign before it lapses to avoid failed RPC reads.
 
 ### Pick the Right Zone
 
-Set `sourceId` to the Tempo chain that hosts the Zone. A mismatched source chain or RPC endpoint
-causes chain-id mismatches when signing tokens and sending transactions.
+Set `sourceId` to the Tempo chain that hosts the Zone: `4217` for Mainnet or `42431` for Moderato. Authorization tokens derive their Zone scope from this source chain and the Zone chain ID. The predefined `Zone.a` and `Zone.b` chains retain their legacy scopes of `6` and `7`. For custom chains, the [`zoneId` option](/tempo/actions/zone.signAuthorizationToken#zoneid-optional) can override the token scope. A mismatched source chain or RPC endpoint causes chain-id mismatches when signing tokens and sending transactions.
 
 ## See More
 
