@@ -32,8 +32,13 @@ export async function recoverPublicKey({
     // typeof signature: `Signature`
     if (typeof signature === 'object' && 'r' in signature && 's' in signature) {
       const { r, s, v, yParity } = signature
-      const yParityOrV = Number(yParity ?? v)!
-      const recoveryBit = toRecoveryBit(yParityOrV)
+      const recoveryBit = (() => {
+        // EIP-155 `v` (`chainId * 2 + 35 + yParity`). Derive parity from the
+        // bigint, since `v` can exceed `Number.MAX_SAFE_INTEGER`.
+        if (yParity === undefined && v !== undefined && v >= 35n)
+          return v % 2n === 0n ? 1 : 0
+        return toRecoveryBit(Number(yParity ?? v))
+      })()
       return new secp256k1.Signature(
         hexToBigInt(r),
         hexToBigInt(s),
