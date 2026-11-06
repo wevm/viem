@@ -6,6 +6,7 @@ import {
   SignatureEnvelope,
 } from 'ox/tempo'
 import {
+  type Address,
   createClient,
   createClientResolver,
   custom,
@@ -15,7 +16,12 @@ import {
   toHex,
 } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
-import { fillTransaction, sendTransactionSync } from 'viem/actions'
+import {
+  fillTransaction,
+  getBlock,
+  getTransaction,
+  sendTransactionSync,
+} from 'viem/actions'
 import { tempo, tempoModerato } from 'viem/chains'
 import {
   Account,
@@ -289,7 +295,7 @@ test('rejects a signed payload conflicting with the client chain', async () => {
 
 describe.runIf(
   import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-179347b',
+    import.meta.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
 )('plugin: accounts', () => {
   beforeAll(async () => {
     await Actions.faucet.fundSync(caller, {
@@ -692,7 +698,7 @@ describe.runIf(
 
 describe.runIf(
   import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-179347b',
+    import.meta.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
 )('plugin: keyAuthorization', () => {
   const relay = Relay.create({
     client: caller,
@@ -994,3 +1000,444 @@ describe.runIf(
     )
   })
 })
+
+describe.runIf(
+  import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
+    import.meta.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
+)('plugin: accounts (configurable access key)', () => {
+  const token = Tempo.addresses.alphaUsd
+  const store = Store.memory()
+  const relay = Relay.create({
+    client: caller,
+    plugins: [
+      Relay.accounts({ store }),
+      Relay.feePayer({ account: feePayerAccount }),
+    ],
+    resolveTokens: () => [token],
+  })
+  let clients: ReturnType<typeof createClients> = []
+
+  beforeAll(async () => {
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    // Each owner approves from its own client, sharing only the relay.
+    clients = createClients(server.url)
+    await Actions.faucet.fundSync(caller, {
+      account: feePayerAccount,
+      timeout: 60_000,
+    })
+    return async () => {
+      await server.close()
+    }
+  })
+
+  test('default: collects owner approvals from separate clients', async () => {
+    const client_1 = clients[0]!
+    const client_2 = clients[1]!
+    const owner_1 = Tempo.accounts[1]!
+    const owner_2 = Tempo.accounts[2]!
+    const { accessKey, parent } = await setupAccessKey({
+      owners: [owner_1.address, owner_2.address],
+      salt: 0x515000,
+    })
+    const before = await getBalance(recipient.address)
+
+    const { receipt: pending } = await Actions.token.transferSync(client_1, {
+      account: accessKey,
+      amount: 1n,
+      feePayer: true,
+      owner: owner_1,
+      to: recipient.address,
+      token,
+    })
+    expect({
+      account: pending.operation?.account,
+      from: pending.from,
+      signatureCount: pending.operation?.signatureCount,
+      status: pending.status,
+      userAddress: pending.operation?.userAddress,
+    }).toEqual({
+      account: accessKey.accessKeyAddress.toLowerCase(),
+      from: parent.address.toLowerCase(),
+      signatureCount: 1,
+      status: 'pending',
+      userAddress: parent.address.toLowerCase(),
+    })
+    expect(await getBalance(recipient.address)).toBe(before)
+
+    const hash = pending.transactionHash
+    await expect(
+      Actions.accounts.getOperation(client_2, { hash }),
+    ).resolves.toMatchObject({ status: 'pending', weight: 1 })
+    await expect(
+      client_2.request({
+        method: 'eth_getTransactionByHash',
+        params: [hash],
+      }),
+    ).resolves.toMatchObject({ from: parent.address.toLowerCase(), hash })
+    await expect(
+      client_2.request({
+        method: 'eth_getTransactionReceipt',
+        params: [hash],
+      }),
+    ).resolves.toBeNull()
+
+    const { receipt } = await Actions.token.transferSync(client_2, {
+      account: accessKey,
+      amount: 1n,
+      hash,
+      owner: owner_2,
+      to: recipient.address,
+      token,
+    } as never)
+    expect({
+      feePayer: receipt.feePayer,
+      from: receipt.from,
+      signatureCount: receipt.operation?.signatureCount,
+      status: receipt.status,
+    }).toEqual({
+      feePayer: feePayerAccount.address.toLowerCase(),
+      from: parent.address.toLowerCase(),
+      signatureCount: 2,
+      status: 'success',
+    })
+    expect((await getBalance(recipient.address)) - before).toBe(1n)
+
+    const { signature } = await getTransaction(caller, {
+      hash: receipt.transactionHash,
+    })
+    if (
+      signature?.type !== 'keychain' ||
+      signature.inner.type !== 'configurable'
+    )
+      throw new Error('Expected a configurable keychain signature.')
+    expect({
+      account: signature.inner.account,
+      approvals: signature.inner.signatures.length,
+      userAddress: signature.userAddress,
+    }).toEqual({
+      account: accessKey.accessKeyAddress.toLowerCase(),
+      approvals: 2,
+      userAddress: parent.address.toLowerCase(),
+    })
+    await expect(
+      client_1.request({
+        method: 'eth_getTransactionReceipt',
+        params: [hash],
+      }),
+    ).resolves.toMatchObject({
+      operation: { status: 'success' },
+      transactionHash: receipt.transactionHash,
+    })
+  })
+
+  test('behavior: same-transaction grant, then reuse once registered', async () => {
+    const client_1 = clients[0]!
+    const client_2 = clients[1]!
+    const owner_1 = Tempo.accounts[3]!
+    const owner_2 = Tempo.accounts[4]!
+    const config = {
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x515001, { size: 32 }),
+      threshold: 2,
+    }
+    const parent = await fundParent()
+    const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
+      account: parent,
+      accessKey: {
+        address: Account.fromConfig(config).address,
+        type: 'configurable',
+      },
+    })
+    const accessKey = Account.fromConfig(config, {
+      access: parent,
+      keyAuthorization,
+    })
+
+    const send = async () => {
+      const { receipt: pending } = await Actions.token.transferSync(client_1, {
+        account: accessKey,
+        amount: 1n,
+        feePayer: true,
+        owner: owner_1,
+        to: recipient.address,
+        token,
+      })
+      expect(pending.status).toBe('pending')
+      const { receipt } = await Actions.token.transferSync(client_2, {
+        account: accessKey,
+        amount: 1n,
+        hash: pending.transactionHash,
+        owner: owner_2,
+        to: recipient.address,
+        token,
+      } as never)
+      expect(receipt.status).toBe('success')
+      expect(receipt.from).toBe(parent.address.toLowerCase())
+      return await getTransaction(caller, { hash: receipt.transactionHash })
+    }
+
+    const first = await send()
+    expect(first.keyAuthorization?.address).toBe(
+      accessKey.accessKeyAddress.toLowerCase(),
+    )
+    await expect(
+      Actions.accessKey.getMetadata(caller, { account: parent, accessKey }),
+    ).resolves.toMatchObject({ isRevoked: false, keyType: 'configurable' })
+
+    const second = await send()
+    expect(second.keyAuthorization).toBeNull()
+  })
+
+  test('behavior: enforces spending limits', async () => {
+    const client_1 = clients[0]!
+    const client_2 = clients[1]!
+    const owner_1 = Tempo.accounts[5]!
+    const owner_2 = Tempo.accounts[6]!
+    const { accessKey } = await setupAccessKey({
+      limits: [{ limit: 10n, token }],
+      owners: [owner_1.address, owner_2.address],
+      salt: 0x515002,
+    })
+
+    const transfer = async (amount: bigint) => {
+      const { receipt: pending } = await Actions.token.transferSync(client_1, {
+        account: accessKey,
+        amount,
+        feePayer: true,
+        owner: owner_1,
+        to: recipient.address,
+        token,
+      })
+      return Actions.token.transferSync(client_2, {
+        account: accessKey,
+        amount,
+        hash: pending.transactionHash,
+        owner: owner_2,
+        to: recipient.address,
+        token,
+      } as never)
+    }
+
+    expect((await transfer(10n)).receipt.status).toBe('success')
+    await expect(transfer(1n)).rejects.toThrow(
+      'Account keychain error: SpendingLimitExceeded',
+    )
+  })
+
+  test('behavior: rejects a revoked access key', async () => {
+    const client_1 = clients[0]!
+    const owner_1 = Tempo.accounts[8]!
+    const owner_2 = Tempo.accounts[10]!
+    const { accessKey, parent } = await setupAccessKey({
+      owners: [owner_1.address, owner_2.address],
+      salt: 0x515003,
+    })
+    await Actions.accessKey.revokeSync(caller, {
+      account: parent,
+      accessKey,
+      feeToken: token,
+    })
+
+    await expect(
+      Actions.token.transferSync(client_1, {
+        account: accessKey,
+        amount: 1n,
+        feePayer: true,
+        owner: owner_1,
+        to: recipient.address,
+        token,
+      }),
+    ).rejects.toThrow('Key has already been revoked.')
+  })
+
+  test('behavior: respects expiry', async () => {
+    const client_1 = clients[0]!
+    const client_2 = clients[1]!
+    const owner_1 = Tempo.accounts[11]!
+    const owner_2 = Tempo.accounts[12]!
+    const { timestamp } = await getBlock(caller)
+    const expiry = Number(timestamp) + 8
+    const { accessKey } = await setupAccessKey({
+      expiry,
+      owners: [owner_1.address, owner_2.address],
+      salt: 0x515004,
+    })
+
+    const { receipt: pending } = await Actions.token.transferSync(client_1, {
+      account: accessKey,
+      amount: 1n,
+      feePayer: true,
+      owner: owner_1,
+      to: recipient.address,
+      token,
+    })
+    await waitForTimestamp(expiry + 1)
+    await expect(
+      Actions.token.transferSync(client_2, {
+        account: accessKey,
+        amount: 1n,
+        hash: pending.transactionHash,
+        owner: owner_2,
+        to: recipient.address,
+        token,
+      } as never),
+    ).rejects.toThrow(
+      'Transaction access key is not authorized for its sender.',
+    )
+  })
+
+  test('behavior: signs with the delegate config after updateConfig', async () => {
+    const client_1 = clients[0]!
+    const client_2 = clients[1]!
+    const owner_1 = Tempo.accounts[13]!
+    const owner_2 = Tempo.accounts[14]!
+    const owner_3 = Tempo.accounts[15]!
+    const owner_4 = Tempo.accounts[16]!
+    const { accessKey, delegate, parent } = await setupAccessKey({
+      owners: [owner_1.address, owner_2.address],
+      salt: 0x515005,
+    })
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      amount: parseUnits('1', 6),
+      to: delegate.address,
+      token,
+    })
+
+    const { receipt: updatePending } = await Actions.accounts.updateConfigSync(
+      client_1,
+      {
+        account: delegate,
+        feeToken: token,
+        nextConfig: {
+          owners: [
+            { owner: owner_3.address, weight: 1 },
+            { owner: owner_4.address, weight: 1 },
+          ],
+          threshold: 2,
+        },
+        owner: owner_1,
+      },
+    )
+    const updateReceipt = await sendTransactionSync(client_2, {
+      account: delegate,
+      hash: updatePending.transactionHash,
+      owner: owner_2,
+    })
+    expect(updateReceipt.status).toBe('success')
+
+    // Approvals under the replaced config no longer reach quorum.
+    await expect(
+      Actions.token.transferSync(client_1, {
+        account: accessKey,
+        amount: 1n,
+        feePayer: true,
+        owner: owner_1,
+        to: recipient.address,
+        token,
+      }),
+    ).rejects.toThrow('account configuration commitment mismatch')
+
+    const rotated = Account.fromConfig(delegate.address, { access: parent })
+    const { receipt: pending } = await Actions.token.transferSync(client_1, {
+      account: rotated,
+      amount: 1n,
+      feePayer: true,
+      owner: owner_3,
+      to: recipient.address,
+      token,
+    })
+    expect(pending.operation?.config.version).toBe(1n)
+    const { receipt } = await Actions.token.transferSync(client_2, {
+      account: rotated,
+      amount: 1n,
+      hash: pending.transactionHash,
+      owner: owner_4,
+      to: recipient.address,
+      token,
+    } as never)
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(parent.address.toLowerCase())
+  })
+
+  test('error: rejects an approval from a non-owner', async () => {
+    const client_1 = clients[0]!
+    const { accessKey } = await setupAccessKey({
+      owners: [Tempo.accounts[17]!.address, Tempo.accounts[18]!.address],
+      salt: 0x515006,
+    })
+    await expect(
+      Actions.token.transferSync(client_1, {
+        account: accessKey,
+        amount: 1n,
+        feePayer: true,
+        owner: Tempo.accounts[19]!,
+        to: recipient.address,
+        token,
+      }),
+    ).rejects.toThrow('Invalid operation approval: signature is from non-owner')
+  })
+})
+
+/** Creates one relay client per owner. */
+function createClients(url: string) {
+  return [0, 1].map(() =>
+    createClient({
+      chain: Tempo.chain,
+      pollingInterval: 100,
+      transport: withRelay(Tempo.http(), Tempo.http(url)),
+    }),
+  )
+}
+
+/** Funds a fresh parent account with the fee and transfer token. */
+async function fundParent() {
+  const parent = Account.fromSecp256k1(generatePrivateKey())
+  await Actions.token.transferSync(caller, {
+    account: feePayerAccount,
+    amount: parseUnits('1', 6),
+    to: parent.address,
+    token: Tempo.addresses.alphaUsd,
+  })
+  return parent
+}
+
+/** Authorizes a configurable account as an access key of a fresh parent. */
+async function setupAccessKey(options: {
+  expiry?: number | undefined
+  limits?: { limit: bigint; token: Address }[] | undefined
+  owners: readonly Address[]
+  salt: number
+}) {
+  const { expiry, limits, owners, salt } = options
+  const parent = await fundParent()
+  const config = { owners, salt: toHex(salt, { size: 32 }), threshold: 2 }
+  const delegate = Account.fromConfig(config)
+  const accessKey = Account.fromConfig(config, { access: parent })
+  await Actions.accessKey.authorizeSync(caller, {
+    account: parent,
+    accessKey,
+    expiry,
+    feeToken: Tempo.addresses.alphaUsd,
+    limits,
+  })
+  return { accessKey, delegate, parent }
+}
+
+/** Reads the recipient's transfer token balance. */
+async function getBalance(account: Address) {
+  const { amount } = await Actions.token.getBalance(caller, {
+    account,
+    token: Tempo.addresses.alphaUsd,
+  })
+  return amount
+}
+
+/** Waits until the chain produces a block at or past \`timestamp\`. */
+async function waitForTimestamp(timestamp: number) {
+  for (;;) {
+    const block = await getBlock(caller)
+    if (Number(block.timestamp) >= timestamp) return
+    await new Promise((resolve) => setTimeout(resolve, 500))
+  }
+}

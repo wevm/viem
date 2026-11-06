@@ -63,16 +63,17 @@ export type RootAccount = Account_base<'root'> & {
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
       'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
-    > & {
-      /** Whether to authorize the key as an admin key (TIP-1049). */
-      admin?: boolean | undefined
-    },
+    >,
   ) => Promise<KeyAuthorization.Signed>
 }
 
-export type AccessKeyAccount = Account_base<'accessKey'> & {
-  /** Access key ID. */
+export type AccessKeyAccount = Omit<Account_base<'accessKey'>, 'keyType'> & {
+  /** Access key ID: the address of the key, or of the configurable account acting as the key. */
   accessKeyAddress: Address.Address
+  /** Configurable account (TIP-1111) that signs as the access key, when the access key is one. */
+  delegate?: ConfigurableAccount | undefined
+  /** Key type. `configurable` for a configurable account acting as the access key. */
+  keyType: KeyAuthorization.KeyAuthorization['type']
   /** Pending key authorization manager. */
   keyAuthorizationManager?: KeyAuthorizationManager | undefined
   /**
@@ -392,8 +393,25 @@ export declare namespace fromSecp256k1 {
  * verify against the account's current config, so a config update invalidates
  * earlier signatures. Verify them with `verifyHash`, `verifyMessage`, or
  * `verifyTypedData` on a Tempo client, which use the signature verifier
- * precompile. Configurable accounts have no code and do not implement ERC-1271
- * `isValidSignature`, so ERC-1271 verifiers do not accept their signatures.
+ * precompile. A registered account (after its first transaction or an upgrade)
+ * carries the account code marker and answers ERC-1271 `isValidSignature` and
+ * `onERC721Received` through a shim. A counterfactual account has no code, so
+ * ERC-1271 verifiers do not accept its signatures until it is registered.
+ *
+ * A derived account's address is the last 20 bytes of a keccak256 hash of its
+ * version-zero config (TIP-1107), so it stays fixed across config updates. An
+ * upgraded account keeps its existing address.
+ *
+ * Tempo stores a commitment to the current config, not its fields. Retain the
+ * current config, or recover it from the account's
+ * `ConfigurableAccountConfigUpdated` events (registration emits version `0`),
+ * starting from `AccountUpgraded` for an upgraded account.
+ *
+ * Pass `access` to sign as an access key of another account (TIP-1111). The
+ * parent authorizes the account's address with key type `configurable`, and the
+ * returned access key account signs as the parent: a keychain envelope wraps
+ * the owner quorum over `keccak256(0x04 || hash || parent)`. Requires the T14
+ * hardfork.
  *
  * @example
  * ```ts
@@ -411,23 +429,50 @@ export declare namespace fromSecp256k1 {
  * const transaction = await client.signTransaction(request)
  * ```
  *
+ * @example
+ * ### Access Key
+ *
+ * ```ts
+ * import { Account, Actions } from 'viem/tempo'
+ *
+ * const accessKey = Account.fromConfig(
+ *   { owners: [owner_1, owner_2], threshold: 2 },
+ *   { access: treasury },
+ * )
+ *
+ * await Actions.accessKey.authorizeSync(client, { account: treasury, accessKey })
+ *
+ * await client.sendTransaction({ account: accessKey, calls })
+ * ```
+ *
  * @param value Initial config, current config, upgrade config, or account address.
- * @returns Configurable account.
+ * @param options Options.
+ * @returns Configurable account, or an access key account when `access` is set.
  */
-export function fromConfig(
+export function fromConfig<const options extends fromConfig.Options = {}>(
   value: fromConfig.InitialConfig,
-): ConfigurableAccount<AccountConfig.Config>
-export function fromConfig(
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options, AccountConfig.Config>
+export function fromConfig<const options extends fromConfig.Options = {}>(
   value: fromConfig.CurrentConfig,
-): ConfigurableAccount<AccountConfig.Config>
-export function fromConfig(
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options, AccountConfig.Config>
+export function fromConfig<const options extends fromConfig.Options = {}>(
   value: fromConfig.UpgradeConfig,
-): ConfigurableAccount<AccountConfig.Config>
-export function fromConfig(
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options, AccountConfig.Config>
+export function fromConfig<const options extends fromConfig.Options = {}>(
   address: Address.Address,
-): ConfigurableAccount<undefined>
-export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount
-export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options, undefined>
+export function fromConfig<const options extends fromConfig.Options = {}>(
+  value: fromConfig.Parameters,
+  options?: options | fromConfig.Options,
+): fromConfig.ReturnValue<options>
+export function fromConfig(
+  value: fromConfig.Parameters,
+  options: fromConfig.Options = {},
+): ConfigurableAccount | AccessKeyAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
     if ('upgrade' in value) return value.upgrade
@@ -559,6 +604,8 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
       return await account.sign({ hash: hashTypedData(typedData) })
     },
   }
+  if (options.access)
+    return toAccessKey(account, { ...options, access: options.access })
   return account
 }
 
@@ -594,6 +641,20 @@ export declare namespace fromConfig {
     version?: 0 | 0n | undefined
   }
 
+  /** Options for {@link fromConfig}. */
+  export type Options = {
+    /** Parent account whose access key the configurable account is (TIP-1111). */
+    access?: viem_Account | Address.Address | undefined
+    /**
+     * Signed key authorization of the configurable account, which the access key
+     * attaches to its transactions until the chain registers it. Requires
+     * `access`, and is ignored when `keyAuthorizationManager` is set.
+     */
+    keyAuthorization?: KeyAuthorization.Signed | undefined
+    /** Pending key authorization manager. Requires `access`. */
+    keyAuthorizationManager?: KeyAuthorizationManager | undefined
+  }
+
   /** Configurable account owner account or address, optionally with an explicit weight. */
   export type Owner =
     | Address.Address
@@ -610,6 +671,16 @@ export declare namespace fromConfig {
     | CurrentConfig
     | InitialConfig
     | UpgradeConfig
+
+  /** Access key account when `access` is set, otherwise a configurable account. */
+  export type ReturnValue<
+    options extends Options = Options,
+    config extends AccountConfig.Config | undefined =
+      | AccountConfig.Config
+      | undefined,
+  > = options extends { access: viem_Account | Address.Address }
+    ? AccessKeyAccount
+    : ConfigurableAccount<config>
 
   /** Account upgraded in place and the owners and threshold it installed. */
   export type UpgradeConfig = {
@@ -629,7 +700,9 @@ export declare namespace fromConfig {
  * Configurable account (TIP-1107) returned by {@link fromConfig}.
  *
  * Its signatures verify against the account's current config through Tempo's
- * `verifyHash`, not ERC-1271, and a config update invalidates earlier signatures.
+ * `verifyHash`, and a config update invalidates earlier signatures. A registered
+ * account also answers ERC-1271 `isValidSignature`; a counterfactual account
+ * has no code, so only `verifyHash` verifies its signatures.
  */
 export type ConfigurableAccount<
   config extends AccountConfig.Config | undefined =
@@ -640,6 +713,126 @@ export type ConfigurableAccount<
   config: config
   /** @internal Local owner accounts available for signing. */
   owners: readonly LocalAccount[]
+}
+
+/** Wraps a configurable account as an access key of a parent account (TIP-1111). */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+function toAccessKey(
+  account: ConfigurableAccount,
+  options: toAccessKey.Options,
+): AccessKeyAccount {
+  const { access, keyAuthorization } = options
+  const { address: parentAddress } = parseAccount(access)
+  const accessKeyAddress = account.address
+  if (Address.isEqual(parentAddress, accessKeyAddress))
+    throw new Error('A configurable account cannot be its own access key.')
+  if (
+    keyAuthorization &&
+    (keyAuthorization.type !== 'configurable' ||
+      !Address.isEqual(keyAuthorization.address, accessKeyAddress))
+  )
+    throw new Error('Key authorization does not authorize this access key.')
+  const keyAuthorizationManager =
+    options.keyAuthorizationManager ??
+    (keyAuthorization ? pending(keyAuthorization) : undefined)
+
+  async function sign(parameters: {
+    hash: Hex.Hex
+    raw?: boolean | undefined
+  }) {
+    const { hash, raw } = parameters
+    if (raw) return await account.sign({ hash })
+    const inner = await signConfigurable(account, {
+      payload: keccak256(Hex.concat('0x04', hash, parentAddress)),
+    })
+    return SignatureEnvelope.serialize(
+      SignatureEnvelope.from({
+        inner,
+        type: 'keychain',
+        userAddress: parentAddress,
+        version: 'v2',
+      }),
+    )
+  }
+
+  return {
+    accessKeyAddress,
+    address: Address.checksum(parentAddress),
+    delegate: account,
+    keyAuthorizationManager,
+    keyType: 'configurable',
+    publicKey: '0x',
+    sign,
+    async signAuthorization() {
+      throw new Error('A configurable access key cannot sign authorizations.')
+    },
+    async signMessage({ message }) {
+      return await sign({ hash: hashMessage(message) })
+    },
+    async signTransaction(transaction, options) {
+      const { serializer = Transaction.serialize } = options ?? {}
+      const request = transaction as Transaction.TransactionSerializableTempo
+      if (request.owner) {
+        const owner = parseAccount(request.owner)
+        if (owner.type !== 'local')
+          throw new Error(
+            'A local owner account is required to approve a configurable account transaction.',
+          )
+        if (owner.source !== 'root')
+          throw new Error(
+            'A Tempo owner account is required to approve a configurable account transaction.',
+          )
+        const { owner: _, ...ownerRequest } = request
+        return await owner.signTransaction(ownerRequest as never, options)
+      }
+      if (request.from && !Address.isEqual(request.from, parentAddress))
+        throw new Error(
+          'Access key account does not match the transaction sender.',
+        )
+      if (account.owners.length === 0)
+        return (await serializer(transaction as never)) as Hex.Hex
+
+      const presign = {
+        ...request,
+        signatures: undefined,
+        ...(request.feePayerSignature === undefined
+          ? {}
+          : { feePayerSignature: null }),
+      }
+      const payload = keccak256(await serializer(presign as never))
+      const inner = await signConfigurable(account, {
+        config: request.accountSimulation?.config,
+        payload: keccak256(Hex.concat('0x04', payload, parentAddress)),
+        signatures: request.signatures?.map((signature) =>
+          parseApproval(signature),
+        ),
+      })
+      const signature = SignatureEnvelope.from({
+        inner,
+        type: 'keychain',
+        userAddress: parentAddress,
+        version: 'v2',
+      })
+      return (await serializer(
+        transaction as never,
+        signature as never,
+      )) as Hex.Hex
+    },
+    async signTypedData(typedData) {
+      return await sign({ hash: hashTypedData(typedData) })
+    },
+    async signVoucher(parameters) {
+      return await sign({ hash: getVoucherSignPayload(parameters), raw: true })
+    },
+    source: 'accessKey',
+    type: 'local',
+  }
+}
+
+declare namespace toAccessKey {
+  type Options = fromConfig.Options & {
+    access: viem_Account | Address.Address
+  }
 }
 
 function isConfigurableAccount(
@@ -925,21 +1118,23 @@ export function getKeyAuthorizationSignPayload(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Hex.Hex {
-  const { admin, chainId, expiry, key, limits, scopes, witness } = parameters
+  const { chainId, expiry, key, limits, scopes, witness } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
-  const boundFields =
-    isAccessKeyAccount(account) || isConfigurableAccount(account)
-      ? { account: account.address }
-      : {}
-  const restrictions = admin ? {} : { expiry, limits, scopes }
+  if (isAccessKeyAccount(account))
+    throw new Error('An access key cannot sign key authorizations.')
+  // A configurable account binds its authorization to itself.
+  const boundFields = isConfigurableAccount(account)
+    ? { account: account.address }
+    : {}
   return KeyAuthorization.getSignPayload({
     address: accessKeyAddress,
     chainId,
+    expiry,
+    limits,
+    scopes,
     type,
     witness,
-    ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
-    ...restrictions,
   } as never)
 }
 
@@ -948,7 +1143,6 @@ export async function signKeyAuthorization(
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
   const {
-    admin,
     chainId,
     expiry,
     key,
@@ -960,22 +1154,11 @@ export async function signKeyAuthorization(
   } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
-  // When the signer is an admin access key, the authorization must be
-  // signed directly by that key and bound to the parent account it acts
-  // on behalf of, so the signed payload cannot be replayed against another
-  // account. [TIP-1049]
-  const isAccessKey = isAccessKeyAccount(account)
   const isConfigurable = isConfigurableAccount(account)
-  const boundFields =
-    isAccessKey || isConfigurable ? { account: account.address } : {}
-
-  // Admin key authorizations are unrestricted and must not carry expiry,
-  // limits, or call scopes (the protocol rejects them). [TIP-1049]
-  const restrictions = admin ? {} : { expiry, limits, scopes }
+  const boundFields = isConfigurable ? { account: account.address } : {}
 
   const hash = getKeyAuthorizationSignPayload(account, parameters)
   const signature = await (async () => {
-    if (isAccessKey) return account.sign({ hash, raw: true })
     if (isConfigurable) {
       if (!configurableState)
         throw new Error(
@@ -994,12 +1177,13 @@ export async function signKeyAuthorization(
   return KeyAuthorization.from({
     address: accessKeyAddress,
     chainId,
+    expiry,
+    limits,
+    scopes,
     signature: SignatureEnvelope.from(signature),
     type,
     ...(witness ? { witness } : {}),
-    ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
-    ...restrictions,
   } as never)
 }
 
@@ -1008,14 +1192,6 @@ export declare namespace signKeyAuthorization {
     KeyAuthorization.KeyAuthorization,
     'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
-    /**
-     * Whether to authorize the key as an admin key. Admin keys are
-     * unrestricted and can manage the account's other access keys; `expiry`,
-     * `limits`, and `scopes` are ignored. Requires the T6 hardfork; T14 (TIP-1137) removes admin key creation.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     */
-    admin?: boolean | undefined
     key: resolveAccessKey.Parameters
     /** @internal Current state used when a configurable account signs the authorization. */
     configurable?:
@@ -1113,6 +1289,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
         from?: Address.Address
         accountSimulation?: {
           config: AccountConfig.Config
+          signer?: Address.Address | undefined
         }
       }
       if (accountSimulation) {
@@ -1121,10 +1298,14 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
             'A configurable account sender is required for signing.',
           )
         const config = AccountConfig.from(accountSimulation.config)
+        const { signer = from } = accountSimulation
+        // Owners of a configurable access key (TIP-1111) approve its keychain digest, bound to the sender.
         const digest = AccountConfig.getSignPayload({
-          account: from,
+          account: signer,
           config,
-          payload,
+          payload: Address.isEqual(signer, from)
+            ? payload
+            : keccak256(Hex.concat('0x04', payload, from)),
         })
         return await sign({ hash: digest, raw: true })
       }
@@ -1176,33 +1357,29 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters) {
-      const { chainId, expiry, limits, scopes, witness, admin } = parameters
+      const { chainId, expiry, limits, scopes, witness } = parameters
       const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
-
-      // Admin key authorizations are unrestricted and must not carry expiry,
-      // limits, or call scopes (the protocol rejects them). [TIP-1049]
-      const restrictions = admin ? {} : { expiry, limits, scopes }
-
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
           address: accessKeyAddress,
           chainId,
+          expiry,
+          limits,
+          scopes,
           type,
           witness,
-          ...(admin ? { isAdmin: true } : {}),
-          ...restrictions,
         } as never),
       })
-      const keyAuthorization = KeyAuthorization.from({
+      return KeyAuthorization.from({
         address: accessKeyAddress,
         chainId,
+        expiry,
+        limits,
+        scopes,
         signature: SignatureEnvelope.from(signature),
         type,
         ...(witness ? { witness } : {}),
-        ...(admin ? { isAdmin: true } : {}),
-        ...restrictions,
       } as never)
-      return keyAuthorization
     },
   }
 }
@@ -1282,10 +1459,6 @@ declare namespace fromAccessKey {
   export type ReturnValue = AccessKeyAccount
 }
 
-// TODO: support configurable accounts as access keys (TIP-1111): authorize a
-// configurable account with key type `configurable`, sign as it with a keychain
-// envelope wrapping its configurable signature, and accept those envelopes in the
-// relay fee payer.
 /** @internal */
 export function resolveAccessKey(
   accessKey: resolveAccessKey.Parameters,
@@ -1313,10 +1486,10 @@ export declare namespace resolveAccessKey {
     | Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
     | OneOf<
         | {
-            /** Access key address. */
+            /** Access key address, or the address of a configurable account (TIP-1111). */
             address: Address.Address
-            /** Key type. */
-            type: SignatureEnvelope.Type
+            /** Key type. `configurable` for a configurable account. */
+            type: KeyAuthorization.KeyAuthorization['type']
           }
         | {
             /** Access key public key. */
@@ -1328,7 +1501,7 @@ export declare namespace resolveAccessKey {
 
   type ReturnType = {
     accessKeyAddress: Address.Address
-    keyType: SignatureEnvelope.Type
+    keyType: KeyAuthorization.KeyAuthorization['type']
   }
 }
 

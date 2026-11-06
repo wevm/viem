@@ -76,7 +76,7 @@
     "magic-string": "^0.30.21",
     "micro-eth-signer": "^0.14.0",
     "mppx": "^0.17.0",
-    "ox": "0.14.59",
+    "ox": "0.14.63",
     "permissionless": "^0.2.57",
     "prool": "~0.2.16",
     "publint": "^0.2.12",
@@ -154,7 +154,7 @@
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "115.5 kB"
+      "limit": "116 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -201,7 +201,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "133 kB",
+      "limit": "134.5 kB",
       "import": "*"
     },
     {
@@ -213,7 +213,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "88.5 kB",
+      "limit": "90 kB",
       "import": "{ tempoTestnet }"
     },
     {

@@ -227,7 +227,12 @@ export function withRelay(
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
 
-          if (transaction.signature?.type === 'configurable')
+          // A configurable access key (TIP-1111) wraps its owner quorum in a keychain envelope.
+          const signature =
+            transaction.signature?.type === 'keychain'
+              ? transaction.signature.inner
+              : transaction.signature
+          if (signature?.type === 'configurable')
             return transport_relay.request({ method, params }, options) as never
 
           // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer

@@ -27,9 +27,13 @@ import { getAction } from '../utils/getAction.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account, ConfigurableAccount } from './Account.js'
-import { getMetadata } from './actions/accessKey.js'
+import {
+  getMetadata,
+  verifyHash as verifyAccessKey,
+} from './actions/accessKey.js'
 import {
   getConfig,
+  getConfigCommitment,
   verifyHash as verifyConfigurableAccount,
 } from './actions/accounts.js'
 import * as Formatters from './Formatters.js'
@@ -88,8 +92,9 @@ export const chainConfig = {
         from?: Address | undefined
         hash?: Hex.Hex | undefined
         keyData?: Hex.Hex | undefined
-        keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
+        keyType?: 'configurable' | 'p256' | 'secp256k1' | 'webAuthn' | undefined
         accountSimulation?: AccountSimulation.Spec | undefined
+        keyAuthorizationSimulation?: AccountSimulation.Spec | undefined
         owner?: Account | ConfigurableAccount | Address | undefined
         parameters?: readonly string[] | undefined
         signatures?: readonly unknown[] | undefined
@@ -125,11 +130,18 @@ export const chainConfig = {
       }
 
       if (request.hash) {
-        if (
-          !request.account ||
-          typeof request.account === 'string' ||
-          request.account.source !== 'configurable'
-        )
+        // A configurable access key (TIP-1111) approves as its delegate, for its parent.
+        const local = (() => {
+          const account = request.account
+          if (!account || typeof account === 'string') return undefined
+          if (account.source === 'configurable')
+            return account as ConfigurableAccount
+          if (account.source === 'accessKey')
+            return (account as { delegate?: ConfigurableAccount | undefined })
+              .delegate
+          return undefined
+        })()
+        if (!request.account || typeof request.account === 'string' || !local)
           throw new Error(
             'A local configurable account is required to approve a stored configurable account transaction.',
           )
@@ -154,7 +166,14 @@ export const chainConfig = {
             : undefined
         if (!operation)
           throw new Error('Expected an account operation transaction.')
-        if (!isAddressEqual(operation.account, request.account.address))
+        const parent = local === request.account ? undefined : request.account
+        if (
+          !isAddressEqual(operation.account, local.address) ||
+          (parent
+            ? !operation.userAddress ||
+              !isAddressEqual(operation.userAddress, parent.address)
+            : !!operation.userAddress)
+        )
           throw new Error(
             'Account operation account does not match the requested account.',
           )
@@ -166,6 +185,7 @@ export const chainConfig = {
           config: operation.config,
           transaction: operation.transaction,
           type: 'transaction',
+          userAddress: operation.userAddress,
         })
         if (hash.toLowerCase() !== request.hash.toLowerCase())
           throw new Error('Account operation hash does not match transaction.')
@@ -176,11 +196,11 @@ export const chainConfig = {
           maxFeePerGas: storedTransaction.maxFeePerGas ?? 0n,
           maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
           account: request.account,
-          from: operation.account,
-          accountSimulation: getAccountSimulation({
-            config: operation.config,
-            local: request.account,
-          }),
+          from: operation.userAddress ?? operation.account,
+          accountSimulation: {
+            ...getAccountSimulation({ config: operation.config, local }),
+            ...(parent ? { signer: local.address } : {}),
+          },
           owner: request.owner,
         } as unknown as typeof r
       }
@@ -220,7 +240,12 @@ export const chainConfig = {
           }
         return undefined
       })()
-      if (request.owner && !configurableIdentity)
+      // A configurable account acting as an access key (TIP-1111).
+      const delegate =
+        request.account?.source === 'accessKey'
+          ? request.account.delegate
+          : undefined
+      if (request.owner && !configurableIdentity && !delegate)
         throw new Error(
           'A configurable account is required when an owner is provided.',
         )
@@ -233,32 +258,25 @@ export const chainConfig = {
           'A Tempo owner account is required to approve a configurable account transaction.',
         )
       const coordinated =
-        !!configurableIdentity &&
+        (!!configurableIdentity || !!delegate) &&
         !!request.owner &&
         (client.transport as { accounts?: boolean }).accounts === true
       if (configurableIdentity) {
         const { account, local } = configurableIdentity
-        if (!account)
+        if (!configurableIdentity.config && !coordinated)
           throw new Error(
-            'A configurable account address is required with a current config.',
+            'An account config is required to prepare a transaction.',
           )
-        const config = await (async () => {
-          if (configurableIdentity.config) return configurableIdentity.config
-          if (!coordinated) return undefined
-          const cachedConfig = await getAction(
+        const config =
+          configurableIdentity.config ??
+          (await getAction(
             client,
             getConfig,
             'getConfig',
-          )({ address: account })
-          if (!cachedConfig)
-            throw new Error(
-              `No current account config is cached for account ${account}. Provide the current config.`,
-            )
-          return cachedConfig
-        })()
+          )({ address: account }))
         if (!config)
           throw new Error(
-            'An account config is required to prepare a transaction.',
+            `No current account config is cached for account ${account}. Provide the current config.`,
           )
         request.from = account
         request.accountSimulation = getAccountSimulation({
@@ -266,33 +284,34 @@ export const chainConfig = {
           local,
         })
       }
+      if (delegate) {
+        const config =
+          delegate.config ??
+          ((client.transport as { accounts?: boolean }).accounts === true
+            ? await getAction(
+                client,
+                getConfig,
+                'getConfig',
+              )({ address: delegate.address })
+            : undefined)
+        if (!config)
+          throw new Error(
+            'An account config is required to prepare a transaction.',
+          )
+        // The node models the delegate's owner quorum inside a keychain signature.
+        request.accountSimulation = {
+          ...getAccountSimulation({ config, local: delegate }),
+          signer: delegate.address,
+        }
+      }
 
-      // Register concurrency before account preparation performs storage or
-      // network I/O so overlapping requests cannot miss each other.
-      const useExpiringNonce = await (async () => {
-        if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
-          return true
-        if (typeof request.nonceKey !== 'undefined') return false
-        if (configurableIdentity) return false
-        if (request.feePayer && typeof request.nonceKey === 'undefined')
-          return true
-        const account = request.account as
-          | Account
-          | ConfigurableAccount
-          | Address
-          | undefined
-        const address = typeof account === 'string' ? account : account?.address
-        if (address && typeof request.nonceKey === 'undefined')
-          return await Concurrent.detect(address.toLowerCase())
-        return false
-      })()
-
+      // Detect concurrency before further I/O so overlapping requests register in the same tick.
       if (coordinated && typeof request.nonceKey === 'undefined') {
         // A random nonce lane lets a stored approval ceremony remain valid
         // indefinitely without blocking other pending operations.
         request.nonceKey = Hex.toBigInt(Hex.random(31)) + 1n
         request.nonce = 0
-      } else if (useExpiringNonce) {
+      } else if (await useExpiringNonce(request, !!configurableIdentity)) {
         request.nonceKey = maxUint256
         // A random discriminator keeps otherwise identical expiring transactions distinct.
         // 48 bits stay within `Number.MAX_SAFE_INTEGER`.
@@ -341,6 +360,12 @@ export const chainConfig = {
         }
       }
 
+      const keyAuthorizationSimulation = getKeyAuthorizationSimulation(
+        request.keyAuthorization,
+      )
+      if (keyAuthorizationSimulation)
+        request.keyAuthorizationSimulation = keyAuthorizationSimulation
+
       if (!request.feeToken && request.chain?.feeToken)
         request.feeToken = request.chain.feeToken
 
@@ -366,7 +391,11 @@ export const chainConfig = {
         const transaction = Transaction.deserialize(
           serializedTransaction as Transaction.TransactionSerializedTempo,
         )
-        if (transaction.signature?.type === 'configurable')
+        // A configurable access key (TIP-1111) signs inside a keychain envelope.
+        if (
+          transaction.signature?.type === 'configurable' ||
+          transaction.signature?.type === 'keychain'
+        )
           return serializedTransaction
         throw new Error(
           'A Tempo owner account is required to approve a configurable account transaction.',
@@ -402,18 +431,69 @@ export const chainConfig = {
       // Access key (keychain) signature verification: check the key is
       // authorized, not expired, and not revoked on the AccountKeychain.
       if (envelope?.type === 'keychain' && mode === 'allowAccessKey') {
-        // For v2 keychain envelopes, the inner signature signs
-        // keccak256(0x04 || hash || userAddress).
-        const innerPayload =
-          envelope.version === 'v2'
-            ? keccak256(Hex.concat('0x04', hash, address))
-            : hash
+        const { inner, userAddress, version } = envelope
+        if (!isAddressEqual(userAddress, address)) return false
+        const block = {
+          blockHash: parameters.blockHash,
+          blockNumber: parameters.blockNumber,
+          blockTag: parameters.blockTag,
+          requireCanonical: parameters.requireCanonical,
+        }
 
+        // The signature verifier rejects configurable access key signatures (TIP-1111),
+        // so the grant and the delegate's current quorum are checked separately.
+        if (inner.type === 'configurable') {
+          if (version !== 'v2') return false
+          const [keyInfo, valid] = await Promise.all([
+            getMetadata(client, {
+              ...block,
+              account: address,
+              accessKey: inner.account,
+            } as never),
+            (
+              readContract(client, {
+                ...block,
+                ...verifyConfigurableAccount.call({
+                  account: inner.account,
+                  hash: keccak256(Hex.concat('0x04', hash, address)),
+                  signature: SignatureEnvelope.serialize(inner),
+                }),
+              } as never) as Promise<boolean>
+            ).catch(catchRevert),
+          ])
+          if (keyInfo.isRevoked) return false
+          if (keyInfo.expiry <= BigInt(Math.floor(Date.now() / 1000)))
+            return false
+          if (!valid || keyInfo.keyType === 'configurable') return valid
+          // A delegate with a config commitment uses its grant whatever key type the grant stores.
+          const commitment = (await readContract(client, {
+            ...block,
+            ...getConfigCommitment.call({ account: inner.account }),
+          } as never)) as Hex.Hex
+          return BigInt(commitment) !== 0n
+        }
+
+        // From T14 the precompile also rejects a key ID with a config commitment
+        // (a retired root key) and an inner signature type other than the stored key type.
+        if (version === 'v2')
+          return await (
+            readContract(client, {
+              ...block,
+              ...verifyAccessKey.call({
+                account: address,
+                admin: false,
+                hash,
+                signature: serialized as Hex.Hex,
+              }),
+            } as never) as Promise<boolean>
+          ).catch(catchRevert)
+
+        // The precompile rejects legacy (V1) envelopes, whose inner signature signs `hash` directly.
         const accessKeyAddress = (() => {
           try {
             return SignatureEnvelope.extractAddress({
-              payload: innerPayload,
-              signature: envelope.inner,
+              payload: hash,
+              signature: inner,
             })
           } catch {
             return undefined
@@ -422,20 +502,17 @@ export const chainConfig = {
         if (!accessKeyAddress) return false
 
         const keyInfo = await getMetadata(client, {
+          ...block,
           account: address,
           accessKey: accessKeyAddress,
-          blockHash: parameters.blockHash,
-          blockNumber: parameters.blockNumber,
-          blockTag: parameters.blockTag,
-          requireCanonical: parameters.requireCanonical,
         } as never)
 
         if (keyInfo.isRevoked) return false
         if (keyInfo.expiry <= BigInt(Math.floor(Date.now() / 1000)))
           return false
-        return SignatureEnvelope.verify(envelope.inner, {
+        return SignatureEnvelope.verify(inner, {
           address: accessKeyAddress,
-          payload: innerPayload,
+          payload: hash,
         })
       }
 
@@ -455,16 +532,7 @@ export const chainConfig = {
               signature: serialized as Hex.Hex,
             }),
           } as never) as Promise<boolean>
-        ).catch((error) => {
-          if (
-            error instanceof BaseError &&
-            error.walk(
-              (cause) => cause instanceof ContractFunctionRevertedError,
-            )
-          )
-            return false
-          throw error
-        })
+        ).catch(catchRevert)
 
       // Stateless, non-keychain signature envelopes (P256, WebAuthn) can be
       // verified directly without a network request.
@@ -541,6 +609,27 @@ async function isRegistered(client: Client, key: KeyAuthorizationManager.Key) {
   )
 }
 
+/**
+ * Returns whether a request uses an expiring nonce: when asked for, when sponsored,
+ * or when another request for the same sender is in flight.
+ */
+async function useExpiringNonce(
+  request: {
+    account?: Account | ConfigurableAccount | Address | undefined
+    feePayer?: unknown
+    nonceKey?: bigint | number | 'expiring' | undefined
+  },
+  configurable: boolean,
+) {
+  const { account, feePayer, nonceKey } = request
+  if (nonceKey === 'expiring' || nonceKey === maxUint256) return true
+  if (typeof nonceKey !== 'undefined' || configurable) return false
+  if (feePayer) return true
+  const address = typeof account === 'string' ? account : account?.address
+  if (!address) return false
+  return await Concurrent.detect(address.toLowerCase())
+}
+
 /** Builds a bounded account spec for gas simulation. */
 function getAccountSimulation(options: {
   config: AccountConfig.Config
@@ -559,6 +648,52 @@ function getAccountSimulation(options: {
     }),
     config,
   }
+}
+
+/**
+ * Builds a simulation of the owner quorum signing a key authorization whose
+ * configurable account approvals do not reach its threshold yet.
+ */
+function getKeyAuthorizationSimulation(
+  keyAuthorization: KeyAuthorization.Signed | undefined,
+): AccountSimulation.Spec | undefined {
+  if (keyAuthorization?.signature.type !== 'configurable') return undefined
+  const { account, signatures } = keyAuthorization.signature
+  const config = AccountConfig.from(keyAuthorization.signature.config)
+  const payload = AccountConfig.getSignPayload({
+    account,
+    config,
+    payload: KeyAuthorization.getSignPayload(keyAuthorization),
+  })
+  const signed = new Set<string>()
+  let weight = 0
+  for (const signature of signatures) {
+    const owner = (() => {
+      try {
+        return SignatureEnvelope.extractAddress({ payload, signature })
+      } catch {
+        return undefined
+      }
+    })()
+    const entry = owner
+      ? config.owners.find((entry) => isAddressEqual(entry.owner, owner))
+      : undefined
+    if (!entry || signed.has(entry.owner.toLowerCase())) continue
+    signed.add(entry.owner.toLowerCase())
+    weight += Number(entry.weight)
+  }
+  if (weight >= Number(config.threshold)) return undefined
+  return { ...getAccountSimulation({ config }), signer: account }
+}
+
+/** Returns `false` for a reverted verification call, and rethrows other errors. */
+function catchRevert(error: unknown): false {
+  if (
+    error instanceof BaseError &&
+    error.walk((cause) => cause instanceof ContractFunctionRevertedError)
+  )
+    return false
+  throw error
 }
 
 /** Returns signature metadata for conservative gas estimation. */

@@ -202,32 +202,6 @@ type DecoratorBase<
       parameters: accessKeyActions.getRemainingLimit.Parameters<account>,
     ) => Promise<accessKeyActions.getRemainingLimit.ReturnValue>
     /**
-     * Checks whether an access key is an admin key for an account.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const isAdmin = await client.accessKey.isAdmin({
-     *   account: '0x...',
-     *   accessKey: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns Whether the access key is an admin key.
-     */
-    isAdmin: (
-      parameters: accessKeyActions.isAdmin.Parameters<account>,
-    ) => Promise<accessKeyActions.isAdmin.ReturnValue>
-    /**
      * Checks whether a key-authorization witness has been burned for an account.
      *
      * @example
@@ -420,33 +394,6 @@ type DecoratorBase<
     updateLimitSync: (
       parameters: accessKeyActions.updateLimitSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.updateLimitSync.ReturnValue>
-    /**
-     * Watches for admin key authorization events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.accessKey.watchAdminAuthorized({
-     *   onAuthorized: (args, log) => {
-     *     console.log('Admin key authorized:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchAdminAuthorized: (
-      parameters: accessKeyActions.watchAdminAuthorized.Parameters,
-    ) => ReturnType<typeof accessKeyActions.watchAdminAuthorized>
     /**
      * Watches for key-authorization witness events.
      *
@@ -6303,7 +6250,6 @@ export function decorator() {
         'burnWitnessSync',
         'getMetadata',
         'getRemainingLimit',
-        'isAdmin',
         'isWitnessBurned',
         'prepareAuthorization',
         'revoke',
@@ -6313,7 +6259,6 @@ export function decorator() {
         'updateLimit',
         'updateLimitSync',
         'verifyHash',
-        'watchAdminAuthorized',
         'watchWitness',
         'watchWitnessBurned',
       ]),

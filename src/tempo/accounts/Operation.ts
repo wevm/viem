@@ -72,10 +72,13 @@ export async function readSubmission(
     const transaction = TxEnvelopeTempo.deserialize(
       value as TxEnvelopeTempo.Serialized,
     )
-    if (transaction.signature?.type !== 'configurable')
-      throw new InvalidStoreValueError()
+    const signature =
+      transaction.signature?.type === 'keychain'
+        ? transaction.signature.inner
+        : transaction.signature
+    if (signature?.type !== 'configurable') throw new InvalidStoreValueError()
     const serialized = AccountOperation.serializeTransaction(operation, {
-      approvals: transaction.signature.signatures.map((signature) =>
+      approvals: signature.signatures.map((signature) =>
         SignatureEnvelope.serialize(signature),
       ),
     })
@@ -159,6 +162,7 @@ function assertHash(operation: AccountOperation.Operation) {
           config: operation.config,
           transaction: operation.transaction,
           type: operation.type,
+          userAddress: operation.userAddress,
         }
       : {
           account: operation.account,

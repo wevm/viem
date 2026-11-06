@@ -335,6 +335,91 @@ describe('formatTransactionRequest', () => {
     )
   })
 
+  test('behavior: configurable access key populates keyType and keyId', () => {
+    const accessKey = Account.fromConfig(
+      { owners: [accounts[1]] },
+      { access: accounts[0] },
+    )
+
+    const rpc = Formatters.formatTransactionRequest({
+      account: accessKey,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      owner: accounts[1],
+    } as never) as Record<string, unknown>
+
+    expect({
+      from: rpc.from,
+      keyData: rpc.keyData,
+      keyId: rpc.keyId,
+      keyType: rpc.keyType,
+    }).toMatchInlineSnapshot(`
+      {
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "keyData": undefined,
+        "keyId": "0x30f5940110c13d8bf22dcf15e9A6b0999Ea741e9",
+        "keyType": "configurableAccount",
+      }
+    `)
+  })
+
+  test('behavior: configurable keyType', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      keyId: accounts[1].address,
+      keyType: 'configurable',
+    } as never) as Record<string, unknown>
+
+    expect(rpc.keyType).toMatchInlineSnapshot(`"configurableAccount"`)
+  })
+
+  test('behavior: signing actions omit simulations', () => {
+    const config = AccountConfig.from({
+      owners: [{ owner: accounts[1].address, weight: 1 }],
+      threshold: 1,
+    })
+    const simulation = {
+      approvals: [{ keyType: 'secp256k1', owner: accounts[1].address }],
+      config,
+    } as const
+    const request = {
+      accountSimulation: simulation,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      keyAuthorizationSimulation: simulation,
+    } as never
+
+    const simulations = (action?: string | undefined) => {
+      const rpc = Formatters.formatTransactionRequest(request, action)
+      return [
+        typeof rpc.configurableAccountSimulation,
+        typeof rpc.keyAuthorizationSimulation,
+      ]
+    }
+
+    expect({
+      estimateGas: simulations('estimateGas'),
+      sendTransaction: simulations('sendTransaction'),
+      signTransaction: simulations('signTransaction'),
+    }).toMatchInlineSnapshot(`
+      {
+        "estimateGas": [
+          "object",
+          "object",
+        ],
+        "sendTransaction": [
+          "undefined",
+          "undefined",
+        ],
+        "signTransaction": [
+          "undefined",
+          "undefined",
+        ],
+      }
+    `)
+  })
+
   test('behavior: unknown account source returns no keyType', () => {
     const rpc = Formatters.formatTransactionRequest({
       chainId: 1,

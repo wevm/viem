@@ -131,14 +131,6 @@ export namespace authorize {
   export type Args = {
     /** The access key to authorize. */
     accessKey: resolveAccessKey.Parameters
-    /**
-     * Whether to authorize the key as an admin key. Admin keys are unrestricted
-     * and can manage the account's other access keys; `expiry`, `limits`, and
-     * `scopes` are ignored. Requires the T6 hardfork; T14 (TIP-1137) removes admin key creation.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     */
-    admin?: boolean | undefined
     /** The chain ID. */
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
@@ -179,7 +171,6 @@ export namespace authorize {
   ): Promise<ReturnType<action>> {
     const {
       accessKey,
-      admin,
       chainId = client.chain?.id,
       expiry,
       limits,
@@ -194,7 +185,6 @@ export namespace authorize {
       account: account_,
       accessKey,
       chainId,
-      admin,
       expiry,
       limits,
       scopes,
@@ -712,89 +702,6 @@ export namespace getRemainingLimit {
 }
 
 /**
- * Checks whether an access key is an admin key for an account.
- *
- * Returns `true` for the account's root key or for an active admin access key
- * (see {@link authorize} with `admin: true`).
- *
- * [TIP-1049](https://tips.sh/1049)
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const isAdmin = await Actions.accessKey.isAdmin(client, {
- *   account: '0x...',
- *   accessKey: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns Whether the access key is an admin key.
- */
-export async function isAdmin<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: isAdmin.Parameters<account>,
-): Promise<isAdmin.ReturnValue> {
-  const { account: account_ = client.account, accessKey, ...rest } = parameters
-  if (!account_) throw new Error('account is required.')
-  const account = parseAccount(account_)
-  return withExecutionError(readContract)(client, {
-    ...rest,
-    account: null as never,
-    ...isAdmin.call({ account: account.address, accessKey }),
-  })
-}
-
-export namespace isAdmin {
-  export type Parameters<
-    account extends Account | undefined = Account | undefined,
-  > = ReadParameters & GetAccountParameter<account> & Pick<Args, 'accessKey'>
-
-  export type Args = {
-    /** Account address. */
-    account: Address
-    /** The access key. */
-    accessKey: Address | AccessKeyAccount
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.accountKeychain,
-    'isAdminKey',
-    never
-  >
-
-  /**
-   * Defines a call to the `isAdminKey` function.
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { account, accessKey } = args
-    return defineCall({
-      address: Addresses.accountKeychain,
-      abi: Abis.accountKeychain,
-      functionName: 'isAdminKey',
-      args: [account, resolveAccessKeyAddress(accessKey)],
-    })
-  }
-
-  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
-}
-
-/**
  * Checks whether a key-authorization witness has been burned for an account.
  *
  * @example
@@ -1132,14 +1039,6 @@ export namespace prepareAuthorization {
   > = GetAccountParameter<account> & {
     /** The access key to authorize. */
     accessKey: resolveAccessKey.Parameters
-    /**
-     * Whether to authorize the key as an admin key. Admin keys are unrestricted
-     * and can manage the account's other access keys; `expiry`, `limits`, and
-     * `scopes` are ignored. Requires the T6 hardfork; T14 (TIP-1137) removes admin key creation.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     */
-    admin?: boolean | undefined
     /** The chain ID. */
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
@@ -1323,8 +1222,7 @@ export async function signAuthorization<
       const signature = SignatureEnvelope.serialize(
         SignatureEnvelope.from(await sign({ hash: prepared.signPayload })),
       )
-      const { accessKey, admin, chainId, expiry, limits, scopes, witness } =
-        prepared
+      const { accessKey, chainId, expiry, limits, scopes, witness } = prepared
       const { accessKeyAddress, keyType: type } = resolveAccessKey(accessKey)
       const keyAuthorization = KeyAuthorization.from({
         account: account.address,
@@ -1337,7 +1235,9 @@ export async function signAuthorization<
         }),
         type,
         ...(witness ? { witness } : {}),
-        ...(admin ? { isAdmin: true } : { expiry, limits, scopes }),
+        expiry,
+        limits,
+        scopes,
       } as never)
       return { keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }
     })()
@@ -1389,14 +1289,8 @@ export async function signAuthorization<
     client,
     parameters as signAuthorization.LocalParameters<account>,
   )
-  const signer = parameters.account ?? client.account
-  // Relays with key authorization storage attach it to the access key's next
-  // transaction. Admin-signed authorizations can only be submitted by the admin key.
-  if (
-    (client.transport as { keyAuthorization?: boolean }).keyAuthorization &&
-    signer &&
-    parseAccount(signer).source !== 'accessKey'
-  )
+  // Relays with key authorization storage attach it to the access key's next transaction.
+  if ((client.transport as { keyAuthorization?: boolean }).keyAuthorization)
     await saveAuthorization(client, { keyAuthorization }).catch((error) => {
       // Remote relays without key authorization storage do not expose this method.
       if (
@@ -1706,86 +1600,6 @@ export namespace updateLimitSync {
 }
 
 /**
- * Watches for admin key authorization events.
- *
- * Emitted when an admin key is authorized (see {@link authorize} with
- * `admin: true`).
- *
- * [TIP-1049](https://tips.sh/1049)
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const unwatch = Actions.accessKey.watchAdminAuthorized(client, {
- *   onAuthorized: (args, log) => {
- *     console.log('Admin key authorized:', args)
- *   },
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns A function to unsubscribe from the event.
- */
-export function watchAdminAuthorized<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: watchAdminAuthorized.Parameters,
-) {
-  const { onAuthorized, ...rest } = parameters
-  return watchContractEvent(client, {
-    ...rest,
-    address: Addresses.accountKeychain,
-    abi: Abis.accountKeychain,
-    eventName: 'AdminKeyAuthorized',
-    onLogs: (logs) => {
-      for (const log of logs) onAuthorized(log.args, log)
-    },
-    strict: true,
-  })
-}
-
-export declare namespace watchAdminAuthorized {
-  export type Args = Compute<
-    GetEventArgs<
-      typeof Abis.accountKeychain,
-      'AdminKeyAuthorized',
-      { IndexedOnly: false; Required: true }
-    >
-  >
-
-  export type Log = viem_Log<
-    bigint,
-    number,
-    false,
-    ExtractAbiItem<typeof Abis.accountKeychain, 'AdminKeyAuthorized'>,
-    true
-  >
-
-  export type Parameters = UnionOmit<
-    WatchContractEventParameters<
-      typeof Abis.accountKeychain,
-      'AdminKeyAuthorized',
-      true
-    >,
-    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
-  > & {
-    /** Callback to invoke when an admin key is authorized. */
-    onAuthorized: (args: Args, log: Log) => void
-  }
-}
-
-/**
  * Watches for key-authorization witness events.
  *
  * Emitted when a key is authorized with a `witness` (see {@link authorize}).
@@ -1947,11 +1761,16 @@ export declare namespace watchWitnessBurned {
  * for the expected account.
  *
  * By default (`admin: true`), returns `true` only if the signature was
- * produced by the account's root key or an active admin access key. Set
- * `admin: false` to accept any active access key.
+ * produced by the account's root key. Set `admin: false` to accept any active
+ * access key.
  *
  * Returns `false` for account mismatches, unknown, revoked, or expired
  * access keys. [TIP-1049](https://tips.sh/1049)
+ *
+ * The key of an account with a config commitment (a configurable or upgraded
+ * account) passes neither mode, and an inner signature type other than the stored key
+ * type returns `false`. Configurable access keys (TIP-1111) revert as an
+ * invalid format; verify them with `verifyHash` from `viem/actions` instead.
  *
  * @example
  * ```ts
@@ -1996,9 +1815,9 @@ export namespace verifyHash {
     /** Account address the signature is expected to belong to. */
     account: Address
     /**
-     * Whether to require the signer to be the account's root key or an
-     * active admin access key. Defaults to `true`. Set to `false` to accept
-     * any active access key.
+     * Whether to require the signer to be the account's root key, which an
+     * account with a config commitment does not have. Defaults to `true`. Set
+     * to `false` to accept any active access key.
      */
     admin?: boolean | undefined
     /** Original message hash that was signed. */

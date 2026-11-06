@@ -1,3 +1,4 @@
+import type { KeyAuthorization } from 'ox/tempo'
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
@@ -109,8 +110,12 @@ test('upgrade returns the installed config', async () => {
     expectTypeOf(result.commitment).toEqualTypeOf<`0x${string}`>()
   await client.accounts.upgrade({
     ...parameters,
-    // @ts-expect-error The upgrade must be the only call, without a key authorization.
-    keyAuthorization: {} as never,
+    keyAuthorization: {} as KeyAuthorization.Signed,
+  })
+  await client.accounts.upgrade({
+    ...parameters,
+    // @ts-expect-error Batch the upgrade with `upgrade.call` in `calls` instead.
+    calls: [],
   })
 })
 
