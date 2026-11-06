@@ -1123,6 +1123,97 @@ describe('poll', () => {
         ]
       `)
     })
+
+    test('reads blocks from a `fromBlock` of 1 when filters are unavailable', async () => {
+      const results: Record<string, unknown> = {}
+      for (const fromBlock of [0n, 1n, 2n]) {
+        const ranges: { fromBlock: Hex.Hex; toBlock: Hex.Hex }[] = []
+        const url = await createRpcProxy(
+          anvilMainnet.rpcUrl.http,
+          ({ method, params }) => {
+            if (method === 'eth_newFilter')
+              return { error: { code: -32601, message: 'Method not found' } }
+            if (method === 'eth_blockNumber') return { result: '0x5' }
+            if (method === 'eth_getLogs') {
+              const [{ fromBlock, toBlock }] = params as [
+                { fromBlock: Hex.Hex; toBlock: Hex.Hex },
+              ]
+              ranges.push({ fromBlock, toBlock })
+              return {
+                result: [
+                  {
+                    address: usdcContractConfig.address,
+                    blockHash: `0x${'11'.repeat(32)}`,
+                    blockNumber: '0x3',
+                    data: Hex.fromNumber(1n, { size: 32 }),
+                    logIndex: '0x0',
+                    removed: false,
+                    topics: [
+                      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+                      '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
+                      '0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8',
+                    ],
+                    transactionHash: `0x${'22'.repeat(32)}`,
+                    transactionIndex: '0x0',
+                  },
+                ],
+              }
+            }
+            return undefined
+          },
+        )
+        const client_ = createClient({
+          ...anvilMainnet.clientConfig,
+          pollingInterval: 50,
+          transport: http(url),
+        })
+
+        const logs = await collectTransfers(client_, fromBlock, 1)
+
+        results[`fromBlock: ${fromBlock}`] = {
+          ranges,
+          blockNumbers: logs.map((log) => log.blockNumber),
+        }
+      }
+
+      expect(results).toMatchInlineSnapshot(`
+        {
+          "fromBlock: 0": {
+            "blockNumbers": [
+              3n,
+            ],
+            "ranges": [
+              {
+                "fromBlock": "0x0",
+                "toBlock": "0x5",
+              },
+            ],
+          },
+          "fromBlock: 1": {
+            "blockNumbers": [
+              3n,
+            ],
+            "ranges": [
+              {
+                "fromBlock": "0x1",
+                "toBlock": "0x5",
+              },
+            ],
+          },
+          "fromBlock: 2": {
+            "blockNumbers": [
+              3n,
+            ],
+            "ranges": [
+              {
+                "fromBlock": "0x2",
+                "toBlock": "0x5",
+              },
+            ],
+          },
+        }
+      `)
+    })
   })
 
   describe('transports', () => {
