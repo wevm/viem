@@ -17,6 +17,7 @@ import { linea, mainnet, optimism } from '../../chains/index.js'
 import { universalResolverResolveAbi } from '../../constants/abis.js'
 
 const client = anvilMainnet.getClient()
+const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
 
 beforeAll(async () => {
   await reset(client, {
@@ -143,10 +144,9 @@ test('offchain: gets address for name', async () => {
   )
 })
 
-test.each(['address', 'raw'] as const)(
+test.each(['abi', 'raw'] as const)(
   'offchain: decodes %s coinType responses with leading zeros',
-  async (type) => {
-    const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+  async (encoding) => {
     let data = '0x'
     const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
       result: data,
@@ -160,13 +160,16 @@ test.each(['address', 'raw'] as const)(
       '0x0000111111111111111111111111111111111111',
       '0x0000000000000000000000000000000000000001',
       '0x0000000000000000000000000000000000000020',
+      '0x0000000000000000000000000000000000000040',
       '0x0000000000000000000000000000000000000000',
     ] as const) {
       data = encodeFunctionResult({
         abi: universalResolverResolveAbi,
         functionName: 'resolveWithGateways',
         result: [
-          type === 'raw' ? address : encodeAbiParameters([{ type }], [address]),
+          encoding === 'raw'
+            ? address
+            : encodeAbiParameters([{ type: 'address' }], [address]),
           resolverAddress,
         ],
       })
@@ -186,6 +189,7 @@ test.each(['address', 'raw'] as const)(
         "0x0000111111111111111111111111111111111111",
         "0x0000000000000000000000000000000000000001",
         "0x0000000000000000000000000000000000000020",
+        "0x0000000000000000000000000000000000000040",
         null,
       ]
     `)
@@ -193,7 +197,6 @@ test.each(['address', 'raw'] as const)(
 )
 
 test('offchain: preserves dynamic-bytes responses with leading zeros', async () => {
-  const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
   const data = encodeFunctionResult({
     abi: universalResolverResolveAbi,
     functionName: 'resolveWithGateways',
@@ -222,7 +225,6 @@ test('offchain: preserves dynamic-bytes responses with leading zeros', async () 
 })
 
 test('offchain: rejects malformed coinType responses', async () => {
-  const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
   let data = '0x'
   const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
     result: data,
@@ -261,7 +263,6 @@ test('offchain: rejects malformed coinType responses', async () => {
 test.each([501n, toCoinType(10)])(
   'offchain: preserves decoding for coinType %s',
   async (coinType) => {
-    const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
     let data = '0x'
     const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
       result: data,

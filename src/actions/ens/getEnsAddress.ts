@@ -210,15 +210,16 @@ function decodeAddress({
     const addressSize = 20
     const abiWordSize = 32
     const address = trim(data)
+    const addressLength = size(address)
     const dataSize = size(data)
     // coinType 60n is the ENSIP-9 Ethereum type.
     if (
       coinType === 60n &&
       (dataSize === addressSize || dataSize === abiWordSize) &&
-      size(address) < addressSize
+      addressLength < addressSize
     )
       return getAddress(pad(address, { size: addressSize }))
-    if (size(address) === addressSize) return getAddress(address)
+    if (addressLength === addressSize) return getAddress(address)
 
     throw err
   }
