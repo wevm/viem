@@ -42,6 +42,10 @@ import {
   getContractEvents,
 } from './getContractEvents.js'
 import { getFilterChanges } from './getFilterChanges.js'
+import {
+  getSubscriptionTransport,
+  shouldPoll,
+} from './internal/watchTransport.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
 export type WatchContractEventOnLogsParameter<
@@ -163,18 +167,7 @@ export function watchContractEvent<
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
     if (typeof fromBlock === 'bigint') return true
-    if (
-      client.transport.type === 'webSocket' ||
-      client.transport.type === 'ipc'
-    )
-      return false
-    if (
-      client.transport.type === 'fallback' &&
-      (client.transport.transports[0].config.type === 'webSocket' ||
-        client.transport.transports[0].config.type === 'ipc')
-    )
-      return false
-    return true
+    return shouldPoll(client)
   })()
 
   const pollContractEvent = () => {
@@ -332,18 +325,7 @@ export function watchContractEvent<
     return observe(observerId, { onLogs, onError }, (emit) => {
       ;(async () => {
         try {
-          const transport = (() => {
-            if (client.transport.type === 'fallback') {
-              const transport = client.transport.transports.find(
-                (transport: ReturnType<Transport>) =>
-                  transport.config.type === 'webSocket' ||
-                  transport.config.type === 'ipc',
-              )
-              if (!transport) return client.transport
-              return transport.value
-            }
-            return client.transport
-          })()
+          const transport = getSubscriptionTransport(client)
 
           // A topic filter cannot select an anonymous event, so the
           // subscription can deliver logs that match no requested event. Skip
