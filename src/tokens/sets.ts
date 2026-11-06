@@ -31,6 +31,7 @@ import { usdb } from './definitions/usdb.js'
 import { usdc } from './definitions/usdc.js'
 import { usdce } from './definitions/usdce.js'
 import { usde } from './definitions/usde.js'
+import { usdt } from './definitions/usdt.js'
 import { usdt0 } from './definitions/usdt0.js'
 import { usyc } from './definitions/usyc.js'
 import { wsrusd } from './definitions/wsrusd.js'
@@ -67,6 +68,7 @@ const all = [
   usdc,
   usdce,
   usde,
+  usdt,
   usdt0,
   usyc,
   wsrusd,
