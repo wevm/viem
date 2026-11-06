@@ -3,8 +3,8 @@ import type { Errors } from 'ox'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
+import { createAsyncIterator } from '../../internal/asyncIterator.js'
 import { observe } from '../../internal/observe.js'
-import { withResolvers } from '../../internal/promise.js'
 import { stringify } from '../../internal/stringify.js'
 import { getSubscribe } from '../internal/getSubscribe.js'
 
@@ -122,81 +122,20 @@ export function watchHeaders<chain extends Chain.Chain | undefined>(
     watchHeaders.Emitted<chain>
   > {
     type Item = watchHeaders.Emitted<chain>
-    let latest: Item | undefined
-    let error: Error | undefined
-    let pending:
-      | {
-          resolve: (result: IteratorResult<Item>) => void
-          reject: (error: Error) => void
-        }
-      | undefined
-    let done = false
-
-    const offBlockHeader = watcher.onBlockHeader(
-      (blockHeader, prevBlockHeader) => {
+    return createAsyncIterator<Item>((onData, onError, end) => {
+      const off = watcher.onBlockHeader((blockHeader, prevBlockHeader) => {
         const value = { blockHeader, prevBlockHeader } as Item
-        if (pending) {
-          const { resolve } = pending
-          pending = undefined
-          resolve({ done: false, value })
-        } else latest = value
-      },
-    )
-    const offError = watcher.onError((err) => {
-      if (pending) {
-        const { reject } = pending
-        pending = undefined
-        done = true
-        cleanup()
-        reject(err)
-      } else error = err
-    })
+        onData(value)
+      })
+      const offError = watcher.onError(onError)
+      iteratorEnds.add(end)
 
-    function cleanup() {
-      offBlockHeader()
-      offError()
-      iteratorEnds.delete(end)
-    }
-
-    function end() {
-      done = true
-      cleanup()
-      if (pending) {
-        const { resolve } = pending
-        pending = undefined
-        resolve({ done: true, value: undefined })
+      return () => {
+        off()
+        offError()
+        iteratorEnds.delete(end)
       }
-    }
-    iteratorEnds.add(end)
-
-    return {
-      next() {
-        if (latest) {
-          const value = latest
-          latest = undefined
-          return Promise.resolve({ done: false, value })
-        }
-        if (error) {
-          const err = error
-          error = undefined
-          done = true
-          cleanup()
-          return Promise.reject(err)
-        }
-        if (done) return Promise.resolve({ done: true, value: undefined })
-        const { promise, resolve, reject } =
-          withResolvers<IteratorResult<Item>>()
-        pending = { reject, resolve }
-        return promise
-      },
-      return() {
-        end()
-        return Promise.resolve({ done: true, value: undefined })
-      },
-      [Symbol.asyncIterator]() {
-        return this
-      },
-    }
+    })
   }
 
   const watcher: watchHeaders.Watcher<chain> = {

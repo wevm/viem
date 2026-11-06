@@ -1,9 +1,9 @@
 import type { Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
+import { createAsyncIterator } from '../../internal/asyncIterator.js'
 import { observe } from '../../internal/observe.js'
 import { poll } from '../../internal/poll.js'
-import { withResolvers } from '../../internal/promise.js'
 import { stringify } from '../../internal/stringify.js'
 import type { Filter } from '../filter/Filter.js'
 import { getChanges } from '../filter/getChanges.js'
@@ -152,83 +152,20 @@ export function watchPending(
   }
 
   function createIterator(): AsyncIterableIterator<watchPending.Emitted> {
-    let latest: watchPending.Emitted | undefined
-    let error: Error | undefined
-    let pending:
-      | {
-          resolve: (result: IteratorResult<watchPending.Emitted>) => void
-          reject: (error: Error) => void
-        }
-      | undefined
-    let done = false
+    return createAsyncIterator<watchPending.Emitted>((onData, onError, end) => {
+      const off = watcher.onTransactions((hashes) => {
+        const value = { hashes }
+        onData(value)
+      })
+      const offError = watcher.onError(onError)
+      iteratorEnds.add(end)
 
-    const offTransactions = watcher.onTransactions((hashes) => {
-      const value = { hashes }
-      if (pending) {
-        const { resolve } = pending
-        pending = undefined
-        resolve({ done: false, value })
-      } else {
-        latest = value
+      return () => {
+        off()
+        offError()
+        iteratorEnds.delete(end)
       }
     })
-    const offError = watcher.onError((err) => {
-      if (pending) {
-        const { reject } = pending
-        pending = undefined
-        done = true
-        cleanup()
-        reject(err)
-      } else {
-        error = err
-      }
-    })
-
-    function cleanup() {
-      offTransactions()
-      offError()
-      iteratorEnds.delete(end)
-    }
-
-    function end() {
-      done = true
-      cleanup()
-      if (pending) {
-        const { resolve } = pending
-        pending = undefined
-        resolve({ done: true, value: undefined })
-      }
-    }
-    iteratorEnds.add(end)
-
-    return {
-      next() {
-        if (latest) {
-          const value = latest
-          latest = undefined
-          return Promise.resolve({ done: false, value })
-        }
-        if (error) {
-          const err = error
-          error = undefined
-          done = true
-          cleanup()
-          return Promise.reject(err)
-        }
-        if (done) return Promise.resolve({ done: true, value: undefined })
-        const { promise, resolve, reject } =
-          withResolvers<IteratorResult<watchPending.Emitted>>()
-        pending = { reject, resolve }
-        return promise
-      },
-      return() {
-        end()
-        return Promise.resolve({ done: true, value: undefined })
-      },
-      [Symbol.asyncIterator]() {
-        return this
-      },
-    }
   }
 
   const watcher: watchPending.Watcher = {
