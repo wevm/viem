@@ -816,7 +816,11 @@ describe('args: args', () => {
         tokenId: 1n,
       },
     })
-    const log = { ...baseLog, data: '0x', topics } as Log
+    const log = {
+      ...baseLog,
+      data: '0x',
+      topics: topics as Log['topics'],
+    } as Log
 
     const matchedBigInt = parseEventLogs({
       abi,
@@ -902,7 +906,7 @@ describe('args: args', () => {
     ]
     const topics = encodeEventTopics({ abi, eventName: 'Value' })
     const data = encodeAbiParameters([{ type: 'uint256' }], [42n])
-    const log = { ...baseLog, data, topics } as Log
+    const log = { ...baseLog, data, topics: topics as Log['topics'] } as Log
 
     const matchedBigInt = parseEventLogs({
       abi,
@@ -978,7 +982,7 @@ describe('args: args', () => {
     ]
     const topics = encodeEventTopics({ abi, eventName: 'Value' })
     const data = encodeAbiParameters([{ type: 'int8' }], [-1])
-    const log = { ...baseLog, data, topics } as Log
+    const log = { ...baseLog, data, topics: topics as Log['topics'] } as Log
 
     const matched = parseEventLogs({
       abi,
