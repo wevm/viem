@@ -88,6 +88,70 @@ describe('wagmi', () => {
     expect(request.account).toEqual(clientWithAccount.account)
   })
 
+  test('null account', async () => {
+    const { abi, address } = wagmiContractConfig
+    const { request } = await simulateContract(clientWithAccount, {
+      abi,
+      address,
+      account: null,
+      functionName: 'setApprovalForAll',
+      args: [accounts[1].address, true],
+    })
+
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "abi": [
+          {
+            "inputs": [
+              {
+                "name": "operator",
+                "type": "address",
+              },
+              {
+                "name": "approved",
+                "type": "bool",
+              },
+            ],
+            "name": "setApprovalForAll",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function",
+          },
+        ],
+        "account": null,
+        "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+        "args": [
+          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          true,
+        ],
+        "dataSuffix": undefined,
+        "functionName": "setApprovalForAll",
+      }
+    `)
+
+    await expect(() =>
+      simulateContract(clientWithAccount, {
+        abi,
+        address,
+        account: null,
+        functionName: 'mint',
+        args: [13371337n],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
+      ERC721: mint to the zero address
+
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  mint(uint256 tokenId)
+        args:          (13371337)
+
+      Docs: https://viem.sh/docs/contract/simulateContract
+      Details: execution reverted: ERC721: mint to the zero address
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('no account', async () => {
     await expect(() =>
       simulateContract(client, {
