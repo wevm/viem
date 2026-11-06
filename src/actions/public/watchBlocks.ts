@@ -10,6 +10,10 @@ import { type PollErrorType, poll } from '../../utils/poll.js'
 import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 
 import { type GetBlockReturnType, getBlock } from './getBlock.js'
+import {
+  getSubscriptionTransport,
+  shouldPoll,
+} from './internal/watchTransport.js'
 
 export type OnBlockParameter<
   chain extends Chain | undefined = Chain,
@@ -120,18 +124,7 @@ export function watchBlocks<
 ): WatchBlocksReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
-    if (
-      client.transport.type === 'webSocket' ||
-      client.transport.type === 'ipc'
-    )
-      return false
-    if (
-      client.transport.type === 'fallback' &&
-      (client.transport.transports[0].config.type === 'webSocket' ||
-        client.transport.transports[0].config.type === 'ipc')
-    )
-      return false
-    return true
+    return shouldPoll(client)
   })()
   const includeTransactions = includeTransactions_ ?? false
   // Polling less than twice per block skips blocks, so emit the missed
@@ -260,18 +253,7 @@ export function watchBlocks<
             .catch(onError)
         }
 
-        const transport = (() => {
-          if (client.transport.type === 'fallback') {
-            const transport = client.transport.transports.find(
-              (transport: ReturnType<Transport>) =>
-                transport.config.type === 'webSocket' ||
-                transport.config.type === 'ipc',
-            )
-            if (!transport) return client.transport
-            return transport.value
-          }
-          return client.transport
-        })()
+        const transport = getSubscriptionTransport(client)
 
         const { unsubscribe: unsubscribe_ } = await transport.subscribe({
           params: ['newHeads'],
