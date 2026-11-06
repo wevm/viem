@@ -10,7 +10,7 @@ import { stringToBytes, toBytes } from '../encoding/toBytes.js'
 import { formatLog } from '../formatters/log.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
-import { bytesRegex } from '../regex.js'
+import { bytesRegex, integerRegex } from '../regex.js'
 import {
   type DecodeEventLogErrorType,
   decodeEventLog,
@@ -275,6 +275,13 @@ function includesArgs(parameters: {
         bytesRegex.test(input.type)
       )
         return value.toLowerCase() === arg.toLowerCase()
+      // Normalize number and bigint filters for ABI integer comparison.
+      if (
+        integerRegex.test(input.type) &&
+        (typeof value === 'number' || typeof value === 'bigint') &&
+        (typeof arg === 'number' || typeof arg === 'bigint')
+      )
+        return BigInt(value) === BigInt(arg)
       return value === arg
     } catch {
       return false
