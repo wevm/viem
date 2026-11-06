@@ -143,7 +143,7 @@ test('offchain: gets address for name', async () => {
   )
 })
 
-test.each(['address', 'bytes', 'raw'] as const)(
+test.each(['address', 'raw'] as const)(
   'offchain: decodes %s coinType responses with leading zeros',
   async (type) => {
     const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
@@ -191,6 +191,35 @@ test.each(['address', 'bytes', 'raw'] as const)(
     `)
   },
 )
+
+test('offchain: preserves dynamic-bytes responses with leading zeros', async () => {
+  const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+  const data = encodeFunctionResult({
+    abi: universalResolverResolveAbi,
+    functionName: 'resolveWithGateways',
+    result: [
+      encodeAbiParameters(
+        [{ type: 'bytes' }],
+        ['0x0011111111111111111111111111111111111111'],
+      ),
+      resolverAddress,
+    ],
+  })
+  const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
+    result: data,
+  }))
+  const client = createClient({ transport: http(url) })
+
+  await expect(
+    getEnsAddress(client, {
+      name: 'pokersback.com',
+      coinType: 60n,
+      universalResolverAddress: resolverAddress,
+    }),
+  ).resolves.toMatchInlineSnapshot(
+    '"0x0011111111111111111111111111111111111111"',
+  )
+})
 
 test('offchain: rejects malformed coinType responses', async () => {
   const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
