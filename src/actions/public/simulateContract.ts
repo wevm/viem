@@ -281,7 +281,7 @@ export async function simulateContract<
       data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
-      // `call` omits the sender for a `null` account instead of using `client.account`.
+      // `call` omits the sender for `null` at runtime, but its parameter type excludes `null`.
       account: account as Account | undefined,
     })
     const result = decodeFunctionResult({
