@@ -1716,16 +1716,16 @@ describe('anonymous', () => {
     // A log from another contract: an unknown signature and one indexed
     // argument, so the topic count fits `Anon`.
     const topics = [
-      toEventSelector('Deposit(address,uint256)'),
+      '0x0000000000000000000000008bfc6cda04eb5b0d3c460751c2402c5c5cc9109c',
       '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
     ] as const
 
     expect(() =>
       decodeEventLog({ abi, data: '0x', topics: [...topics] }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [AbiEventSignatureNotFoundError: Encoded event signature "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c" not found on ABI.
+      [AbiEventSignatureNotFoundError: Encoded event signature "0x0000000000000000000000008bfc6cda04eb5b0d3c460751c2402c5c5cc9109c" not found on ABI.
       Make sure you are using the correct ABI and that the event exists on it.
-      You can look up the signature here: https://4byte.sourcify.dev/?q=0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c.
+      You can look up the signature here: https://4byte.sourcify.dev/?q=0x0000000000000000000000008bfc6cda04eb5b0d3c460751c2402c5c5cc9109c.
 
       Docs: https://viem.sh/docs/contract/decodeEventLog
       Version: viem@x.y.z]
@@ -1960,4 +1960,115 @@ describe('anonymous', () => {
       }
     `)
   })
+})
+
+test('errors: indexed integer out of range', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'level',
+              type: 'uint8',
+            },
+          ],
+          name: 'Leveled',
+          type: 'event',
+        },
+      ],
+      topics: [
+        toEventSelector('Leveled(address,uint8)'),
+        '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
+        '0x0000000000000000000000000000000000000000000000000000000000000100',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('errors: indexed address with dirty padding', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'tokenId',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000001d8da6bf26964af9d7eed9e03e53415d37aa96045',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidAddressError: Address "0x000000000000000000000001d8da6bf26964af9d7eed9e03e53415d37aa96045" is invalid.
+
+    - Address must be a hex value of 20 bytes (40 hex characters).
+    - Address must match its checksum counterpart.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('errors: non-indexed integer out of range', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'level',
+              type: 'int8',
+            },
+          ],
+          name: 'Leveled',
+          type: 'event',
+        },
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000000000000080',
+      topics: [
+        toEventSelector('Leveled(address,int8)'),
+        '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "128" is not in safe 8-bit signed integer range (-128 to 127)
+
+    Version: viem@x.y.z]
+  `)
 })
