@@ -352,6 +352,38 @@ Request ID: 123e4567-e89b-12d3-a456-426614174000`
   `)
 })
 
+test('behavior: nonce shorter than 8 characters', () => {
+  // EIP-4361: `nonce = 8*( ALPHA / DIGIT )`, which createSiweMessage already enforces.
+  const message = `https://example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobar
+Issued At: 2023-02-01T00:00:00.000Z`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.nonce).toBeUndefined()
+  expect(parsed.uri).toBeUndefined()
+})
+
+test('behavior: version other than 1', () => {
+  // EIP-4361: `version = "1"`, which createSiweMessage already enforces.
+  const message = `https://example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+URI: https://example.com/path
+Version: 2
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.version).toBeUndefined()
+  expect(parsed.nonce).toBeUndefined()
+})
+
 test('behavior: bogus message', () => {
   const message = 'foobarbaz'
   const parsed = parseSiweMessage(message)
