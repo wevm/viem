@@ -25,6 +25,7 @@ import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
+import { pad } from '../../utils/data/pad.js'
 import { type SizeErrorType, size } from '../../utils/data/size.js'
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
@@ -206,6 +207,8 @@ function decodeAddress({
     if (coinType == null) throw err
 
     const address = trim(data)
+    if ((size(data) === 20 || size(data) === 32) && size(address) < 20)
+      return getAddress(pad(address, { size: 20 }))
     if (size(address) === 20) return getAddress(address)
 
     throw err
