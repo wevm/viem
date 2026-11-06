@@ -298,6 +298,42 @@ describe('withRelay', () => {
     ).rejects.toThrow('Relay lookup failed.')
   })
 
+  test('behavior: retries a failed request without nesting the inner retries', async () => {
+    let defaultRequests = 0
+    let relayRequests = 0
+    const transport = withRelay(
+      custom({
+        async request() {
+          defaultRequests++
+          throw new RpcResponse.InternalError({ message: 'Node failed.' })
+        },
+      }),
+      custom({
+        async request() {
+          relayRequests++
+          throw new RpcResponse.InternalError({ message: 'Relay failed.' })
+        },
+      }),
+    )({ chain, retryCount: 2 })
+
+    await expect(
+      transport.request(
+        { method: 'eth_fillTransaction', params: [{}] as never },
+        { retryDelay: 0 },
+      ),
+    ).rejects.toThrow('Relay failed.')
+    await expect(
+      transport.request({ method: 'eth_chainId' }, { retryDelay: 0 }),
+    ).rejects.toThrow('Node failed.')
+
+    expect({ defaultRequests, relayRequests }).toMatchInlineSnapshot(`
+      {
+        "defaultRequests": 3,
+        "relayRequests": 3,
+      }
+    `)
+  })
+
   beforeAll(async () => {
     server = Http.createServer(
       createRequestListener(async (r) => {

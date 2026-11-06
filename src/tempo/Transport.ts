@@ -162,12 +162,15 @@ export function withRelay(
   const { keyAuthorization, policy = 'sign-only' } = parameters ?? {}
 
   return (config) => {
-    const transport_default = defaultTransport(config)
-    const transport_relay = relayTransport(config)
+    // The proxy retries each request, so its inner transports send each attempt once, as with
+    // `fallback`.
+    const transport_default = defaultTransport({ ...config, retryCount: 0 })
+    const transport_relay = relayTransport({ ...config, retryCount: 0 })
 
     const transport = createTransport({
       key: withRelay.type,
       name: 'Relay Proxy',
+      retryCount: config.retryCount,
       async request({ method, params }, options) {
         if (method === 'eth_fillTransaction')
           return transport_relay.request({ method, params }, options) as never
@@ -338,12 +341,15 @@ export function withFeePayer(
   const { policy = 'sign-only' } = parameters ?? {}
 
   return (config) => {
-    const transport_default = defaultTransport(config)
-    const transport_relay = relayTransport(config)
+    // The proxy retries each request, so its inner transports send each attempt once, as with
+    // `fallback`.
+    const transport_default = defaultTransport({ ...config, retryCount: 0 })
+    const transport_relay = relayTransport({ ...config, retryCount: 0 })
 
     return createTransport({
       key: withFeePayer.type,
       name: 'Relay Proxy',
+      retryCount: config.retryCount,
       async request({ method, params }, options) {
         if (method === 'eth_fillTransaction') {
           const request = (params as readonly unknown[] | undefined)?.[0]
