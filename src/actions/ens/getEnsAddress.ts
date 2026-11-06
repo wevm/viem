@@ -207,7 +207,12 @@ function decodeAddress({
     if (coinType == null) throw err
 
     const address = trim(data)
-    if ((size(data) === 20 || size(data) === 32) && size(address) < 20)
+    const dataSize = size(data)
+    if (
+      coinType === 60n &&
+      (dataSize === 20 || dataSize === 32) &&
+      size(address) < 20
+    )
       return getAddress(pad(address, { size: 20 }))
     if (size(address) === 20) return getAddress(address)
 

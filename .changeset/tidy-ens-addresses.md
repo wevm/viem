@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `getEnsAddress` rejecting leading-zero addresses in its coin-type response fallback.
+Fixed `getEnsAddress` rejecting leading-zero addresses in its response fallback for `coinType: 60n`.
