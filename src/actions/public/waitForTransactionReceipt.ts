@@ -230,6 +230,9 @@ export async function waitForTransactionReceipt<
   // A found replacement, kept while `receipt` waits for confirmations.
   let replacementResponse: ReplacementReturnType<chain> | undefined
   let retrying = false
+  // The latest block number, kept while a lookup runs, since the next block
+  // may never come.
+  let latest: bigint | undefined
 
   let _unobserve: () => void
   let _unwatch: () => void
@@ -241,6 +244,7 @@ export async function waitForTransactionReceipt<
     ? setTimeout(() => {
         _unwatch?.()
         _unobserve?.()
+        latest = undefined
         reject(new WaitForTransactionReceiptTimeoutError({ hash }))
       }, timeout)
     : undefined
@@ -262,6 +266,301 @@ export async function waitForTransactionReceipt<
         return
       }
 
+      const handleBlock = async (blockNumber_: bigint) => {
+        const done = (fn: () => void) => {
+          latest = undefined
+          clearTimeout(timer)
+          _unwatch?.()
+          fn()
+          _unobserve?.()
+        }
+
+        let blockNumber = blockNumber_
+
+        try {
+          if (receipt) {
+            if (
+              confirmations > 1 &&
+              (!receipt.blockNumber ||
+                blockNumber - receipt.blockNumber + 1n < confirmations)
+            )
+              return
+
+            // A reorg can remove a receipt or change its execution outcome,
+            // so it is refreshed once it has enough confirmations. Other
+            // errors keep the cached receipt for the next block.
+            const receipt_ = await getAction(
+              client,
+              getTransactionReceipt,
+              'getTransactionReceipt',
+            )({ hash: receipt.transactionHash }).catch((error) =>
+              error instanceof TransactionReceiptNotFoundError
+                ? null
+                : undefined,
+            )
+            if (receipt_ === undefined) return
+            if (!receipt_) {
+              receipt = undefined
+              // The replaced transaction stays known, so the block scan can
+              // find its replacement again.
+              if (!replacementResponse) transaction = undefined
+              replacementResponse = undefined
+              return
+            }
+            receipt = receipt_
+            if (
+              confirmations > 1 &&
+              (!receipt_.blockNumber ||
+                blockNumber - receipt_.blockNumber + 1n < confirmations)
+            )
+              return
+
+            const replacement = replacementResponse
+            if (replacement) {
+              if (replacement.transaction.blockHash !== receipt_.blockHash)
+                replacement.transaction = (await getAction(
+                  client,
+                  getTransaction,
+                  'getTransaction',
+                )({ hash: receipt_.transactionHash })) as Transaction
+              replacement.transactionReceipt = receipt_
+            }
+            done(() => {
+              if (replacement) emit.onReplaced?.(replacement)
+              emit.resolve(receipt_)
+            })
+            return
+          }
+
+          // Get the transaction to check if it's been replaced.
+          // We need to retry as some RPC Providers may be slow to sync
+          // up mined transactions.
+          if (checkReplacement && !transaction) {
+            retrying = true
+            await withRetry(
+              async () => {
+                transaction = (await getAction(
+                  client,
+                  getTransaction,
+                  'getTransaction',
+                )({ hash })) as GetTransactionReturnType<chain>
+                if (transaction.blockNumber)
+                  blockNumber = transaction.blockNumber
+              },
+              {
+                delay: retryDelay,
+                retryCount,
+                // A dropped transaction does not reappear, so a known
+                // sender and nonce are looked up without the retries.
+                shouldRetry: ({ error }) =>
+                  !(replacement && error instanceof TransactionNotFoundError),
+              },
+            )
+            retrying = false
+          }
+
+          // Get the receipt to check if it's been processed.
+          receipt = await getAction(
+            client,
+            getTransactionReceipt,
+            'getTransactionReceipt',
+          )({ hash })
+
+          // Check if we have enough confirmations. If not, continue polling.
+          if (
+            confirmations > 1 &&
+            (!receipt.blockNumber ||
+              blockNumber - receipt.blockNumber + 1n < confirmations)
+          )
+            return
+
+          done(() => emit.resolve(receipt!))
+        } catch (err) {
+          // If the receipt is not found, the transaction will be pending.
+          // We need to check if it has potentially been replaced.
+          if (
+            err instanceof TransactionNotFoundError ||
+            err instanceof TransactionReceiptNotFoundError
+          ) {
+            retrying = false
+
+            // A node that dropped the transaction no longer returns it, so
+            // the known fields of it stand in. RPC hashes are lowercase.
+            const replaced =
+              transaction ??
+              (checkReplacement && replacement
+                ? ({
+                    ...replacement,
+                    hash: hash.toLowerCase(),
+                  } as GetTransactionReturnType<chain>)
+                : undefined)
+            if (!replaced) return
+
+            // The transaction was seen mined, so it consumed its nonce slot
+            // and was not replaced: its receipt is not indexed yet. The
+            // transaction is fetched once, so one first seen pending is
+            // matched by replacement key instead.
+            if (replaced.blockNumber) return
+
+            try {
+              // Look up the transaction in the nonce slot, since the block
+              // scan below misses a replacement mined before the wait starts.
+              if (!transaction) {
+                retrying = true
+                const found = (await getAction(
+                  client,
+                  getTransaction,
+                  'getTransaction',
+                )({
+                  nonce: replaced.nonce,
+                  sender: replaced.from,
+                }).catch((error) => {
+                  // Without the method, only the block scan runs from now
+                  // on. Other errors retry the lookup on the next block.
+                  if (
+                    error instanceof MethodNotFoundRpcError ||
+                    error instanceof MethodNotSupportedRpcError
+                  )
+                    transaction = replaced
+                  return undefined
+                })) as GetTransactionReturnType<chain> | undefined
+                retrying = false
+
+                // The transaction still holds its nonce slot.
+                if (
+                  (found as Transaction | undefined)?.hash.toLowerCase() ===
+                  replaced.hash
+                ) {
+                  transaction = found
+                  return
+                }
+
+                // Another transaction holds the nonce slot, so it replaced
+                // this one. A pending replacement has no receipt yet.
+                if (found) {
+                  const replacementReceipt = await getAction(
+                    client,
+                    getTransactionReceipt,
+                    'getTransactionReceipt',
+                  )({ hash: found.hash }).catch((error) => {
+                    if (error instanceof TransactionReceiptNotFoundError)
+                      return undefined
+                    throw error
+                  })
+                  if (!replacementReceipt) return
+
+                  receipt = replacementReceipt
+                  replacementResponse = {
+                    reason:
+                      client.chain?.transactionReplacement?.getReason?.({
+                        replaced,
+                        replacement: found,
+                      }) ??
+                      getReplacementReason(
+                        replaced as Transaction,
+                        found as Transaction,
+                      ),
+                    replacedTransaction: replaced as Transaction,
+                    transaction: found as Transaction,
+                    transactionReceipt: receipt,
+                  }
+
+                  // Check if we have enough confirmations. If not, continue polling.
+                  if (
+                    confirmations > 1 &&
+                    (!receipt.blockNumber ||
+                      blockNumber - receipt.blockNumber + 1n < confirmations)
+                  )
+                    return
+
+                  done(() => {
+                    emit.onReplaced?.(replacementResponse!)
+                    emit.resolve(receipt!)
+                  })
+                  return
+                }
+              }
+
+              // Let's retrieve the transactions from the current block.
+              // We need to retry as some RPC Providers may be slow to sync
+              // up mined blocks.
+              retrying = true
+              const block = await withRetry(
+                () =>
+                  getAction(
+                    client,
+                    getBlock,
+                    'getBlock',
+                  )({
+                    blockNumber,
+                    includeTransactions: true,
+                  }),
+                {
+                  delay: retryDelay,
+                  retryCount,
+                  shouldRetry: ({ error }) =>
+                    error instanceof BlockNotFoundError,
+                },
+              )
+              retrying = false
+
+              const replacedKey = getReplacementKey(replaced as Transaction)
+              const replacementTransaction = (
+                block.transactions as {} as Transaction[]
+              ).find(
+                (candidate) =>
+                  isAddressEqual(candidate.from, replaced.from) &&
+                  candidate.hash !== replaced.hash &&
+                  getReplacementKey(candidate) === replacedKey,
+              )
+
+              // If we couldn't find a replacement transaction, continue polling.
+              if (!replacementTransaction) return
+
+              // If we found a replacement transaction, return it's receipt.
+              receipt = await getAction(
+                client,
+                getTransactionReceipt,
+                'getTransactionReceipt',
+              )({
+                hash: replacementTransaction.hash,
+              })
+              replacementResponse = {
+                reason:
+                  client.chain?.transactionReplacement?.getReason?.({
+                    replaced,
+                    replacement: replacementTransaction,
+                  }) ??
+                  getReplacementReason(
+                    replaced as Transaction,
+                    replacementTransaction,
+                  ),
+                replacedTransaction: replaced as Transaction,
+                transaction: replacementTransaction,
+                transactionReceipt: receipt,
+              }
+
+              // Check if we have enough confirmations. If not, continue polling.
+              if (
+                confirmations > 1 &&
+                (!receipt.blockNumber ||
+                  blockNumber - receipt.blockNumber + 1n < confirmations)
+              )
+                return
+
+              done(() => {
+                emit.onReplaced?.(replacementResponse!)
+                emit.resolve(receipt!)
+              })
+            } catch (err_) {
+              done(() => emit.reject(err_))
+            }
+          } else {
+            done(() => emit.reject(err))
+          }
+        }
+      }
+
       _unwatch = getAction(
         client,
         watchBlockNumber,
@@ -271,299 +570,12 @@ export async function waitForTransactionReceipt<
         emitOnBegin: true,
         poll: true,
         pollingInterval,
-        async onBlockNumber(blockNumber_) {
-          const done = (fn: () => void) => {
-            clearTimeout(timer)
-            _unwatch?.()
-            fn()
-            _unobserve?.()
-          }
-
-          let blockNumber = blockNumber_
-
-          if (retrying) return
-
-          try {
-            if (receipt) {
-              if (
-                confirmations > 1 &&
-                (!receipt.blockNumber ||
-                  blockNumber - receipt.blockNumber + 1n < confirmations)
-              )
-                return
-
-              // A reorg can remove a receipt or change its execution outcome,
-              // so it is refreshed once it has enough confirmations. Other
-              // errors keep the cached receipt for the next block.
-              const receipt_ = await getAction(
-                client,
-                getTransactionReceipt,
-                'getTransactionReceipt',
-              )({ hash: receipt.transactionHash }).catch((error) =>
-                error instanceof TransactionReceiptNotFoundError
-                  ? null
-                  : undefined,
-              )
-              if (receipt_ === undefined) return
-              if (!receipt_) {
-                receipt = undefined
-                // The replaced transaction stays known, so the block scan can
-                // find its replacement again.
-                if (!replacementResponse) transaction = undefined
-                replacementResponse = undefined
-                return
-              }
-              receipt = receipt_
-              if (
-                confirmations > 1 &&
-                (!receipt_.blockNumber ||
-                  blockNumber - receipt_.blockNumber + 1n < confirmations)
-              )
-                return
-
-              const replacement = replacementResponse
-              if (replacement) {
-                if (replacement.transaction.blockHash !== receipt_.blockHash)
-                  replacement.transaction = (await getAction(
-                    client,
-                    getTransaction,
-                    'getTransaction',
-                  )({ hash: receipt_.transactionHash })) as Transaction
-                replacement.transactionReceipt = receipt_
-              }
-              done(() => {
-                if (replacement) emit.onReplaced?.(replacement)
-                emit.resolve(receipt_)
-              })
-              return
-            }
-
-            // Get the transaction to check if it's been replaced.
-            // We need to retry as some RPC Providers may be slow to sync
-            // up mined transactions.
-            if (checkReplacement && !transaction) {
-              retrying = true
-              await withRetry(
-                async () => {
-                  transaction = (await getAction(
-                    client,
-                    getTransaction,
-                    'getTransaction',
-                  )({ hash })) as GetTransactionReturnType<chain>
-                  if (transaction.blockNumber)
-                    blockNumber = transaction.blockNumber
-                },
-                {
-                  delay: retryDelay,
-                  retryCount,
-                  // A dropped transaction does not reappear, so a known
-                  // sender and nonce are looked up without the retries.
-                  shouldRetry: ({ error }) =>
-                    !(replacement && error instanceof TransactionNotFoundError),
-                },
-              )
-              retrying = false
-            }
-
-            // Get the receipt to check if it's been processed.
-            receipt = await getAction(
-              client,
-              getTransactionReceipt,
-              'getTransactionReceipt',
-            )({ hash })
-
-            // Check if we have enough confirmations. If not, continue polling.
-            if (
-              confirmations > 1 &&
-              (!receipt.blockNumber ||
-                blockNumber - receipt.blockNumber + 1n < confirmations)
-            )
-              return
-
-            done(() => emit.resolve(receipt!))
-          } catch (err) {
-            // If the receipt is not found, the transaction will be pending.
-            // We need to check if it has potentially been replaced.
-            if (
-              err instanceof TransactionNotFoundError ||
-              err instanceof TransactionReceiptNotFoundError
-            ) {
-              retrying = false
-
-              // A node that dropped the transaction no longer returns it, so
-              // the known fields of it stand in. RPC hashes are lowercase.
-              const replaced =
-                transaction ??
-                (checkReplacement && replacement
-                  ? ({
-                      ...replacement,
-                      hash: hash.toLowerCase(),
-                    } as GetTransactionReturnType<chain>)
-                  : undefined)
-              if (!replaced) return
-
-              // The transaction was seen mined, so it consumed its nonce slot
-              // and was not replaced: its receipt is not indexed yet. The
-              // transaction is fetched once, so one first seen pending is
-              // matched by replacement key instead.
-              if (replaced.blockNumber) return
-
-              try {
-                // Look up the transaction in the nonce slot, since the block
-                // scan below misses a replacement mined before the wait starts.
-                if (!transaction) {
-                  retrying = true
-                  const found = (await getAction(
-                    client,
-                    getTransaction,
-                    'getTransaction',
-                  )({
-                    nonce: replaced.nonce,
-                    sender: replaced.from,
-                  }).catch((error) => {
-                    // Without the method, only the block scan runs from now
-                    // on. Other errors retry the lookup on the next block.
-                    if (
-                      error instanceof MethodNotFoundRpcError ||
-                      error instanceof MethodNotSupportedRpcError
-                    )
-                      transaction = replaced
-                    return undefined
-                  })) as GetTransactionReturnType<chain> | undefined
-                  retrying = false
-
-                  // The transaction still holds its nonce slot.
-                  if (
-                    (found as Transaction | undefined)?.hash.toLowerCase() ===
-                    replaced.hash
-                  ) {
-                    transaction = found
-                    return
-                  }
-
-                  // Another transaction holds the nonce slot, so it replaced
-                  // this one. A pending replacement has no receipt yet.
-                  if (found) {
-                    const replacementReceipt = await getAction(
-                      client,
-                      getTransactionReceipt,
-                      'getTransactionReceipt',
-                    )({ hash: found.hash }).catch((error) => {
-                      if (error instanceof TransactionReceiptNotFoundError)
-                        return undefined
-                      throw error
-                    })
-                    if (!replacementReceipt) return
-
-                    receipt = replacementReceipt
-                    replacementResponse = {
-                      reason:
-                        client.chain?.transactionReplacement?.getReason?.({
-                          replaced,
-                          replacement: found,
-                        }) ??
-                        getReplacementReason(
-                          replaced as Transaction,
-                          found as Transaction,
-                        ),
-                      replacedTransaction: replaced as Transaction,
-                      transaction: found as Transaction,
-                      transactionReceipt: receipt,
-                    }
-
-                    // Check if we have enough confirmations. If not, continue polling.
-                    if (
-                      confirmations > 1 &&
-                      (!receipt.blockNumber ||
-                        blockNumber - receipt.blockNumber + 1n < confirmations)
-                    )
-                      return
-
-                    done(() => {
-                      emit.onReplaced?.(replacementResponse!)
-                      emit.resolve(receipt!)
-                    })
-                    return
-                  }
-                }
-
-                // Let's retrieve the transactions from the current block.
-                // We need to retry as some RPC Providers may be slow to sync
-                // up mined blocks.
-                retrying = true
-                const block = await withRetry(
-                  () =>
-                    getAction(
-                      client,
-                      getBlock,
-                      'getBlock',
-                    )({
-                      blockNumber,
-                      includeTransactions: true,
-                    }),
-                  {
-                    delay: retryDelay,
-                    retryCount,
-                    shouldRetry: ({ error }) =>
-                      error instanceof BlockNotFoundError,
-                  },
-                )
-                retrying = false
-
-                const replacedKey = getReplacementKey(replaced as Transaction)
-                const replacementTransaction = (
-                  block.transactions as {} as Transaction[]
-                ).find(
-                  (candidate) =>
-                    isAddressEqual(candidate.from, replaced.from) &&
-                    candidate.hash !== replaced.hash &&
-                    getReplacementKey(candidate) === replacedKey,
-                )
-
-                // If we couldn't find a replacement transaction, continue polling.
-                if (!replacementTransaction) return
-
-                // If we found a replacement transaction, return it's receipt.
-                receipt = await getAction(
-                  client,
-                  getTransactionReceipt,
-                  'getTransactionReceipt',
-                )({
-                  hash: replacementTransaction.hash,
-                })
-                replacementResponse = {
-                  reason:
-                    client.chain?.transactionReplacement?.getReason?.({
-                      replaced,
-                      replacement: replacementTransaction,
-                    }) ??
-                    getReplacementReason(
-                      replaced as Transaction,
-                      replacementTransaction,
-                    ),
-                  replacedTransaction: replaced as Transaction,
-                  transaction: replacementTransaction,
-                  transactionReceipt: receipt,
-                }
-
-                // Check if we have enough confirmations. If not, continue polling.
-                if (
-                  confirmations > 1 &&
-                  (!receipt.blockNumber ||
-                    blockNumber - receipt.blockNumber + 1n < confirmations)
-                )
-                  return
-
-                done(() => {
-                  emit.onReplaced?.(replacementResponse!)
-                  emit.resolve(receipt!)
-                })
-              } catch (err_) {
-                done(() => emit.reject(err_))
-              }
-            } else {
-              done(() => emit.reject(err))
-            }
+        async onBlockNumber(blockNumber) {
+          latest = blockNumber
+          while (latest !== undefined && !retrying) {
+            const next = latest
+            latest = undefined
+            await handleBlock(next)
           }
         },
       })
