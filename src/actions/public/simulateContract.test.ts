@@ -88,6 +88,25 @@ describe('wagmi', () => {
     expect(request.account).toEqual(clientWithAccount.account)
   })
 
+  test('null account', async () => {
+    const { request } = await simulateContract(clientWithAccount, {
+      ...wagmiContractConfig,
+      account: null,
+      functionName: 'setApprovalForAll',
+      args: [accounts[1].address, true],
+    })
+    expect(request.account).toMatchInlineSnapshot(`null`)
+
+    await expect(() =>
+      simulateContract(clientWithAccount, {
+        ...wagmiContractConfig,
+        account: null,
+        functionName: 'mint',
+        args: [13371337n],
+      }),
+    ).rejects.toThrowError('ERC721: mint to the zero address')
+  })
+
   test('no account', async () => {
     await expect(() =>
       simulateContract(client, {
