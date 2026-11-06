@@ -25,7 +25,7 @@ import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import { pad } from '../../utils/data/pad.js'
+import { type PadErrorType, pad } from '../../utils/data/pad.js'
 import { type SizeErrorType, size } from '../../utils/data/size.js'
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
@@ -86,6 +86,7 @@ export type GetEnsAddressErrorType =
   | NamehashErrorType
   | ToHexErrorType
   | PacketToBytesErrorType
+  | PadErrorType
   | DecodeFunctionResultErrorType
   | SizeErrorType
   | TrimErrorType
@@ -206,15 +207,18 @@ function decodeAddress({
   } catch (err) {
     if (coinType == null) throw err
 
+    const addressSize = 20
+    const abiWordSize = 32
     const address = trim(data)
     const dataSize = size(data)
+    // coinType 60n is the ENSIP-9 Ethereum type.
     if (
       coinType === 60n &&
-      (dataSize === 20 || dataSize === 32) &&
-      size(address) < 20
+      (dataSize === addressSize || dataSize === abiWordSize) &&
+      size(address) < addressSize
     )
-      return getAddress(pad(address, { size: 20 }))
-    if (size(address) === 20) return getAddress(address)
+      return getAddress(pad(address, { size: addressSize }))
+    if (size(address) === addressSize) return getAddress(address)
 
     throw err
   }
