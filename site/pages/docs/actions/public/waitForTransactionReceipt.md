@@ -162,6 +162,27 @@ const transaction = await publicClient.waitForTransactionReceipt(
 )
 ```
 
+### signal (optional)
+
+- **Type:** `AbortSignal`
+
+Signal that stops the wait. Aborting rejects with the signal's reason and stops polling and retries.
+
+```ts
+const controller = new AbortController()
+
+const transaction = await publicClient.waitForTransactionReceipt(
+  { 
+    hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+    signal: controller.signal, // [!code focus:1]
+  }
+)
+```
+
+:::note
+Aborting stops the wait, not the transaction: it can still be included on a Block.
+:::
+
 ### timeout (optional)
 
 - **Type:** `number`

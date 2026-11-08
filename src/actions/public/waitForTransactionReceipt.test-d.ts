@@ -29,3 +29,13 @@ test('args: replacement', () => {
     replacement: { from, nonce: 0, nonceKey: 1n },
   })
 })
+
+test('args: signal', () => {
+  const { signal } = new AbortController()
+
+  waitForTransactionReceipt(client, { hash, signal })
+  client.waitForTransactionReceipt({ hash, signal })
+
+  // @ts-expect-error `signal` must be an `AbortSignal`.
+  waitForTransactionReceipt(client, { hash, signal: true })
+})
