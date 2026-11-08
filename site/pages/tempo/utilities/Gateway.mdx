@@ -13,12 +13,11 @@ A Gateway charges each operation through an [MPP](https://mpp.dev) session paid 
 Extend a Client with `gatewayActions` to add `client.ai`, `client.bucket`, `client.compute`, and `client.kv`.
 
 ```ts
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Account, Client, gatewayActions } from 'viem/tempo'
 
-const account = privateKeyToAccount('0x...')
+const account = Account.fromSecp256k1('0x...')
 
-const client = createClient({ account }).extend(gatewayActions())
+const client = Client.create({ account }).extend(gatewayActions())
 
 const { text } = await client.ai.generateText({
   model: '@cf/zai-org/glm-5.3',
@@ -107,9 +106,9 @@ const entry = await Actions.kv.get(gateway, { key: 'description' })
 `client.gateway.getCapabilities` (or `Gateway.getCapabilities`) is free and reads the chain, currencies, prices, limits, and models. It needs no payment-aware `fetch`.
 
 ```ts
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Client, gatewayActions } from 'viem/tempo'
 
-const client = createClient().extend(gatewayActions())
+const client = Client.create().extend(gatewayActions())
 const capabilities = await client.gateway.getCapabilities()
 // @log: { chainId: 4217, currencies: { mach: '0x…', ousd: '0x…' }, limits: { … }, models: { … }, prices: { … }, recipient: '0x…', version: '2026-10-22' }
 ```
@@ -126,7 +125,7 @@ const mppx = Mppx.create({
   polyfill: false,
 })
 
-const client = createClient({ account }).extend(
+const client = Client.create({ account }).extend(
   gatewayActions({ fetch: mppx.fetch }),
 )
 ```
@@ -163,7 +162,7 @@ const client = createClient({ account }).extend(
 
 ## Errors
 
-| Error | Thrown when |
+| Error | Description |
 | --- | --- |
 | `Gateway.MppxNotInstalledError` | A Client with a local account paid a request, but `mppx` is not installed. |
 | `Gateway.ChainMismatchError` | The Gateway asked for payment on a different chain than the Client's. |

@@ -1,5 +1,5 @@
 ---
-description: Connect viem to a Tempo Gateway and pay for its routes from a local account, a Tempo Wallet access key, or a Gateway API key.
+description: Connect Viem to a Tempo Gateway and pay for its routes from a local account, a Tempo Wallet access key, or a Gateway API key.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -30,9 +30,9 @@ A plain `fetch` reaches only the free routes, such as capabilities; paid routes 
 prices, size limits, models and compute rates. Read it to pick models and to show prices before a user pays.
 
 ```ts twoslash
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Client, gatewayActions } from 'viem/tempo'
 
-const client = createClient().extend(gatewayActions())
+const client = Client.create().extend(gatewayActions())
 
 const { currencies, models, prices } = await client.gateway.getCapabilities()
 ```
@@ -42,9 +42,9 @@ const { currencies, models, prices } = await client.gateway.getCapabilities()
 `gatewayActions()` with no options reaches the Tempo Gateway at `https://gateway.tempo-dev.workers.dev` in the `default` app. A Client with a local account pays with it; other Clients use `globalThis.fetch`. Pass `app` to keep your data apart, `url` to use another Gateway, and `fetch` to pay another way.
 
 ```ts twoslash
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Client, gatewayActions } from 'viem/tempo'
 
-const client = createClient().extend(gatewayActions())
+const client = Client.create().extend(gatewayActions())
 
 const capabilities = await client.gateway.getCapabilities()
 ```
@@ -56,12 +56,11 @@ For a script, server or agent, install `mppx` (`npm i mppx`) and give the Client
 throw `Gateway.MppxNotInstalledError`.
 
 ```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Account, Client, gatewayActions } from 'viem/tempo'
 
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const account = Account.fromSecp256k1('0x...')
 
-export const client = createClient({ account }).extend(gatewayActions())
+export const client = Client.create({ account }).extend(gatewayActions())
 ```
 
 ### Fund an Account
@@ -103,19 +102,18 @@ payment channel locks up. The Gateway accepts only its advertised currencies (`c
 `autoSwap` lets a wallet holding another stablecoin swap through the stablecoin DEX when it opens or tops up a
 channel.
 
-```ts twoslash
+```ts
 import { Mppx, tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Account, Client, gatewayActions } from 'viem/tempo'
 
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const account = Account.fromSecp256k1('0x...')
 
 const mppx = Mppx.create({
   methods: [tempo({ account, autoSwap: true, maxDeposit: '1' })],
   polyfill: false,
 })
 
-const client = createClient({ account }).extend(
+const client = Client.create({ account }).extend(
   gatewayActions({ fetch: mppx.fetch }),
 )
 ```
@@ -132,17 +130,17 @@ are paid by the Gateway from that key's own channel, so they never answer `402`.
 an API key, or when one operator key serves many tenants. Wrap `fetch` to add the header:
 
 ```ts twoslash
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Client, gatewayActions } from 'viem/tempo'
 
-const apiKey = process.env.GATEWAY_API_KEY!
+const apiKey = 'sk-tempo-...'
 
-const client = createClient().extend(
+const client = Client.create().extend(
   gatewayActions({
-    fetch: (input, init) =>
-      fetch(input, {
-        ...init,
-        headers: { ...init.headers, authorization: `Bearer ${apiKey}` },
-      }),
+    fetch: (input, init) => {
+      const headers = new Headers(init.headers)
+      headers.set('authorization', `Bearer ${apiKey}`)
+      return fetch(input, { ...init, headers })
+    },
   }),
 )
 ```
@@ -154,13 +152,12 @@ app, such as `project-${id}`. A project then sees only its own keys, objects and
 tenant never touches another's data.
 
 ```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Account, Client, gatewayActions } from 'viem/tempo'
 
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const account = Account.fromSecp256k1('0x...')
 
 function forProject(id: string) {
-  return createClient({ account }).extend(gatewayActions({ app: `project-${id}` })) // [!code focus]
+  return Client.create({ account }).extend(gatewayActions({ app: `project-${id}` })) // [!code focus]
 }
 
 await forProject('a1b2c3').kv.set({ key: 'status', value: 'running' })

@@ -1,19 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const viction = /*#__PURE__*/ defineChain({
+export const viction = /*#__PURE__*/ Chain.from({
   id: 88,
   name: 'Viction',
   nativeCurrency: { name: 'Viction', symbol: 'VIC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.viction.xyz'],
-    },
+    http: 'https://rpc.viction.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'VIC Scan',
-      url: 'https://vicscan.xyz',
-    },
+    name: 'VIC Scan',
+    url: 'https://vicscan.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

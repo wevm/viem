@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const berachainTestnet = /*#__PURE__*/ defineChain({
+export const berachainTestnet = /*#__PURE__*/ Chain.from({
   id: 80085,
   name: 'Berachain Artio',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const berachainTestnet = /*#__PURE__*/ defineChain({
     name: 'BERA Token',
     symbol: 'BERA',
   },
-  rpcUrls: {
-    default: { http: ['https://artio.rpc.berachain.com'] },
-  },
+  rpcUrls: { http: 'https://artio.rpc.berachain.com' },
   blockExplorers: {
-    default: {
-      name: 'Berachain',
-      url: 'https://artio.beratrail.io',
-    },
+    name: 'Berachain',
+    url: 'https://artio.beratrail.io',
   },
   contracts: {
     multicall3: {

@@ -1,20 +1,16 @@
-import { defineChain } from '../../../utils/chain/defineChain.js'
+import * as Chain from '../../../core/Chain.js'
 
-export const skaleTitan = /*#__PURE__*/ defineChain({
+export const skaleTitan = /*#__PURE__*/ Chain.from({
   id: 1_350_216_234,
   name: 'SKALE Titan Hub',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.skalenodes.com/v1/parallel-stormy-spica'],
-      webSocket: ['wss://mainnet.skalenodes.com/v1/ws/parallel-stormy-spica'],
-    },
+    http: 'https://mainnet.skalenodes.com/v1/parallel-stormy-spica',
+    ws: 'wss://mainnet.skalenodes.com/v1/ws/parallel-stormy-spica',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://parallel-stormy-spica.explorer.mainnet.skalenodes.com',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://parallel-stormy-spica.explorer.mainnet.skalenodes.com',
   },
   contracts: {
     multicall3: {

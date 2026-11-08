@@ -1,31 +1,23 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const worldchain = /*#__PURE__*/ defineChain({
+export const worldchain = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 480,
   name: 'World Chain',
-  network: 'worldchain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://worldchain-mainnet.g.alchemy.com/public'] },
-  },
+  rpcUrls: { http: 'https://worldchain-mainnet.g.alchemy.com/public' },
   blockExplorers: {
-    default: {
-      name: 'Worldscan',
-      url: 'https://worldscan.org',
-      apiUrl: 'https://api.worldscan.org/api',
-    },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://worldchain-mainnet.explorer.alchemy.com',
-      apiUrl: 'https://worldchain-mainnet.explorer.alchemy.com/api',
-    },
+    name: 'Worldscan',
+    url: 'https://worldscan.org',
+    apiUrl: 'https://api.worldscan.org/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 0,

@@ -3,6 +3,19 @@ export function days(n: number) {
   return Math.floor(Date.now() / 1000) + n * 24 * 60 * 60
 }
 
+/**
+ * Longest distance, in seconds, between now and an expiring nonce
+ * transaction's `validBefore` that Tempo accepts.
+ *
+ * @example
+ * ```ts
+ * import { Expiry } from 'viem/tempo'
+ *
+ * const validBefore = Expiry.seconds(Expiry.expiringNonceMax - 30)
+ * ```
+ */
+export const expiringNonceMax = 300
+
 /** Returns a unix timestamp `n` hours from now. */
 export function hours(n: number) {
   return Math.floor(Date.now() / 1000) + n * 60 * 60

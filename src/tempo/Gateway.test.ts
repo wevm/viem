@@ -1,11 +1,19 @@
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
-import { Actions, createClient, Gateway, gatewayActions } from 'viem/tempo'
+import { Secp256k1 } from 'ox'
+import * as tempo from '~test/tempo.js'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { accounts, chain, getClient } from '~test/tempo/config.js'
+
+import { tempoLocalnet, tempoModerato } from 'viem/chains'
+import {
+  Account,
+  Actions,
+  Client,
+  Gateway,
+  gatewayActions,
+  http,
+} from 'viem/tempo'
 
 type Entry = {
   expiresAt: number
@@ -55,7 +63,7 @@ async function handle(request: Request) {
     })
   if (pathname === '/v1/capabilities')
     return Response.json({
-      chainId: chain.id,
+      chainId: tempoLocalnet.id,
       currencies: { pathusd: '0x20c0000000000000000000000000000000000000' },
       version: '2026-10-22',
     })
@@ -390,7 +398,7 @@ describe('from', () => {
 
       Use 1 to 63 lowercase letters, digits, or hyphens.
 
-      Version: viem@x.y.z]
+      Version: viem@x.x.x]
     `)
   })
 })
@@ -1024,7 +1032,7 @@ describe('compute', () => {
 
 describe('gatewayActions', () => {
   test('default', async () => {
-    const client = createClient().extend(
+    const client = Client.create().extend(
       gatewayActions({ app: 'decorated', fetch: paidFetch, url }),
     )
 
@@ -1067,7 +1075,7 @@ describe('gatewayActions', () => {
   })
 
   test('behavior: getCapabilities', async () => {
-    const client = createClient().extend(gatewayActions({ url }))
+    const client = Client.create().extend(gatewayActions({ url }))
 
     const { chainId: _, ...capabilities } =
       await client.gateway.getCapabilities()
@@ -1082,33 +1090,42 @@ describe('gatewayActions', () => {
     `)
   })
 
-  test('behavior: pays with the client account', async () => {
-    const client = getClient({ account: accounts[0] }).extend(
-      gatewayActions({ url }),
-    )
+  test('behavior: pays with the client account without mppx', async () => {
+    const client = tempo.getClient().extend(gatewayActions({ url }))
 
-    await expect(
-      client.kv.get({ key: 'greeting' }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: No method found for challenges: . Available: tempo.charge, tempo.session]`,
+    const error = await client.kv
+      .get({ key: 'greeting' })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(Gateway.MppxNotInstalledError)
+    expect(error.shortMessage).toMatchInlineSnapshot(
+      `"mppx is required to pay the Gateway with the Client account."`,
     )
   })
 
   test('behavior: chain mismatch', async () => {
-    const client = getClient({
-      account: accounts[0],
+    const client = Client.create({
+      account: Account.fromSecp256k1(tempo.accounts[0].privateKey),
       chain: tempoModerato,
+      transport: http(tempo.rpcUrl),
     }).extend(gatewayActions({ url }))
 
-    await expect(client.kv.get({ key: 'greeting' })).rejects.toBeInstanceOf(
-      Gateway.ChainMismatchError,
-    )
+    await expect(client.kv.get({ key: 'greeting' })).rejects
+      .toThrowErrorMatchingInlineSnapshot(`
+      [Gateway.ChainMismatchError: The Gateway asks for payment on chain 1337, but the Client is on chain 42431.
+
+      Create the Client on the chain the Gateway is paid on (see \`getCapabilities().chainId\`).
+
+      Version: viem@x.x.x]
+    `)
   })
 
   test('behavior: unfunded account', async () => {
-    const client = getClient({
-      account: privateKeyToAccount(generatePrivateKey()),
-    }).extend(gatewayActions({ url }))
+    const client = tempo
+      .getClient({
+        account: Account.fromSecp256k1(Secp256k1.randomPrivateKey()),
+      })
+      .extend(gatewayActions({ url }))
 
     const error = await client.kv
       .get({ key: 'greeting' })
@@ -1132,7 +1149,7 @@ describe('gatewayActions', () => {
   })
 
   test('behavior: json-rpc account uses globalThis.fetch', async () => {
-    const client = createClient({
+    const client = Client.create({
       account: '0x0000000000000000000000000000000000000001',
     }).extend(gatewayActions({ url }))
 

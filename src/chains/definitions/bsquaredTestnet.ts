@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const bsquaredTestnet = /*#__PURE__*/ defineChain({
+export const bsquaredTestnet = /*#__PURE__*/ Chain.from({
   id: 1123,
   name: 'B2 Testnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const bsquaredTestnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.bsquared.network'],
-    },
+    http: 'https://testnet-rpc.bsquared.network',
   },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://testnet-explorer.bsquared.network',
-    },
+    name: 'blockscout',
+    url: 'https://testnet-explorer.bsquared.network',
   },
   testnet: true,
 })

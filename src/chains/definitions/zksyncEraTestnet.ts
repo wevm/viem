@@ -1,25 +1,21 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const zksyncEraTestnet = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const zksyncEraTestnet = /*#__PURE__*/ Chain.from({
   id: 312,
   name: 'ZKsync Era Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.zksync-era-testnet.zksync.dev'],
-      webSocket: ['wss://rpc.zksync-era-testnet.zksync.dev/ws'],
-    },
+    http: 'https://rpc.zksync-era-testnet.zksync.dev',
+    ws: 'wss://rpc.zksync-era-testnet.zksync.dev/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'ZKsync Explorer',
-      url: 'https://block-explorer.zksync-era-testnet.zksync.dev',
-      apiUrl: 'https://block-explorer-api.zksync-era-testnet.zksync.dev/api',
-    },
+    name: 'ZKsync Explorer',
+    url: 'https://block-explorer.zksync-era-testnet.zksync.dev',
+    apiUrl: 'https://block-explorer-api.zksync-era-testnet.zksync.dev/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 10618,

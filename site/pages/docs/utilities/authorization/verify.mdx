@@ -1,0 +1,66 @@
+# Authorization.verify
+
+Verifies that an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization was signed by the provided address (or public key).
+
+## Imports
+
+```ts
+import { Authorization } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"b4e020386f2f151780264c0d8897ea94fd8e8be8793e9c5911ee40ccf6357f19","data":"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="}
+// @noErrors
+import { Authorization } from 'viem/utils'
+
+declare const authorization: Authorization.Authorization<true>
+declare const address: `0x${string}`
+
+const valid = Authorization.verify({
+  authorization,
+  address, // or `publicKey`
+})
+```
+
+## Definition
+
+```ts
+function verify(
+  options: verify.Options,
+): boolean
+```
+
+## Parameters
+
+### options.authorization
+
+- **Type:** `Authorization.Authorization<boolean>`
+
+The authorization (signed, or unsigned with an explicit `signature`).
+
+### options.address
+
+- **Type:** `Address`
+
+Address to verify the authorization against. Mutually exclusive with `publicKey`.
+
+### options.publicKey
+
+- **Type:** `PublicKey`
+
+Public key to verify the authorization against. Mutually exclusive with `address`.
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+- **Optional**
+
+Signature of the authorization. Defaults to the one carried on a signed authorization.
+
+## Return Type
+
+Whether the authorization is valid.
+
+`boolean`

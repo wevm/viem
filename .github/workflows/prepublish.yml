@@ -2,14 +2,15 @@ name: Prepublish
 
 on:
   push:
-    branches: [main]
+    branches: [v3]
   pull_request:
+    branches: [v3]
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, closed]
 
 permissions: {} # each job should declare only the permissions it needs
 
 jobs:
-  # Packs the prerelease at `0.0.0-<sha>` on main, or `0.0.0-pr-<number>-<short sha>` on a pull request.
+  # Packs the prerelease at `0.0.0-v3-<sha>` on `v3`, or `0.0.0-v3-pr-<number>-<short sha>` on a pull request.
   # It runs the commit's code and its dependencies' install scripts, so it holds no npm identity.
   pack:
     name: Pack prerelease
@@ -44,19 +45,18 @@ jobs:
         run: |
           if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
             echo "tag=pr-$PULL_REQUEST" >> "$GITHUB_OUTPUT"
-            echo "version=0.0.0-pr-$PULL_REQUEST-${SHA:0:7}" >> "$GITHUB_OUTPUT"
+            echo "version=0.0.0-v3-pr-$PULL_REQUEST-${SHA:0:7}" >> "$GITHUB_OUTPUT"
           else
-            # A short SHA can repeat across main's history, and npm never republishes a version, so main takes the full SHA.
-            echo "tag=main" >> "$GITHUB_OUTPUT"
-            echo "version=0.0.0-$SHA" >> "$GITHUB_OUTPUT"
+            # A short SHA can repeat across the branch's history, and npm never republishes a version, so `v3` takes the full SHA.
+            echo "tag=main-v3" >> "$GITHUB_OUTPUT"
+            echo "version=0.0.0-v3-$SHA" >> "$GITHUB_OUTPUT"
           fi
 
       # On a pull request, this checks out the merge commit that `GITHUB_SHA` names, which npm's provenance attests.
       - name: Clone repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -65,9 +65,9 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          cd src && pnpm version "$VERSION" --no-git-tag-version && cd ..
+          pnpm version "$VERSION" --no-git-tag-version
           pnpm changeset:prepublish
-          cd src && pnpm pack --pack-destination "$RUNNER_TEMP/prerelease"
+          pnpm pack --pack-destination "$RUNNER_TEMP/prerelease"
 
       - name: Upload prerelease
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -77,7 +77,7 @@ jobs:
           path: ${{ runner.temp }}/prerelease/*.tgz
           retention-days: 1
 
-  # Publishes the pack to npm under the dist-tag `main` or `pr-<number>`.
+  # Publishes the pack to npm under the dist-tag `main-v3` or `pr-<number>`.
   # It alone holds the OIDC token that npm trusts, and runs none of the commit's code.
   publish:
     name: Publish prerelease
@@ -90,13 +90,13 @@ jobs:
       group: ${{ github.workflow }}-publish-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: false
     permissions:
-      contents: read # read the current commit of main
+      contents: read # read the current commit of v3
       id-token: write # authenticate to npm via trusted publishing
       pull-requests: write # comment the prerelease on the pull request
 
     steps:
       # A rerun or a queued run can start after a newer commit, and a pull request can become a draft first.
-      # Only the current commit of main, or of an open and ready pull request, publishes and moves the dist-tag.
+      # Only the current commit of v3, or of an open and ready pull request, publishes and moves the dist-tag.
       - name: Check commit
         id: current
         env:
@@ -107,11 +107,11 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
             current="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PULL_REQUEST" --jq ".state == \"open\" and (.draft | not) and .head.sha == \"$SHA\"")"
           else
-            current="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq ".sha == \"$SHA\"")"
+            current="$(gh api "repos/$GITHUB_REPOSITORY/commits/v3" --jq ".sha == \"$SHA\"")"
           fi
           echo "publish=$current" >> "$GITHUB_OUTPUT"
           if [ "$current" != true ]; then
-            echo "Skipped \`$SHA\`, which is not the current commit of main or of an open, ready pull request." >> "$GITHUB_STEP_SUMMARY"
+            echo "Skipped \`$SHA\`, which is not the current commit of v3 or of an open, ready pull request." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Set up Node

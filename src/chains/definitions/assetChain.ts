@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const assetChain = /*#__PURE__*/ defineChain({
+export const assetChain = /*#__PURE__*/ Chain.from({
   id: 42_420,
   name: 'AssetChain Mainnet',
   nativeCurrency: {
@@ -8,15 +8,11 @@ export const assetChain = /*#__PURE__*/ defineChain({
     name: 'Real World Asset',
     symbol: 'RWA',
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet-rpc.assetchain.org'] },
-  },
+  rpcUrls: { http: 'https://mainnet-rpc.assetchain.org' },
   blockExplorers: {
-    default: {
-      name: 'Asset Chain Explorer',
-      url: 'https://scan.assetchain.org',
-      apiUrl: 'https://scan.assetchain.org/api',
-    },
+    name: 'Asset Chain Explorer',
+    url: 'https://scan.assetchain.org',
+    apiUrl: 'https://scan.assetchain.org/api',
   },
   testnet: false,
   contracts: {},

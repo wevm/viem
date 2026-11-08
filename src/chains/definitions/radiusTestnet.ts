@@ -1,19 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const radiusTestnet = /*#__PURE__*/ defineChain({
+export const radiusTestnet = /*#__PURE__*/ Chain.from({
   id: 72_344,
   name: 'Radius Test Network',
   nativeCurrency: { name: 'Radius USD', symbol: 'RUSD', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.radiustech.xyz'],
-    },
+    http: 'https://rpc.testnet.radiustech.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Radius Test Network Explorer',
-      url: 'https://testnet.radiustech.xyz',
-    },
+    name: 'Radius Test Network Explorer',
+    url: 'https://testnet.radiustech.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

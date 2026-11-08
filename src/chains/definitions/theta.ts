@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const theta = /*#__PURE__*/ defineChain({
+export const theta = /*#__PURE__*/ Chain.from({
   id: 361,
   name: 'Theta Mainnet',
   nativeCurrency: { name: 'TFUEL', symbol: 'TFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://eth-rpc-api.thetatoken.org/rpc'],
-    },
+    http: 'https://eth-rpc-api.thetatoken.org/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Theta Explorer',
-      url: 'https://explorer.thetatoken.org',
-    },
+    name: 'Theta Explorer',
+    url: 'https://explorer.thetatoken.org',
   },
   testnet: false,
 })

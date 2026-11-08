@@ -1,29 +1,22 @@
 import type { Address } from 'abitype'
-import * as Address_ from 'ox/Address'
-import * as Hash from 'ox/Hash'
-import * as Hex from 'ox/Hex'
-import * as RpcResponse from 'ox/RpcResponse'
+import { AbiFunction, Address as Address_, Hash, Hex, RpcResponse } from 'ox'
 import {
+  KeyAuthorization,
   AccountConfig,
   AccountOperation,
-  KeyAuthorization,
   Transaction as ox_Transaction,
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import { getBlockNumber } from '../../../actions/public/getBlockNumber.js'
-import { createClient } from '../../../clients/createClient.js'
-import { custom } from '../../../clients/transports/custom.js'
-import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
-import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
+import { getNumber as getBlockNumber } from '../../../core/actions/block/getNumber.js'
+import { create as createClient } from '../../../core/Client.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
+import { getConfigCommitment } from '../../actions/accounts/getConfigCommitment.js'
 import * as ConfigStore from '../../accounts/Config.js'
 import * as OperationStore from '../../accounts/Operation.js'
-import { getConfigCommitment } from '../../actions/accounts.js'
 import type * as Relay from '../../Relay.js'
 import type * as Store from '../../Store.js'
-import * as Transaction from '../../Transaction.js'
 import * as Plugin from './plugin.js'
 import * as Utils from './utils.js'
 
@@ -54,13 +47,20 @@ export function create(
           .request(request as never, options)
       }
       const client = createClient({
-        transport: custom(
-          {
-            request: (request, options) =>
-              next(request, { ...requestOptions, ...options }),
-          },
-          { retryCount: 0 },
-        ),
+        transport: {
+          key: 'accounts-forward',
+          name: 'Accounts Forwarding',
+          type: 'accounts-forward',
+          setup: () => ({
+            request: ((
+              request: Relay.handleRequest.Request,
+              options?: Relay.handleRequest.RequestOptions,
+            ) =>
+              next(request, { ...requestOptions, ...options })) as ReturnType<
+              typeof createClient
+            >['request'],
+          }),
+        },
       })
 
       if (request.method === 'account_getConfig') {
@@ -247,17 +247,7 @@ async function submit(options: submit.Options) {
       return undefined
     }
   })()
-  // A configurable access key (TIP-1111) wraps its owner quorum in a keychain V2 envelope.
-  const { signature, userAddress } = (() => {
-    const signature = transaction?.signature
-    if (
-      signature?.type === 'keychain' &&
-      signature.version === 'v2' &&
-      signature.inner.type === 'configurable'
-    )
-      return { signature: signature.inner, userAddress: signature.userAddress }
-    return { signature, userAddress: undefined }
-  })()
+  const signature = transaction?.signature
   if (!transaction || signature?.type !== 'configurable') {
     if (
       options.method === 'eth_sendRawTransaction' ||
@@ -278,7 +268,7 @@ async function submit(options: submit.Options) {
   }
 
   const { signature: _, ...unsigned } = transaction
-  const envelope = TxEnvelopeTempo.from(unsigned as never)
+  const envelope = TxEnvelopeTempo.from(unsigned)
   const serializedUnsigned = serializeUnsigned(
     envelope,
     options.serialized.startsWith(TxEnvelopeTempo.feePayerMagic),
@@ -296,7 +286,6 @@ async function submit(options: submit.Options) {
     config,
     transaction: serializedUnsigned,
     type: 'transaction',
-    userAddress,
   })
   const incoming = signature.signatures.map((signature) =>
     SignatureEnvelope.serialize(signature),
@@ -347,7 +336,6 @@ async function submit(options: submit.Options) {
         ),
         type: 'transaction',
         updatedAt: now,
-        ...(userAddress ? { userAddress } : {}),
         weight: approvals.weight,
       })
     },
@@ -368,14 +356,12 @@ async function submit(options: submit.Options) {
     commitment: configCommitment,
     config,
   })
-  // Calls of an access key transaction run as the parent, not the configurable account.
-  if (!userAddress)
-    await cacheNextConfigs({
-      account: signature.account,
-      config,
-      store: options.store,
-      transaction,
-    })
+  await cacheNextConfigs({
+    account: signature.account,
+    config,
+    store: options.store,
+    transaction,
+  })
 
   if (operation.type !== 'transaction')
     throw new OperationStore.InvalidStoreValueError()
@@ -615,7 +601,7 @@ async function approveKeyAuthorization(
         })
       if (
         !authorization.account ||
-        !isAddressEqual(authorization.account, signature.account)
+        !Address_.isEqual(authorization.account, signature.account)
       )
         throw new RpcResponse.InvalidParamsError({
           message:
@@ -796,9 +782,7 @@ declare namespace approveKeyAuthorization {
 /** Deserializes a Tempo transaction or throws an RPC parameter error. */
 function deserialize(serialized: Hex.Hex) {
   try {
-    return Transaction.deserialize(
-      serialized as Transaction.TransactionSerializedTempo,
-    )
+    return TxEnvelopeTempo.deserialize(serialized as TxEnvelopeTempo.Serialized)
   } catch {
     throw new RpcResponse.InvalidParamsError({
       message: 'Invalid serialized Tempo transaction.',
@@ -854,16 +838,22 @@ async function cacheNextConfigs(options: cacheNextConfigs.Options) {
   for (const call of options.transaction.calls) {
     if (
       !call.to ||
-      !isAddressEqual(call.to, Addresses.configurableAccount) ||
+      !Address_.isEqual(call.to, Addresses.configurableAccount) ||
       !call.data
     )
       continue
     const decoded = (() => {
       try {
-        return decodeFunctionData({
-          abi: Abis.configurableAccount,
-          data: call.data,
-        })
+        const item = AbiFunction.fromAbi(
+          Abis.configurableAccount,
+          'updateConfig',
+        )
+        if (!call.data.startsWith(AbiFunction.getSelector(item)))
+          return undefined
+        return {
+          functionName: item.name,
+          args: AbiFunction.decodeData(item, call.data),
+        }
       } catch {
         return undefined
       }
@@ -911,14 +901,14 @@ declare namespace cacheNextConfigs {
     /** Shared account store. */
     store: Store.Atomic
     /** Submitted transaction containing potential config updates. */
-    transaction: Transaction.TransactionSerializableTempo
+    transaction: TxEnvelopeTempo.TxEnvelopeTempo
   }
 }
 
 /** Caches the config installed by a root-signed account upgrade. */
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function cacheUpgradeConfig(options: cacheUpgradeConfig.Options) {
-  const { calls, from, signature } = options.transaction
+  const { calls, chainId, from, signature } = options.transaction
   if (
     !from ||
     !signature ||
@@ -926,19 +916,16 @@ async function cacheUpgradeConfig(options: cacheUpgradeConfig.Options) {
     signature.type === 'configurable'
   )
     return
+  const item = AbiFunction.fromAbi(Abis.configurableAccount, 'upgradeAccount')
   // `upgradeAccount` may sit anywhere in a batch; a second one reverts.
   const config = calls
     .map((call) => {
       if (!call.to || !call.data) return undefined
-      if (!isAddressEqual(call.to, Addresses.configurableAccount))
+      if (!Address_.isEqual(call.to, Addresses.configurableAccount))
         return undefined
+      if (!call.data.startsWith(AbiFunction.getSelector(item))) return undefined
       try {
-        const decoded = decodeFunctionData({
-          abi: Abis.configurableAccount,
-          data: call.data,
-        })
-        if (decoded.functionName !== 'upgradeAccount') return undefined
-        const [threshold, owners] = decoded.args
+        const [threshold, owners] = AbiFunction.decodeData(item, call.data)
         return AccountConfig.fromUpgrade(from, { owners, threshold })
       } catch {
         return undefined
@@ -948,7 +935,7 @@ async function cacheUpgradeConfig(options: cacheUpgradeConfig.Options) {
   if (!config) return
   await ConfigStore.write(options.store, {
     address: from,
-    chainId: options.transaction.chainId,
+    chainId,
     commitment: AccountConfig.getCommitment(config),
     config,
   })
@@ -960,7 +947,7 @@ declare namespace cacheUpgradeConfig {
     /** Shared account store. */
     store: Store.Atomic
     /** Submitted transaction containing a potential account upgrade. */
-    transaction: Transaction.TransactionSerializableTempo
+    transaction: TxEnvelopeTempo.TxEnvelopeTempo
   }
 }
 
@@ -1056,7 +1043,7 @@ function pendingResult(
     contractAddress: null,
     cumulativeGasUsed: null,
     effectiveGasPrice: null,
-    from: operation.userAddress ?? operation.account,
+    from: operation.account,
     gasUsed: null,
     logs: [],
     logsBloom: null,
@@ -1152,8 +1139,12 @@ async function removeSettledSubmission(
 /** Preserves or upgrades a fee-payer envelope without removing an existing signature. */
 function mergeTransaction(existing: Hex.Hex | undefined, incoming: Hex.Hex) {
   if (!existing) return incoming
-  const existingTransaction = TxEnvelopeTempo.deserialize(existing as never)
-  const incomingTransaction = TxEnvelopeTempo.deserialize(incoming as never)
+  const existingTransaction = TxEnvelopeTempo.deserialize(
+    existing as TxEnvelopeTempo.Serialized,
+  )
+  const incomingTransaction = TxEnvelopeTempo.deserialize(
+    incoming as TxEnvelopeTempo.Serialized,
+  )
   if (!('feePayerSignature' in incomingTransaction)) return existing
   if (incomingTransaction.feePayerSignature !== null) return incoming
   if (!('feePayerSignature' in existingTransaction)) return incoming
@@ -1207,10 +1198,10 @@ async function toTransaction(
         ...transaction,
         blockHash: null,
         blockNumber: null,
-        from: operation.userAddress ?? operation.account,
+        from: operation.account,
         hash: operation.hash,
         transactionIndex: null,
-      } as never,
+      } as Parameters<typeof ox_Transaction.toRpc>[0],
       { pending: true },
     ),
     operation: AccountOperation.toRpc(current),
@@ -1364,7 +1355,10 @@ async function resolveRequestChainId(
     ) {
       if (!isSerializedTempoTransaction(value)) return undefined
       try {
-        return parseChainId(Transaction.deserialize(value).chainId)
+        return parseChainId(
+          TxEnvelopeTempo.deserialize(value as TxEnvelopeTempo.Serialized)
+            .chainId,
+        )
       } catch {
         return undefined
       }
@@ -1407,8 +1401,8 @@ async function resolveRequestChainId(
     if (!operation) return undefined
     if (operation.type === 'transaction')
       return parseChainId(
-        Transaction.deserialize(
-          operation.transaction as Transaction.TransactionSerializedTempo,
+        TxEnvelopeTempo.deserialize(
+          operation.transaction as TxEnvelopeTempo.Serialized,
         ).chainId,
       )
     return parseChainId(

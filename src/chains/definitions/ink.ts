@@ -1,38 +1,30 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const ink = /*#__PURE__*/ defineChain({
+export const ink = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 57073,
   name: 'Ink',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-gel.inkonchain.com',
-        'https://rpc-qnd.inkonchain.com',
-      ],
-      webSocket: [
-        'wss://rpc-gel.inkonchain.com',
-        'wss://rpc-qnd.inkonchain.com',
-      ],
-    },
+    http: ['https://rpc-gel.inkonchain.com', 'https://rpc-qnd.inkonchain.com'],
+    ws: ['wss://rpc-gel.inkonchain.com', 'wss://rpc-qnd.inkonchain.com'],
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.inkonchain.com',
-      apiUrl: 'https://explorer.inkonchain.com/api/v2',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.inkonchain.com',
+    apiUrl: 'https://explorer.inkonchain.com/api/v2',
   },
   contracts: {
+    ...chainConfig.contracts,
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 0,
     },
-    ...chainConfig.contracts,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x10d7b35078d3baabb96dd45a9143b94be65b12cd',

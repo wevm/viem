@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const jovaySepolia = /*#__PURE__*/ defineChain({
+export const jovaySepolia = /*#__PURE__*/ Chain.from({
   id: 2_019_775,
   name: 'Jovay Sepolia Testnet',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const jovaySepolia = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://api.zan.top/public/jovay-testnet'],
-    },
+    http: 'https://api.zan.top/public/jovay-testnet',
   },
   blockExplorers: {
-    default: {
-      name: 'Jovay Testnet Explorer',
-      url: 'https://sepolia-explorer.jovay.io/l2',
-    },
+    name: 'Jovay Testnet Explorer',
+    url: 'https://sepolia-explorer.jovay.io/l2',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

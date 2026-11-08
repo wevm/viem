@@ -1,7 +1,7 @@
 // [!region setup]
-import { Account, createClient } from 'viem/tempo'
+import { Account, Client } from 'viem/tempo'
 
-export const client = createClient({
+export const client = Client.create({
   account: Account.fromSecp256k1('0x...'),
 })
 

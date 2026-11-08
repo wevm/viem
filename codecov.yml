@@ -1,0 +1,22 @@
+codecov:
+  notify:
+    # 6 Core shards and 9 Tempo hardfork shards.
+    after_n_builds: 15
+
+coverage:
+  status:
+    project:
+      default:
+        target: 95%
+        threshold: 0%
+        if_not_found: failure
+    patch:
+      default:
+        target: 95%
+        threshold: 0%
+        if_not_found: failure
+
+parsers:
+  lcov:
+    # Match Vitest line coverage; branch coverage has its own threshold.
+    partials_as_hits: true

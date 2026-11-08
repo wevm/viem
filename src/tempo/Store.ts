@@ -1,4 +1,4 @@
-import type { MaybePromise } from '../types/utils.js'
+import type { MaybePromise } from '../core/internal/types.js'
 
 export type Store = {
   /** Atomically replaces `expected` with `value` when supported. */

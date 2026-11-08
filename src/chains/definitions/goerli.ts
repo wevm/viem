@@ -1,20 +1,16 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const goerli = /*#__PURE__*/ defineChain({
+export const goerli = /*#__PURE__*/ Chain.from({
   id: 5,
   name: 'Goerli',
   nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://5.rpc.thirdweb.com'],
-    },
+    http: 'https://5.rpc.thirdweb.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://goerli.etherscan.io',
-      apiUrl: 'https://api-goerli.etherscan.io/api',
-    },
+    name: 'Etherscan',
+    url: 'https://goerli.etherscan.io',
+    apiUrl: 'https://api-goerli.etherscan.io/api',
   },
   contracts: {
     ensRegistry: {

@@ -1,14 +1,14 @@
-import { defineToken } from '../defineToken.js'
+import * as Token from '../../core/Token.js'
 
 /**
  * [cirBTC](https://www.circle.com/cirbtc) token, with canonical contract
  * addresses across supported EVM chains.
  *
  * Pass to a Client's `tokens` array, call with a chain id to produce a
- * [token config](/tokens/guides/defining-tokens), or read the metadata and `addresses`
+ * token config, or read the metadata and `addresses`
  * map directly.
  */
-export const cirbtc = /*#__PURE__*/ defineToken({
+export const cirbtc = /*#__PURE__*/ Token.from({
   addresses: {
     1: '0x72DFB2E44f59C5AD2bAFE84314E5b99a7cd5075E', // mainnet
     5042: '0x171A4217b86A807A64eB94757Db6849fb4bDbAA0', // arc

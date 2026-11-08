@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const optimismSepolia = /*#__PURE__*/ defineChain({
+export const optimismSepolia = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 11155420,
   name: 'OP Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.optimism.io'],
-    },
+    http: 'https://sepolia.optimism.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://optimism-sepolia.blockscout.com',
-      apiUrl: 'https://optimism-sepolia.blockscout.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://optimism-sepolia.blockscout.com',
+    apiUrl: 'https://optimism-sepolia.blockscout.com/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',

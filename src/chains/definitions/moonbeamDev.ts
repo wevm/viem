@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const moonbeamDev = /*#__PURE__*/ defineChain({
+export const moonbeamDev = /*#__PURE__*/ Chain.from({
   id: 1281,
   name: 'Moonbeam Development Node',
   nativeCurrency: {
@@ -9,9 +9,7 @@ export const moonbeamDev = /*#__PURE__*/ defineChain({
     symbol: 'DEV',
   },
   rpcUrls: {
-    default: {
-      http: ['http://127.0.0.1:9944'],
-      webSocket: ['wss://127.0.0.1:9944'],
-    },
+    http: 'http://127.0.0.1:9944',
+    ws: 'wss://127.0.0.1:9944',
   },
 })

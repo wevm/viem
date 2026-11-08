@@ -1,0 +1,347 @@
+import { AbiEvent, AbiParameters, Hex } from 'ox'
+import { Actions, Client, http, publicActions, webSocket } from 'viem'
+import { expect, test } from 'vitest'
+
+import * as generated from '~contracts/generated.js'
+import * as constants from '~test/constants.js'
+import * as Http from '~test/http.js'
+import * as Ws from '~test/ws.js'
+import { wait } from '../../internal/wait.js'
+
+const abi = generated.Events.abi
+
+const a = constants.accounts[0].address
+const b = constants.accounts[1].address
+const address = '0xfba3912ca04dd458c843e2ee08967fc04f3579c2'
+
+const transferEvent = AbiEvent.fromAbi(abi, 'Transfer')
+
+// Builds a well-formed RPC `Transfer` log so deterministic servers can stream
+// logs the watcher will decode without touching a live node.
+function makeLog(
+  from: Hex.Hex,
+  to: Hex.Hex,
+  value: bigint,
+  options: { blockNumber: bigint; logIndex: number },
+) {
+  const { blockNumber, logIndex } = options
+  return {
+    address,
+    topics: AbiEvent.encode(transferEvent, { from, to }).topics,
+    data: AbiParameters.encode([{ type: 'uint256' }], [value]),
+    blockHash: `0x${'ab'.repeat(32)}`,
+    blockNumber: Hex.fromNumber(blockNumber),
+    logIndex: Hex.fromNumber(logIndex),
+    transactionHash: `0x${'cd'.repeat(32)}`,
+    transactionIndex: Hex.fromNumber(0),
+    removed: false,
+  }
+}
+
+// Serves an event-filter lifecycle; the first changes poll returns `logs`.
+function filterServer(logs: readonly ReturnType<typeof makeLog>[]) {
+  let polls = 0
+  return Http.createServer((req, res) => {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', () => {
+      const request = JSON.parse(body)
+      const result = (() => {
+        if (request.method === 'eth_newFilter') return '0x1'
+        if (request.method === 'eth_uninstallFilter') return true
+        if (request.method === 'eth_getFilterChanges')
+          return polls++ === 0 ? logs : []
+        return null
+      })()
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result }))
+    })
+  })
+}
+
+// Serves an `eth_subscribe` ack over `logs`, then pushes the given RPC logs.
+function subscriptionServer(logs: readonly ReturnType<typeof makeLog>[] = []) {
+  const subscriptionId = '0xdeadbeef'
+  return Ws.createServer((connection, message) => {
+    const request = JSON.parse(message)
+    if (request.method !== 'eth_subscribe') return
+    connection.send(
+      JSON.stringify({
+        id: request.id,
+        jsonrpc: '2.0',
+        result: subscriptionId,
+      }),
+    )
+    for (const log of logs)
+      connection.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_subscription',
+          params: { subscription: subscriptionId, result: log },
+        }),
+      )
+  })
+}
+
+test('default: emits decoded logs via polling', async () => {
+  const server = await filterServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+  ])
+  try {
+    const seqClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 50,
+    })
+
+    const names: string[] = []
+    const watch = Actions.contract.watchEvent(seqClient, {
+      abi,
+      address,
+      eventName: 'Transfer',
+    })
+    watch.onLogs((logs) => {
+      for (const log of logs) names.push(log.eventName)
+    })
+
+    await wait(200)
+    watch.off()
+
+    expect(names).toEqual(['Transfer'])
+  } finally {
+    await server.close()
+  }
+})
+
+test('batch: false emits one log per call', async () => {
+  const server = await filterServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+    makeLog(a, b, 2n, { blockNumber: 1n, logIndex: 1 }),
+  ])
+  try {
+    const seqClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 50,
+    })
+
+    const sizes: number[] = []
+    const watch = Actions.contract.watchEvent(seqClient, {
+      abi,
+      address,
+      batch: false,
+      eventName: 'Transfer',
+    })
+    watch.onLogs((logs) => sizes.push(logs.length))
+
+    await wait(200)
+    watch.off()
+
+    expect(sizes.length).toBe(2)
+    for (const size of sizes) expect(size).toBe(1)
+  } finally {
+    await server.close()
+  }
+})
+
+test('polling: reads blocks from a `fromBlock` of 0 or 1 without filters', async () => {
+  const results: Record<string, unknown> = {}
+  for (const fromBlock of [0n, 1n, 2n]) {
+    const queries: unknown[] = []
+    const server = await Http.createServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        const request = JSON.parse(body)
+        const reply = (() => {
+          if (request.method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'method not found' } }
+          if (request.method === 'eth_blockNumber') return { result: '0x5' }
+          if (request.method === 'eth_getLogs') {
+            const { fromBlock, toBlock } = request.params[0]
+            queries.push({ fromBlock, toBlock })
+            return {
+              result: [makeLog(a, b, 1n, { blockNumber: 3n, logIndex: 0 })],
+            }
+          }
+          return { result: null }
+        })()
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', ...reply }))
+      })
+    })
+    try {
+      const seqClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 25,
+      })
+
+      const blockNumbers: unknown[] = []
+      const watch = Actions.contract.watchEvent(seqClient, {
+        abi,
+        address,
+        eventName: 'Transfer',
+        fromBlock,
+      })
+      watch.onLogs((logs) => {
+        for (const log of logs) blockNumbers.push(log.blockNumber)
+      })
+
+      await expect
+        .poll(() => blockNumbers, { interval: 25, timeout: 2_000 })
+        .toHaveLength(1)
+      watch.off()
+
+      results[`fromBlock: ${fromBlock}`] = { blockNumbers, queries }
+    } finally {
+      await server.close()
+    }
+  }
+
+  expect(results).toMatchInlineSnapshot(`
+    {
+      "fromBlock: 0": {
+        "blockNumbers": [
+          3n,
+        ],
+        "queries": [
+          {
+            "fromBlock": "0x0",
+            "toBlock": "0x5",
+          },
+        ],
+      },
+      "fromBlock: 1": {
+        "blockNumbers": [
+          3n,
+        ],
+        "queries": [
+          {
+            "fromBlock": "0x1",
+            "toBlock": "0x5",
+          },
+        ],
+      },
+      "fromBlock: 2": {
+        "blockNumbers": [
+          3n,
+        ],
+        "queries": [
+          {
+            "fromBlock": "0x2",
+            "toBlock": "0x5",
+          },
+        ],
+      },
+    }
+  `)
+})
+
+test('onError: invokes the listener when polling fails', async () => {
+  const bad = Client.create({
+    transport: http('http://127.0.0.1:1'),
+    pollingInterval: 100,
+  })
+
+  const error = await new Promise<Error>((resolve) => {
+    const watch = Actions.contract.watchEvent(bad, {
+      abi,
+      eventName: 'Transfer',
+    })
+    watch.onLogs(() => {})
+    watch.onError((error) => {
+      watch.off()
+      resolve(error)
+    })
+  })
+
+  expect(error).toBeInstanceOf(Error)
+})
+
+test('subscription: emits decoded logs via a websocket', async () => {
+  const server = await subscriptionServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+  ])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const names: string[] = []
+    const watch = Actions.contract.watchEvent(wsClient, {
+      abi,
+      address,
+      eventName: 'Transfer',
+    })
+    watch.onLogs((logs) => {
+      for (const log of logs) names.push(log.eventName)
+    })
+
+    await wait(200)
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+
+    expect(names).toEqual(['Transfer'])
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: yields decoded logs', async () => {
+  const server = await subscriptionServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+  ])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.contract.watchEvent(wsClient, {
+      abi,
+      address,
+      eventName: 'Transfer',
+    })
+    const iterator = watch[Symbol.asyncIterator]()
+
+    const first = await iterator.next()
+    expect(first.done).toBe(false)
+    expect(first.value!.logs[0]!.eventName).toBe('Transfer')
+
+    await iterator.return!()
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('decorator', async () => {
+  const server = await filterServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+  ])
+  try {
+    const seqClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 50,
+    }).extend(publicActions())
+
+    let count = 0
+    const watch = seqClient.contract.watchEvent({
+      abi,
+      address,
+      eventName: 'Transfer',
+    })
+    watch.onLogs((logs) => {
+      count += logs.length
+    })
+
+    await wait(200)
+    watch.off()
+
+    expect(count).toBe(1)
+  } finally {
+    await server.close()
+  }
+})

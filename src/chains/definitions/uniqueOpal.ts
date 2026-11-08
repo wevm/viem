@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const uniqueOpal = /*#__PURE__*/ defineChain({
+export const uniqueOpal = /*#__PURE__*/ Chain.from({
   id: 8882,
   name: 'Opal Testnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const uniqueOpal = /*#__PURE__*/ defineChain({
     name: 'OPL',
     symbol: 'OPL',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc-opal.unique.network'] },
-  },
+  rpcUrls: { http: 'https://rpc-opal.unique.network' },
   blockExplorers: {
-    default: {
-      name: 'Opal Subscan',
-      url: 'https://opal.subscan.io/',
-    },
+    name: 'Opal Subscan',
+    url: 'https://opal.subscan.io/',
   },
   testnet: true,
 })

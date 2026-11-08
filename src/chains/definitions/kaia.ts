@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const kaia = /*#__PURE__*/ defineChain({
+export const kaia = /*#__PURE__*/ Chain.from({
   id: 8_217,
   name: 'Kaia',
   nativeCurrency: {
@@ -8,17 +9,14 @@ export const kaia = /*#__PURE__*/ defineChain({
     name: 'Kaia',
     symbol: 'KAIA',
   },
-  rpcUrls: {
-    default: { http: ['https://public-en.node.kaia.io'] },
-  },
+  rpcUrls: { http: 'https://public-en.node.kaia.io' },
   blockExplorers: {
-    default: {
-      name: 'KaiaScan',
-      url: 'https://kaiascan.io',
-      apiUrl: 'https://api-cypress.klaytnscope.com/api',
-    },
+    name: 'KaiaScan',
+    url: 'https://kaiascan.io',
+    apiUrl: 'https://api-cypress.klaytnscope.com/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 96002415,

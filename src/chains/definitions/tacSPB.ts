@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const tacSPB = /*#__PURE__*/ defineChain({
+export const tacSPB = /*#__PURE__*/ Chain.from({
   id: 2_391,
   name: 'TAC SPB Testnet',
   nativeCurrency: {
@@ -9,18 +10,15 @@ export const tacSPB = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://spb.rpc.tac.build'],
-    },
+    http: 'https://spb.rpc.tac.build',
   },
   blockExplorers: {
-    default: {
-      name: 'TAC',
-      url: 'https://spb.explorer.tac.build',
-      apiUrl: 'https://spb.explorer.tac.build/api',
-    },
+    name: 'TAC',
+    url: 'https://spb.explorer.tac.build',
+    apiUrl: 'https://spb.explorer.tac.build/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 471429,

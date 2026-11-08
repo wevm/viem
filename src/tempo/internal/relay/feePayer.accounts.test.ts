@@ -5,20 +5,20 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import { generatePrivateKey } from 'viem/accounts'
-import { Account, Actions, Relay, Transaction } from 'viem/tempo'
+import { Secp256k1 } from 'viem/utils'
+import { Account, Actions, Relay } from 'viem/tempo'
 import { expect, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
+import * as Tempo from '~test/tempoAccounts.js'
 
 const userAccount = Tempo.accounts[9]!
 const feePayerAccount = Tempo.accounts[0]!
 const recipient = Tempo.accounts[7]!
 
-const caller = Tempo.getClient({ chain: Tempo.chain })
+const caller = Tempo.getClient()
 const transfer = Actions.token.transfer.call(caller, {
   amount: 1n,
   to: recipient.address,
-  token: Tempo.addresses.alphaUsd,
+  token: Tempo.feeToken,
 })
 const relay = Relay.create({
   client: caller,
@@ -39,7 +39,7 @@ test('sponsors a configurable fee-payer handoff without an encoded sender', asyn
     method: 'eth_signRawTransaction',
     params: [serialized],
   })) as `0x76${string}`
-  expect(Transaction.deserialize(result).from).toBe(account)
+  expect(TxEnvelopeTempo.deserialize(result).from).toBe(account)
 })
 
 test('rejects configurable approvals below quorum', async () => {
@@ -92,7 +92,7 @@ test('sponsors a same-transaction authorization its configurable owners approved
     method: 'eth_signRawTransaction',
     params: [serialized],
   })) as `0x76${string}`
-  expect(Transaction.deserialize(result).from).toBe(victim)
+  expect(TxEnvelopeTempo.deserialize(result).from).toBe(victim)
 })
 
 test('rejects a same-transaction authorization a non-owner signed for a configurable account', async () => {
@@ -119,7 +119,7 @@ test('sponsors a configurable access key with a same-transaction grant', async (
     method: 'eth_signRawTransaction',
     params: [serialized],
   })) as `0x76${string}`
-  expect(Transaction.deserialize(result).from).toBe(parent.toLowerCase())
+  expect(TxEnvelopeTempo.deserialize(result).from).toBe(parent.toLowerCase())
 })
 
 test('rejects a configurable access key below its quorum', async () => {
@@ -224,7 +224,7 @@ async function configurableKeyAuthorization(
 ) {
   const { config, signer } = options
   const victim = AccountConfig.getAddress(config)
-  const accessKey = Account.fromSecp256k1(generatePrivateKey())
+  const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
   const unsigned = KeyAuthorization.from({
     account: victim,
     address: accessKey.address,
@@ -302,7 +302,7 @@ declare namespace configurableKeyAuthorization {
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function configurableAccessKey(options: configurableAccessKey.Options) {
   const { authorize, owners, threshold } = options
-  const parent = Account.fromSecp256k1(generatePrivateKey())
+  const parent = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
   const config = configurableConfig(
     [...owners.map((owner) => owner.address), recipient.address],
     threshold,

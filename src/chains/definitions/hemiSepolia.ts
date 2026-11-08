@@ -1,24 +1,23 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const hemiSepolia = /*#__PURE__*/ defineChain({
+export const hemiSepolia = /*#__PURE__*/ Chain.from({
   id: 743111,
   name: 'Hemi Sepolia',
-  network: 'Hemi Sepolia',
   nativeCurrency: {
     name: 'Ether',
     symbol: 'ETH',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.rpc.hemi.network/rpc'],
-    },
+    http: 'https://testnet.rpc.hemi.network/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Hemi Sepolia explorer',
-      url: 'https://testnet.explorer.hemi.xyz',
-    },
+    name: 'Hemi Sepolia explorer',
+    url: 'https://testnet.explorer.hemi.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added a `signal` parameter to `waitForTransactionReceipt` that stops the wait, rejecting with the signal's reason.
+Added a `signal` option to `transaction.waitForReceipt` that stops the wait, rejecting `receipt` with the signal's reason.

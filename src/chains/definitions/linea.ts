@@ -1,26 +1,22 @@
-import { chainConfig } from '../../linea/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const linea = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const linea = /*#__PURE__*/ Chain.from({
   id: 59_144,
   name: 'Linea Mainnet',
   blockTime: 2000,
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.linea.build'],
-      webSocket: ['wss://rpc.linea.build'],
-    },
+    http: 'https://rpc.linea.build',
+    ws: 'wss://rpc.linea.build',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://lineascan.build',
-      apiUrl: 'https://api.lineascan.build/api',
-    },
+    name: 'Etherscan',
+    url: 'https://lineascan.build',
+    apiUrl: 'https://api.lineascan.build/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 42,

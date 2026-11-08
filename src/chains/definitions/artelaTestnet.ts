@@ -1,20 +1,16 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const artelaTestnet = /*#__PURE__*/ defineChain({
+export const artelaTestnet = /*#__PURE__*/ Chain.from({
   id: 11822,
   name: 'Artela Testnet',
   nativeCurrency: { name: 'ART', symbol: 'ART', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://betanet-rpc1.artela.network'],
-    },
+    http: 'https://betanet-rpc1.artela.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Artela',
-      url: 'https://betanet-scan.artela.network',
-      apiUrl: 'https://betanet-scan.artela.network/api',
-    },
+    name: 'Artela',
+    url: 'https://betanet-scan.artela.network',
+    apiUrl: 'https://betanet-scan.artela.network/api',
   },
   contracts: {
     multicall3: {

@@ -1,4 +1,5 @@
-import type { Address, Hex } from 'viem'
+import type { Address } from 'ox/Address'
+import type { Hex } from 'ox/Hex'
 import { type Capabilities, ExecutionError } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 

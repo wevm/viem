@@ -1,12 +1,10 @@
-import { Signature } from 'ox'
 import { AccountConfig, KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
-import { toHex } from 'viem'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { Account as CoreAccount, Actions as viem_Actions } from 'viem'
 import { Account, Actions } from 'viem/tempo'
+import { Hex, Secp256k1, Signature } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
-import { prepareTransactionRequest } from '../actions/index.js'
-import type { RootAccount } from './Account.js'
+import { accounts, feeToken, getClient } from '~test/tempoAccounts.js'
+import type { TransactionRequest } from './chainConfig.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -23,12 +21,15 @@ describe('prepareTransactionRequest', () => {
       threshold: 2,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account: Account.fromConfig({ address: 'infer', ...config }),
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: Account.fromConfig({ address: 'infer', ...config }),
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.accountSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).accountSimulation)
+      .toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -75,12 +76,15 @@ describe('prepareTransactionRequest', () => {
       threshold: 2,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account: Account.fromConfig({ address: 'infer', ...config }),
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: Account.fromConfig({ address: 'infer', ...config }),
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.accountSimulation?.approvals).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).accountSimulation?.approvals)
+      .toMatchInlineSnapshot(`
       [
         {
           "keyData": "0x0578",
@@ -102,12 +106,15 @@ describe('prepareTransactionRequest', () => {
       version: 2n,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account,
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.accountSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).accountSimulation)
+      .toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -140,12 +147,13 @@ describe('prepareTransactionRequest', () => {
       { access: accounts[0] },
     )
 
-    const request = await prepareTransactionRequest(client, {
+    const { request } = await viem_Actions.transaction.prepare(client, {
       account: accessKey,
       parameters: ['chainId'],
     })
 
-    expect(request.accountSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).accountSimulation)
+      .toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -183,10 +191,10 @@ describe('prepareTransactionRequest', () => {
     const owner_2 = accounts[2]
     const parent = Account.fromConfig({
       owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x111201, { size: 32 }),
+      salt: Hex.fromNumber(0x111201, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: parent,
     })
     await Actions.token.transferSync(client, {
@@ -199,7 +207,7 @@ describe('prepareTransactionRequest', () => {
       account: parent,
       accessKey,
     })
-    const keyAuthorization = (approvals: readonly RootAccount[]) =>
+    const keyAuthorization = (approvals: readonly Account.RootAccount[]) =>
       Promise.all(
         approvals.map((owner) =>
           owner.sign({ hash: authorization.signPayload }),
@@ -218,17 +226,21 @@ describe('prepareTransactionRequest', () => {
             })),
           }),
           type: 'secp256k1',
-        } as never),
+        } as KeyAuthorization.Signed),
       )
 
-    const pending = await prepareTransactionRequest(client, {
-      account: accessKey,
-      calls: [{ to: accounts[3].address }],
-      feeToken,
-      keyAuthorization: await keyAuthorization([owner_1]),
-    })
+    const { request: pending } = await viem_Actions.transaction.prepare(
+      client,
+      {
+        account: accessKey,
+        calls: [{ to: accounts[3].address }],
+        feeToken,
+        keyAuthorization: await keyAuthorization([owner_1]),
+      },
+    )
     expect(pending.gas).toBeGreaterThan(0n)
-    expect(pending.keyAuthorizationSimulation).toMatchInlineSnapshot(`
+    expect((pending as TransactionRequest).keyAuthorizationSimulation)
+      .toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -261,32 +273,29 @@ describe('prepareTransactionRequest', () => {
       }
     `)
 
-    const approved = await prepareTransactionRequest(client, {
-      account: accessKey,
-      calls: [{ to: accounts[3].address }],
-      feeToken,
-      keyAuthorization: await keyAuthorization([owner_1, owner_2]),
-    })
-    expect(approved.keyAuthorizationSimulation).toBeUndefined()
-  })
-
-  test('behavior: rejects nested account simulation', () => {
-    const child = Account.fromConfig({ owners: [accounts[1]] })
-    // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromConfig({ owners: [child] })).toThrow(
-      'Configurable account owners must use primitive signatures.',
+    const { request: approved } = await viem_Actions.transaction.prepare(
+      client,
+      {
+        account: accessKey,
+        calls: [{ to: accounts[3].address }],
+        feeToken,
+        keyAuthorization: await keyAuthorization([owner_1, owner_2]),
+      },
     )
+    expect(
+      (approved as TransactionRequest).keyAuthorizationSimulation,
+    ).toBeUndefined()
   })
 
   test('error: rejects a generic local owner account', async () => {
-    const owner = privateKeyToAccount(generatePrivateKey())
+    const owner = CoreAccount.fromPrivateKey(Secp256k1.randomPrivateKey())
     const config = AccountConfig.from({
       owners: [{ owner: owner.address, weight: 1 }],
       threshold: 1,
     })
 
     await expect(
-      prepareTransactionRequest(client, {
+      viem_Actions.transaction.prepare(client, {
         account: Account.fromConfig({ address: 'infer', ...config }),
         owner,
         parameters: ['chainId'],

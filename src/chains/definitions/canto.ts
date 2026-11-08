@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const canto = /*#__PURE__*/ defineChain({
+export const canto = /*#__PURE__*/ Chain.from({
   id: 7_700,
   name: 'Canto',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const canto = /*#__PURE__*/ defineChain({
     name: 'Canto',
     symbol: 'CANTO',
   },
-  rpcUrls: {
-    default: { http: ['https://canto.gravitychain.io'] },
-  },
+  rpcUrls: { http: 'https://canto.gravitychain.io' },
   blockExplorers: {
-    default: {
-      name: 'Tuber.Build (Blockscout)',
-      url: 'https://tuber.build',
-    },
+    name: 'Tuber.Build (Blockscout)',
+    url: 'https://tuber.build',
   },
   contracts: {
     multicall3: {

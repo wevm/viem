@@ -1,11 +1,13 @@
 import type { Address } from 'abitype'
 import { VirtualAddress } from 'ox/tempo'
-import { call } from '../../../actions/public/call.js'
-import type { Client } from '../../../clients/createClient.js'
-import { zeroAddress } from '../../../constants/address.js'
-import { decodeAbiParameters } from '../../../utils/abi/decodeAbiParameters.js'
-import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
-import { concat } from '../../../utils/data/concat.js'
+import { call } from '../../../core/actions/call.js'
+import type { Client } from '../../../core/Client.js'
+const zeroAddress = '0x0000000000000000000000000000000000000000'
+import {
+  decode as decodeAbiParameters,
+  encode as encodeAbiParameters,
+} from 'ox/AbiParameters'
+import * as Hex from 'ox/Hex'
 import * as Addresses from '../../Addresses.js'
 
 /** Reads fee preferences, liquid fee-token balances, and virtual masters in one RPC request. */
@@ -23,7 +25,7 @@ export async function read(
   ]
   const { data } = await call(client, {
     batch: false,
-    data: concat([
+    data: Hex.concat(
       bytecode,
       encodeAbiParameters(
         [
@@ -41,7 +43,7 @@ export async function read(
           masterIds,
         ],
       ),
-    ]),
+    ),
   })
   const [preferredToken, preferredBalance, balances, resolved, masters] =
     decodeAbiParameters(

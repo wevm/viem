@@ -1,16 +1,19 @@
-import { AbiEvent, Hex, Secp256k1 } from 'ox'
-import { sendTransactionSync } from '../../../src/actions/wallet/sendTransactionSync.js'
-import type { Client } from '../../../src/clients/createClient.js'
-import type { Address } from '../../../src/index.js'
+import { AbiEvent, Hex, Secp256k1, Value } from 'ox'
+import type { Address, Log } from 'ox'
+import { Actions as CoreActions_ } from 'viem'
+import type { Client } from '../../../src/core/Client.js'
 import * as Abis from '../../../src/tempo/Abis.js'
 import * as Actions from '../../../src/tempo/actions/index.js'
 import type * as Capabilities from '../../../src/tempo/Capabilities.js'
 import { Account, Tick } from '../../../src/tempo/index.js'
 import { simulateAndParseDiffs } from '../../../src/tempo/internal/relay/simulate.js'
-import type { Call } from '../../../src/types/calls.js'
-import { parseEventLogs } from '../../../src/utils/abi/parseEventLogs.js'
-import { parseUnits } from '../../../src/utils/unit/parseUnits.js'
-import { accounts, addresses, getClient, setupTokenPair } from './config.js'
+import { accounts, alphaUsd, getClient, setupTokenPair } from '../tempo.js'
+
+/** A call of a simulated transaction. */
+export type Call = {
+  data?: Hex.Hex | undefined
+  to?: Address.Address | undefined
+}
 
 /**
  * Compares the relay's balance diffs for `calls` with an oracle that reads the sender's
@@ -25,29 +28,22 @@ export async function verify(client: Client, options: verify.Options) {
 
   const [{ balanceDiffs }, traced] = await Promise.all([
     simulateAndParseDiffs(client, { account, blockNumber, calls }),
-    Actions.simulate.simulateCalls(client, {
-      account,
-      blockNumber,
-      calls: calls as Call[],
-      traceTransfers: true,
-    }),
+    simulate(client, { account, blockNumber, calls }),
   ])
 
   // Logs only name what to measure; every amount below comes from state reads.
-  const logs = traced.results.flatMap(
-    (result) => (result as { logs?: never[] | undefined }).logs ?? [],
-  )
-  const tokens = new Set<Address>()
-  const gross = new Map<Address, { in: bigint; out: bigint }>()
-  for (const log of parseEventLogs({
-    abi: [AbiEvent.fromAbi(Abis.tip20, 'Transfer')],
-    eventName: 'Transfer',
+  const logs = traced.flatMap((result) => result.logs ?? [])
+  const tokens = new Set<Address.Address>()
+  const gross = new Map<Address.Address, { in: bigint; out: bigint }>()
+  for (const log of AbiEvent.extractLogs(
+    [AbiEvent.fromAbi(Abis.tip20, 'Transfer')],
     logs,
-  })) {
+    { eventName: 'Transfer' },
+  )) {
     const from = log.args.from.toLowerCase() === accountLower
     const to = log.args.to.toLowerCase() === accountLower
     if (!from && !to) continue
-    const token = log.address.toLowerCase() as Address
+    const token = log.address.toLowerCase() as Address.Address
     tokens.add(token)
     const entry = gross.get(token) ?? { in: 0n, out: 0n }
     // A transfer to oneself moves nothing.
@@ -55,17 +51,20 @@ export async function verify(client: Client, options: verify.Options) {
     if (to && !from) entry.in += log.args.amount
     gross.set(token, entry)
   }
-  const pairs = new Map<string, { spender: Address; token: Address }>()
-  for (const log of parseEventLogs({
-    abi: [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
-    eventName: 'Approval',
+  const pairs = new Map<
+    string,
+    { spender: Address.Address; token: Address.Address }
+  >()
+  for (const log of AbiEvent.extractLogs(
+    [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
     logs,
-  })) {
+    { eventName: 'Approval' },
+  )) {
     if (log.args.owner.toLowerCase() !== accountLower) continue
-    const token = log.address.toLowerCase() as Address
+    const token = log.address.toLowerCase() as Address.Address
     tokens.add(token)
     pairs.set(`${token}:${log.args.spender.toLowerCase()}`, {
-      spender: log.args.spender.toLowerCase() as Address,
+      spender: log.args.spender.toLowerCase() as Address.Address,
       token,
     })
   }
@@ -77,16 +76,13 @@ export async function verify(client: Client, options: verify.Options) {
     ...[...pairs.values()].map(({ spender, token }) =>
       Actions.token.getAllowance.call(client, { account, spender, token }),
     ),
-  ]
-  const oracle = await Actions.simulate.simulateCalls(client, {
+  ].map(({ data, to }) => ({ data, to }))
+  const oracle = await simulate(client, {
     account,
     blockNumber,
-    calls: [...reads, ...calls, ...reads] as Call[],
+    calls: [...reads, ...calls, ...reads],
   })
-  const read = (index: number) => {
-    const { data } = oracle.results[index] as { data: Hex.Hex }
-    return Hex.toBigInt(data)
-  }
+  const read = (index: number) => Hex.toBigInt(oracle[index]?.data ?? '0x0')
   const after = reads.length + calls.length
 
   const diffs = (Object.entries(balanceDiffs ?? {}).find(
@@ -151,16 +147,16 @@ export async function verify(client: Client, options: verify.Options) {
   })
   // Every previewed token must be one the calls moved or approved.
   for (const diff of diffs)
-    if (!tokens.has(diff.address.toLowerCase() as Address))
+    if (!tokens.has(diff.address.toLowerCase() as Address.Address))
       violations.push(`${diff.address}: previewed without movement`)
 
-  return { entries, results: traced.results, violations }
+  return { entries, results: traced, violations }
 }
 
 export declare namespace verify {
   type Options = {
     /** Sender of the calls. */
-    account: Address
+    account: Address.Address
     /** Block to simulate against. Defaults to the latest block. */
     blockNumber?: bigint | undefined
     /** Calls to preview. */
@@ -190,17 +186,17 @@ export type Party = 'other' | 'second' | 'self'
 /** Accounts and tokens operations draw from. */
 export type Context = {
   /** Sender. */
-  account: Address
+  account: Address.Address
   /** DEX base token, quoted in `quote`. */
-  base: Address
+  base: Address.Address
   /** Client building token calls. */
   client: Client
   /** Counterparties other than the sender. */
-  others: readonly [Address, Address]
+  others: readonly [Address.Address, Address.Address]
   /** DEX quote token. */
-  quote: Address
+  quote: Address.Address
   /** TIP-20 tokens indexed by operations. */
-  tokens: readonly Address[]
+  tokens: readonly Address.Address[]
 }
 
 /** Builds the calls of one operation. */
@@ -209,7 +205,10 @@ export function build(context: Context, operation: Operation): readonly Call[] {
   const party = (value: Party) =>
     value === 'self' ? account : value === 'other' ? others[0] : others[1]
   const token = (index: number) => tokens[index % tokens.length]!
-  const call = ({ data, to }: { data: Hex.Hex; to: Address }) => ({ data, to })
+  const call = ({ data, to }: { data: Hex.Hex; to: Address.Address }) => ({
+    data,
+    to,
+  })
   switch (operation.kind) {
     case 'approve':
       return [
@@ -299,15 +298,21 @@ export function build(context: Context, operation: Operation): readonly Call[] {
  * Funds a fresh sender with faucet tokens and both sides of a new DEX pair with resting
  * orders on each side, so operations can transfer, approve, and trade.
  */
-export async function setup(client: Client): Promise<Context> {
-  const maker = getClient({ account: accounts[0] })
+export async function setup(
+  client: Client,
+  options: { rpcUrl?: string | undefined } = {},
+): Promise<Context> {
+  const maker = getClient({
+    account: Account.fromSecp256k1(accounts[0]!.privateKey),
+    rpcUrl: options.rpcUrl,
+  })
   const holder = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
   const { base, quote } = await setupTokenPair(maker)
   await Actions.faucet.fundSync(maker, { account: holder, timeout: 60_000 })
-  await sendTransactionSync(maker, {
+  await CoreActions_.transaction.sendSync(maker, {
     calls: [base, quote].map((token) =>
       Actions.token.transfer.call(maker, {
-        amount: parseUnits('100', 6),
+        amount: Value.from('100', 6),
         to: holder.address,
         token,
       }),
@@ -318,7 +323,7 @@ export async function setup(client: Client): Promise<Context> {
     ['buy', '0.999'],
   ] as const)
     await Actions.dex.placeSync(maker, {
-      amount: parseUnits('500', 6),
+      amount: Value.from('500', 6),
       tick: Tick.fromPrice(price),
       token: base,
       type,
@@ -330,10 +335,38 @@ export async function setup(client: Client): Promise<Context> {
     others: [accounts[7]!.address, accounts[6]!.address],
     quote,
     tokens: [
-      addresses.alphaUsd,
+      alphaUsd,
       '0x20c0000000000000000000000000000000000002',
       base,
       quote,
     ],
   }
+}
+
+/** Simulates `calls` in one block from `account`, returning each call's return data and logs. */
+async function simulate(
+  client: Client,
+  options: {
+    account: Address.Address
+    blockNumber?: bigint | undefined
+    calls: readonly Call[]
+  },
+) {
+  const { account, blockNumber, calls } = options
+  const [block] = await CoreActions_.block.simulate(client, {
+    ...(blockNumber !== undefined ? { blockNumber } : {}),
+    blocks: [
+      {
+        calls: calls.map(({ data, to }) => ({
+          ...(data ? { data } : {}),
+          from: account,
+          to: to!,
+        })),
+      },
+    ],
+  })
+  return (block?.calls ?? []) as readonly {
+    data?: Hex.Hex | undefined
+    logs?: readonly Log.Log[] | undefined
+  }[]
 }

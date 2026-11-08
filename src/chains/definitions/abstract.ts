@@ -1,8 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const abstract = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const abstract = /*#__PURE__*/ Chain.from({
   blockTime: 200,
   id: 2_741,
   name: 'Abstract',
@@ -12,22 +11,15 @@ export const abstract = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://api.mainnet.abs.xyz'],
-      webSocket: ['wss://api.mainnet.abs.xyz/ws'],
-    },
+    http: 'https://api.mainnet.abs.xyz',
+    ws: 'wss://api.mainnet.abs.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://abscan.org',
-    },
-    native: {
-      name: 'Abstract Explorer',
-      url: 'https://explorer.mainnet.abs.xyz',
-    },
+    name: 'Etherscan',
+    url: 'https://abscan.org',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xAa4De41dba0Ca5dCBb288b7cC6b708F3aaC759E7',
       blockCreated: 5288,

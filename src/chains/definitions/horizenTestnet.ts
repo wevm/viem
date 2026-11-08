@@ -1,24 +1,23 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const horizenTestnet = /*#__PURE__*/ defineChain({
+export const horizenTestnet = /*#__PURE__*/ Chain.from({
   id: 2651420,
   name: 'Horizen Testnet',
-  network: 'horizen-testnet',
   nativeCurrency: {
     name: 'Sepolia Ether',
     symbol: 'ETH',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://horizen-testnet.rpc.caldera.xyz/http'],
-    },
+    http: 'https://horizen-testnet.rpc.caldera.xyz/http',
   },
   blockExplorers: {
-    default: {
-      name: 'Horizen Testnet Caldera Explorer',
-      url: 'https://horizen-testnet.explorer.caldera.xyz',
-    },
+    name: 'Horizen Testnet Caldera Explorer',
+    url: 'https://horizen-testnet.explorer.caldera.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

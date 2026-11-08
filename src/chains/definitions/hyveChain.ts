@@ -1,20 +1,16 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const hyveChain = /*#__PURE__*/ defineChain({
+export const hyveChain = /*#__PURE__*/ Chain.from({
   id: 7847,
   name: 'HyveChain',
   nativeCurrency: { name: 'HYVE', symbol: 'HYVE', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.hyvechain.com'],
-      webSocket: ['wss://ws.hyvechain.com'],
-    },
+    http: ['https://rpc.hyvechain.com'],
+    ws: ['wss://ws.hyvechain.com'],
   },
   blockExplorers: {
-    default: {
-      name: 'HyveChain Explorer',
-      url: 'https://explorer.hyvechain.com',
-    },
+    name: 'HyveChain Explorer',
+    url: 'https://explorer.hyvechain.com',
   },
   contracts: {
     multicall3: {

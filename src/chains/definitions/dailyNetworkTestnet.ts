@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const dailyNetworkTestnet = /*#__PURE__*/ defineChain({
+export const dailyNetworkTestnet = /*#__PURE__*/ Chain.from({
   id: 825,
   name: 'Daily Network Testnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const dailyNetworkTestnet = /*#__PURE__*/ defineChain({
     name: 'Daily',
     symbol: 'DLY',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.dailycrypto.net'] },
-  },
+  rpcUrls: { http: 'https://rpc.testnet.dailycrypto.net' },
   blockExplorers: {
-    default: {
-      name: 'Daily Testnet Explorer',
-      url: 'https://explorer.testnet.dailycrypto.net',
-    },
+    name: 'Daily Testnet Explorer',
+    url: 'https://explorer.testnet.dailycrypto.net',
   },
   testnet: true,
 })

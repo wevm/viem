@@ -1,35 +1,38 @@
-import { sign } from '../../src/accounts/utils/sign.js'
-import { parseAbiParameters } from '../../src/index.js'
-import type { Hex } from '../../src/types/misc.js'
-import { decodeAbiParameters } from '../../src/utils/abi/decodeAbiParameters.js'
-import { encodeAbiParameters } from '../../src/utils/abi/encodeAbiParameters.js'
-import { stringToHex } from '../../src/utils/encoding/toHex.js'
-import { keccak256 } from '../../src/utils/hash/keccak256.js'
-import { serializeSignature } from '../../src/utils/signature/serializeSignature.js'
+import { AbiParameters, Hash, Hex as Hex_, Secp256k1, Signature } from 'ox'
+import type { Hex } from 'ox'
 
 import { accounts } from './constants.js'
-import { createHttpServer } from './utils.js'
+import { createServer } from './http.js'
 
+const nameParameters = /*#__PURE__*/ AbiParameters.from('string')
+const resultParameters = /*#__PURE__*/ AbiParameters.from(
+  'address, bytes32, bytes',
+)
+
+/**
+ * Spawns a CCIP gateway for `OffchainLookupExample`: responds with the
+ * requested name's hash and a fixed signature over `keccak256('jxom.viem')`
+ * from account 0, so only lookups for `jxom.viem` verify onchain.
+ */
 export function createCcipServer() {
-  return createHttpServer(async (req, res) => {
-    res.writeHead(200, {
-      'Content-Type': 'application/json',
-    })
-    const signature = serializeSignature(
-      await sign({
-        hash: keccak256(stringToHex('jxom.viem')),
+  return createServer(async (req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+
+    const data = req.url!.split('/')[2] as Hex.Hex
+    const [name] = AbiParameters.decode(nameParameters, data)
+
+    const signature = Signature.toHex(
+      Secp256k1.sign({
+        payload: Hash.keccak256(Hex_.fromString('jxom.viem')),
         privateKey: accounts[0].privateKey,
       }),
     )
 
-    const data = req.url?.split('/')[2]! as Hex
-    const [name] = decodeAbiParameters(parseAbiParameters('string'), data)
-
     res.end(
       JSON.stringify({
-        data: encodeAbiParameters(parseAbiParameters('address,bytes32,bytes'), [
+        data: AbiParameters.encode(resultParameters, [
           accounts[0].address,
-          keccak256(stringToHex(name)),
+          Hash.keccak256(Hex_.fromString(name)),
           signature,
         ]),
       }),

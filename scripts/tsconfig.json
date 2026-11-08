@@ -1,14 +1,7 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": [".", "../src"],
-  "exclude": [
-    "../src/**/*.test.ts",
-    "../src/**/*.test-d.ts",
-    "../src/**/*.bench.ts",
-    "../src/**/*.bench-d.ts"
-  ],
+  "include": ["."],
   "compilerOptions": {
-    "composite": true,
     "noEmit": true,
     "types": ["@types/bun", "node"]
   }

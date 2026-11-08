@@ -1,9 +1,10 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const blast = /*#__PURE__*/ defineChain({
+export const blast = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 81457,
   name: 'Blast',
@@ -12,18 +13,15 @@ export const blast = /*#__PURE__*/ defineChain({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.blast.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.blast.io' },
   blockExplorers: {
-    default: {
-      name: 'Blastscan',
-      url: 'https://blastscan.io',
-      apiUrl: 'https://api.blastscan.io/api',
-    },
+    name: 'Blastscan',
+    url: 'https://blastscan.io',
+    apiUrl: 'https://api.blastscan.io/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 212929,

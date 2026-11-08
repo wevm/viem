@@ -1,14 +1,14 @@
-import { defineToken } from '../defineToken.js'
+import * as Token from '../../core/Token.js'
 
 /**
  * [EURC](https://www.circle.com/eurc) token, with canonical contract addresses
  * across supported EVM chains.
  *
  * Pass to a Client's `tokens` array, call with a chain id to produce a
- * [token config](/tokens/guides/defining-tokens), or read the metadata and `addresses`
+ * token config, or read the metadata and `addresses`
  * map directly.
  */
-export const eurc = /*#__PURE__*/ defineToken({
+export const eurc = /*#__PURE__*/ Token.from({
   addresses: {
     1: '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c', // mainnet
     25: '0xA6dE01a2d62C6B5f3525d768f34d276652C554c8', // cronos

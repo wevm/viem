@@ -1,20 +1,20 @@
-import { defineChain } from '../../../utils/chain/defineChain.js'
+import * as Chain from '../../../core/Chain.js'
+import * as Contracts from '../../../core/internal/contracts.js'
 
-export const skaleBase = /*#__PURE__*/ defineChain({
+export const skaleBase = /*#__PURE__*/ Chain.from({
   id: 1187947933,
   name: 'SKALE Base',
   nativeCurrency: { name: 'Credits', symbol: 'CREDIT', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://skale-base.skalenodes.com/v1/base'],
-      webSocket: ['wss://skale-base.skalenodes.com/v1/ws/base'],
-    },
+    http: 'https://skale-base.skalenodes.com/v1/base',
+    ws: 'wss://skale-base.skalenodes.com/v1/ws/base',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://skale-base-explorer.skalenodes.com/',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://skale-base-explorer.skalenodes.com/',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })
