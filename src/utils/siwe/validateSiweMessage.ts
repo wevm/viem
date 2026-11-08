@@ -57,6 +57,11 @@ export function validateSiweMessage(
   if (nonce && message.nonce !== nonce) return false
   if (scheme && message.scheme !== scheme) return false
 
+  // EIP-4361 requires `nonce = 8*( ALPHA / DIGIT )` and `version = "1"`.
+  if (message.nonce !== undefined && !nonceRegex.test(message.nonce))
+    return false
+  if (message.version !== undefined && message.version !== '1') return false
+
   // Invalid `time` makes both lifetime comparisons false in JS; reject first.
   if (Number.isNaN(time.getTime())) return false
 
@@ -81,3 +86,5 @@ export function validateSiweMessage(
 
   return true
 }
+
+const nonceRegex = /^[a-zA-Z0-9]{8,}$/
