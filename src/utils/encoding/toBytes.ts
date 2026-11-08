@@ -147,15 +147,13 @@ export type HexToBytesErrorType = AssertSizeErrorType | PadErrorType | ErrorType
  * const data = hexToBytes('0x48656c6c6f20776f726c6421', { size: 32 })
  * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
  */
-export function hexToBytes(hex_: Hex, opts: HexToBytesOpts = {}): ByteArray {
-  let hex = hex_
+export function hexToBytes(hex: Hex, opts: HexToBytesOpts = {}): ByteArray {
+  let hexString = hex.slice(2)
+  if (hexString.length % 2) hexString = `0${hexString}`
   if (opts.size) {
     assertSize(hex, { size: opts.size })
-    hex = pad(hex, { dir: 'right', size: opts.size })
+    hexString = hexString.padEnd(opts.size * 2, '0')
   }
-
-  let hexString = hex.slice(2) as string
-  if (hexString.length % 2) hexString = `0${hexString}`
 
   const length = hexString.length / 2
   const bytes = new Uint8Array(length)

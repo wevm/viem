@@ -983,6 +983,39 @@ describe('converts hex to bytes', () => {
     )
   })
 
+  test('args: size (odd length)', () => {
+    expect([
+      hexToBytes('0x1', { size: 1 }),
+      hexToBytes('0x1', { size: 2 }),
+      hexToBytes('0xabc', { size: 2 }),
+      hexToBytes('0xabc', { size: 3 }),
+      toBytes('0x1', { size: 2 }),
+    ]).toMatchInlineSnapshot(`
+      [
+        Uint8Array [
+          1,
+        ],
+        Uint8Array [
+          1,
+          0,
+        ],
+        Uint8Array [
+          10,
+          188,
+        ],
+        Uint8Array [
+          10,
+          188,
+          0,
+        ],
+        Uint8Array [
+          1,
+          0,
+        ],
+      ]
+    `)
+  })
+
   test('error: size overflow', () => {
     expect(() =>
       toBytes('0x48656c6c6f20576f726c6421', { size: 8 }),
