@@ -793,7 +793,7 @@ function pay(
           }).fetch,
         (error: unknown) => {
           mppx = undefined
-          throw new Gateway.MppxNotInstalledError({ cause: error as Error })
+          throw error
         },
       )
     }
@@ -902,8 +902,13 @@ type MppxClient = {
 /**
  * Loads `mppx/client`. The specifier is cast so TypeScript doesn't pull the
  * optional peer dependency's types into Viem's, while bundlers still see a
- * literal import.
+ * literal import. The `try` marks the import optional for webpack, so a build
+ * without `mppx` warns instead of failing, and the import rejects at runtime.
  */
-function load(): Promise<MppxClient> {
-  return import('mppx/client' as string)
+async function load(): Promise<MppxClient> {
+  try {
+    return await import('mppx/client' as string)
+  } catch (error) {
+    throw new Gateway.MppxNotInstalledError({ cause: error as Error })
+  }
 }
