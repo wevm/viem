@@ -144,9 +144,16 @@ test('offchain: gets address for name', async () => {
   )
 })
 
-test.each(['abi', 'raw'] as const)(
-  'offchain: decodes %s coinType responses with leading zeros',
-  async (encoding) => {
+test.each(
+  (['abi', 'raw'] as const).flatMap((encoding) =>
+    [60n, 0x80000000n, toCoinType(10), 0xffffffffn].map((coinType) => ({
+      coinType,
+      encoding,
+    })),
+  ),
+)(
+  'offchain: decodes $encoding coinType $coinType responses with leading zeros',
+  async ({ coinType, encoding }) => {
     let data = '0x'
     const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
       result: data,
@@ -176,7 +183,7 @@ test.each(['abi', 'raw'] as const)(
       addresses.push(
         await getEnsAddress(client, {
           name: 'pokersback.com',
-          coinType: 60n,
+          coinType,
           universalResolverAddress: resolverAddress,
         }),
       )
@@ -260,7 +267,7 @@ test('offchain: rejects malformed coinType responses', async () => {
   `)
 })
 
-test.each([501n, toCoinType(10)])(
+test.each([501n, 0x7fffffffn, 0x100000000n])(
   'offchain: preserves decoding for coinType %s',
   async (coinType) => {
     let data = '0x'

@@ -212,9 +212,10 @@ function decodeAddress({
     const address = trim(data)
     const addressLength = size(address)
     const dataSize = size(data)
-    // coinType 60n is the ENSIP-9 Ethereum type.
+    // Ethereum (ENSIP-9) and EVM chain (ENSIP-11) coin types use 20-byte addresses.
     if (
-      coinType === 60n &&
+      (coinType === 60n ||
+        (coinType >= 0x80000000n && coinType <= 0xffffffffn)) &&
       (dataSize === addressSize || dataSize === abiWordSize) &&
       addressLength < addressSize
     )
