@@ -1,6 +1,14 @@
 import { expect, test } from 'vitest'
 
-import { Actions, Client, fallback, http, testActions, webSocket } from 'viem'
+import {
+  Actions,
+  Chain,
+  Client,
+  fallback,
+  http,
+  testActions,
+  webSocket,
+} from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
@@ -162,6 +170,49 @@ test('emitMissed: backfills skipped block numbers', async () => {
   } finally {
     await server.close()
   }
+})
+
+test('emitMissed: defaults to polling less than twice per block', async () => {
+  const results: Record<string, bigint[]> = {}
+  for (const blockTime of [50, 1_000]) {
+    const server = await blockNumberServer(['0x1', '0x5'])
+    try {
+      const chainClient = Client.create({
+        chain: Chain.from({ blockTime, id: 1 }),
+        transport: http(server.url),
+        pollingInterval: 50,
+      })
+
+      const numbers: bigint[] = []
+      const watch = Actions.block.watchNumber(chainClient)
+      watch.onBlockNumber((blockNumber) => numbers.push(blockNumber))
+
+      await expect
+        .poll(() => numbers.at(-1), { interval: 25, timeout: 2_000 })
+        .toBe(5n)
+      watch.off()
+
+      results[`blockTime: ${blockTime}`] = numbers
+    } finally {
+      await server.close()
+    }
+  }
+
+  expect(results).toMatchInlineSnapshot(`
+    {
+      "blockTime: 1000": [
+        1n,
+        5n,
+      ],
+      "blockTime: 50": [
+        1n,
+        2n,
+        3n,
+        4n,
+        5n,
+      ],
+    }
+  `)
 })
 
 test('onError: invokes the listener when fetching fails', async () => {

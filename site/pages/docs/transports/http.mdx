@@ -21,6 +21,8 @@ const transport = http('https://eth.merkle.io')
 
 Enable `batch` to coalesce concurrent requests into a single JSON-RPC batch call. Tune the batch with `batchSize` and `wait`.
 
+Batching is scoped to each `http()` instance. Reuse the same transport to batch requests across clients.
+
 ```ts twoslash
 // @twoslash-cache: {"v":1,"hash":"6f6dff5b5a81172fc3296d4d7620e61e95630cb852fae9e4185d3e5917649544","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvfGjRYAPKWYB3XnRpgocXgCMIEVjGZSAvALZwYAPkaDSrAPyJecNKXZgA5rwA+vYbD8HjBQFLwQWOKScE7SslgAdADykRJgcIoqVtzOABLxmcpWADpgLBxcfGDMALbwWMwiMHFypew1WBCkaC1YlCBQECIIiCAAwqRGNNrGvLkAKvMACrwAUgDKSQByALQASktjvG7GcJ3dCbwA6vgwUpC8AAZ2rI+87NpYpMTssKHmrFY2h0jQA1qU0BBjrdeCJ8MwPABybSBZiCVg9BbLXgHI4AVT2ABkEv00MxPCNkMgQHRalhDP1Hky0HA2h0uj1gLwxhw7mgwjI5LwAL4Cb41XiIojsGA1RFs86c3g1BFgMAwHqi/jiyXS2UAejhqrg8rApRE0R6Il5YB6Zh5MttCREk2YNEYwFKvFh8I8zhVHnV/K9xyU6UVzkFWEYiKjcEQ+v1GvwCTqpFBhgSEkR3AopWF3FKTMeIAAuqWqK5mN0kABOKiGLxofBIAAsVDJpE8GrwUf6HHVSAADFQjUoxGQ68KKOhsLhRoQSOQO+o8Bb0j0TuGOXkCvwLNZ+lWa4gAMwAVgbd08zbrHer3YYoy3Zw5/eCSAATKP4eOaOREAANmnWccF7YhJxXegmDYTgeF6eR9yBaxbHsWJXHcLxfH8TQYCCdV/giKJ0liKNklSaJEIPbJdzkKjkJKMB2kVXp+kGYY8AmKZ4F4WYsRWDZtn2Q5Q1ORVLhuO5eAeZ57DeD5eC+H4/jCJCgV0MEIShZtmiNJEUTwtEMTmRYVlxXgCWJUlyUpalaQ6BkqGLFkFQ5XguQdPkBXiEUxQgCUpRlOVXO6dzlVVINfO1fzdSCw1fXSU1zUtWEbTtbk0udV13U9KQfVVf0Io1PM8pfCNehjOMEyTZtUzIDMYCzCAcxKgsiyZMsKxAY8n1bAB2K8mxbRB22oB8ewXeJ30HRBvxAMdGn/JAAEYAA4QOoOdwKXUlV1GRglJwboMD4EE0DhWI9AMIwpD8XLvW9M64XWdgAC8YFiMBBBqHQyGwgI8OCKAAG4Q29ZQETQT7vt+0h/tw/CQlBsBRT8AHEagNihhGEBJJ0uHIQ0878DWTZdnMyYAEdBHgFkSXvCkkCpAZDPRBgqCQyxOsrTsn1W5bBpvYbLzGrsJpAJ6WwbD8zx/atFsnWaNswMCFwg5dqD2kADu+I7MFOt1nrej7nC+n6/rRhGgaxjjRgAWWYWheCpmnXE+P7JfpsbGZQalUTZ/ploAfSHUPue63m6xHEBGyFu9RcfPBJZe97pvnU85b/RXluW5WtrVnaoKfbXDrIfXeAh9godNmGLZwwJraodicYdp2am0QnK56X7+C6ZpLE0DxvGYIm4S9skfeZ/2MX6Idw56lah1WwXbxG+8xeLru06QDP5t/BWAM/WthS6i1YDwZi3K5KMop1QLZSS0QUrKtyzCjSr4njRNkzq9NM2zMI91R74GcFyZOxtnDB1DiOCukNIGARFGERMvBkAAEIz7NF7iIQQcBSz5m4P0OoZIkCgHUHcOAaQ8AshAMKYUQA=="}
 import { http } from 'viem'
@@ -110,7 +112,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-Requests retry on rate limits, server errors, and other transient HTTP statuses, including JSON-RPC errors returned with those statuses. A `Retry-After` header, in seconds or as an HTTP date, sets the delay before the next attempt.
+Requests retry on rate limits, server errors, and other transient HTTP statuses, including JSON-RPC errors returned with those statuses. Method-not-found (`-32601`) and method-not-supported (`-32004`) errors never retry, whatever the status. A `Retry-After` header, in seconds or as an HTTP date, sets the delay before the next attempt.
 
 When retries run out, a JSON-RPC error returned with a non-2xx status surfaces as the JSON-RPC error. Its `cause` is the `RpcClient.HttpError` holding the response `status` and `headers`.
 

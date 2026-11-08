@@ -162,6 +162,48 @@ test('routes eth_fillTransaction to the relay, preserving `feePayer`', async () 
   }
 })
 
+test('behavior: sends each attempt of the inner transports once', async () => {
+  const methods: string[] = []
+  const server = await createServer((req, res) => {
+    let body = ''
+    req.setEncoding('utf8')
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', () => {
+      const request = JSON.parse(body)
+      methods.push(request.method)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          error: { code: -32603, message: 'Failed.' },
+          id: request.id,
+          jsonrpc: '2.0',
+        }),
+      )
+    })
+  })
+  try {
+    const client = getClient({ defaultUrl: server.url, relayUrl: server.url })
+
+    await expect(
+      client.request({ method: 'eth_fillTransaction', params: [{}] as never }),
+    ).rejects.toThrow('Failed.')
+    await expect(client.request({ method: 'eth_chainId' })).rejects.toThrow(
+      'Failed.',
+    )
+
+    expect(methods).toMatchInlineSnapshot(`
+      [
+        "eth_fillTransaction",
+        "eth_chainId",
+      ]
+    `)
+  } finally {
+    await server.close()
+  }
+})
+
 describe('policy: sign-only (default)', () => {
   test.each(['eth_sendRawTransaction', 'eth_sendRawTransactionSync'] as const)(
     'sponsored %s: relay co-signs, default broadcasts',

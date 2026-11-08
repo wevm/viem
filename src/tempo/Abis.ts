@@ -569,9 +569,34 @@ export const configurableAccount = [
   { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
   { name: 'UnauthorizedConfigurableAccountCaller', type: 'error', inputs: [] },
   { name: 'PrimitiveRootRequired', type: 'error', inputs: [] },
-  { name: 'UpgradeMustBeOnlyCall', type: 'error', inputs: [] },
+  { name: 'UpgradeMustBeDirectCall', type: 'error', inputs: [] },
   { name: 'AccountAlreadyConfigurable', type: 'error', inputs: [] },
   { name: 'AccountHasCode', type: 'error', inputs: [] },
+] as const
+
+export const configurableAccountShim = [
+  {
+    name: 'isValidSignature',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bytes4' }],
+  },
+  {
+    name: 'onERC721Received',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'operator' },
+      { type: 'address', name: 'from' },
+      { type: 'uint256', name: 'tokenId' },
+      { type: 'bytes', name: 'data' },
+    ],
+    outputs: [{ type: 'bytes4' }],
+  },
 ] as const
 
 export const currentCommittee = [
@@ -9944,55 +9969,60 @@ export const directPropAmm = [
   },
 ] as const
 
-export const core = [
-  ...accountKeychain,
-  ...addressRegistry,
-  ...configurableAccount,
-  ...currentCommittee,
-  ...feeAmm,
-  ...feeManager,
-  ...nonce,
-  ...receivePolicyGuard,
-  ...signatureVerifier,
-  ...stablecoinDex,
-  ...storageCredits,
-  ...tip20,
-  ...tip20ChannelReserve,
-  ...tip20Factory,
-  ...tip403Registry,
-  ...validatorConfig,
-  ...validatorConfigV2,
-  ...zoneFactory,
-  ...zonePortal,
-  ...zoneVerifier,
-] as const
+export const core = /* @__PURE__ */ (() =>
+  [
+    ...accountKeychain,
+    ...addressRegistry,
+    ...configurableAccount,
+    ...configurableAccountShim,
+    ...currentCommittee,
+    ...feeAmm,
+    ...feeManager,
+    ...nonce,
+    ...receivePolicyGuard,
+    ...signatureVerifier,
+    ...stablecoinDex,
+    ...storageCredits,
+    ...tip20,
+    ...tip20ChannelReserve,
+    ...tip20Factory,
+    ...tip403Registry,
+    ...validatorConfig,
+    ...validatorConfigV2,
+    ...zoneFactory,
+    ...zonePortal,
+    ...zoneVerifier,
+  ] as const)()
 
-export const earn = [
-  ...earnContributionController,
-  ...earnEngine,
-  ...earnEngineAsyncRedeem,
-  ...earnEngineInKindDeposit,
-  ...earnFactory,
-  ...earnFees,
-  ...earnMerkleRewardDistributor,
-  ...earnRewardsFactory,
-  ...earnRouter,
-  ...earnVault,
-  ...erc4626Engine,
-  ...erc4626EngineFactory,
-  ...vedaEngine,
-] as const
+export const earn = /* @__PURE__ */ (() =>
+  [
+    ...earnContributionController,
+    ...earnEngine,
+    ...earnEngineAsyncRedeem,
+    ...earnEngineInKindDeposit,
+    ...earnFactory,
+    ...earnFees,
+    ...earnMerkleRewardDistributor,
+    ...earnRewardsFactory,
+    ...earnRouter,
+    ...earnVault,
+    ...erc4626Engine,
+    ...erc4626EngineFactory,
+    ...vedaEngine,
+  ] as const)()
 
-export const zone = [
-  ...zoneInbox,
-  ...zoneMessenger,
-  ...zoneOutbox,
-  ...zonePortalPreT13Retired,
-] as const
+export const zone = /* @__PURE__ */ (() =>
+  [
+    ...zoneInbox,
+    ...zoneMessenger,
+    ...zoneOutbox,
+    ...zonePortalPreT13Retired,
+  ] as const)()
 
-export const propAmm = [...directPropAmm] as const
+export const propAmm = /* @__PURE__ */ (() => [...directPropAmm] as const)()
 
-export const all = [...core, ...earn, ...zone, ...propAmm] as const
+export const all = /* @__PURE__ */ (() =>
+  [...core, ...earn, ...zone, ...propAmm] as const)()
 
 /** Deduplicated errors of `core`, for decoding reverts that bubble up across precompiles. */
 export const coreErrors = [
@@ -10042,7 +10072,7 @@ export const coreErrors = [
   { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
   { name: 'UnauthorizedConfigurableAccountCaller', type: 'error', inputs: [] },
   { name: 'PrimitiveRootRequired', type: 'error', inputs: [] },
-  { name: 'UpgradeMustBeOnlyCall', type: 'error', inputs: [] },
+  { name: 'UpgradeMustBeDirectCall', type: 'error', inputs: [] },
   { name: 'AccountAlreadyConfigurable', type: 'error', inputs: [] },
   { name: 'AccountHasCode', type: 'error', inputs: [] },
   { name: 'Unauthorized', type: 'error', inputs: [] },

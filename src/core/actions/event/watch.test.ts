@@ -883,6 +883,82 @@ describe('polling: getLogs fallback', () => {
     }
   })
 
+  test('reads blocks from a `fromBlock` of 0 or 1', async () => {
+    const results: Record<string, unknown> = {}
+    for (const fromBlock of [0n, 1n, 2n]) {
+      const fixture = getLogsServer({
+        getBlockNumber: () => 5n,
+        getLogs: () => [makeLog(a, b, 1n, { blockNumber: 3n, logIndex: 0 })],
+      })
+      const server = await fixture.server
+      try {
+        const seqClient = Client.create({
+          transport: http(server.url, { retryCount: 0 }),
+          pollingInterval: 25,
+        })
+
+        const blockNumbers: (bigint | null)[] = []
+        const watch = Actions.event.watch(seqClient, {
+          event: transferEvent,
+          fromBlock,
+        })
+        watch.onLogs((logs) => {
+          for (const log of logs) blockNumbers.push(log.blockNumber)
+        })
+
+        await expect
+          .poll(() => blockNumbers, { interval: 25, timeout: 2_000 })
+          .toHaveLength(1)
+        watch.off()
+
+        results[`fromBlock: ${fromBlock}`] = {
+          blockNumbers,
+          queries: fixture.queries,
+        }
+      } finally {
+        await server.close()
+      }
+    }
+
+    expect(results).toMatchInlineSnapshot(`
+      {
+        "fromBlock: 0": {
+          "blockNumbers": [
+            3n,
+          ],
+          "queries": [
+            [
+              0n,
+              5n,
+            ],
+          ],
+        },
+        "fromBlock: 1": {
+          "blockNumbers": [
+            3n,
+          ],
+          "queries": [
+            [
+              1n,
+              5n,
+            ],
+          ],
+        },
+        "fromBlock: 2": {
+          "blockNumbers": [
+            3n,
+          ],
+          "queries": [
+            [
+              2n,
+              5n,
+            ],
+          ],
+        },
+      }
+    `)
+  })
+
   test('skips logs that do not match `event` when `strict: true`', async () => {
     const fixture = getLogsServer({
       getBlockNumber: () => 2n,

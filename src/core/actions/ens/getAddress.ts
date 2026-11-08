@@ -76,8 +76,7 @@ export async function getAddress(
 
     const address = decodeAddress({ addrItem, coinType, data })
 
-    if (address === '0x') return null
-    if (Hex.trimLeft(address) === '0x00') return null
+    if (Hex.trimLeft(address) === '0x') return null
     return address
   } catch (err) {
     if (strict) throw err
@@ -128,7 +127,16 @@ function decodeAddress(options: {
     if (coinType == null) throw err
 
     const address = Hex.trimLeft(data)
-    if (Hex.size(address) === 20) return Address.checksum(address)
+    const addressSize = Hex.size(address)
+    const dataSize = Hex.size(data)
+    // Ethereum (ENSIP-9) and EVM chain (ENSIP-11) coin types use 20-byte
+    // addresses, so a raw or word-sized response keeps its leading zeros.
+    const evm =
+      (coinType === 60n ||
+        (coinType >= 0x80000000n && coinType <= 0xffffffffn)) &&
+      (dataSize === 20 || dataSize === 32)
+    if (addressSize === 20 || (evm && addressSize < 20))
+      return Address.checksum(Hex.padLeft(address, 20))
 
     throw err
   }

@@ -969,6 +969,236 @@ describe('fromConfig', () => {
 })
 
 // End-to-end fee payer flows against a tempo node.
+describe('deserialize', () => {
+  const owner = Account.fromSecp256k1(privateKey)
+
+  test('behavior: initial config', () => {
+    const account = Account.fromConfig({ owners: [owner] })
+
+    const deserialized = Account.deserialize(
+      JSON.parse(JSON.stringify(Account.serialize(account))),
+    )
+
+    expect(deserialized.address).toBe(account.address)
+    expect(deserialized.config).toEqual(account.config)
+    expect(deserialized.owners).toEqual([])
+  })
+
+  test('behavior: current config', () => {
+    const account = Account.fromConfig({
+      address: '0x0000000000000000000000000000000000000001',
+      owners: [owner],
+      salt: AccountConfig.zeroSalt,
+      threshold: 1,
+      version: 2,
+    })
+
+    const deserialized = Account.deserialize(Account.serialize(account))
+
+    expect(deserialized.address).toBe(account.address)
+    expect(deserialized.config?.version).toBe(2n)
+  })
+
+  test('behavior: address-only account', () => {
+    const deserialized = Account.deserialize({
+      address: '0x0000000000000000000000000000000000000001',
+    })
+
+    expect(deserialized.config).toBeUndefined()
+  })
+
+  test('behavior: passkey owner signs', () => {
+    const privateKey = P256.randomPrivateKey()
+    const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }))
+    const passkey = Address.fromPublicKey(PublicKey.fromHex(publicKey))
+    const other = P256.randomPrivateKey()
+    const account = Account.fromConfig({ owners: [passkey] })
+
+    const deserialized = Account.deserialize(Account.serialize(account), {
+      credentials: [
+        {
+          id: 'other',
+          publicKey: PublicKey.toHex(P256.getPublicKey({ privateKey: other })),
+        },
+        { id: 'passkey', publicKey, rpId: 'example.com' },
+      ],
+    })
+
+    expect(deserialized.owners.map((owner) => owner.address)).toEqual([
+      Address.checksum(passkey),
+    ])
+  })
+
+  test('error: address mismatch', () => {
+    const account = Account.fromConfig({ owners: [owner] })
+
+    expect(() =>
+      Account.deserialize({
+        ...Account.serialize(account),
+        address: '0x0000000000000000000000000000000000000001',
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [Account.AddressMismatchError: Account config derives 0x00a786b5deE39362fEAB935C9B9BCAc7D6b36850, not 0x0000000000000000000000000000000000000001.
+
+      Version: viem@x.x.x]
+    `)
+  })
+})
+
+describe('keyAuthorization', () => {
+  test('behavior: holds the authorization until removed', async () => {
+    const key = Account.fromP256(privateKey_p256, { access: parent })
+    const chainId = tempoLocalnet.id
+    const keyAuthorization = await parent.signKeyAuthorization(key, {
+      chainId: BigInt(chainId),
+    })
+
+    const account = Account.fromP256(privateKey_p256, {
+      access: parent,
+      keyAuthorization,
+    })
+    const entry = {
+      accessKey: account.accessKeyAddress,
+      address: parent.address,
+      chainId,
+    }
+
+    expect(await account.keyAuthorizationManager!.get(entry)).toBe(
+      keyAuthorization,
+    )
+    expect(
+      await account.keyAuthorizationManager!.get({ ...entry, chainId: 1 }),
+    ).toBeUndefined()
+    await account.keyAuthorizationManager!.remove(entry)
+    expect(await account.keyAuthorizationManager!.get(entry)).toBeUndefined()
+  })
+
+  test('error: authorization of another key', async () => {
+    const key = Account.fromP256(privateKey_p256, { access: parent })
+    const keyAuthorization = await parent.signKeyAuthorization(key, {
+      chainId: BigInt(tempoLocalnet.id),
+    })
+
+    expect(() =>
+      Account.fromSecp256k1(privateKey, { access: parent, keyAuthorization }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Key authorization does not authorize this access key.]`,
+    )
+  })
+})
+
+describe('fromConfig (access key)', () => {
+  const owner_1 = Account.fromSecp256k1(privateKey)
+  const owner_2 = Account.fromP256(privateKey_p256)
+  const root = Account.fromSecp256k1(
+    '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b786a3e',
+  )
+
+  test('default', () => {
+    const configurable = Account.fromConfig({
+      owners: [owner_1, owner_2],
+      threshold: 2,
+    })
+    const accessKey = Account.fromConfig(
+      { owners: [owner_1, owner_2], threshold: 2 },
+      { access: root },
+    )
+
+    expect({
+      accessKeyAddress: accessKey.accessKeyAddress,
+      address: accessKey.address,
+      delegate: accessKey.delegate === undefined ? undefined : 'configurable',
+      keyType: accessKey.keyType,
+      source: accessKey.source,
+    }).toMatchInlineSnapshot(`
+      {
+        "accessKeyAddress": "0x0b0524EcEEa4C09E21453447624eb82c4ec07C00",
+        "address": "0x2F3FF16302Fb26c9DDb0B7B11fd8b5a0B38B242a",
+        "delegate": "configurable",
+        "keyType": "configurable",
+        "source": "accessKey",
+      }
+    `)
+    expect(accessKey.accessKeyAddress).toBe(configurable.address)
+  })
+
+  test('behavior: signs a keychain envelope over the bound hash', async () => {
+    const accessKey = Account.fromConfig(
+      { owners: [owner_1], threshold: 1 },
+      { access: root },
+    )
+
+    const envelope = SignatureEnvelope.from(await accessKey.sign({ hash }))
+    if (envelope.type !== 'keychain') throw new Error('Expected keychain.')
+    if (envelope.inner.type !== 'configurable')
+      throw new Error('Expected a configurable inner signature.')
+    const [approval] = envelope.inner.signatures
+
+    expect({
+      approvals: envelope.inner.signatures.length,
+      signer: SignatureEnvelope.extractAddress({
+        payload: AccountConfig.getSignPayload({
+          account: accessKey.accessKeyAddress,
+          config: accessKey.delegate!.config!,
+          payload: Hash.keccak256(Hex.concat('0x04', hash, root.address)),
+        }),
+        signature: approval!,
+      }),
+      userAddress: envelope.userAddress,
+      version: envelope.version,
+    }).toMatchInlineSnapshot(`
+      {
+        "approvals": 1,
+        "signer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "userAddress": "0x2F3FF16302Fb26c9DDb0B7B11fd8b5a0B38B242a",
+        "version": "v2",
+      }
+    `)
+  })
+
+  test('error: its own access key', () => {
+    const configurable = Account.fromConfig({ owners: [owner_1] })
+
+    expect(() =>
+      Account.fromConfig({ owners: [owner_1] }, { access: configurable }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: A configurable account cannot be its own access key.]`,
+    )
+  })
+
+  test('error: authorization of another key', async () => {
+    const keyAuthorization = await root.signKeyAuthorization(
+      Account.fromP256(privateKey_p256, { access: root }),
+      { chainId: BigInt(tempoLocalnet.id) },
+    )
+
+    expect(() =>
+      Account.fromConfig(
+        { owners: [owner_1] },
+        { access: root, keyAuthorization },
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Key authorization does not authorize this access key.]`,
+    )
+  })
+
+  test('error: signs a key authorization', async () => {
+    const accessKey = Account.fromConfig(
+      { owners: [owner_1] },
+      { access: root },
+    )
+
+    await expect(
+      Account.signKeyAuthorization(accessKey, {
+        chainId: 1337,
+        key: Account.fromP256(privateKey_p256, { access: root }),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: An access key cannot sign key authorizations.]`,
+    )
+  })
+})
+
 describe('e2e (tempo node)', () => {
   const node = tempo.defineNode()
   afterAll(() => node.stop())
@@ -1314,39 +1544,20 @@ describe('signKeyAuthorization', () => {
     verifyKeyAuthorization(keyAuthorization, parent)
   })
 
-  test('standalone: admin access key signer binds the account', async () => {
-    const adminKey = Account.fromSecp256k1(
+  test('error: access key signer', async () => {
+    const accessKey_signer = Account.fromSecp256k1(
       '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b786a3e',
       { access: parent },
     )
-    const keyAuthorization = await Account.signKeyAuthorization(adminKey, {
-      chainId: 1337,
-      key: accessKey,
-    })
 
-    // Bound to the parent account the admin key acts on behalf of.
-    expect(keyAuthorization.account).toBe(parent.address)
-    verifyKeyAuthorization(keyAuthorization, adminKey)
-  })
-
-  test('standalone: admin authorization drops restrictions', async () => {
-    const keyAuthorization = await Account.signKeyAuthorization(parent, {
-      admin: true,
-      chainId: 1337,
-      expiry: 1_800_000_000,
-      key: accessKey,
-      limits: [
-        {
-          limit: 1n,
-          token: '0x20c0000000000000000000000000000000000001',
-        },
-      ],
-    })
-
-    expect(keyAuthorization.isAdmin).toBe(true)
-    expect(keyAuthorization.expiry).toBeUndefined()
-    expect(keyAuthorization.limits).toBeUndefined()
-    verifyKeyAuthorization(keyAuthorization, parent)
+    await expect(
+      Account.signKeyAuthorization(accessKey_signer, {
+        chainId: 1337,
+        key: accessKey,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: An access key cannot sign key authorizations.]`,
+    )
   })
 })
 

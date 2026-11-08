@@ -46,11 +46,15 @@ export function watchNumber(
   client: Client.Client,
   options: watchNumber.Options = {},
 ): watchNumber.Watcher {
-  const {
-    emitMissed = false,
-    emitOnBegin = false,
-    pollingInterval = client.pollingInterval,
-  } = options
+  const { emitOnBegin = false, pollingInterval = client.pollingInterval } =
+    options
+
+  // Polling less than twice per block skips blocks, so emit the missed ones
+  // unless told otherwise.
+  const blockTime = client.chain?.blockTime
+  const emitMissed =
+    options.emitMissed ??
+    (blockTime !== undefined && pollingInterval > blockTime / 2)
 
   const subscribe = getSubscribe(client.transport)
   const enablePolling = options.poll ?? !subscribe
@@ -229,7 +233,11 @@ export declare namespace watchNumber {
   }
 
   type Options = {
-    /** Whether to emit the missed block numbers between polls. */
+    /**
+     * Whether to emit the missed block numbers between polls. Defaults to
+     * `true` when the polling interval is longer than half the chain's block
+     * time, otherwise `false`.
+     */
     emitMissed?: boolean | undefined
     /** Whether to emit the latest block number when the watcher opens. */
     emitOnBegin?: boolean | undefined

@@ -1,4 +1,4 @@
-import { Authorization, Secp256k1 } from 'ox'
+import { Authorization, Hash, Hex, Rlp, Secp256k1 } from 'ox'
 import type { Errors } from 'ox'
 
 import * as Account from '../../Account.js'
@@ -16,7 +16,7 @@ import { defaultParameters, prepare } from './prepare.js'
 import { send } from './send.js'
 import { sendRawSync, TransactionReceiptRevertedError } from './sendRawSync.js'
 import { sign } from './sign.js'
-import { waitForReceipt } from './waitForReceipt.js'
+import { WaitForReceiptTimeoutError, waitForReceipt } from './waitForReceipt.js'
 
 /**
  * Creates, signs, and sends a new transaction to the network synchronously,
@@ -168,12 +168,53 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
       kzg,
     } as never)
 
-    return await sendRawSync(client, {
-      requestOptions,
-      throwOnReceiptRevert,
-      timeout,
-      transaction,
-    })
+    const start = Date.now()
+    try {
+      return await sendRawSync(client, {
+        requestOptions,
+        throwOnReceiptRevert,
+        timeout,
+        transaction,
+      })
+    } catch (err) {
+      // The node accepted the transaction but stopped waiting for its
+      // receipt (EIP-7966).
+      const timeoutError = getReceiptTimeoutError(err)
+      if (!timeoutError) throw err
+
+      // The pending transaction holds the nonce, so keep it.
+      reset = undefined
+
+      // Prefer the node's hash, since a relay (such as a fee payer) can
+      // change the bytes it broadcasts. Without one, derive it locally.
+      const hash = (() => {
+        const { data } = timeoutError
+        if (typeof data === 'string' && Hash.validate(data)) return data
+        // An EIP-4844 network wrapper holds the signed payload, then the
+        // sidecars (blobs, commitments, and proofs). The hash covers only the
+        // payload.
+        if (Hex.slice(transaction, 0, 1) === '0x03') {
+          const fields = Rlp.toHex(Hex.slice(transaction, 1))
+          if (Array.isArray(fields[0]))
+            return Hash.keccak256(Hex.concat('0x03', Rlp.fromHex(fields[0])))
+        }
+        return Hash.keccak256(transaction)
+      })()
+
+      const remaining = receiptTimeout - (Date.now() - start)
+      // The node used up the timeout before it answered.
+      if (remaining <= 0) throw new WaitForReceiptTimeoutError({ hash })
+
+      const receipt = await waitForReceipt(client, {
+        checkReplacement: false,
+        hash,
+        pollingInterval,
+        timeout: remaining,
+      }).receipt
+      if (receipt.status === 'reverted' && throwOnReceiptRevert)
+        throw new TransactionReceiptRevertedError({ receipt })
+      return receipt
+    }
   } catch (err) {
     if (
       reset &&
@@ -199,7 +240,7 @@ export declare namespace sendSync {
   > = send.Options<chain> & {
     /** Number of confirmations to wait for on JSON-RPC account sends. @default 1 */
     confirmations?: number | undefined
-    /** Polling frequency in ms for JSON-RPC account sends. @default client.pollingInterval */
+    /** Polling frequency in ms when waiting for the receipt: for JSON-RPC account sends, or when the node stops waiting for it. @default client.pollingInterval */
     pollingInterval?: number | undefined
     /** Whether to throw if the transaction receipt status is `reverted`. */
     throwOnReceiptRevert?: boolean | undefined
@@ -220,4 +261,26 @@ export declare namespace sendSync {
     | RpcError.ExecutionError
     | getId.ErrorType
     | Errors.GlobalErrorType
+}
+
+/**
+ * Returns the error object carrying error code `4`, which
+ * `eth_sendRawTransactionSync` returns when the node stops waiting for the
+ * receipt, from `error` or its causes. ox wraps an unknown code as an
+ * `InternalError` that keeps the original error object on `data`.
+ *
+ * @internal
+ */
+function getReceiptTimeoutError(
+  error: unknown,
+): { data?: unknown } | undefined {
+  let current: unknown = error
+  while (current && typeof current === 'object') {
+    const value = current as { code?: unknown; data?: unknown; cause?: unknown }
+    if (value.code === 4) return value
+    const data = value.data as { code?: unknown; data?: unknown } | undefined
+    if (data && typeof data === 'object' && data.code === 4) return data
+    current = value.cause
+  }
+  return undefined
 }

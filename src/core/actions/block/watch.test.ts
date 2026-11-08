@@ -2,6 +2,7 @@ import { expect, test } from 'vitest'
 
 import {
   Actions,
+  Chain,
   Client,
   fallback,
   http,
@@ -254,6 +255,146 @@ test('emitMissed: backfills skipped blocks', async () => {
     watch.off()
 
     expect(numbers).toEqual([1n, 2n, 3n, 4n, 5n])
+  } finally {
+    await server.close()
+  }
+})
+
+test('emitMissed: backfills skipped blocks in order across batches', async () => {
+  const server = await blockServer([1n, 13n])
+  try {
+    const missedClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 50,
+    })
+
+    const pairs: (bigint | undefined)[][] = []
+    const watch = Actions.block.watch(missedClient, { emitMissed: true })
+    watch.onBlock((block, prevBlock) =>
+      pairs.push([block.number!, prevBlock?.number]),
+    )
+
+    await expect
+      .poll(() => pairs.length, { interval: 25, timeout: 2_000 })
+      .toBe(13)
+    watch.off()
+
+    expect(pairs).toEqual(
+      Array.from({ length: 13 }, (_, i) => [
+        BigInt(i + 1),
+        i === 0 ? undefined : BigInt(i),
+      ]),
+    )
+  } finally {
+    await server.close()
+  }
+})
+
+test('emitMissed: defaults to polling less than twice per block', async () => {
+  const results: Record<string, bigint[]> = {}
+  for (const [blockTag, blockTime] of [
+    ['latest', 50],
+    ['latest', 1_000],
+    ['pending', 50],
+    ['safe', 50],
+    ['finalized', 50],
+  ] as const) {
+    const server = await blockServer([1n, 5n])
+    try {
+      const chainClient = Client.create({
+        chain: Chain.from({ blockTime, id: 1 }),
+        transport: http(server.url),
+        pollingInterval: 50,
+      })
+
+      const numbers: bigint[] = []
+      const watch = Actions.block.watch(chainClient, { blockTag })
+      watch.onBlock((block) => numbers.push(block.number!))
+
+      await expect
+        .poll(() => numbers.at(-1), { interval: 25, timeout: 2_000 })
+        .toBe(5n)
+      watch.off()
+
+      results[`${blockTag}, blockTime: ${blockTime}`] = numbers
+    } finally {
+      await server.close()
+    }
+  }
+
+  expect(results).toMatchInlineSnapshot(`
+    {
+      "finalized, blockTime: 50": [
+        1n,
+        5n,
+      ],
+      "latest, blockTime: 1000": [
+        1n,
+        5n,
+      ],
+      "latest, blockTime: 50": [
+        1n,
+        2n,
+        3n,
+        4n,
+        5n,
+      ],
+      "pending, blockTime: 50": [
+        1n,
+        2n,
+        3n,
+        4n,
+        5n,
+      ],
+      "safe, blockTime: 50": [
+        1n,
+        5n,
+      ],
+    }
+  `)
+})
+
+test('emitMissed: caps the default catch-up at 100 blocks', async () => {
+  // Both watchers read the head from `numbers`; pushing a new head after the
+  // first poll makes every later poll see a 102-block gap.
+  const numbers = [1n]
+  const server = await blockServer(numbers)
+  try {
+    const chainClient = Client.create({
+      chain: Chain.from({ blockTime: 50, id: 1 }),
+      transport: http(server.url),
+      pollingInterval: 50,
+    })
+
+    const defaultNumbers: bigint[] = []
+    const explicitNumbers: bigint[] = []
+    const defaultWatch = Actions.block.watch(chainClient)
+    defaultWatch.onBlock((block) => defaultNumbers.push(block.number!))
+    const explicitWatch = Actions.block.watch(chainClient, {
+      emitMissed: true,
+    })
+    explicitWatch.onBlock((block) => explicitNumbers.push(block.number!))
+
+    await expect
+      .poll(() => [defaultNumbers.length, explicitNumbers.length], {
+        interval: 25,
+        timeout: 2_000,
+      })
+      .toEqual([1, 1])
+    numbers.push(103n)
+    await expect
+      .poll(() => [defaultNumbers.at(-1), explicitNumbers.at(-1)], {
+        interval: 25,
+        timeout: 2_000,
+      })
+      .toEqual([103n, 103n])
+    defaultWatch.off()
+    explicitWatch.off()
+
+    expect(defaultNumbers).toEqual([1n, 103n])
+    expect(explicitNumbers).toEqual(
+      Array.from({ length: 103 }, (_, i) => BigInt(i + 1)),
+    )
   } finally {
     await server.close()
   }

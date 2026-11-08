@@ -210,44 +210,6 @@ test('behavior: expiry too soon', async () => {
   expect(error).toBeInstanceOf(Actions.accessKey.AccessKeyExpiryInPastError)
 })
 
-test.runIf(tempo.adminKeys)(
-  'behavior: errors about another key stay off the admin signer',
-  async () => {
-    const adminKey = Account.fromP256(P256.randomPrivateKey(), {
-      access: account,
-    })
-    await Actions.accessKey.authorizeSync(client, {
-      accessKey: adminKey,
-      admin: true,
-    })
-    const childKey = Account.fromP256(P256.randomPrivateKey(), {
-      access: account,
-    })
-    const expiry = Math.floor((Date.now() + 30_000) / 1000)
-    await Actions.accessKey.authorizeSync(client, {
-      account: adminKey,
-      accessKey: childKey,
-      expiry,
-    })
-
-    const exists = await Actions.accessKey
-      .authorize(client, { account: adminKey, accessKey: childKey, expiry })
-      .catch((error) => error)
-    const missing = await Actions.accessKey
-      .revokeSync(client, {
-        account: adminKey,
-        accessKey: Account.fromP256(P256.randomPrivateKey(), {
-          access: account,
-        }),
-      })
-      .catch((error) => error)
-
-    expect(exists).toBeInstanceOf(Actions.accessKey.AccessKeyAlreadyExistsError)
-    expect(exists.accessKey).toBe(childKey.accessKeyAddress)
-    expect(missing.name).toMatchInlineSnapshot(`"TempoExecutionError"`)
-  },
-)
-
 test('behavior: action hints come first', async () => {
   const accessKey = await setupAccessKey()
 

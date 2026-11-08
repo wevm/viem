@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
-import { Chain, http, Transport } from 'viem'
+import { Chain, fallback, http, Transport } from 'viem'
 import { RpcClient } from 'viem/utils'
 
 const url = anvil.mainnet.rpcUrl.http
@@ -460,6 +460,72 @@ describe('http', () => {
     }
   })
 
+  test('does not retry a method refusal with a retryable HTTP status', async () => {
+    const errors = []
+    for (const error of [
+      { code: -32601, message: 'method not allowed' },
+      { code: -32004, message: 'method not supported' },
+    ]) {
+      // A retry would receive the second, successful response.
+      const responses = [
+        { status: 403, body: { error } },
+        { status: 200, body: { result: '0x1' } },
+      ]
+      const server = await Http.createServer((_req, res) => {
+        const { status, body } = responses.shift()!
+        res.writeHead(status, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(body))
+      })
+      try {
+        const transport = http(server.url, {
+          retryCount: 1,
+          retryDelay: 0,
+        }).setup()
+        errors.push(
+          await transport
+            .request({ method: 'eth_wagmi' })
+            .catch((error) => error),
+        )
+      } finally {
+        await server.close()
+      }
+    }
+
+    expect(errors).toMatchInlineSnapshot(`
+      [
+        [RpcResponse.MethodNotFoundError: method not allowed],
+        [RpcResponse.MethodNotSupportedError: method not supported],
+      ]
+    `)
+  })
+
+  test('retries another JSON-RPC error with a 403 status', async () => {
+    // Only the first request is refused.
+    const refusals = [{ error: { code: -32000, message: 'rate limited' } }]
+    const server = await Http.createServer((_req, res) => {
+      const refusal = refusals.shift()
+      if (refusal) {
+        res.writeHead(403, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(refusal))
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(ok('0x1'))
+    })
+    try {
+      const transport = http(server.url, {
+        retryCount: 1,
+        retryDelay: 0,
+      }).setup()
+
+      const result = await transport.request({ method: 'eth_blockNumber' })
+
+      expect(result).toMatchInlineSnapshot(`"0x1"`)
+    } finally {
+      await server.close()
+    }
+  })
+
   test('times out when the response body stalls', async () => {
     const server = await Http.createServer((_req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -563,6 +629,240 @@ describe('http', () => {
       ])
       expect(a).toBe('0x1')
       expect(b).toBe('0x1')
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('batches separate transports with other headers', async () => {
+    const server = await Http.createServer(async (req, res) => {
+      let raw = ''
+      for await (const chunk of req) raw += chunk
+      const requests = JSON.parse(raw) as { id: number }[]
+      const result = req.headers.authorization === 'Bearer a' ? '0x1' : '0xa'
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify(
+          requests.map(({ id }) => ({ id, jsonrpc: '2.0', result })),
+        ),
+      )
+    })
+    try {
+      const results = []
+      for (const useFallback of [false, true]) {
+        const create = (authorization: string) => {
+          const transport = http(server.url, {
+            batch: true,
+            fetchOptions: { headers: { Authorization: authorization } },
+            retryCount: 0,
+          })
+          return (useFallback ? fallback([transport]) : transport).setup()
+        }
+        const a = create('Bearer a')
+        const b = create('Bearer b')
+        results.push(
+          await Promise.all([
+            a.request({ method: 'eth_chainId' }),
+            b.request({ method: 'eth_chainId' }),
+          ]),
+        )
+      }
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          [
+            "0x1",
+            "0xa",
+          ],
+          [
+            "0x1",
+            "0xa",
+          ],
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('batches requests from the same transport', async () => {
+    const server = await Http.createServer(async (req, res) => {
+      let raw = ''
+      for await (const chunk of req) raw += chunk
+      const requests = JSON.parse(raw) as { id: number; method: string }[]
+      const result = requests.map(({ method }) => method)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify(
+          requests.map(({ id }) => ({ id, jsonrpc: '2.0', result })),
+        ),
+      )
+    })
+    try {
+      const results = []
+      for (const useFallback of [false, true]) {
+        const transport = http(server.url, { batch: true })
+        const factory = useFallback ? fallback([transport]) : transport
+        const a = factory.setup()
+        const b = factory.setup()
+        results.push(
+          await Promise.all([
+            a.request({ method: 'eth_a' }),
+            b.request({ method: 'eth_b' }),
+          ]),
+        )
+      }
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          [
+            [
+              "eth_a",
+              "eth_b",
+            ],
+            [
+              "eth_a",
+              "eth_b",
+            ],
+          ],
+          [
+            [
+              "eth_a",
+              "eth_b",
+            ],
+            [
+              "eth_a",
+              "eth_b",
+            ],
+          ],
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('batches separate chain default URLs of the same transport', async () => {
+    const createServer = (result: string) =>
+      Http.createServer(async (req, res) => {
+        let raw = ''
+        for await (const chunk of req) raw += chunk
+        const requests = JSON.parse(raw) as { id: number }[]
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(
+          JSON.stringify(
+            requests.map(({ id }) => ({ id, jsonrpc: '2.0', result })),
+          ),
+        )
+      })
+    const a = await createServer('0x1')
+    const b = await createServer('0xa')
+    try {
+      const transport = http(undefined, { batch: true })
+      const setup = (url: string) =>
+        transport.setup({
+          chain: Chain.from({ id: 1, rpcUrls: { http: url } }),
+        })
+
+      const results = await Promise.all([
+        setup(a.url).request({ method: 'eth_chainId' }),
+        setup(b.url).request({ method: 'eth_chainId' }),
+      ])
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          "0x1",
+          "0xa",
+        ]
+      `)
+    } finally {
+      await a.close()
+      await b.close()
+    }
+  })
+
+  test('sends fetchOptions.headers given as an object, Headers, or tuples', async () => {
+    const server = await Http.createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        ok({
+          authorization: req.headers.authorization,
+          contentType: req.headers['content-type'],
+        }),
+      )
+    })
+    try {
+      const url = new URL(server.url)
+      url.username = 'testuser'
+      url.password = 'testpass'
+      const headers = {
+        Authorization: 'Bearer custom-token',
+        'cOnTent-TyPe': 'application/custom-json',
+      }
+
+      const results = []
+      for (const headers_ of [
+        headers,
+        new Headers(headers),
+        Object.entries(headers),
+      ]) {
+        const transport = http(url.toString(), {
+          fetchOptions: { headers: headers_ },
+        }).setup()
+        results.push(await transport.request({ method: 'eth_chainId' }))
+      }
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "authorization": "Bearer custom-token",
+            "contentType": "application/custom-json",
+          },
+          {
+            "authorization": "Bearer custom-token",
+            "contentType": "application/custom-json",
+          },
+          {
+            "authorization": "Bearer custom-token",
+            "contentType": "application/custom-json",
+          },
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('passes plain-object headers to onFetchRequest', async () => {
+    const server = await Http.createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        ok({
+          authorization: req.headers.authorization,
+          contentType: req.headers['content-type'],
+          foo: req.headers['x-foo'],
+        }),
+      )
+    })
+    try {
+      const url = new URL(server.url)
+      url.username = 'testuser'
+      url.password = 'testpass'
+      const transport = http(url.toString(), {
+        onFetchRequest(_, init) {
+          return { ...init, headers: { ...init.headers, 'X-Foo': 'bar' } }
+        },
+      }).setup()
+
+      const result = await transport.request({ method: 'eth_chainId' })
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "authorization": "Basic dGVzdHVzZXI6dGVzdHBhc3M=",
+          "contentType": "application/json",
+          "foo": "bar",
+        }
+      `)
     } finally {
       await server.close()
     }

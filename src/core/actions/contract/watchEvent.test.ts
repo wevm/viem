@@ -144,6 +144,101 @@ test('batch: false emits one log per call', async () => {
   }
 })
 
+test('polling: reads blocks from a `fromBlock` of 0 or 1 without filters', async () => {
+  const results: Record<string, unknown> = {}
+  for (const fromBlock of [0n, 1n, 2n]) {
+    const queries: unknown[] = []
+    const server = await Http.createServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        const request = JSON.parse(body)
+        const reply = (() => {
+          if (request.method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'method not found' } }
+          if (request.method === 'eth_blockNumber') return { result: '0x5' }
+          if (request.method === 'eth_getLogs') {
+            const { fromBlock, toBlock } = request.params[0]
+            queries.push({ fromBlock, toBlock })
+            return {
+              result: [makeLog(a, b, 1n, { blockNumber: 3n, logIndex: 0 })],
+            }
+          }
+          return { result: null }
+        })()
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', ...reply }))
+      })
+    })
+    try {
+      const seqClient = Client.create({
+        transport: http(server.url, { retryCount: 0 }),
+        pollingInterval: 25,
+      })
+
+      const blockNumbers: unknown[] = []
+      const watch = Actions.contract.watchEvent(seqClient, {
+        abi,
+        address,
+        eventName: 'Transfer',
+        fromBlock,
+      })
+      watch.onLogs((logs) => {
+        for (const log of logs) blockNumbers.push(log.blockNumber)
+      })
+
+      await expect
+        .poll(() => blockNumbers, { interval: 25, timeout: 2_000 })
+        .toHaveLength(1)
+      watch.off()
+
+      results[`fromBlock: ${fromBlock}`] = { blockNumbers, queries }
+    } finally {
+      await server.close()
+    }
+  }
+
+  expect(results).toMatchInlineSnapshot(`
+    {
+      "fromBlock: 0": {
+        "blockNumbers": [
+          3n,
+        ],
+        "queries": [
+          {
+            "fromBlock": "0x0",
+            "toBlock": "0x5",
+          },
+        ],
+      },
+      "fromBlock: 1": {
+        "blockNumbers": [
+          3n,
+        ],
+        "queries": [
+          {
+            "fromBlock": "0x1",
+            "toBlock": "0x5",
+          },
+        ],
+      },
+      "fromBlock: 2": {
+        "blockNumbers": [
+          3n,
+        ],
+        "queries": [
+          {
+            "fromBlock": "0x2",
+            "toBlock": "0x5",
+          },
+        ],
+      },
+    }
+  `)
+})
+
 test('onError: invokes the listener when polling fails', async () => {
   const bad = Client.create({
     transport: http('http://127.0.0.1:1'),

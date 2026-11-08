@@ -10,6 +10,7 @@ import {
   AccountConfig,
   AccountOperation,
   type AccountSimulation,
+  KeyAuthorization,
   SignatureEnvelope,
   TransactionReceipt as TransactionReceiptTempo,
   TransactionRequest as TransactionRequestTempo,
@@ -19,6 +20,7 @@ import {
 
 import type * as viem_Account from '../core/Account.js'
 import * as Chain from '../core/Chain.js'
+import type * as Client from '../core/Client.js'
 import { getCode } from '../core/actions/address/getCode.js'
 import { read } from '../core/actions/contract/read.js'
 import { get as getTransaction } from '../core/actions/transaction/get.js'
@@ -168,6 +170,7 @@ type PrepareAccount = {
     | KeyAuthorizationManager.KeyAuthorizationManager
     | undefined
   keyType?: 'configurable' | 'p256' | 'secp256k1' | 'webAuthn' | undefined
+  delegate?: ConfigurableAccount | undefined
   source?: string | undefined
 }
 
@@ -175,6 +178,7 @@ type PrepareAccount = {
 type PrepareRequest = TransactionRequest & {
   account?: Address.Address | PrepareAccount | undefined
   chain?: (Chain.Chain & { feeToken?: Address.Address | undefined }) | undefined
+  parameters?: readonly string[] | undefined
 }
 
 /**
@@ -256,10 +260,41 @@ export const chainConfig = {
       return TxEnvelopeTempo.getSignPayload(envelope)
     },
     prepare: [
-      async (r, { client, phase }) => {
+      async (r, { client, error, phase }) => {
         const request = r as PrepareRequest
         const account_ = request.account
         const account = typeof account_ === 'string' ? undefined : account_
+
+        // The node refuses an authorization of a registered key, so the fill
+        // retries without it.
+        if (phase === 'afterFillTransactionError') {
+          const refused =
+            error instanceof BaseError &&
+            !!error.walk((cause) =>
+              (cause as BaseError).details?.includes('KeyAlreadyExists'),
+            )
+          const pending = refused ? await getPending(request) : undefined
+          if (!pending) return undefined
+          await pending.manager.remove(pending.key)
+          const { keyAuthorization: _, ...retry } = request
+          return retry as Record<string, unknown>
+        }
+
+        // Without a successful fill, the node has not checked the attached
+        // authorization.
+        if (phase === 'beforeFillParameters') {
+          if (
+            typeof request.gas !== 'undefined' ||
+            !request.parameters?.includes('gas')
+          )
+            return request as Record<string, unknown>
+          const pending = await getPending(request)
+          if (pending && (await isRegistered(client, pending.key))) {
+            await pending.manager.remove(pending.key)
+            delete request.keyAuthorization
+          }
+          return request as Record<string, unknown>
+        }
 
         if (request.hash) {
           if (
@@ -376,6 +411,15 @@ export const chainConfig = {
           } else if (type === 'p256' || type === 'secp256k1') {
             request.keyType = type
             request.keyData = undefined
+          } else if (
+            type === 'configurable' &&
+            'delegate' in signer &&
+            signer.delegate
+          ) {
+            // A configurable access key (TIP-1111) signs as its `keyId`
+            // delegate.
+            request.keyType = 'configurable'
+            request.keyData = undefined
           }
           if ('accessKeyAddress' in signer && signer.accessKeyAddress)
             request.keyId = signer.accessKeyAddress
@@ -431,6 +475,26 @@ export const chainConfig = {
             config,
             local,
           })
+        }
+
+        // A configurable account acting as an access key (TIP-1111). The node
+        // models the delegate's owner quorum inside a keychain signature.
+        const delegate =
+          account?.source === 'accessKey' ? account.delegate : undefined
+        if (delegate) {
+          const config =
+            delegate.config ??
+            ((client.transport as { accounts?: boolean }).accounts === true
+              ? await getConfig(client, { address: delegate.address })
+              : undefined)
+          if (!config)
+            throw new Error(
+              'An account config is required to prepare a transaction.',
+            )
+          request.accountSimulation = {
+            ...getAccountSimulation({ config, local: delegate }),
+            signer: delegate.address,
+          }
         }
 
         // Use expiring nonces for concurrent transactions (TIP-1009).
@@ -497,39 +561,41 @@ export const chainConfig = {
                 if (
                   keyAuthorization.expiry != null &&
                   BigInt(keyAuthorization.expiry) <= now
-                ) {
+                )
                   await keyAuthorizationManager.remove(key)
-                } else {
-                  const metadata = (await read(client, {
-                    abi: Abis.accountKeychain,
-                    address: Addresses.accountKeychain,
-                    args: [address, accessKey],
-                    functionName: 'getKey',
-                  })) as {
-                    keyId: Address.Address
-                    expiry: bigint
-                    isRevoked: boolean
-                  }
-
-                  if (
-                    metadata.keyId.toLowerCase() === accessKey.toLowerCase() &&
-                    !metadata.isRevoked &&
-                    metadata.expiry > now
-                  )
-                    await keyAuthorizationManager.remove(key)
-                  else request.keyAuthorization = keyAuthorization
-                }
+                else if (
+                  // The fill checks the authorization, so it needs no
+                  // separate read.
+                  (request.parameters?.includes('gas') &&
+                    typeof request.gas === 'undefined') ||
+                  !(await isRegistered(client, key))
+                )
+                  request.keyAuthorization = keyAuthorization
+                else await keyAuthorizationManager.remove(key)
               }
             }
           }
         }
+
+        const keyAuthorizationSimulation = getKeyAuthorizationSimulation(
+          request.keyAuthorization,
+        )
+        if (keyAuthorizationSimulation)
+          request.keyAuthorizationSimulation = keyAuthorizationSimulation
 
         if (!request.feeToken && request.chain?.feeToken)
           request.feeToken = request.chain.feeToken
 
         return request as Record<string, unknown>
       },
-      { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
+      {
+        runAt: [
+          'beforeFillTransaction',
+          'afterFillTransactionError',
+          'beforeFillParameters',
+          'afterFillParameters',
+        ],
+      },
     ],
     replacement: Replacement.transactionReplacement,
     serialize(
@@ -554,12 +620,19 @@ export const chainConfig = {
         if (!envelope.accountSimulation || !envelope.signatures)
           return undefined
 
-        if (!envelope.from)
+        const { from } = envelope
+        if (!from)
           throw new Error(
             'A configurable account sender is required for signing.',
           )
+        const { signer = from } = envelope.accountSimulation
+        // A configurable access key (TIP-1111) approves the keychain digest
+        // bound to the sender.
+        const delegated = !Address.isEqual(signer, from)
+        const config = AccountConfig.from(envelope.accountSimulation.config)
         const payload = TxEnvelopeTempo.getSignPayload(
           TxEnvelopeTempo.from(envelope),
+          delegated ? { from } : {},
         )
         const signatures = envelope.signatures.map((approval) =>
           parseApproval(approval),
@@ -567,13 +640,20 @@ export const chainConfig = {
         const sorted = SignatureEnvelope.sortApprovals({
           payload,
           signatures,
-          account: envelope.from!,
-          config: AccountConfig.from(envelope.accountSimulation.config),
+          account: signer,
+          config,
         })
-        return SignatureEnvelope.from({
-          account: envelope.from!,
-          config: AccountConfig.from(envelope.accountSimulation.config),
+        const inner = SignatureEnvelope.from({
+          account: signer,
+          config,
           signatures: sorted,
+        })
+        if (!delegated) return inner
+        return SignatureEnvelope.from({
+          inner,
+          type: 'keychain',
+          userAddress: from,
+          version: 'v2',
         })
       })()
 
@@ -656,40 +736,91 @@ export const chainConfig = {
       // Access-key (keychain) verification: the key must be authorized,
       // unexpired, and not revoked on the AccountKeychain.
       if (envelope.type === 'keychain' && mode === 'allowAccessKey') {
-        // v2 keychain envelopes sign keccak256(0x04 || hash || userAddress).
-        const innerPayload =
-          envelope.version === 'v2'
-            ? Hash.keccak256(Hex.concat('0x04', hash, address))
-            : hash
+        const { inner, userAddress, version } = envelope
+        if (!Address.isEqual(userAddress, address)) return false
+        const block = blockHash
+          ? { blockHash, requireCanonical }
+          : typeof blockNumber === 'bigint'
+            ? { blockNumber }
+            : { blockTag }
+        const getKey = (accessKey: Address.Address) =>
+          read(client, {
+            ...block,
+            abi: Abis.accountKeychain,
+            address: Addresses.accountKeychain,
+            args: [address, accessKey],
+            functionName: 'getKey',
+          }) as Promise<{
+            expiry: bigint
+            isRevoked: boolean
+            signatureType: number
+          }>
+        const isActive = (key: { expiry: bigint; isRevoked: boolean }) =>
+          !key.isRevoked && key.expiry > BigInt(Math.floor(Date.now() / 1000))
 
+        // The signature verifier rejects configurable access key signatures
+        // (TIP-1111), so the grant and the delegate's current quorum are
+        // checked separately.
+        if (inner.type === 'configurable') {
+          if (version !== 'v2') return false
+          const [key, valid] = await Promise.all([
+            getKey(inner.account),
+            read(client, {
+              ...block,
+              abi: Abis.signatureVerifier,
+              address: Addresses.signatureVerifier,
+              args: [
+                inner.account,
+                Hash.keccak256(Hex.concat('0x04', hash, address)),
+                SignatureEnvelope.serialize(inner),
+              ],
+              functionName: 'verifyConfigurableAccount',
+            }).catch(catchRevert),
+          ])
+          if (!isActive(key)) return false
+          // Key type 3 is a configurable account.
+          if (!valid || key.signatureType === 3) return valid
+          // A delegate with a config commitment uses its grant whatever key
+          // type the grant stores.
+          const commitment = await read(client, {
+            ...block,
+            abi: Abis.configurableAccount,
+            address: Addresses.configurableAccount,
+            args: [inner.account],
+            functionName: 'getConfigCommitment',
+          })
+          return BigInt(commitment) !== 0n
+        }
+
+        // From T14 the precompile also rejects a key ID with a config
+        // commitment (a retired root key) and an inner signature type other
+        // than the stored key type.
+        if (version === 'v2')
+          return await read(client, {
+            ...block,
+            abi: Abis.signatureVerifier,
+            address: Addresses.signatureVerifier,
+            args: [address, hash, signature],
+            functionName: 'verifyKeychain',
+          }).catch(catchRevert)
+
+        // The precompile rejects legacy (V1) envelopes, whose inner signature
+        // signs `hash` directly.
         const accessKeyAddress = (() => {
           try {
             return SignatureEnvelope.extractAddress({
-              payload: innerPayload,
-              signature: envelope.inner,
+              payload: hash,
+              signature: inner,
             })
           } catch {
             return undefined
           }
         })()
         if (!accessKeyAddress) return false
-
-        const key = (await read(client, {
-          abi: Abis.accountKeychain,
-          address: Addresses.accountKeychain,
-          args: [address, accessKeyAddress],
-          blockHash,
-          blockNumber,
-          blockTag,
-          functionName: 'getKey',
-          requireCanonical,
-        })) as { expiry: bigint; isRevoked: boolean }
-
-        if (key.isRevoked) return false
-        if (key.expiry <= BigInt(Math.floor(Date.now() / 1000))) return false
-        return SignatureEnvelope.verify(envelope.inner, {
+        if (!isActive(await getKey(accessKeyAddress))) return false
+        return SignatureEnvelope.verify(inner, {
           address: accessKeyAddress,
-          payload: innerPayload,
+          payload: hash,
         })
       }
 
@@ -707,17 +838,7 @@ export const chainConfig = {
             : typeof blockNumber === 'bigint'
               ? { blockNumber }
               : { blockTag }),
-        }).catch((error) => {
-          if (
-            error instanceof BaseError &&
-            error.walk(
-              (cause) =>
-                cause instanceof ContractError.ContractFunctionRevertedError,
-            )
-          )
-            return false
-          throw error
-        })
+        }).catch(catchRevert)
 
       // Stateless envelopes (P256, WebAuthn) verify without a network request
       // for EOAs (including the Tempo default delegation); contracts fall
@@ -751,6 +872,18 @@ export const chainConfig = {
   | 'verifyHash'
 > as ChainConfig
 
+/** Returns `false` for a reverted verification call, and rethrows other errors. */
+function catchRevert(error: unknown): false {
+  if (
+    error instanceof BaseError &&
+    error.walk(
+      (cause) => cause instanceof ContractError.ContractFunctionRevertedError,
+    )
+  )
+    return false
+  throw error
+}
+
 /** Untyped envelopes are assumed tempo (they flow from `toEnvelope`). @internal */
 function isTempoEnvelope(
   envelope: Envelope | TxEnvelope,
@@ -775,6 +908,7 @@ function isTempoRequest(request: Record<string, unknown>): boolean {
     typeof request.keyId !== 'undefined' ||
     typeof request.keyType !== 'undefined' ||
     typeof request.accountSimulation !== 'undefined' ||
+    typeof request.keyAuthorizationSimulation !== 'undefined' ||
     typeof request.owner !== 'undefined' ||
     typeof request.nonceKey !== 'undefined' ||
     typeof request.signature !== 'undefined' ||
@@ -843,6 +977,48 @@ function encodeRequest(
   return rpc
 }
 
+/**
+ * Returns the access key's pending authorization manager entry when the
+ * request carries its authorization.
+ */
+async function getPending(request: PrepareRequest) {
+  const { account, keyAuthorization } = request
+  if (!keyAuthorization || typeof account !== 'object') return undefined
+  if (account.source !== 'accessKey') return undefined
+  const manager = account.keyAuthorizationManager
+  const accessKey = account.accessKeyAddress
+  const chainId = request.chainId ?? request.chain?.id
+  if (!manager || !accessKey || typeof chainId !== 'number') return undefined
+  const key = { address: account.address, accessKey, chainId }
+  const pending = await manager.get(key)
+  // Stores may normalize the casing of the serialized authorization.
+  if (
+    !pending ||
+    KeyAuthorization.serialize(pending).toLowerCase() !==
+      KeyAuthorization.serialize(keyAuthorization).toLowerCase()
+  )
+    return undefined
+  return { key, manager }
+}
+
+/** Whether the chain has registered an access key that is not revoked or expired. */
+async function isRegistered(
+  client: Client.Client,
+  key: KeyAuthorizationManager.Key,
+) {
+  const metadata = (await read(client, {
+    abi: Abis.accountKeychain,
+    address: Addresses.accountKeychain,
+    args: [key.address, key.accessKey],
+    functionName: 'getKey',
+  })) as { keyId: Address.Address; expiry: bigint; isRevoked: boolean }
+  return (
+    Address.isEqual(metadata.keyId, key.accessKey) &&
+    !metadata.isRevoked &&
+    metadata.expiry > BigInt(Math.floor(Date.now() / 1000))
+  )
+}
+
 /** Builds a bounded account spec for gas simulation. */
 function getAccountSimulation(options: {
   config: AccountConfig.Config
@@ -861,6 +1037,42 @@ function getAccountSimulation(options: {
     }),
     config,
   }
+}
+
+/**
+ * Builds a simulation of the owner quorum signing a key authorization whose
+ * configurable account approvals do not reach its threshold yet.
+ */
+function getKeyAuthorizationSimulation(
+  keyAuthorization: KeyAuthorization.Signed | undefined,
+): AccountSimulation.Spec | undefined {
+  if (keyAuthorization?.signature.type !== 'configurable') return undefined
+  const { account, signatures } = keyAuthorization.signature
+  const config = AccountConfig.from(keyAuthorization.signature.config)
+  const payload = AccountConfig.getSignPayload({
+    account,
+    config,
+    payload: KeyAuthorization.getSignPayload(keyAuthorization),
+  })
+  const signed = new Set<string>()
+  let weight = 0
+  for (const signature of signatures) {
+    const owner = (() => {
+      try {
+        return SignatureEnvelope.extractAddress({ payload, signature })
+      } catch {
+        return undefined
+      }
+    })()
+    const entry = owner
+      ? config.owners.find((entry) => Address.isEqual(entry.owner, owner))
+      : undefined
+    if (!entry || signed.has(entry.owner.toLowerCase())) continue
+    signed.add(entry.owner.toLowerCase())
+    weight += Number(entry.weight)
+  }
+  if (weight >= Number(config.threshold)) return undefined
+  return { ...getAccountSimulation({ config }), signer: account }
 }
 
 /** Returns signature metadata for conservative gas estimation. */

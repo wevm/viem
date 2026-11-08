@@ -2466,10 +2466,6 @@ export default defineConfig({
                 link: '/tempo/guides/access-keys/manage',
               },
               {
-                text: 'Admin Access Keys',
-                link: '/tempo/guides/access-keys/admin',
-              },
-              {
                 text: 'Witnesses',
                 link: '/tempo/guides/access-keys/witnesses',
               },
@@ -2628,6 +2624,31 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Gateway',
+            badge: { text: 'EXP', variant: 'warning' },
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/gateway' },
+              {
+                text: 'Connect & Pay',
+                link: '/tempo/guides/gateway/connect',
+              },
+              {
+                text: 'Use with Tempo Wallet',
+                link: '/tempo/guides/gateway/tempo-wallet',
+              },
+              { text: 'Run Inference', link: '/tempo/guides/gateway/ai' },
+              {
+                text: 'Store Objects & State',
+                link: '/tempo/guides/gateway/storage',
+              },
+              {
+                text: 'Run Sandboxes',
+                link: '/tempo/guides/gateway/compute',
+              },
+            ],
+          },
+          {
             badge: { text: 'EXP', variant: 'warning' },
             text: 'Configurable Accounts',
             collapsed: true,
@@ -2702,11 +2723,6 @@ export default defineConfig({
             items: [
               {
                 badge: badge('public'),
-                text: 'Check Admin',
-                link: '/tempo/actions/accessKey.isAdmin',
-              },
-              {
-                badge: badge('public'),
                 text: 'Check Burned Witness',
                 link: '/tempo/actions/accessKey.isWitnessBurned',
               },
@@ -2724,11 +2740,6 @@ export default defineConfig({
                 badge: badge('public'),
                 text: 'Verify Hash',
                 link: '/tempo/actions/accessKey.verifyHash',
-              },
-              {
-                badge: badge('public'),
-                text: 'Watch Admin Authorizations',
-                link: '/tempo/actions/accessKey.watchAdminAuthorized',
               },
               {
                 badge: badge('public'),
@@ -3684,6 +3695,11 @@ export default defineConfig({
       {
         text: 'Utilities',
         items: [
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Gateway',
+            link: '/tempo/utilities/Gateway',
+          },
           {
             badge: { text: 'EXP', variant: 'warning' },
             text: 'Scopes',

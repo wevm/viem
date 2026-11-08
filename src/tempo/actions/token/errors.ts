@@ -369,11 +369,14 @@ export const errorResolvers: Resolvers = {
       context.base.error.args as readonly unknown[] | undefined
     )?.[2] as Address.Address | undefined
     if (!token) return undefined
-    const decimals = await context.read({
-      address: token,
-      abi: Abis.tip20,
-      functionName: 'decimals',
-    })
+    // TIP-20 decimals are always six.
+    const decimals = isTip20(token)
+      ? 6
+      : await context.read({
+          address: token,
+          abi: Abis.tip20,
+          functionName: 'decimals',
+        })
     return new TokenInsufficientBalanceError({ ...context.base, decimals })
   },
   'PolicyForbids()': async (context) => {

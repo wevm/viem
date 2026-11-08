@@ -4,7 +4,11 @@ import type { Errors, Hex } from 'ox'
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
-import { isAbortError } from '../../internal/errors.js'
+import {
+  type AbortErrorType,
+  getAbortError,
+  isAbortError,
+} from '../../internal/errors.js'
 import { observe } from '../../internal/observe.js'
 import {
   type WithRetryParameters,
@@ -62,6 +66,7 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
     hash,
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
+    signal,
     timeout = 180_000,
   } = options
 
@@ -149,6 +154,7 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
   function emitReceipt(value: Receipt) {
     settledReceipt = value
     clearTimeout(timer)
+    signal?.removeEventListener('abort', onAbort)
     for (const listener of receiptListeners) listener(value)
     resolve(value)
     unobserve?.()
@@ -156,6 +162,7 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
   function emitError(error: Error) {
     settledError = error
     clearTimeout(timer)
+    signal?.removeEventListener('abort', onAbort)
     for (const listener of errorListeners) listener(error)
     reject(error)
     unobserve?.()
@@ -163,11 +170,17 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
   function emitReplaced(response: Replacement) {
     for (const listener of replacedListeners) listener(response)
   }
+  function onAbort() {
+    emitError(getAbortError(signal))
+  }
 
   unobserve = observe(
     observerId,
     { onError: emitError, onReceipt: emitReceipt, onReplaced: emitReplaced },
     (emit) => {
+      // An aborted wait settles below without polling.
+      if (signal?.aborted) return
+
       let watch: watchNumber.Watcher | undefined
       // Set when the observer is torn down (e.g. via `off`) before the async
       // setup below has created the watch, so it does not start a stray poll.
@@ -199,6 +212,40 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
             if (checkReplacement && !transaction)
               transaction = await getTransaction(client, { hash })
             receipt = await getReceipt(client, { hash })
+          } else {
+            if (!confirmed(receipt.blockNumber)) return
+
+            // A reorg can remove a receipt or change its execution outcome,
+            // so a receipt found on an earlier block is refreshed once it has
+            // enough confirmations. Other errors keep the cached receipt for
+            // the next block.
+            const refreshed = await getReceipt(client, {
+              hash: receipt.transactionHash,
+            }).catch((error) =>
+              error instanceof TransactionReceiptNotFoundError
+                ? null
+                : undefined,
+            )
+            if (refreshed === undefined) return
+            if (!refreshed) {
+              receipt = undefined
+              // The replaced transaction stays known, so the block scan can
+              // find its replacement again.
+              if (!replacementResponse) transaction = undefined
+              replacementResponse = undefined
+              return
+            }
+            receipt = refreshed
+            if (replacementResponse) {
+              if (
+                replacementResponse.transaction.blockHash !==
+                refreshed.blockHash
+              )
+                replacementResponse.transaction = await getTransaction(client, {
+                  hash: refreshed.transactionHash,
+                })
+              replacementResponse.transactionReceipt = refreshed
+            }
           }
           if (!confirmed(receipt.blockNumber)) return
           if (replacementResponse) emit.onReplaced(replacementResponse)
@@ -415,6 +462,9 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
     },
   )
 
+  if (signal?.aborted) onAbort()
+  else signal?.addEventListener('abort', onAbort, { once: true })
+
   return {
     receipt: promise,
     onReceipt(fn) {
@@ -444,6 +494,7 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
       if (closed) return
       closed = true
       clearTimeout(timer)
+      signal?.removeEventListener('abort', onAbort)
       receiptListeners.clear()
       replacedListeners.clear()
       errorListeners.clear()
@@ -524,6 +575,12 @@ export declare namespace waitForReceipt {
     retryCount?: WithRetryParameters['retryCount'] | undefined
     /** Time to wait (in ms) between retries. @default exponential backoff */
     retryDelay?: WithRetryParameters['delay'] | undefined
+    /**
+     * Signal that stops the wait. Aborting rejects {@link Watcher.receipt}
+     * with the signal's reason and stops polling and retries. It does not
+     * cancel the transaction.
+     */
+    signal?: AbortSignal | undefined
     /** Optional timeout (in ms) before giving up. @default 180_000 */
     timeout?: number | undefined
   }
@@ -564,6 +621,7 @@ export declare namespace waitForReceipt {
     Watcher<chain>
 
   type ErrorType =
+    | AbortErrorType
     | getBlock.ErrorType
     | getReceipt.ErrorType
     | getTransaction.ErrorType

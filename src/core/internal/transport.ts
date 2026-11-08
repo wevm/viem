@@ -171,6 +171,10 @@ export function shouldRetry(error: Error): boolean {
     if (code === -32005 || code === -32007) return true // limit exceeded
     if (code === -32603) return true // internal
     if (code === 429) return true // too many requests (JSON-RPC body form)
+    // The node does not serve the method, so a retry gets the same refusal
+    // whatever the HTTP status (e.g. a 403 refusing an unserved method).
+    if (code === RpcResponse.MethodNotFoundError.code) return false
+    if (code === RpcResponse.MethodNotSupportedError.code) return false
     // A JSON-RPC error from a non-2xx response also retries by its HTTP status.
     if (typeof status !== 'number') return false
   }

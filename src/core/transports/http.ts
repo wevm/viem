@@ -2,6 +2,7 @@ import { RpcResponse } from 'ox'
 import type { RpcSchema } from 'ox'
 
 import * as promise from '../internal/promise.js'
+import { uid } from '../internal/uid.js'
 import * as RpcClient from '../../utils/RpcClient.js'
 import * as Transport from '../Transport.js'
 
@@ -37,6 +38,9 @@ export function http<raw extends boolean = false>(
   options: http.Options<raw> = {},
 ): Http<raw> {
   const { batch } = options
+  // Scopes batches to this `http()` instance, so transports with other
+  // headers or request configuration never share a batch.
+  const batchId = uid()
   return Transport.from({
     key: options.key ?? 'http',
     name: options.name ?? 'HTTP JSON-RPC',
@@ -72,7 +76,7 @@ export function http<raw extends boolean = false>(
             : undefined
 
           const { schedule } = promise.createBatchScheduler({
-            id: `${url_}.${getSignalId(opts?.signal)}`,
+            id: `${batchId}.${url_}.${getSignalId(opts?.signal)}`,
             wait,
             shouldSplitBatch: (requests) => requests.length > batchSize,
             fn: (body: RpcClient.RpcRequest[]) =>
@@ -112,7 +116,10 @@ export function http<raw extends boolean = false>(
 
 export declare namespace http {
   type Options<raw extends boolean = boolean> = {
-    /** Whether to batch JSON-RPC requests. @default false */
+    /**
+     * Whether to batch JSON-RPC requests. Requests are batched per `http()`
+     * instance. @default false
+     */
     batch?:
       | boolean
       | {

@@ -5,13 +5,7 @@ import { Value } from 'ox'
 
 import { Actions, Token } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import {
-  Account,
-  Client,
-  Hardfork,
-  Actions as TempoActions,
-  http,
-} from 'viem/tempo'
+import { Account, Client, Actions as TempoActions, http } from 'viem/tempo'
 
 import * as constants from './constants.js'
 import * as TempoAccounts from './tempoAccountsInstance.js'
@@ -30,12 +24,6 @@ export const accounts = constants.accounts
 const hardfork = process.env.VITE_TEMPO_HARDFORK
 const legacyHardfork =
   hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
-
-/** Whether the node can create admin access keys, which T14 removed (TIP-1137). An unpinned node runs every hardfork. */
-export const adminKeys =
-  !!hardfork &&
-  hardfork !== 'Tnext' &&
-  Hardfork.lt(hardfork.toLowerCase(), 't14')
 
 /** Dev key that owns and provisions local Zone factories. */
 export const zoneAdminKey = accounts[legacyHardfork ? 1 : 0].privateKey

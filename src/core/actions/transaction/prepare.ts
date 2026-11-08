@@ -95,6 +95,8 @@ export async function prepare<
 
   let request = { ...options } as Record<string, any>
   request.account = account_
+  // Hooks read the parameters being prepared.
+  request.parameters = parameters
 
   const hook = (() => {
     const value = chain?.transaction?.prepare
@@ -126,10 +128,11 @@ export async function prepare<
 
   let nonce = request.nonce
   if (hook?.fn && hook.runAt.includes('beforeFillTransaction')) {
-    request = await hook.fn(
-      { ...request, chain },
-      { client, phase: 'beforeFillTransaction' },
-    )
+    request =
+      (await hook.fn(
+        { ...request, chain },
+        { client, phase: 'beforeFillTransaction' },
+      )) ?? request
     nonce ??= request.nonce
     // The hook may replace the account with a sender derived from request fields.
     const sender = request.account ?? request.from
@@ -185,7 +188,7 @@ export async function prepare<
     | Capabilities.Extract<'fillTransaction', 'ReturnType'>
     | undefined
   if (attemptFill) {
-    try {
+    const fillRequest = async (request: Record<string, any>) => {
       const result = await fill(client, {
         ...omitControl(request),
         account,
@@ -194,7 +197,6 @@ export async function prepare<
       } as never)
 
       supportsFill.set(client.uid, true)
-      capabilities = result.capabilities
 
       const {
         chainId: filledChainId,
@@ -212,7 +214,7 @@ export async function prepare<
       const effectiveType = request.type ?? type
       const legacyish =
         effectiveType === 'legacy' || effectiveType === 'eip2930'
-      request = {
+      const filled: Record<string, any> = {
         ...request,
         ...(from ? { from } : {}),
         ...(type && !request.type ? { type } : {}),
@@ -248,17 +250,20 @@ export async function prepare<
       // a requested fee token the fee payer did not sign is dropped.
       const sponsored =
         rest.feePayerSignature !== undefined && rest.feePayerSignature !== null
-      if (sponsored) delete request.feeToken
+      if (sponsored) delete filled.feeToken
       for (const key of customFields) {
         const value = rest[key]
         if (
           value !== undefined &&
           value !== null &&
-          (sponsored || !(key in request))
+          (sponsored || !(key in filled))
         )
-          request[key] = value
+          filled[key] = value
       }
-    } catch (err) {
+      return { capabilities: result.capabilities, request: filled }
+    }
+    // Unless the error must surface, fall back to manual preparation below.
+    const recover = (err: unknown) => {
       if (isAbortError(err)) throw err
       if (err instanceof RpcError.ExecutionRevertedError) throw err
       if (
@@ -267,7 +272,28 @@ export async function prepare<
       )
         throw err
       if (isUnsupportedFill(err)) supportsFill.set(client.uid, false)
-      // Otherwise, fall back to manual preparation below.
+    }
+    try {
+      ;({ capabilities, request } = await fillRequest(request))
+    } catch (err) {
+      if (isAbortError(err)) throw err
+      // The hook may return a corrected request, which is filled once more.
+      const retry =
+        hook?.fn && hook.runAt.includes('afterFillTransactionError')
+          ? await hook.fn(
+              { ...request, chain },
+              { client, error: err, phase: 'afterFillTransactionError' },
+            )
+          : undefined
+      if (!retry) recover(err)
+      else {
+        request = retry
+        try {
+          ;({ capabilities, request } = await fillRequest(request))
+        } catch (err) {
+          recover(err)
+        }
+      }
     }
   }
 
@@ -276,10 +302,11 @@ export async function prepare<
   if (typeof nonce !== 'undefined') request.nonce = nonce
 
   if (hook?.fn && hook.runAt.includes('beforeFillParameters'))
-    request = await hook.fn(
-      { ...request, chain },
-      { client, phase: 'beforeFillParameters' },
-    )
+    request =
+      (await hook.fn(
+        { ...request, chain },
+        { client, phase: 'beforeFillParameters' },
+      )) ?? request
 
   if (
     parameters.includes('nonce') &&
@@ -399,10 +426,11 @@ export async function prepare<
     })
 
   if (hook?.fn && hook.runAt.includes('afterFillParameters'))
-    request = await hook.fn(
-      { ...request, chain },
-      { client, phase: 'afterFillParameters' },
-    )
+    request =
+      (await hook.fn(
+        { ...request, chain },
+        { client, phase: 'afterFillParameters' },
+      )) ?? request
 
   transactionRequest.assert(request)
 

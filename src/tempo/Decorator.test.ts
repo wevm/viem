@@ -278,12 +278,6 @@ test('access key lifecycle', async () => {
       }),
     ).toMatchObject({ remaining: 1_000_000n })
     expect(
-      await client.accessKey.isAdmin({
-        accessKey: limitedKey,
-        account: account.address,
-      }),
-    ).toBe(false)
-    expect(
       await client.accessKey.isWitnessBurned({
         account: account.address,
         witness,
@@ -343,36 +337,6 @@ test('access key lifecycle', async () => {
       expiry: Math.floor((Date.now() + 30_000) / 1_000),
     })
     await waitForHash(await client.accessKey.revoke({ accessKey: revokedKey }))
-
-    await waitForWatchers(watchers)
-  } finally {
-    stopWatchers(watchers)
-  }
-})
-
-test.runIf(tempo.adminKeys)('admin access key lifecycle', async () => {
-  const watchers = [observe(client.accessKey.watchAdminAuthorized())]
-  try {
-    const adminKey = Account.fromP256(P256.randomPrivateKey(), {
-      access: account,
-    })
-    await client.accessKey.authorizeSync({ accessKey: adminKey, admin: true })
-
-    expect(
-      await client.accessKey.isAdmin({
-        accessKey: adminKey,
-        account: account.address,
-      }),
-    ).toBe(true)
-
-    const hash = Hex.random(32)
-    expect(
-      await client.accessKey.verifyHash({
-        account: account.address,
-        hash,
-        signature: await adminKey.sign({ hash }),
-      }),
-    ).toBe(true)
 
     await waitForWatchers(watchers)
   } finally {

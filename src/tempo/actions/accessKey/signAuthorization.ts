@@ -23,8 +23,8 @@ import { saveAuthorization } from './saveAuthorization.js'
  * transient user activation.
  *
  * When the client transport is a relay with the `Relay.keyAuthorization` plugin,
- * an authorization signed by the account is saved to the relay, which attaches it
- * to the access key's next transaction.
+ * the authorization is saved to the relay, which attaches it to the access key's
+ * next transaction.
  *
  * @param client - Client.
  * @param parameters - Authorization fields, or a stored operation hash.
@@ -108,8 +108,7 @@ export async function signAuthorization<
       const signature = SignatureEnvelope.serialize(
         SignatureEnvelope.from(await sign({ hash: prepared.signPayload })),
       )
-      const { accessKey, admin, chainId, expiry, limits, scopes, witness } =
-        prepared
+      const { accessKey, chainId, expiry, limits, scopes, witness } = prepared
       const { accessKeyAddress, keyType: type } = resolveAccessKey(accessKey)
       const keyAuthorization = KeyAuthorization.from({
         account: account.address,
@@ -122,7 +121,9 @@ export async function signAuthorization<
         }),
         type,
         ...(witness ? { witness } : {}),
-        ...(admin ? { isAdmin: true } : { expiry, limits, scopes }),
+        expiry,
+        limits,
+        scopes,
       } as KeyAuthorization.Signed)
       return { keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }
     })()
@@ -193,11 +194,10 @@ export async function signAuthorization<
       ...rest,
     },
   )
-  // Admin-signed authorizations can only be submitted by the admin key.
+  // Relays with key authorization storage attach it to the access key's next transaction.
   if (
     'keyAuthorization' in client.transport &&
-    client.transport.keyAuthorization &&
-    !('source' in account_ && account_.source === 'accessKey')
+    client.transport.keyAuthorization
   )
     await saveAuthorization(client, { keyAuthorization }).catch((error) => {
       // Remote relays without key authorization storage do not expose this method.

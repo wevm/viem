@@ -1204,6 +1204,110 @@ describe('behavior: chain hooks', () => {
   })
 })
 
+describe('behavior: afterFillTransactionError', () => {
+  // Rejects the fill of a request sending `1n`, and fills any other request.
+  async function getHookClient(
+    hook: Chain.Chain.Transaction.PrepareFn,
+    methods: string[],
+  ) {
+    const url = await Http.createRpcProxy(
+      anvil.mainnet.rpcUrl.http,
+      ({ method, params }) => {
+        methods.push(method)
+        if (method !== 'eth_fillTransaction') return undefined
+        const [request] = params as [{ value?: string }]
+        if (request.value === '0x1')
+          return { error: { code: -32003, message: 'Refused.' } }
+        return {
+          result: {
+            raw: '0x02deadbeef',
+            tx: {
+              chainId: '0x1',
+              from: account,
+              gas: '0x5208',
+              maxFeePerGas: '0x77359400',
+              maxPriorityFeePerGas: '0x3b9aca00',
+              nonce: '0x7',
+              type: '0x2',
+            },
+          },
+        }
+      },
+    )
+    return Client.create({
+      chain: Chain.from({
+        id: 1,
+        name: 'Ethereum',
+        nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+        rpcUrls: { http: url },
+        transaction: {
+          prepare: [hook, { runAt: ['afterFillTransactionError'] }],
+        },
+      }),
+      transport: http(url),
+    })
+  }
+
+  test('retries the fill once with the request the hook returns', async () => {
+    const methods: string[] = []
+    const hookClient = await getHookClient(
+      (request, { error }) =>
+        error instanceof Error && error.message.includes('Refused.')
+          ? { ...request, value: 2n }
+          : undefined,
+      methods,
+    )
+
+    const { request } = await Actions.transaction.prepare(hookClient, {
+      account,
+      to,
+      value: 1n,
+    })
+
+    expect({
+      gas: request.gas,
+      methods,
+      nonce: request.nonce,
+      value: request.value,
+    }).toMatchInlineSnapshot(`
+      {
+        "gas": 21000n,
+        "methods": [
+          "eth_fillTransaction",
+          "eth_fillTransaction",
+        ],
+        "nonce": 7,
+        "value": 2n,
+      }
+    `)
+  })
+
+  test('continues without a retry when the hook returns `undefined`', async () => {
+    const methods: string[] = []
+    const hookClient = await getHookClient(() => undefined, methods)
+
+    const { request } = await Actions.transaction.prepare(hookClient, {
+      account,
+      to,
+      value: 1n,
+    })
+
+    expect({
+      fills: methods.filter((method) => method === 'eth_fillTransaction'),
+      gas: typeof request.gas,
+      value: request.value,
+    }).toMatchInlineSnapshot(`
+      {
+        "fills": [
+          "eth_fillTransaction",
+        ],
+        "gas": "bigint",
+        "value": 1n,
+      }
+    `)
+  })
+})
+
 describe('behavior: fees', () => {
   test('chain fees.maxPriorityFeePerGas (bigint)', async () => {
     const chain = anvil.mainnet

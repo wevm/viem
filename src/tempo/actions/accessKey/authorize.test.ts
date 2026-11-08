@@ -141,61 +141,6 @@ describe('authorizeSync', () => {
       }),
     ).rejects.toThrow()
   })
-
-  test.runIf(tempo.adminKeys)('behavior: admin', async () => {
-    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-      access: account,
-    })
-
-    const { receipt } = await Actions.accessKey.authorizeSync(client, {
-      accessKey,
-      admin: true,
-    })
-
-    expect(receipt.status).toBe('success')
-
-    const isAdmin = await Actions.accessKey.isAdmin(client, {
-      account: account.address,
-      accessKey,
-    })
-    expect(isAdmin).toBe(true)
-  })
-
-  test.runIf(tempo.adminKeys)(
-    'behavior: admin key authorizes another key',
-    async () => {
-      // 1. Root authorizes an admin key.
-      const adminKey = Account.fromP256(P256.randomPrivateKey(), {
-        access: account,
-      })
-      await Actions.accessKey.authorizeSync(client, {
-        accessKey: adminKey,
-        admin: true,
-      })
-
-      // 2. The admin key authorizes a new (regular) key on behalf of the account.
-      const childKey = Account.fromP256(P256.randomPrivateKey(), {
-        access: account,
-      })
-      const { receipt } = await Actions.accessKey.authorizeSync(client, {
-        account: adminKey,
-        accessKey: childKey,
-        expiry: expiry(),
-      })
-
-      expect(receipt.status).toBe('success')
-
-      // 3. Verify the child key is registered on the account.
-      const key = await Actions.accessKey.getMetadata(client, {
-        account: account.address,
-        accessKey: childKey,
-      })
-      expect(key.isRevoked).toBe(false)
-      expect(key.address.toLowerCase()).toBe(
-        childKey.accessKeyAddress.toLowerCase(),
-      )
-    },
-  )
 })
 
 describe('authorize', () => {

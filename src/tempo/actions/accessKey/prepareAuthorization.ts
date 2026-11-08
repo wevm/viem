@@ -88,18 +88,6 @@ export namespace prepareAuthorization {
   } & {
     /** The access key to authorize. */
     accessKey: resolveAccessKey.Parameters
-    /**
-     * Whether to authorize the key as an admin key. Admin keys are unrestricted
-     * and can manage the account's other access keys; `expiry`, `limits`, and
-     * `scopes` are ignored. Requires the T6 hardfork.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     *
-     * @deprecated Admin access keys are removed at T14 by
-     * [TIP-1137](https://docs.tempo.xyz/protocol/tips/tip-1137). From T14 the Tempo
-     * node rejects key authorizations that provision an admin key.
-     */
-    admin?: boolean | undefined
     /** The chain ID. */
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */

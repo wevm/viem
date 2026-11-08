@@ -11,26 +11,7 @@ const client = tempo.getClient({ account, feeToken: tempo.pathUsd })
 const hash =
   '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
 
-test.runIf(tempo.adminKeys)('default', async () => {
-  const adminKey = Account.fromP256(P256.randomPrivateKey(), {
-    access: account,
-  })
-  await Actions.accessKey.authorizeSync(client, {
-    accessKey: adminKey,
-    admin: true,
-  })
-
-  const signature = await adminKey.sign({ hash })
-
-  const valid = await Actions.accessKey.verifyHash(client, {
-    account: account.address,
-    hash,
-    signature,
-  })
-  expect(valid).toBe(true)
-})
-
-test('behavior: non-admin key returns false by default', async () => {
+test('behavior: access key returns false by default', async () => {
   const accessKey = Account.fromP256(P256.randomPrivateKey(), {
     access: account,
   })

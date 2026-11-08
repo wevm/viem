@@ -1,5 +1,12 @@
-import { AbiFunction, Authorization, TransactionRequest, Value } from 'ox'
-import { describe, expect, test, vi } from 'vitest'
+import {
+  AbiFunction,
+  Authorization,
+  Blobs,
+  Hex,
+  TransactionRequest,
+  Value,
+} from 'ox'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
 
 import {
   Account,
@@ -17,6 +24,10 @@ import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
+import * as Http from '~test/http.js'
+import { kzg } from '~test/kzg.js'
+import { withResolvers } from '../../internal/promise.js'
+import { wait } from '../../internal/wait.js'
 
 const client = anvil.getClient(anvil.mainnet)
 const testClient = client.extend(testActions())
@@ -713,6 +724,217 @@ describe('behavior: nonceManager', () => {
         ],
       }
     `)
+  })
+})
+
+describe('behavior: node stops waiting (error code 4)', () => {
+  // Anvil can take a while to verify the proofs of a blob transaction.
+  const transport = (url: string) => http(url, { timeout: 60_000 })
+  const upstream = Client.create({
+    transport: transport(anvil.mainnet.rpcUrl.http),
+  })
+
+  // A node that puts the transaction in the mempool, waits out the requested
+  // `timeout`, then answers `eth_sendRawTransactionSync` with error code 4.
+  // Without a `timeout`, it answers at once.
+  async function createNode(getData: (hash: Hex.Hex) => unknown) {
+    // Blocks are mined by the test, after the node pools the transaction.
+    await testClient.block.setAutomine({ enabled: false })
+    onTestFinished(() => testClient.block.setAutomine({ enabled: true }))
+
+    const pooled = withResolvers<Hex.Hex>()
+    const url = await Http.createRpcProxy(
+      anvil.mainnet.rpcUrl.http,
+      async ({ method, params }) => {
+        if (method !== 'eth_sendRawTransactionSync') return undefined
+        const hash = await upstream.request({
+          method: 'eth_sendRawTransaction',
+          params: [params[0] as Hex.Hex],
+        })
+        pooled.resolve(hash)
+        await wait((params[1] as number | undefined) ?? 0)
+        return {
+          error: {
+            code: 4,
+            data: getData(hash),
+            message: 'Transaction confirmation timeout',
+          },
+        }
+      },
+    )
+    return {
+      client: Client.create({ transport: transport(url) }),
+      pooled: pooled.promise,
+    }
+  }
+
+  test('returns the receipt', async () => {
+    await setup()
+    const node = await createNode((hash) => hash)
+
+    const [receipt, hash] = await Promise.all([
+      Actions.transaction.sendSync(node.client, {
+        account: local,
+        pollingInterval: 50,
+        to,
+        value: Value.fromEther('1'),
+      }),
+      node.pooled.then(async (hash) => {
+        await testClient.block.mine({ blocks: 1 })
+        return hash
+      }),
+    ])
+
+    expect(receipt.transactionHash).toBe(hash)
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('args: throwOnReceiptRevert', async () => {
+    await setup()
+    const { address } = await contract.deploy(client, {
+      bytecode: generated.ErrorsExample.bytecode.object,
+    })
+    const node = await createNode((hash) => hash)
+
+    const [error, hash] = await Promise.all([
+      Actions.transaction
+        .sendSync(node.client, {
+          account: local,
+          data: AbiFunction.encodeData(
+            AbiFunction.fromAbi(generated.ErrorsExample.abi, 'revertWrite'),
+          ),
+          gas: 100_000n,
+          pollingInterval: 50,
+          throwOnReceiptRevert: true,
+          to: address,
+        })
+        .catch((error: Error) => error),
+      node.pooled.then(async (hash) => {
+        await testClient.block.mine({ blocks: 1 })
+        return hash
+      }),
+    ])
+
+    // The hash depends on the chain state, so the assertions compare it with
+    // the one that the node pooled.
+    expect((error as Error).name).toMatchInlineSnapshot(
+      `"TransactionReceipt.RevertedError"`,
+    )
+    expect((error as Error).message).toContain(
+      `Transaction with hash "${hash}" reverted.`,
+    )
+  })
+
+  test('throws when `timeout` runs out', async () => {
+    await setup()
+    const node = await createNode((hash) => hash)
+
+    const error = await Actions.transaction
+      .sendSync(node.client, {
+        account: local,
+        pollingInterval: 50,
+        timeout: 1_000,
+        to,
+        value: Value.fromEther('1'),
+      })
+      .catch((error: Error) => error)
+    const hash = await node.pooled
+    await testClient.block.mine({ blocks: 1 })
+
+    // The hash depends on the chain state, so the assertions compare it with
+    // the one that the node pooled.
+    expect((error as Error).name).toMatchInlineSnapshot(
+      `"RpcError.ExecutionError"`,
+    )
+    expect((error as Error).message).toContain(
+      `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,
+    )
+  })
+
+  test('returns the receipt when the error holds no hash', async () => {
+    await setup()
+    const node = await createNode(() => undefined)
+
+    const [receipt, hash] = await Promise.all([
+      Actions.transaction.sendSync(node.client, {
+        account: local,
+        pollingInterval: 50,
+        to,
+        value: Value.fromEther('1'),
+      }),
+      node.pooled.then(async (hash) => {
+        await testClient.block.mine({ blocks: 1 })
+        return hash
+      }),
+    ])
+
+    expect(receipt.transactionHash).toBe(hash)
+  })
+
+  test(
+    'returns the receipt of a blob transaction',
+    { timeout: 60_000 },
+    async () => {
+      await setup()
+      const node = await createNode(() => undefined)
+
+      const [receipt, hash] = await Promise.all([
+        Actions.transaction.sendSync(node.client, {
+          account: local,
+          blobs: Blobs.from(Hex.fromString('hello world')),
+          kzg,
+          maxFeePerBlobGas: Value.fromGwei('30'),
+          pollingInterval: 50,
+          to: '0x0000000000000000000000000000000000000000',
+        }),
+        node.pooled.then(async (hash) => {
+          await testClient.block.mine({ blocks: 1 })
+          return hash
+        }),
+      ])
+
+      expect(receipt.transactionHash).toBe(hash)
+    },
+  )
+
+  test('keeps the nonce', async () => {
+    await setup()
+    const node = await createNode(() => undefined)
+    const account = {
+      ...local,
+      // Reads `latest`, like nodes whose `pending` count leaves out the
+      // mempool. A reset would hand out the pending transaction's nonce.
+      nonceManager: NonceManager.from({
+        source: {
+          get: ({ address, client }) =>
+            Actions.address.getTransactionCount(client, {
+              address,
+              blockTag: 'latest',
+            }),
+          set() {},
+        },
+      }),
+    }
+
+    await expect(
+      Actions.transaction.sendSync(node.client, {
+        account,
+        pollingInterval: 50,
+        timeout: 1_000,
+        to,
+        value: Value.fromEther('1'),
+      }),
+    ).rejects.toThrowError('Timed out while waiting for transaction with hash')
+    const hash = await node.pooled
+    const nonce = await account.nonceManager.consume({
+      address: account.address,
+      chainId: 1,
+      client,
+    })
+    await testClient.block.mine({ blocks: 1 })
+
+    const transaction = await Actions.transaction.get(client, { hash })
+    expect(BigInt(nonce) - transaction.nonce).toBe(1n)
   })
 })
 

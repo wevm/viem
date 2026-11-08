@@ -48,6 +48,32 @@ describe('shouldRetry', () => {
     `)
   })
 
+  test('does not retry a method refusal whatever the HTTP status', () => {
+    const error = (status: number, code: number) =>
+      new RpcClient.HttpError({
+        rpcError: { code, message: 'rpc' },
+        status,
+        url: 'http://localhost',
+      })
+    expect({
+      limitExceeded: transport.shouldRetry(error(403, -32005)),
+      methodNotFound: transport.shouldRetry(
+        error(403, RpcResponse.MethodNotFoundError.code),
+      ),
+      methodNotSupported: transport.shouldRetry(
+        error(500, RpcResponse.MethodNotSupportedError.code),
+      ),
+      rpcError: transport.shouldRetry(error(403, -32000)),
+    }).toMatchInlineSnapshot(`
+      {
+        "limitExceeded": true,
+        "methodNotFound": false,
+        "methodNotSupported": false,
+        "rpcError": true,
+      }
+    `)
+  })
+
   test('retries when there is no code or status', () => {
     expect(transport.shouldRetry(new Error('network'))).toBe(true)
   })

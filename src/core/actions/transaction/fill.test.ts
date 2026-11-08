@@ -41,14 +41,13 @@ describe.each([
       },
     )
 
-    const { gasPrice, hash, maxFeePerGas, maxPriorityFeePerGas, nonce, ...tx } =
+    const { hash, maxFeePerGas, maxPriorityFeePerGas, nonce, ...tx } =
       transaction
 
     expect(capabilities).toBeUndefined()
     expect(raw).toBeTypeOf('string')
     expect(hash).toBeTypeOf('string')
     expect(nonce).toBeTypeOf('bigint')
-    expect(gasPrice).toBeTypeOf('bigint')
     expect(maxFeePerGas).toBeTypeOf('bigint')
     expect(maxPriorityFeePerGas).toBeTypeOf('bigint')
     expect(tx).toMatchInlineSnapshot(`

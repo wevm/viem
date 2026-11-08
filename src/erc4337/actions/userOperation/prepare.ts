@@ -85,9 +85,10 @@ export async function prepare<
     client,
     paymaster,
   )
-  const paymasterContext = options.paymasterContext
-    ? options.paymasterContext
-    : client.paymasterContext
+  const paymasterContext =
+    options.paymasterContext !== undefined
+      ? options.paymasterContext
+      : client.paymasterContext
 
   let request = {
     ...options,

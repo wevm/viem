@@ -51,7 +51,6 @@ export function tempoActions() {
       getMetadata: (options) => accessKey.getMetadata(client, options),
       getRemainingLimit: (options) =>
         accessKey.getRemainingLimit(client, options),
-      isAdmin: (options) => accessKey.isAdmin(client, options),
       isWitnessBurned: (options) => accessKey.isWitnessBurned(client, options),
       revoke: (options) => accessKey.revoke(client, options),
       revokeSync: (options) => accessKey.revokeSync(client, options),
@@ -67,8 +66,6 @@ export function tempoActions() {
       updateLimit: (options) => accessKey.updateLimit(client, options),
       updateLimitSync: (options) => accessKey.updateLimitSync(client, options),
       verifyHash: (options) => accessKey.verifyHash(client, options),
-      watchAdminAuthorized: (options) =>
-        accessKey.watchAdminAuthorized(client, options),
       watchWitness: (options) => accessKey.watchWitness(client, options),
       watchWitnessBurned: (options) =>
         accessKey.watchWitnessBurned(client, options),
@@ -636,32 +633,6 @@ export type Decorator<
       options: accessKey.getRemainingLimit.Options,
     ) => Promise<accessKey.getRemainingLimit.ReturnType>
     /**
-     * Checks whether an access key is an admin key for an account.
-     *
-     * Returns `true` for the account's root key or for an active admin access
-     * key.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     *
-     * @example
-     * ```ts
-     * import { Client, http } from 'viem/tempo'
-     *
-     * const client = Client.create({ transport: http() })
-     *
-     * const isAdmin = await client.accessKey.isAdmin({
-     *   account: '0x…',
-     *   accessKey: '0x…',
-     * })
-     * ```
-     *
-     * @param options - Options.
-     * @returns Whether the access key is an admin key.
-     */
-    isAdmin: (
-      options: accessKey.isAdmin.Options,
-    ) => Promise<accessKey.isAdmin.ReturnType>
-    /**
      * Checks whether a key-authorization witness has been burned for an
      * account.
      *
@@ -856,11 +827,17 @@ export type Decorator<
      * for the expected account.
      *
      * By default (`admin: true`), returns `true` only if the signature was
-     * produced by the account's root key or an active admin access key. Set
-     * `admin: false` to accept any active access key.
+     * produced by the account's root key. Set `admin: false` to accept any
+     * active access key.
      *
      * Returns `false` for account mismatches, unknown, revoked, or expired
      * access keys. [TIP-1049](https://tips.sh/1049)
+     *
+     * The key of an account with a config commitment (a configurable or
+     * upgraded account) passes neither mode, and an inner signature type other
+     * than the stored key type returns `false`. Configurable access keys
+     * (TIP-1111) revert as an invalid format; verify them with
+     * `client.verifyHash` instead.
      *
      * @example
      * ```ts
@@ -881,29 +858,6 @@ export type Decorator<
     verifyHash: (
       options: accessKey.verifyHash.Options,
     ) => Promise<accessKey.verifyHash.ReturnType>
-    /**
-     * Watches `AdminKeyAuthorized` events on the account keychain.
-     *
-     * Emitted when an admin key is authorized.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     *
-     * @example
-     * ```ts
-     * import { Client, http } from 'viem/tempo'
-     *
-     * const client = Client.create({ transport: http() })
-     *
-     * const watcher = client.accessKey.watchAdminAuthorized()
-     * watcher.onLogs((logs) => console.log(logs))
-     * ```
-     *
-     * @param options - Options.
-     * @returns A watcher handle.
-     */
-    watchAdminAuthorized: (
-      options?: accessKey.watchAdminAuthorized.Options,
-    ) => accessKey.watchAdminAuthorized.ReturnType
     /**
      * Watches `KeyAuthorizationWitness` events on the account keychain.
      *

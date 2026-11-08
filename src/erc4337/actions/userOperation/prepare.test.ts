@@ -1,5 +1,5 @@
 import { Abi, Hex, Value } from 'ox'
-import { beforeAll, expect, test } from 'vitest'
+import { beforeAll, expect, onTestFinished, test } from 'vitest'
 
 import { Client as CoreClient, http } from 'viem'
 import * as accountAbstraction from '~test/account-abstraction.js'
@@ -212,6 +212,69 @@ test('prepare: custom paymaster getData fallback', async () => {
   } finally {
     await server.close()
   }
+})
+
+test('behavior: paymasterContext overrides the client default unless undefined', async () => {
+  // Echoes the received paymaster context back as `paymasterData`.
+  const server = await createServer((req, res) => {
+    let data = ''
+    req.on('data', (chunk) => {
+      data += chunk
+    })
+    req.on('end', () => {
+      const { id, params } = JSON.parse(data)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          id,
+          jsonrpc: '2.0',
+          result: {
+            paymaster: '0x0000000000000000000000000000000000000001',
+            paymasterData: Hex.fromString(
+              JSON.stringify({ context: params[3] }),
+            ),
+            paymasterPostOpGasLimit: '0x0',
+            paymasterVerificationGasLimit: '0x0',
+          },
+        }),
+      )
+    })
+  })
+  onTestFinished(async () => {
+    await server.close()
+  })
+  const paymasterClient = PaymasterClient.create({
+    transport: http(server.url),
+  })
+  const contextClient = BundlerClient.create({
+    account,
+    client: executionClient,
+    paymaster: { getData: paymasterClient.paymaster.getData },
+    paymasterContext: { validUntil: 3735928600 },
+    transport: http(bundler.rpcUrl.http),
+  })
+
+  const contexts = await Promise.all(
+    [undefined, false, 0, '', null].map(async (paymasterContext) => {
+      const { paymasterData } = await prepare(contextClient, {
+        calls: [{ to: recipient }],
+        nonce: 0n,
+        parameters: ['paymaster'],
+        paymasterContext,
+      })
+      return Hex.toString(paymasterData!)
+    }),
+  )
+
+  expect(contexts).toMatchInlineSnapshot(`
+    [
+      "{"context":{"validUntil":3735928600}}",
+      "{"context":false}",
+      "{"context":0}",
+      "{"context":""}",
+      "{"context":null}",
+    ]
+  `)
 })
 
 test('prepare: custom paymaster stub and final data', async () => {

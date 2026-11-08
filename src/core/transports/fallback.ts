@@ -138,6 +138,13 @@ export function fallback<
             if (shouldThrow_(error as Error)) throw error
             // Aborted: do not fall through to the next transport.
             if (opts?.signal?.aborted) throw error
+            // The node accepted the transaction but stopped waiting for its
+            // receipt (EIP-7966), so do not send it to the next one.
+            if (
+              method === 'eth_sendRawTransactionSync' &&
+              isReceiptTimeoutError(error)
+            )
+              throw error
             if (index === ranked.length - 1) throw error
             includes ??= ranked
               .slice(index + 1)
@@ -337,6 +344,27 @@ export declare namespace rankTransports {
     /** Weights to apply to the scores. */
     weights?: RankOptions['weights'] | undefined
   }
+}
+
+/**
+ * Whether `error` (or a cause of it) carries error code `4`, which
+ * `eth_sendRawTransactionSync` returns when the node stops waiting for the
+ * receipt. ox wraps an unknown code as an `InternalError` that keeps the
+ * original error object on `data`, and custom transports can wrap the
+ * provider's error, so the causes and `data` are checked too.
+ *
+ * @internal
+ */
+function isReceiptTimeoutError(error: unknown): boolean {
+  let current: unknown = error
+  while (current && typeof current === 'object') {
+    const value = current as { code?: unknown; data?: unknown; cause?: unknown }
+    if (value.code === 4) return true
+    const data = value.data as { code?: unknown } | undefined
+    if (data && typeof data === 'object' && data.code === 4) return true
+    current = value.cause
+  }
+  return false
 }
 
 /** @internal */

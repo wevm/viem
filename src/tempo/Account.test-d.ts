@@ -1,3 +1,4 @@
+import type { AccountConfig } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 import * as viem_Account from '../core/Account.js'
@@ -102,4 +103,17 @@ test('fromConfig accepts custom local owners', () => {
   )
   Account.fromConfig({ owners: [customOwner] })
   Account.fromConfig({ owners: [{ owner: customOwner, weight: 2 }] })
+})
+
+test('fromConfig returns an access key account with access', () => {
+  const parent = Account.fromSecp256k1(
+    '0x0000000000000000000000000000000000000000000000000000000000000002',
+  )
+  const configurable = Account.fromConfig({ owners: [owner] })
+  const accessKey = Account.fromConfig({ owners: [owner] }, { access: parent })
+
+  expectTypeOf(configurable).toEqualTypeOf<
+    Account.ConfigurableAccount<AccountConfig.Config>
+  >()
+  expectTypeOf(accessKey).toEqualTypeOf<Account.AccessKeyAccount>()
 })

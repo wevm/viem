@@ -192,16 +192,19 @@ export namespace updateConfig {
   }
 
   /**
-   * Extracts the `ConfigurableAccountConfigUpdated` event from logs.
+   * Extracts the last `ConfigurableAccountConfigUpdated` event from logs.
+   *
+   * A first-use account also logs its version-0 registration before the
+   * update, so the last event holds the installed configuration.
    *
    * @param logs - Transaction logs.
    * @returns The configuration update event.
    */
   export function extractEvent(logs: readonly AbiEvent.extractLogs.Log[]) {
-    const [log] = AbiEvent.extractLogs(Abis.configurableAccount, logs, {
+    const log = AbiEvent.extractLogs(Abis.configurableAccount, logs, {
       eventName: 'ConfigurableAccountConfigUpdated',
       strict: true,
-    })
+    }).at(-1)
     if (!log)
       throw new Error('`ConfigurableAccountConfigUpdated` event not found.')
     return log

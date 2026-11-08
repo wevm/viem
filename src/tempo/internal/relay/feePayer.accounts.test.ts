@@ -108,6 +108,48 @@ test('rejects a same-transaction authorization a non-owner signed for a configur
   )
 })
 
+test('sponsors a configurable access key with a same-transaction grant', async () => {
+  const { parent, serialized } = await configurableAccessKey({
+    authorize: true,
+    owners: [userAccount],
+    threshold: 1,
+  })
+
+  const result = (await relay.request({
+    method: 'eth_signRawTransaction',
+    params: [serialized],
+  })) as `0x76${string}`
+  expect(TxEnvelopeTempo.deserialize(result).from).toBe(parent.toLowerCase())
+})
+
+test('rejects a configurable access key below its quorum', async () => {
+  const { serialized } = await configurableAccessKey({
+    authorize: true,
+    owners: [userAccount],
+    threshold: 2,
+  })
+
+  await expect(
+    relay.request({ method: 'eth_signRawTransaction', params: [serialized] }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: Configurable account approvals do not reach quorum.]`,
+  )
+})
+
+test('rejects a configurable access key without a grant', async () => {
+  const { serialized } = await configurableAccessKey({
+    authorize: false,
+    owners: [userAccount],
+    threshold: 1,
+  })
+
+  await expect(
+    relay.request({ method: 'eth_signRawTransaction', params: [serialized] }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: Transaction access key is not authorized for its sender.]`,
+  )
+})
+
 /** Returns a version-zero configurable account config with equally weighted owners. */
 function configurableConfig(
   owners: readonly `0x${string}`[],
@@ -253,5 +295,77 @@ declare namespace configurableKeyAuthorization {
     config: AccountConfig.Config
     /** Account whose approval the authorization signature carries. */
     signer: { sign: (options: { hash: Hex.Hex }) => Promise<Hex.Hex> }
+  }
+}
+
+/** Returns a keychain handoff signed by `owners` of a configurable access key (TIP-1111) for a fresh parent. */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function configurableAccessKey(options: configurableAccessKey.Options) {
+  const { authorize, owners, threshold } = options
+  const parent = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+  const config = configurableConfig(
+    [...owners.map((owner) => owner.address), recipient.address],
+    threshold,
+  )
+  const delegate = AccountConfig.getAddress(config)
+  const keyAuthorization = authorize
+    ? await parent.signKeyAuthorization(
+        { address: delegate, type: 'configurable' },
+        { chainId: BigInt(Tempo.chain.id) },
+      )
+    : undefined
+  const envelope = TxEnvelopeTempo.from({
+    calls: [transfer],
+    chainId: Tempo.chain.id,
+    feePayerSignature: null,
+    gas: 1_000_000n,
+    ...(keyAuthorization ? { keyAuthorization } : {}),
+    maxFeePerGas: 20_000_000_000n,
+    maxPriorityFeePerGas: 1n,
+    nonce: 0n,
+    nonceKey: 1n,
+    validBefore: Math.floor(Date.now() / 1000) + 600,
+  })
+  const hash = AccountConfig.getSignPayload({
+    account: delegate,
+    config,
+    payload: TxEnvelopeTempo.getSignPayload(envelope, {
+      from: parent.address,
+    }),
+  })
+  const signature = SignatureEnvelope.from({
+    inner: SignatureEnvelope.from({
+      account: delegate,
+      config,
+      signatures: await Promise.all(
+        owners.map(async (owner) => ({
+          signature: Signature.from(await owner.sign({ hash })),
+          type: 'secp256k1' as const,
+        })),
+      ),
+    }),
+    type: 'keychain',
+    userAddress: parent.address,
+    version: 'v2',
+  })
+
+  return {
+    parent: parent.address,
+    serialized: TxEnvelopeTempo.serialize(envelope, {
+      format: 'feePayer',
+      sender: parent.address,
+      signature,
+    }),
+  }
+}
+
+declare namespace configurableAccessKey {
+  type Options = {
+    /** Whether the parent grants the access key in the same transaction. */
+    authorize: boolean
+    /** Owners whose approvals the access key signature carries. */
+    owners: readonly Account.RootAccount[]
+    /** Owner weight the access key requires, out of its owners and `recipient`. */
+    threshold: number
   }
 }

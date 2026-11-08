@@ -256,21 +256,35 @@ export declare namespace Chain {
       context: {
         /** The Client preparing the transaction. */
         client: Client.Client
+        /**
+         * Error thrown by `eth_fillTransaction`. Set in the
+         * `afterFillTransactionError` phase.
+         */
+        error?: unknown
         /** Phase the hook is running at. */
         phase: PreparePhase
       },
-    ) => Promise<Record<string, unknown>> | Record<string, unknown>
+    ) =>
+      | Promise<Record<string, unknown> | undefined>
+      | Record<string, unknown>
+      | undefined
 
     /**
      * Phase a {@link Chain.Transaction.PrepareFn} runs at.
      *
      * - `beforeFillTransaction`: before the request is filled via
      *   `eth_fillTransaction`.
+     * - `afterFillTransactionError`: after `eth_fillTransaction` fails. Return
+     *   a request to retry the fill once with it, or `undefined` to continue
+     *   without retrying.
      * - `beforeFillParameters`: before missing parameters are filled.
      * - `afterFillParameters`: after missing parameters are filled.
+     *
+     * In every phase, returning `undefined` keeps the request unchanged.
      */
     type PreparePhase =
       | 'beforeFillTransaction'
+      | 'afterFillTransactionError'
       | 'beforeFillParameters'
       | 'afterFillParameters'
 

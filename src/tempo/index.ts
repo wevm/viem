@@ -64,6 +64,24 @@ export * as ExecutionError from './ExecutionError.js'
 /** Helpers producing unix timestamps for key expiries. */
 export * as Expiry from './Expiry.js'
 
+/**
+ * Wallet-paid inference, object storage, sandboxed compute, and key-value
+ * state on a Tempo Gateway.
+ *
+ * @experimental
+ */
+export * as Gateway from './Gateway.js'
+
+/**
+ * Gateway action decorator for a Client's `.extend`.
+ *
+ * @experimental
+ */
+export {
+  gatewayActions,
+  type Decorator as GatewayActions,
+} from './GatewayDecorator.js'
+
 /** Tempo hardforks & activation helpers. */
 export * as Hardfork from './Hardfork.js'
 

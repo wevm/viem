@@ -53,7 +53,7 @@ export async function authorize<
 export namespace authorize {
   export type Args = Pick<
     Account.signKeyAuthorization.Parameters,
-    'admin' | 'expiry' | 'limits' | 'scopes' | 'witness'
+    'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
     /** Access key to authorize. */
     accessKey: Account.resolveAccessKey.Parameters
@@ -79,7 +79,6 @@ export namespace authorize {
   ): Promise<dispatchSend.ReturnType<action>> {
     const {
       accessKey,
-      admin,
       chainId = client.chain?.id,
       expiry,
       limits,
@@ -94,7 +93,7 @@ export namespace authorize {
     if (chainId === undefined) throw new Error('chainId is required.')
     const keyAuthorization = await Account.signKeyAuthorization(
       account as CoreAccount.Local,
-      { admin, chainId, expiry, key: accessKey, limits, scopes, witness },
+      { chainId, expiry, key: accessKey, limits, scopes, witness },
     )
     return dispatchSend(
       action,

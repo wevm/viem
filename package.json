@@ -144,13 +144,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./dist/index.js",
-      "limit": "102 kB",
+      "limit": "103 kB",
       "import": "*"
     },
     {
       "name": "import { Actions } from 'viem'",
       "path": "./dist/index.js",
-      "limit": "83.5 kB",
+      "limit": "84 kB",
       "import": "{ Actions }"
     },
     {
@@ -162,7 +162,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./dist/chains/index.js",
-      "limit": "97 kB",
+      "limit": "98 kB",
       "import": "*"
     },
     {
@@ -174,7 +174,7 @@
     {
       "name": "import * from 'viem/erc4337'",
       "path": "./dist/erc4337/index.js",
-      "limit": "76 kB",
+      "limit": "76.5 kB",
       "import": "*"
     },
     {
@@ -198,7 +198,7 @@
     {
       "name": "import * from 'viem/tempo'",
       "path": "./dist/tempo/index.js",
-      "limit": "188.5 kB",
+      "limit": "194 kB",
       "import": "*"
     },
     {

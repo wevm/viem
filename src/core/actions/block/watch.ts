@@ -55,11 +55,25 @@ export function watch<
 
   const {
     blockTag = client.blockTag ?? 'latest',
-    emitMissed = false,
     emitOnBegin = false,
     includeTransactions = false as includeTransactions,
     pollingInterval = client.pollingInterval,
   } = options
+
+  // Polling less than twice per block skips blocks, so emit the missed ones
+  // unless told otherwise. `safe` and `finalized` can move by thousands of
+  // blocks at once (such as on Arbitrum) at any polling interval, so they
+  // emit missed blocks only when asked.
+  const blockTime = client.chain?.blockTime
+  const emitMissed =
+    options.emitMissed ??
+    ((blockTag === 'latest' || blockTag === 'pending') &&
+      blockTime !== undefined &&
+      pollingInterval > blockTime / 2)
+  // The default catches up at most 100 blocks, so a long gap, such as a
+  // device waking from sleep, skips to the latest block.
+  const maxMissed =
+    options.emitMissed === undefined ? 100 : Number.POSITIVE_INFINITY
 
   const subscribe = getSubscribe(client.transport)
   const enablePolling = options.poll ?? !subscribe
@@ -96,6 +110,7 @@ export function watch<
         emitMissed,
         emitOnBegin,
         includeTransactions,
+        maxMissed,
         pollingInterval,
       ])
       unwatch = observe(
@@ -115,15 +130,29 @@ export function watch<
                   if (block.number === prevBlock.number) return
 
                   // Backfill the blocks missed between polls when requested.
-                  if (block.number - prevBlock.number > 1n && emitMissed)
-                    for (let i = prevBlock.number + 1n; i < block.number; i++) {
-                      const missed = (await get(client, {
-                        blockNumber: i,
-                        includeTransactions,
-                      })) as Value
-                      emit.onBlock(missed, prevBlock)
-                      prevBlock = missed
+                  // Fetch them in parallel batches so catching up takes a few
+                  // round trips rather than one per block.
+                  const missed = Number(block.number - prevBlock.number) - 1
+                  if (emitMissed && missed > 0 && missed <= maxMissed) {
+                    const batchSize = 10
+                    const start = prevBlock.number + 1n
+                    for (let i = 0; i < missed; i += batchSize) {
+                      const blocks = (await Promise.all(
+                        Array.from(
+                          { length: Math.min(batchSize, missed - i) },
+                          (_, j) =>
+                            get(client, {
+                              blockNumber: start + BigInt(i + j),
+                              includeTransactions,
+                            }),
+                        ),
+                      )) as Value[]
+                      for (const missedBlock of blocks) {
+                        emit.onBlock(missedBlock, prevBlock)
+                        prevBlock = missedBlock
+                      }
                     }
+                  }
                 }
 
                 if (
@@ -284,7 +313,12 @@ export declare namespace watch {
   > = {
     /** The block tag. @default 'latest' */
     blockTag?: blockTag | Block.Tag | undefined
-    /** Whether to emit the missed blocks between polls. */
+    /**
+     * Whether to emit the missed blocks between polls. Defaults to `true` when
+     * `blockTag` is `latest` or `pending` and the polling interval is longer
+     * than half the chain's block time, otherwise `false`. The default skips
+     * gaps of more than 100 blocks.
+     */
     emitMissed?: boolean | undefined
     /** Whether to emit the latest block when the watcher opens. */
     emitOnBegin?: boolean | undefined

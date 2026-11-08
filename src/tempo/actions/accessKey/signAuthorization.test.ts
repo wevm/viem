@@ -151,20 +151,18 @@ test('behavior: with witness', async () => {
   expect(keyAuthorization.witness).toBe(witness)
 })
 
-test('behavior: admin', async () => {
+test('error: access key signer', async () => {
+  const signer = Account.fromP256(P256.randomPrivateKey(), { access: account })
   const accessKey = Account.fromP256(P256.randomPrivateKey(), {
     access: account,
   })
 
-  const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
-    account,
-    accessKey,
-    admin: true,
-  })
-
-  expect(keyAuthorization.isAdmin).toBe(true)
-  // Admin authorizations are unrestricted.
-  expect(keyAuthorization.expiry ?? undefined).toBeUndefined()
-  expect(keyAuthorization.limits ?? undefined).toBeUndefined()
-  expect(keyAuthorization.scopes ?? undefined).toBeUndefined()
+  await expect(
+    Actions.accessKey.signAuthorization(client, {
+      account: signer,
+      accessKey,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[Error: An access key cannot sign key authorizations.]`,
+  )
 })

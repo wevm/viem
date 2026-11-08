@@ -98,6 +98,10 @@ export async function fill<chain extends Chain.Chain | undefined>(
     delete transaction.transactionIndex
     delete transaction.v
     delete transaction.yParity
+    // A node can report `gasPrice` (as `maxFeePerGas`) on an EIP-1559
+    // transaction. Nodes reject a request that carries both.
+    if (typeof transaction.maxFeePerGas !== 'undefined')
+      delete transaction.gasPrice
 
     // Rewrite fields.
     transaction.data = transaction.data ?? transaction.input

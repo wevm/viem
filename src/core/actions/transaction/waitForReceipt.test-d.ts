@@ -85,3 +85,12 @@ test('options: replacement', () => {
     replacement: { from, nonce: 0, nonceKey: 1n },
   })
 })
+
+test('options: signal', () => {
+  const { signal } = new AbortController()
+
+  Actions.transaction.waitForReceipt(client, { hash: '0x', signal })
+
+  // @ts-expect-error `signal` must be an `AbortSignal`.
+  Actions.transaction.waitForReceipt(client, { hash: '0x', signal: true })
+})

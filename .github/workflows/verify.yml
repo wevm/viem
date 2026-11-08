@@ -230,7 +230,8 @@ jobs:
           CI: true
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_ACCOUNTS: 'true'
-          VITE_TEMPO_TAG: sha-179347b
+          # Built from tempoxyz/tempo main (96bdeb7).
+          VITE_TEMPO_TAG: sha-96bdeb7
 
   test-tempo-fuzz:
     if: ${{ inputs.full }}

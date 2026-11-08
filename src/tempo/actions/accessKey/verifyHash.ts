@@ -19,11 +19,17 @@ import type * as TempoErrors from '../../errors.js'
  * for the expected account.
  *
  * By default (`admin: true`), returns `true` only if the signature was
- * produced by the account's root key or an active admin access key. Set
- * `admin: false` to accept any active access key.
+ * produced by the account's root key. Set `admin: false` to accept any active
+ * access key.
  *
  * Returns `false` for account mismatches, unknown, revoked, or expired
  * access keys. [TIP-1049](https://tips.sh/1049)
+ *
+ * The key of an account with a config commitment (a configurable or upgraded
+ * account) passes neither mode, and an inner signature type other than the
+ * stored key type returns `false`. Configurable access keys (TIP-1111) revert
+ * as an invalid format; verify them with `Actions.verifyHash` from `viem`
+ * instead.
  *
  * @example
  * ```ts
@@ -61,9 +67,9 @@ export namespace verifyHash {
     /** Account address the signature is expected to belong to. */
     account: Address.Address
     /**
-     * Whether to require the signer to be the account's root key or an
-     * active admin access key. Set to `false` to accept any active access
-     * key. @default true
+     * Whether to require the signer to be the account's root key, which an
+     * account with a config commitment does not have. Set to `false` to accept
+     * any active access key. @default true
      */
     admin?: boolean | undefined
     /** Original message hash that was signed. */

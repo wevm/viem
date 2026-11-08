@@ -1,4 +1,4 @@
-import { Ens } from 'ox'
+import { AbiFunction, AbiParameters, Ens, type Hex } from 'ox'
 import * as anvil from '~test/anvil.js'
 import {
   createBatchGatewayErrorServer,
@@ -6,13 +6,22 @@ import {
   setOffchainResolver,
   setVitalikResolver,
 } from '~test/ens.js'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { createServer } from '~test/http.js'
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  onTestFinished,
+  test,
+} from 'vitest'
 
 import { Actions, Chain, Client, http, publicActions } from 'viem'
 import { CcipRead } from 'viem/utils'
 import { mainnet, optimism } from 'viem/chains'
 
 import { getAddress } from './getAddress.js'
+import { universalResolverResolveAbi } from './internal/abis.js'
 
 const client = Client.create({
   chain: mainnet,
@@ -342,5 +351,163 @@ test('decorator', async () => {
     decorated.ens.getAddress({ name: Ens.normalize('wevm.eth') }),
   ).resolves.toMatchInlineSnapshot(
     `"0xd2135CfB216b74109775236E36d4b433F1DF507B"`,
+  )
+})
+
+describe('behavior: raw coinType responses', () => {
+  const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+  const resolveWithGateways = AbiFunction.fromAbi(
+    universalResolverResolveAbi,
+    'resolveWithGateways',
+  )
+
+  // Answers every request with a Universal Resolver result wrapping `data`.
+  async function createResolver() {
+    let data: Hex.Hex = '0x'
+    const server = await createServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const { id } = JSON.parse(body)
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          id,
+          jsonrpc: '2.0',
+          result: AbiFunction.encodeResult(resolveWithGateways, [
+            data,
+            resolverAddress,
+          ]),
+        }),
+      )
+    })
+    onTestFinished(async () => {
+      await server.close()
+    })
+    return {
+      client: Client.create({ transport: http(server.url) }),
+      resolve(response: Hex.Hex, coinType: bigint) {
+        data = response
+        return getAddress(this.client, {
+          coinType,
+          name: 'pokersback.com',
+          universalResolverAddress: resolverAddress,
+        }).catch((error) => error.name)
+      },
+    }
+  }
+
+  test.each(
+    (['abi', 'raw'] as const).flatMap((encoding) =>
+      [60n, 0x80000000n, Ens.toCoinType(10n), 0xffffffffn].map((coinType) => ({
+        coinType,
+        encoding,
+      })),
+    ),
+  )(
+    'decodes $encoding coinType $coinType responses with leading zeros',
+    async ({ coinType, encoding }) => {
+      const resolver = await createResolver()
+
+      const addresses = []
+      for (const address of [
+        '0x1111111111111111111111111111111111111111',
+        '0x0011111111111111111111111111111111111111',
+        '0x0000111111111111111111111111111111111111',
+        '0x0111111111111111111111111111111111111111',
+        '0x0000000000000000000000000000000000000001',
+        '0x0000000000000000000000000000000000000020',
+        '0x0000000000000000000000000000000000000040',
+        '0x0000000000000000000000000000000000000000',
+      ] as const)
+        addresses.push(
+          await resolver.resolve(
+            encoding === 'raw'
+              ? address
+              : AbiParameters.encode([{ type: 'address' }], [address]),
+            coinType,
+          ),
+        )
+
+      expect(addresses).toMatchInlineSnapshot(`
+        [
+          "0x1111111111111111111111111111111111111111",
+          "0x0011111111111111111111111111111111111111",
+          "0x0000111111111111111111111111111111111111",
+          "0x0111111111111111111111111111111111111111",
+          "0x0000000000000000000000000000000000000001",
+          "0x0000000000000000000000000000000000000020",
+          "0x0000000000000000000000000000000000000040",
+          null,
+        ]
+      `)
+    },
+  )
+
+  test('preserves dynamic-bytes responses with leading zeros', async () => {
+    const resolver = await createResolver()
+
+    await expect(
+      resolver.resolve(
+        AbiParameters.encode(
+          [{ type: 'bytes' }],
+          ['0x0011111111111111111111111111111111111111'],
+        ),
+        60n,
+      ),
+    ).resolves.toMatchInlineSnapshot(
+      `"0x0011111111111111111111111111111111111111"`,
+    )
+  })
+
+  test('rejects malformed responses', async () => {
+    const resolver = await createResolver()
+
+    const errors = []
+    for (const response of [
+      '0x01000000000000000000000000534631bcf33bdb069fb20a93d2fdb9e4d4dd42cf',
+      '0x1234',
+      '0x010000000000000000000000000000000000000000000000000000000000000000',
+    ] as const)
+      errors.push(await resolver.resolve(response, 60n))
+
+    expect(errors).toMatchInlineSnapshot(`
+      [
+        "Hex.IntegerOutOfRangeError",
+        "AbiParameters.DataSizeTooSmallError",
+        "Hex.IntegerOutOfRangeError",
+      ]
+    `)
+  })
+
+  test.each([501n, 0x7fffffffn, 0x100000000n])(
+    'does not pad responses for non-EVM coinType %s',
+    async (coinType) => {
+      const resolver = await createResolver()
+
+      const results = []
+      for (const response of [
+        AbiParameters.encode([{ type: 'uint256' }], [32n]),
+        AbiParameters.encode([{ type: 'uint256' }], [1n]),
+        '0x0000000000000000000000000000001111111111111111111111111111111111',
+        '0x0011111111111111111111111111111111111111',
+        AbiParameters.encode(
+          [{ type: 'bytes' }],
+          [
+            '0x0000000000000000000000000000001111111111111111111111111111111111',
+          ],
+        ),
+      ] as const)
+        results.push(await resolver.resolve(response, coinType))
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          "AbiParameters.DataSizeTooSmallError",
+          "AbiParameters.DataSizeTooSmallError",
+          "Hex.IntegerOutOfRangeError",
+          "AbiParameters.DataSizeTooSmallError",
+          "0x0000000000000000000000000000001111111111111111111111111111111111",
+        ]
+      `)
+    },
   )
 })

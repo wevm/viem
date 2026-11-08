@@ -12,6 +12,10 @@ An owner quorum can authorize an access key. The access key then signs later tra
 the configurable account, subject to the authorization's expiry, scopes, and spending limits. Owners
 can sign locally or coordinate approvals through a shared account store.
 
+A configurable account can also act as the access key of another account
+([TIP-1111](https://tips.sh/1111)). Its owner quorum then signs transactions for that parent
+account, within the grant's limits.
+
 ## Recipes
 
 These recipes assume you have [set up a Tempo client](/tempo).
@@ -201,6 +205,62 @@ const keyAuthorization = await client.accessKey.signAuthorization({
 })
 ```
 
+### Use a Configurable Account as an Access Key
+
+Pass `access` to [`Account.fromConfig`](/tempo/accounts/account.fromConfig) to make a configurable
+account the access key of a parent account. The parent authorizes the configurable account's address with key type `configurable`,
+and the configurable account's owners then sign as the parent.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Create the parent account and the configurable account for its access key.
+const treasury = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_1 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+// 2. Create the configurable account as an access key of the parent.
+const accessKey = Account.fromConfig( // [!code focus]
+  { owners: [owner_1, owner_2], threshold: 2 }, // [!code focus]
+  { access: treasury }, // [!code focus]
+) // [!code focus]
+
+// 3. Authorize it from the parent account.
+await client.accessKey.authorizeSync({
+  account: treasury,
+  accessKey, // [!code focus]
+  limits: [
+    { token: '0x20c0000000000000000000000000000000000001', limit: 2_000_000_000n },
+  ],
+})
+
+// 4. The team's owner quorum signs as the parent account.
+const { receipt } = await client.token.transferSync({
+  account: accessKey, // [!code focus]
+  amount: 100n,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The access key signs a keychain signature that wraps the team's owner approvals. Pass
+`keyAuthorization` alongside `access` to submit a signed authorization with the first
+transaction instead. Requires the T14 hardfork.
+
 ## Best Practices
 
 ### Keep Owner Signers Separate
@@ -213,13 +273,19 @@ limits before approving an authorization.
 Set an expiry, call scopes, and spending limits that match the key's purpose. Revoke the key when
 it is no longer needed.
 
+### Revoke Grants Explicitly
+
+Owner updates keep every access key grant, in both directions. To cut off an access key, or a
+configurable account acting as one, revoke it with
+[`accessKey.revoke`](/tempo/actions/accessKey.revoke).
+
 ## See More
 
 <Cards>
   <Card
     icon="lucide:key-round"
     title="Access Keys"
-    description="Configure limits, scopes, admin keys, and revocation."
+    description="Configure limits, scopes, and revocation."
     to="/tempo/guides/access-keys"
   />
   <Card

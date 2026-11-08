@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
-import { http, Transport } from 'viem'
+import { custom, http, Transport } from 'viem'
 import { wait } from '../internal/wait.js'
 import * as fallback from './fallback.js'
 
@@ -200,6 +200,132 @@ describe('fallback', () => {
       )
     } finally {
       await server.close()
+    }
+  })
+
+  test('does not fall through on an eth_sendRawTransactionSync timeout', async () => {
+    const timeout = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 4,
+            data: '0xd75b1cdc25d0b1ad1e2a0d03b4a9b1f2a2f7a5fbd6e2ca3c40b8ce8a04f8e5c8',
+            message: 'Transaction confirmation timeout',
+          },
+        }),
+      )
+    })
+    const nonceTooLow = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({ error: { code: -32003, message: 'nonce too low' } }),
+      )
+    })
+    try {
+      const transport = fallback
+        .fallback([http(timeout.url), http(nonceTooLow.url)], {
+          retryCount: 0,
+        })
+        .setup()
+
+      await expect(
+        transport.request({
+          method: 'eth_sendRawTransactionSync',
+          params: ['0x02'],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InternalError: Transaction confirmation timeout]`,
+      )
+    } finally {
+      await timeout.close()
+      await nonceTooLow.close()
+    }
+  })
+
+  test('does not fall through on an eth_sendRawTransactionSync timeout (custom provider)', async () => {
+    const timeout = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 4,
+            data: '0xd75b1cdc25d0b1ad1e2a0d03b4a9b1f2a2f7a5fbd6e2ca3c40b8ce8a04f8e5c8',
+            message: 'Transaction confirmation timeout',
+          },
+        }),
+      )
+    })
+    const nonceTooLow = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({ error: { code: -32003, message: 'nonce too low' } }),
+      )
+    })
+    try {
+      const transport = fallback
+        .fallback(
+          [
+            // An EIP-1193 provider throws the plain JSON-RPC error.
+            custom({
+              async request({ method, params }) {
+                const response = await fetch(timeout.url, {
+                  body: JSON.stringify({
+                    id: 0,
+                    jsonrpc: '2.0',
+                    method,
+                    params,
+                  }),
+                  headers: { 'Content-Type': 'application/json' },
+                  method: 'POST',
+                })
+                const { error, result } = await response.json()
+                if (error) throw error
+                return result
+              },
+            }),
+            http(nonceTooLow.url),
+          ],
+          { retryCount: 0 },
+        )
+        .setup()
+
+      await expect(
+        transport.request({
+          method: 'eth_sendRawTransactionSync',
+          params: ['0x02'],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InternalError: Transaction confirmation timeout]`,
+      )
+    } finally {
+      await timeout.close()
+      await nonceTooLow.close()
+    }
+  })
+
+  test('falls through on error code 4 for other methods', async () => {
+    const failing = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: { code: 4, message: 'error' } }))
+    })
+    const succeeding = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    try {
+      const transport = fallback
+        .fallback([http(failing.url), http(succeeding.url)], {
+          retryCount: 0,
+        })
+        .setup()
+
+      expect(
+        await transport.request({ method: 'eth_blockNumber' }),
+      ).toMatchInlineSnapshot(`"0x1"`)
+    } finally {
+      await failing.close()
+      await succeeding.close()
     }
   })
 

@@ -14,9 +14,10 @@ import {
   TxEnvelopeTempo,
 } from 'ox/tempo'
 import { afterAll, describe, expect, test } from 'vitest'
+import * as Http from '~test/http.js'
 import * as tempo from '~test/tempo.js'
 
-import { Client, Actions as CoreActions, http } from 'viem'
+import { Client, Actions as CoreActions, Errors, http } from 'viem'
 import { tempoLocalnet, tempoModerato } from 'viem/chains'
 import { Account, Actions, KeyAuthorizationManager } from 'viem/tempo'
 
@@ -38,7 +39,10 @@ const serializeKeyAuthorization = (
 
 const { fromRpc, toRpc } = chainConfig.codecs.transactionRequest
 const { transaction } = chainConfig
-const [prepare] = transaction.prepare
+const [prepareHook] = transaction.prepare
+// The hook only returns `undefined` in the `afterFillTransactionError` phase.
+const prepare = async (...parameters: Parameters<typeof prepareHook>) =>
+  (await prepareHook(...parameters))!
 
 // Tempo-path helpers; the hooks return `undefined` only for non-tempo shapes.
 const toEnvelope = (request: Parameters<typeof transaction.toEnvelope>[0]) =>
@@ -1327,6 +1331,198 @@ describe('transaction.prepare', () => {
       expect(await manager.get(key)).toBeUndefined()
     },
   )
+
+  test(
+    'keyAuthorization: sends a fresh authorization without reading the key (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const rpcUrl = await node.start()
+      const root = Account.fromSecp256k1(privateKey)
+      const privateKey_accessKey = P256.randomPrivateKey()
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        expiry: Math.floor((Date.now() + 30_000) / 1000),
+        key: Account.fromP256(privateKey_accessKey, { access: root }),
+      })
+      const accessKey = Account.fromP256(privateKey_accessKey, {
+        access: root,
+        keyAuthorization,
+      })
+      const methods: string[] = []
+      const client = tempo.getClient({
+        account: accessKey,
+        feeToken: tempo.pathUsd,
+        transport: http(rpcUrl, {
+          onFetchRequest(_request, init) {
+            methods.push(JSON.parse(init.body as string).method)
+          },
+        }),
+      })
+
+      await CoreActions.transaction.sendSync(client, { to: sender })
+      const first = methods.splice(0)
+      await CoreActions.transaction.sendSync(client, { to: sender })
+      const second = methods.splice(0)
+      await CoreActions.transaction.sendSync(client, { to: sender })
+      const third = methods.splice(0)
+
+      expect({ first, second, third }).toMatchInlineSnapshot(`
+        {
+          "first": [
+            "eth_fillTransaction",
+            "eth_chainId",
+            "eth_sendRawTransactionSync",
+          ],
+          "second": [
+            "eth_fillTransaction",
+            "eth_fillTransaction",
+            "eth_chainId",
+            "eth_sendRawTransactionSync",
+          ],
+          "third": [
+            "eth_fillTransaction",
+            "eth_chainId",
+            "eth_sendRawTransactionSync",
+          ],
+        }
+      `)
+      expect(
+        await accessKey.keyAuthorizationManager?.get({
+          address: root.address,
+          accessKey: accessKey.accessKeyAddress,
+          chainId: tempoLocalnet.id,
+        }),
+      ).toBeUndefined()
+    },
+  )
+
+  test(
+    'keyAuthorization: reads the key when the fill does not run (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const rpcUrl = await node.start()
+      const root = Account.fromSecp256k1(privateKey)
+      const manager = KeyAuthorizationManager.memory()
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+        keyAuthorizationManager: manager,
+      })
+      const expiry = Math.floor((Date.now() + 30_000) / 1000)
+      const key = {
+        address: root.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: tempoLocalnet.id,
+      }
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        expiry,
+        key: accessKey,
+      })
+      await Actions.accessKey.authorizeSync(
+        tempo.getClient({
+          account: root,
+          feeToken: tempo.pathUsd,
+          rpcUrl,
+        }),
+        { accessKey, expiry },
+      )
+      await manager.set(key, keyAuthorization)
+      // A node without `eth_fillTransaction` leaves preparation to the client.
+      const proxyUrl = await Http.createRpcProxy(rpcUrl, ({ method }) =>
+        method === 'eth_fillTransaction'
+          ? { error: { code: -32601, message: 'method not found' } }
+          : undefined,
+      )
+      const methods: string[] = []
+      const client = tempo.getClient({
+        account: accessKey,
+        feeToken: tempo.pathUsd,
+        transport: http(proxyUrl, {
+          onFetchRequest(_request, init) {
+            methods.push(JSON.parse(init.body as string).method)
+          },
+        }),
+      })
+
+      const { request } = await CoreActions.transaction.prepare(client, {
+        to: sender,
+      })
+
+      expect((request as TransactionRequest).keyAuthorization).toBeUndefined()
+      expect(await manager.get(key)).toBeUndefined()
+      expect(methods).toMatchInlineSnapshot(`
+        [
+          "eth_fillTransaction",
+          "eth_call",
+          "eth_getTransactionCount",
+          "eth_getBlockByNumber",
+          "eth_maxPriorityFeePerGas",
+          "eth_estimateGas",
+        ]
+      `)
+    },
+  )
+
+  test('afterFillTransactionError: drops a pending authorization the node refuses', async () => {
+    const manager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: Account.fromSecp256k1(privateKey),
+      keyAuthorizationManager: manager,
+    })
+    const key = {
+      address: accessKey.address,
+      accessKey: accessKey.accessKeyAddress,
+      chainId: 1337,
+    }
+    const keyAuthorization = await Account.signKeyAuthorization(
+      Account.fromSecp256k1(privateKey),
+      { chainId: 1337, key: accessKey },
+    )
+    await manager.set(key, keyAuthorization)
+    const request = {
+      account: accessKey,
+      chainId: 1337,
+      keyAuthorization,
+      to: sender,
+    }
+
+    const results = [
+      await prepareHook(request, {
+        client,
+        error: new Error('KeyAlreadyExists'),
+        phase: 'afterFillTransactionError',
+      }),
+      await manager.get(key),
+    ].map((result) => result !== undefined)
+    const refused = await prepareHook(request, {
+      client,
+      error: new Errors.BaseError('Execution reverted.', {
+        details: 'KeyAlreadyExists',
+      }),
+      phase: 'afterFillTransactionError',
+    })
+
+    expect({
+      refused: refused && {
+        keyAuthorization: refused.keyAuthorization,
+        to: refused.to,
+      },
+      results,
+      stored: (await manager.get(key)) !== undefined,
+    }).toMatchInlineSnapshot(`
+      {
+        "refused": {
+          "keyAuthorization": undefined,
+          "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        },
+        "results": [
+          false,
+          true,
+        ],
+        "stored": false,
+      }
+    `)
+  })
 
   test('keyAuthorization: drops expired pending authorizations', async () => {
     const { memory } = await import('./KeyAuthorizationManager.js')

@@ -18,10 +18,9 @@ keys.
 
 These recipes assume you have [set up a Tempo client](/tempo).
 
-### Verify an Admin Signature
+### Verify a Root Key Signature
 
-By default, `verifyHash` returns `true` only if the signature came from the account's root key
-or an active admin access key.
+By default, `verifyHash` returns `true` only if the signature came from the account's root key.
 
 :::code-group
 
@@ -47,7 +46,7 @@ const valid = await Actions.accessKey.verifyHash(client, {
 ### Accept Any Active Access Key
 
 Set `admin: false` to accept a signature from any active access key on the account, not just the
-root or admin keys.
+root key.
 
 :::code-group
 
@@ -73,9 +72,9 @@ const valid = await Actions.accessKey.verifyHash(client, {
 
 ## Best Practices
 
-### Choose the Right Admin Mode
+### Choose the Right Mode
 
-Keep the default `admin: true` when a flow should only accept the account owner or an admin key,
+Keep the default `admin: true` when a flow should only accept the account's root key,
 such as administrative actions. Use `admin: false` when any authorized access key should pass,
 such as access-key authentication.
 
@@ -93,12 +92,6 @@ what the key produced.
     title="Authorize Access Keys"
     description="Create an access key and authorize it to sign on an account's behalf."
     to="/tempo/guides/access-keys/authorize"
-  />
-  <Card
-    icon="lucide:shield-check"
-    title="Admin Access Keys"
-    description="Authorize unrestricted admin keys that can manage an account's other keys."
-    to="/tempo/guides/access-keys/admin"
   />
   <Card
     icon="lucide:square-function"

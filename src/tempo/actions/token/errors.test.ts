@@ -2,7 +2,7 @@ import { Value } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { expect, test } from 'vitest'
 
-import { Actions as viem_Actions } from 'viem'
+import { Actions as viem_Actions, http } from 'viem'
 import { Account, Actions, TempoExecutionError } from 'viem/tempo'
 
 const account = Account.fromSecp256k1(tempo.accounts[0]!.privateKey)
@@ -73,6 +73,32 @@ test('behavior: insufficient balance', async () => {
     }
   `)
   expect(error.token.toLowerCase()).toBe(token.toLowerCase())
+})
+
+test('behavior: insufficient balance resolves without reads', async () => {
+  const { token } = await tempo.setupToken(client)
+  const methods: string[] = []
+  const recordingClient = tempo.getClient({
+    account,
+    feeToken: tempo.pathUsd,
+    transport: http(tempo.rpcUrl, {
+      onFetchRequest(_request, init) {
+        methods.push(JSON.parse(init.body as string).method)
+      },
+    }),
+  })
+
+  const error = await Actions.token
+    .transferSync(recordingClient, {
+      amount: Value.from('20000', 6),
+      to: account2.address,
+      token,
+    })
+    .catch((error) => error)
+
+  expect(error).toBeInstanceOf(Actions.token.TokenInsufficientBalanceError)
+  expect(error.decimals).toBe(6)
+  expect(methods.filter((method) => method === 'eth_call')).toEqual([])
 })
 
 test('behavior: insufficient allowance', async () => {

@@ -1,0 +1,97 @@
+---
+description: Pay for inference, object storage, key-value state and sandboxed compute from a Tempo wallet, with no account or API signup.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Gateway
+
+:::warning
+The Gateway API is experimental and may change in future releases.
+:::
+
+## Overview
+
+A Tempo Gateway is one HTTP API where a Tempo wallet is the only account. It serves AI inference, private
+object storage, key-value state and sandboxed CPU or GPU compute, and charges each call through an
+[MPP](https://mpp.dev) payment session funded by the caller's wallet. There is no signup, no billing setup
+and no API key to provision: whoever can pay can call it.
+
+Viem's [`gatewayActions`](/tempo/utilities/Gateway) give you typed methods for every route. A Client with an
+account pays any `402 Payment Required` the Gateway answers: a local account through
+[`mppx`](https://mpp.dev/sdk/typescript), and [Tempo Wallet](/tempo/guides/gateway/tempo-wallet) through the Accounts SDK.
+
+### Quickstart
+
+1. Create or load an account and fund it with a little OUSD (send it from any wallet; at $0.0001 a read, $1 covers
+   10,000 key-value reads).
+2. Install `mppx` (`npm i mppx`), which pays the Gateway's `402` challenges with that account.
+3. Extend a Client with `gatewayActions()` and call it.
+
+```ts twoslash
+import { Account, Client, gatewayActions } from 'viem/tempo'
+
+const account = Account.fromSecp256k1('0x...')
+const client = Client.create({ account }).extend(gatewayActions())
+
+const { text } = await client.ai.generateText({
+  maxOutputTokens: 256,
+  model: '@cf/zai-org/glm-5.3',
+  prompt: 'Say hello in five words.',
+})
+```
+
+An unfunded account throws `Gateway.InsufficientFundsError` with its balances before anything is signed.
+For a user's wallet instead of a key you hold, see [Use with Tempo Wallet](/tempo/guides/gateway/tempo-wallet).
+
+### How Payment Works
+
+1. Your app calls a paid route, such as `client.ai.generateText`.
+2. The Gateway answers `402` with an MPP challenge naming its price, currency and recipient.
+3. `mppx` opens (or reuses) a payment channel from your wallet and retries the request with a signed voucher.
+4. The Gateway serves the request. Metered routes (AI tokens, compute seconds) reserve the most a call can cost
+   and credit the unused part back to the channel.
+
+Your data is scoped by chain, paying wallet and **app** (the `Gateway-App` header Viem sends from `app`), so
+two apps paid by the same wallet never see each other's keys or objects.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="Connect & Pay"
+    description="Pay from a local account, a Tempo Wallet access key, or a Gateway API key."
+    to="/tempo/guides/gateway/connect"
+  />
+  <Card
+    icon="lucide:app-window"
+    title="Use with Tempo Wallet"
+    description="Let users pay from Tempo Wallet with an access key they approve once."
+    to="/tempo/guides/gateway/tempo-wallet"
+  />
+  <Card
+    icon="lucide:sparkles"
+    title="Run Inference"
+    description="Generate, stream and embed text, metered per token."
+    to="/tempo/guides/gateway/ai"
+  />
+  <Card
+    icon="lucide:database"
+    title="Store Objects & State"
+    description="Keep files in a bucket and JSON state in a versioned key-value store."
+    to="/tempo/guides/gateway/storage"
+  />
+  <Card
+    icon="lucide:cpu"
+    title="Run Sandboxes"
+    description="Start CPU or GPU sandboxes, run commands and long jobs, and pay by the second."
+    to="/tempo/guides/gateway/compute"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="Gateway"
+    description="Reference for gatewayActions, standalone actions and errors."
+    to="/tempo/utilities/Gateway"
+  />
+</Cards>

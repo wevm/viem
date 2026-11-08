@@ -299,8 +299,7 @@ async function verify(
     })
   })()
 
-  // Admin-signed authorizations can only be submitted by the admin key itself,
-  // so only authorizations signed by the account can be attached for the new key.
+  // Only authorizations signed by their account can be attached for the new key.
   if (
     keyAuthorization.account &&
     !Address.isEqual(keyAuthorization.account, signer)

@@ -10,7 +10,9 @@ Upgrades an existing account to a configurable account in place
 ([TIP-1113](https://tips.sh/1113)). The account keeps its address and installs the given owners and
 threshold.
 
-The account's root key must sign the upgrade, and the upgrade must be the transaction's only call.
+The account's root key must sign the upgrade. The transaction may carry a key authorization, but
+not an authorization list. To batch the upgrade with other calls, send
+[`accounts.upgrade.call`](#batch-the-upgrade) in `calls`.
 After the upgrade, the root key can no longer sign for the account. Use
 [`accounts.upgradeSync`](/tempo/actions/accounts.upgradeSync) to wait for confirmation.
 
@@ -46,9 +48,31 @@ const hash = await client.accounts.upgrade({
 :::
 
 :::warning
-Retiring the root key is permanent. Access key grants, permits, and channel vouchers that the root
-key signs stop working after the upgrade.
+Retiring the root key is permanent. Existing access keys keep working, but the root key can no
+longer sign new key authorizations, permits, channel opens or top-ups, or act as a fee payer.
 :::
+
+## Recipes
+
+### Batch the Upgrade
+
+`upgradeAccount` may sit anywhere in a batch. Calls after it run against the upgraded account.
+
+```ts twoslash
+import { Account, Actions, Client } from 'viem/tempo'
+
+const client = Client.create({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.transaction.sendSync({
+  calls: [
+    Actions.accounts.upgrade.call({ // [!code focus]
+      owners: [{ owner: '0x...', weight: 1 }], // [!code focus]
+      threshold: 1, // [!code focus]
+    }), // [!code focus]
+    { to: '0xcafebabecafebabecafebabecafebabecafebabe' },
+  ],
+})
+```
 
 ## Return Value
 
@@ -57,6 +81,30 @@ key signs stop working after the upgrade.
 The transaction hash.
 
 ## Parameters
+
+### keyAuthorization (optional)
+
+- **Type:** `KeyAuthorization.Signed`
+
+A key authorization signed by the root key, applied before the upgrade. The access key keeps
+working after the upgrade.
+
+```ts twoslash
+import { Account, Client } from 'viem/tempo'
+
+const root = Account.fromSecp256k1('0x...')
+const client = Client.create({ account: root })
+const accessKey = Account.fromSecp256k1('0x...', { access: root })
+// ---cut---
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+})
+await client.accounts.upgrade({
+  keyAuthorization, // [!code focus]
+  owners: [{ owner: '0x...', weight: 1 }],
+  threshold: 1,
+})
+```
 
 ### owners
 

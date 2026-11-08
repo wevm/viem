@@ -1,11 +1,14 @@
 import { Address, Value } from 'ox'
-import { describe, expect, test } from 'vitest'
+import type { Hex } from 'ox'
+import { Instance, Pool } from 'prool'
+import { describe, expect, onTestFinished, test } from 'vitest'
 
 import { Actions, Chain, Client, custom, http, testActions } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import * as Http from '~test/http.js'
+import { withResolvers } from '../../internal/promise.js'
 import { wait } from '../../internal/wait.js'
 import { WaitForReceiptTimeoutError } from './waitForReceipt.js'
 
@@ -1502,5 +1505,430 @@ describe('options: replacement', () => {
         timeout: 1_000,
       }).receipt,
     ).rejects.toThrowError(WaitForReceiptTimeoutError)
+  })
+})
+
+// Starts an anvil node that only mines on request, for tests that reorg the
+// chain or depend on when its blocks are mined.
+async function startNode() {
+  const pool = Pool.define({
+    instance: Instance.anvil({ chainId: 1, noMining: true }),
+  })
+  onTestFinished(() => pool.destroyAll())
+  const node = await pool.start(1)
+  const testClient = Client.create({ transport: http(node.url) }).extend(
+    testActions(),
+  )
+  return { testClient, url: node.url }
+}
+
+test('reads the receipt of a block mined while a block scan runs', async () => {
+  const node = await startNode()
+  const hash = await Actions.transaction.send(node.testClient, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  // The pending transaction's block is mined while the replacement check
+  // scans a block, and no block follows it.
+  let blocks = 1
+  const url = await Http.createRpcProxy(node.url, async ({ method }) => {
+    if (method === 'eth_getBlockByNumber' && blocks-- > 0) {
+      await node.testClient.block.mine({ blocks: 1 })
+      await wait(500)
+    }
+    return undefined
+  })
+  const client = Client.create({ pollingInterval: 100, transport: http(url) })
+
+  const { status } = await Actions.transaction.waitForReceipt(client, {
+    hash,
+    timeout: 5_000,
+  }).receipt
+
+  expect(status).toMatchInlineSnapshot(`"success"`)
+})
+
+describe('confirmations: reorgs', () => {
+  test.each([false, true])(
+    'returns the current receipt after a reorg (replacement: %s)',
+    async (replaced) => {
+      const node = await startNode()
+      const { testClient } = node
+      const address = '0x1000000000000000000000000000000000000001'
+      // Succeeds once, sets slot zero to one, and reverts on later calls.
+      await testClient.address.setCode({
+        address,
+        bytecode: '0x60005415600c5760006000fd5b600160005500',
+      })
+      const id = await testClient.state.snapshot()
+      const hash = await Actions.transaction.send(testClient, {
+        account: source.address,
+        gas: 100_000n,
+        gasPrice: Value.fromGwei('2'),
+        nonce: 0,
+        to: address,
+      })
+      const replacementHash = replaced
+        ? await Actions.transaction.send(testClient, {
+            account: source.address,
+            gas: 100_000n,
+            gasPrice: Value.fromGwei('20'),
+            nonce: 0,
+            to: address,
+          })
+        : hash
+      await testClient.block.mine({ blocks: 1 })
+      const transaction = await Actions.transaction.getRaw(testClient, {
+        hash: replacementHash,
+      })
+      const original = await Actions.transaction.getReceipt(testClient, {
+        hash: replacementHash,
+      })
+      const client = Client.create({
+        pollingInterval: 50,
+        transport: http(node.url, {
+          async onFetchResponse(response) {
+            const { result } = await response.clone().json()
+            if (
+              result?.blockHash !== original.blockHash ||
+              !('status' in result)
+            )
+              return
+
+            // Reorder the calls on a new chain while the old receipt is in
+            // flight.
+            await testClient.state.revert({ id })
+            await Actions.transaction.send(testClient, {
+              account: target.address,
+              gas: 100_000n,
+              gasPrice: Value.fromGwei('20'),
+              to: address,
+            })
+            await testClient.block.mine({ blocks: 3 })
+            await Actions.transaction.sendRaw(testClient, { transaction })
+            await testClient.block.mine({ blocks: 3 })
+          },
+        }),
+      })
+
+      const replacements: Actions.transaction.waitForReceipt.ReplacementReturnType[] =
+        []
+      const watcher = Actions.transaction.waitForReceipt(client, {
+        confirmations: 3,
+        hash,
+        replacement: {
+          from: source.address,
+          input: '0x',
+          nonce: 0,
+          to: address,
+          value: 0n,
+        },
+        timeout: 5_000,
+      })
+      watcher.onReplaced((replacement) => replacements.push(replacement))
+      const receipt = await watcher.receipt
+
+      expect(original.status).toMatchInlineSnapshot(`"success"`)
+      expect(receipt.status).toMatchInlineSnapshot(`"reverted"`)
+      expect(receipt).toEqual(
+        await Actions.transaction.getReceipt(testClient, {
+          hash: replacementHash,
+        }),
+      )
+      if (replaced) {
+        expect(replacements).toHaveLength(1)
+        expect(replacements[0]!.transactionReceipt).toEqual(receipt)
+        expect(replacements[0]!.transaction).toEqual(
+          await Actions.transaction.get(testClient, { hash: replacementHash }),
+        )
+      } else expect(replacements).toMatchInlineSnapshot(`[]`)
+    },
+  )
+
+  test('does not confirm a receipt removed by a reorg', async () => {
+    const node = await startNode()
+    const { testClient } = node
+    const id = await testClient.state.snapshot()
+    const hash = await Actions.transaction.send(testClient, {
+      account: source.address,
+      to,
+      value: Value.fromEther('1'),
+    })
+    await testClient.block.mine({ blocks: 1 })
+    const original = await Actions.transaction.getReceipt(testClient, { hash })
+    const client = Client.create({
+      pollingInterval: 50,
+      transport: http(node.url, {
+        async onFetchResponse(response) {
+          const { result } = await response.clone().json()
+          if (result?.blockHash !== original.blockHash || !('status' in result))
+            return
+
+          await testClient.state.revert({ id })
+          await testClient.block.mine({ blocks: 3 })
+        },
+      }),
+    })
+
+    await expect(
+      Actions.transaction.waitForReceipt(client, {
+        checkReplacement: false,
+        confirmations: 3,
+        hash,
+        timeout: 500,
+      }).receipt,
+    ).rejects.toThrowError(WaitForReceiptTimeoutError)
+  })
+
+  test('finds a replacement again after a reorg removes it', async () => {
+    const node = await startNode()
+    const { testClient } = node
+    const id = await testClient.state.snapshot()
+    const hash = await Actions.transaction.send(testClient, {
+      account: source.address,
+      gasPrice: Value.fromGwei('2'),
+      nonce: 0,
+      to,
+      value: Value.fromEther('1'),
+    })
+    let replacementHash: Hex.Hex | undefined
+    let transaction: Hex.Hex | undefined
+    let stage = 'pending'
+    const client = Client.create({
+      pollingInterval: 50,
+      transport: http(node.url, {
+        async onFetchResponse(response) {
+          const { result } = await response.clone().json()
+
+          // Replace the transaction once the wait has seen it pending.
+          if (
+            stage === 'pending' &&
+            result?.hash === hash &&
+            result.blockNumber === null
+          ) {
+            stage = 'replaced'
+            replacementHash = await Actions.transaction.send(testClient, {
+              account: source.address,
+              gasPrice: Value.fromGwei('20'),
+              nonce: 0,
+              to,
+              value: Value.fromEther('1'),
+            })
+            await testClient.block.mine({ blocks: 1 })
+            return
+          }
+
+          // Remove the replacement once its receipt is found.
+          if (
+            stage === 'replaced' &&
+            result?.transactionHash === replacementHash
+          ) {
+            stage = 'removed'
+            transaction = await Actions.transaction.getRaw(testClient, {
+              hash: replacementHash!,
+            })
+            await testClient.state.revert({ id })
+            await testClient.block.mine({ blocks: 3 })
+            return
+          }
+
+          // Mine the replacement again once the wait sees it removed.
+          if (stage === 'removed' && result === null) {
+            stage = 'restored'
+            await Actions.transaction.sendRaw(testClient, {
+              transaction: transaction!,
+            })
+            await testClient.block.setIntervalMining({ interval: 1 })
+          }
+        },
+      }),
+    })
+
+    const replacements: Actions.transaction.waitForReceipt.ReplacementReturnType[] =
+      []
+    const watcher = Actions.transaction.waitForReceipt(client, {
+      confirmations: 3,
+      hash,
+      timeout: 5_000,
+    })
+    watcher.onReplaced((replacement) => replacements.push(replacement))
+    const receipt = await watcher.receipt
+
+    expect(receipt).toEqual(
+      await Actions.transaction.getReceipt(testClient, {
+        hash: replacementHash!,
+      }),
+    )
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "repriced",
+      ]
+    `)
+    expect(replacements[0]!.transactionReceipt).toEqual(receipt)
+  })
+})
+
+describe('options: signal', () => {
+  // The node has never seen this transaction, so a wait for it keeps polling.
+  const hash = `0x${'ab'.repeat(32)}` as const
+
+  async function createClient(
+    getReply: (method: string) => Promise<undefined> | undefined = () =>
+      undefined,
+  ) {
+    const methods: string[] = []
+    const url = await Http.createRpcProxy(
+      anvil.local.rpcUrl.http,
+      ({ method }) => {
+        methods.push(method)
+        return getReply(method)
+      },
+    )
+    const client = Client.create({
+      pollingInterval: 50,
+      transport: http(url, { retryCount: 0 }),
+    })
+    return { client, methods }
+  }
+
+  test('rejects with the reason of an aborted signal', async () => {
+    const { client, methods } = await createClient()
+    const controller = new AbortController()
+    controller.abort(new Error('Wait cancelled'))
+
+    await expect(
+      Actions.transaction.waitForReceipt(client, {
+        hash,
+        signal: controller.signal,
+      }).receipt,
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: Wait cancelled]`)
+    expect(methods).toMatchInlineSnapshot(`[]`)
+  })
+
+  test('notifies onError listeners', async () => {
+    const { client } = await createClient()
+    const controller = new AbortController()
+    const watcher = Actions.transaction.waitForReceipt(client, {
+      checkReplacement: false,
+      hash,
+      signal: controller.signal,
+      timeout: 0,
+    })
+    const error = new Promise<Error>((resolve) => watcher.onError(resolve))
+
+    controller.abort(new Error('Wait cancelled'))
+
+    expect(await error).toMatchInlineSnapshot(`[Error: Wait cancelled]`)
+  })
+
+  test('stops polling when aborted', async () => {
+    const { client, methods } = await createClient()
+    const controller = new AbortController()
+    const { receipt } = Actions.transaction.waitForReceipt(client, {
+      checkReplacement: false,
+      hash,
+      signal: controller.signal,
+      timeout: 0,
+    })
+    await expect
+      .poll(() => methods.filter((method) => method === 'eth_blockNumber'), {
+        timeout: 5_000,
+      })
+      .toHaveLength(2)
+
+    controller.abort()
+
+    await expect(receipt).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AbortError: This operation was aborted]`,
+    )
+    const count = methods.length
+    await wait(300)
+    expect(methods.length - count).toMatchInlineSnapshot(`0`)
+  })
+
+  test('stops retries when aborted', async () => {
+    const { client, methods } = await createClient()
+    const controller = new AbortController()
+    const { receipt } = Actions.transaction.waitForReceipt(client, {
+      hash,
+      retryDelay: 50,
+      signal: controller.signal,
+      timeout: 0,
+    })
+    await expect
+      .poll(
+        () => methods.filter((method) => method === 'eth_getTransactionByHash'),
+        { timeout: 5_000 },
+      )
+      .toHaveLength(2)
+
+    controller.abort()
+
+    await expect(receipt).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AbortError: This operation was aborted]`,
+    )
+    const count = methods.length
+    await wait(300)
+    expect(methods.length - count).toMatchInlineSnapshot(`0`)
+  })
+
+  test('does not start polling when aborted during setup', async () => {
+    const received = withResolvers<void>()
+    const release = withResolvers<undefined>()
+    const { client, methods } = await createClient((method) => {
+      if (method !== 'eth_getTransactionReceipt') return
+      received.resolve()
+      return release.promise
+    })
+    const controller = new AbortController()
+    const { receipt } = Actions.transaction.waitForReceipt(client, {
+      checkReplacement: false,
+      hash,
+      signal: controller.signal,
+      timeout: 0,
+    })
+    await received.promise
+
+    controller.abort()
+    release.resolve(undefined)
+
+    await expect(receipt).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AbortError: This operation was aborted]`,
+    )
+    await wait(300)
+    expect(methods).toMatchInlineSnapshot(`
+      [
+        "eth_getTransactionReceipt",
+      ]
+    `)
+  })
+
+  test('keeps another wait for the same transaction polling', async () => {
+    await setup()
+    const hash = await Actions.transaction.send(client, {
+      account: source.address,
+      to,
+      value: Value.fromEther('1'),
+    })
+    const controller = new AbortController()
+    const cancelled = Actions.transaction.waitForReceipt(client, {
+      hash,
+      signal: controller.signal,
+      timeout: 10_000,
+    })
+    const other = Actions.transaction.waitForReceipt(client, {
+      hash,
+      timeout: 10_000,
+    })
+
+    controller.abort()
+    await testClient.block.mine({ blocks: 1 })
+
+    await expect(cancelled.receipt).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AbortError: This operation was aborted]`,
+    )
+    expect((await other.receipt).status).toMatchInlineSnapshot(`"success"`)
   })
 })

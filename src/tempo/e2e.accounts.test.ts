@@ -1014,7 +1014,100 @@ describe('stateless', () => {
     await expect(
       Actions.accounts.upgrade(client, options),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: \`calls\` is not supported: the upgrade must be the only call, without authorizations.]`,
+      `[Error: \`calls\` is not supported: send \`upgrade.call\` in \`calls\` to batch the upgrade with other calls.]`,
+    )
+  })
+
+  test('behavior: upgrade rejects an authorization list', async () => {
+    await expect(
+      Actions.accounts.upgrade(client, {
+        account: accounts[1],
+        authorizationList: [],
+        owners: [{ owner: accounts[2].address, weight: 1 }],
+        threshold: 1,
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`authorizationList\` is not supported: an upgrade transaction cannot carry an authorization list.]`,
+    )
+  })
+
+  test('behavior: upgrade with a key authorization', async () => {
+    const root = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
+      access: root,
+    })
+    const owners = [{ owner: accounts[1].address, weight: 1 }]
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: root.address,
+      token: feeToken,
+    })
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account: root,
+      accessKey,
+    })
+
+    const { receipt, config } = await Actions.accounts.upgradeSync(client, {
+      account: root,
+      feeToken,
+      keyAuthorization,
+      owners,
+      threshold: 1,
+    })
+    expect(receipt.status).toBe('success')
+    expect(config).toEqual(
+      AccountConfig.fromUpgrade(root.address, { owners, threshold: 1 }),
+    )
+
+    // Migration does not revoke access keys, including one granted in the upgrade.
+    const transfer = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      feeToken,
+      to,
+      token: feeToken,
+    })
+    expect(transfer.receipt.status).toBe('success')
+    expect(transfer.receipt.from).toBe(root.address.toLowerCase())
+  })
+
+  test('behavior: upgrade in a batch', async () => {
+    const root = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+    const owners = [{ owner: accounts[1].address, weight: 1 }]
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: root.address,
+      token: feeToken,
+    })
+
+    const receipt = await viem_Actions.transaction.sendSync(client, {
+      account: root,
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+        Actions.accounts.upgrade.call({ owners, threshold: 1 }),
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
+      feeToken,
+    })
+    expect(receipt.status).toBe('success')
+    expect(
+      Actions.accounts.upgrade.extractEvent(receipt.logs).args.commitment,
+    ).toBe(
+      AccountConfig.getCommitment(
+        AccountConfig.fromUpgrade(root.address, { owners, threshold: 1 }),
+      ),
     )
   })
 
@@ -2141,6 +2234,35 @@ describe('stateful', () => {
     )
     expect(await client.accounts.getConfig({ address: root.address })).toEqual(
       config,
+    )
+  })
+
+  test('behavior: caches the config installed by a batched upgrade', async () => {
+    const root = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+    const owners = [{ owner: tempo.accounts[1].address, weight: 1 }]
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: root.address,
+      token: tempo.feeToken,
+    })
+    const receipt = await viem_Actions.transaction.sendSync(client, {
+      account: root,
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to: tempo.accounts[2].address,
+          token: tempo.feeToken,
+        }),
+        Actions.accounts.upgrade.call({ owners, threshold: 1 }),
+      ],
+      type: 'tempo',
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(await client.accounts.getConfig({ address: root.address })).toEqual(
+      AccountConfig.fromUpgrade(root.address, { owners, threshold: 1 }),
     )
   })
 

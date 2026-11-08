@@ -16,9 +16,10 @@ import { defineCall, dispatchWrite } from '../../internal/utils.js'
  * Upgrades an existing account to a configurable account in place
  * ([TIP-1113](https://tips.sh/1113)).
  *
- * The account's root key must sign the transaction, and the upgrade must be
- * its only call. After the upgrade, the root key can no longer sign for the
- * account.
+ * The account's root key must sign the upgrade, and the transaction may carry
+ * a key authorization but no authorization list. To batch the upgrade with
+ * other calls, send `upgrade.call` in `calls` instead. After the upgrade, the
+ * root key can no longer sign for the account.
  *
  * @example
  * ```ts
@@ -54,8 +55,7 @@ export async function upgrade<
 }
 
 export namespace upgrade {
-  export type Options = Omit<WriteParameters, 'keyAuthorization' | 'owner'> &
-    Args
+  export type Options = Omit<WriteParameters, 'owner'> & Args
 
   export type Args = Pick<AccountConfig.Config, 'owners' | 'threshold'>
 
@@ -77,16 +77,14 @@ export namespace upgrade {
     parameters: Options,
   ): Promise<dispatchWrite.ReturnType<action>> {
     const { owners, threshold, ...rest } = parameters
-    for (const key of [
-      'authorizationList',
-      'calls',
-      'data',
-      'keyAuthorization',
-      'to',
-    ])
+    if ((rest as Record<string, unknown>).authorizationList !== undefined)
+      throw new Error(
+        '`authorizationList` is not supported: an upgrade transaction cannot carry an authorization list.',
+      )
+    for (const key of ['calls', 'data', 'to'])
       if ((rest as Record<string, unknown>)[key] !== undefined)
         throw new Error(
-          `\`${key}\` is not supported: the upgrade must be the only call, without authorizations.`,
+          `\`${key}\` is not supported: send \`upgrade.call\` in \`calls\` to batch the upgrade with other calls.`,
         )
     const account = rest.account ?? client.account
     if (typeof account === 'object' && 'source' in account) {
@@ -108,8 +106,9 @@ export namespace upgrade {
   /**
    * Defines a call to the `upgradeAccount` function.
    *
-   * The call must be the only call in a transaction signed by the account's
-   * root key.
+   * The call may sit anywhere in a batch, as a top-level call in a
+   * transaction signed by the account's root key without an authorization
+   * list. Later calls in the batch run against the upgraded account.
    *
    * @example
    * ```ts

@@ -112,6 +112,12 @@ export declare namespace from {
 
 const defaultMaxResponseBodySize = 10_485_760
 
+/**
+ * Rejection of a request that timed out. Replaced by a `TimeoutError`, which
+ * serializes the request body, only once a request actually times out.
+ */
+const timedOut = /*#__PURE__*/ new Error('timed out')
+
 /** Creates an HTTP JSON-RPC client (single + batch bodies). */
 export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
   url_: string,
@@ -143,14 +149,22 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
         const { response, responseBody } = await promise.withTimeout(
           async ({ signal }) => {
             const timeoutSignal = timeout > 0 ? signal : null
+            // Merge through `Headers` so `Headers` instances and tuple arrays
+            // are kept, but keep a plain object so `onRequest` hooks can
+            // spread it.
+            const headers_: Record<string, string> = {}
+            for (const init of [
+              headers_url,
+              { 'Content-Type': 'application/json' },
+              headers,
+            ])
+              new Headers(init).forEach((value, key) => {
+                headers_[key] = value
+              })
             const init: RequestInit = {
               ...fetchOptions,
               body: stringify(body),
-              headers: {
-                ...headers_url,
-                'Content-Type': 'application/json',
-                ...headers,
-              },
+              headers: headers_,
               method: method || 'POST',
               // A caller `signal` must not disable the timeout.
               signal:
@@ -158,8 +172,9 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
                   ? AbortSignal.any([signal_, timeoutSignal])
                   : (signal_ ?? timeoutSignal),
             }
-            const request = new Request(url, init)
-            const overrides = (await onRequest?.(request, init)) ?? {
+            // Only the hook needs a `Request`, which is costly to construct.
+            const overrides = (onRequest &&
+              (await onRequest(new Request(url, init), init))) ?? {
               ...init,
               url,
             }
@@ -172,7 +187,7 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
             return { response, responseBody }
           },
           {
-            errorInstance: new TimeoutError({ body: errorBody, url }),
+            errorInstance: timedOut,
             timeout,
             signal: true,
           },
@@ -221,6 +236,7 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
         return body.map(() => error)
       } catch (err) {
         if (signal_?.aborted) throw errors.getAbortError(signal_)
+        if (err === timedOut) throw new TimeoutError({ body: errorBody, url })
         if (errors.isAbortError(err)) throw err
         if (err instanceof HttpError) throw err
         if (err instanceof ResponseBodyTooLargeError) throw err
@@ -524,23 +540,26 @@ export async function fromSocket<
         return () => requests.delete(id)
       }
 
-      function requestOne(body: RpcRequest, timeout: number) {
+      async function requestOne(body: RpcRequest, timeout: number) {
         let cleanup: (() => void) | undefined
-        return promise
-          .withTimeout(
+        try {
+          return await promise.withTimeout(
             () =>
               new Promise<Socket.Response>((onResponse, onError) => {
                 cleanup = requestInternal({ body, onError, onResponse })
               }),
-            {
-              errorInstance: new TimeoutError({
-                body: body as { [x: string]: unknown },
-                url,
-              }),
-              timeout,
-            },
+            { errorInstance: timedOut, timeout },
           )
-          .finally(() => cleanup?.())
+        } catch (error) {
+          if (error === timedOut)
+            throw new TimeoutError({
+              body: body as { [x: string]: unknown },
+              url,
+            })
+          throw error
+        } finally {
+          cleanup?.()
+        }
       }
 
       const client = from<Socket.RequestOptions>(
