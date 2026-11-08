@@ -149,13 +149,13 @@ export type HexToBytesErrorType = AssertSizeErrorType | PadErrorType | ErrorType
  */
 export function hexToBytes(hex_: Hex, opts: HexToBytesOpts = {}): ByteArray {
   let hex = hex_
+  if (hex.length % 2) hex = `0x0${hex.slice(2)}`
   if (opts.size) {
     assertSize(hex, { size: opts.size })
     hex = pad(hex, { dir: 'right', size: opts.size })
   }
 
-  let hexString = hex.slice(2) as string
-  if (hexString.length % 2) hexString = `0${hexString}`
+  const hexString = hex.slice(2)
 
   const length = hexString.length / 2
   const bytes = new Uint8Array(length)
