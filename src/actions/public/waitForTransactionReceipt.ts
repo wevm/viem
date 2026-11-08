@@ -13,7 +13,11 @@ import {
   WaitForTransactionReceiptTimeoutError,
   type WaitForTransactionReceiptTimeoutErrorType,
 } from '../../errors/transaction.js'
-import type { ErrorType } from '../../errors/utils.js'
+import {
+  type AbortErrorType,
+  type ErrorType,
+  getAbortError,
+} from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
@@ -26,6 +30,7 @@ import {
   withRetry,
 } from '../../utils/promise/withRetry.js'
 import { stringify } from '../../utils/stringify.js'
+import { uid } from '../../utils/uid.js'
 
 import { type GetBlockErrorType, getBlock } from './getBlock.js'
 import {
@@ -118,6 +123,11 @@ export type WaitForTransactionReceiptParameters<
    */
   retryDelay?: WithRetryParameters['delay'] | undefined
   /**
+   * Signal that stops the wait. Aborting rejects with the signal's reason and
+   * stops polling and retries. It does not cancel the transaction.
+   */
+  signal?: AbortSignal | undefined
+  /**
    * Optional timeout (in milliseconds) to wait before stopping polling.
    * @default 180_000
    */
@@ -125,6 +135,7 @@ export type WaitForTransactionReceiptParameters<
 }
 
 export type WaitForTransactionReceiptErrorType =
+  | AbortErrorType
   | ObserveErrorType
   | GetBlockErrorType
   | GetTransactionErrorType
@@ -188,8 +199,11 @@ export async function waitForTransactionReceipt<
     onReplaced,
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
+    signal,
     timeout = 180_000,
   } = parameters
+
+  if (signal?.aborted) throw getAbortError(signal)
 
   // On chains with their own replacement keys, a sender and nonce do not
   // identify a nonce slot.
@@ -221,6 +235,9 @@ export async function waitForTransactionReceipt<
       pollingInterval,
       replacement,
       retryCount,
+      // A cancellable wait polls on its own, so aborting it cannot stop
+      // polling for another caller.
+      signal: signal ? uid() : undefined,
       timeout,
     },
   ])
@@ -249,6 +266,14 @@ export async function waitForTransactionReceipt<
       }, timeout)
     : undefined
 
+  const onAbort = () => {
+    clearTimeout(timer)
+    _unwatch?.()
+    _unobserve?.()
+    reject(getAbortError(signal))
+  }
+  signal?.addEventListener('abort', onAbort, { once: true })
+
   _unobserve = observe(
     observerId,
     { onReplaced, resolve, reject },
@@ -258,6 +283,8 @@ export async function waitForTransactionReceipt<
         getTransactionReceipt,
         'getTransactionReceipt',
       )({ hash }).catch(() => undefined)
+
+      if (signal?.aborted) return
 
       if (receipt && confirmations <= 1) {
         clearTimeout(timer)
@@ -350,6 +377,7 @@ export async function waitForTransactionReceipt<
               {
                 delay: retryDelay,
                 retryCount,
+                signal,
                 // A dropped transaction does not reappear, so a known
                 // sender and nonce are looked up without the retries.
                 shouldRetry: ({ error }) =>
@@ -498,6 +526,7 @@ export async function waitForTransactionReceipt<
                 {
                   delay: retryDelay,
                   retryCount,
+                  signal,
                   shouldRetry: ({ error }) =>
                     error instanceof BlockNotFoundError,
                 },
@@ -589,6 +618,7 @@ export async function waitForTransactionReceipt<
   // never start polling again. The timer is cleared here as well, since a
   // caller that resolves through another caller's poll never reaches `done`.
   return promise.finally(() => {
+    signal?.removeEventListener('abort', onAbort)
     clearTimeout(timer)
     _unobserve?.()
   })

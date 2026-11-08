@@ -25,6 +25,7 @@ import { mainnet } from '../../chains/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
+import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
@@ -1352,6 +1353,141 @@ describe('args: replacement', () => {
         timeout: 1_000,
       }),
     ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
+  })
+})
+
+describe('args: signal', () => {
+  // The node has never seen this transaction, so a wait for it keeps polling.
+  const hash = `0x${'ab'.repeat(32)}` as const
+
+  async function createClient(
+    getReply: (method: string) => Promise<undefined> | undefined = () =>
+      undefined,
+  ) {
+    const methods: string[] = []
+    const url = await createRpcProxy(anvilMainnet.rpcUrl.http, ({ method }) => {
+      methods.push(method)
+      return getReply(method)
+    })
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 50,
+      transport: http(url, { retryCount: 0 }),
+    })
+    return { client, methods }
+  }
+
+  test('rejects with the reason of an aborted signal', async () => {
+    const { client, methods } = await createClient()
+    const controller = new AbortController()
+    controller.abort(new Error('Wait cancelled'))
+
+    await expect(
+      waitForTransactionReceipt(client, { hash, signal: controller.signal }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: Wait cancelled]')
+    expect(methods).toMatchInlineSnapshot('[]')
+  })
+
+  test('stops polling when aborted', async () => {
+    const { client, methods } = await createClient()
+    const controller = new AbortController()
+    const promise = waitForTransactionReceipt(client, {
+      checkReplacement: false,
+      hash,
+      signal: controller.signal,
+      timeout: 0,
+    })
+    await expect
+      .poll(() => methods.filter((method) => method === 'eth_blockNumber'))
+      .toHaveLength(2)
+
+    controller.abort()
+
+    await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[AbortError: This operation was aborted]',
+    )
+    const count = methods.length
+    await wait(300)
+    expect(methods.length - count).toMatchInlineSnapshot('0')
+  })
+
+  test('stops retries when aborted', async () => {
+    const { client, methods } = await createClient()
+    const controller = new AbortController()
+    const promise = waitForTransactionReceipt(client, {
+      hash,
+      retryDelay: 50,
+      signal: controller.signal,
+      timeout: 0,
+    })
+    await expect
+      .poll(() =>
+        methods.filter((method) => method === 'eth_getTransactionByHash'),
+      )
+      .toHaveLength(2)
+
+    controller.abort()
+
+    await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[AbortError: This operation was aborted]',
+    )
+    const count = methods.length
+    await wait(300)
+    expect(methods.length - count).toMatchInlineSnapshot('0')
+  })
+
+  test('does not start polling when aborted during setup', async () => {
+    const received = withResolvers<void>()
+    const release = withResolvers<undefined>()
+    const { client, methods } = await createClient((method) => {
+      if (method !== 'eth_getTransactionReceipt') return
+      received.resolve()
+      return release.promise
+    })
+    const controller = new AbortController()
+    const promise = waitForTransactionReceipt(client, {
+      hash,
+      signal: controller.signal,
+      timeout: 0,
+    })
+    await received.promise
+
+    controller.abort()
+    release.resolve(undefined)
+
+    await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[AbortError: This operation was aborted]',
+    )
+    await wait(300)
+    expect(methods).toMatchInlineSnapshot(`
+      [
+        "eth_getTransactionReceipt",
+      ]
+    `)
+  })
+
+  test('keeps another wait for the same transaction polling', async () => {
+    setup()
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    const controller = new AbortController()
+    const cancelled = waitForTransactionReceipt(client, {
+      hash,
+      signal: controller.signal,
+      timeout: 10_000,
+    })
+    const other = waitForTransactionReceipt(client, { hash, timeout: 10_000 })
+
+    controller.abort()
+
+    await expect(cancelled).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[AbortError: This operation was aborted]',
+    )
+    expect((await other).status).toMatchInlineSnapshot(`"success"`)
   })
 })
 
