@@ -42,6 +42,10 @@ import {
 import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { type GetLogsParameters, getLogs } from './getLogs.js'
+import {
+  getSubscriptionTransport,
+  shouldPoll,
+} from './internal/watchTransport.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
 export type WatchEventOnLogsParameter<
@@ -183,18 +187,7 @@ export function watchEvent<
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
     if (typeof fromBlock === 'bigint') return true
-    if (
-      client.transport.type === 'webSocket' ||
-      client.transport.type === 'ipc'
-    )
-      return false
-    if (
-      client.transport.type === 'fallback' &&
-      (client.transport.transports[0].config.type === 'webSocket' ||
-        client.transport.transports[0].config.type === 'ipc')
-    )
-      return false
-    return true
+    return shouldPoll(client)
   })()
   const strict = strict_ ?? false
 
@@ -344,18 +337,7 @@ export function watchEvent<
     let unsubscribe = () => (active = false)
     ;(async () => {
       try {
-        const transport = (() => {
-          if (client.transport.type === 'fallback') {
-            const transport = client.transport.transports.find(
-              (transport: ReturnType<Transport>) =>
-                transport.config.type === 'webSocket' ||
-                transport.config.type === 'ipc',
-            )
-            if (!transport) return client.transport
-            return transport.value
-          }
-          return client.transport
-        })()
+        const transport = getSubscriptionTransport(client)
 
         const events_ = events ?? (event ? [event] : undefined)
         let topics: LogTopic[] = []

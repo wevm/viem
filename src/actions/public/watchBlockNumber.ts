@@ -13,6 +13,10 @@ import {
   type GetBlockNumberReturnType,
   getBlockNumber,
 } from './getBlockNumber.js'
+import {
+  getSubscriptionTransport,
+  shouldPoll,
+} from './internal/watchTransport.js'
 
 export type OnBlockNumberParameter = GetBlockNumberReturnType
 export type OnBlockNumberFn = (
@@ -97,18 +101,7 @@ export function watchBlockNumber<
 ): WatchBlockNumberReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
-    if (
-      client.transport.type === 'webSocket' ||
-      client.transport.type === 'ipc'
-    )
-      return false
-    if (
-      client.transport.type === 'fallback' &&
-      (client.transport.transports[0].config.type === 'webSocket' ||
-        client.transport.transports[0].config.type === 'ipc')
-    )
-      return false
-    return true
+    return shouldPoll(client)
   })()
   // Polling less than twice per block skips blocks, so emit the missed
   // ones unless told otherwise.
@@ -186,18 +179,7 @@ export function watchBlockNumber<
       let unsubscribe = () => (active = false)
       ;(async () => {
         try {
-          const transport = (() => {
-            if (client.transport.type === 'fallback') {
-              const transport = client.transport.transports.find(
-                (transport: ReturnType<Transport>) =>
-                  transport.config.type === 'webSocket' ||
-                  transport.config.type === 'ipc',
-              )
-              if (!transport) return client.transport
-              return transport.value
-            }
-            return client.transport
-          })()
+          const transport = getSubscriptionTransport(client)
 
           const { unsubscribe: unsubscribe_ } = await transport.subscribe({
             params: ['newHeads'],
