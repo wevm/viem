@@ -6,6 +6,6 @@
   },
   "dependencies": {
     "ses": "^2.3.0",
-    "viem": "file:../../src/"
+    "viem": "link:../../src"
   }
 }

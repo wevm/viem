@@ -218,7 +218,7 @@ overrides:
   lodash-es@>=4.0.0 <=4.17.23: 4.18.1
   mdast-util-to-hast@>=13.0.0 <13.2.1: 13.2.1
   micromatch@<4.0.8: ^4.0.8
-  minimatch: '>=10.2.3'
+  minimatch: '>=10.2.3 <11'
   nanoid@>=3.0.0 <3.3.18: 3.3.18
   nanoid@>=4.0.0 <5.1.16: 5.1.16
   next@>=15.6.0-canary.0 <16.1.5: '>=16.1.5'
@@ -347,7 +347,7 @@ importers:
         version: 0.14.0
       mppx:
         specifier: ^0.17.0
-        version: 0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.5.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3)(viem@file:src)
+        version: 0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.5.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3)
       ox:
         specifier: 0.14.63
         version: 0.14.63(typescript@5.9.3)(zod@4.6.6)
@@ -382,8 +382,8 @@ importers:
   environments/bun:
     dependencies:
       viem:
-        specifier: file:../../src/
-        version: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
+        specifier: link:../../src
+        version: link:../../src
 
   environments/next:
     dependencies:
@@ -397,8 +397,8 @@ importers:
         specifier: ^19
         version: 19.2.3(react@19.2.3)
       viem:
-        specifier: file:../../src/
-        version: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
+        specifier: link:../../src
+        version: link:../../src
     devDependencies:
       '@playwright/test':
         specifier: 1.59.1
@@ -419,8 +419,8 @@ importers:
   environments/node:
     dependencies:
       viem:
-        specifier: file:../../src/
-        version: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
+        specifier: link:../../src
+        version: link:../../src
 
   environments/ses:
     dependencies:
@@ -428,8 +428,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       viem:
-        specifier: file:../../src/
-        version: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
+        specifier: link:../../src
+        version: link:../../src
 
   environments/tsc:
     dependencies:
@@ -437,14 +437,14 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       viem:
-        specifier: file:../../src/
-        version: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
+        specifier: link:../../src
+        version: link:../../src
 
   environments/vite:
     dependencies:
       viem:
-        specifier: file:../../src/
-        version: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
+        specifier: link:../../src
+        version: link:../../src
     devDependencies:
       '@playwright/test':
         specifier: 1.59.1
@@ -1710,9 +1710,6 @@ packages:
   '@isaacs/fs-minipass@4.0.1':
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
     engines: {node: '>=18.0.0'}
-
-  '@isaacs/nonrecursive-glob-match@1.0.3':
-    resolution: {integrity: sha512-SI7kyKHq4XXDRozw+r9GlRZkia1ZkFrpLW98r2IC2Bpr8YkFGE3fvjzmxCG0x78A++69HmDNrDvSMYBZmHGpKA==}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -3881,9 +3878,19 @@ packages:
 
   ajv-formats@2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
+    peerDependencies:
+      ajv: 8.18.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
 
   ajv-formats@3.0.1:
     resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
+    peerDependencies:
+      ajv: 8.18.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
 
   ajv-keywords@5.1.0:
     resolution: {integrity: sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw==}
@@ -5544,7 +5551,6 @@ packages:
 
   jsonparse@1.3.1:
     resolution: {integrity: sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg==}
-    engines: {'0': node >= 0.2.0}
 
   jsonpointer@5.0.1:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
@@ -6073,9 +6079,9 @@ packages:
     resolution: {integrity: sha512-Lbgzdk0h4juoQ9fCKXW4by0UJqj+nOOrI9MJ1sSj4nI8aI2eo1qmvQEie4VD1glsS250n15LsWsYtCugiStS5A==}
     engines: {node: '>=18'}
 
-  minimatch@11.0.4:
-    resolution: {integrity: sha512-/UJ1dEoVQTjPNDh6SGlUo+ueLMmoHTas4q+8yaAR/5t6nLAIiBDJtoYUh20IYleix7ehiQkgczb84PE3uzHkxg==}
-    engines: {node: 20 || >=22}
+  minimatch@10.2.6:
+    resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
+    engines: {node: 18 || 20 || >=22}
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
@@ -7727,17 +7733,6 @@ packages:
       typescript:
         optional: true
 
-  viem@file:src:
-    resolution: {directory: src, type: directory}
-    peerDependencies:
-      mppx: '>=0.17.0'
-      typescript: ^5.9.3
-    peerDependenciesMeta:
-      mppx:
-        optional: true
-      typescript:
-        optional: true
-
   vite-plugin-arraybuffer@0.1.4:
     resolution: {integrity: sha512-Ubfsw/g4PhdjlgsKYDm2Hlc0qmNJheX8VCeOMayq1k9fMVB1nNuqtWjDH1fj9hSlhlSnlndz/ehMKIuXpB0SeA==}
 
@@ -9081,8 +9076,6 @@ snapshots:
   '@isaacs/fs-minipass@4.0.1':
     dependencies:
       minipass: 7.1.3
-
-  '@isaacs/nonrecursive-glob-match@1.0.3': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -12826,7 +12819,7 @@ snapshots:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 4.1.1
-      minimatch: 11.0.4
+      minimatch: 10.2.6
       minipass: 7.1.3
       package-json-from-dist: 1.0.1
       path-scurry: 2.0.1
@@ -12836,7 +12829,7 @@ snapshots:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 11.0.4
+      minimatch: 10.2.6
       once: 1.4.0
 
   globby@11.1.0:
@@ -13115,7 +13108,7 @@ snapshots:
 
   ignore-walk@5.0.1:
     dependencies:
-      minimatch: 11.0.4
+      minimatch: 10.2.6
 
   ignore@5.3.2: {}
 
@@ -14110,9 +14103,8 @@ snapshots:
     dependencies:
       mime-db: 1.54.0
 
-  minimatch@11.0.4:
+  minimatch@10.2.6:
     dependencies:
-      '@isaacs/nonrecursive-glob-match': 1.0.3
       brace-expansion: 5.0.12
 
   minimist@1.2.8: {}
@@ -14145,38 +14137,6 @@ snapshots:
   module-details-from-path@1.0.3: {}
 
   module-details-from-path@1.0.4: {}
-
-  mppx@0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@20.19.41)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)(viem@file:src):
-    dependencies:
-      '@stripe/stripe-js': 9.17.0
-      eventsource-parser: 4.1.1
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.7)
-      structured-headers: 2.1.0
-      viem: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
-      zod: 4.6.7
-    optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.32.0(supports-color@8.1.1)(zod@4.6.6)
-      express: 5.2.1(supports-color@8.1.1)
-      hono: 4.13.13
-      next: 16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@20.19.41)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-    transitivePeerDependencies:
-      - typescript
-
-  mppx@0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@20.19.41)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3)(viem@file:src):
-    dependencies:
-      '@stripe/stripe-js': 9.17.0
-      eventsource-parser: 4.1.1
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.7)
-      structured-headers: 2.1.0
-      viem: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
-      zod: 4.6.7
-    optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.32.0(supports-color@8.1.1)(zod@4.6.6)
-      express: 5.2.1(supports-color@8.1.1)
-      hono: 4.13.13
-      next: 16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@20.19.41)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-    transitivePeerDependencies:
-      - typescript
 
   mppx@0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.13.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)(viem@2.57.16):
     dependencies:
@@ -14211,13 +14171,12 @@ snapshots:
       - typescript
     optional: true
 
-  mppx@0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.5.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3)(viem@file:src):
+  mppx@0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.5.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3):
     dependencies:
       '@stripe/stripe-js': 9.17.0
       eventsource-parser: 4.1.1
       ox: 0.14.63(typescript@5.9.3)(zod@4.6.7)
       structured-headers: 2.1.0
-      viem: file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
       zod: 4.6.7
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.32.0(supports-color@8.1.1)(zod@4.6.6)
@@ -14303,33 +14262,6 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       styled-jsx: 5.1.6(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 16.4.1
-      '@next/swc-darwin-x64': 16.4.1
-      '@next/swc-linux-arm64-gnu': 16.4.1
-      '@next/swc-linux-arm64-musl': 16.4.1
-      '@next/swc-linux-x64-gnu': 16.4.1
-      '@next/swc-linux-x64-musl': 16.4.1
-      '@next/swc-win32-arm64-msvc': 16.4.1
-      '@next/swc-win32-x64-msvc': 16.4.1
-      '@opentelemetry/api': 1.7.0
-      '@playwright/test': 1.59.1
-      sharp: 0.35.5(@types/node@20.19.41)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/node'
-      - babel-plugin-macros
-
-  next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@20.19.41)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
-    dependencies:
-      '@next/env': 16.4.1
-      '@swc/helpers': 0.5.23
-      baseline-browser-mapping: 2.11.21
-      caniuse-lite: 1.0.30001810
-      postcss: 8.5.23
-      react: 19.2.6
-      react-dom: 19.2.6(react@19.2.6)
-      styled-jsx: 5.1.6(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.6)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.4.1
       '@next/swc-darwin-x64': 16.4.1
@@ -15033,7 +14965,7 @@ snapshots:
 
   readdir-glob@1.1.3:
     dependencies:
-      minimatch: 11.0.4
+      minimatch: 10.2.6
 
   readdirp@4.0.2: {}
 
@@ -16263,24 +16195,6 @@ snapshots:
       ws: 8.21.0
     optionalDependencies:
       mppx: 0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.13.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3)(viem@2.57.16)
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
-  viem@file:src(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6):
-    dependencies:
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@4.6.6)
-      isows: 1.0.7(ws@8.21.0)
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.6)
-      ws: 8.21.0
-    optionalDependencies:
-      mppx: 0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.5.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3)(viem@file:src)
       typescript: 5.9.3
     transitivePeerDependencies:
       - bufferutil
