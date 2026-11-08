@@ -873,7 +873,7 @@ describe('behavior: node stops waiting (error code 4)', () => {
 
   test(
     'returns the receipt of a blob transaction',
-    { timeout: 60_000 },
+    { timeout: 90_000 },
     async () => {
       await setup()
       const node = await createNode(() => undefined)
@@ -882,6 +882,9 @@ describe('behavior: node stops waiting (error code 4)', () => {
         Actions.transaction.sendSync(node.client, {
           account: local,
           blobs: Blobs.from(Hex.fromString('hello world')),
+          // Anvil verifies the blob proofs before pooling the transaction, so
+          // use mainnet's longer receipt timeout (three block times).
+          chain: mainnet,
           kzg,
           maxFeePerBlobGas: Value.fromGwei('30'),
           pollingInterval: 50,
