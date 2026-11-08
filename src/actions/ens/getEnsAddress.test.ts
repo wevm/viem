@@ -1,30 +1,23 @@
+import {
+  createClient,
+  encodeAbiParameters,
+  encodeFunctionResult,
+  http,
+  toCoinType,
+} from 'viem'
+import { getEnsAddress, reset } from 'viem/actions'
 import { beforeAll, expect, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
-import { createHttpServer, setVitalikResolver } from '~test/utils.js'
+import {
+  createHttpServer,
+  createRpcProxy,
+  setVitalikResolver,
+} from '~test/utils.js'
 import { linea, mainnet, optimism } from '../../chains/index.js'
-import { createClient } from '../../clients/createClient.js'
-import { custom } from '../../clients/transports/custom.js'
-import { http } from '../../clients/transports/http.js'
 import { universalResolverResolveAbi } from '../../constants/abis.js'
-import { toCoinType } from '../../ens/index.js'
-import { encodeFunctionResult } from '../../utils/abi/encodeFunctionResult.js'
-import { reset } from '../test/reset.js'
-import { getEnsAddress } from './getEnsAddress.js'
 
 const client = anvilMainnet.getClient()
-
-const addressResolverAbi = [
-  {
-    name: 'addr',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { name: 'name', type: 'bytes32' },
-      { name: 'coinType', type: 'uint256' },
-    ],
-    outputs: [{ name: '', type: 'address' }],
-  },
-] as const
+const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
 
 beforeAll(async () => {
   await reset(client, {
@@ -151,29 +144,81 @@ test('offchain: gets address for name', async () => {
   )
 })
 
-test('offchain: decodes address-encoded coinType response', async () => {
-  const address = '0x534631Bcf33BDb069fB20A93d2fdb9e4D4dD42CF'
-  const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+test.each(
+  (['abi', 'raw'] as const).flatMap((encoding) =>
+    [60n, 0x80000000n, toCoinType(10), 0xffffffffn].map((coinType) => ({
+      coinType,
+      encoding,
+    })),
+  ),
+)(
+  'offchain: decodes $encoding coinType $coinType responses with leading zeros',
+  async ({ coinType, encoding }) => {
+    let data = '0x'
+    const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
+      result: data,
+    }))
+    const client = createClient({ transport: http(url) })
+
+    const addresses = []
+    for (const address of [
+      '0x1111111111111111111111111111111111111111',
+      '0x0011111111111111111111111111111111111111',
+      '0x0000111111111111111111111111111111111111',
+      '0x0000000000000000000000000000000000000001',
+      '0x0000000000000000000000000000000000000020',
+      '0x0000000000000000000000000000000000000040',
+      '0x0000000000000000000000000000000000000000',
+    ] as const) {
+      data = encodeFunctionResult({
+        abi: universalResolverResolveAbi,
+        functionName: 'resolveWithGateways',
+        result: [
+          encoding === 'raw'
+            ? address
+            : encodeAbiParameters([{ type: 'address' }], [address]),
+          resolverAddress,
+        ],
+      })
+      addresses.push(
+        await getEnsAddress(client, {
+          name: 'pokersback.com',
+          coinType,
+          universalResolverAddress: resolverAddress,
+        }),
+      )
+    }
+
+    expect(addresses).toMatchInlineSnapshot(`
+      [
+        "0x1111111111111111111111111111111111111111",
+        "0x0011111111111111111111111111111111111111",
+        "0x0000111111111111111111111111111111111111",
+        "0x0000000000000000000000000000000000000001",
+        "0x0000000000000000000000000000000000000020",
+        "0x0000000000000000000000000000000000000040",
+        null,
+      ]
+    `)
+  },
+)
+
+test('offchain: preserves dynamic-bytes responses with leading zeros', async () => {
   const data = encodeFunctionResult({
     abi: universalResolverResolveAbi,
     functionName: 'resolveWithGateways',
     result: [
-      encodeFunctionResult({
-        abi: addressResolverAbi,
-        functionName: 'addr',
-        result: address,
-      }),
+      encodeAbiParameters(
+        [{ type: 'bytes' }],
+        ['0x0011111111111111111111111111111111111111'],
+      ),
       resolverAddress,
     ],
   })
-  const client = createClient({
-    transport: custom({
-      async request({ method }) {
-        if (method === 'eth_call') return data
-        return null
-      },
-    }),
-  })
+  const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
+    result: data,
+  }))
+  const client = createClient({ transport: http(url) })
 
   await expect(
     getEnsAddress(client, {
@@ -181,8 +226,92 @@ test('offchain: decodes address-encoded coinType response', async () => {
       coinType: 60n,
       universalResolverAddress: resolverAddress,
     }),
-  ).resolves.toBe(address)
+  ).resolves.toMatchInlineSnapshot(
+    '"0x0011111111111111111111111111111111111111"',
+  )
 })
+
+test('offchain: rejects malformed coinType responses', async () => {
+  let data = '0x'
+  const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
+    result: data,
+  }))
+  const client = createClient({ transport: http(url) })
+
+  const errors = []
+  for (const response of [
+    '0x01000000000000000000000000534631bcf33bdb069fb20a93d2fdb9e4d4dd42cf',
+    '0x1234',
+    '0x010000000000000000000000000000000000000000000000000000000000000000',
+  ] as const) {
+    data = encodeFunctionResult({
+      abi: universalResolverResolveAbi,
+      functionName: 'resolveWithGateways',
+      result: [response, resolverAddress],
+    })
+    errors.push(
+      await getEnsAddress(client, {
+        name: 'pokersback.com',
+        coinType: 60n,
+        universalResolverAddress: resolverAddress,
+      }).catch((error) => error.name),
+    )
+  }
+
+  expect(errors).toMatchInlineSnapshot(`
+    [
+      "IntegerOutOfRangeError",
+      "AbiDecodingDataSizeTooSmallError",
+      "IntegerOutOfRangeError",
+    ]
+  `)
+})
+
+test.each([501n, 0x7fffffffn, 0x100000000n])(
+  'offchain: preserves decoding for coinType %s',
+  async (coinType) => {
+    let data = '0x'
+    const url = await createRpcProxy(anvilMainnet.rpcUrl.http, () => ({
+      result: data,
+    }))
+    const client = createClient({ transport: http(url) })
+
+    const results = []
+    for (const response of [
+      encodeAbiParameters([{ type: 'uint256' }], [32n]),
+      encodeAbiParameters([{ type: 'uint256' }], [1n]),
+      '0x0000000000000000000000000000001111111111111111111111111111111111',
+      '0x0011111111111111111111111111111111111111',
+      encodeAbiParameters(
+        [{ type: 'bytes' }],
+        ['0x0000000000000000000000000000001111111111111111111111111111111111'],
+      ),
+    ] as const) {
+      data = encodeFunctionResult({
+        abi: universalResolverResolveAbi,
+        functionName: 'resolveWithGateways',
+        result: [response, resolverAddress],
+      })
+      results.push(
+        await getEnsAddress(client, {
+          name: 'pokersback.com',
+          coinType,
+          universalResolverAddress: resolverAddress,
+        }).catch((error) => error.name),
+      )
+    }
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "PositionOutOfBoundsError",
+        "PositionOutOfBoundsError",
+        "IntegerOutOfRangeError",
+        "AbiDecodingDataSizeTooSmallError",
+        "0x0000000000000000000000000000001111111111111111111111111111111111",
+      ]
+    `)
+  },
+)
 
 test('offchain: name without address', async () => {
   await expect(
