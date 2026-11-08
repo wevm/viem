@@ -1,5 +1,75 @@
 # viem
 
+## 2.57.17
+
+### Patch Changes
+
+- [#5411](https://github.com/wevm/viem/pull/5411) [`3708ffc3fc8ec0a957a577970da87903811cf649`](https://github.com/wevm/viem/commit/3708ffc3fc8ec0a957a577970da87903811cf649) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Removed the `getKey` read before transactions from an access key with a pending key authorization, retrying the fill without the authorization when the chain has already registered the key.
+
+- [#5411](https://github.com/wevm/viem/pull/5411) [`3708ffc3fc8ec0a957a577970da87903811cf649`](https://github.com/wevm/viem/commit/3708ffc3fc8ec0a957a577970da87903811cf649) Thanks [@jxom](https://github.com/jxom)! - Added an `afterFillTransactionError` phase to chain `prepareTransactionRequest` hooks that retries `eth_fillTransaction` once with the request the hook returns.
+
+  ```ts
+  const chain = defineChain({
+    // ...
+    prepareTransactionRequest: [
+      async (request, { error, phase }) => {
+        if (phase === "afterFillTransactionError")
+          return retryable(error) ? fixed(request) : undefined;
+        return request;
+      },
+      { runAt: ["beforeFillTransaction", "afterFillTransactionError"] },
+    ],
+  });
+  ```
+
+- [#5437](https://github.com/wevm/viem/pull/5437) [`7bfee154063d5630668b26add1e35de927cabfff`](https://github.com/wevm/viem/commit/7bfee154063d5630668b26add1e35de927cabfff) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed webpack builds without `mppx` failing on the `mppx/client` import of `gatewayActions`, which now only warns.
+
+- [#5389](https://github.com/wevm/viem/pull/5389) [`5a7ec0946af3936eb13b9cd5ad6b4bc0ee7f3f08`](https://github.com/wevm/viem/commit/5a7ec0946af3936eb13b9cd5ad6b4bc0ee7f3f08) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed HTTP JSON-RPC batches using another transport's authorization headers and request configuration.
+
+- [#5404](https://github.com/wevm/viem/pull/5404) [`39d9b10798bc29d387f4948fa7fd95484e7e607c`](https://github.com/wevm/viem/commit/39d9b10798bc29d387f4948fa7fd95484e7e607c) Thanks [@jxom](https://github.com/jxom)! - Fixed the `http` transport dropping `fetchOptions.headers` supplied as `Headers` instances or tuple arrays.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated `ox` to `0.14.63`.
+
+- [#5428](https://github.com/wevm/viem/pull/5428) [`29a0d8497d586ddbf664767b1d1404bb2cedf7fc`](https://github.com/wevm/viem/commit/29a0d8497d586ddbf664767b1d1404bb2cedf7fc) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseEventLogs` / `getLogs` args filters dropping matches when integer filters are JS numbers and decoded values are bigints.
+
+- [#5431](https://github.com/wevm/viem/pull/5431) [`8b040a3542cd3527b3c73941c9924cae42cea748`](https://github.com/wevm/viem/commit/8b040a3542cd3527b3c73941c9924cae42cea748) Thanks [@jxom](https://github.com/jxom)! - Fixed `prepareUserOperation` replacing a falsy per-operation `paymasterContext` (`false`, `0`, `''`, or `null`) with the bundler client's default `paymasterContext`.
+
+- [#5409](https://github.com/wevm/viem/pull/5409) [`bf3ffc52b5633afebacf3d728d846080f1668f30`](https://github.com/wevm/viem/commit/bf3ffc52b5633afebacf3d728d846080f1668f30) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed reads failing with "Key not found." when the client account is an access key that the chain has not registered yet.
+
+- [#5417](https://github.com/wevm/viem/pull/5417) [`f3fb0ae9d40ad1b54a7f5c840022e0620191b464`](https://github.com/wevm/viem/commit/f3fb0ae9d40ad1b54a7f5c840022e0620191b464) Thanks [@frontier159](https://github.com/frontier159)! - Fixed `waitForTransactionReceipt` dropping a block that arrived while it looked up the transaction or scanned for a replacement, which timed out the wait on a chain that mined no later block.
+
+- [#5406](https://github.com/wevm/viem/pull/5406) [`bb7c12c7514f5a2856c476a4df59ce6489af348f`](https://github.com/wevm/viem/commit/bb7c12c7514f5a2856c476a4df59ce6489af348f) Thanks [@jxom](https://github.com/jxom)! - Fixed `waitForTransactionReceipt` returning a discarded receipt after a reorg while waiting for confirmations.
+
+- [#5430](https://github.com/wevm/viem/pull/5430) [`6c017d55f6f384e6553db09114036169177c21ae`](https://github.com/wevm/viem/commit/6c017d55f6f384e6553db09114036169177c21ae) Thanks [@jxom](https://github.com/jxom)! - Fixed `recoverPublicKey` and `recoverAddress` throwing `Invalid yParityOrV value` for signature objects with an EIP-155 `v` (e.g. from a legacy transaction).
+
+- [#5384](https://github.com/wevm/viem/pull/5384) [`5bfc88bb6f55029094cda6e870d3d7d038467ca0`](https://github.com/wevm/viem/commit/5bfc88bb6f55029094cda6e870d3d7d038467ca0) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `getAbiItem` to resolve `string` overloads for non-hex strings when a `bytes` overload is present.
+
+- [#5401](https://github.com/wevm/viem/pull/5401) [`1d457699c28d19e8f239c1201132adbe3c47fe0c`](https://github.com/wevm/viem/commit/1d457699c28d19e8f239c1201132adbe3c47fe0c) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Marked the aggregate `Abis` exports (`core`, `earn`, `zone`, `propAmm`, `all`) as pure so bundlers drop the ABIs a consumer does not import.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Renamed the `UpgradeMustBeOnlyCall` error to `UpgradeMustBeDirectCall` and added `Abis.configurableAccountShim` (`isValidSignature`, `onERC721Received`) for registered configurable accounts.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Removed admin access keys, which T14 (TIP-1137) retires: the `admin` option on key authorizations, `accessKey.isAdmin`, and `accessKey.watchAdminAuthorized`, so access keys no longer sign key authorizations.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added owner approval coordination for configurable accounts acting as access keys (TIP-1111) to `Relay.accounts` and `withRelay`.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `keyAuthorizationSimulation` to Tempo transaction requests, filled during preparation while a configurable account's key authorization lacks its owner quorum.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Changed `verifyHash` with `mode: 'allowAccessKey'` to verify configurable access keys and to reject retired root keys and inner signatures that do not match the stored key type.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added an `access` option to `Account.fromConfig` so a configurable account can sign as an access key of another account (TIP-1111), with keychain envelopes the relay fee payer accepts.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `Actions.accounts.updateConfigSync` returning the version-0 registration config instead of the installed config on an account's first transaction.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Allowed `keyAuthorization` in `Actions.accounts.upgrade` and `upgradeSync`, and made the accounts relay cache configs from upgrades anywhere in a batch, matching TIP-1113.
+
+- [#5405](https://github.com/wevm/viem/pull/5405) [`828d3964bf1bbf72f438f0942aee0dd760eabe1a`](https://github.com/wevm/viem/commit/828d3964bf1bbf72f438f0942aee0dd760eabe1a) Thanks [@gakonst](https://github.com/gakonst)! - Added the Multicall3 that Tempo Mainnet, Moderato and Devnet deploy at genesis to `tempo`, `tempoModerato` and `tempoDevnet`, so their clients batch and `multicall` through it instead of needing `deployless`.
+
+- [#5411](https://github.com/wevm/viem/pull/5411) [`3708ffc3fc8ec0a957a577970da87903811cf649`](https://github.com/wevm/viem/commit/3708ffc3fc8ec0a957a577970da87903811cf649) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Removed the `decimals` read when resolving an insufficient TIP-20 balance error.
+
+- [#5403](https://github.com/wevm/viem/pull/5403) [`2a5d1a19c363d4cdf53222aeda084e96386fcd52`](https://github.com/wevm/viem/commit/2a5d1a19c363d4cdf53222aeda084e96386fcd52) Thanks [@A-G0D](https://github.com/A-G0D)! - Fixed `validateTypedData` (and so `hashTypedData` and `signTypedData`) rejecting struct names that contain `:`, such as `HyperliquidTransaction:SendAsset`.
+
+- [#5427](https://github.com/wevm/viem/pull/5427) [`2b9026da097323e7e9be8914c53f58edcdd0249a`](https://github.com/wevm/viem/commit/2b9026da097323e7e9be8914c53f58edcdd0249a) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `withRelay` and `withFeePayer` nesting the retries of their inner transports, which sent a failed request up to 16 times. The inner transports now send each attempt once, and the relay transport retries with the client's `retryCount`, as `fallback` does.
+
 ## 2.57.16
 
 ### Patch Changes
