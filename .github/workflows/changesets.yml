@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
@@ -45,7 +45,7 @@ jobs:
 
       - name: Create Version Pull Request
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/v1@6d24d44bb98809270f8d2a19d584f29aeb384be5 # upstream v1.9.0
+        uses: wevm/actions/vendor/changesets/action/v1@9bf103bd47b43c77baa02648201039b6ef3d713b # upstream v1.9.0
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies
@@ -76,7 +76,7 @@ jobs:
           skip-cache: true # avoid cache poisoning attacks
 
       - name: Publish to NPM
-        uses: wevm/actions/vendor/changesets/action/v1@6d24d44bb98809270f8d2a19d584f29aeb384be5 # upstream v1.9.0
+        uses: wevm/actions/vendor/changesets/action/v1@9bf103bd47b43c77baa02648201039b6ef3d713b # upstream v1.9.0
         with:
           createGithubReleases: false
           publish: pnpm changeset:publish
@@ -98,7 +98,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies
@@ -108,7 +108,7 @@ jobs:
 
       - name: Publish to NPM
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/v1@6d24d44bb98809270f8d2a19d584f29aeb384be5 # upstream v1.9.0
+        uses: wevm/actions/vendor/changesets/action/v1@9bf103bd47b43c77baa02648201039b6ef3d713b # upstream v1.9.0
         with:
           createGithubReleases: true
           publish: pnpm changeset:publish
