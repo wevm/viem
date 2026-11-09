@@ -1,0 +1,300 @@
+---
+description: Migrate an existing account to a configurable account at its current address.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Migrate an Existing Account
+
+## Overview
+
+:::warning
+**Experimental.** Configurable account support is experimental and may change in a future release.
+It is not yet available on Tempo mainnet or testnet.
+:::
+
+Account migration ([TIP-1113](https://tips.sh/1113)) turns an existing account into a configurable
+account at its current address. Balances, approvals, roles, and access keys stay in place, and
+Tempo retires the account's original key.
+
+Use migration when an account's address already matters: users pay it, applications hold its
+approvals, or it holds token roles. Moving those to a new configurable account would mean telling
+everyone about a new address.
+
+This guide covers the workflow around a migration. See
+[Upgrade an Account](/tempo/guides/configurable-accounts/upgrade) for the upgrade transaction itself.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Check the Account Can Migrate
+
+Only an account without code, EIP-7702 delegation, or a config commitment can migrate. Read its code
+with [`getCode`](/docs/actions/public/getCode) and its commitment with
+[`accounts.getConfigCommitment`](/tempo/actions/accounts.getConfigCommitment) before asking for a
+signature.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { zeroHash } from 'viem'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const root = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+
+const code = await client.getCode({ address: root.address }) // [!code focus]
+const commitment = await client.accounts.getConfigCommitment({ // [!code focus]
+  account: root.address, // [!code focus]
+}) // [!code focus]
+
+const canMigrate = !code && commitment === zeroHash // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Revoke Access Keys in the Migration
+
+Migration keeps every access key the account granted. To drop keys you no longer trust, revoke them
+with [`accessKey.revoke.call`](/tempo/actions/accessKey.revoke) before the upgrade call, in the
+same transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const root = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+
+const receipt = await client.sendTransactionSync({
+  account: root,
+  calls: [
+    Actions.accessKey.revoke.call({ // [!code focus]
+      accessKey: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', // [!code focus]
+    }), // [!code focus]
+    Actions.accounts.upgrade.call({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    }),
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+A reverting revocation aborts the whole migration, for example when another transaction already
+revoked that key. Simulate the batch again right before submitting it.
+
+### Sponsor the Migration
+
+The original key must sign the migration, but another account can pay its fees. Pass a local fee
+payer as `feePayer`, so an account without a fee token balance can still migrate.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const root = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const feePayer = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+
+const { config } = await client.accounts.upgradeSync({
+  account: root,
+  feePayer, // [!code focus]
+  owners: [{ owner: owner.address, weight: 1 }],
+  threshold: 1,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Keep a Cross-Chain Recovery Key
+
+A derived configurable account address exists only on Tempo, so funds sent to it on another chain
+are lost. Instead, generate a fresh key, migrate it right away to the real owners, and keep that key
+offline for recovery.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+const feePayer = Account.fromSecp256k1(
+  '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6'
+)
+
+// 1. Generate a fresh key. Its address becomes the account address.
+const recoveryKey = generatePrivateKey() // [!code focus]
+const recovery = Account.fromSecp256k1(recoveryKey) // [!code focus]
+
+// 2. Migrate it before sharing or funding the address.
+await client.accounts.upgradeSync({ // [!code focus]
+  account: recovery, // [!code focus]
+  feePayer, // [!code focus]
+  owners: [ // [!code focus]
+    { owner: owner_1.address, weight: 1 }, // [!code focus]
+    { owner: owner_2.address, weight: 1 }, // [!code focus]
+  ], // [!code focus]
+  threshold: 2, // [!code focus]
+}) // [!code focus]
+
+// 3. Use the account through its owners, and store `recoveryKey` offline.
+const account = Account.fromConfig({
+  address: recovery.address,
+  upgrade: { owners: [owner_1, owner_2], threshold: 2 },
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The key is retired on Tempo but still controls the address on other EVM chains. Use it only to move
+mistaken transfers out, and do not list it as an owner. Show users who holds it, separately from the
+owners.
+
+### Confirm the Migration
+
+[`accounts.upgradeSync`](/tempo/actions/accounts.upgradeSync) returns the installed config and its
+commitment. Treat the migration as final once the account's commitment at finalized state matches,
+and keep the config with the account address to recreate the account later.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const root = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+
+const { commitment, config } = await client.accounts.upgradeSync({
+  account: root,
+  owners: [{ owner: owner.address, weight: 1 }],
+  threshold: 1,
+})
+
+const finalized = await client.accounts.getConfigCommitment({ // [!code focus]
+  account: root.address, // [!code focus]
+  blockTag: 'finalized', // [!code focus]
+}) // [!code focus]
+const isFinal = finalized === commitment // [!code focus]
+
+// Store `config` with `root.address`, since Tempo keeps only its commitment.
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Recover the Installed Config
+
+If the config was not kept, read it from the account's `AccountUpgraded` event with
+[`getContractEvents`](/docs/contract/getContractEvents). Then recreate the account from its address
+and the installed owners.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis, Account, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+
+const [event] = await client.getContractEvents({ // [!code focus]
+  abi: Abis.configurableAccount, // [!code focus]
+  address: Addresses.configurableAccount, // [!code focus]
+  args: { account: address }, // [!code focus]
+  eventName: 'AccountUpgraded', // [!code focus]
+  fromBlock: 'earliest', // [!code focus]
+  strict: true, // [!code focus]
+}) // [!code focus]
+if (!event) throw new Error('Account has not migrated.')
+
+const account = Account.fromConfig({
+  address,
+  upgrade: { owners: event.args.owners, threshold: event.args.threshold }, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+After an owner rotation, apply the account's later `ConfigurableAccountConfigUpdated` events too.
+See [Rotate Owners](/tempo/guides/configurable-accounts/rotate-owners#retain-the-current-configuration).
+
+## Best Practices
+
+### Migrate While the Key Is Trusted
+
+A compromised original key can race the migration with its own owners, or add access keys that
+survive it. Tempo cannot tell the two apart, so migration protects only an account whose key is
+still trusted when it migrates.
+
+### Review Access Keys Afterwards
+
+The original key could add access keys before the migration landed. After migrating, check each
+known key with [`accessKey.getMetadata`](/tempo/actions/accessKey.getMetadata) and revoke unwanted
+ones with the new owners. Repeat on each zone once it processes the migration.
+
+### Retire the Original Key Everywhere
+
+Tempo rejects the original key with `RootKeyRetired`, but other chains and applications that call
+`ecrecover` without checking for code still accept it. Keep the key offline, and reset approvals
+that such applications hold.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:arrow-up-circle" title="Upgrade an Account" description="Send the upgrade alone, with an access key, or in a batch." to="/tempo/guides/configurable-accounts/upgrade" />
+  <Card icon="lucide:square-function" title="accounts.upgradeSync" description="Upgrade an existing account and wait for confirmation." to="/tempo/actions/accounts.upgradeSync" />
+  <Card icon="lucide:book-open" title="TIP-1113" description="Read the specification for account migration and original-key retirement." to="https://tips.sh/1113" />
+</Cards>

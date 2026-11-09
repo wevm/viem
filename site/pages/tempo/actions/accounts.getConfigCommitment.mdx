@@ -1,0 +1,98 @@
+---
+description: Gets the current configuration commitment for a configurable account.
+---
+
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accounts.getConfigCommitment`
+
+Gets the current configuration commitment for an account from the configurable account precompile.
+Tempo stores this 32-byte hash of the current config, not the config itself.
+
+The commitment is zero until a config is committed: for an ordinary account, or for a derived address
+that has not registered yet. It becomes nonzero after registration or an
+[upgrade](/tempo/actions/accounts.upgrade), and changes with each config update.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const commitment = await client.accounts.getConfigCommitment({
+  account: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const commitment = await Actions.accounts.getConfigCommitment(client, {
+  account: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
+})
+```
+
+## Recipes
+
+### Compare With a Config
+
+Compute a config's commitment with `AccountConfig.getCommitment` to check that it is the account's
+current config. For example, rebuild the config an upgrade installed with `AccountConfig.fromUpgrade`.
+
+```ts twoslash
+import { AccountConfig } from 'viem/tempo'
+import { client } from './viem.config'
+
+const address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+const config = AccountConfig.fromUpgrade(address, {
+  owners: [{ owner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', weight: 1 }],
+  threshold: 1,
+})
+
+const commitment = await client.accounts.getConfigCommitment({ account: address })
+
+const isCurrent = commitment === AccountConfig.getCommitment(config)
+```
+
+:::tip
+See [Migrate an Account](/tempo/guides/configurable-accounts/migrate) to check that an account can
+migrate and to confirm its migration at finalized state.
+:::
+
+## Return Value
+
+`Hex`
+
+The current configuration commitment, or `0x0000000000000000000000000000000000000000000000000000000000000000`
+when no config has been committed.
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+The account address.
+
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.getConfigCommitment({
+  account: '0x7b378778e4b0dfd068bc74979508219e2ba2074c', // [!code focus]
+})
+```
+
+<ReadParameters />
