@@ -9,6 +9,14 @@ import {
   InvalidAbiDecodingTypeError,
   type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
+import {
+  IntegerOutOfRangeError,
+  type IntegerOutOfRangeErrorType,
+} from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import {
@@ -130,11 +138,17 @@ const sizeOfOffset = 32
 type DecodeAddressErrorType =
   | ChecksumAddressErrorType
   | BytesToHexErrorType
+  | InvalidAddressErrorType
   | SliceBytesErrorType
   | ErrorType
 
 function decodeAddress(cursor: Cursor) {
   const value = cursor.readBytes(32)
+  // An address occupies the low 20 bytes of the word; the high 12 bytes
+  // must be zero padding.
+  for (let i = 0; i < 12; i++)
+    if (value[i] !== 0)
+      throw new InvalidAddressError({ address: bytesToHex(value) })
   return [checksumAddress(bytesToHex(sliceBytes(value, -20))), 32]
 }
 
@@ -277,20 +291,29 @@ function decodeBytes(
 }
 
 type DecodeNumberErrorType =
-  | BytesToNumberErrorType
   | BytesToBigIntErrorType
+  | IntegerOutOfRangeErrorType
   | ErrorType
 
 function decodeNumber(cursor: Cursor, param: AbiParameter) {
   const signed = param.type.startsWith('int')
   const size = Number.parseInt(param.type.split('int')[1] || '256', 10)
-  const value = cursor.readBytes(32)
-  return [
-    size > 48
-      ? bytesToBigInt(value, { signed })
-      : bytesToNumber(value, { signed }),
-    32,
-  ]
+  const value = bytesToBigInt(cursor.readBytes(32), { signed })
+  // The word must hold a value that fits the declared size (zero-padded for
+  // unsigned, sign-extended for signed types).
+  if (size < 256) {
+    const max = (1n << BigInt(signed ? size - 1 : size)) - 1n
+    const min = signed ? -max - 1n : 0n
+    if (value > max || value < min)
+      throw new IntegerOutOfRangeError({
+        max: max.toString(),
+        min: min.toString(),
+        signed,
+        size: size / 8,
+        value: value.toString(),
+      })
+  }
+  return [size > 48 ? value : Number(value), 32]
 }
 
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
