@@ -468,6 +468,10 @@ export default defineConfig({
                 link: '/docs/actions/public/getLogs',
               },
               {
+                text: 'iterateLogs',
+                link: '/docs/actions/public/iterateLogs',
+              },
+              {
                 text: 'watchEvent',
                 link: '/docs/actions/public/watchEvent',
               },

@@ -675,6 +675,7 @@ describe('extends', () => {
         "getTransactionConfirmations": [Function],
         "getTransactionCount": [Function],
         "getTransactionReceipt": [Function],
+        "iterateLogs": [Function],
         "key": "base",
         "multicall": [Function],
         "name": "Base Client",

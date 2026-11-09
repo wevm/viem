@@ -73,6 +73,7 @@ test('default', async () => {
       "getTransactionConfirmations": [Function],
       "getTransactionCount": [Function],
       "getTransactionReceipt": [Function],
+      "iterateLogs": [Function],
       "multicall": [Function],
       "prepareTransactionRequest": [Function],
       "readContract": [Function],

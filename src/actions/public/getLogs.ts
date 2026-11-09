@@ -28,6 +28,8 @@ import {
   type FormatLogErrorType,
   formatLog,
 } from '../../utils/formatters/log.js'
+import type { GetBlockErrorType } from './getBlock.js'
+import { type IterateLogsParameters, iterateLogs } from './iterateLogs.js'
 
 export type GetLogsParameters<
   abiEvent extends AbiEvent | undefined = undefined,
@@ -78,12 +80,30 @@ export type GetLogsParameters<
         /** Block number or tag before which to include logs */
         toBlock?: toBlock | BlockNumber | BlockTag | undefined
         blockHash?: undefined
+        blockRange?: undefined
       }
     | {
         fromBlock?: undefined
         toBlock?: undefined
         /** Hash of block to include logs from */
         blockHash?: Hash | undefined
+        blockRange?: undefined
+      }
+    | {
+        /** First block to include logs from. Inclusive. */
+        fromBlock: BlockNumber
+        /**
+         * Last block to include logs from. Inclusive. A block tag is resolved to a block number once, before the first request.
+         * @default 'latest'
+         */
+        toBlock?: BlockNumber | Exclude<BlockTag, 'pending'> | undefined
+        blockHash?: undefined
+        /**
+         * Most blocks to request in one `eth_getLogs` call. When set, logs are requested in
+         * consecutive ranges of at most this many blocks, and a range the RPC Provider rejects
+         * is halved and requested again. Must be at least `1n`.
+         */
+        blockRange: bigint
       }
   )
 
@@ -107,6 +127,7 @@ export type GetLogsErrorType =
   | DecodeEventLogErrorType
   | EncodeEventTopicsErrorType
   | FormatLogErrorType
+  | GetBlockErrorType
   | NumberToHexErrorType
   | RequestErrorType
   | ErrorType
@@ -153,9 +174,32 @@ export async function getLogs<
     event,
     events: events_,
     args,
+    blockRange,
     strict: strict_,
   }: GetLogsParameters<abiEvent, abiEvents, strict, fromBlock, toBlock> = {},
 ): Promise<GetLogsReturnType<abiEvent, abiEvents, strict, fromBlock, toBlock>> {
+  if (blockRange !== undefined) {
+    const logs = []
+    for await (const page of iterateLogs(client, {
+      address,
+      args,
+      blockRange,
+      event,
+      events: events_,
+      fromBlock,
+      strict: strict_,
+      toBlock,
+    } as IterateLogsParameters))
+      for (const log of page.logs) logs.push(log)
+    return logs as GetLogsReturnType<
+      abiEvent,
+      abiEvents,
+      strict,
+      fromBlock,
+      toBlock
+    >
+  }
+
   const strict = strict_ ?? false
   const events = events_ ?? (event ? [event] : undefined)
 

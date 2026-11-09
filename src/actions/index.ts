@@ -243,6 +243,12 @@ export {
   getTransactionReceipt,
 } from './public/getTransactionReceipt.js'
 export {
+  type IterateLogsErrorType,
+  type IterateLogsParameters,
+  type IterateLogsReturnType,
+  iterateLogs,
+} from './public/iterateLogs.js'
+export {
   type MulticallErrorType,
   type MulticallParameters,
   type MulticallReturnType,

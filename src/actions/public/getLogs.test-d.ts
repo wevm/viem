@@ -1,4 +1,5 @@
 import type { AbiEvent } from 'abitype'
+import { parseAbiItem } from 'viem'
 import { expectTypeOf, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
@@ -269,4 +270,33 @@ test('pending logs', async () => {
   expectTypeOf(logs_bothPending[0].logIndex).toEqualTypeOf<null>()
   expectTypeOf(logs_bothPending[0].transactionHash).toEqualTypeOf<null>()
   expectTypeOf(logs_bothPending[0].transactionIndex).toEqualTypeOf<null>()
+})
+
+test('blockRange', async () => {
+  const logs = await getLogs(client, {
+    blockRange: 1_000n,
+    event: parseAbiItem(
+      'event Transfer(address indexed from, address indexed to, uint256 value)',
+    ),
+    fromBlock: 0n,
+    toBlock: 'finalized',
+  })
+  expectTypeOf(logs[0]!.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(logs[0]!.eventName).toEqualTypeOf<'Transfer'>()
+
+  // @ts-expect-error `fromBlock` must be a block number.
+  await getLogs(client, { blockRange: 1_000n, fromBlock: 'latest' })
+  // @ts-expect-error `fromBlock` is required.
+  await getLogs(client, { blockRange: 1_000n })
+  await getLogs(client, {
+    blockRange: 1_000n,
+    fromBlock: 0n,
+    // @ts-expect-error `toBlock` cannot be pending.
+    toBlock: 'pending',
+  })
+  await getLogs(client, {
+    blockHash: '0x',
+    // @ts-expect-error `blockHash` cannot be paged.
+    blockRange: 1_000n,
+  })
 })
