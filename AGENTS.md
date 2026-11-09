@@ -151,6 +151,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Colocate relay plugin integration tests**; add HTTP coverage to each plugin's existing test file under `src/tempo/internal/relay/`, not a shared relay suite.
 
 - **Use `pnpm test` for tests**; run tests through package scripts, not `vitest` directly.
+- **Pass `--update all` before paths, not `-u`**; `-u` takes an optional value, so `-u <path>` swallows the path and updates snapshots across the whole suite.
 - **No mocks, ever**; tests must not use mocks, stubs, or `vi`.
   - Forbidden examples: `vi.fn`, `vi.mock`, `vi.spyOn`, fake `fetch`, fake clients.
   - Exercise real behavior against the configured test chain or real ephemeral servers.
