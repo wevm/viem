@@ -9,13 +9,13 @@ runs:
       run: gh repo clone wevm/wagmi
 
     - name: Set up pnpm
-      uses: wevm/actions/vendor/pnpm/action-setup/v6@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v6.1.0
+      uses: wevm/actions/vendor/pnpm/action-setup/v6@b518cf981b50a4c745a8b7335fc693f34b108a75 # upstream v6.1.0
       with:
         dest: ~/setup-pnpm-wagmi
         package_json_file: ./wagmi/package.json
 
     - name: Set up node
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       env:
         NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS: 'false'
       with:
