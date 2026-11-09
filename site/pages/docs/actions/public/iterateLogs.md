@@ -6,7 +6,7 @@ description: Iterates over the event logs in a block range, one page of blocks a
 
 Iterates over the **event** logs in a block range, one page of blocks at a time.
 
-Use `iterateLogs` to read logs across more blocks than an RPC Provider allows in one [`getLogs`](/docs/actions/public/getLogs) call, such as when backfilling event history.
+Use `iterateLogs` to read logs across more blocks than an RPC Provider allows in one [`getLogs`](/docs/actions/public/getLogs) call, such as when backfilling event history. To get every log in the range at once, use [`getLogs`](/docs/actions/public/getLogs#paged-block-ranges) with `blockRange`.
 
 ## Usage
 

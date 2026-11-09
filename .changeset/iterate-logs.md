@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added `iterateLogs`, which iterates over the event logs in a block range one page of blocks at a time, splitting pages that an RPC Provider rejects.
+Added `iterateLogs` and a `blockRange` parameter on `getLogs`, which read logs across a block range in pages of blocks and split pages that an RPC Provider rejects.

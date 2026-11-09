@@ -1,3 +1,4 @@
+import { createClient, type Hex, hexToBigInt, http } from 'viem'
 import {
   assertType,
   beforeAll,
@@ -12,7 +13,7 @@ import { usdcContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts, address } from '~test/constants.js'
 import type { NormalizeType } from '~test/typeUtils.js'
-import { deployErc20InvalidTransferEvent } from '~test/utils.js'
+import { createRpcProxy, deployErc20InvalidTransferEvent } from '~test/utils.js'
 import type { Log } from '../../types/log.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
@@ -243,6 +244,44 @@ describe('events', () => {
         "value": 120434120394n,
       }
     `)
+  })
+
+  test('args: blockRange', async () => {
+    const url = await createRpcProxy(
+      anvilMainnet.rpcUrl.http,
+      ({ method, params }) => {
+        if (method !== 'eth_getLogs') return undefined
+        const [{ fromBlock, toBlock }] = params as [
+          { fromBlock: Hex; toBlock: Hex },
+        ]
+        if (hexToBigInt(toBlock) - hexToBigInt(fromBlock) + 1n > 2n)
+          return {
+            error: { code: -32602, message: 'block range exceeds 2 blocks' },
+          }
+        return undefined
+      },
+    )
+    const client_ = createClient({
+      ...anvilMainnet.clientConfig,
+      transport: http(url, { retryCount: 0 }),
+    })
+
+    const logs = await getLogs(client_, {
+      blockRange: 4n,
+      event: event.default,
+      fromBlock: anvilMainnet.forkBlockNumber - 5n,
+      toBlock: anvilMainnet.forkBlockNumber,
+    })
+
+    assertType<Log<bigint, number, false, typeof event.default>[]>(logs)
+    expect(logs.length).toMatchInlineSnapshot(`1482`)
+    expect(logs).toEqual(
+      await getLogs(client, {
+        event: event.default,
+        fromBlock: anvilMainnet.forkBlockNumber - 5n,
+        toBlock: anvilMainnet.forkBlockNumber,
+      }),
+    )
   })
 
   test('args: blockHash', async () => {
