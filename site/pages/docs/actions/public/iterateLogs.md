@@ -117,7 +117,7 @@ const pages = publicClient.iterateLogs({
 - **Type:** `bigint`
 - **Default:** `1_000n`
 
-Most blocks to request in one `eth_getLogs` call.
+Most blocks to request in one `eth_getLogs` call. Must be at least `1n`.
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]

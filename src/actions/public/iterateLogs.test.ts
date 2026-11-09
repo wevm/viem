@@ -277,3 +277,19 @@ test('behavior: throws when a single block is rejected', async () => {
 
   expect(error.name).toMatchInlineSnapshot(`"LimitExceededRpcError"`)
 })
+
+test('behavior: rejects a block range of less than one block', async () => {
+  const error = await iterateLogs(client, {
+    blockRange: 0n,
+    fromBlock: 0n,
+    toBlock: 1n,
+  })
+    .next()
+    .catch((error) => error)
+
+  expect(error).toMatchInlineSnapshot(`
+    [BaseError: \`blockRange\` must be at least 1n.
+
+    Version: viem@x.y.z]
+  `)
+})

@@ -2,6 +2,8 @@ import type { AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { BaseError } from '../../errors/base.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -31,7 +33,7 @@ export type IterateLogsParameters<
   /** Address or list of addresses from which logs originated */
   address?: Address | Address[] | undefined
   /**
-   * Most blocks to request in one `eth_getLogs` call.
+   * Most blocks to request in one `eth_getLogs` call. Must be at least `1n`.
    * @default 1_000n
    */
   blockRange?: bigint | undefined
@@ -93,7 +95,10 @@ export type IterateLogsReturnType<
   undefined
 >
 
-export type IterateLogsErrorType = GetBlockErrorType | GetLogsErrorType
+export type IterateLogsErrorType =
+  | GetBlockErrorType
+  | GetLogsErrorType
+  | ErrorType
 
 /**
  * Iterates over the event logs in a block range, one page of blocks at a time.
@@ -150,6 +155,10 @@ export async function* iterateLogs<
     strict,
     toBlock = 'latest',
   } = parameters
+
+  // A range of less than one block never moves past `fromBlock`.
+  if (blockRange < 1n)
+    throw new BaseError(`\`blockRange\` must be at least 1n.`)
 
   // Resolve a block tag once, so the iteration has a fixed end.
   const endBlock =
