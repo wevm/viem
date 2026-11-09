@@ -196,6 +196,11 @@ import {
   getTransactionReceipt,
 } from '../../actions/public/getTransactionReceipt.js'
 import {
+  type IterateLogsParameters,
+  type IterateLogsReturnType,
+  iterateLogs,
+} from '../../actions/public/iterateLogs.js'
+import {
   type MulticallParameters,
   type MulticallReturnType,
   multicall,
@@ -1530,6 +1535,47 @@ export type PublicActions<
     args: GetTransactionReceiptParameters,
   ) => Promise<GetTransactionReceiptReturnType<chain>>
   /**
+   * Iterates over the event logs in a block range, one page of blocks at a time.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/iterateLogs
+   * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
+   *
+   * Pages are contiguous and are yielded even when they contain no logs, so a consumer that
+   * stores each page's `toBlock` can resume from `toBlock + 1n`. A page is only requested
+   * once the consumer asks for it. If a request fails with an error that a smaller block
+   * range may avoid (such as an RPC Provider's block range or response size limit), the page
+   * is halved and requested again.
+   *
+   * @param args - {@link IterateLogsParameters}
+   * @returns An async iterator of log pages. {@link IterateLogsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbiItem } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * for await (const page of client.iterateLogs({
+   *   event: parseAbiItem('event Transfer(address indexed, address indexed, uint256)'),
+   *   fromBlock: 16330000n,
+   *   toBlock: 16340000n,
+   * })) {
+   *   console.log(page.toBlock, page.logs)
+   * }
+   */
+  iterateLogs: <
+    const abiEvent extends AbiEvent | undefined = undefined,
+    const abiEvents extends
+      | readonly AbiEvent[]
+      | readonly unknown[]
+      | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+    strict extends boolean | undefined = undefined,
+  >(
+    args: IterateLogsParameters<abiEvent, abiEvents, strict>,
+  ) => IterateLogsReturnType<abiEvent, abiEvents, strict>
+  /**
    * Similar to [`readContract`](https://viem.sh/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
    *
    * - Docs: https://viem.sh/docs/contract/multicall
@@ -2373,6 +2419,7 @@ export function publicActions<
       getTransactionConfirmations(client, args),
     getTransactionCount: (args) => getTransactionCount(client, args),
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
+    iterateLogs: (args) => iterateLogs(client, args as any),
     multicall: (args) => multicall(client, args),
     prepareTransactionRequest: (args) =>
       prepareTransactionRequest(client as any, args as any) as any,

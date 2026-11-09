@@ -68,6 +68,7 @@ test('exports actions', () => {
       "impersonateAccount": [Function],
       "increaseTime": [Function],
       "inspectTxpool": [Function],
+      "iterateLogs": [Function],
       "loadState": [Function],
       "mine": [Function],
       "multicall": [Function],

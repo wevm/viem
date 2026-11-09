@@ -589,6 +589,7 @@ test('extend', () => {
       "impersonateAccount": [Function],
       "increaseTime": [Function],
       "inspectTxpool": [Function],
+      "iterateLogs": [Function],
       "key": "wallet",
       "loadState": [Function],
       "mine": [Function],
