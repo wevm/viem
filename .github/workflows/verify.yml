@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -87,7 +87,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -124,7 +124,7 @@ jobs:
         total-shards: [3]
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -136,7 +136,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -151,7 +151,7 @@ jobs:
           VITE_SHARD_ID: ${{ matrix.shard }}
 
       - name: Upload coverage reports to Codecov
-        uses: wevm/actions/vendor/codecov/codecov-action/v4.6.0@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/codecov/codecov-action/v4.6.0@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -165,7 +165,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'recursive'
 
@@ -196,7 +196,7 @@ jobs:
           # - mainnet
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'recursive'
 
@@ -204,7 +204,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Run tests
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -224,7 +224,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'recursive'
 
@@ -235,7 +235,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Run tests
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -264,7 +264,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'recursive'
 
@@ -275,7 +275,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local Tempo
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -318,21 +318,21 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
       - name: Set up foundry
-        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           version: v1.8.7
 
       - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/.github/actions/pnpm@b518cf981b50a4c745a8b7335fc693f34b108a75
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
-        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           bun-version: 1.4.4
 
@@ -364,7 +364,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -390,7 +390,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
