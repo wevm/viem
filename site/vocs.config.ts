@@ -2583,6 +2583,10 @@ export default defineConfig({
                   text: 'Upgrade an Account',
                   link: '/tempo/guides/configurable-accounts/upgrade',
                 },
+                {
+                  text: 'Migrate an Account',
+                  link: '/tempo/guides/configurable-accounts/migrate',
+                },
               ],
             },
           ],
@@ -2691,6 +2695,11 @@ export default defineConfig({
                   badge: { text: 'EXP', variant: 'warning' },
                   text: 'getConfig',
                   link: '/tempo/actions/accounts.getConfig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getConfigCommitment',
+                  link: '/tempo/actions/accounts.getConfigCommitment',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
