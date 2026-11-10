@@ -13,13 +13,13 @@ import {
   SignaturePreAuthorized,
 } from 'ox/tempo'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
+import { KeyAuthorizationManager } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
-import * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 import * as Scopes from './Scopes.js'
 import * as Transaction from './Transaction.js'
 

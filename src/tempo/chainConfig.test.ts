@@ -4,6 +4,7 @@ import {
   SignatureEnvelope,
   SignaturePreAuthorized,
 } from 'ox/tempo'
+import { getBlock, getBlockNumber } from 'viem/actions'
 import { Transaction } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
@@ -11,8 +12,6 @@ import { rpcUrl } from '~test/tempo/prool.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import {
-  getBlock,
-  getBlockNumber,
   getTransaction,
   getTransactionReceipt,
   prepareTransactionRequest,
