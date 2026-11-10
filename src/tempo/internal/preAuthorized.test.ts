@@ -170,6 +170,27 @@ describe('isRegistrable', () => {
           },
         ],
       }),
+      // 5,000 + 7,000 × 64 + 7,000 × 4,096 + 5,000 × 175 = 30,000,000 gas of call scope surcharge, which leaves no room for the base gas.
+      'call scope gas at the transaction gas limit cap': authorization({
+        scopes: Array.from({ length: 64 }, (_, target) =>
+          Array.from({ length: 64 }, (_, rule) => {
+            const count = rule === 0 ? ([64, 64, 47][target] ?? 0) : 0
+            return {
+              address: address(target + 1, '0x20c0'),
+              selector: (rule === 0
+                ? transfer
+                : `0x${(rule + 1).toString(16).padStart(8, '0')}`) as `0x${string}`,
+              ...(count
+                ? {
+                    recipients: Array.from({ length: count }, (_, i) =>
+                      address(i + 1),
+                    ),
+                  }
+                : {}),
+            }
+          }),
+        ).flat(),
+      }),
       // Within every pool cap: 5,000 + 7,000 × 64 + 7,000 × 4,096 + 5,000 × 64 × 64 = 49,605,000 gas of call scope surcharge.
       'call scope gas over the transaction gas limit cap': authorization({
         scopes: Array.from({ length: 64 }, (_, target) =>
@@ -259,6 +280,10 @@ describe('isRegistrable', () => {
         ],
         [
           "too many recipients",
+          false,
+        ],
+        [
+          "call scope gas at the transaction gas limit cap",
           false,
         ],
         [

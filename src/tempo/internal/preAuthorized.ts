@@ -32,6 +32,10 @@ const maxLimits = 256
 const maxScopes = 64
 /** Transaction gas limit cap (from T1A). */
 const maxTransactionGas = 30_000_000n
+/** Base gas of every transaction. */
+const baseTransactionGas = 21_000n
+/** Gas to create the access key's storage slot. */
+const keySlotGas = 20_000n
 /** Largest spending limit `authorizeKey` accepts. */
 const maxLimit = 2n ** 128n - 1n
 /** TIP-20 selectors a recipient-constrained selector rule may name: `transfer`, `approve`, and `transferWithMemo`. */
@@ -268,12 +272,15 @@ export function isRegistrable(
 
   // The call scope surcharge alone can exceed the transaction gas limit cap, so no transaction
   // could carry the authorization.
+  // Any carrying transaction also pays the base transaction gas and writes the key's slot, so
+  // count those as a lower bound on the rest of its intrinsic gas. Account-dependent costs
+  // (signature verification, nonce, configurable account) are not counted.
   const surcharge =
     5_000n +
     7_000n * BigInt(targets.size) +
     7_000n * selectorCount +
     5_000n * recipientCount
-  return surcharge <= maxTransactionGas
+  return baseTransactionGas + keySlotGas + surcharge <= maxTransactionGas
 }
 
 /** Returns the `getBlock` parameters for a reference block. */
@@ -285,7 +292,8 @@ function getBlockParameters(block: {
   if (block.blockHash) return { blockHash: block.blockHash }
   if (typeof block.blockNumber === 'bigint')
     return { blockNumber: block.blockNumber }
-  return { blockTag: block.blockTag ?? 'latest' }
+  // An omitted tag keeps the client's default, as the state reads do.
+  return block.blockTag ? { blockTag: block.blockTag } : {}
 }
 
 /** Returns `false` for a reverted read, and rethrows other errors. */
