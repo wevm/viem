@@ -1,9 +1,17 @@
 import { Value, WebCryptoP256 } from 'ox'
 import * as Address from 'ox/Address'
+import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { AccountConfig, Channel, Period, SignatureEnvelope } from 'ox/tempo'
+import {
+  AccountConfig,
+  Channel,
+  KeyAuthorization,
+  Period,
+  SignatureEnvelope,
+  SignaturePreAuthorized,
+} from 'ox/tempo'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
@@ -11,6 +19,7 @@ import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
+import * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 import * as Scopes from './Scopes.js'
 import * as Transaction from './Transaction.js'
 
@@ -333,6 +342,136 @@ describe('keyAuthorization', () => {
       }),
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: Key authorization does not authorize this access key.]`,
+    )
+  })
+
+  test('behavior: signs pre-authorized signatures while the authorization is pending', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: root })
+    const chainId = client.chain!.id
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: BigInt(chainId),
+    })
+    const account = Account.fromP256(privateKey_p256, {
+      access: root,
+      keyAuthorization,
+    })
+    const typedData = {
+      domain: { name: 'Test' },
+      message: { value: 'hello' },
+      primaryType: 'Mail',
+      types: { Mail: [{ name: 'value', type: 'string' }] },
+    } as const
+
+    const signatures = [
+      await account.sign({ hash: '0xdeadbeef' }),
+      await account.signMessage({ message: 'hello' }),
+      await account.signTypedData(typedData),
+    ]
+    const raw = await account.sign({ hash: '0xdeadbeef', raw: true })
+
+    expect(
+      signatures.map((signature) => {
+        const { keyAuthorization: authorization, signature: keychain } =
+          SignaturePreAuthorized.unwrap(signature)
+        return [
+          KeyAuthorization.serialize(authorization) ===
+            KeyAuthorization.serialize(keyAuthorization),
+          keychain.type,
+          keychain.userAddress,
+          keychain.inner.type,
+        ]
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+      ]
+    `)
+    expect(SignatureEnvelope.deserialize(raw).type).toMatchInlineSnapshot(
+      `"p256"`,
+    )
+
+    await account.keyAuthorizationManager!.remove({
+      accessKey: account.accessKeyAddress,
+      address: root.address,
+      chainId,
+    })
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(false)
+    expect(SignatureEnvelope.deserialize(signature).type).toMatchInlineSnapshot(
+      `"keychain"`,
+    )
+  })
+
+  test('behavior: signs plain keychain signatures without an initial authorization', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const account = Account.fromP256(privateKey_p256, {
+      access: root,
+      keyAuthorizationManager,
+    })
+    await keyAuthorizationManager.set(
+      {
+        accessKey: account.accessKeyAddress,
+        address: root.address,
+        chainId: client.chain!.id,
+      },
+      await root.signKeyAuthorization(account, {
+        chainId: BigInt(client.chain!.id),
+      }),
+    )
+
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(false)
+  })
+
+  test('behavior: TIP-1165 example vector', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const privateKey =
+      '0x59c6995e998f97a5a0044966f0945389dc9d86dae88c7a8412f4603b6b78690d'
+    const key = Account.fromSecp256k1(privateKey, { access: root })
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: 4217n,
+      expiry: 1_900_000_000,
+      limits: [
+        {
+          limit: 10_000_000n,
+          token: '0x20c0000000000000000000000000000000000001',
+        },
+      ],
+      witness:
+        '0xe55f870744098e6baf2f15e0faa6f8f9de283280f26f416dee8dcf9189a553c5',
+    })
+    const account = Account.fromSecp256k1(privateKey, {
+      access: root,
+      keyAuthorization,
+    })
+
+    const signature = await account.sign({
+      hash: keccak256(Hex.fromString('hello')),
+    })
+
+    expect(signature).toMatchInlineSnapshot(
+      `"0xf8fab85604f39fd6e51aad88f6f4ce6ab8827279cfffb922663dc3ccd3e78382806b81f811192a9afa9f38335c19a3897a2676008ab611d8a61c73da6988f81a2cc37c5c712f67280aeb732e45688c9347458092b772306c6c1cf8a0f85b821079809472989d24e6e1f0bbe29a5f304d0db21a318c012e84713fb300dad99420c00000000000000000000000000000000000018398968080a0e55f870744098e6baf2f15e0faa6f8f9de283280f26f416dee8dcf9189a553c5b841c026ad99f18042ef3ac0d7a88ffbcd910eb4ccaf435b1acf684f6eb63425909642b07095e6f94edbf489ac1909caa41b0e3eee6971862939e8403c1ab4e617ca1b1165116511651165116511651165116511651165116511651165116511651165"`,
     )
   })
 })

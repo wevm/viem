@@ -39,6 +39,7 @@ import {
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import * as PreAuthorized from './internal/preAuthorized.js'
 import { transactionReplacement } from './internal/replacement.js'
 import type * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 import * as Transaction from './Transaction.js'
@@ -416,6 +417,25 @@ export const chainConfig = {
       if (signature instanceof Uint8Array) return Hex.fromBytes(signature)
       return undefined
     })()
+
+    // A pre-authorized signature (TIP-1165) carries the root key's authorization of an
+    // access key that the chain may not have registered yet.
+    if (
+      serialized &&
+      mode === 'allowAccessKey' &&
+      PreAuthorized.isPreAuthorized(serialized)
+    )
+      return await PreAuthorized.verify(client, {
+        account: address,
+        blockHash: parameters.blockHash,
+        blockNumber: parameters.blockNumber,
+        blockTag: parameters.blockTag,
+        chainId: (parameters.chain ?? client.chain)?.id,
+        hash,
+        requireCanonical: parameters.requireCanonical,
+        signature: serialized,
+      })
+
     const envelope = (() => {
       if (!serialized) return
       try {
