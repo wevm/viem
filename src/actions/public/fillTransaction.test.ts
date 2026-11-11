@@ -1,8 +1,9 @@
+import { createClient, http } from 'viem'
 import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { deploy } from '~test/utils.js'
+import { createRpcProxy, deploy } from '~test/utils.js'
 import { Delegation } from '../../../contracts/generated.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { encodeFunctionData, nonceManager } from '../../utils/index.js'
@@ -110,6 +111,52 @@ test('args: nonce', async () => {
   })
 
   expect(result.transaction.nonce).toBe(1000)
+})
+
+test('behavior: keeps supplied gas and fees when response has feePayerSignature', async () => {
+  const url = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ method, params }) => {
+      if (method !== 'eth_fillTransaction') return undefined
+      const result = await client.request({
+        method: 'eth_fillTransaction',
+        params: params as never,
+      })
+      return {
+        result: {
+          ...result,
+          tx: {
+            ...result.tx,
+            feePayerSignature: { r: '0x1', s: '0x1', yParity: '0x0' },
+            gas: '0xf4240',
+            maxFeePerGas: '0x174876e800',
+            maxPriorityFeePerGas: '0x174876e800',
+          },
+        },
+      }
+    },
+  )
+  const proxied = createClient({
+    account: accounts[0].address,
+    chain: anvilMainnet.chain,
+    transport: http(url),
+  })
+
+  const { transaction } = await fillTransaction(proxied, {
+    gas: 21_000n,
+    maxFeePerGas: 2_000_000_000n,
+    maxPriorityFeePerGas: 1_000_000_000n,
+    to: '0x0000000000000000000000000000000000000000',
+  })
+
+  const { gas, maxFeePerGas, maxPriorityFeePerGas } = transaction
+  expect({ gas, maxFeePerGas, maxPriorityFeePerGas }).toMatchInlineSnapshot(`
+    {
+      "gas": 21000n,
+      "maxFeePerGas": 2000000000n,
+      "maxPriorityFeePerGas": 1000000000n,
+    }
+  `)
 })
 
 test('behavior: fee multiplier applied when maxFeePerGas not provided', async () => {

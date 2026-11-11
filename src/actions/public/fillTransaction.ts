@@ -197,7 +197,9 @@ export async function fillTransaction<
     // Rewrite fields.
     transaction.data = transaction.input
 
+    // Only Tempo transaction envelopes carry a fee payer signature.
     const hasFeePayerSignature =
+      transaction.type === 'tempo' &&
       typeof transaction.feePayerSignature !== 'undefined' &&
       transaction.feePayerSignature !== null
 
