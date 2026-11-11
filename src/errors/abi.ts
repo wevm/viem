@@ -96,19 +96,6 @@ export class AbiDecodingDataSizeTooSmallError extends BaseError {
   }
 }
 
-export type AbiDecodingSizeLimitExceededErrorType =
-  AbiDecodingSizeLimitExceededError & {
-    name: 'AbiDecodingSizeLimitExceededError'
-  }
-export class AbiDecodingSizeLimitExceededError extends BaseError {
-  constructor({ limit }: { limit: number }) {
-    super(
-      `Decoded \`bytes\` and \`string\` values exceed the size limit of ${limit} bytes.`,
-      { name: 'AbiDecodingSizeLimitExceededError' },
-    )
-  }
-}
-
 export type AbiDecodingZeroDataErrorType = AbiDecodingZeroDataError & {
   name: 'AbiDecodingZeroDataError'
 }

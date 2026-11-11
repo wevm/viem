@@ -5,12 +5,11 @@ import type {
 } from 'abitype'
 import {
   AbiDecodingDataSizeTooSmallError,
-  AbiDecodingSizeLimitExceededError,
-  type AbiDecodingSizeLimitExceededErrorType,
   AbiDecodingZeroDataError,
   InvalidAbiDecodingTypeError,
   type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import {
@@ -433,4 +432,23 @@ function hasDynamicChild(param: AbiParameter) {
     return true
 
   return false
+}
+
+/** Type of {@link AbiDecodingSizeLimitExceededError}. */
+export type AbiDecodingSizeLimitExceededErrorType =
+  AbiDecodingSizeLimitExceededError & {
+    name: 'AbiDecodingSizeLimitExceededError'
+  }
+
+/**
+ * Thrown by `decodeAbiParameters` when the decoded `bytes` and `string` values
+ * of one decode add up to more than 32 times the size of the input data.
+ */
+export class AbiDecodingSizeLimitExceededError extends BaseError {
+  constructor({ limit }: { limit: number }) {
+    super(
+      `Decoded \`bytes\` and \`string\` values exceed the size limit of ${limit} bytes.`,
+      { name: 'AbiDecodingSizeLimitExceededError' },
+    )
+  }
 }

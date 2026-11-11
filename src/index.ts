@@ -810,8 +810,6 @@ export {
   type AbiDecodingDataSizeInvalidErrorType,
   AbiDecodingDataSizeTooSmallError,
   type AbiDecodingDataSizeTooSmallErrorType,
-  AbiDecodingSizeLimitExceededError,
-  type AbiDecodingSizeLimitExceededErrorType,
   AbiDecodingZeroDataError,
   type AbiDecodingZeroDataErrorType,
   AbiEncodingArrayLengthMismatchError,
@@ -1340,6 +1338,8 @@ export type {
 } from './types/utils.js'
 export type { Withdrawal } from './types/withdrawal.js'
 export {
+  AbiDecodingSizeLimitExceededError,
+  type AbiDecodingSizeLimitExceededErrorType,
   type DecodeAbiParametersErrorType,
   type DecodeAbiParametersReturnType,
   decodeAbiParameters,
