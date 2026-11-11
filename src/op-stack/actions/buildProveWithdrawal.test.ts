@@ -2,7 +2,12 @@ import { keccak256 } from 'ethers'
 import { describe, expect, test } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { getTransactionReceipt, reset } from '../../actions/index.js'
+import {
+  getTransactionReceipt,
+  mine,
+  reset,
+  setNextBlockTimestamp,
+} from '../../actions/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import type { RpcBlock, RpcProof } from '../../types/rpc.js'
@@ -124,23 +129,39 @@ test('args: super game', async () => {
 })
 
 test('args: super output', async () => {
-  const { blockNumbers, client, proofBlockNumbers } = superGameClient()
-  const request = await buildProveWithdrawal(client, {
-    account: accounts[0].address,
-    chain: null,
-    output: {
-      l2BlockNumber: game.l2BlockNumber,
-      outputIndex: game.index,
-      outputRoot: game.rootClaim,
-      timestamp: game.timestamp,
-      usesSuperRoots: true,
-    },
-    withdrawal,
+  await reset(optimismClient, {
+    blockNumber: 147000000n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
   })
+  await setNextBlockTimestamp(optimismClient, { timestamp: 1769598779n })
+  await mine(optimismClient, { blocks: 10, interval: 2 })
 
-  expect(blockNumbers).toEqual(['latest', '0x63', '0x5a'])
-  expect(proofBlockNumbers).toEqual(['0x5a'])
-  expect(request.l2OutputIndex).toBe(1n)
+  const { l2OutputIndex, outputRootProof } = await buildProveWithdrawal(
+    optimismClient,
+    {
+      account: accounts[0].address,
+      output: {
+        l2BlockNumber: 1769598787n,
+        outputIndex: 1n,
+        outputRoot: game.rootClaim,
+        timestamp: 0n,
+        usesSuperRoots: true,
+      },
+      withdrawal,
+    },
+  )
+
+  expect({ l2OutputIndex, outputRootProof }).toMatchInlineSnapshot(`
+    {
+      "l2OutputIndex": 1n,
+      "outputRootProof": {
+        "latestBlockhash": "0x0e8e181e97a856235ff731dd66e3224fa0f0cf6bf7e8531eea66fcc4cc63139c",
+        "messagePasserStorageRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+        "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "version": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      },
+    }
+  `)
 })
 
 test('args: super game timestamp mismatch', async () => {
