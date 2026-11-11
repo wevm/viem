@@ -1,4 +1,4 @@
-import { getContractAddress } from 'viem'
+import { getContractAddress, publicActions } from 'viem'
 import { deployContract, getTransaction, readContract } from 'viem/actions'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 import {
@@ -6,6 +6,7 @@ import {
   EoaInitializer,
   EoaOptional,
   EoaReverting,
+  OffchainLookupSigner,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
@@ -395,6 +396,38 @@ describe('erc6492', async () => {
         signature,
       }),
     ).resolves.toBe(true)
+  })
+
+  test('predeployed verifier: signer reverts with OffchainLookup', async () => {
+    const { contractAddress: erc6492VerifierAddress } =
+      await deployErc6492SignatureVerifier()
+    const { contractAddress: signer } = await deploy(client, {
+      abi: OffchainLookupSigner.abi,
+      bytecode: OffchainLookupSigner.bytecode.object,
+    })
+
+    const signature = await signMessage(client, {
+      account: localAccount,
+      message: 'hello world',
+    })
+
+    const parameters = {
+      address: signer!,
+      erc6492VerifierAddress: erc6492VerifierAddress!,
+      hash: hashMessage('hello world'),
+      signature,
+    }
+    const results = [
+      await verifyHash(client, parameters),
+      await verifyHash(client.extend(publicActions), parameters),
+    ]
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        false,
+        false,
+      ]
+    `)
   })
 
   test('deployed w/ factory + factoryData', async () => {
