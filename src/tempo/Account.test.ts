@@ -1,10 +1,19 @@
 import { Value, WebCryptoP256 } from 'ox'
 import * as Address from 'ox/Address'
+import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { AccountConfig, Channel, Period, SignatureEnvelope } from 'ox/tempo'
+import {
+  AccountConfig,
+  Channel,
+  KeyAuthorization,
+  Period,
+  SignatureEnvelope,
+  SignaturePreAuthorized,
+} from 'ox/tempo'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
+import { KeyAuthorizationManager } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
@@ -333,6 +342,132 @@ describe('keyAuthorization', () => {
       }),
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: Key authorization does not authorize this access key.]`,
+    )
+  })
+
+  test('behavior: signs pre-authorized signatures while the authorization is pending', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: root })
+    const chainId = client.chain!.id
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: BigInt(chainId),
+    })
+    const account = Account.fromP256(privateKey_p256, {
+      access: root,
+      keyAuthorization,
+    })
+    const typedData = {
+      domain: { name: 'Test' },
+      message: { value: 'hello' },
+      primaryType: 'Mail',
+      types: { Mail: [{ name: 'value', type: 'string' }] },
+    } as const
+
+    const signatures = [
+      await account.sign({ hash: '0xdeadbeef' }),
+      await account.signMessage({ message: 'hello' }),
+      await account.signTypedData(typedData),
+    ]
+    const raw = await account.sign({ hash: '0xdeadbeef', raw: true })
+
+    expect(
+      signatures.map((signature) => {
+        const { keyAuthorization: authorization, signature: keychain } =
+          SignaturePreAuthorized.unwrap(signature)
+        return [
+          KeyAuthorization.serialize(authorization) ===
+            KeyAuthorization.serialize(keyAuthorization),
+          keychain.type,
+          keychain.userAddress,
+          keychain.inner.type,
+        ]
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+      ]
+    `)
+    expect(SignatureEnvelope.deserialize(raw).type).toMatchInlineSnapshot(
+      `"p256"`,
+    )
+
+    await account.keyAuthorizationManager!.remove({
+      accessKey: account.accessKeyAddress,
+      address: root.address,
+      chainId,
+    })
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(false)
+    expect(SignatureEnvelope.deserialize(signature).type).toMatchInlineSnapshot(
+      `"keychain"`,
+    )
+  })
+
+  test('behavior: signs plain keychain signatures without an initial authorization', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const account = Account.fromP256(privateKey_p256, {
+      access: root,
+      keyAuthorizationManager,
+    })
+    await keyAuthorizationManager.set(
+      {
+        accessKey: account.accessKeyAddress,
+        address: root.address,
+        chainId: client.chain!.id,
+      },
+      await root.signKeyAuthorization(account, {
+        chainId: BigInt(client.chain!.id),
+      }),
+    )
+
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(false)
+  })
+
+  test('behavior: wraps the pending authorization', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const privateKey =
+      '0x59c6995e998f97a5a0044966f0945389dc9d86dae88c7a8412f4603b6b78690d'
+    const key = Account.fromSecp256k1(privateKey, { access: root })
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: 4217n,
+      expiry: 1_900_000_000,
+    })
+    const account = Account.fromSecp256k1(privateKey, {
+      access: root,
+      keyAuthorization,
+    })
+
+    const signature = await account.sign({
+      hash: keccak256(Hex.fromString('hello')),
+    })
+
+    const unwrapped = SignaturePreAuthorized.unwrap(signature)
+    expect(KeyAuthorization.serialize(unwrapped.keyAuthorization)).toBe(
+      KeyAuthorization.serialize(keyAuthorization),
+    )
+    expect(unwrapped.signature.userAddress.toLowerCase()).toBe(
+      root.address.toLowerCase(),
     )
   })
 })

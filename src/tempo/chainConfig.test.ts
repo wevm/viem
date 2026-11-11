@@ -1,3 +1,10 @@
+import * as Hex from 'ox/Hex'
+import {
+  KeyAuthorization,
+  SignatureEnvelope,
+  SignaturePreAuthorized,
+} from 'ox/tempo'
+import { getBlock, getBlockNumber } from 'viem/actions'
 import { Transaction } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
@@ -1163,6 +1170,277 @@ describe('verifyHash', () => {
         hash,
         signature,
       }),
+    ).toBe(false)
+  })
+})
+
+describe('verifyHash: pre-authorized signature', () => {
+  const root = accounts.at(0)!
+  const hash = hashMessage('hello world')
+  const now = () => Math.floor(Date.now() / 1000)
+
+  /** Signs a key authorization for an access key with the root key, and returns the access key account. */
+  async function setup(
+    parameters: Partial<KeyAuthorization.KeyAuthorization> & {
+      signer?: Account.RootAccount | undefined
+    } = {},
+  ) {
+    const { signer = root, ...rest } = parameters
+    const privateKey = generatePrivateKey()
+    const key = Account.fromSecp256k1(privateKey, { access: root })
+    const authorization = KeyAuthorization.from({
+      address: key.accessKeyAddress,
+      chainId: BigInt(client.chain.id),
+      expiry: now() + 3_600,
+      type: 'secp256k1',
+      ...rest,
+    } as KeyAuthorization.KeyAuthorization)
+    const keyAuthorization = KeyAuthorization.from(authorization, {
+      signature: SignatureEnvelope.from(
+        await signer.sign({
+          hash: KeyAuthorization.getSignPayload(authorization),
+        }),
+      ) as KeyAuthorization.Signature,
+    }) as KeyAuthorization.Signed
+    const account = Account.fromSecp256k1(privateKey, {
+      access: root,
+      keyAuthorization,
+    })
+    return { account, keyAuthorization }
+  }
+
+  // The node's clock can differ from the local clock, so expiries follow the chain.
+  async function blockTimestamp() {
+    return Number((await getBlock(client)).timestamp)
+  }
+
+  async function waitForTimestamp(timestamp: number) {
+    while ((await blockTimestamp()) <= timestamp)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+  }
+
+  async function verify(signature: Hex.Hex, address = root.address) {
+    return await verifyHash(client, {
+      address,
+      hash,
+      signature,
+      mode: 'allowAccessKey',
+    })
+  }
+
+  test('behavior: unregistered access key', async () => {
+    const { account } = await setup({
+      limits: [{ limit: 1_000_000n, token: feeToken }],
+      witness: keccak256('0x01'),
+    })
+
+    const signature = await account.sign({ hash })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(true)
+    expect(await verify(signature)).toBe(true)
+    expect(
+      await verifyHash(client, { address: root.address, hash, signature }),
+    ).toBe(false)
+  })
+
+  test('behavior: verifyMessage', async () => {
+    const { account } = await setup()
+
+    const signature = await account.signMessage({ message: 'hello world' })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: registered access key', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    await sendTransactionSync(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: registered access key with an unrelated authorization', async () => {
+    const key = Account.fromSecp256k1(generatePrivateKey(), { access: root })
+    await accessKeyActions.authorizeSync(client, {
+      accessKey: key,
+      expiry: now() + 3_600,
+    })
+    // The chain would refuse this authorization: it is for another chain.
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: 1n,
+    })
+
+    const signature = SignaturePreAuthorized.wrap({
+      keyAuthorization,
+      signature: SignatureEnvelope.from(
+        await key.sign({ hash }),
+      ) as SignatureEnvelope.Keychain,
+    })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: plain keychain signature is unchanged', async () => {
+    const key = Account.fromSecp256k1(generatePrivateKey(), { access: root })
+    const signature = await key.sign({ hash })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(false)
+    expect(await verify(signature)).toBe(false)
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey: key,
+      expiry: now() + 3_600,
+    })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: revoked access key', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+    await sendTransactionSync(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    await accessKeyActions.revokeSync(client, { accessKey: account })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: registered access key that expired', async () => {
+    const expiry = (await blockTimestamp()) + 5
+    const { account } = await setup({ expiry })
+    const signature = await account.sign({ hash })
+    await sendTransactionSync(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    await waitForTimestamp(expiry)
+
+    expect(await verify(signature)).toBe(false)
+  }, 20_000)
+
+  test('behavior: burned witness', async () => {
+    const witness = keccak256(generatePrivateKey())
+    const { account } = await setup({ witness })
+    const signature = await account.sign({ hash })
+
+    expect(await verify(signature)).toBe(true)
+
+    await accessKeyActions.burnWitnessSync(client, { witness })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: expired authorization', async () => {
+    const { account } = await setup({ expiry: now() - 60 })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: reference block before the authorization expires', async () => {
+    const expiry = (await blockTimestamp()) + 5
+    const { account } = await setup({ expiry })
+    const signature = await account.sign({ hash })
+    const blockNumber = await getBlockNumber(client)
+
+    await waitForTimestamp(expiry)
+
+    expect(await verify(signature)).toBe(false)
+    expect(
+      await verifyHash(client, {
+        address: root.address,
+        blockNumber,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  }, 20_000)
+
+  test('behavior: wrong chain', async () => {
+    const { account } = await setup({ chainId: 1n })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: account mismatch', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    expect(await verify(signature, accounts.at(1)!.address)).toBe(false)
+  })
+
+  test('behavior: bound to another account', async () => {
+    const bound = await setup({ account: root.address })
+    const other = await setup({ account: accounts.at(1)!.address })
+
+    expect(await verify(await bound.account.sign({ hash }))).toBe(true)
+    expect(await verify(await other.account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: signed by a key other than the root', async () => {
+    const { account } = await setup({ signer: accounts.at(1)! })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: admin authorization', async () => {
+    const { account } = await setup({ isAdmin: true })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: key type mismatch', async () => {
+    const { account } = await setup({ type: 'p256' })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: wrong hash', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash: hashMessage('other') })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: invalid call scope', async () => {
+    const { account } = await setup({
+      scopes: [
+        {
+          address: '0x0000000000000000000000000000000000000001',
+          recipients: [accounts.at(1)!.address],
+          selector: '0xa9059cbb',
+        },
+      ],
+    })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: malformed signature', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verify(
+        Hex.concat('0xc0', SignaturePreAuthorized.magicBytes) as Hex.Hex,
+      ),
+    ).toBe(false)
+    expect(
+      await verify(
+        Hex.concat(
+          Hex.slice(signature, 0, -32),
+          '0x00',
+          SignaturePreAuthorized.magicBytes,
+        ) as Hex.Hex,
+      ),
     ).toBe(false)
   })
 })

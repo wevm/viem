@@ -178,7 +178,7 @@ catalogs:
       version: 19.2.6
 
 overrides:
-  ox: 0.14.63
+  ox: 0.14.65
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*
@@ -349,11 +349,11 @@ importers:
         specifier: ^0.17.0
         version: 0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.5.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3)
       ox:
-        specifier: 0.14.63
-        version: 0.14.63(typescript@5.9.3)(zod@4.6.6)
+        specifier: 0.14.65
+        version: 0.14.65(typescript@5.9.3)(zod@4.6.6)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@0.14.63(typescript@5.9.3)(zod@4.6.6))
+        version: 0.2.57(ox@0.14.65(typescript@5.9.3)(zod@4.6.6))
       prool:
         specifier: ~0.2.16
         version: 0.2.16(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@5.9.3))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1))
@@ -890,8 +890,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.21.0)
       ox:
-        specifier: 0.14.63
-        version: 0.14.63(typescript@5.9.3)(zod@4.6.6)
+        specifier: 0.14.65
+        version: 0.14.65(typescript@5.9.3)(zod@4.6.6)
       ws:
         specifier: 8.21.0
         version: 8.21.0
@@ -6368,8 +6368,8 @@ packages:
   outvariant@1.4.0:
     resolution: {integrity: sha512-AlWY719RF02ujitly7Kk/0QlV+pXGFDHrHf9O2OKqyqgBieaPOIeuSkL8sRK6j2WK+/ZAURq2kZsY0d8JapUiw==}
 
-  ox@0.14.63:
-    resolution: {integrity: sha512-TSKYN151boL1Aq/vsFrd8Buvd7v+oTQr8V7z4f4QQTSMB+ohD8cbNbHCtKRLI0Gs8LuYKirf5qvElTKVIFe2jw==}
+  ox@0.14.65:
+    resolution: {integrity: sha512-K7oj+jvEP4Gf78ZOYuWAWzKEX/g5z7p6ukj84gdbFnezmFSt6SpprEp9tH5tymXsywSqRdeqk+8JL4+9o0Schw==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -6497,7 +6497,7 @@ packages:
   permissionless@0.2.57:
     resolution: {integrity: sha512-QrzAoQGYPV/NJ2x5Sj18h7qed6f+kCyQAojrncN091UPiGqHjFNjgdsgreiv8pxlQgF4UcpuJUvsHLpOEBd6cQ==}
     peerDependencies:
-      ox: 0.14.63
+      ox: 0.14.65
       viem: workspace:*
     peerDependenciesMeta:
       ox:
@@ -11409,7 +11409,7 @@ snapshots:
       jose: 6.2.3
       mipd: 0.0.7(typescript@5.9.3)
       mppx: 0.8.19(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(typescript@5.9.3)(viem@src)
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.6)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.6)
       wata: 0.4.0(react@19.2.6)(typescript@5.9.3)
       webauthx: 0.1.2(typescript@5.9.3)(zod@4.6.6)
       zod: 4.6.6
@@ -14142,7 +14142,7 @@ snapshots:
     dependencies:
       '@stripe/stripe-js': 9.17.0
       eventsource-parser: 4.1.1
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.7)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.7)
       structured-headers: 2.1.0
       viem: 2.57.17(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
       zod: 4.6.7
@@ -14158,7 +14158,7 @@ snapshots:
     dependencies:
       '@stripe/stripe-js': 9.17.0
       eventsource-parser: 4.1.1
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.7)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.7)
       structured-headers: 2.1.0
       viem: 2.57.17(mppx@0.17.0)(typescript@5.9.3)(zod@4.6.6)
       zod: 4.6.7
@@ -14175,7 +14175,7 @@ snapshots:
     dependencies:
       '@stripe/stripe-js': 9.17.0
       eventsource-parser: 4.1.1
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.7)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.7)
       structured-headers: 2.1.0
       zod: 4.6.7
     optionalDependencies:
@@ -14190,7 +14190,7 @@ snapshots:
     dependencies:
       '@stripe/stripe-js': 9.13.0
       eventsource-parser: 3.1.1
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.6)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.6)
       structured-headers: 2.0.3
       viem: link:src
       zod: 4.6.6
@@ -14448,7 +14448,7 @@ snapshots:
 
   outvariant@1.4.0: {}
 
-  ox@0.14.63(typescript@5.9.3)(zod@3.25.76):
+  ox@0.14.65(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -14463,7 +14463,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.63(typescript@5.9.3)(zod@4.6.6):
+  ox@0.14.65(typescript@5.9.3)(zod@4.6.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -14478,7 +14478,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.63(typescript@5.9.3)(zod@4.6.7):
+  ox@0.14.65(typescript@5.9.3)(zod@4.6.7):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -14630,9 +14630,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@0.14.63(typescript@5.9.3)(zod@4.6.6)):
+  permissionless@0.2.57(ox@0.14.65(typescript@5.9.3)(zod@4.6.6)):
     optionalDependencies:
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.6)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.6)
 
   picocolors@1.1.1: {}
 
@@ -16174,7 +16174,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
       isows: 1.0.7(ws@8.21.0)
-      ox: 0.14.63(typescript@5.9.3)(zod@3.25.76)
+      ox: 0.14.65(typescript@5.9.3)(zod@3.25.76)
       ws: 8.21.0
     optionalDependencies:
       typescript: 5.9.3
@@ -16191,7 +16191,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@4.6.6)
       isows: 1.0.7(ws@8.21.0)
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.6)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.6)
       ws: 8.21.0
     optionalDependencies:
       mppx: 0.17.0(@modelcontextprotocol/sdk@1.32.0(supports-color@8.1.1)(zod@4.6.6))(express@5.2.1(supports-color@8.1.1))(hono@4.13.13)(next@16.4.1(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(@types/node@24.13.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@5.9.3)(viem@2.57.17)
@@ -16504,7 +16504,7 @@ snapshots:
       '@noble/ciphers': 2.4.0
       '@noble/hashes': 2.4.0
       hono: 4.13.13
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.6)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.6)
       zod: 4.6.6
     optionalDependencies:
       react: 19.2.6
@@ -16522,7 +16522,7 @@ snapshots:
 
   webauthx@0.1.2(typescript@5.9.3)(zod@4.6.6):
     dependencies:
-      ox: 0.14.63(typescript@5.9.3)(zod@4.6.6)
+      ox: 0.14.65(typescript@5.9.3)(zod@4.6.6)
     transitivePeerDependencies:
       - typescript
       - zod
