@@ -164,6 +164,21 @@ describe('cip64', () => {
     })
   })
 
+  test('type is undefined and only one fee cap field is defined', () => {
+    const transaction: TransactionSerializableCIP64 = {
+      ...baseCip64,
+      maxPriorityFeePerGas: undefined,
+    }
+
+    const serialized = serializeTransaction(transaction)
+
+    expect(serialized.slice(0, 4)).toBe('0x7b')
+    expect(parseTransaction(serialized)).toEqual({
+      ...transaction,
+      type: 'cip64',
+    })
+  })
+
   test('type is undefined but has cip64 fields (feeCurrency, but not gateway*)', () => {
     const transaction: TransactionSerializableCIP64 = {
       ...baseCip64,
@@ -301,6 +316,20 @@ describe('Common invalid params (for CIP-64)', () => {
       ...baseCip64,
       // @ts-expect-error
       gasPrice: BigInt(1),
+    }
+
+    expect(() => serializeTransaction(transaction)).toThrowError(
+      '`gasPrice` is not a valid CIP-64 Transaction attribute.',
+    )
+  })
+
+  test('gasPrice is defined without fee cap fields', () => {
+    const transaction: TransactionSerializableCIP64 = {
+      ...baseCip64,
+      maxFeePerGas: undefined,
+      maxPriorityFeePerGas: undefined,
+      // @ts-expect-error
+      gasPrice: parseGwei('2'),
     }
 
     expect(() => serializeTransaction(transaction)).toThrowError(
