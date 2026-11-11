@@ -1,3 +1,5 @@
+import { getContractAddress } from 'viem'
+import { deployContract, getTransaction } from 'viem/actions'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import {
@@ -33,7 +35,6 @@ import type { Hex } from '../../types/misc.js'
 import {
   concat,
   encodeFunctionData,
-  getContractAddress,
   hashMessage,
   pad,
   serializeErc6492Signature,
@@ -44,13 +45,11 @@ import { parseSignature } from '../../utils/signature/parseSignature.js'
 import { serializeErc8010Signature } from '../../utils/signature/serializeErc8010Signature.js'
 import { mine } from '../test/mine.js'
 import { setNonce } from '../test/setNonce.js'
-import { deployContract } from '../wallet/deployContract.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { getBlock } from './getBlock.js'
-import { getTransaction } from './getTransaction.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
