@@ -16,8 +16,8 @@ export const ousd = /*#__PURE__*/ defineToken({
   addresses: {
     1: '0x9f6F3991D525015a6F8CaF062C83b62fD3AC4436', // mainnet
     4217: '0x20c0000000000000000000006a37DA5C996874BE', // tempo
-    42431: '0x20c0000000000000000000006a37DA5C996874BE', // tempoModerato
     8453: '0xB2000000000000000000002fEb517dFeC7415344', // base
+    42431: '0x20c0000000000000000000006a37DA5C996874BE', // tempoModerato
   },
   currency: 'USD',
   decimals: 6,
