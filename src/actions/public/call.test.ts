@@ -1,3 +1,4 @@
+import { mine, setCode } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
@@ -47,8 +48,6 @@ import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { trim } from '../../utils/data/trim.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
-import { mine } from '../test/mine.js'
-import { setCode } from '../test/setCode.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { call, getRevertErrorData } from './call.js'
 import { getBlock } from './getBlock.js'
