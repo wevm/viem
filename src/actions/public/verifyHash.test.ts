@@ -1,7 +1,6 @@
 import { getContractAddress } from 'viem'
-import { deployContract, getTransaction } from 'viem/actions'
+import { deployContract, getTransaction, readContract } from 'viem/actions'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
-
 import {
   Eoa,
   EoaInitializer,
@@ -53,7 +52,6 @@ import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { getBlock } from './getBlock.js'
 import { getBlockNumber } from './getBlockNumber.js'
-import { readContract } from './readContract.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
