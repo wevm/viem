@@ -353,7 +353,15 @@ export async function call<chain extends Chain | undefined>(
       to
     )
       return {
-        data: await offchainLookup(client, { data, requestOptions, to }),
+        data: await offchainLookup(client, {
+          blockHash,
+          blockNumber,
+          blockTag,
+          data,
+          requestOptions,
+          requireCanonical,
+          to,
+        }),
       }
 
     // Check for counterfactual deployment error.

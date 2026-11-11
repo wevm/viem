@@ -87,14 +87,23 @@ export type OffchainLookupErrorType = OffchainLookupErrorType_ | ErrorType
 export async function offchainLookup<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   {
+    blockHash,
     blockNumber,
     blockTag,
     budget = createCcipReadBudget(),
     data,
     depth = 0,
     requestOptions,
+    requireCanonical,
     to,
-  }: Pick<CallParameters, 'blockNumber' | 'blockTag' | 'requestOptions'> & {
+  }: Pick<
+    CallParameters,
+    | 'blockHash'
+    | 'blockNumber'
+    | 'blockTag'
+    | 'requestOptions'
+    | 'requireCanonical'
+  > & {
     /** Budget shared by the callbacks of one lookup. */
     budget?: CcipReadBudget | undefined
     data: Hex
@@ -170,10 +179,12 @@ export async function offchainLookup<chain extends Chain | undefined>(
     // back here with the lookup's depth and budget.
     try {
       const { data: data_ } = await call({ ...client, ccipRead: false }, {
+        blockHash,
         blockNumber,
         blockTag,
         data: callbackData,
         requestOptions,
+        requireCanonical,
         to,
       } as CallParameters)
       return data_!
@@ -181,12 +192,14 @@ export async function offchainLookup<chain extends Chain | undefined>(
       const revertData = getRevertErrorData(err)
       if (revertData?.slice(0, 10) !== offchainLookupSignature) throw err
       return await offchainLookup(client, {
+        blockHash,
         blockNumber,
         blockTag,
         budget,
         data: revertData,
         depth: depth + 1,
         requestOptions,
+        requireCanonical,
         to,
       })
     }
