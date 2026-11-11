@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { kzg } from '~test/kzg.js'
+import { createRpcProxy } from '~test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
@@ -2267,6 +2268,83 @@ describe('with `eth_fillTransaction`', () => {
 
     // chainId should be fetched from the RPC (mainnet = 1)
     expect(request.chainId).toEqual(1)
+  })
+
+  describe('behavior: filled chainId', () => {
+    async function createClientWithFilledChainId(
+      chain: typeof anvilMainnet.chain | undefined,
+    ) {
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        async ({ method, params }) => {
+          if (method !== 'eth_fillTransaction') return undefined
+          const response = await fetch(anvilMainnet.rpcUrl.http, {
+            body: JSON.stringify({ id: 0, jsonrpc: '2.0', method, params }),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+          })
+          const { result } = await response.json()
+          return { result: { ...result, tx: { ...result.tx, chainId: '0x2' } } }
+        },
+      )
+      return createClient({ chain, transport: http(url) })
+    }
+
+    test('rejects a value that differs from the chain', async () => {
+      await setup()
+      const client = await createClientWithFilledChainId(anvilMainnet.chain)
+
+      await expect(
+        prepareTransactionRequest(client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [ChainMismatchError: The current chain of the wallet (id: 2) does not match the target chain for the transaction (id: 1 – Ethereum (Local)).
+
+        Current Chain ID:  2
+        Expected Chain ID: 1 – Ethereum (Local)
+
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('rejects a value that differs from the chainId argument', async () => {
+      await setup()
+      const client = await createClientWithFilledChainId(undefined)
+
+      await expect(
+        prepareTransactionRequest(client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          chain: null,
+          chainId: 1,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [ChainMismatchError: The current chain of the wallet (id: 2) does not match the target chain for the transaction (id: 1 – Unknown).
+
+        Current Chain ID:  2
+        Expected Chain ID: 1 – Unknown
+
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('uses the value without a chain or chainId argument', async () => {
+      await setup()
+      const client = await createClientWithFilledChainId(undefined)
+
+      const request = await prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: null,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      })
+
+      expect(request.chainId).toMatchInlineSnapshot(`2`)
+    })
   })
 
   test('behavior: nonce manager', async () => {

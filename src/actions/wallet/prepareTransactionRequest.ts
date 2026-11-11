@@ -26,6 +26,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { AccountNotFoundErrorType } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import {
+  ChainMismatchError,
+  type ChainMismatchErrorType,
+} from '../../errors/chain.js'
+import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
@@ -232,6 +236,7 @@ export type PrepareTransactionRequestReturnType<
 export type PrepareTransactionRequestErrorType =
   | AccountNotFoundErrorType
   | AssertRequestErrorType
+  | ChainMismatchErrorType
   | ParseAccountErrorType
   | GetBlockErrorType
   | GetTransactionCountErrorType
@@ -434,6 +439,7 @@ export async function prepareTransactionRequest<
     return false
   })()
 
+  let filledChainId: number | undefined
   const fill = (request: PrepareTransactionRequestParameters) =>
     getAction(
       client,
@@ -462,6 +468,7 @@ export async function prepareTransactionRequest<
         feeToken !== null &&
         (!('feeToken' in request) || hasFilledFeePayerSignature)
       supportsFillTransaction.set(client.uid, true)
+      filledChainId = chainId
       // The fee payer signs over the filled fee token, so a requested one must not replace or outlive it.
       type WithFeeToken = { feeToken?: unknown }
       const { feeToken: _feeToken, ...unsponsored } = request as WithFeeToken
@@ -469,7 +476,6 @@ export async function prepareTransactionRequest<
         ...(hasFilledFeePayerSignature ? unsponsored : request),
         ...(from ? { from } : {}),
         ...(type && !request.type ? { type } : {}),
-        ...(typeof chainId !== 'undefined' ? { chainId } : {}),
         ...(typeof gas !== 'undefined' ? { gas } : {}),
         ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
         ...(typeof nonce !== 'undefined' ? { nonce } : {}),
@@ -572,6 +578,20 @@ export async function prepareTransactionRequest<
     ...(account ? { from: account?.address } : {}),
     ...(typeof nonce !== 'undefined' ? { nonce } : {}),
   }
+
+  // The filled chain id only applies when neither the request nor the chain provides one.
+  if (typeof filledChainId !== 'undefined') {
+    request.chainId ??= chain?.id ?? filledChainId
+    if (request.chainId !== filledChainId)
+      throw new ChainMismatchError({
+        chain:
+          chain?.id === request.chainId
+            ? chain
+            : ({ id: request.chainId, name: 'Unknown' } as Chain),
+        currentChainId: filledChainId,
+      })
+  }
+
   const { blobs, gas, kzg, type } = request
 
   if (
