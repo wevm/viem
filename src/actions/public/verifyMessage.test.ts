@@ -1,3 +1,4 @@
+import { concat, pad, zeroAddress } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 
 import { smartAccountConfig } from '~test/abis.js'
@@ -5,9 +6,6 @@ import { accounts, address } from '~test/constants.js'
 import { mainnetClient } from '~test/utils.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
-import { zeroAddress } from '../../constants/address.js'
-import { concat } from '../../utils/data/concat.js'
-import { pad } from '../../utils/data/pad.js'
 import { verifyMessage } from './verifyMessage.js'
 
 describe('verifyMessage', () => {

@@ -1,4 +1,4 @@
-import { getContractAddress, publicActions } from 'viem'
+import { getContractAddress, publicActions, zeroAddress } from 'viem'
 import { deployContract, getTransaction, readContract } from 'viem/actions'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 import {
@@ -31,7 +31,6 @@ import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
-import { zeroAddress } from '../../constants/address.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/erc7739/actions/signMessage.js'
 import type { Hex } from '../../types/misc.js'
 import {
