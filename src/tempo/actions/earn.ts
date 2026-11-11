@@ -3426,8 +3426,8 @@ function resolveRecipient(
     recipient?: Address | undefined
   },
 ): Address {
-  if (parameters.recipient) return parameters.recipient
-  const account = parameters.account ?? client.account
+  const { account = client.account, recipient } = parameters
+  if (recipient) return recipient
   if (!account) throw new AccountNotFoundError()
   return parseAccount(account).address
 }
