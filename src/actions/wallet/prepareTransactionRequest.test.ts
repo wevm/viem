@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { kzg } from '~test/kzg.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
@@ -1364,6 +1365,47 @@ describe('with `eth_fillTransaction`', () => {
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 11700000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
+
+  test('args: account (null)', async () => {
+    await setup()
+
+    const client = anvilMainnet.getClient({
+      account: privateKeyToAccount(generatePrivateKey()),
+    })
+    const args = {
+      account: null,
+      parameters: ['gas'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    } as const
+
+    const transaction = await prepareTransactionRequest(client, args)
+
+    expect(args).toMatchInlineSnapshot(`
+      {
+        "account": null,
+        "parameters": [
+          "gas",
+        ],
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(transaction).toMatchInlineSnapshot(`
+      {
+        "account": null,
+        "chainId": 1,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
