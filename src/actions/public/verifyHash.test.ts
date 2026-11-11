@@ -44,6 +44,7 @@ import {
 } from '../../utils/index.js'
 import { parseSignature } from '../../utils/signature/parseSignature.js'
 import { serializeErc8010Signature } from '../../utils/signature/serializeErc8010Signature.js'
+import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { setNonce } from '../test/setNonce.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
@@ -52,6 +53,7 @@ import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { getBlock } from './getBlock.js'
 import { getBlockNumber } from './getBlockNumber.js'
+import { readContract } from './readContract.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
@@ -245,6 +247,59 @@ describe('erc6492', async () => {
         erc6492VerifierAddress: erc6492VerifierAddress!,
       }),
     ).resolves.toBe(true)
+  })
+
+  test('undeployed with predeployed verifier (batched reads)', async () => {
+    const batchClient = anvilMainnet.getClient({
+      batch: { multicall: { wait: 50 } },
+    })
+    const { factoryAddress } = await deploySoladyAccount_07()
+    const { contractAddress: erc6492VerifierAddress } =
+      await deployErc6492SignatureVerifier()
+
+    const { result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+
+    const factoryData = encodeFunctionData({
+      abi: SoladyAccountFactory07.abi,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+
+    const signature = await signMessageErc1271(client, {
+      account: localAccount,
+      factory: factoryAddress,
+      factoryData,
+      message: 'hello world',
+      verifier,
+    })
+
+    const verified = verifyHash(batchClient, {
+      address: verifier,
+      factory: factoryAddress,
+      factoryData,
+      hash: hashMessage('hello world'),
+      signature,
+      erc6492VerifierAddress: erc6492VerifierAddress!,
+    })
+    await wait(10)
+    const entryPoint = readContract(batchClient, {
+      address: verifier,
+      abi: SoladyAccount07.abi,
+      functionName: 'entryPoint',
+    }).catch((error) => error.name)
+
+    expect(await Promise.all([verified, entryPoint])).toMatchInlineSnapshot(`
+      [
+        true,
+        "ContractFunctionExecutionError",
+      ]
+    `)
   })
 
   test('undeployed with predeployed verifier (via client)', async () => {
