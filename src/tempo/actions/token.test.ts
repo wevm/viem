@@ -1133,6 +1133,38 @@ describe('transfer', () => {
     })
     expect(allowance.amount).toBe(parseUnits('25', 6))
   })
+
+  test.each([
+    ['transfer', actions.token.transfer],
+    ['transferSync', actions.token.transferSync],
+  ] as const)('behavior: %s with a json-rpc account', async (_, action) => {
+    const senders: unknown[] = []
+    const jsonRpcClient = getClient({
+      account: account2.address,
+      transport: http(rpcUrl, {
+        onFetchRequest(_request, init) {
+          const { method, params } = JSON.parse(init.body as string)
+          if (method === 'eth_sendTransaction') senders.push(params[0].from)
+        },
+      }),
+    })
+
+    for (const parameters of [{}, { feeToken }])
+      await action(jsonRpcClient, {
+        ...parameters,
+        amount: 1n,
+        from: account3.address,
+        to: account.address,
+        token: addresses.alphaUsd,
+      }).catch(() => {})
+
+    expect(senders).toMatchInlineSnapshot(`
+      [
+        "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+        "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+      ]
+    `)
+  })
 })
 
 describe('burn', () => {
