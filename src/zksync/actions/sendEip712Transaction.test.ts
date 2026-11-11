@@ -82,11 +82,34 @@ test('behavior: null account', async () => {
     ]
   `)
 
-  const { from, to, value } = await getTransaction(client, { hash })
-  expect({ from, to, value }).toMatchInlineSnapshot(`
+  const {
+    blockHash: _blockHash,
+    blockNumber: _blockNumber,
+    blockTimestamp: _blockTimestamp,
+    gasPrice: _gasPrice,
+    hash: _hash,
+    maxFeePerGas: _maxFeePerGas,
+    nonce: _nonce,
+    r: _r,
+    s: _s,
+    v: _v,
+    yParity: _yParity,
+    ...transaction
+  } = await getTransaction(client, { hash })
+  expect(transaction).toMatchInlineSnapshot(`
     {
+      "accessList": [],
+      "chainId": 324,
       "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "gas": 21000n,
+      "input": "0x",
+      "l1BatchNumber": null,
+      "l1BatchTxIndex": null,
+      "maxPriorityFeePerGas": 1000000000n,
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "transactionIndex": 0,
+      "type": "eip1559",
+      "typeHex": "0x2",
       "value": 1n,
     }
   `)
