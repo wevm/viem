@@ -48,6 +48,7 @@ import { signAuthorization } from '../wallet/signAuthorization.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { getBlock } from './getBlock.js'
+import { getBlockNumber } from './getBlockNumber.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
@@ -286,6 +287,54 @@ describe('erc6492', async () => {
         address: verifier,
         factory: factoryAddress,
         factoryData,
+        hash: hashMessage('hello world'),
+        signature,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('deployed at block before chain verifier was created', async () => {
+    const { factoryAddress } = await deploySoladyAccount_07()
+
+    const { request, result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+    const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+
+    const { contractAddress: verifySig } =
+      await deployErc6492SignatureVerifier()
+    const blockCreated = await getBlockNumber(client, { cacheTime: 0 })
+
+    const overrideClient = {
+      ...client,
+      chain: {
+        ...client.chain,
+        contracts: {
+          ...client.chain.contracts,
+          erc6492Verifier: {
+            address: verifySig!,
+            blockCreated: Number(blockCreated),
+          },
+        },
+      },
+    }
+
+    const signature = await signMessageErc1271(overrideClient, {
+      account: localAccount,
+      message: 'hello world',
+      verifier,
+    })
+
+    await expect(
+      verifyHash(overrideClient, {
+        address: verifier,
+        blockNumber,
         hash: hashMessage('hello world'),
         signature,
       }),
