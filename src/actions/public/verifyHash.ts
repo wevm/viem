@@ -137,7 +137,18 @@ export async function verifyHash<chain extends Chain | undefined>(
     hash,
     erc6492VerifierAddress:
       verifierAddress = parameters.universalSignatureVerifierAddress ??
-      chain?.contracts?.erc6492Verifier?.address,
+      (() => {
+        const { blockNumber } = parameters
+        const verifier = chain?.contracts?.erc6492Verifier
+        // Use the deployless validator for blocks before the verifier was created.
+        if (
+          blockNumber !== undefined &&
+          verifier?.blockCreated &&
+          verifier.blockCreated > blockNumber
+        )
+          return undefined
+        return verifier?.address
+      })(),
     multicallAddress = parameters.multicallAddress ??
       chain?.contracts?.multicall3?.address,
     mode = 'auto',
