@@ -72,7 +72,8 @@ contract ERC6492SignatureVerifier {
                 "SignatureValidator#recoverSigner: invalid signature v value"
             );
         }
-        return ecrecover(_hash, v, r, s) == _signer;
+        address recovered = ecrecover(_hash, v, r, s);
+        return recovered != address(0) && recovered == _signer;
     }
 
     function trailingBytes32(

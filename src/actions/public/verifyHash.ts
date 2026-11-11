@@ -9,6 +9,7 @@ import {
   erc6492SignatureValidatorAbi,
   multicall3Abi,
 } from '../../constants/abis.js'
+import { zeroAddress } from '../../constants/address.js'
 import {
   erc6492SignatureValidatorByteCode,
   multicall3Bytecode,
@@ -151,6 +152,9 @@ export async function verifyHash<chain extends Chain | undefined>(
       chain?.contracts?.multicall3?.address,
     mode = 'auto',
   } = parameters
+
+  // No signature is valid for the zero address.
+  if (address === zeroAddress) return false
 
   if (chain?.verifyHash) return await chain.verifyHash(client, parameters)
 
