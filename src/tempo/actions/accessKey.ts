@@ -178,7 +178,7 @@ export namespace authorize {
       witness,
       ...rest
     } = parameters
-    const account_ = rest.account ?? client.account
+    const { account: account_ = client.account } = rest
     if (!account_) throw new Error('account is required.')
     if (!chainId) throw new Error('chainId is required.')
     const keyAuthorization = await signLocal(client, {
