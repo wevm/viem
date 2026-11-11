@@ -60,7 +60,11 @@ import {
 } from '../../utils/signature/serializeSignature.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 import { type GetCodeErrorType, getCode } from './getCode.js'
-import { type ReadContractErrorType, readContract } from './readContract.js'
+import {
+  type ReadContractErrorType,
+  type ReadContractParameters,
+  readContract,
+} from './readContract.js'
 
 export type BlockParameters = OneOf<
   | {
@@ -356,6 +360,7 @@ async function verifyErc6492(
 
   const args = verifierAddress
     ? ({
+        batch: false,
         to: verifierAddress,
         data: encodeFunctionData({
           abi: erc6492SignatureValidatorAbi,
@@ -422,16 +427,20 @@ export async function verifyErc1271(
     address,
     abi: erc1271Abi,
     args: [hash, signature],
+    // `readContract` forwards `batch` to `call` at runtime, but its parameter type omits it.
+    batch: false,
     blockHash,
     blockNumber,
     blockTag,
     functionName: 'isValidSignature',
     requireCanonical,
-  }).catch((error) => {
-    if (error instanceof ContractFunctionExecutionError)
-      throw new VerificationError()
-    throw error
-  })
+  } as ReadContractParameters<typeof erc1271Abi, 'isValidSignature'>).catch(
+    (error) => {
+      if (error instanceof ContractFunctionExecutionError)
+        throw new VerificationError()
+      throw error
+    },
+  )
 
   if (result.startsWith('0x1626ba7e')) return true
   throw new VerificationError()
