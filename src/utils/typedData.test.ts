@@ -500,6 +500,27 @@ describe('validateTypedData', () => {
     `)
   })
 
+  test('bytes size: odd length', () => {
+    const validate = (hash: `0x${string}`) =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Mail: [{ name: 'hash', type: 'bytes32' }],
+        },
+        primaryType: 'Mail',
+        message: { hash },
+      })
+
+    expect(validate(`0x1${'f'.repeat(62)}`)).toBeUndefined()
+    expect(() =>
+      validate(`0x1${'f'.repeat(64)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [BytesSizeMismatchError: Expected bytes32, got bytes33.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('domain: invalid chainId', () => {
     expect(() =>
       validateTypedData({
