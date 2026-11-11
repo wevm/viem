@@ -1,4 +1,5 @@
 import { keccak256 } from 'ethers'
+import { mine, setNextBlockTimestamp } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
@@ -121,6 +122,55 @@ test('args: super game', async () => {
     version:
       '0x0000000000000000000000000000000000000000000000000000000000000000',
   })
+})
+
+test('args: super output', async () => {
+  await reset(optimismClient, {
+    blockNumber: 147000000n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
+  })
+  await setNextBlockTimestamp(optimismClient, { timestamp: 1769598779n })
+  await mine(optimismClient, { blocks: 10, interval: 2 })
+
+  const { targetChain: _, ...request } = await buildProveWithdrawal(
+    optimismClient,
+    {
+      account: accounts[0].address,
+      output: {
+        l2BlockNumber: 1769598787n,
+        outputIndex: 1n,
+        outputRoot: game.rootClaim,
+        timestamp: 0n,
+        usesSuperRoots: true,
+      },
+      withdrawal,
+    },
+  )
+
+  expect(request).toMatchInlineSnapshot(`
+    {
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "l2OutputIndex": 1n,
+      "outputRootProof": {
+        "latestBlockhash": "0x0e8e181e97a856235ff731dd66e3224fa0f0cf6bf7e8531eea66fcc4cc63139c",
+        "messagePasserStorageRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
+        "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "version": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      },
+      "withdrawal": {
+        "data": "0x",
+        "gasLimit": 0n,
+        "nonce": 0n,
+        "sender": "0x0000000000000000000000000000000000000001",
+        "target": "0x0000000000000000000000000000000000000002",
+        "value": 0n,
+        "withdrawalHash": "0x000000000000000000000000000000000000000000000000000000000000000e",
+      },
+      "withdrawalProof": [
+        "0x80",
+      ],
+    }
+  `)
 })
 
 test('args: super game timestamp mismatch', async () => {

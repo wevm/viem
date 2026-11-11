@@ -198,6 +198,7 @@ export async function waitToProve<
       outputIndex: game.index,
       outputRoot: game.rootClaim,
       timestamp: game.timestamp,
+      usesSuperRoots: game.usesSuperRoots,
     },
     withdrawal,
   }
