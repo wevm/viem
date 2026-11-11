@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const kinetiqElysium = /*#__PURE__*/ defineChain({
   id: 99_901,
   name: 'Elysium',
-  blockTime: 250,
+  blockTime: 100,
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
   rpcUrls: {
     default: {
