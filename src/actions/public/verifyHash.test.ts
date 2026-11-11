@@ -1,4 +1,4 @@
-import { getContractAddress } from 'viem'
+import { getContractAddress, publicActions } from 'viem'
 import { deployContract, getTransaction, readContract } from 'viem/actions'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 import {
@@ -29,7 +29,6 @@ import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
-import { publicActions } from '../../clients/decorators/public.js'
 import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/erc7739/actions/signMessage.js'
