@@ -302,9 +302,9 @@ export async function verifyErc8010(
     ],
   })
 
-  const data = results[results.length - 1]?.returnData
+  const result = results[results.length - 1]
 
-  if (data?.startsWith('0x1626ba7e')) return true
+  if (result?.success && result.returnData.startsWith('0x1626ba7e')) return true
   throw new VerificationError()
 }
 

@@ -6,6 +6,7 @@ import {
   Eoa,
   EoaInitializer,
   EoaOptional,
+  EoaReverting,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
@@ -627,6 +628,36 @@ describe('erc8010', async () => {
     })
 
     expect(valid).toBe(true)
+  })
+
+  test('predelegated: reverting isValidSignature (failure)', async () => {
+    const { contractAddress } = await deploy(client, {
+      abi: EoaReverting.abi,
+      bytecode: EoaReverting.bytecode.object,
+    })
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: contractAddress!,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const valid = await verifyHash(client, {
+      address: account.address,
+      hash,
+      signature,
+    })
+
+    expect(valid).toBe(false)
   })
 
   test('predelegated: blockHash (EIP-1898)', async () => {
