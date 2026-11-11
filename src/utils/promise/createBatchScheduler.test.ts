@@ -245,4 +245,17 @@ describe('behavior', () => {
       Promise.all([schedule(1), schedule(2), schedule(3), schedule(4)]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: [1,2,3,4]]')
   })
+
+  test('throws error synchronously', async () => {
+    const { schedule } = createBatchScheduler({
+      id: uid(),
+      fn: (args) => {
+        throw new Error(JSON.stringify(args))
+      },
+    })
+
+    await expect(() =>
+      Promise.all([schedule(1), schedule(2), schedule(3), schedule(4)]),
+    ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: [1,2,3,4]]')
+  })
 })

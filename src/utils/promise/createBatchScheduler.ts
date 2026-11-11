@@ -61,7 +61,8 @@ export function createBatchScheduler<
 
     if (args.length === 0) return
 
-    fn(args as parameters[])
+    // Wrap `fn` so that synchronous throws reject the scheduled promises.
+    new Promise<returnType>((resolve) => resolve(fn(args as parameters[])))
       .then((data) => {
         if (sort && Array.isArray(data)) data.sort(sort)
         for (let i = 0; i < scheduler.length; i++) {
