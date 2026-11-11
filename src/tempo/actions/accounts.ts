@@ -354,11 +354,11 @@ export namespace updateConfig {
       nextConfig,
       ...rest
     } = parameters
-    const accountValue = account_ ?? client.account
+    const accountValue = account_ === undefined ? client.account : account_
     const account = (() => {
       if (
         typeof accountValue === 'object' &&
-        accountValue.source === 'configurable'
+        accountValue?.source === 'configurable'
       )
         return accountValue as ConfigurableAccount
       return undefined
@@ -395,7 +395,7 @@ export namespace updateConfig {
     })()
     return (await withExecutionError(action)(client, {
       ...rest,
-      ...(resolvedAccount ? { account: resolvedAccount } : {}),
+      account: resolvedAccount,
       ...updateConfig.call({ currentConfig, nextConfig }),
     } as never)) as never
   }

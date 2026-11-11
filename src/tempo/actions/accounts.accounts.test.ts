@@ -87,6 +87,38 @@ describe('updateConfig', () => {
     )
   })
 
+  test('behavior: preserves a null account override', async () => {
+    const client = getClient({ account })
+
+    const error = await actions.accounts
+      .updateConfig(client, {
+        account: null,
+        currentConfig: account.config,
+        nextConfig: {
+          owners: account.config.owners,
+          threshold: account.config.threshold,
+        },
+      })
+      .catch((error) => error)
+    const commitment = await actions.accounts.getConfigCommitment(client, {
+      account: account.address,
+    })
+
+    expect({
+      commitment,
+      details: error.details,
+      name: error.name,
+      sender: error.sender,
+    }).toMatchInlineSnapshot(`
+      {
+        "commitment": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "details": "unknown account",
+        "name": "ContractFunctionExecutionError",
+        "sender": undefined,
+      }
+    `)
+  })
+
   test('behavior: commits the first current config', async () => {
     const hash = await actions.accounts.updateConfig(client, {
       account,
