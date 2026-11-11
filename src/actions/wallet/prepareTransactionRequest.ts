@@ -302,9 +302,9 @@ export async function prepareTransactionRequest<
     request
   >
 > {
-  let request = args as PrepareTransactionRequestParameters
+  let request = { ...args } as PrepareTransactionRequestParameters
 
-  request.account ??= client.account
+  if (typeof request.account === 'undefined') request.account = client.account
   request.parameters ??= defaultParameters
 
   const {
