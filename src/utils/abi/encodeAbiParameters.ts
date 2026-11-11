@@ -296,15 +296,17 @@ function encodeBytes<const param extends AbiParameter>(
   { param }: { param: param },
 ): PreparedParam {
   const [, paramSize] = param.type.split('bytes')
-  const bytesSize = size(value)
+  // Odd-length hex is left-padded to whole bytes, matching `hexToBytes`.
+  const hex: Hex = value.length % 2 ? `0x0${value.slice(2)}` : value
+  const bytesSize = size(hex)
   if (!paramSize) {
-    let value_ = value
+    let value_ = hex
     // If the size is not divisible by 32 bytes, pad the end
     // with empty bytes to the ceiling 32 bytes.
     if (bytesSize % 32 !== 0)
       value_ = padHex(value_, {
         dir: 'right',
-        size: Math.ceil((value.length - 2) / 2 / 32) * 32,
+        size: Math.ceil(bytesSize / 32) * 32,
       })
     return {
       dynamic: true,
@@ -319,7 +321,7 @@ function encodeBytes<const param extends AbiParameter>(
       expectedSize: Number.parseInt(paramSize, 10),
       value,
     })
-  return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }
+  return { dynamic: false, encoded: padHex(hex, { dir: 'right' }) }
 }
 
 type EncodeBoolErrorType = PadHexErrorType | BoolToHexErrorType | ErrorType
