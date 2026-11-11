@@ -227,6 +227,22 @@ describe('deposit', { timeout: 30_000 }, () => {
     expect(balance).toBe(shareAmount)
   })
 
+  test('error: null account without a recipient', async () => {
+    const stack = await setup()
+
+    for (const c of [client, getClient()])
+      await expect(
+        Actions.earn.deposit(c, {
+          account: null,
+          assetAmount: 1n,
+          shareAmountMin: 1n,
+          vault: stack.adapter,
+        }),
+      ).rejects.toThrowError(
+        'Could not find an Account to execute with this Action.',
+      )
+  })
+
   test('behavior: calls pairs an exact asset approval with the deposit', () => {
     const asset = `0x${'bb'.repeat(20)}` as const
     const recipient = `0x${'cc'.repeat(20)}` as const
@@ -486,6 +502,23 @@ describe('depositShares', { timeout: 30_000 }, () => {
         "requestedVenueShares": 500000000n,
       }
     `)
+  })
+
+  test('error: null account without a recipient', async () => {
+    const stack = await setup()
+
+    for (const c of [client, getClient()])
+      await expect(
+        Actions.earn.depositShares(c, {
+          account: null,
+          earnShareAmountMin: 1n,
+          venueShareAmount: 1n,
+          venueShareToken: stack.venue,
+          vault: stack.adapter,
+        }),
+      ).rejects.toThrowError(
+        'Could not find an Account to execute with this Action.',
+      )
   })
 
   test('behavior: manual calls composition against a resolved engine', async () => {
@@ -927,6 +960,22 @@ describe('redeem', { timeout: 30_000 }, () => {
     `)
   })
 
+  test('error: null account without a recipient', async () => {
+    const stack = await setup()
+
+    for (const c of [client, getClient()])
+      await expect(
+        Actions.earn.redeem(c, {
+          account: null,
+          assetAmountMin: 1n,
+          shareAmount: 1n,
+          vault: stack.adapter,
+        }),
+      ).rejects.toThrowError(
+        'Could not find an Account to execute with this Action.',
+      )
+  })
+
   test('behavior: calls pairs an exact share approval with the redeem', () => {
     const recipient = `0x${'cc'.repeat(20)}` as const
     const shareToken = `0x${'dd'.repeat(20)}` as const
@@ -1171,6 +1220,22 @@ describe('withdrawExact', { timeout: 30_000 }, () => {
         "earnSharesBurned": 40000000n,
       }
     `)
+  })
+
+  test('error: null account without a recipient', async () => {
+    const stack = await setup()
+
+    for (const c of [client, getClient()])
+      await expect(
+        Actions.earn.withdrawExact(c, {
+          account: null,
+          assetAmount: 1n,
+          shareAmountMax: 1n,
+          vault: stack.adapter,
+        }),
+      ).rejects.toThrowError(
+        'Could not find an Account to execute with this Action.',
+      )
   })
 
   test('behavior: calls approves shareAmountMax, so a residual approval may remain', () => {
