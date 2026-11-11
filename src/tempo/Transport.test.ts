@@ -18,6 +18,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import {
   accounts,
   chain,
+  configurableAccounts,
   feeToken,
   getClient,
   http,
@@ -813,7 +814,7 @@ describe('withRelay', () => {
       })
     })
 
-    test.runIf(import.meta.env.VITE_TEMPO_ACCOUNTS)(
+    test.runIf(configurableAccounts)(
       'behavior: sendTransactionSync sponsors configurable accounts with feePayer: true',
       async () => {
         const owner_1 = accounts[14]
@@ -862,7 +863,7 @@ describe('withRelay', () => {
       },
     )
 
-    test.runIf(import.meta.env.VITE_TEMPO_ACCOUNTS)(
+    test.runIf(configurableAccounts)(
       'behavior: coordinated accounts accept the relay transaction hash',
       async () => {
         const owner_1 = Account.fromSecp256k1(generatePrivateKey())

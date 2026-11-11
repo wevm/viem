@@ -31,7 +31,7 @@ import {
 } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
-import { nodeEnv } from '~test/tempo/config.js'
+import { configurableAccounts, nodeEnv } from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
 
 type Server = Awaited<ReturnType<typeof createHttpServer>>
@@ -358,11 +358,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
   })
 })
 
-describe.runIf(
-  nodeEnv === 'localnet' &&
-    import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
-)('accounts', () => {
+describe.runIf(configurableAccounts)('accounts', () => {
   let client: typeof caller
   let server: Server
   const store = Store.memory()

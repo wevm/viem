@@ -214,39 +214,6 @@ jobs:
           VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
-  test-tempo-multisig:
-    name: Test Local Tempo Multisig
-    if: ${{ inputs.full }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Build contracts
-        run: pnpm contracts:build
-
-      - name: Run tests
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          command: pnpm test --run --bail=1 --project tempo-accounts
-        env:
-          CI: true
-          VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_ACCOUNTS: 'true'
-          # Built from tempoxyz/tempo main (96bdeb7).
-          VITE_TEMPO_TAG: sha-96bdeb7
-
   test-tempo:
     name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
     if: ${{ inputs.full }}
