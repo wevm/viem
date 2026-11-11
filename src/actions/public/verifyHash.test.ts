@@ -31,6 +31,7 @@ import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
+import { zeroAddress } from '../../constants/address.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/erc7739/actions/signMessage.js'
 import type { Hex } from '../../types/misc.js'
 import {
@@ -1138,6 +1139,20 @@ test.each([
     address: address.notDeployed,
     hash: hashMessage('0xdead'),
     signature: '0xdead',
+    expectedResult: false,
+  },
+  {
+    _name: 'zero address, zeroed r and s, v = 27',
+    address: zeroAddress,
+    hash: hashMessage('hello world'),
+    signature: concat([pad('0x', { size: 64 }), '0x1b']),
+    expectedResult: false,
+  },
+  {
+    _name: 'zero address, zeroed r and s, v = 28',
+    address: zeroAddress,
+    hash: hashMessage('hello world'),
+    signature: concat([pad('0x', { size: 64 }), '0x1c']),
     expectedResult: false,
   },
 ] as {

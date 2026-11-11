@@ -5,6 +5,9 @@ import { accounts, address } from '~test/constants.js'
 import { mainnetClient } from '~test/utils.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
+import { zeroAddress } from '../../constants/address.js'
+import { concat } from '../../utils/data/concat.js'
+import { pad } from '../../utils/data/pad.js'
 import { verifyMessage } from './verifyMessage.js'
 
 describe('verifyMessage', () => {
@@ -36,6 +39,16 @@ describe('verifyMessage', () => {
         message: 'This is a test message for viem!',
         signature:
           '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
+      }),
+    ).toBe(false)
+  })
+
+  test('zero address with zeroed r and s', async () => {
+    expect(
+      await verifyMessage(mainnetClient, {
+        address: zeroAddress,
+        message: 'hello world',
+        signature: concat([pad('0x', { size: 64 }), '0x1b']),
       }),
     ).toBe(false)
   })
