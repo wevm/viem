@@ -116,6 +116,62 @@ describe('updateConfig', () => {
   })
 })
 
+describe('upgrade', () => {
+  test('behavior: null account ignores the client account', async () => {
+    const hash = `0x${'01'.repeat(32)}` as const
+    const requests: unknown[] = []
+    const client = getClient({
+      account,
+      transport: custom({
+        async request(request) {
+          requests.push(request)
+          if (request.method === 'eth_chainId') return toHex(chain.id)
+          if (request.method === 'eth_sendTransaction') return hash
+          throw new Error(`Unexpected request: ${request.method}`)
+        },
+      }),
+    })
+
+    const result = await actions.accounts.upgrade(client, {
+      account: null,
+      owners: [{ owner: accounts[2].address, weight: 1 }],
+      threshold: 1,
+    })
+
+    expect({ requests, result }).toMatchInlineSnapshot(`
+      {
+        "requests": [
+          {
+            "method": "eth_chainId",
+          },
+          {
+            "method": "eth_sendTransaction",
+            "params": [
+              {
+                "calls": [
+                  {
+                    "data": "0x5f5fdc3100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000100000000000000000000000098e503f35d0a019cb0a251ad243a4ccfcf371f460000000000000000000000000000000000000000000000000000000000000001",
+                    "to": "0xAACC000000000000000000000000000000000000",
+                    "value": "0x",
+                  },
+                ],
+                "chainId": "0x539",
+                "configurableAccountSimulation": undefined,
+                "data": undefined,
+                "keyAuthorizationSimulation": undefined,
+                "to": undefined,
+                "type": "0x76",
+                "value": undefined,
+              },
+            ],
+          },
+        ],
+        "result": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      }
+    `)
+  })
+})
+
 describe('updateConfigSync', () => {
   test('behavior: returns the committed config', async () => {
     const account = Account.fromConfig({

@@ -610,8 +610,8 @@ export namespace upgrade {
         throw new Error(
           `\`${key}\` is not supported: send \`upgrade.call\` in \`calls\` to batch the upgrade with other calls.`,
         )
-    const account = rest.account ?? client.account
-    if (typeof account === 'object') {
+    const account = rest.account === undefined ? client.account : rest.account
+    if (account && typeof account === 'object') {
       if (account.source === 'configurable')
         throw new Error('The account is already a configurable account.')
       if (account.source === 'accessKey')
