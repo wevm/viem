@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer } from '~test/utils.js'
+import { wait } from '../../wait.js'
 
 import {
   getGateway,
@@ -26,6 +27,18 @@ describe('isImageUri', () => {
     })
 
     await expect(isImageUri(server.url)).resolves.toBe(true)
+  })
+
+  test('timeout', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.writeHead(200, { 'Content-Type': 'image/png' })
+      res.end()
+    })
+
+    await expect(isImageUri(server.url, { timeout: 100 })).resolves.toBe(false)
+
+    await server.close()
   })
 
   test('is not image', async () => {
@@ -423,6 +436,53 @@ describe('getMetadataAvatarUri', () => {
     await expect(() =>
       getMetadataAvatarUri({ uri: server.url }),
     ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+  })
+
+  test('error: timeout', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ image: 'data:image/png;base64,AA==' }))
+    })
+
+    await expect(() =>
+      getMetadataAvatarUri({ timeout: 100, uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
+  test('error: body stalls after headers', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.write('{"image":')
+      await wait(1_000)
+      res.end('"data:image/png;base64,AA=="}')
+    })
+
+    await expect(() =>
+      getMetadataAvatarUri({ timeout: 100, uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
+  test('error: body too large', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          image: 'data:image/png;base64,AA==',
+          padding: 'a'.repeat(10_485_760),
+        }),
+      )
+    })
+
+    await expect(() =>
+      getMetadataAvatarUri({ uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
   })
 })
 

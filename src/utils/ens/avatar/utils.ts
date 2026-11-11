@@ -17,10 +17,13 @@ import {
   EnsAvatarUriResolutionError,
   type EnsAvatarUriResolutionErrorType,
 } from '../../../errors/ens.js'
+import { TimeoutError } from '../../../errors/request.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
 import { type NumberToHexErrorType, numberToHex } from '../../encoding/toHex.js'
+import { readResponseBody } from '../../internal/http.js'
+import { withTimeout } from '../../promise/withTimeout.js'
 
 type UriItem = {
   uri: string
@@ -35,12 +38,27 @@ const ipfsHashRegex =
 const base64Regex = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/
 const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
 
+const fetchTimeout = 10_000
+// Same ceiling as the HTTP transport.
+const maxMetadataBytes = 10_485_760
+
 type IsImageUriErrorType = ErrorType
 
 /** @internal */
-export async function isImageUri(uri: string) {
+export async function isImageUri(
+  uri: string,
+  { timeout = fetchTimeout }: { timeout?: number | undefined } = {},
+) {
   try {
-    const res = await fetch(uri, { method: 'HEAD' })
+    const res = await withTimeout(
+      ({ signal }) =>
+        fetch(uri, { method: 'HEAD', ...(signal ? { signal } : {}) }),
+      {
+        errorInstance: new TimeoutError({ body: {}, url: uri }),
+        signal: true,
+        timeout,
+      },
+    )
     // retrieve content type header to check if content is image
     if (res.status === 200) {
       const contentType = res.headers.get('content-type')
@@ -48,6 +66,7 @@ export async function isImageUri(uri: string) {
     }
     return false
   } catch (error: any) {
+    if (error instanceof TimeoutError) return false
     // if error is not cors related then fail
     if (typeof error === 'object' && typeof error.response !== 'undefined') {
       return false
@@ -171,16 +190,31 @@ export type GetMetadataAvatarUriErrorType =
 
 export async function getMetadataAvatarUri({
   gatewayUrls,
+  timeout = fetchTimeout,
   uri,
 }: {
   gatewayUrls?: AssetGatewayUrls | undefined
+  /** The timeout (in ms) for the metadata request, including its body. Default: 10_000 */
+  timeout?: number | undefined
   uri: string
 }): Promise<string> {
   try {
-    const res = await fetch(uri).then((res) => res.json())
+    const body = await withTimeout(
+      async ({ signal }) => {
+        const response = await fetch(uri, signal ? { signal } : {})
+        return readResponseBody(response, {
+          maxResponseBodySize: maxMetadataBytes,
+        })
+      },
+      {
+        errorInstance: new TimeoutError({ body: {}, url: uri }),
+        signal: true,
+        timeout,
+      },
+    )
     const image = await parseAvatarUri({
       gatewayUrls,
-      uri: getJsonImage(res),
+      uri: getJsonImage(JSON.parse(body)),
     })
     return image
   } catch {
