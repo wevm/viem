@@ -1,6 +1,7 @@
 import { Hex } from 'ox'
 import { encodeDeployData, getAddress, isAddressEqual, zeroAddress } from 'viem'
 import {
+  getTransactionCount,
   readContract,
   sendTransactionSync,
   writeContractSync,
@@ -351,6 +352,35 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
         venue,
       }),
     ).rejects.toThrow('does not support contract "earnFactory"')
+  })
+
+  test('rejects a null account without falling back to the client account', async () => {
+    const { factories, venue } = await setup()
+    const nonce = await getTransactionCount(client, {
+      address: account.address,
+      blockTag: 'pending',
+    })
+
+    await expect(
+      Actions.earn.deployErc4626StackSync(client, {
+        account: null as never,
+        deploymentId: Hex.fromNumber(14, { size: 32 }),
+        factories,
+        venue,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [AccountNotFoundError: Could not find an Account to execute with this Action.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
+
+      Version: viem@x.y.z]
+    `)
+
+    expect(
+      await getTransactionCount(client, {
+        address: account.address,
+        blockTag: 'pending',
+      }),
+    ).toBe(nonce)
   })
 
   test('uses a separate final owner for binding', async () => {

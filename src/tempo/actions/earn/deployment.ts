@@ -932,7 +932,8 @@ export async function deployErc4626StackSync<
   client: Client<Transport, chain, account>,
   parameters: deployErc4626StackSync.Parameters<chain, account>,
 ): Promise<deployErc4626StackSync.ReturnValue> {
-  const deployer = parameters.account ?? client.account
+  const deployer =
+    parameters.account === undefined ? client.account : parameters.account
   if (!deployer) throw new AccountNotFoundError()
   const owner_ = parameters.owner ?? deployer
   const owner = parseAccount(owner_).address
