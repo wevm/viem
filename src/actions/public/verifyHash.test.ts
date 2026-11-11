@@ -1,5 +1,18 @@
-import { getContractAddress, publicActions, zeroAddress } from 'viem'
-import { deployContract, getTransaction, readContract } from 'viem/actions'
+import {
+  encodeDeployData,
+  erc6492SignatureValidatorAbi,
+  erc6492SignatureValidatorByteCode,
+  getContractAddress,
+  publicActions,
+  zeroAddress,
+} from 'viem'
+import {
+  call,
+  deployContract,
+  getTransaction,
+  readContract,
+  setCode,
+} from 'viem/actions'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 import {
   Eoa,
@@ -1168,6 +1181,48 @@ test.each([
       signature,
     }),
   ).toBe(expectedResult)
+})
+
+test('zero address with a verifier that accepts any signature', async () => {
+  // Verifier that returns `true` for every call.
+  const verifier = '0x0000000000000000000000000000000000006492'
+  await setCode(client, {
+    address: verifier,
+    bytecode: '0x600160005260206000f3',
+  })
+  const parameters = {
+    erc6492VerifierAddress: verifier,
+    hash: hashMessage('hello world'),
+    signature: concat([pad('0x', { size: 64 }), '0x1b']),
+  } as const
+
+  const results = await Promise.all([
+    verifyHash(client, { ...parameters, address: address.notDeployed }),
+    verifyHash(client, { ...parameters, address: zeroAddress }),
+  ])
+
+  expect(results).toMatchInlineSnapshot(`
+    [
+      true,
+      false,
+    ]
+  `)
+})
+
+test('deployless verifier rejects zero address', async () => {
+  const { data } = await call(client, {
+    data: encodeDeployData({
+      abi: erc6492SignatureValidatorAbi,
+      args: [
+        zeroAddress,
+        hashMessage('hello world'),
+        concat([pad('0x', { size: 64 }), '0x1b']),
+      ],
+      bytecode: erc6492SignatureValidatorByteCode,
+    }),
+  })
+
+  expect(data).toMatchInlineSnapshot(`"0x00"`)
 })
 
 test('unexpected errors still get thrown', async () => {
