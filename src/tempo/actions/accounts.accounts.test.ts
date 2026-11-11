@@ -148,6 +148,30 @@ describe('updateConfig', () => {
   })
 })
 
+describe('upgrade', () => {
+  test('behavior: null account ignores the client account', async () => {
+    const client = getClient({ account })
+
+    const error = await actions.accounts
+      .upgrade(client, {
+        account: null,
+        owners: [{ owner: accounts[2].address, weight: 1 }],
+        threshold: 1,
+      })
+      .catch((error) => error)
+
+    const { details, name, shortMessage } = error
+    expect({ details, name, shortMessage }).toMatchInlineSnapshot(`
+      {
+        "details": "unknown account",
+        "name": "ContractFunctionExecutionError",
+        "shortMessage": "Invalid parameters were provided to the RPC method.
+      Double check you have provided the correct parameters.",
+      }
+    `)
+  })
+})
+
 describe('updateConfigSync', () => {
   test('behavior: returns the committed config', async () => {
     const account = Account.fromConfig({
