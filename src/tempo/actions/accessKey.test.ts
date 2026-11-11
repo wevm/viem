@@ -148,6 +148,22 @@ describe('authorize', () => {
     })
     expect(remaining).toBe(1000000n)
   })
+
+  test('error: null account', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    await expect(
+      actions.accessKey.authorize(client, {
+        account: null,
+        accessKey,
+        expiry: Math.floor((Date.now() + 30_000) / 1000),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: account is required.]`,
+    )
+  })
 })
 
 describe('saveAuthorization', () => {
