@@ -16,10 +16,10 @@
     "mermaid": "^12.0.0",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-server-dom-webpack": "~19.2.8",
+    "react-server-dom-webpack": "~19.2.9",
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
-    "vite": "^8.2.4",
+    "vite": "^8.3.7",
     "vocs": "2.8.1",
     "waku": "^1.0.0-beta.6"
   }
