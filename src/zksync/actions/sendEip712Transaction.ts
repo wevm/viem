@@ -3,11 +3,12 @@ import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { getChainId } from '../../actions/public/getChainId.js'
 import { prepareTransactionRequest } from '../../actions/wallet/prepareTransactionRequest.js'
 import { sendRawTransaction } from '../../actions/wallet/sendRawTransaction.js'
-import type {
-  SendTransactionErrorType,
-  SendTransactionParameters,
-  SendTransactionRequest,
-  SendTransactionReturnType,
+import {
+  type SendTransactionErrorType,
+  type SendTransactionParameters,
+  type SendTransactionRequest,
+  type SendTransactionReturnType,
+  sendTransaction,
 } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -95,12 +96,15 @@ export async function sendEip712Transaction<
   const { account: account_ = client.account, chain = client.chain } =
     parameters
 
-  const account = account_ ? parseAccount(account_) : client.account
-
-  if (!account)
+  if (typeof account_ === 'undefined')
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
+
+  // Without an account to sign with, forward the request to the wallet unsigned.
+  if (account_ === null) return sendTransaction(client, parameters as any)
+
+  const account = parseAccount(account_)
 
   try {
     assertEip712Request(parameters)
