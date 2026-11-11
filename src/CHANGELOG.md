@@ -1,5 +1,85 @@
 # viem
 
+## 2.57.18
+
+### Patch Changes
+
+- [#5483](https://github.com/wevm/viem/pull/5483) [`78060dbbe684b75fbce8e150adf25fe96145b92e`](https://github.com/wevm/viem/commit/78060dbbe684b75fbce8e150adf25fe96145b92e) Thanks [@jxom](https://github.com/jxom)! - Limited the total size of `bytes` and `string` values that `decodeAbiParameters` decodes to 32 times the input size, throwing `AbiDecodingSizeLimitExceededError` beyond it.
+
+- [#5463](https://github.com/wevm/viem/pull/5463) [`41c1a5f7c7e18560f93d8dd6b251da46f4e1cb5d`](https://github.com/wevm/viem/commit/41c1a5f7c7e18560f93d8dd6b251da46f4e1cb5d) Thanks [@jxom](https://github.com/jxom)! - Fixed `accessKey.authorize` and `accessKey.authorizeSync` falling back to the client account when `account` was `null`; they now throw `account is required.` instead.
+
+- [#5465](https://github.com/wevm/viem/pull/5465) [`f2c54e49ee6b5665b6b7d9df98149ec1a3c63431`](https://github.com/wevm/viem/commit/f2c54e49ee6b5665b6b7d9df98149ec1a3c63431) Thanks [@jxom](https://github.com/jxom)! - Updated batched `call` to reject every call in a multicall batch when the number of returned results did not match the number of calls.
+
+- [`37a88da74836cb42f82d19ca93a8c873f29fa9b5`](https://github.com/wevm/viem/commit/37a88da74836cb42f82d19ca93a8c873f29fa9b5) Thanks [@ampagent](https://github.com/ampagent)! - Fixed batched `multicall`, `call`, and HTTP requests hanging with an unhandled rejection when the batch function threw synchronously, such as an extended `readContract` action.
+
+- [#5479](https://github.com/wevm/viem/pull/5479) [`ccd175704841433e6ba52af0a53a5a7850619220`](https://github.com/wevm/viem/commit/ccd175704841433e6ba52af0a53a5a7850619220) Thanks [@jxom](https://github.com/jxom)! - **ccip:** Limited the total response size of local batch gateway requests in one CCIP-Read lookup to 10 MiB, failing the lookup when it is exceeded.
+
+- [#5461](https://github.com/wevm/viem/pull/5461) [`55763b62de2eeb3435d18050cbfc9a190c0c74cb`](https://github.com/wevm/viem/commit/55763b62de2eeb3435d18050cbfc9a190c0c74cb) Thanks [@jxom](https://github.com/jxom)! - Fixed `call` running CCIP-Read callbacks at the default block instead of the `blockNumber`, `blockTag`, or `blockHash` passed to it.
+
+- [#5457](https://github.com/wevm/viem/pull/5457) [`b3af075de8797c707ef028ee3507582430e27023`](https://github.com/wevm/viem/commit/b3af075de8797c707ef028ee3507582430e27023) Thanks [@jxom](https://github.com/jxom)! - Updated the Celo `serializeTransaction` to serialize any transaction with a `feeCurrency` as a CIP-64 transaction.
+
+- [#5474](https://github.com/wevm/viem/pull/5474) [`429c3fce93bb38a12ec0fc8e5bedfe31bf57dce7`](https://github.com/wevm/viem/commit/429c3fce93bb38a12ec0fc8e5bedfe31bf57dce7) Thanks [@jxom](https://github.com/jxom)! - Fixed `getChainContractAddress` returning a contract address at block `0n` when the contract was created at a later block.
+
+- [#5472](https://github.com/wevm/viem/pull/5472) [`9f0e002f9c81435f74f63858732bf1cf67b49440`](https://github.com/wevm/viem/commit/9f0e002f9c81435f74f63858732bf1cf67b49440) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.earn.deployErc4626StackSync` falling back to the client account when `account` was `null`, so it now throws `AccountNotFoundError` like the other Earn deployment actions.
+
+- [#5476](https://github.com/wevm/viem/pull/5476) [`272622faf010afc39a3369cf2c900a38feea0a46`](https://github.com/wevm/viem/commit/272622faf010afc39a3369cf2c900a38feea0a46) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo Earn `deposit`, `depositShares`, `redeem`, and `withdrawExact` to throw `AccountNotFoundError` when `account` is `null` and no `recipient` is given, instead of defaulting the recipient to the client account.
+
+- [#5458](https://github.com/wevm/viem/pull/5458) [`6a08be9a4b1c3888315b395a89060c15b6fc00c4`](https://github.com/wevm/viem/commit/6a08be9a4b1c3888315b395a89060c15b6fc00c4) Thanks [@jxom](https://github.com/jxom)! - **ens:** Applied a 10 second timeout to ENS avatar metadata and image requests, and a 10 MiB limit to avatar metadata response bodies.
+
+- [#5468](https://github.com/wevm/viem/pull/5468) [`0231beb3f1048a14d7a93b8e6c88aa16ebcaea9c`](https://github.com/wevm/viem/commit/0231beb3f1048a14d7a93b8e6c88aa16ebcaea9c) Thanks [@jxom](https://github.com/jxom)! - Updated `verifyHash`, `verifyMessage`, `verifyTypedData`, and `verifySiweMessage` to return `false` for the zero address and for signatures whose ECDSA recovery fails instead of matching the zero address.
+
+- [#5484](https://github.com/wevm/viem/pull/5484) [`ed3350460ee9327c9c6ec977c578e9c44a984366`](https://github.com/wevm/viem/commit/ed3350460ee9327c9c6ec977c578e9c44a984366) Thanks [@jxom](https://github.com/jxom)! - Fixed `Relay.feePayer` to reject fills whose requested and filled senders differ, and to validate and sign for the same sender.
+
+- [#5480](https://github.com/wevm/viem/pull/5480) [`a9ec1633f533807bba685812c5cf9fcc0c170297`](https://github.com/wevm/viem/commit/a9ec1633f533807bba685812c5cf9fcc0c170297) Thanks [@jxom](https://github.com/jxom)! - Changed `prepareTransactionRequest` to keep the `chainId` argument or chain id over the `eth_fillTransaction` result and throw `ChainMismatchError` when they differ.
+
+- [#5447](https://github.com/wevm/viem/pull/5447) [`1dd5cc13680dc6319eae7707e6b5a9a156b90d12`](https://github.com/wevm/viem/commit/1dd5cc13680dc6319eae7707e6b5a9a156b90d12) Thanks [@jxom](https://github.com/jxom)! - Added `iterateLogs` and a `blockRange` parameter on `getLogs`, which read logs across a block range in pages of blocks and split pages that an RPC Provider rejects.
+
+- [#5469](https://github.com/wevm/viem/pull/5469) [`44e53b8199cc698958c81836b635acec2b306168`](https://github.com/wevm/viem/commit/44e53b8199cc698958c81836b635acec2b306168) Thanks [@jxom](https://github.com/jxom)! - Updated `getL2Output` to read the L2OutputOracle directly when no portal address or target chain portal is provided.
+
+- [#5466](https://github.com/wevm/viem/pull/5466) [`e87461eaaa64f37d6055e676a68600563bb27f63`](https://github.com/wevm/viem/commit/e87461eaaa64f37d6055e676a68600563bb27f63) Thanks [@jxom](https://github.com/jxom)! - Fixed `encodeAbiParameters` and `encodePacked` encoding odd-length hex `bytes` values (and `bytesN` values in `encodeAbiParameters`) without left-padding them to whole bytes.
+
+- [#5444](https://github.com/wevm/viem/pull/5444) [`c51bd55ae71ef9da4151eb691fd246f911e9e44a`](https://github.com/wevm/viem/commit/c51bd55ae71ef9da4151eb691fd246f911e9e44a) Thanks [@jxom](https://github.com/jxom)! - Fixed `hexToBytes` and `toBytes` shifting the bytes of odd-length hex values when `size` was specified.
+
+- [#5455](https://github.com/wevm/viem/pull/5455) [`ee8e8b79d86a00deee8087abe37effed592ccb5a`](https://github.com/wevm/viem/commit/ee8e8b79d86a00deee8087abe37effed592ccb5a) Thanks [@jxom](https://github.com/jxom)! - Added `usesSuperRoots` to `getL2Output` and `waitToProve` outputs so `buildProveWithdrawal` resolved the L2 block for super-root outputs passed as `output`.
+
+- [#5471](https://github.com/wevm/viem/pull/5471) [`e6e401365a5435167f429a254d74c60f4b780a9f`](https://github.com/wevm/viem/commit/e6e401365a5435167f429a254d74c60f4b780a9f) Thanks [@jxom](https://github.com/jxom)! - Updated `getPaymasterData` and `getPaymasterStubData` to return only paymaster-related fields from the paymaster response.
+
+- [#5475](https://github.com/wevm/viem/pull/5475) [`08e0f253b45f940688cc4fdecabd235945d0ef8c`](https://github.com/wevm/viem/commit/08e0f253b45f940688cc4fdecabd235945d0ef8c) Thanks [@jxom](https://github.com/jxom)! - Fixed `prepareTransactionRequest` replacing an explicit `account: null` with the client account and modifying the passed parameters.
+
+- [#5481](https://github.com/wevm/viem/pull/5481) [`2bba86fe81ba6592147774855cb54b518bff73af`](https://github.com/wevm/viem/commit/2bba86fe81ba6592147774855cb54b518bff73af) Thanks [@jxom](https://github.com/jxom)! - Fixed `propAmm.swap`, `propAmm.swapSync`, and `propAmm.swap.estimateGas` defaulting `recipient` and `customerId` from the client account when `account` was `null`.
+
+- [#5464](https://github.com/wevm/viem/pull/5464) [`8a53e55308a22c3943d967c38239522d3873d5be`](https://github.com/wevm/viem/commit/8a53e55308a22c3943d967c38239522d3873d5be) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.accounts.updateConfig` to forward an explicit `account: null` instead of falling back to the client account.
+
+- [#5456](https://github.com/wevm/viem/pull/5456) [`baefc9c59a42dd85b48819f8664e6a2c8dfeb660`](https://github.com/wevm/viem/commit/baefc9c59a42dd85b48819f8664e6a2c8dfeb660) Thanks [@jxom](https://github.com/jxom)! - Fixed `finalizeWithdrawal`, `estimateFee`, and `estimateGasL1ToL2` in `viem/zksync` falling back to the client account when `account` is `null`.
+
+- [#5443](https://github.com/wevm/viem/pull/5443) [`bb4662fdb1aaa3194f20ccf6d8a3ea42466348e0`](https://github.com/wevm/viem/commit/bb4662fdb1aaa3194f20ccf6d8a3ea42466348e0) Thanks [@jxom](https://github.com/jxom)! - Added a `signal` parameter to `waitForTransactionReceipt` that stops the wait, rejecting with the signal's reason.
+
+- [`08c90ddb787ad165e78e2c86c5abbd85f0feeb40`](https://github.com/wevm/viem/commit/08c90ddb787ad165e78e2c86c5abbd85f0feeb40) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `simulateContract` falling back to the client account when `account` is `null`.
+
+- [#5440](https://github.com/wevm/viem/pull/5440) [`b7e14ab83a607a5cfed7ac469ae592954bb3ff1e`](https://github.com/wevm/viem/commit/b7e14ab83a607a5cfed7ac469ae592954bb3ff1e) Thanks [@jxom](https://github.com/jxom)! - Fixed `validateSiweMessage` and `verifySiweMessage` accepting a message with a nonce shorter than 8 alphanumeric characters or a version other than `1`, which EIP-4361 does not allow.
+
+- [#5452](https://github.com/wevm/viem/pull/5452) [`255930d3644be9a4eb63953b4f77fce0238d3c53`](https://github.com/wevm/viem/commit/255930d3644be9a4eb63953b4f77fce0238d3c53) Thanks [@jxom](https://github.com/jxom)! - Added [TIP-1165](https://tips.sh/1165) pre-authorized access key signatures: `viem/tempo` access key accounts return them from `sign`, `signMessage`, and `signTypedData` while their key authorization is pending, and Tempo's `verifyHash` (with `mode: 'allowAccessKey'`) accepts them before the access key is registered.
+
+- [#5478](https://github.com/wevm/viem/pull/5478) [`1cd07fd44c4bb708322a2926133593d9f22d9982`](https://github.com/wevm/viem/commit/1cd07fd44c4bb708322a2926133593d9f22d9982) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.token.transfer` and `Actions.token.transferSync` (`viem/tempo`) passing the transfer arguments to the write action, so a JSON-RPC account sending a `transferFrom` now sends the transaction from the account instead of `from`.
+
+- [#5470](https://github.com/wevm/viem/pull/5470) [`0b7d8150d4a55f69825eff22f1ab6b0c0d26efd5`](https://github.com/wevm/viem/commit/0b7d8150d4a55f69825eff22f1ab6b0c0d26efd5) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.accounts.upgrade` and `Actions.accounts.upgradeSync` checking the client account when `account` is `null`.
+
+- [#5442](https://github.com/wevm/viem/pull/5442) [`a960ce1a524d3e14066f73a1b0daeea8a4abc49b`](https://github.com/wevm/viem/commit/a960ce1a524d3e14066f73a1b0daeea8a4abc49b) Thanks [@jxom](https://github.com/jxom)! - Fixed `getEnsAddress` to resolve leading-zero EVM addresses and return `null` for the zero address instead of throwing when an offchain resolver returned an address-encoded response for an Ethereum or EVM chain `coinType`.
+
+- [#5459](https://github.com/wevm/viem/pull/5459) [`947d629e7ac5411ec7049d78f43ab0759f0cae77`](https://github.com/wevm/viem/commit/947d629e7ac5411ec7049d78f43ab0759f0cae77) Thanks [@jxom](https://github.com/jxom)! - Fixed `verifyHash` ignoring `blockTag` when verifying pre-delegated ERC-8010 signatures, which now fall back to `'pending'` only when no block is selected.
+
+- [#5462](https://github.com/wevm/viem/pull/5462) [`e2d02d81acd4d84ba06ad71e118d3772fec04839`](https://github.com/wevm/viem/commit/e2d02d81acd4d84ba06ad71e118d3772fec04839) Thanks [@jxom](https://github.com/jxom)! - Updated `verifyHash` to only treat ERC-8010 pre-delegated signatures as valid when the `isValidSignature` call succeeds.
+
+- [#5477](https://github.com/wevm/viem/pull/5477) [`6d08c6c5de21da5220cbc2eb2865b10b0c525286`](https://github.com/wevm/viem/commit/6d08c6c5de21da5220cbc2eb2865b10b0c525286) Thanks [@jxom](https://github.com/jxom)! - Updated `verifyHash` to make its onchain verification calls with CCIP-Read disabled, so an `OffchainLookup` revert from a signer now returns `false`.
+
+- [#5473](https://github.com/wevm/viem/pull/5473) [`21306d4605cf7c1830fd6e024b6b9c805b8b17f3`](https://github.com/wevm/viem/commit/21306d4605cf7c1830fd6e024b6b9c805b8b17f3) Thanks [@jxom](https://github.com/jxom)! - Fixed `verifyHash` sending its onchain verification calls through multicall batching, so they now run as separate `eth_call` requests.
+
+- [#5460](https://github.com/wevm/viem/pull/5460) [`253d066bf64ccbcc413eccb0045a029b1387a8f4`](https://github.com/wevm/viem/commit/253d066bf64ccbcc413eccb0045a029b1387a8f4) Thanks [@jxom](https://github.com/jxom)! - Updated `verifyHash` to use the deployless validator when `blockNumber` is before the chain's `erc6492Verifier` `blockCreated`.
+
+- [#5435](https://github.com/wevm/viem/pull/5435) [`8421bad488309e97efe7c813414cfa2632e4af7c`](https://github.com/wevm/viem/commit/8421bad488309e97efe7c813414cfa2632e4af7c) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Centralized the transport selection logic shared by `watchBlockHeaders`, `watchBlockNumber`, `watchBlocks`, `watchContractEvent`, and `watchEvent`.
+
+- [#5467](https://github.com/wevm/viem/pull/5467) [`15f2496ca81b7028725f5181e5eefe1a34b38cfc`](https://github.com/wevm/viem/commit/15f2496ca81b7028725f5181e5eefe1a34b38cfc) Thanks [@jxom](https://github.com/jxom)! - Updated `viem/zksync` `sendEip712Transaction` to send an unsigned `eth_sendTransaction` and `signEip712Transaction` to throw `AccountNotFoundError` when `account` is `null`, instead of using the Client's account.
+
 ## 2.57.17
 
 ### Patch Changes
