@@ -1,3 +1,4 @@
+import { createClient, http } from 'viem'
 import { expect, test } from 'vitest'
 import { createRpcProxy } from '~test/utils.js'
 import {
@@ -6,7 +7,6 @@ import {
   zksyncClientLocalNode,
   zksyncClientLocalNodeWithAccount,
 } from '~test/zksync.js'
-import { createClient, http } from '../../index.js'
 import { estimateFee } from './estimateFee.js'
 
 const client = { ...zksyncClientLocalNode }

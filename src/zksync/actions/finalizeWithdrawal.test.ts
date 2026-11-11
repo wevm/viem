@@ -1,3 +1,4 @@
+import { createClient, http } from 'viem'
 import { expect, test } from 'vitest'
 
 import { anvilMainnet, anvilZksync } from '~test/anvil.js'
@@ -5,13 +6,7 @@ import { accounts } from '~test/constants.js'
 import { createRpcProxy } from '~test/utils.js'
 import { mockRequestReturnData } from '~test/zksync.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import {
-  createClient,
-  type EIP1193RequestFn,
-  http,
-  numberToHex,
-  publicActions,
-} from '../../index.js'
+import { type EIP1193RequestFn, publicActions } from '../../index.js'
 import { publicActionsL2 } from '../../zksync/decorators/publicL2.js'
 import { finalizeWithdrawal } from './finalizeWithdrawal.js'
 
@@ -77,20 +72,7 @@ test('behavior: account null', async () => {
   const url = await createRpcProxy(
     anvilMainnet.rpcUrl.http,
     ({ method, params }) => {
-      if (method === 'eth_call')
-        return {
-          result:
-            '0x00000000000000000000000070a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55',
-        }
-      if (method === 'eth_chainId')
-        return { result: numberToHex(anvilMainnet.chain.id) }
-      if (method === 'eth_sendTransaction') {
-        requests.push(params)
-        return {
-          result:
-            '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87',
-        }
-      }
+      if (method === 'eth_sendTransaction') requests.push(params)
       return undefined
     },
   )
