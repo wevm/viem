@@ -8,6 +8,7 @@ All errors in viem extend the [`BaseError`](https://github.com/wevm/viem/blob/ma
 ### `AbiConstructorParamsNotFoundError`
 ### `AbiDecodingDataSizeInvalidError`
 ### `AbiDecodingDataSizeTooSmallError`
+### `AbiDecodingSizeLimitExceededError`
 ### `AbiDecodingZeroDataError`
 ### `AbiEncodingArrayLengthMismatchError`
 ### `AbiEncodingBytesSizeMismatchError`

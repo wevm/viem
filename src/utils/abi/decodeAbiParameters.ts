@@ -9,6 +9,7 @@ import {
   InvalidAbiDecodingTypeError,
   type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import {
@@ -50,6 +51,7 @@ export type DecodeAbiParametersErrorType =
   | DecodeParameterErrorType
   | SizeErrorType
   | CreateCursorErrorType
+  | AbiDecodingSizeLimitExceededErrorType
   | ErrorType
 
 export function decodeAbiParameters<
@@ -70,6 +72,10 @@ export function decodeAbiParameters<
       size: size(data),
     })
 
+  // Bound the total size of decoded `bytes` and `string` values, so offsets
+  // that share or overlap tails cannot decode to far more data than the input.
+  const budget = { limit: bytes.length * 32, used: 0 }
+
   let consumed = 0
   const values = []
   for (let i = 0; i < params.length; ++i) {
@@ -78,6 +84,7 @@ export function decodeAbiParameters<
     // data consume no bytes, so the cursor may already be exhausted.
     if (consumed < bytes.length) cursor.setPosition(consumed)
     const [data, consumed_] = decodeParameter(cursor, param, {
+      budget,
       staticPosition: 0,
     })
     consumed += consumed_
@@ -99,23 +106,31 @@ type DecodeParameterErrorType =
 function decodeParameter(
   cursor: Cursor,
   param: AbiParameter,
-  { staticPosition }: { staticPosition: number },
+  { budget, staticPosition }: { budget: Budget; staticPosition: number },
 ) {
   const arrayComponents = getArrayComponents(param.type)
   if (arrayComponents) {
     const [length, type] = arrayComponents
-    return decodeArray(cursor, { ...param, type }, { length, staticPosition })
+    return decodeArray(
+      cursor,
+      { ...param, type },
+      { budget, length, staticPosition },
+    )
   }
   if (param.type === 'tuple')
-    return decodeTuple(cursor, param as TupleAbiParameter, { staticPosition })
+    return decodeTuple(cursor, param as TupleAbiParameter, {
+      budget,
+      staticPosition,
+    })
 
   if (param.type === 'address') return decodeAddress(cursor)
   if (param.type === 'bool') return decodeBool(cursor)
   if (param.type.startsWith('bytes'))
-    return decodeBytes(cursor, param, { staticPosition })
+    return decodeBytes(cursor, param, { budget, staticPosition })
   if (param.type.startsWith('uint') || param.type.startsWith('int'))
     return decodeNumber(cursor, param)
-  if (param.type === 'string') return decodeString(cursor, { staticPosition })
+  if (param.type === 'string')
+    return decodeString(cursor, { budget, staticPosition })
   throw new InvalidAbiDecodingTypeError(param.type, {
     docsPath: '/docs/contract/decodeAbiParameters',
   })
@@ -126,6 +141,8 @@ function decodeParameter(
 
 const sizeOfLength = 32
 const sizeOfOffset = 32
+
+type Budget = { limit: number; used: number }
 
 type DecodeAddressErrorType =
   | ChecksumAddressErrorType
@@ -143,7 +160,11 @@ type DecodeArrayErrorType = BytesToNumberErrorType | ErrorType
 function decodeArray(
   cursor: Cursor,
   param: AbiParameter,
-  { length, staticPosition }: { length: number | null; staticPosition: number },
+  {
+    budget,
+    length,
+    staticPosition,
+  }: { budget: Budget; length: number | null; staticPosition: number },
 ) {
   // If the length of the array is not known in advance (dynamic array),
   // this means we will need to wonder off to the pointer and decode.
@@ -170,6 +191,7 @@ function decodeArray(
       // Otherwise, elements will be the size of their encoding (consumed bytes).
       cursor.setPosition(startOfData + (dynamicChild ? i * 32 : consumed))
       const [data, consumed_] = decodeParameter(cursor, param, {
+        budget,
         staticPosition: startOfData,
       })
       consumed += consumed_
@@ -202,6 +224,7 @@ function decodeArray(
       // Move cursor along to the next slot (next offset pointer).
       cursor.setPosition(start + i * 32)
       const [data] = decodeParameter(cursor, param, {
+        budget,
         staticPosition: start,
       })
       value.push(data)
@@ -218,6 +241,7 @@ function decodeArray(
   const value: unknown[] = []
   for (let i = 0; i < length; ++i) {
     const [data, consumed_] = decodeParameter(cursor, param, {
+      budget,
       staticPosition: staticPosition + consumed,
     })
     consumed += consumed_
@@ -246,7 +270,7 @@ type DecodeBytesErrorType =
 function decodeBytes(
   cursor: Cursor,
   param: AbiParameter,
-  { staticPosition }: { staticPosition: number },
+  { budget, staticPosition }: { budget: Budget; staticPosition: number },
 ) {
   const [_, size] = param.type.split('bytes')
   if (!size) {
@@ -266,6 +290,9 @@ function decodeBytes(
     }
 
     const data = cursor.readBytes(length)
+    budget.used += length
+    if (budget.used > budget.limit)
+      throw new AbiDecodingSizeLimitExceededError({ limit: budget.limit })
 
     // As we have gone wondering, restore to the original position + next slot.
     cursor.setPosition(staticPosition + 32)
@@ -300,7 +327,7 @@ type DecodeTupleErrorType = BytesToNumberErrorType | ErrorType
 function decodeTuple(
   cursor: Cursor,
   param: TupleAbiParameter,
-  { staticPosition }: { staticPosition: number },
+  { budget, staticPosition }: { budget: Budget; staticPosition: number },
 ) {
   // Tuples can have unnamed components (i.e. they are arrays), so we must
   // determine whether the tuple is named or unnamed. In the case of a named
@@ -327,6 +354,7 @@ function decodeTuple(
       const component = param.components[i]
       cursor.setPosition(start + consumed)
       const [data, consumed_] = decodeParameter(cursor, component, {
+        budget,
         staticPosition: start,
       })
       consumed += consumed_
@@ -343,6 +371,7 @@ function decodeTuple(
   for (let i = 0; i < param.components.length; ++i) {
     const component = param.components[i]
     const [data, consumed_] = decodeParameter(cursor, component, {
+      budget,
       staticPosition,
     })
     value[hasUnnamedChild ? i : component?.name!] = data
@@ -358,7 +387,7 @@ type DecodeStringErrorType =
 
 function decodeString(
   cursor: Cursor,
-  { staticPosition }: { staticPosition: number },
+  { budget, staticPosition }: { budget: Budget; staticPosition: number },
 ) {
   // Get offset to start of string data.
   const offset = bytesToNumber(cursor.readBytes(32))
@@ -376,6 +405,9 @@ function decodeString(
   }
 
   const data = cursor.readBytes(length, 32)
+  budget.used += length
+  if (budget.used > budget.limit)
+    throw new AbiDecodingSizeLimitExceededError({ limit: budget.limit })
   const value = bytesToString(data)
 
   // As we have gone wondering, restore to the original position + next slot.
@@ -400,4 +432,23 @@ function hasDynamicChild(param: AbiParameter) {
     return true
 
   return false
+}
+
+/** Type of {@link AbiDecodingSizeLimitExceededError}. */
+export type AbiDecodingSizeLimitExceededErrorType =
+  AbiDecodingSizeLimitExceededError & {
+    name: 'AbiDecodingSizeLimitExceededError'
+  }
+
+/**
+ * Thrown by `decodeAbiParameters` when the decoded `bytes` and `string` values
+ * of one decode add up to more than 32 times the size of the input data.
+ */
+export class AbiDecodingSizeLimitExceededError extends BaseError {
+  constructor({ limit }: { limit: number }) {
+    super(
+      `Decoded \`bytes\` and \`string\` values exceed the size limit of ${limit} bytes.`,
+      { name: 'AbiDecodingSizeLimitExceededError' },
+    )
+  }
 }

@@ -284,6 +284,7 @@ test('exports', () => {
       "InvalidTypedDataTypeError",
       "InvalidDecimalNumberError",
       "EIP1193ProviderRpcError",
+      "AbiDecodingSizeLimitExceededError",
       "decodeAbiParameters",
       "decodeDeployData",
       "decodeErrorResult",

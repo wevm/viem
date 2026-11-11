@@ -1,4 +1,5 @@
 import { type Address, parseAbiParameters } from 'abitype'
+import { numberToHex, size, stringToHex } from 'viem'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { seaportContractConfig } from '~test/abis.js'
@@ -1837,5 +1838,71 @@ describe('zero-width types', () => {
         ),
       ).toEqual(values)
     }
+  })
+})
+
+describe('decoded size limit', () => {
+  const word = (value: number) => numberToHex(value, { size: 32 }).slice(2)
+
+  // `n` element offsets whose tails start 64 bytes apart, each with a
+  // length that runs to the end of the data.
+  function overlapping(n: number) {
+    const size = 64 + 96 * n
+    let tails = ''
+    for (let i = 0; i < n; i++)
+      tails += word(size - (64 + 32 * n + 64 * i + 32)) + word(0)
+    let offsets = ''
+    for (let i = 0; i < n; i++) offsets += word(32 * n + 64 * i)
+    return `0x${word(32)}${word(n)}${offsets}${tails}` as const
+  }
+
+  test('error: overlapping string tails', () => {
+    const data = overlapping(1024)
+    expect(size(data)).toMatchInlineSnapshot(`98368`)
+
+    expect(() =>
+      decodeAbiParameters([{ type: 'string[]' }], data),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiDecodingSizeLimitExceededError: Decoded \`bytes\` and \`string\` values exceed the size limit of 3147776 bytes.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error: overlapping bytes tails', () => {
+    expect(() =>
+      decodeAbiParameters([{ type: 'bytes[]' }], overlapping(1024)),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiDecodingSizeLimitExceededError: Decoded \`bytes\` and \`string\` values exceed the size limit of 3147776 bytes.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('shared tails', () => {
+    const value = 'a'.repeat(1024)
+    const n = 1000
+    const data = `0x${word(32)}${word(n)}${word(32 * n).repeat(n)}${word(
+      value.length,
+    )}${stringToHex(value).slice(2)}` as const
+
+    expect(decodeAbiParameters([{ type: 'string[]' }], data)).toEqual([
+      Array(n).fill(value),
+    ])
+  })
+
+  test('distinct tails', () => {
+    const strings = Array.from({ length: 1024 }, (_, i) =>
+      String(i).padEnd(64, 'a'),
+    )
+    const bytes = [`0x${'ff'.repeat(2 ** 20)}`] as const
+    const data = encodeAbiParameters(parseAbiParameters('string[], bytes[]'), [
+      strings,
+      bytes,
+    ])
+
+    expect(
+      decodeAbiParameters(parseAbiParameters('string[], bytes[]'), data),
+    ).toEqual([strings, bytes])
   })
 })
