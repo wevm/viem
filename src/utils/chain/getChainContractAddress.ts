@@ -24,8 +24,8 @@ export function getChainContractAddress({
     })
 
   if (
-    blockNumber &&
-    contract.blockCreated &&
+    blockNumber !== undefined &&
+    contract.blockCreated !== undefined &&
     contract.blockCreated > blockNumber
   )
     throw new ChainDoesNotSupportContract({
