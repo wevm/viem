@@ -46,7 +46,13 @@ export type GetL2OutputReturnType = {
   outputIndex: bigint
   outputRoot: Hex
   timestamp: bigint
+  /**
+   * L2 block number of the output. For super-root dispute games, this value is
+   * the L2 timestamp instead. Check `usesSuperRoots` to distinguish the unit.
+   */
   l2BlockNumber: bigint
+  /** Whether the output comes from a super-root dispute game. */
+  usesSuperRoots?: boolean | undefined
 }
 export type GetL2OutputErrorType = ReadContractErrorType | ErrorType
 
@@ -101,6 +107,7 @@ export async function getL2Output<
         outputIndex: game.index,
         outputRoot: game.rootClaim,
         timestamp: game.timestamp,
+        usesSuperRoots: game.usesSuperRoots,
       }
     }
   }

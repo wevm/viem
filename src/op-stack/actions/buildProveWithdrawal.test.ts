@@ -123,6 +123,26 @@ test('args: super game', async () => {
   })
 })
 
+test('args: super output', async () => {
+  const { blockNumbers, client, proofBlockNumbers } = superGameClient()
+  const request = await buildProveWithdrawal(client, {
+    account: accounts[0].address,
+    chain: null,
+    output: {
+      l2BlockNumber: game.l2BlockNumber,
+      outputIndex: game.index,
+      outputRoot: game.rootClaim,
+      timestamp: game.timestamp,
+      usesSuperRoots: true,
+    },
+    withdrawal,
+  })
+
+  expect(blockNumbers).toEqual(['latest', '0x63', '0x5a'])
+  expect(proofBlockNumbers).toEqual(['0x5a'])
+  expect(request.l2OutputIndex).toBe(1n)
+})
+
 test('args: super game timestamp mismatch', async () => {
   const { client } = superGameClient({ targetTimestamp: 182n })
   await expect(
