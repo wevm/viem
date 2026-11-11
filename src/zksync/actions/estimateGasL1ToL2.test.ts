@@ -1,9 +1,11 @@
 import { expect, test } from 'vitest'
+import { createRpcProxy } from '~test/utils.js'
 import {
   mockClientPublicActionsL2,
   zksyncClientLocalNode,
   zksyncClientLocalNodeWithAccount,
 } from '~test/zksync.js'
+import { createClient, http } from '../../index.js'
 import { estimateGasL1ToL2 } from './estimateGasL1ToL2.js'
 
 const client = { ...zksyncClientLocalNode }
@@ -28,4 +30,34 @@ test('default without account', async () => {
     value: 70n,
   })
   expect(value > 0).to.be.true
+})
+
+test('behavior: account null', async () => {
+  const requests: unknown[] = []
+  const url = await createRpcProxy('http://127.0.0.1:1', ({ params }) => {
+    requests.push(params)
+    return { result: '0x75bcd15' }
+  })
+  const client = createClient({
+    account: zksyncClientLocalNodeWithAccount.account,
+    chain: zksyncClientLocalNodeWithAccount.chain,
+    transport: http(url),
+  })
+
+  await estimateGasL1ToL2(client, {
+    account: null,
+    to: '0xa61464658AfeAf65CccaaFD3a512b69A83B77618',
+    value: 70n,
+  })
+
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
+        {
+          "to": "0xa61464658AfeAf65CccaaFD3a512b69A83B77618",
+          "value": "0x46",
+        },
+      ],
+    ]
+  `)
 })

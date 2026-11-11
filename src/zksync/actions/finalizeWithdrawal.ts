@@ -134,14 +134,15 @@ export async function finalizeWithdrawal<
   >,
 ): Promise<FinalizeWithdrawalReturnType> {
   const {
-    account: account_ = client.account,
+    account: account_,
     client: l2Client,
     hash,
     index = 0,
     ...rest
   } = parameters
-  const account = account_ ? parseAccount(account_) : client.account
-  if (!account)
+  const account =
+    account_ === undefined ? client.account : account_ && parseAccount(account_)
+  if (account === undefined)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
