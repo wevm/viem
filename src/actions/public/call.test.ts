@@ -47,6 +47,8 @@ import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { trim } from '../../utils/data/trim.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
+import { mine } from '../test/mine.js'
+import { setCode } from '../test/setCode.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { call, getRevertErrorData } from './call.js'
 import { getBlock } from './getBlock.js'
@@ -96,6 +98,45 @@ describe('ccip', () => {
     })
 
     expect(trim(data!)).toEqual(accounts[0].address)
+
+    await server.close()
+  })
+
+  test('block parameters', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
+    })
+    const { hash: blockHash, number: blockNumber } = await getBlock(client)
+    await mine(client, { blocks: 1 })
+    await setCode(client, { address: contractAddress!, bytecode: '0x' })
+    await mine(client, { blocks: 1 })
+
+    const calldata = encodeFunctionData({
+      abi: OffchainLookupExample.abi,
+      functionName: 'getAddress',
+      args: ['jxom.viem'],
+    })
+    const results = await Promise.all([
+      call(client, { blockNumber, data: calldata, to: contractAddress! }),
+      call(client, { blockHash, data: calldata, to: contractAddress! }),
+      call(client, {
+        blockHash,
+        data: calldata,
+        requireCanonical: true,
+        to: contractAddress!,
+      }),
+    ])
+
+    expect(
+      results.map(({ data }) => data && trim(data)),
+    ).toMatchInlineSnapshot(`
+      [
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      ]
+    `)
 
     await server.close()
   })
