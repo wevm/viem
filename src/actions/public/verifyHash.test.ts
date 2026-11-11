@@ -6,6 +6,7 @@ import {
   EoaInitializer,
   EoaOptional,
   EoaReverting,
+  OffchainLookupSigner,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
@@ -28,6 +29,7 @@ import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
+import { publicActions } from '../../clients/decorators/public.js'
 import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/erc7739/actions/signMessage.js'
@@ -395,6 +397,38 @@ describe('erc6492', async () => {
         signature,
       }),
     ).resolves.toBe(true)
+  })
+
+  test('predeployed verifier: signer reverts with OffchainLookup', async () => {
+    const { contractAddress: erc6492VerifierAddress } =
+      await deployErc6492SignatureVerifier()
+    const { contractAddress: signer } = await deploy(client, {
+      abi: OffchainLookupSigner.abi,
+      bytecode: OffchainLookupSigner.bytecode.object,
+    })
+
+    const signature = await signMessage(client, {
+      account: localAccount,
+      message: 'hello world',
+    })
+
+    const parameters = {
+      address: signer!,
+      erc6492VerifierAddress: erc6492VerifierAddress!,
+      hash: hashMessage('hello world'),
+      signature,
+    }
+    const results = [
+      await verifyHash(client, parameters),
+      await verifyHash(client.extend(publicActions), parameters),
+    ]
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        false,
+        false,
+      ]
+    `)
   })
 
   test('deployed w/ factory + factoryData', async () => {
