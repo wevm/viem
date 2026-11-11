@@ -58,7 +58,6 @@ import type {
   TokenParameter,
   TokenParameters,
   WriteParameters,
-  WriteSyncParameters,
 } from '../internal/types.js'
 import {
   type CallParameters,
@@ -3483,14 +3482,17 @@ export namespace transfer {
     client: Client<Transport, chain, account>,
     parameters: transfer.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { pollingInterval, throwOnReceiptRevert, timeout } =
-      parameters as transfer.Parameters<chain, account> & WriteSyncParameters
+    const { amount, from, memo, to, token, ...rest } = parameters
+    const call = transfer.call(client, {
+      amount,
+      from,
+      memo,
+      to,
+      token,
+    } as never)
     return (await withExecutionError(action)(client, {
-      ...pickWriteParameters(parameters as never),
-      pollingInterval,
-      throwOnReceiptRevert,
-      timeout,
-      ...transfer.call(client, parameters as never),
+      ...rest,
+      ...call,
     } as never)) as never
   }
 
