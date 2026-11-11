@@ -6,6 +6,7 @@ test('canonical OUSD addresses', () => {
     {
       "1": "0x9f6F3991D525015a6F8CaF062C83b62fD3AC4436",
       "4217": "0x20c0000000000000000000006a37DA5C996874BE",
+      "42431": "0x20c0000000000000000000006a37DA5C996874BE",
       "8453": "0xB2000000000000000000002fEb517dFeC7415344",
     }
   `)
@@ -15,6 +16,7 @@ test('OUSD metadata', () => {
   expect(ousd(4217)).toMatchInlineSnapshot(`
     {
       "address": "0x20c0000000000000000000006a37DA5C996874BE",
+      "chainId": 4217,
       "currency": "USD",
       "decimals": 6,
       "name": "OpenUSD",
