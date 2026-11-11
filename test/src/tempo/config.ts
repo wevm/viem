@@ -25,11 +25,19 @@ import {
   http as viem_http,
 } from '../../../src/index.js'
 import * as Actions from '../../../src/tempo/actions/index.js'
-import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
+import { Account, Addresses, Hardfork, Tick } from '../../../src/tempo/index.js'
 import { defineToken } from '../../../src/tokens/index.js'
 import { rpcUrl } from './prool.js'
 
 export const nodeEnv = import.meta.env.VITE_TEMPO_ENV || 'localnet'
+
+/** Whether the test chain supports configurable accounts (T14). */
+export const configurableAccounts =
+  nodeEnv === 'localnet' &&
+  !Hardfork.lt(
+    (import.meta.env.VITE_TEMPO_HARDFORK ?? 'Tnext').toLowerCase(),
+    't14',
+  )
 
 const accountsMnemonic = (() => {
   if (nodeEnv === 'localnet')

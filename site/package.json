@@ -16,7 +16,7 @@
     "mermaid": "^12.0.0",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-server-dom-webpack": "~19.2.8",
+    "react-server-dom-webpack": "~19.2.9",
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
     "vite": "^8.2.4",
