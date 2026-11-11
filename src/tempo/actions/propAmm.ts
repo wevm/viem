@@ -816,7 +816,8 @@ export namespace swap {
     client: Client<Transport, chain, account>,
     parameters: InputArgs & { account?: Account | Address | null | undefined },
   ) {
-    const account = parameters.account ?? client.account
+    const account =
+      parameters.account === undefined ? client.account : parameters.account
     const recipient =
       parameters.recipient ?? (account && parseAccount(account).address)
     if (!recipient) throw new AccountNotFoundError()
