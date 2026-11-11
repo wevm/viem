@@ -1338,6 +1338,8 @@ export type {
 } from './types/utils.js'
 export type { Withdrawal } from './types/withdrawal.js'
 export {
+  AbiDecodingSizeLimitExceededError,
+  type AbiDecodingSizeLimitExceededErrorType,
   type DecodeAbiParametersErrorType,
   type DecodeAbiParametersReturnType,
   decodeAbiParameters,

@@ -154,7 +154,7 @@
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "117 kB"
+      "limit": "117.5 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -231,7 +231,7 @@
     {
       "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "30 kB",
+      "limit": "30.5 kB",
       "import": "{ getEnsAvatar }"
     },
     {
