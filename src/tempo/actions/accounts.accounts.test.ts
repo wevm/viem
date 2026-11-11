@@ -88,53 +88,35 @@ describe('updateConfig', () => {
   })
 
   test('behavior: preserves a null account override', async () => {
-    const hash = `0x${'02'.repeat(32)}` as const
-    const requests: unknown[] = []
-    const client = getClient({
-      account,
-      transport: custom({
-        async request(request) {
-          requests.push(request)
-          if (request.method === 'eth_chainId') return toHex(chain.id)
-          if (request.method === 'eth_sendTransaction') return hash
-          throw new Error(`Unexpected request: ${request.method}`)
+    const client = getClient({ account })
+
+    const error = await actions.accounts
+      .updateConfig(client, {
+        account: null,
+        currentConfig: account.config,
+        nextConfig: {
+          owners: account.config.owners,
+          threshold: account.config.threshold,
         },
-      }),
+      })
+      .catch((error) => error)
+    const commitment = await actions.accounts.getConfigCommitment(client, {
+      account: account.address,
     })
 
-    const result = await actions.accounts.updateConfig(client, {
-      account: null,
-      currentConfig: account.config,
-      nextConfig: {
-        owners: account.config.owners,
-        threshold: account.config.threshold,
-      },
-    })
-
-    expect({ requests, result }).toMatchInlineSnapshot(
+    expect({
+      commitment,
+      details: error.details,
+      name: error.name,
+      sender: error.sender,
+    }).toMatchInlineSnapshot(`
       {
-        requests: [{}, { params: [{ data: expect.any(String) }] }],
-      },
-      `
-      {
-        "requests": [
-          {
-            "method": "eth_chainId",
-          },
-          {
-            "method": "eth_sendTransaction",
-            "params": [
-              {
-                "data": Any<String>,
-                "to": "0xAACC000000000000000000000000000000000000",
-              },
-            ],
-          },
-        ],
-        "result": "0x0202020202020202020202020202020202020202020202020202020202020202",
+        "commitment": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "details": "unknown account",
+        "name": "ContractFunctionExecutionError",
+        "sender": undefined,
       }
-    `,
-    )
+    `)
   })
 
   test('behavior: commits the first current config', async () => {
