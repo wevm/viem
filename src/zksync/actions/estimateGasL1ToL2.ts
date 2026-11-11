@@ -21,7 +21,8 @@ export async function estimateGasL1ToL2<
   parameters: EstimateGasL1ToL2Parameters<chain, account>,
 ): Promise<EstimateGasL1ToL2ReturnType> {
   const { account: account_, ...request } = parameters
-  const account = account_ ? parseAccount(account_) : client.account
+  const account =
+    account_ === undefined ? client.account : account_ && parseAccount(account_)
 
   const formatters = client.chain?.formatters
   const formatted = formatters?.transactionRequest?.format(
