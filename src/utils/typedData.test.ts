@@ -651,7 +651,7 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [BaseError: Invalid primary type \`Cheese\` must be one of \`["EIP712Domain","Mail","Person"]\`.
+      [InvalidPrimaryTypeError: Invalid primary type \`Cheese\` must be one of \`["EIP712Domain","Mail","Person"]\`.
 
       Check that the primary type is a key in \`types\`.
 

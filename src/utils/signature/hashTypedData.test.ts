@@ -242,7 +242,7 @@ test('wrong domain value', () => {
       primaryType: 'Mail',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [BaseError: Invalid domain ""wrong"".
+    [InvalidDomainError: Invalid domain ""wrong"".
 
     Must be a valid EIP-712 domain.
 
