@@ -92,6 +92,7 @@ test('behavior: null account', async () => {
     nonce: _nonce,
     r: _r,
     s: _s,
+    transactionIndex: _transactionIndex,
     v: _v,
     yParity: _yParity,
     ...transaction
@@ -107,7 +108,6 @@ test('behavior: null account', async () => {
       "l1BatchTxIndex": null,
       "maxPriorityFeePerGas": 1000000000n,
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-      "transactionIndex": 0,
       "type": "eip1559",
       "typeHex": "0x2",
       "value": 1n,
