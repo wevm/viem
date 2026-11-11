@@ -21,6 +21,7 @@ import { concat } from '../../utils/data/concat.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
+import { getAction } from '../../utils/getAction.js'
 import { sendTransaction } from './sendTransaction.js'
 
 export const fallbackMagicIdentifier =
@@ -225,7 +226,11 @@ export async function sendCalls<
       const results: PromiseSettledResult<Hex>[] = []
       for (const call of calls) {
         try {
-          const value = await sendTransaction(client, {
+          const value = await getAction(
+            client,
+            sendTransaction,
+            'sendTransaction',
+          )({
             account,
             chain,
             data: call.data,
