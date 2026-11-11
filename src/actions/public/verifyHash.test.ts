@@ -33,6 +33,7 @@ import type { Hex } from '../../types/misc.js'
 import {
   concat,
   encodeFunctionData,
+  getContractAddress,
   hashMessage,
   pad,
   serializeErc6492Signature,
@@ -43,11 +44,13 @@ import { parseSignature } from '../../utils/signature/parseSignature.js'
 import { serializeErc8010Signature } from '../../utils/signature/serializeErc8010Signature.js'
 import { mine } from '../test/mine.js'
 import { setNonce } from '../test/setNonce.js'
+import { deployContract } from '../wallet/deployContract.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { getBlock } from './getBlock.js'
+import { getTransaction } from './getTransaction.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
@@ -605,6 +608,64 @@ describe('erc8010', async () => {
     })
 
     expect(valid).toBe(true)
+  })
+
+  test('predelegated: blockTag', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    // Deploy a delegation contract that only exists in pending state.
+    const deployHash = await deployContract(client, {
+      abi: EoaOptional.abi,
+      bytecode: EoaOptional.bytecode.object,
+    })
+    const pendingDelegation = getContractAddress({
+      from: client.account.address,
+      nonce: BigInt((await getTransaction(client, { hash: deployHash })).nonce),
+    })
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: pendingDelegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const results = {
+      default: await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+      latest: await verifyHash(client, {
+        address: account.address,
+        blockTag: 'latest',
+        hash,
+        signature,
+      }),
+      pending: await verifyHash(client, {
+        address: account.address,
+        blockTag: 'pending',
+        hash,
+        signature,
+      }),
+    }
+
+    await mine(client, { blocks: 1 })
+
+    expect(results).toMatchInlineSnapshot(`
+      {
+        "default": true,
+        "latest": false,
+        "pending": true,
+      }
+    `)
   })
 
   test('predelegated: with init data', async () => {
