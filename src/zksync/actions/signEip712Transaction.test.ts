@@ -1,8 +1,8 @@
+import { createClient, http } from 'viem'
 import { expect, test } from 'vitest'
 import { anvilZksync } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { createClient, http } from '../../index.js'
 import type { ZksyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { signTransaction } from './signTransaction.js'
 

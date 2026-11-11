@@ -1,9 +1,11 @@
+import { createClient, http } from 'viem'
+import { getTransaction } from 'viem/actions'
 import { expect, test } from 'vitest'
 import { anvilZksync } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { createRpcProxy } from '~test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { createClient, type EIP1193RequestFn, http } from '../../index.js'
+import type { EIP1193RequestFn } from '../../index.js'
 import type { ZksyncTransactionRequestEIP712 } from '../../zksync/index.js'
 import { sendEip712Transaction } from './sendEip712Transaction.js'
 
@@ -40,28 +42,21 @@ test('behavior: null account', async () => {
   const requests: unknown[] = []
   const url = await createRpcProxy(anvilZksync.rpcUrl.http, (request) => {
     requests.push(request)
-    if (request.method === 'eth_sendTransaction')
-      return {
-        result:
-          '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87',
-      }
     return undefined
   })
   const client = createClient({
-    account: privateKeyToAccount(sourceAccount.privateKey),
+    account: privateKeyToAccount(accounts[1].privateKey),
     chain: anvilZksync.chain,
     transport: http(url),
   })
 
   const hash = await sendEip712Transaction(client, {
     account: null,
-    paymaster: base.paymaster,
-    paymasterInput: '0x8c5a3445',
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    type: 'eip712',
+    value: 1n,
   })
 
-  expect(hash).toMatchInlineSnapshot(
-    `"0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87"`,
-  )
   expect(requests).toMatchInlineSnapshot(`
     [
       {
@@ -77,21 +72,23 @@ test('behavior: null account', async () => {
           {
             "eip712Meta": {
               "gasPerPubdata": "0xc350",
-              "paymasterParams": {
-                "paymaster": "0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA",
-                "paymasterInput": [
-                  140,
-                  90,
-                  52,
-                  69,
-                ],
-              },
             },
+            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
             "type": "0x71",
+            "value": "0x1",
           },
         ],
       },
     ]
+  `)
+
+  const { from, to, value } = await getTransaction(client, { hash })
+  expect({ from, to, value }).toMatchInlineSnapshot(`
+    {
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "value": 1n,
+    }
   `)
 })
 

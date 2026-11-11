@@ -21,7 +21,9 @@ import {
   getTransactionError,
 } from '../../utils/errors/getTransactionError.js'
 import { getAction } from '../../utils/getAction.js'
+import { gasPerPubdataDefault } from '../constants/number.js'
 import type { ChainEIP712 } from '../types/chain.js'
+import type { ZksyncTransactionRequestEIP712 } from '../types/transaction.js'
 import { assertEip712Request } from '../utils/assertEip712Request.js'
 import { signTransaction } from './signTransaction.js'
 
@@ -102,7 +104,14 @@ export async function sendEip712Transaction<
     })
 
   // Without an account to sign with, forward the request to the wallet unsigned.
-  if (account_ === null) return sendTransaction(client, parameters as any)
+  // `gasPerPubdata` keeps the request formatted as an EIP-712 transaction.
+  if (account_ === null)
+    return sendTransaction(client, {
+      ...parameters,
+      gasPerPubdata:
+        (parameters as ZksyncTransactionRequestEIP712).gasPerPubdata ??
+        gasPerPubdataDefault,
+    } as any)
 
   const account = parseAccount(account_)
 
