@@ -111,28 +111,39 @@ export async function getPaymasterStubData(
 ): Promise<GetPaymasterStubDataReturnType> {
   const { chainId, entryPointAddress, context, ...userOperation } = parameters
   const request = formatUserOperationRequest(userOperation)
-  const { paymasterPostOpGasLimit, paymasterVerificationGasLimit, ...rest } =
-    await client.request({
-      method: 'pm_getPaymasterStubData',
-      params: [
-        {
-          ...request,
-          callGasLimit: request.callGasLimit ?? '0x0',
-          verificationGasLimit: request.verificationGasLimit ?? '0x0',
-          preVerificationGas: request.preVerificationGas ?? '0x0',
-        },
-        entryPointAddress,
-        numberToHex(chainId),
-        context,
-      ],
-    })
+  const {
+    isFinal,
+    paymaster,
+    paymasterAndData,
+    paymasterData,
+    paymasterPostOpGasLimit,
+    paymasterVerificationGasLimit,
+    sponsor,
+  } = await client.request({
+    method: 'pm_getPaymasterStubData',
+    params: [
+      {
+        ...request,
+        callGasLimit: request.callGasLimit ?? '0x0',
+        verificationGasLimit: request.verificationGasLimit ?? '0x0',
+        preVerificationGas: request.preVerificationGas ?? '0x0',
+      },
+      entryPointAddress,
+      numberToHex(chainId),
+      context,
+    ],
+  })
   return {
-    ...rest,
+    ...(paymaster && { paymaster }),
+    ...(paymasterData && { paymasterData }),
+    ...(paymasterAndData && { paymasterAndData }),
     ...(paymasterPostOpGasLimit && {
       paymasterPostOpGasLimit: hexToBigInt(paymasterPostOpGasLimit),
     }),
     ...(paymasterVerificationGasLimit && {
       paymasterVerificationGasLimit: hexToBigInt(paymasterVerificationGasLimit),
     }),
+    ...(isFinal !== undefined && { isFinal }),
+    ...(sponsor && { sponsor }),
   } as unknown as GetPaymasterStubDataReturnType
 }
