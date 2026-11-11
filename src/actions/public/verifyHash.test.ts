@@ -1,3 +1,5 @@
+import { getContractAddress } from 'viem'
+import { deployContract, getTransaction } from 'viem/actions'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import {
@@ -654,6 +656,64 @@ describe('erc8010', async () => {
     })
 
     expect(valid).toBe(true)
+  })
+
+  test('predelegated: blockTag', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    // Deploy a delegation contract that only exists in pending state.
+    const deployHash = await deployContract(client, {
+      abi: EoaOptional.abi,
+      bytecode: EoaOptional.bytecode.object,
+    })
+    const pendingDelegation = getContractAddress({
+      from: client.account.address,
+      nonce: BigInt((await getTransaction(client, { hash: deployHash })).nonce),
+    })
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: pendingDelegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const results = {
+      default: await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+      latest: await verifyHash(client, {
+        address: account.address,
+        blockTag: 'latest',
+        hash,
+        signature,
+      }),
+      pending: await verifyHash(client, {
+        address: account.address,
+        blockTag: 'pending',
+        hash,
+        signature,
+      }),
+    }
+
+    await mine(client, { blocks: 1 })
+
+    expect(results).toMatchInlineSnapshot(`
+      {
+        "default": true,
+        "latest": false,
+        "pending": true,
+      }
+    `)
   })
 
   test('predelegated: with init data', async () => {

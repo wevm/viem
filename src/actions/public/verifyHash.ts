@@ -70,6 +70,7 @@ export type BlockParameters = OneOf<
   | {
       /**
        * The block tag to check if the contract was already deployed.
+       * Pre-delegated ERC-8010 signatures are verified against `'pending'` when no block is selected.
        * @default 'latest'
        */
       blockTag?: BlockTag | undefined
@@ -274,7 +275,7 @@ export async function verifyErc8010(
     abi: multicall3Abi,
     blockHash,
     blockNumber,
-    blockTag: 'pending',
+    blockTag: blockTag ?? 'pending',
     functionName: 'aggregate3',
     requireCanonical,
     args: [
