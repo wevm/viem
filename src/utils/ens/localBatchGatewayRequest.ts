@@ -10,12 +10,15 @@ import type {
   CcipRequestParameters,
   CcipRequestReturnType,
 } from '../ccip.js'
+import { size } from '../data/size.js'
 
 export const localBatchGatewayUrl = 'x-batch-gateway:true'
 
 /**
  * Caps for one CCIP-Read lookup.
  *
+ * - `bytes`: local batch response bytes in total, across callbacks and nested
+ *   batches. Going over it fails the lookup.
  * - `concurrency`: gateway requests in flight at once, across nested batches.
  * - `depth`: nested callbacks, and separately, nested local batches.
  * - `queries`: gateway requests in total, across callbacks and nested batches.
@@ -24,13 +27,16 @@ export const localBatchGatewayUrl = 'x-batch-gateway:true'
  *   `batchGateways`) are the caller's own and are not counted separately.
  */
 export const ccipReadLimit = {
+  bytes: 10_485_760,
   concurrency: 16,
   depth: 4,
   queries: 256,
 } as const
 
-/** Query and concurrency budget shared by every request of one lookup. */
+/** Byte, query and concurrency budget shared by every request of one lookup. */
 export type CcipReadBudget = {
+  /** Local batch response bytes still allowed. */
+  bytes: number
   /** Gateway requests still allowed. */
   queries: number
   /** Runs a gateway request once a concurrency slot is free. */
@@ -42,6 +48,7 @@ export function createCcipReadBudget(): CcipReadBudget {
   let active = 0
   const queue: (() => void)[] = []
   return {
+    bytes: ccipReadLimit.bytes,
     queries: ccipReadLimit.queries,
     async run(fn) {
       if (active >= ccipReadLimit.concurrency)
@@ -108,10 +115,22 @@ export async function localBatchGatewayRequest(parameters: {
           // as `ccipReadTunnel`) may send it elsewhere.
           const urls = query.urls.slice(0, budget.queries)
           budget.queries -= Math.max(1, urls.length)
-          responses[i] = await budget.run(() => ccipRequest({ ...query, urls }))
+          // Requests still queued once the batch is over budget are skipped.
+          const response = await budget.run(async () =>
+            budget.bytes < 0 ? '0x' : ccipRequest({ ...query, urls }),
+          )
+          budget.bytes -= size(response)
+          if (budget.bytes < 0)
+            throw new HttpRequestError({
+              details: `CCIP Read exceeded the maximum response size (${ccipReadLimit.bytes} bytes).`,
+              url: localBatchGatewayUrl,
+            })
+          responses[i] = response
         }
         failures[i] = false
       } catch (err) {
+        // Over the byte budget, the whole batch fails rather than one query.
+        if (budget.bytes < 0) throw err
         failures[i] = true
         responses[i] = encodeError(err as CcipRequestErrorType)
       }

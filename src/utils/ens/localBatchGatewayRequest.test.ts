@@ -551,3 +551,70 @@ test('query without urls draws from the budget', async () => {
 
   expect(tunnelled.length).toMatchInlineSnapshot(`256`)
 })
+
+test('response size limit', async () => {
+  const sender = '0x0000000000000000000000000000000000000001' as const
+  const server = await createHttpServer((_req, res) => {
+    res.end(`0x${'00'.repeat(1_048_576)}`)
+  })
+  const query = (i: number) => ({
+    sender,
+    data: '0x' as const,
+    urls: [`${server.url}/b${i}`],
+  })
+  // A nested batch of `inner` queries next to `outer` direct ones.
+  const batch = (inner: number, outer: number) =>
+    encodeFunctionData({
+      abi: batchGatewayAbi,
+      functionName: 'query',
+      args: [
+        [
+          {
+            sender,
+            data: encodeFunctionData({
+              abi: batchGatewayAbi,
+              functionName: 'query',
+              args: [Array.from({ length: inner }, (_, i) => query(i))],
+            }),
+            urls: [localBatchGatewayUrl],
+          },
+          ...Array.from({ length: outer }, (_, i) => query(inner + i)),
+        ],
+      ],
+    })
+
+  const result = await localBatchGatewayRequest({
+    data: batch(5, 5),
+    ccipRequest,
+  })
+  const error = await localBatchGatewayRequest({
+    data: batch(6, 5),
+    ccipRequest,
+  }).catch((error) => error)
+
+  await server.close()
+
+  const [failures] = decodeFunctionResult({
+    abi: batchGatewayAbi,
+    functionName: 'query',
+    data: result,
+  })
+  expect(failures).toMatchInlineSnapshot(`
+    [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]
+  `)
+  expect(error).toMatchInlineSnapshot(`
+    [HttpRequestError: HTTP request failed.
+
+    URL: http://localhost
+
+    Details: CCIP Read exceeded the maximum response size (10485760 bytes).
+    Version: viem@x.y.z]
+  `)
+})
