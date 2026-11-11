@@ -28,6 +28,7 @@ import {
   type FormatLogErrorType,
   formatLog,
 } from '../../utils/formatters/log.js'
+import { getAction } from '../../utils/getAction.js'
 import type { GetBlockErrorType } from './getBlock.js'
 import { type IterateLogsParameters, iterateLogs } from './iterateLogs.js'
 
@@ -180,7 +181,11 @@ export async function getLogs<
 ): Promise<GetLogsReturnType<abiEvent, abiEvents, strict, fromBlock, toBlock>> {
   if (blockRange !== undefined) {
     const logs = []
-    for await (const page of iterateLogs(client, {
+    for await (const page of getAction(
+      client,
+      iterateLogs,
+      'iterateLogs',
+    )({
       address,
       args,
       blockRange,
