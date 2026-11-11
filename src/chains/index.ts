@@ -351,6 +351,8 @@ export { kavaTestnet } from './definitions/kavaTestnet.js'
 export { kcc } from './definitions/kcc.js'
 export { kii } from './definitions/kii.js'
 export { kiiTestnetOro } from './definitions/kiiTestnet.js'
+export { kinetiqElysium } from './definitions/kinetiqElysium.js'
+export { kinetiqElysiumTestnet } from './definitions/kinetiqElysiumTestnet.js'
 export { kinto } from './definitions/kinto.js'
 /** @deprecated Use `kaia` instead. */
 export { klaytn } from './definitions/klaytn.js'
