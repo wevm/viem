@@ -24,7 +24,7 @@ import {
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import * as FeePayer from '~test/tempo/feePayer.js'
-import { createHttpServer } from '~test/utils.js'
+import { createHttpServer, createRpcProxy } from '~test/utils.js'
 import type * as Request from './request.js'
 import * as Utils from './utils.js'
 
@@ -860,6 +860,73 @@ test('refuses to sign a transaction changed after sponsorship validation', async
     message: 'Sponsored transaction changed after validation.',
   })
 })
+
+test.each([
+  { from: userAccount.address.toLowerCase(), sponsored: true },
+  { from: recipient.address, sponsored: false },
+])(
+  'sponsors a fill only for the requested sender, filled from: $from',
+  async ({ from, sponsored }) => {
+    const url = await createRpcProxy(
+      Tempo.chain.rpcUrls.default.http[0],
+      async ({ method, params }) => {
+        if (method !== 'eth_fillTransaction') return undefined
+        const result = (await caller.request({
+          method,
+          params,
+        } as never)) as Request.Result
+        return { result: { ...result, tx: { ...result.tx, from } } }
+      },
+    )
+    const relay = Relay.create({
+      client: Tempo.getClient({ chain: Tempo.chain, transport: http(url) }),
+      plugins: [
+        Relay.feePayer({
+          account: feePayerAccount,
+          validate: (request) => request.from === userAccount.address,
+        }),
+      ],
+    })
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: http(server.url),
+    })
+
+    const request = client.request({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          from: userAccount.address,
+          feeToken: Tempo.addresses.alphaUsd,
+          calls: [{ data: transfer.data, to: transfer.to }],
+        },
+      ],
+    } as never) as Promise<Request.Result>
+
+    if (!sponsored) {
+      await expect(request).rejects.toMatchObject({
+        code: -32602,
+        details: 'Transaction sender does not match the request.',
+      })
+      return
+    }
+    const { tx } = await request
+    const transaction = Utils.normalizeTempoTransaction(tx)
+    expect(
+      Secp256k1.recoverAddress({
+        payload: TxEnvelopeTempo.getFeePayerSignPayload(
+          TxEnvelopeTempo.from(transaction as never),
+          { sender: userAccount.address },
+        ),
+        signature: transaction.feePayerSignature!,
+      }),
+    ).toBe(feePayerAccount.address.toLowerCase())
+  },
+)
 
 test.each([0, 3])(
   'external sponsorship does not retry with request retryCount: %s',
