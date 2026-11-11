@@ -81,8 +81,9 @@ export type OffchainLookupErrorType = OffchainLookupErrorType_ | ErrorType
  * Performs an EIP-3668 CCIP-Read lookup for a reverted `OffchainLookup` call.
  *
  * Follows at most 4 nested callbacks. Every gateway request of the lookup,
- * including nested local batches, draws from one query and concurrency budget.
- * Each gateway request uses the client transport timeout.
+ * including nested local batches, draws from one query and concurrency budget,
+ * and local batch responses draw from one byte budget. Each gateway request
+ * uses the client transport timeout.
  */
 export async function offchainLookup<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
