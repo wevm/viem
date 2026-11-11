@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `encodeAbiParameters` encoding odd-length hex `bytes` and `bytesN` values without left-padding them to whole bytes.
+Fixed `encodeAbiParameters` and `encodePacked` encoding odd-length hex `bytes` values (and `bytesN` values in `encodeAbiParameters`) without left-padding them to whole bytes.
