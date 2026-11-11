@@ -203,6 +203,8 @@ export declare namespace verify {
 /**
  * Whether a key authorization passes the checks of `authorizeKey` and the transaction pool
  * that need no chain state.
+ *
+ * @internal
  */
 export function isRegistrable(
   keyAuthorization: KeyAuthorization.Signed,
