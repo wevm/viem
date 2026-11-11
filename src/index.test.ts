@@ -161,6 +161,7 @@ test('exports', () => {
       "AbiConstructorParamsNotFoundError",
       "AbiDecodingDataSizeInvalidError",
       "AbiDecodingDataSizeTooSmallError",
+      "AbiDecodingSizeLimitExceededError",
       "AbiDecodingZeroDataError",
       "AbiEncodingArrayLengthMismatchError",
       "AbiEncodingBytesSizeMismatchError",

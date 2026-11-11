@@ -810,6 +810,8 @@ export {
   type AbiDecodingDataSizeInvalidErrorType,
   AbiDecodingDataSizeTooSmallError,
   type AbiDecodingDataSizeTooSmallErrorType,
+  AbiDecodingSizeLimitExceededError,
+  type AbiDecodingSizeLimitExceededErrorType,
   AbiDecodingZeroDataError,
   type AbiDecodingZeroDataErrorType,
   AbiEncodingArrayLengthMismatchError,
