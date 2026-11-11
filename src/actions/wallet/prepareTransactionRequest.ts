@@ -34,6 +34,7 @@ import {
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -242,6 +243,7 @@ export type PrepareTransactionRequestErrorType =
   | GetTransactionCountErrorType
   | EstimateGasErrorType
   | EstimateFeesPerGasErrorType
+  | ErrorType
 
 /**
  * Prepares a transaction request for signing.
