@@ -286,6 +286,51 @@ describe('swap', () => {
     expect(trade.amountIn).toBe(amountIn)
   })
 
+  test('does not default recipient or customer ID from the client account when account is null', async () => {
+    const options = {
+      account: null,
+      amountIn: 1n,
+      expectedOraclePrice: 1n,
+      minAmountOut: 0n,
+      minimumOracleUpdatedAt: 0n,
+      mode: 'exactInput' as const,
+      pool: stack.pool,
+    }
+
+    const results = await Promise.all(
+      [
+        options,
+        { ...options, recipient: recipient.address },
+        { ...options, customerId },
+      ].flatMap((parameters) =>
+        [
+          client.propAmm.swap(parameters),
+          client.propAmm.swapSync(parameters),
+          Actions.propAmm.swap.estimateGas(client, parameters),
+        ].map((promise) =>
+          promise.then(
+            () => 'resolved',
+            (error) => error.name,
+          ),
+        ),
+      ),
+    )
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "AccountNotFoundError",
+        "AccountNotFoundError",
+        "AccountNotFoundError",
+        "AccountNotFoundError",
+        "AccountNotFoundError",
+        "AccountNotFoundError",
+        "AccountNotFoundError",
+        "AccountNotFoundError",
+        "AccountNotFoundError",
+      ]
+    `)
+  })
+
   test('rejects unapproved callers, expired deadlines, and unavailable output', async () => {
     const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
       amountIn: 1_000_000n,
