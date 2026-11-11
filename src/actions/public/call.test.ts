@@ -17,6 +17,7 @@ import { createCcipServer } from '~test/ccip.js'
 import { accounts } from '~test/constants.js'
 import { blobData, kzg } from '~test/kzg.js'
 import {
+  createRpcProxy,
   deploy,
   deployOffchainLookupExample,
   deploySoladyAccount_07,
@@ -1232,6 +1233,57 @@ describe.each([{ deployless: true }, { deployless: false }])(
         expect(results).toMatchSnapshot()
       },
     )
+
+    test('behavior: results length mismatch', async () => {
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method }) => {
+          if (method !== 'eth_call') return
+          return {
+            result: encodeFunctionResult({
+              abi: multicall3Abi,
+              functionName: 'aggregate3',
+              result: [{ success: true, returnData: '0x01' }],
+            }),
+          }
+        },
+      )
+      const client_2 = createClient({
+        batch: { multicall: { deployless } },
+        chain: anvilMainnet.chain,
+        transport: http(url),
+      })
+
+      const results = await Promise.allSettled([
+        call(client_2, { data: name4bytes, to: wagmiContractAddress }),
+        call(client_2, { data: name4bytes, to: usdcContractConfig.address }),
+      ])
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "reason": [CallExecutionError: Multicall returned 1 results for 2 calls.
+
+        Raw Call Arguments:
+          to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+          data:  0x06fdde03
+
+        Version: viem@x.y.z],
+            "status": "rejected",
+          },
+          {
+            "reason": [CallExecutionError: Multicall returned 1 results for 2 calls.
+
+        Raw Call Arguments:
+          to:    0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+          data:  0x06fdde03
+
+        Version: viem@x.y.z],
+            "status": "rejected",
+          },
+        ]
+      `)
+    })
   },
 )
 

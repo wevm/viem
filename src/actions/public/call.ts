@@ -504,12 +504,17 @@ async function scheduleMulticall<chain extends Chain | undefined>(
         requestOptions,
       )
 
-      return decodeFunctionResult({
+      const results = decodeFunctionResult({
         abi: multicall3Abi,
         args: [calls],
         functionName: 'aggregate3',
         data: data || '0x',
       })
+      if (results.length !== requests.length)
+        throw new BaseError(
+          `Multicall returned ${results.length} results for ${requests.length} calls.`,
+        )
+      return results
     },
   })
 
