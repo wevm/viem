@@ -718,6 +718,8 @@ export { viction } from './definitions/viction.js'
 export { victionTestnet } from './definitions/victionTestnet.js'
 export { vision } from './definitions/vision.js'
 export { visionTestnet } from './definitions/visionTestnet.js'
+export { vordium } from './definitions/vordium.js'
+export { vordiumTestnet } from './definitions/vordiumTestnet.js'
 export { wanchain } from './definitions/wanchain.js'
 export { wanchainTestnet } from './definitions/wanchainTestnet.js'
 /** @deprecated Use `loadAlphanet` instead. */
