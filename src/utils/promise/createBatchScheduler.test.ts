@@ -258,4 +258,113 @@ describe('behavior', () => {
       Promise.all([schedule(1), schedule(2), schedule(3), schedule(4)]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: [1,2,3,4]]')
   })
+
+  test('premature flush does not cause stale timer to flush next batch', async () => {
+    // This test directly reproduces the reported bug: after a premature
+    // flush (shouldSplitBatch), the old setTimeout is not cancelled and
+    // fires on the next batch, reading the global scheduler.
+    //
+    // The key to exposing the bug is creating a time gap between the
+    // stale timer (T1) and the new batch's timer (T2). We do this by
+    // using a long wait and scheduling the new batch item well after
+    // the first item, so T1 fires before T2.
+    //
+    // Timeline with wait=30, shouldSplitBatch=(args.length > 2):
+    //   t=0:   schedule(1) → new batch, T1 = setTimeout(exec, 30) → fires at t=30
+    //   t=0:   schedule(2) → joins batch [1, 2]
+    //   t=0:   schedule(3) → shouldSplitBatch([1,2,3]) → true → exec() flushes [1,2].
+    //          Scheduler is now empty. Item 3 starts a new batch.
+    //          T2 = setTimeout(exec, 30) → fires at t=30 (since item 3 is also at t≈0)
+    //
+    // Hmm, T1 and T2 fire at the same time. To separate them, we need
+    // item 3 to arrive later. But schedule() is synchronous. Instead,
+    // we use shouldSplitBatch at args.length > 1 (split on the 2nd item):
+    //
+    //   t=0:   schedule(1) → new batch, T1 = setTimeout(exec, 30) → fires at t=30
+    //   t=0:   schedule(2) → shouldSplitBatch([1,2]) → true → exec() flushes [1].
+    //          Item 2 starts new batch, T2 = setTimeout(exec, 30) → fires at t=30
+    // Still same timing. We need to use await wait() between items.
+    //
+    // Revised approach: schedule first batch, wait a bit, then trigger
+    // the split. The stale timer T1 fires at wait_time from item 1.
+    // The new batch's timer T2 fires at wait_time from the split point.
+    // If the split happens at t=X, T1 fires at t=wait, T2 fires at t=X+wait.
+    // When X > 0, T1 fires before T2.
+    //
+    // With wait=30, shouldSplitBatch=(args.length > 2):
+    //   t=0:   schedule(1) → T1 set, fires at t=30
+    //   t=0:   schedule(2) → joins batch
+    //   t=10:  schedule(3) → split → exec() flushes [1,2]. Item 3 starts
+    //          new batch, T2 set, fires at t=40.
+    //   t=10:  schedule(4) → joins item 3's batch
+    //
+    // Without fix: T1 fires at t=30, reads scheduler [3, 4], flushes
+    //   them prematurely. T2 fires at t=40, reads empty scheduler.
+    //   Result: [3, 4] flushed at t=30 instead of t=40. fn called 2x.
+    //   BUT: the batch contents are the same [3, 4]!
+    //
+    // To make the bug visible in assertions, we need item 4 to arrive
+    // AFTER T1 fires but BEFORE T2 fires:
+    //   t=0:   schedule(1) → T1 set, fires at t=30
+    //   t=0:   schedule(2) → joins batch
+    //   t=10:  schedule(3) → split → exec() flushes [1,2]. Item 3 starts
+    //          new batch, T2 set, fires at t=40.
+    //   t=35:  schedule(4) → joins item 3's batch (if T2 hasn't fired yet)
+    //
+    // Without fix: T1 fires at t=30, reads scheduler [3], flushes [3]
+    //   alone. Item 4 arrives at t=35, starts new batch [4], T3 set.
+    //   fn called 3x: [1,2], [3], [4].
+    // With fix: T1 cancelled. Item 3's batch [3] waits for T2 at t=40.
+    //   Item 4 arrives at t=35, joins [3]. T2 fires at t=40, flushes [3,4].
+    //   fn called 2x: [1,2], [3,4].
+
+    const fn = vi.fn()
+    const { schedule } = createBatchScheduler({
+      id: uid(),
+      wait: 30,
+      // biome-ignore lint/complexity/noCommaOperator: _
+      fn: async (args: number[]) => (fn(), args),
+      shouldSplitBatch: (args) => args.length > 2,
+    })
+
+    const p = []
+
+    // First batch: items 1, 2. T1 set at t=0, fires at t=30.
+    p.push(schedule(1))
+    p.push(schedule(2))
+
+    // Wait 10ms so T2 will fire later than T1.
+    await wait(10)
+
+    // Item 3 triggers split. exec() flushes [1,2]. Item 3 starts
+    // new batch. T2 set at t=10, fires at t=40.
+    // Without fix: T1 (set at t=0) still alive, fires at t=30.
+    p.push(schedule(3))
+
+    // Wait past T1's fire time (t=30) but before T2's (t=40).
+    // At t=35, schedule item 4.
+    await wait(25)
+
+    // Without fix: T1 fired at t=30, flushed [3] alone.
+    //   Item 4 arrives, starts new batch [4], T3 set.
+    // With fix: T1 cancelled. Item 3 still waiting for T2 (fires at t=40).
+    //   Item 4 joins item 3's batch → [3, 4].
+    p.push(schedule(4))
+
+    // Wait for all timers to settle.
+    await wait(30)
+
+    const [x1, x2, x3, x4] = await Promise.all(p)
+
+    expect(x1).toEqual([1, [1, 2]])
+    expect(x2).toEqual([2, [1, 2]])
+
+    // With fix: items 3 and 4 are batched together.
+    // Without fix: item 3 is flushed alone by stale T1, item 4 alone by T3.
+    expect(x3).toEqual([3, [3, 4]])
+    expect(x4).toEqual([4, [3, 4]])
+
+    // 2 calls with fix. 3 calls without fix ([1,2], [3], [4]).
+    expect(fn).toBeCalledTimes(2)
+  })
 })
