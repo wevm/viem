@@ -1,11 +1,16 @@
 import { Signature } from 'ox'
 import { AccountConfig, KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
-import { toHex } from 'viem'
+import { hashMessage, hexToBytes, parseSignature, toHex } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { Account, Actions } from 'viem/tempo'
+import {
+  prepareTransactionRequest,
+  verifyHash,
+  verifyMessage,
+} from 'viem/actions'
+import { createSiweMessage, verifySiweMessage } from 'viem/siwe'
+import { Account, Actions, P256 } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
-import { prepareTransactionRequest } from '../actions/index.js'
 import type { RootAccount } from './Account.js'
 
 const client = getClient({
@@ -294,5 +299,140 @@ describe('prepareTransactionRequest', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: A Tempo owner account is required to approve a configurable account transaction.]`,
     )
+  })
+})
+
+describe('verifyHash', () => {
+  const hash = hashMessage('hello world')
+
+  /** Commits a config for the account, which retires its root key (TIP-1113). */
+  async function retire(root: RootAccount) {
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '100' },
+      to: root.address,
+      token: feeToken,
+    })
+    await Actions.accounts.upgradeSync(client, {
+      account: root,
+      feeToken,
+      owners: [{ owner: accounts[1].address, weight: 1 }],
+      threshold: 1,
+    })
+  }
+
+  test('behavior: rejects a retired secp256k1 root key', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const { address } = root
+    const signature = await root.sign({ hash })
+    const message = createSiweMessage({
+      address,
+      chainId: client.chain.id,
+      domain: 'example.com',
+      nonce: 'foobarbaz',
+      uri: 'https://example.com/path',
+      version: '1',
+    })
+    const siweSignature = await root.signMessage({ message })
+    const verify = async () => ({
+      allowAccessKey: await verifyHash(client, {
+        address,
+        hash,
+        mode: 'allowAccessKey',
+        signature,
+      }),
+      auto: await verifyHash(client, { address, hash, signature }),
+      bytes: await verifyHash(client, {
+        address,
+        hash,
+        mode: 'eoa',
+        signature: hexToBytes(signature),
+      }),
+      eoa: await verifyHash(client, { address, hash, mode: 'eoa', signature }),
+      object: await verifyHash(client, {
+        address,
+        hash,
+        signature: parseSignature(signature),
+      }),
+      verifyMessage: await verifyMessage(client, {
+        address,
+        message: 'hello world',
+        signature,
+      }),
+      verifySiweMessage: await verifySiweMessage(client, {
+        message,
+        signature: siweSignature,
+      }),
+    })
+
+    const active = await verify()
+    await retire(root)
+    const retired = await verify()
+
+    expect({ active, retired }).toMatchInlineSnapshot(`
+      {
+        "active": {
+          "allowAccessKey": true,
+          "auto": true,
+          "bytes": true,
+          "eoa": true,
+          "object": true,
+          "verifyMessage": true,
+          "verifySiweMessage": true,
+        },
+        "retired": {
+          "allowAccessKey": false,
+          "auto": false,
+          "bytes": false,
+          "eoa": false,
+          "object": false,
+          "verifyMessage": false,
+          "verifySiweMessage": false,
+        },
+      }
+    `)
+  })
+
+  test.each([
+    { name: 'p256', root: Account.fromP256(P256.randomPrivateKey()) },
+    {
+      name: 'webAuthn',
+      root: Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://example.com',
+        rpId: 'example.com',
+      }),
+    },
+  ])('behavior: rejects a retired $name root key', async ({ root }) => {
+    const { address } = root
+    const signature = await root.sign({ hash })
+    const verify = async () => ({
+      allowAccessKey: await verifyHash(client, {
+        address,
+        hash,
+        mode: 'allowAccessKey',
+        signature,
+      }),
+      auto: await verifyHash(client, { address, hash, signature }),
+      eoa: await verifyHash(client, { address, hash, mode: 'eoa', signature }),
+    })
+
+    const active = await verify()
+    await retire(root)
+    const retired = await verify()
+
+    expect({ active, retired }).toMatchInlineSnapshot(`
+      {
+        "active": {
+          "allowAccessKey": true,
+          "auto": true,
+          "eoa": true,
+        },
+        "retired": {
+          "allowAccessKey": false,
+          "auto": false,
+          "eoa": false,
+        },
+      }
+    `)
   })
 })

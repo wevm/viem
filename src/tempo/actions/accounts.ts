@@ -3,13 +3,17 @@ import type * as Hex from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
 import { AccountConfig, AccountOperation, type RpcSchemaTempo } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
-import type { ReadContractReturnType } from '../../actions/public/readContract.js'
+import type {
+  ReadContractErrorType,
+  ReadContractReturnType,
+} from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
 import { writeContract } from '../../actions/wallet/writeContract.js'
 import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
@@ -156,6 +160,9 @@ export declare namespace getConfig {
 /**
  * Gets the current configuration commitment for a configurable account.
  *
+ * A chain without the configurable account precompile holds no commitments,
+ * so the commitment of every account on it is zero.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
@@ -175,7 +182,7 @@ export declare namespace getConfig {
  * @param client - Client.
  * @param parameters - Parameters.
  * @returns The current configuration commitment, or zero when no config has
- * been committed.
+ * been committed or the chain has no configurable account precompile.
  */
 export async function getConfigCommitment<
   chain extends Chain | undefined,
@@ -185,10 +192,21 @@ export async function getConfigCommitment<
   parameters: getConfigCommitment.Parameters,
 ): Promise<getConfigCommitment.ReturnValue> {
   const { account, ...rest } = parameters
-  return withExecutionError(readContract)(client, {
-    ...rest,
-    ...getConfigCommitment.call({ account }),
-  })
+  try {
+    return await withExecutionError(readContract)(client, {
+      ...rest,
+      ...getConfigCommitment.call({ account }),
+    })
+  } catch (e) {
+    const error = e as ReadContractErrorType
+    // A chain without the precompile answers no data, and holds no commitments.
+    if (
+      error.name === 'ContractFunctionExecutionError' &&
+      error.cause.name === 'ContractFunctionZeroDataError'
+    )
+      return zeroHash
+    throw error
+  }
 }
 
 export namespace getConfigCommitment {

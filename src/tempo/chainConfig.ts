@@ -25,6 +25,7 @@ import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import { getAction } from '../utils/getAction.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
+import { recoverAddress } from '../utils/signature/recoverAddress.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account, ConfigurableAccount } from './Account.js'
 import {
@@ -578,11 +579,38 @@ export const chainConfig = {
       }
     }
 
-    return await getAction(
-      client,
-      verifyHash,
-      'verifyHash',
-    )({ ...parameters, chain: null })
+    const verify = () =>
+      getAction(
+        client,
+        verifyHash,
+        'verifyHash',
+      )({ ...parameters, chain: null })
+
+    const root = await (async () => {
+      try {
+        return isAddressEqual(
+          address,
+          await recoverAddress({ hash, signature }),
+        )
+      } catch {
+        return false
+      }
+    })()
+    if (!root) return await verify()
+
+    // A config commitment retires the root key (TIP-1113), whose signature still recovers
+    // to the account. Only the chain knows the commitment, so this reads it in every mode.
+    const [commitment, valid] = await Promise.all([
+      getConfigCommitment(client, {
+        account: address,
+        blockHash: parameters.blockHash,
+        blockNumber: parameters.blockNumber,
+        blockTag: parameters.blockTag,
+        requireCanonical: parameters.requireCanonical,
+      } as never),
+      verify(),
+    ])
+    return valid && BigInt(commitment) === 0n
   },
 } as const satisfies viem_ChainConfig & { blockTime: number }
 

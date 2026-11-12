@@ -155,6 +155,10 @@ The root key cannot be restored. Existing access keys and vouchers on funded cha
 but the root key can no longer sign new key authorizations, permits, channel opens or top-ups, or act
 as a fee payer. Sign those with the configurable account after the upgrade.
 
+[`verifyHash`](/docs/actions/public/verifyHash), [`verifyMessage`](/docs/actions/public/verifyMessage),
+and [`verifySiweMessage`](/docs/siwe/actions/verifySiweMessage) return `false` for a signature of
+the retired root key. They read the account's config commitment to check, also with `mode: 'eoa'`.
+
 ### Upgrade Accounts Without Code
 
 Only accounts without code can be upgraded. An account that is already
