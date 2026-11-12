@@ -174,10 +174,15 @@ export async function fetch(
     : Response.json(response)
 }
 
-/** Reads a request body, returning `undefined` once its declared or streamed size exceeds {@link maxBodySize}. */
+/**
+ * Reads a request body, returning `undefined` once its declared or streamed size exceeds {@link maxBodySize}.
+ *
+ * The cancel of an oversized body is not awaited: a cloned request's body settles its cancel only once
+ * the clone's body ends too.
+ */
 async function readBody(request: Request) {
   if (Number(request.headers.get('content-length')) > maxBodySize) {
-    await request.body?.cancel()
+    void request.body?.cancel().catch(() => {})
     return undefined
   }
   const chunks: Uint8Array<ArrayBuffer>[] = []
@@ -189,7 +194,7 @@ async function readBody(request: Request) {
     if (done) return chunks
     size += value.byteLength
     if (size > maxBodySize) {
-      await reader.cancel()
+      void reader.cancel().catch(() => {})
       return undefined
     }
     chunks.push(value)
