@@ -388,6 +388,69 @@ describe('create', () => {
     `)
   })
 
+  test('fetch rejects a declared body length over 16 MiB while a clone holds the body', async () => {
+    const relay = Relay.create({ client })
+    const request = new Request('https://relay.example', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': String(16 * 1_024 * 1_024 + 1),
+      },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 0, method: 'eth_chainId' }),
+    })
+    // Cancelling one copy of a cloned body settles only once the other copy ends.
+    const clone = request.clone()
+
+    const response = await relay.fetch(request)
+
+    expect(response.status).toBe(413)
+    expect(await response.json()).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32600,
+          "message": "Request body exceeds 16 MiB",
+        },
+        "id": null,
+        "jsonrpc": "2.0",
+      }
+    `)
+
+    await clone.body?.cancel()
+  })
+
+  test('fetch rejects a streamed body over 16 MiB while a clone holds the body', async () => {
+    const relay = Relay.create({ client })
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        controller.enqueue(new Uint8Array(1_024 * 1_024).fill(0x20))
+      },
+    })
+    const request = new Request('https://relay.example', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      duplex: 'half',
+    } as RequestInit)
+    // Cancelling one copy of a cloned body settles only once the other copy ends.
+    const clone = request.clone()
+
+    const response = await relay.fetch(request)
+
+    expect(response.status).toBe(413)
+    expect(await response.json()).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32600,
+          "message": "Request body exceeds 16 MiB",
+        },
+        "id": null,
+        "jsonrpc": "2.0",
+      }
+    `)
+
+    await clone.body?.cancel()
+  })
+
   test('fetch preserves RPC errors and hides internal exceptions', async () => {
     const relay = Relay.create({
       client,
