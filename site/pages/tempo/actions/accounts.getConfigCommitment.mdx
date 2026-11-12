@@ -77,6 +77,9 @@ migrate and to confirm its migration at finalized state.
 The current configuration commitment, or `0x0000000000000000000000000000000000000000000000000000000000000000`
 when no config has been committed.
 
+A chain without the configurable account precompile holds no commitments, so the action returns
+zero for every account on it.
+
 ## Parameters
 
 ### account
