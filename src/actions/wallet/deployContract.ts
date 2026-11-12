@@ -9,6 +9,7 @@ import type { ContractConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import { encodeDeployData } from '../../utils/abi/encodeDeployData.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type SendTransactionErrorType,
   type SendTransactionParameters,
@@ -80,7 +81,11 @@ export function deployContract<
   const { abi, args, bytecode, ...request } =
     parameters as DeployContractParameters
   const calldata = encodeDeployData({ abi, args, bytecode })
-  return sendTransaction(walletClient, {
+  return getAction(
+    walletClient,
+    sendTransaction,
+    'sendTransaction',
+  )({
     ...request,
     ...(request.authorizationList ? { to: null } : {}),
     data: calldata,

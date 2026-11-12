@@ -11,6 +11,7 @@ import {
 } from '../../utils/address/getAddress.js'
 import { type SizeErrorType, size } from '../../utils/data/size.js'
 import { type SliceErrorType, slice } from '../../utils/data/slice.js'
+import { getAction } from '../../utils/getAction.js'
 import { type GetCodeErrorType, getCode } from './getCode.js'
 
 export type GetDelegationParameters = {
@@ -62,7 +63,11 @@ export async function getDelegation<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   { address, blockNumber, blockTag = 'latest' }: GetDelegationParameters,
 ): Promise<GetDelegationReturnType> {
-  const code = await getCode(client, {
+  const code = await getAction(
+    client,
+    getCode,
+    'getCode',
+  )({
     address,
     ...(blockNumber !== undefined ? { blockNumber } : { blockTag }),
   } as GetDelegationParameters)
