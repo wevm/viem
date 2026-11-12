@@ -1,5 +1,25 @@
 # viem
 
+## 2.57.19
+
+### Patch Changes
+
+- [#5498](https://github.com/wevm/viem/pull/5498) [`e87e3ec03457c503377648548628180881974035`](https://github.com/wevm/viem/commit/e87e3ec03457c503377648548628180881974035) Thanks [@jxom](https://github.com/jxom)! - Fixed the Tempo `verifyHash` hook accepting a signature of a root key that a config commitment retired, which made `verifyHash`, `verifyMessage`, and `verifySiweMessage` read the account's config commitment for a signature that recovers to the account, in every `mode`.
+
+- [#5496](https://github.com/wevm/viem/pull/5496) [`a0ddd34678563d1bab367357eae5d4ab4553115f`](https://github.com/wevm/viem/commit/a0ddd34678563d1bab367357eae5d4ab4553115f) Thanks [@jxom](https://github.com/jxom)! - Fixed `Relay.create(...).fetch` never answering 413 for a body over 16 MiB when the request had an unread clone.
+
+- [#5498](https://github.com/wevm/viem/pull/5498) [`e87e3ec03457c503377648548628180881974035`](https://github.com/wevm/viem/commit/e87e3ec03457c503377648548628180881974035) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.accounts.getConfigCommitment` in `viem/tempo` rejecting on chains without the configurable account precompile, where it now returns the zero commitment.
+
+- [#5494](https://github.com/wevm/viem/pull/5494) [`0fee300f54aa6da04e4d2094c5f169ae1909fd1f`](https://github.com/wevm/viem/commit/0fee300f54aa6da04e4d2094c5f169ae1909fd1f) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `InvalidDomainError` and `InvalidPrimaryTypeError` to set their `name`, and corrected `TxHashNotFoundInLogsErrorType` to describe `TxHashNotFoundInLogsError`.
+
+- [#5490](https://github.com/wevm/viem/pull/5490) [`1e117b1a6cf13fb0fb06ac6e002759fc0a66570b`](https://github.com/wevm/viem/commit/1e117b1a6cf13fb0fb06ac6e002759fc0a66570b) Thanks [@fmrmf](https://github.com/fmrmf)! - Added Kinetiq Elysium and Kinetiq Elysium Testnet chains.
+
+- [#5495](https://github.com/wevm/viem/pull/5495) [`f3fe670de4c8df551462602291caf28ff8f5dfb1`](https://github.com/wevm/viem/commit/f3fe670de4c8df551462602291caf28ff8f5dfb1) Thanks [@jxom](https://github.com/jxom)! - Resolved the actions called by `deployContract`, `getDelegation`, `sendCalls`, and `signAuthorization` through `getAction`, so overrides of those actions on the client are used.
+
+- [#5493](https://github.com/wevm/viem/pull/5493) [`cd91b17b229be5c06c02c57cb80a6188cf10fd0d`](https://github.com/wevm/viem/commit/cd91b17b229be5c06c02c57cb80a6188cf10fd0d) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Appended the generic `ErrorType` to `GetFeeHistoryErrorType`, `GetEnsTextErrorType`, and `PrepareTransactionRequestErrorType` so unexpected throw sites are assignable.
+
+- [#5488](https://github.com/wevm/viem/pull/5488) [`5c6a920eb5ce88d50f64e22f1d848b29818c48d7`](https://github.com/wevm/viem/commit/5c6a920eb5ce88d50f64e22f1d848b29818c48d7) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added `chainId` to `ResolvedToken`, so a token resolved with `token(chainId)` records the chain it was resolved for, and added the Tempo Moderato address to `ousd`.
+
 ## 2.57.18
 
 ### Patch Changes
