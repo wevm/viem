@@ -7,10 +7,10 @@ import {
   verifyHash,
   verifyMessage,
 } from 'viem/actions'
+import { createSiweMessage, verifySiweMessage } from 'viem/siwe'
 import { Account, Actions, P256 } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
-import { createSiweMessage, verifySiweMessage } from '../siwe/index.js'
 import type { RootAccount } from './Account.js'
 
 const client = getClient({
