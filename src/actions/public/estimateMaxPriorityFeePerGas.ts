@@ -78,7 +78,7 @@ export async function internal_estimateMaxPriorityFeePerGas<
 >(
   client: Client<Transport, chain>,
   args: EstimateMaxPriorityFeePerGasParameters<chain, chainOverride> & {
-    block?: Block | undefined
+    block?: Block | Promise<Block> | undefined
     request?:
       | PrepareTransactionRequestParameters<
           chain,
@@ -96,7 +96,7 @@ export async function internal_estimateMaxPriorityFeePerGas<
 
     if (typeof maxPriorityFeePerGas === 'function') {
       const block =
-        block_ || (await getAction(client, getBlock, 'getBlock')({}))
+        (await block_) || (await getAction(client, getBlock, 'getBlock')({}))
       const maxPriorityFeePerGas_ = await maxPriorityFeePerGas({
         block,
         client,

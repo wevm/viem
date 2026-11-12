@@ -13,6 +13,7 @@ import {
   type EstimateGasParameters,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
+import { internal_estimateMaxPriorityFeePerGas } from '../../actions/public/estimateMaxPriorityFeePerGas.js'
 import {
   type GetBlockErrorType,
   getBlock as getBlock_,
@@ -610,31 +611,40 @@ export async function prepareTransactionRequest<
       )) ?? request
   }
 
-  let block: Block | undefined
-  async function getBlock(): Promise<Block> {
-    if (block) return block
-    block = await getAction(
-      client,
-      getBlock_,
-      'getBlock',
-    )({ blockTag: 'latest' })
+  let block: Promise<Block> | undefined
+  function getBlock(): Promise<Block> {
+    block ??= getAction(client, getBlock_, 'getBlock')({ blockTag: 'latest' })
     return block
   }
 
-  if (
+  // Chain fee hooks receive the block and the request, so the requests they
+  // depend on are made in sequence.
+  const hasFeeHooks = [
+    chain?.fees?.baseFeeMultiplier,
+    chain?.fees?.defaultPriorityFee,
+    chain?.fees?.estimateFeesPerGas,
+    chain?.fees?.maxPriorityFeePerGas,
+  ].some((fee) => typeof fee === 'function')
+
+  // The nonce does not depend on the type or the fees, so it is fetched
+  // concurrently with them.
+  const noncePromise =
     parameters.includes('nonce') &&
     typeof nonce === 'undefined' &&
     account &&
     !nonceManager
-  )
-    request.nonce = await getAction(
-      client,
-      getTransactionCount,
-      'getTransactionCount',
-    )({
-      address: account.address,
-      blockTag: 'pending',
-    })
+      ? getAction(
+          client,
+          getTransactionCount,
+          'getTransactionCount',
+        )({
+          address: account.address,
+          blockTag: 'pending',
+        })
+      : undefined
+  // A rejection is thrown when the nonce is awaited.
+  noncePromise?.catch(() => {})
+  if (noncePromise && hasFeeHooks) request.nonce = await noncePromise
 
   if (
     (parameters.includes('blobVersionedHashes') ||
@@ -693,12 +703,25 @@ export async function prepareTransactionRequest<
         typeof request.maxFeePerGas === 'undefined' ||
         typeof request.maxPriorityFeePerGas === 'undefined'
       ) {
-        const block = await getBlock()
+        // Without chain fee hooks, the priority fee does not depend on the
+        // block, so it is estimated concurrently with the block request.
+        const [block, priorityFee] = await Promise.all([
+          getBlock(),
+          hasFeeHooks || typeof request.maxPriorityFeePerGas === 'bigint'
+            ? undefined
+            : internal_estimateMaxPriorityFeePerGas(client, {
+                block: getBlock(),
+                chain,
+                request: request as PrepareTransactionRequestParameters,
+              }),
+        ])
         const { maxFeePerGas, maxPriorityFeePerGas } =
           await internal_estimateFeesPerGas(client, {
-            block: block as Block,
+            block,
             chain,
-            request: request as PrepareTransactionRequestParameters,
+            request: (typeof priorityFee === 'bigint'
+              ? { ...request, maxPriorityFeePerGas: priorityFee }
+              : request) as PrepareTransactionRequestParameters,
           })
 
         if (
@@ -736,6 +759,8 @@ export async function prepareTransactionRequest<
       }
     }
   }
+
+  if (noncePromise) request.nonce = await noncePromise
 
   if (parameters.includes('gas') && typeof gas === 'undefined')
     request.gas = await getAction(

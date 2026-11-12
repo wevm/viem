@@ -12,6 +12,7 @@ import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFe
 import {
   BaseError,
   createClient,
+  custom,
   FeePayerNonceMismatchError,
   http,
   MethodNotFoundRpcError,
@@ -1309,6 +1310,85 @@ describe('without `eth_fillTransaction`', () => {
     expect(request_3.nonce).toBe(955)
     expect(request_4.nonce).toBe(956)
     expect(request_5.nonce).toBe(957)
+  })
+
+  // Records, for each request, the requests that were pending when it was sent.
+  function createRecordingClient(chain = anvilMainnet.chain) {
+    const pending = new Set<string>()
+    const requests: Record<string, string[]> = {}
+    const recordingClient = createClient({
+      chain,
+      transport: custom({
+        async request({ method, params }) {
+          requests[method] = [...pending].sort()
+          pending.add(method)
+          try {
+            return await client.request({ method, params } as never)
+          } finally {
+            pending.delete(method)
+          }
+        },
+      }),
+    })
+    return { client: recordingClient, requests }
+  }
+
+  test('behavior: fetches nonce, block, and priority fee concurrently', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+
+    const request = await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    })
+
+    expect(request.nonce).toBeDefined()
+    expect(request.maxFeePerGas).toBeDefined()
+    expect(request.maxPriorityFeePerGas).toBeDefined()
+    expect(request.gas).toBeDefined()
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+  })
+
+  test('behavior: fetches nonce, block, and priority fee in sequence with chain fee hooks', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient(
+      defineChain({
+        ...anvilMainnet.chain,
+        fees: { baseFeeMultiplier: () => 1.2 },
+      }),
+    )
+
+    await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [],
+      }
+    `)
   })
 })
 
