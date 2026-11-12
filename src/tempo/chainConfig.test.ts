@@ -21,7 +21,7 @@ import {
 } from '../actions/index.js'
 import { supportsFillTransaction } from '../actions/wallet/prepareTransactionRequest.js'
 import { mainnet, tempoLocalnet } from '../chains/index.js'
-import { createClient, http } from '../index.js'
+import { ContractFunctionExecutionError, createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage, keccak256 } from '../utils/index.js'
 import { withResolvers } from '../utils/promise/withResolvers.js'
@@ -1133,6 +1133,59 @@ describe('verifyHash', () => {
         mode: 'allowAccessKey',
       }),
     ).toBe(false)
+  })
+
+  test('secp256k1: valid signature', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const { address } = account
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    expect({
+      auto: await verifyHash(client, { address, hash, signature }),
+      eoa: await verifyHash(client, { address, hash, mode: 'eoa', signature }),
+    }).toMatchInlineSnapshot(`
+      {
+        "auto": true,
+        "eoa": true,
+      }
+    `)
+  })
+
+  test('secp256k1: invalid signature returns false', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const { address } = account
+
+    const hash = hashMessage('wrong message')
+    const signature = await account.sign({ hash: hashMessage('hello world') })
+
+    expect({
+      auto: await verifyHash(client, { address, hash, signature }),
+      eoa: await verifyHash(client, { address, hash, mode: 'eoa', signature }),
+    }).toMatchInlineSnapshot(`
+      {
+        "auto": false,
+        "eoa": false,
+      }
+    `)
+  })
+
+  test('secp256k1: failed commitment read rejects', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    await expect(
+      verifyHash(client, {
+        address: account.address,
+        blockNumber: 2n ** 62n,
+        hash,
+        mode: 'eoa',
+        signature,
+      }),
+    ).rejects.toThrow(ContractFunctionExecutionError)
   })
 
   test('behavior: non-tempo chain', async () => {
