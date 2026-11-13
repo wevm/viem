@@ -1,5 +1,15 @@
 # viem
 
+## 2.57.20
+
+### Patch Changes
+
+- [#5499](https://github.com/wevm/viem/pull/5499) [`018d5605fb23612e0395f453dabd2c917e763ca4`](https://github.com/wevm/viem/commit/018d5605fb23612e0395f453dabd2c917e763ca4) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.67`, which parses Tempo WebAuthn signatures in linear time and refuses those above 2048 bytes, refuses a keychain signature nested in a keychain signature, a key authorization scope with `recipients` and no `selector`, a compressed public key where a Tempo address is derived, and a Tempo transaction with a `validBefore` or `validAfter` that is not a non-negative safe integer number, a `chainId` that is not a positive safe integer, or a fee payer signature `yParity` other than `0` or `1`, hashes the payload in `Secp256k1.verify` of `viem/tempo` when `hash: true` is used with `address`, and refuses call `data` with an odd number of hex digits in `viem/experimental/erc7821`.
+
+- [#5504](https://github.com/wevm/viem/pull/5504) [`c05ab61850ffe305e12e85c2be154156ac39e8f7`](https://github.com/wevm/viem/commit/c05ab61850ffe305e12e85c2be154156ac39e8f7) Thanks [@jxom](https://github.com/jxom)! - Fixed batched `http` and multicall requests flushing before `wait` elapsed after an earlier batch was split at `batchSize`.
+
+- [#5505](https://github.com/wevm/viem/pull/5505) [`8d3f29e03333d40283811dc69dbd02cdee2bd354`](https://github.com/wevm/viem/commit/8d3f29e03333d40283811dc69dbd02cdee2bd354) Thanks [@jxom](https://github.com/jxom)! - Fetched the nonce, block, and priority fee concurrently in `prepareTransactionRequest` when the chain has no fee hooks.
+
 ## 2.57.19
 
 ### Patch Changes
