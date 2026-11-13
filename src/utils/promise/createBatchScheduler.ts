@@ -38,6 +38,10 @@ type CreateBatchSchedulerReturnType<
 export type CreateBatchSchedulerErrorType = ErrorType
 
 const schedulerCache = /*#__PURE__*/ new Map<number | string, SchedulerItem[]>()
+const timerCache = /*#__PURE__*/ new Map<
+  number | string,
+  ReturnType<typeof setTimeout>
+>()
 
 /** @internal */
 export function createBatchScheduler<
@@ -78,7 +82,11 @@ export function createBatchScheduler<
       })
   }
 
-  const flush = () => schedulerCache.delete(id)
+  const flush = () => {
+    clearTimeout(timerCache.get(id))
+    timerCache.delete(id)
+    schedulerCache.delete(id)
+  }
 
   const getBatchedArgs = () =>
     getScheduler().map(({ args }) => args) as parameters[]
@@ -104,7 +112,7 @@ export function createBatchScheduler<
       }
 
       setScheduler({ args, resolve, reject })
-      setTimeout(exec, wait)
+      timerCache.set(id, setTimeout(exec, wait))
       return promise
     },
   } as unknown as CreateBatchSchedulerReturnType<parameters, returnType>
