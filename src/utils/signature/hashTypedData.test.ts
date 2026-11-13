@@ -88,6 +88,26 @@ test('domain: bigint value for chainId', () => {
   )
 })
 
+test('domain: string value for chainId', () => {
+  const domain = {
+    name: 'Ether Mail',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  } as const
+  expect(
+    hashTypedData({
+      ...typedData.complex,
+      domain: { ...domain, chainId: '1' } as never,
+      primaryType: 'Mail',
+    }),
+  ).toBe(
+    hashTypedData({
+      ...typedData.complex,
+      domain: { ...domain, chainId: 1 },
+      primaryType: 'Mail',
+    }),
+  )
+})
+
 test('minimal valid typed message', () => {
   const hash = hashTypedData({
     types: {
