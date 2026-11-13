@@ -21,6 +21,7 @@ import {
 import { defineChain, nonceManager } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { wait } from '../../utils/wait.js'
 import * as fillTransaction from '../public/fillTransaction.js'
 import {
   defaultParameters,
@@ -1309,6 +1310,127 @@ describe('without `eth_fillTransaction`', () => {
     expect(request_3.nonce).toBe(955)
     expect(request_4.nonce).toBe(956)
     expect(request_5.nonce).toBe(957)
+  })
+
+  // Records, for each request, the requests that were pending when it was sent.
+  function createRecordingClient(chain = anvilMainnet.chain) {
+    const pending = new Map<number, string>()
+    const requests: Record<string, string[]> = {}
+    const recordingClient = createClient({
+      chain,
+      transport: http(anvilMainnet.rpcUrl.http, {
+        onFetchRequest(_, init) {
+          const { id, method } = JSON.parse(init.body as string)
+          requests[method] = [...pending.values()].sort()
+          pending.set(id, method)
+        },
+        async onFetchResponse(response) {
+          const { id } = await response.clone().json()
+          pending.delete(id)
+        },
+      }),
+    })
+    supportsFillTransaction.set(recordingClient.uid, false)
+    return { client: recordingClient, requests }
+  }
+
+  test('behavior: fetches nonce, block, and priority fee concurrently', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+
+    const request = await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    })
+
+    const { account: _, ...rest } = request
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+  })
+
+  test('behavior: fetches nonce, block, and priority fee in sequence with chain fee hooks', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient(
+      defineChain({
+        ...anvilMainnet.chain,
+        fees: { baseFeeMultiplier: () => 1.2 },
+      }),
+    )
+
+    await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [],
+      }
+    `)
+  })
+
+  test('behavior: nonce error takes precedence over concurrent errors', async () => {
+    await setup()
+
+    const url = await createRpcProxy(
+      anvilMainnet.rpcUrl.http,
+      async ({ method }) => {
+        if (method === 'eth_getTransactionCount') {
+          await wait(100)
+          return { error: { code: -32000, message: 'nonce unavailable' } }
+        }
+        if (method === 'eth_getBlockByNumber')
+          return { error: { code: -32000, message: 'block unavailable' } }
+        return undefined
+      },
+    )
+    const proxyClient = createClient({
+      chain: anvilMainnet.chain,
+      transport: http(url, { retryCount: 0 }),
+    })
+    supportsFillTransaction.set(proxyClient.uid, false)
+
+    const error = await prepareTransactionRequest(proxyClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    }).catch((error) => error)
+
+    expect(error.details).toMatchInlineSnapshot(`"nonce unavailable"`)
   })
 })
 

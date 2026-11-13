@@ -13,6 +13,7 @@ import {
   type EstimateGasParameters,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
+import { internal_estimateMaxPriorityFeePerGas } from '../../actions/public/estimateMaxPriorityFeePerGas.js'
 import {
   type GetBlockErrorType,
   getBlock as getBlock_,
@@ -610,132 +611,160 @@ export async function prepareTransactionRequest<
       )) ?? request
   }
 
-  let block: Block | undefined
-  async function getBlock(): Promise<Block> {
-    if (block) return block
-    block = await getAction(
-      client,
-      getBlock_,
-      'getBlock',
-    )({ blockTag: 'latest' })
+  let block: Promise<Block> | undefined
+  function getBlock(): Promise<Block> {
+    block ??= getAction(client, getBlock_, 'getBlock')({ blockTag: 'latest' })
     return block
   }
 
-  if (
+  // Chain fee hooks receive the block and the request, so the requests they
+  // depend on are made in sequence.
+  const hasFeeHooks = Object.values(chain?.fees ?? {}).some(
+    (fee) => typeof fee === 'function',
+  )
+
+  // The nonce does not depend on the type or the fees, so it is fetched
+  // concurrently with them.
+  const noncePromise =
     parameters.includes('nonce') &&
     typeof nonce === 'undefined' &&
     account &&
     !nonceManager
-  )
-    request.nonce = await getAction(
-      client,
-      getTransactionCount,
-      'getTransactionCount',
-    )({
-      address: account.address,
-      blockTag: 'pending',
-    })
-
-  if (
-    (parameters.includes('blobVersionedHashes') ||
-      parameters.includes('sidecars')) &&
-    blobs &&
-    kzg
-  ) {
-    const commitments = blobsToCommitments({ blobs, kzg })
-
-    if (parameters.includes('blobVersionedHashes')) {
-      const versionedHashes = commitmentsToVersionedHashes({
-        commitments,
-        to: 'hex',
-      })
-      request.blobVersionedHashes = versionedHashes
-    }
-    if (parameters.includes('sidecars')) {
-      const proofs = blobsToProofs({ blobs, commitments, kzg })
-      const sidecars = toBlobSidecars({
-        blobs,
-        commitments,
-        proofs,
-        to: 'hex',
-      })
-      request.sidecars = sidecars
-    }
-  }
-
-  if (parameters.includes('chainId')) request.chainId = await getChainId()
-
-  if (
-    (parameters.includes('fees') || parameters.includes('type')) &&
-    typeof type === 'undefined'
-  ) {
-    try {
-      request.type = getTransactionType(
-        request as TransactionSerializable,
-      ) as any
-    } catch {
-      let isEip1559Network = eip1559NetworkCache.get(client.uid)
-      if (typeof isEip1559Network === 'undefined') {
-        const block = await getBlock()
-        isEip1559Network = typeof block?.baseFeePerGas === 'bigint'
-        eip1559NetworkCache.set(client.uid, isEip1559Network)
-      }
-      request.type = isEip1559Network ? 'eip1559' : 'legacy'
-    }
-  }
-
-  if (parameters.includes('fees')) {
-    // TODO(4844): derive blob base fees once https://github.com/ethereum/execution-apis/pull/486 is merged.
-
-    if (request.type !== 'legacy' && request.type !== 'eip2930') {
-      // EIP-1559 fees
-      if (
-        typeof request.maxFeePerGas === 'undefined' ||
-        typeof request.maxPriorityFeePerGas === 'undefined'
-      ) {
-        const block = await getBlock()
-        const { maxFeePerGas, maxPriorityFeePerGas } =
-          await internal_estimateFeesPerGas(client, {
-            block: block as Block,
-            chain,
-            request: request as PrepareTransactionRequestParameters,
-          })
-
-        if (
-          typeof request.maxPriorityFeePerGas === 'undefined' &&
-          typeof request.maxFeePerGas === 'bigint' &&
-          request.maxFeePerGas < maxPriorityFeePerGas
-        )
-          throw new MaxFeePerGasTooLowError({
-            maxPriorityFeePerGas,
-          })
-
-        request.maxPriorityFeePerGas = maxPriorityFeePerGas
-        request.maxFeePerGas = maxFeePerGas
-      }
-    } else {
-      // Legacy fees
-      if (
-        typeof request.maxFeePerGas !== 'undefined' ||
-        typeof request.maxPriorityFeePerGas !== 'undefined'
-      )
-        throw new Eip1559FeesNotSupportedError()
-
-      if (typeof request.gasPrice === 'undefined') {
-        const block = await getBlock()
-        const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
+      ? getAction(
           client,
-          {
-            block: block as Block,
-            chain,
-            request: request as PrepareTransactionRequestParameters,
-            type: 'legacy',
-          },
-        )
-        request.gasPrice = gasPrice_
+          getTransactionCount,
+          'getTransactionCount',
+        )({
+          address: account.address,
+          blockTag: 'pending',
+        })
+      : undefined
+  // A rejection is thrown when the nonce is awaited.
+  noncePromise?.catch(() => {})
+  if (noncePromise && hasFeeHooks) request.nonce = await noncePromise
+
+  try {
+    if (
+      (parameters.includes('blobVersionedHashes') ||
+        parameters.includes('sidecars')) &&
+      blobs &&
+      kzg
+    ) {
+      const commitments = blobsToCommitments({ blobs, kzg })
+
+      if (parameters.includes('blobVersionedHashes')) {
+        const versionedHashes = commitmentsToVersionedHashes({
+          commitments,
+          to: 'hex',
+        })
+        request.blobVersionedHashes = versionedHashes
+      }
+      if (parameters.includes('sidecars')) {
+        const proofs = blobsToProofs({ blobs, commitments, kzg })
+        const sidecars = toBlobSidecars({
+          blobs,
+          commitments,
+          proofs,
+          to: 'hex',
+        })
+        request.sidecars = sidecars
       }
     }
+
+    if (parameters.includes('chainId')) request.chainId = await getChainId()
+
+    if (
+      (parameters.includes('fees') || parameters.includes('type')) &&
+      typeof type === 'undefined'
+    ) {
+      try {
+        request.type = getTransactionType(
+          request as TransactionSerializable,
+        ) as any
+      } catch {
+        let isEip1559Network = eip1559NetworkCache.get(client.uid)
+        if (typeof isEip1559Network === 'undefined') {
+          const block = await getBlock()
+          isEip1559Network = typeof block?.baseFeePerGas === 'bigint'
+          eip1559NetworkCache.set(client.uid, isEip1559Network)
+        }
+        request.type = isEip1559Network ? 'eip1559' : 'legacy'
+      }
+    }
+
+    if (parameters.includes('fees')) {
+      // TODO(4844): derive blob base fees once https://github.com/ethereum/execution-apis/pull/486 is merged.
+
+      if (request.type !== 'legacy' && request.type !== 'eip2930') {
+        // EIP-1559 fees
+        if (
+          typeof request.maxFeePerGas === 'undefined' ||
+          typeof request.maxPriorityFeePerGas === 'undefined'
+        ) {
+          // Without chain fee hooks, the priority fee does not depend on the
+          // block, so it is estimated concurrently with the block request.
+          const [block, priorityFee] = await Promise.all([
+            getBlock(),
+            hasFeeHooks || typeof request.maxPriorityFeePerGas === 'bigint'
+              ? undefined
+              : internal_estimateMaxPriorityFeePerGas(client, {
+                  block: getBlock(),
+                  chain,
+                  request: request as PrepareTransactionRequestParameters,
+                }),
+          ])
+          const { maxFeePerGas, maxPriorityFeePerGas } =
+            await internal_estimateFeesPerGas(client, {
+              block,
+              chain,
+              request: (typeof priorityFee === 'bigint'
+                ? { ...request, maxPriorityFeePerGas: priorityFee }
+                : request) as PrepareTransactionRequestParameters,
+            })
+
+          if (
+            typeof request.maxPriorityFeePerGas === 'undefined' &&
+            typeof request.maxFeePerGas === 'bigint' &&
+            request.maxFeePerGas < maxPriorityFeePerGas
+          )
+            throw new MaxFeePerGasTooLowError({
+              maxPriorityFeePerGas,
+            })
+
+          request.maxPriorityFeePerGas = maxPriorityFeePerGas
+          request.maxFeePerGas = maxFeePerGas
+        }
+      } else {
+        // Legacy fees
+        if (
+          typeof request.maxFeePerGas !== 'undefined' ||
+          typeof request.maxPriorityFeePerGas !== 'undefined'
+        )
+          throw new Eip1559FeesNotSupportedError()
+
+        if (typeof request.gasPrice === 'undefined') {
+          const block = await getBlock()
+          const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
+            client,
+            {
+              block: block as Block,
+              chain,
+              request: request as PrepareTransactionRequestParameters,
+              type: 'legacy',
+            },
+          )
+          request.gasPrice = gasPrice_
+        }
+      }
+    }
+  } catch (error) {
+    // A failed nonce request takes precedence over errors from the other
+    // parameters.
+    await noncePromise
+    throw error
   }
+
+  if (noncePromise) request.nonce = await noncePromise
 
   if (parameters.includes('gas') && typeof gas === 'undefined')
     request.gas = await getAction(
