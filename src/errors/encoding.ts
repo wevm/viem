@@ -89,6 +89,17 @@ export class RlpListBoundaryExceededError extends BaseError {
   }
 }
 
+export type RlpNonCanonicalErrorType = RlpNonCanonicalError & {
+  name: 'RlpNonCanonicalError'
+}
+export class RlpNonCanonicalError extends BaseError {
+  constructor({ reason }: { reason: string }) {
+    super(`RLP payload is not canonically encoded: ${reason}.`, {
+      name: 'RlpNonCanonicalError',
+    })
+  }
+}
+
 export type RlpTrailingBytesErrorType = RlpTrailingBytesError & {
   name: 'RlpTrailingBytesError'
 }

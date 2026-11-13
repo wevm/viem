@@ -911,6 +911,8 @@ export {
   type RlpDepthLimitExceededErrorType,
   RlpListBoundaryExceededError,
   type RlpListBoundaryExceededErrorType,
+  RlpNonCanonicalError,
+  type RlpNonCanonicalErrorType,
   RlpTrailingBytesError,
   type RlpTrailingBytesErrorType,
   SizeOverflowError,
