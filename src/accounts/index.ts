@@ -59,6 +59,8 @@ export {
   privateKeyToAddress,
 } from './utils/privateKeyToAddress.js'
 export {
+  InvalidPublicKeyError,
+  type InvalidPublicKeyErrorType,
   type PublicKeyToAddressErrorType,
   publicKeyToAddress,
 } from './utils/publicKeyToAddress.js'
