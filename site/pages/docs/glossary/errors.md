@@ -37,6 +37,10 @@ All errors in viem extend the [`BaseError`](https://github.com/wevm/viem/blob/ma
 
 When no account is provided to an action that requires an account.
 
+### `InvalidPublicKeyError`
+
+When a public key is not an uncompressed public key (65 bytes with a `0x04` prefix).
+
 ## Address
 
 ### `InvalidAddressError`
