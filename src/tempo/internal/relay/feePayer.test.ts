@@ -1432,7 +1432,7 @@ describe('raw canonical encoding', () => {
       await expect(
         relay.request({ method, params: [signed] }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `[RpcResponse.InvalidParamsError: Transaction encoding is not canonical. Re-encode it with in-range field values.]`,
+        `[RpcResponse.InvalidParamsError: Invalid serialized Tempo transaction.]`,
       )
     },
   )

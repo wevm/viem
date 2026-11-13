@@ -652,7 +652,7 @@ function isCanonical(serialized: `0x76${string}` | `0x78${string}`) {
       : TxEnvelopeTempo.serialize(envelope)
     return serialized_parsed === serialized.toLowerCase()
   } catch {
-    // Serialization refuses parsed values outside the safe integer range.
+    // An envelope that cannot be parsed or serialized has no canonical encoding.
     return false
   }
 }
