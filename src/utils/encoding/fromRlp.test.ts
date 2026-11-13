@@ -117,6 +117,101 @@ describe('list boundary', () => {
   })
 })
 
+describe('non-canonical', () => {
+  // Every value has exactly one RLP encoding (Yellow Paper, Appendix B).
+  test('single byte below 0x80 with a length prefix', () => {
+    expect(() => fromRlp('0x8100', 'hex')).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: single byte below \`0x80\` has a length prefix.
+
+      Version: viem@x.y.z]
+    `)
+    expect(() => fromRlp('0x817f', 'hex')).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: single byte below \`0x80\` has a length prefix.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('short string with a long-form length', () => {
+    expect(() => fromRlp('0xb800', 'hex')).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`0\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+    expect(() =>
+      fromRlp(`0xb837${'00'.repeat(55)}`, 'hex'),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`55\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('short list with a long-form length', () => {
+    expect(() => fromRlp('0xf800', 'hex')).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`0\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('long-form length with a leading zero byte', () => {
+    expect(() =>
+      fromRlp(`0xb90038${'00'.repeat(56)}`, 'hex'),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`56\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+    expect(() =>
+      fromRlp(`0xf90038${'80'.repeat(56)}`, 'hex'),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`56\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+    expect(() =>
+      fromRlp(`0xb900ff${'00'.repeat(255)}`, 'hex'),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`255\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+    expect(() =>
+      fromRlp(`0xba000100${'00'.repeat(256)}`, 'hex'),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`256\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+    expect(() =>
+      fromRlp(`0xbb00010000${'00'.repeat(0x10000)}`, 'hex'),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`65536\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('canonical boundaries still decode', () => {
+    expect(fromRlp('0x00', 'hex')).toEqual('0x00')
+    expect(fromRlp('0x7f', 'hex')).toEqual('0x7f')
+    expect(fromRlp('0x8180', 'hex')).toEqual('0x80')
+    expect(fromRlp(`0xb7${'00'.repeat(55)}`, 'hex')).toEqual(
+      `0x${'00'.repeat(55)}`,
+    )
+    expect(fromRlp(`0xb838${'00'.repeat(56)}`, 'hex')).toEqual(
+      `0x${'00'.repeat(56)}`,
+    )
+    expect(fromRlp(`0xb90100${'00'.repeat(256)}`, 'hex')).toEqual(
+      `0x${'00'.repeat(256)}`,
+    )
+    expect(fromRlp(`0xf838${'80'.repeat(56)}`, 'hex')).toEqual(
+      Array(56).fill('0x'),
+    )
+  })
+})
+
 function getNestedList(depth: number) {
   let payload = new Uint8Array()
   for (let i = 0; i < depth; i++) payload = encodeList(payload)
