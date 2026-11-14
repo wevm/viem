@@ -17,6 +17,12 @@ export type ChecksumAddressErrorType =
   | StringToBytesErrorType
   | ErrorType
 
+/**
+ * Returns the [EIP-55](https://eips.ethereum.org/EIPS/eip-55) checksummed form
+ * of an address. The input's casing is ignored.
+ *
+ * Does not validate the input; use {@link getAddress} for untrusted strings.
+ */
 export function checksumAddress(
   address_: Address,
   /**
@@ -31,12 +37,14 @@ export function checksumAddress(
    */
   chainId?: number | undefined,
 ): Address {
-  if (checksumAddressCache.has(`${address_}.${chainId}`))
-    return checksumAddressCache.get(`${address_}.${chainId}`)!
+  // The checksum depends only on the lowercase address, so every casing of an
+  // address shares one cache entry.
+  const lower = address_.toLowerCase()
+  const cacheKey = `${lower}.${chainId}`
+  const cached = checksumAddressCache.get(cacheKey)
+  if (cached) return cached
 
-  const hexAddress = chainId
-    ? `${chainId}${address_.toLowerCase()}`
-    : address_.substring(2).toLowerCase()
+  const hexAddress = chainId ? `${chainId}${lower}` : lower.substring(2)
   const hash = keccak256(stringToBytes(hexAddress), 'bytes')
 
   const address = (
@@ -52,7 +60,7 @@ export function checksumAddress(
   }
 
   const result = `0x${address.join('')}` as const
-  checksumAddressCache.set(`${address_}.${chainId}`, result)
+  checksumAddressCache.set(cacheKey, result)
   return result
 }
 
@@ -61,6 +69,22 @@ export type GetAddressErrorType =
   | IsAddressErrorType
   | ErrorType
 
+/**
+ * Converts an address into its [EIP-55](https://eips.ethereum.org/EIPS/eip-55)
+ * checksummed form. Throws if the string is not 20 bytes of hex.
+ *
+ * The input's casing is ignored, so an address with a wrong checksum is
+ * returned with the correct one. To reject a wrong checksum, check the input
+ * with {@link isAddress} first.
+ *
+ * - Docs: https://viem.sh/docs/utilities/getAddress
+ *
+ * @example
+ * import { getAddress } from 'viem'
+ *
+ * getAddress('0x787bc77f1700dce0f8c1581c18a12d3153d1b150')
+ * // '0x787bc77F1700DCE0f8c1581c18A12d3153D1B150'
+ */
 export function getAddress(
   address: string,
   /**
