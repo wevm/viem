@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 import { wait } from '../wait.js'
 
@@ -23,6 +23,19 @@ test('default', async () => {
   expect(results[0]).toBe(results[1])
   expect(count).toBe(1)
   expect(promiseCache.has(id)).toBe(false)
+})
+
+test('behavior: looks up the cache once per call', async () => {
+  const id = 'foo'
+  const promise_1 = withDedupe(() => wait(100).then(() => 'bar'), { id })
+
+  const get = vi.spyOn(promiseCache, 'get')
+  const promise_2 = withDedupe(() => Promise.resolve('baz'), { id })
+  expect(promise_2).toBe(promise_1)
+  expect(get).toHaveBeenCalledTimes(1)
+  get.mockRestore()
+
+  await promise_1
 })
 
 test('args: enabled', async () => {
