@@ -62,14 +62,15 @@ export async function getIpcRpcClient(
   const { reconnect } = options
 
   return getSocketRpcClient({
-    async getSocket({ onError, onOpen, onResponse }) {
+    async getSocket({ onClose, onError, onOpen, onResponse }) {
       const socket = connect(path)
 
-      function onClose() {
-        socket.off('close', onClose)
-        socket.off('message', onData)
+      function onClose_() {
+        socket.off('close', onClose_)
+        socket.off('data', onData)
         socket.off('error', onError)
         socket.off('connect', onOpen)
+        onClose()
       }
 
       let lastRemaining = Buffer.alloc(0) as Buffer
@@ -87,7 +88,7 @@ export async function getIpcRpcClient(
         lastRemaining = remaining
       }
 
-      socket.on('close', onClose)
+      socket.on('close', onClose_)
       socket.on('data', onData)
       socket.on('error', onError)
       socket.on('connect', onOpen)

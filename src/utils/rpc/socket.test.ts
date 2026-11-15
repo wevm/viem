@@ -1060,3 +1060,61 @@ test('behavior: re-subscribe on reconnect delivers the new subscription id to th
 
   socketClient.close()
 })
+
+test('behavior: keeps reconnecting after failed attempts, then drops the client once they run out', async () => {
+  const url = 'ws://reconnect-exhausted'
+  let up = true
+  let connections = 0
+  let pings = 0
+  let disconnect = () => {}
+
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onClose, onError }) {
+      connections++
+      if (!up) {
+        // Like a real socket, a failed connection reports its error and close
+        // while the reconnect attempt is still in progress.
+        onError(new Error('connection refused'))
+        onClose()
+        throw new Error('connection refused')
+      }
+      disconnect = onClose
+      return {
+        close() {},
+        ping() {
+          pings++
+        },
+        request() {},
+      }
+    },
+    keepAlive: { interval: 10 },
+    reconnect: { attempts: 3, delay: 10 },
+    url,
+  })
+
+  up = false
+  disconnect()
+  await wait(200)
+  const pingsAfterGivingUp = pings
+  await wait(100)
+
+  expect(connections).toMatchInlineSnapshot('4')
+  expect(pings - pingsAfterGivingUp).toMatchInlineSnapshot('0')
+
+  up = true
+  const nextClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket() {
+      connections++
+      return { close() {}, request() {} }
+    },
+    keepAlive: { interval: 10 },
+    reconnect: { attempts: 3, delay: 10 },
+    url,
+  })
+
+  expect(nextClient).not.toBe(socketClient)
+
+  nextClient.close()
+})

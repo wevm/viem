@@ -253,12 +253,15 @@ export async function waitForTransactionReceipt<
 
   let _unobserve: () => void
   let _unwatch: () => void
+  // Set when the timeout fires before polling starts, so it never starts.
+  let timedOut = false
 
   const { promise, resolve, reject } =
     withResolvers<WaitForTransactionReceiptReturnType<chain>>()
 
   const timer = timeout
     ? setTimeout(() => {
+        timedOut = true
         _unwatch?.()
         _unobserve?.()
         latest = undefined
@@ -284,7 +287,7 @@ export async function waitForTransactionReceipt<
         'getTransactionReceipt',
       )({ hash }).catch(() => undefined)
 
-      if (signal?.aborted) return
+      if (signal?.aborted || timedOut) return
 
       if (receipt && confirmations <= 1) {
         clearTimeout(timer)

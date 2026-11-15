@@ -158,15 +158,27 @@ export async function getSocketRpcClient<socket extends {}>(
               reconnectInProgress = false
               return
             }
-            // biome-ignore lint/suspicious/noConsole: _
-            await setup().catch(console.error)
-            reconnectInProgress = false
+            try {
+              await setup()
+              reconnectInProgress = false
+            } catch (error) {
+              // biome-ignore lint/suspicious/noConsole: _
+              console.error(error)
+              // The failed socket's error and close events arrived while this
+              // attempt was in progress, so schedule the next attempt here.
+              reconnectInProgress = false
+              attemptReconnect()
+            }
           }, delay)
         }
-        // Otherwise, clear all requests and subscriptions.
+        // Otherwise, clear all requests and subscriptions, and drop the dead
+        // client so the next request for this url opens a new socket.
         else {
           requests.clear()
           subscriptions.clear()
+          keepAliveTimer && clearInterval(keepAliveTimer)
+          if (socketClientCache.get(id) === socketClient)
+            socketClientCache.delete(id)
         }
       }
 

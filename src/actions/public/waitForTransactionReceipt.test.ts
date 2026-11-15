@@ -1507,6 +1507,36 @@ test('args: timeout', async () => {
   ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
 })
 
+test('args: timeout (fires during the first receipt lookup)', async () => {
+  let requests = 0
+  const proxyUrl = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ method }) => {
+      requests++
+      if (method === 'eth_getTransactionReceipt') await wait(100)
+      if (method === 'eth_blockNumber') return { result: '0x1' }
+      return { result: null }
+    },
+  )
+  const client = createPublicClient({
+    pollingInterval: 10,
+    transport: http(proxyUrl, { retryCount: 0 }),
+  })
+
+  await expect(() =>
+    waitForTransactionReceipt(client, {
+      hash: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      timeout: 20,
+    }),
+  ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
+  // Let the first lookup finish, then check that no polling started.
+  await wait(200)
+  const requestsAfterLookup = requests
+  await wait(200)
+
+  expect(requests - requestsAfterLookup).toMatchInlineSnapshot('0')
+})
+
 describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()

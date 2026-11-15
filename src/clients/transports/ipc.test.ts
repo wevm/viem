@@ -1,9 +1,14 @@
+import { mkdtemp, rm } from 'node:fs/promises'
+import { createServer } from 'node:net'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { Instance } from 'prool'
 import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
+import { extractMessages } from '../../utils/rpc/ipc.js'
 import { wait } from '../../utils/wait.js'
 
 import { createClient } from '../createClient.js'
@@ -172,6 +177,35 @@ test('subscribe', async () => {
   await mine(client, { blocks: 1 })
   await wait(200)
   expect(blocks.length).toBe(1)
+})
+
+test('behavior: requests and subscriptions share one socket', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'viem-ipc-'))
+  const path = join(directory, 'rpc.ipc')
+  let connections = 0
+  const server = createServer((socket) => {
+    connections++
+    socket.on('data', (data) => {
+      const [messages] = extractMessages(data)
+      for (const message of messages) {
+        const { id } = JSON.parse(message.toString())
+        socket.write(JSON.stringify({ id, jsonrpc: '2.0', result: '0x1' }))
+      }
+    })
+  })
+  await new Promise<void>((resolve) => server.listen(path, resolve))
+
+  const transport = ipc(path, { reconnect: { attempts: 1 } })({})
+  if (!transport.value) return
+  await transport.request({ method: 'eth_blockNumber' })
+  await transport.value.subscribe({ params: ['newHeads'], onData() {} })
+
+  expect(connections).toMatchInlineSnapshot('1')
+
+  const rpcClient = await transport.value.getRpcClient()
+  rpcClient.close()
+  await new Promise((resolve) => server.close(resolve))
+  await rm(directory, { recursive: true, force: true })
 })
 
 test('throws on bogus subscription', async () => {
