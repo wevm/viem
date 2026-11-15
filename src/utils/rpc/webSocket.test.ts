@@ -1170,4 +1170,21 @@ describe('reconnect', () => {
 
     nextClient.close()
   })
+
+  test('closing an evicted client keeps its replacement cached', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: false }
+    const socketClient = await getWebSocketRpcClient(url, options)
+
+    node.disconnect()
+    await wait(100)
+    const nextClient = await getWebSocketRpcClient(url, options)
+    socketClient.close()
+
+    expect(await getWebSocketRpcClient(url, options)).toBe(nextClient)
+    expect(node.connections).toMatchInlineSnapshot('2')
+
+    nextClient.close()
+  })
 })

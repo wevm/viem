@@ -261,7 +261,9 @@ export async function getSocketRpcClient<socket extends {}>(
             reconnectInProgress = false
           }
           socket.close()
-          socketClientCache.delete(id)
+          // An evicted client must not evict the client that replaced it.
+          if (socketClientCache.get(id) === socketClient)
+            socketClientCache.delete(id)
         },
         get socket() {
           return socket

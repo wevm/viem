@@ -321,6 +321,9 @@ importers:
       '@types/node':
         specifier: ^24.5.2
         version: 24.5.2
+      '@types/ws':
+        specifier: ^8.5.13
+        version: 8.5.13
       '@vitest/coverage-v8':
         specifier: ^4.1.12
         version: 4.1.12(vitest@4.1.12)
@@ -11103,7 +11106,7 @@ snapshots:
 
   '@types/ws@8.5.13':
     dependencies:
-      '@types/node': 24.13.2
+      '@types/node': 24.5.2
 
   '@types/yauzl@2.10.3':
     dependencies:

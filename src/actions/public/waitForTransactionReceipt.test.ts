@@ -1537,6 +1537,35 @@ test('args: timeout (fires during the first receipt lookup)', async () => {
   expect(requests - requestsAfterLookup).toMatchInlineSnapshot('0')
 })
 
+test('args: timeout (a caller sharing the first receipt lookup keeps its own deadline)', async () => {
+  const hash = await sendTransaction(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  await mine(client, { blocks: 1 })
+  const proxyUrl = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ method }) => {
+      if (method === 'eth_getTransactionReceipt') await wait(150)
+      return undefined
+    },
+  )
+  const proxyClient = createPublicClient({ transport: http(proxyUrl) })
+
+  // Both calls share one lookup, which returns after the first call's
+  // deadline but before the second call's.
+  const first = waitForTransactionReceipt(proxyClient, { hash, timeout: 100 })
+  first.catch(() => {})
+  await wait(80)
+  const second = waitForTransactionReceipt(proxyClient, { hash, timeout: 100 })
+
+  await expect(first).rejects.toThrowError(
+    WaitForTransactionReceiptTimeoutError,
+  )
+  expect((await second).transactionHash).toBe(hash)
+})
+
 describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()
