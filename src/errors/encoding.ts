@@ -92,6 +92,7 @@ export class RlpListBoundaryExceededError extends BaseError {
 export type RlpNonCanonicalErrorType = RlpNonCanonicalError & {
   name: 'RlpNonCanonicalError'
 }
+/** Thrown when an RLP payload uses a non-minimal length prefix or wraps a single byte below `0x80` in a length prefix. */
 export class RlpNonCanonicalError extends BaseError {
   constructor({ reason }: { reason: string }) {
     super(`RLP payload is not canonically encoded: ${reason}.`, {
