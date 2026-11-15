@@ -6,8 +6,7 @@ export const hppSepolia = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://testnet.hpp.io'],
-      webSocket: ['wss://testnet.hpp.io'],
+      http: ['https://sepolia.hpp.io'],
     },
   },
   blockExplorers: {
