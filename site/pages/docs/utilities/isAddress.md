@@ -23,9 +23,11 @@ isAddress('0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC') // [!code focus:2]
 
 ## Checksums
 
-An address is 20 bytes of hex, which is case-insensitive. [EIP-55](https://eips.ethereum.org/EIPS/eip-55) uses the letter casing as a checksum: each letter is uppercase or lowercase according to the keccak256 hash of the lowercase address. Changing the case of a single letter breaks the checksum.
+An address is 20 bytes of hex, which is case-insensitive. [EIP-55](https://eips.ethereum.org/EIPS/eip-55) uses the letter casing as a checksum derived from the keccak256 hash of the lowercase address. Changing the case of a single letter breaks it.
 
 ```ts
+import { isAddress } from 'viem'
+
 // Correct checksum
 isAddress('0x787bc77F1700DCE0f8c1581c18A12d3153D1B150')
 // true
@@ -39,7 +41,7 @@ isAddress('0x787bc77f1700dce0f8c1581c18a12d3153d1b150')
 // true
 ```
 
-An all-uppercase address is treated as a mixed-case address and fails the checksum in strict mode.
+An all-uppercase address is checked against its checksum like any other mixed-case address, so it fails strict mode unless that is its checksummed form.
 
 To validate user input, use `isAddress`. [`getAddress`](/docs/utilities/getAddress) does not validate the checksum: it returns the checksummed form of any casing.
 
@@ -62,7 +64,7 @@ An Ethereum address.
 - **Type:** `boolean`
 - **Default:** `true`
 
-Enables strict mode. If enabled, mixed-case addresses must match their checksum. If disabled, only the length and hex characters are checked.
+Enables strict mode. If enabled, mixed-case addresses must match their checksum. If disabled, only the `0x` prefix, length, and hex characters are checked.
 
 ```ts
 isAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac', { strict: false })

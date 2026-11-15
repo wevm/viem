@@ -71,7 +71,8 @@ export type GetAddressErrorType =
 
 /**
  * Converts an address into its [EIP-55](https://eips.ethereum.org/EIPS/eip-55)
- * checksummed form. Throws if the string is not 20 bytes of hex.
+ * checksummed form. Throws if the string is not a `0x`-prefixed, 20-byte hex
+ * string.
  *
  * The input's casing is ignored, so an address with a wrong checksum is
  * returned with the correct one. To reject a wrong checksum, check the input

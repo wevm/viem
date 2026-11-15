@@ -21,7 +21,7 @@ getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678ac') // [!code focus:2]
 // '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'
 ```
 
-The input's casing is ignored, so an address with a wrong checksum is returned with the correct one. It throws only if the string is not 20 bytes of hex. To reject a wrong checksum, check the input with [`isAddress`](/docs/utilities/isAddress) first.
+The input's casing is ignored, so a wrong checksum is replaced with the correct one. It throws only if the string is not a `0x`-prefixed, 20-byte hex string. To reject a wrong checksum, use [`isAddress`](/docs/utilities/isAddress) first.
 
 ```ts
 import { getAddress, isAddress } from 'viem'
