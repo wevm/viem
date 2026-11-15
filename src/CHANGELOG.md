@@ -1,5 +1,27 @@
 # viem
 
+## 2.57.20
+
+### Patch Changes
+
+- [#5499](https://github.com/wevm/viem/pull/5499) [`018d5605fb23612e0395f453dabd2c917e763ca4`](https://github.com/wevm/viem/commit/018d5605fb23612e0395f453dabd2c917e763ca4) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.67`, which parses Tempo WebAuthn signatures in linear time and refuses those above 2048 bytes, refuses a keychain signature nested in a keychain signature, a key authorization scope with `recipients` and no `selector`, a compressed public key where a Tempo address is derived, and a Tempo transaction with a `validBefore` or `validAfter` that is not a non-negative safe integer number, a `chainId` that is not a positive safe integer, or a fee payer signature `yParity` other than `0` or `1`, hashes the payload in `Secp256k1.verify` of `viem/tempo` when `hash: true` is used with `address`, and refuses call `data` with an odd number of hex digits in `viem/experimental/erc7821`.
+
+- [#5512](https://github.com/wevm/viem/pull/5512) [`fb861e2d3a0f576843a7e51070b8e91da0a0137e`](https://github.com/wevm/viem/commit/fb861e2d3a0f576843a7e51070b8e91da0a0137e) Thanks [@wavebyrd](https://github.com/wavebyrd)! - Fixed Multicall3 `blockCreated` for Darwinia (`251739`) and Flow EVM Mainnet (`968659`).
+
+- [#5508](https://github.com/wevm/viem/pull/5508) [`4b122ec322497536e77f8411d50636723aa971da`](https://github.com/wevm/viem/commit/4b122ec322497536e77f8411d50636723aa971da) Thanks [@erkancamli](https://github.com/erkancamli)! - Fixed `getTypesForEIP712Domain` to include every domain field that is present (not `undefined` or `null`), so that a domain with a string `chainId` (e.g. from a JSON payload) is no longer hashed and signed without `chainId`.
+
+- [#5504](https://github.com/wevm/viem/pull/5504) [`c05ab61850ffe305e12e85c2be154156ac39e8f7`](https://github.com/wevm/viem/commit/c05ab61850ffe305e12e85c2be154156ac39e8f7) Thanks [@jxom](https://github.com/jxom)! - Fixed batched `http` and multicall requests flushing before `wait` elapsed after an earlier batch was split at `batchSize`.
+
+- [#5515](https://github.com/wevm/viem/pull/5515) [`fb1687aa92faf11ae95d4bc6a98c08c0a5c23de7`](https://github.com/wevm/viem/commit/fb1687aa92faf11ae95d4bc6a98c08c0a5c23de7) Thanks [@jxom](https://github.com/jxom)! - Fixed `publicKeyToAddress` silently returning a wrong address for public keys that are not uncompressed (65 bytes with a `0x04` prefix), such as compressed keys; it now throws `InvalidPublicKeyError`.
+
+- [#5514](https://github.com/wevm/viem/pull/5514) [`9677703fc287efc59ef227f45332dc4f7d60e48a`](https://github.com/wevm/viem/commit/9677703fc287efc59ef227f45332dc4f7d60e48a) Thanks [@jxom](https://github.com/jxom)! - Cached `checksumAddress` results by the lowercase address, so differently cased inputs no longer recompute the hash, and skipped the `isAddress` cache for checks that do not need a checksum.
+
+- [#5505](https://github.com/wevm/viem/pull/5505) [`8d3f29e03333d40283811dc69dbd02cdee2bd354`](https://github.com/wevm/viem/commit/8d3f29e03333d40283811dc69dbd02cdee2bd354) Thanks [@jxom](https://github.com/jxom)! - Fetched the nonce, block, and priority fee concurrently in `prepareTransactionRequest` when the chain has no fee hooks.
+
+- [#5511](https://github.com/wevm/viem/pull/5511) [`5f60d1d8a604cf65b54f8ce0b8ac3ce6d3f4b6e6`](https://github.com/wevm/viem/commit/5f60d1d8a604cf65b54f8ce0b8ac3ce6d3f4b6e6) Thanks [@backseats](https://github.com/backseats)! - Replaced runtime `parseAbi` calls in `call` with literal ABIs, removing the human-readable ABI parser from bundles that only read contracts.
+
+- [#5513](https://github.com/wevm/viem/pull/5513) [`1759adf32ddbfc68060e7cb3b05c889075b1d10d`](https://github.com/wevm/viem/commit/1759adf32ddbfc68060e7cb3b05c889075b1d10d) Thanks [@jxom](https://github.com/jxom)! - Fixed `fromRlp` accepting non-minimal RLP length prefixes and length-prefixed single bytes below `0x80`, which now throw `RlpNonCanonicalError`.
+
 ## 2.57.19
 
 ### Patch Changes
