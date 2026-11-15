@@ -1,4 +1,4 @@
-import { type Address, parseAbi } from 'abitype'
+import type { Address } from 'abitype'
 import * as BlockOverrides from 'ox/BlockOverrides'
 
 import type { Account } from '../../accounts/types.js'
@@ -568,7 +568,13 @@ type ToDeploylessCallViaBytecodeDataErrorType =
 function toDeploylessCallViaBytecodeData(parameters: { code: Hex; data: Hex }) {
   const { code, data } = parameters
   return encodeDeployData({
-    abi: parseAbi(['constructor(bytes, bytes)']),
+    abi: [
+      {
+        type: 'constructor',
+        stateMutability: 'nonpayable',
+        inputs: [{ type: 'bytes' }, { type: 'bytes' }],
+      },
+    ] as const,
     bytecode: deploylessCallViaBytecodeBytecode,
     args: [code, data],
   })
@@ -586,7 +592,18 @@ function toDeploylessCallViaFactoryData(parameters: {
 }) {
   const { data, factory, factoryData, to } = parameters
   return encodeDeployData({
-    abi: parseAbi(['constructor(address, bytes, address, bytes)']),
+    abi: [
+      {
+        type: 'constructor',
+        stateMutability: 'nonpayable',
+        inputs: [
+          { type: 'address' },
+          { type: 'bytes' },
+          { type: 'address' },
+          { type: 'bytes' },
+        ],
+      },
+    ] as const,
     bytecode: deploylessCallViaFactoryBytecode,
     args: [to, data, factory, factoryData],
   })
