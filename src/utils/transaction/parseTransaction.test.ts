@@ -1467,6 +1467,30 @@ describe('errors', () => {
     `,
     )
   })
+
+  test('non-canonical rlp', async () => {
+    const signature = await sign({
+      hash: keccak256(
+        serializeTransaction({ ...base, chainId: 1, maxFeePerGas: 2n }),
+      ),
+      privateKey: accounts[0].privateKey,
+    })
+    const serialized = serializeTransaction(
+      { ...base, chainId: 1, maxFeePerGas: 2n },
+      signature,
+    )
+    // Same list payload, with the `0xf8` length prefix widened to `0xf900`.
+    expect(serialized.slice(0, 6)).toBe('0x02f8')
+    const malleated = `0x02f900${serialized.slice(6)}` as const
+
+    expect(() =>
+      parseTransaction(malleated),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`106\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 test('toTransactionArray', () => {

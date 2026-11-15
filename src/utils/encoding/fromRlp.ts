@@ -6,6 +6,8 @@ import {
   type RlpDepthLimitExceededErrorType,
   RlpListBoundaryExceededError,
   type RlpListBoundaryExceededErrorType,
+  RlpNonCanonicalError,
+  type RlpNonCanonicalErrorType,
   RlpTrailingBytesError,
   type RlpTrailingBytesErrorType,
 } from '../../errors/encoding.js'
@@ -35,6 +37,7 @@ export type FromRlpErrorType =
   | HexToBytesErrorType
   | InvalidHexValueErrorType
   | RlpDepthLimitExceededErrorType
+  | RlpNonCanonicalErrorType
   | RlpTrailingBytesErrorType
   | ErrorType
 
@@ -91,6 +94,11 @@ function fromRlpCursor<to extends To = 'hex'>(
   if (prefix < 0xc0) {
     const length = readLength(cursor, prefix, 0x80)
     const bytes = cursor.readBytes(length)
+    // A single byte below `0x80` is its own encoding (Yellow Paper, Appendix B).
+    if (prefix >= 0x80 && length === 1 && bytes[0]! < 0x80)
+      throw new RlpNonCanonicalError({
+        reason: 'single byte below `0x80` has a length prefix',
+      })
     return (to === 'hex' ? bytesToHex(bytes) : bytes) as FromRlpReturnType<to>
   }
 
@@ -104,16 +112,40 @@ function fromRlpCursor<to extends To = 'hex'>(
   ) as {} as FromRlpReturnType<to>
 }
 
-type ReadLengthErrorType = BaseErrorType | ErrorType
+type ReadLengthErrorType = BaseErrorType | RlpNonCanonicalErrorType | ErrorType
 
 function readLength(cursor: Cursor, prefix: number, offset: number) {
   if (offset === 0x80 && prefix < 0x80) return 1
   if (prefix <= offset + 55) return prefix - offset
-  if (prefix === offset + 55 + 1) return cursor.readUint8()
-  if (prefix === offset + 55 + 2) return cursor.readUint16()
-  if (prefix === offset + 55 + 3) return cursor.readUint24()
-  if (prefix === offset + 55 + 4) return cursor.readUint32()
+  // Long-form lengths must be above 55 and have no leading zero bytes
+  // (Yellow Paper, Appendix B).
+  if (prefix === offset + 55 + 1) {
+    const length = cursor.readUint8()
+    if (length <= 55) throw nonCanonicalLengthError(length)
+    return length
+  }
+  if (prefix === offset + 55 + 2) {
+    const length = cursor.readUint16()
+    if (length <= 0xff) throw nonCanonicalLengthError(length)
+    return length
+  }
+  if (prefix === offset + 55 + 3) {
+    const length = cursor.readUint24()
+    if (length <= 0xffff) throw nonCanonicalLengthError(length)
+    return length
+  }
+  if (prefix === offset + 55 + 4) {
+    const length = cursor.readUint32()
+    if (length <= 0xffffff) throw nonCanonicalLengthError(length)
+    return length
+  }
   throw new BaseError('Invalid RLP prefix')
+}
+
+function nonCanonicalLengthError(length: number) {
+  return new RlpNonCanonicalError({
+    reason: `length \`${length}\` does not use the shortest length prefix`,
+  })
 }
 
 type ReadListErrorType = RlpListBoundaryExceededErrorType | ErrorType
