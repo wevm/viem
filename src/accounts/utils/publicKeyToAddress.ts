@@ -36,7 +36,7 @@ export function publicKeyToAddress(publicKey: Hex): Address {
 
 /** Type of {@link InvalidPublicKeyError}. */
 export type InvalidPublicKeyErrorType = InvalidPublicKeyError & {
-  name: 'InvalidPublicKeyError'
+  name: 'publicKeyToAddress.InvalidPublicKeyError'
 }
 
 /**
@@ -49,7 +49,7 @@ export class InvalidPublicKeyError extends BaseError {
       metaMessages: [
         '- Public key must be uncompressed: 65 bytes with a `0x04` prefix.',
       ],
-      name: 'InvalidPublicKeyError',
+      name: 'publicKeyToAddress.InvalidPublicKeyError',
     })
   }
 }

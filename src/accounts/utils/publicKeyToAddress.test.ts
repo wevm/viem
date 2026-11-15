@@ -16,7 +16,7 @@ test('error: compressed public key', () => {
       '0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidPublicKeyError: Public key "0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75" is invalid.
+    [publicKeyToAddress.InvalidPublicKeyError: Public key "0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75" is invalid.
 
     - Public key must be uncompressed: 65 bytes with a \`0x04\` prefix.
 
@@ -30,7 +30,7 @@ test('error: public key without prefix', () => {
       '0x8318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidPublicKeyError: Public key "0x8318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5" is invalid.
+    [publicKeyToAddress.InvalidPublicKeyError: Public key "0x8318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5" is invalid.
 
     - Public key must be uncompressed: 65 bytes with a \`0x04\` prefix.
 

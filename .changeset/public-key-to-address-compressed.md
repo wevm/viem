@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `publicKeyToAddress` returning a wrong address for a compressed public key (or one without the `0x04` prefix). It now throws `InvalidPublicKeyError`.
+Fixed `publicKeyToAddress` silently returning a wrong address for public keys that are not uncompressed (65 bytes with a `0x04` prefix), such as compressed keys; it now throws `InvalidPublicKeyError`.
