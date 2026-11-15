@@ -145,19 +145,17 @@ export function getTypesForEIP712Domain({
 }: {
   domain?: TypedDataDomain | undefined
 }): TypedDataParameter[] {
+  // A field is part of the schema when it is present on the domain (not
+  // `undefined` or `null`).
   return [
-    typeof domain?.name === 'string' && { name: 'name', type: 'string' },
-    typeof domain?.version === 'string' && { name: 'version', type: 'string' },
-    (typeof domain?.chainId === 'number' ||
-      typeof domain?.chainId === 'bigint') && {
-      name: 'chainId',
-      type: 'uint256',
-    },
-    domain?.verifyingContract && {
+    domain?.name != null && { name: 'name', type: 'string' },
+    domain?.version != null && { name: 'version', type: 'string' },
+    domain?.chainId != null && { name: 'chainId', type: 'uint256' },
+    domain?.verifyingContract != null && {
       name: 'verifyingContract',
       type: 'address',
     },
-    domain?.salt && { name: 'salt', type: 'bytes32' },
+    domain?.salt != null && { name: 'salt', type: 'bytes32' },
   ].filter(Boolean) as TypedDataParameter[]
 }
 

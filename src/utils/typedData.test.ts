@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { pad, toHex } from './index.js'
 import {
   domainSeparator,
+  getTypesForEIP712Domain,
   serializeTypedData,
   validateTypedData,
 } from './typedData.js'
@@ -719,5 +720,76 @@ describe('domainSeparator', () => {
     expect(domainSeparator({ domain: {} })).toMatchInlineSnapshot(
       '"0x6192106f129ce05c9075d319c1fa6ea9b3ae37cbd0c1ef92e2be7137bb07baa1"',
     )
+  })
+
+  test('string chainId', () => {
+    const domain = {
+      name: 'Ether Mail',
+      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    } as const
+    expect(
+      domainSeparator({ domain: { ...domain, chainId: 1 } }),
+    ).toMatchInlineSnapshot(
+      `"0xcbea6135f3930521627c49608c80b1e98ac5e9966ebf71d0d52f39fa5acc7a58"`,
+    )
+    expect(
+      domainSeparator({ domain: { ...domain, chainId: '1' } as never }),
+    ).toMatchInlineSnapshot(
+      `"0xcbea6135f3930521627c49608c80b1e98ac5e9966ebf71d0d52f39fa5acc7a58"`,
+    )
+  })
+})
+
+describe('getTypesForEIP712Domain', () => {
+  test('string chainId', () => {
+    expect(
+      getTypesForEIP712Domain({
+        domain: { name: 'Ether Mail', chainId: '1' } as never,
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "name": "name",
+          "type": "string",
+        },
+        {
+          "name": "chainId",
+          "type": "uint256",
+        },
+      ]
+    `)
+  })
+
+  test('empty verifyingContract and salt', () => {
+    expect(
+      getTypesForEIP712Domain({
+        domain: { salt: '', verifyingContract: '' } as never,
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "name": "verifyingContract",
+          "type": "address",
+        },
+        {
+          "name": "salt",
+          "type": "bytes32",
+        },
+      ]
+    `)
+  })
+
+  test('null and undefined fields are omitted', () => {
+    expect(
+      getTypesForEIP712Domain({
+        domain: {
+          chainId: undefined,
+          name: null,
+          salt: undefined,
+          verifyingContract: null,
+          version: undefined,
+        } as never,
+      }),
+    ).toMatchInlineSnapshot(`[]`)
   })
 })
