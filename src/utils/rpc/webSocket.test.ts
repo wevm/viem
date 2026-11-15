@@ -1,5 +1,6 @@
 import { WebSocket } from 'isows'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
+import { WebSocketServer } from 'ws'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
@@ -1094,3 +1095,79 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
     })
   },
 )
+
+// A real WebSocket node that answers every request, and can go down and come
+// back on the same port.
+async function createNode(port = 0) {
+  const server = new WebSocketServer({ host: '127.0.0.1', port })
+  let connections = 0
+  server.on('connection', (socket) => {
+    connections++
+    socket.on('message', (data) => {
+      const { id } = JSON.parse(String(data))
+      socket.send(JSON.stringify({ id, jsonrpc: '2.0', result: '0x1' }))
+    })
+  })
+  await new Promise((resolve) => server.once('listening', resolve))
+  const node = {
+    get connections() {
+      return connections
+    },
+    /** Drops every connection and keeps listening. */
+    disconnect() {
+      for (const socket of server.clients) socket.terminate()
+    },
+    port: (server.address() as { port: number }).port,
+    /** Drops every connection and stops listening. */
+    async stop() {
+      node.disconnect()
+      await new Promise((resolve) => server.close(resolve))
+    },
+  }
+  onTestFinished(() => node.stop())
+  return node
+}
+
+describe('reconnect', () => {
+  test('reconnects the cached client when the last attempt succeeds', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: { attempts: 1, delay: 20 } }
+    const socketClient = await getWebSocketRpcClient(url, options)
+
+    node.disconnect()
+    await wait(200)
+    const nextClient = await getWebSocketRpcClient(url, options)
+    const { result } = await nextClient.requestAsync({
+      body: { method: 'eth_blockNumber' },
+    })
+
+    expect(nextClient).toBe(socketClient)
+    expect(result).toMatchInlineSnapshot(`"0x1"`)
+    expect(node.connections).toMatchInlineSnapshot('2')
+
+    socketClient.close()
+  })
+
+  test('drops the client once attempts run out, so the next client reaches the recovered node', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: { attempts: 3, delay: 20 } }
+    const socketClient = await getWebSocketRpcClient(url, options)
+
+    await node.stop()
+    // Let all three attempts fail.
+    await wait(500)
+    const recovered = await createNode(node.port)
+    const nextClient = await getWebSocketRpcClient(url, options)
+    const { result } = await nextClient.requestAsync({
+      body: { method: 'eth_blockNumber' },
+    })
+
+    expect(nextClient).not.toBe(socketClient)
+    expect(result).toMatchInlineSnapshot(`"0x1"`)
+    expect(recovered.connections).toMatchInlineSnapshot('1')
+
+    nextClient.close()
+  })
+})

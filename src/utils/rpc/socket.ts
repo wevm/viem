@@ -171,6 +171,8 @@ export async function getSocketRpcClient<socket extends {}>(
             }
           }, delay)
         }
+        // The last attempt is still running. If it fails, it calls this again.
+        else if (reconnectInProgress && !intentionallyClosed) return
         // Otherwise, clear all requests and subscriptions, and drop the dead
         // client so the next request for this url opens a new socket.
         else {
