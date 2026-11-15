@@ -10,7 +10,7 @@ export const tacSPB = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://spb.rpc.tac.build'],
+      http: ['https://rpc-public-spb.tac.build'],
     },
   },
   blockExplorers: {

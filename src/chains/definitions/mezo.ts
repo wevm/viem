@@ -9,7 +9,7 @@ export const mezo = /*#__PURE__*/ defineChain({
     symbol: 'BTC',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.mezo.org'] },
+    default: { http: ['https://mainnet.mezo.public.validationcloud.io'] },
   },
   blockExplorers: {
     default: {
