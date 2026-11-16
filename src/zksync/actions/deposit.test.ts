@@ -1,3 +1,14 @@
+import {
+  type AbiFunction,
+  createClient,
+  type EncodeFunctionResultParameters,
+  encodeFunctionResult,
+  erc20Abi,
+  type Hex,
+  http,
+  parseAbi,
+  toFunctionSelector,
+} from 'viem'
 import { expect, test } from 'vitest'
 import { anvilMainnet, anvilZksync } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
@@ -6,17 +17,6 @@ import { mockRequestReturnData } from '~test/zksync.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mainnet, zksync } from '../../chains/index.js'
 import { publicActions } from '../../clients/decorators/public.js'
-import { erc20Abi } from '../../constants/abis.js'
-import {
-  type AbiFunction,
-  createClient,
-  type EncodeFunctionResultParameters,
-  encodeFunctionResult,
-  type Hex,
-  http,
-  parseAbi,
-  toFunctionSelector,
-} from '../../index.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { wait } from '../../utils/wait.js'
 import { bridgehubAbi } from '../../zksync/constants/abis.js'
