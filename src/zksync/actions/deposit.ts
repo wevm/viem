@@ -231,14 +231,30 @@ export async function deposit<
 
   if (isAddressEqual(token, legacyEthAddress)) token = ethAddressInContracts
 
-  const bridgeAddresses = await getBridgeAddresses(client, l2Client)
-  const bridgehub = await getBridgehubContractAddress(l2Client)
-  const baseToken = await readContract(client, {
-    address: bridgehub,
-    abi: bridgehubAbi,
-    functionName: 'baseToken',
-    args: [BigInt(l2Client.chain.id)],
-  })
+  // The bridge addresses, the base token and the fees do not depend on each
+  // other, so they are read concurrently, and awaited in their original order.
+  const bridgeAddressesPromise = getBridgeAddresses(client, l2Client)
+  bridgeAddressesPromise.catch(() => {})
+  const bridgehubPromise = getBridgehubContractAddress(l2Client)
+  bridgehubPromise.catch(() => {})
+  const baseTokenPromise = bridgehubPromise.then((bridgehub) =>
+    readContract(client, {
+      address: bridgehub,
+      abi: bridgehubAbi,
+      functionName: 'baseToken',
+      args: [BigInt(l2Client.chain!.id)],
+    }),
+  )
+  baseTokenPromise.catch(() => {})
+  const estimatedFee =
+    parameters.maxFeePerGas || parameters.gasPrice
+      ? undefined
+      : getFeePrice(client)
+  estimatedFee?.catch(() => {})
+
+  const bridgeAddresses = await bridgeAddressesPromise
+  const bridgehub = await bridgehubPromise
+  const baseToken = await baseTokenPromise
 
   const { mintValue, tx } = await getL1DepositTx(
     client,
@@ -247,6 +263,7 @@ export async function deposit<
     bridgeAddresses,
     bridgehub,
     baseToken,
+    estimatedFee,
   )
 
   await approveTokens(
@@ -304,6 +321,7 @@ async function getL1DepositTx<
   },
   bridgehub: Address,
   baseToken: Address,
+  estimatedFee: ReturnType<typeof getFeePrice> | undefined,
 ) {
   let {
     account: _account,
@@ -330,12 +348,35 @@ async function getL1DepositTx<
   if (!l2Client.chain) throw new ClientChainNotConfiguredError()
 
   to ??= account.address
+
+  const isETHBasedChain = isAddressEqual(baseToken, ethAddressInContracts)
+  const isBaseTokenDeposit =
+    (isETHBasedChain && isAddressEqual(token, ethAddressInContracts)) || // ETH on ETH-based chain
+    isAddressEqual(token, baseToken) // base token on custom chain
+
+  // The second bridge calldata does not depend on the fees, so it is read
+  // concurrently with them, and awaited in its original order.
+  const secondBridgeCalldata = isBaseTokenDeposit
+    ? undefined
+    : getSecondBridgeCalldata(
+        client,
+        bridgeAddresses.l1NativeTokenVault,
+        isAddressEqual(token, ethAddressInContracts)
+          ? ethAddressInContracts
+          : token,
+        amount,
+        to,
+      )
+  secondBridgeCalldata?.catch(() => {})
+
   let gasPriceForEstimation = maxFeePerGas || gasPrice
   if (!gasPriceForEstimation) {
-    const estimatedFee = await getFeePrice(client)
-    gasPriceForEstimation = estimatedFee.maxFeePerGas
-    maxFeePerGas = estimatedFee.maxFeePerGas
-    maxPriorityFeePerGas ??= estimatedFee.maxPriorityFeePerGas
+    // `deposit` estimates the fees when the parameters do not set them.
+    const { maxFeePerGas: maxFeePerGas_, maxPriorityFeePerGas: priorityFee } =
+      await estimatedFee!
+    gasPriceForEstimation = maxFeePerGas_
+    maxFeePerGas = maxFeePerGas_
+    maxPriorityFeePerGas ??= priorityFee
   }
 
   const { l2GasLimit_, baseCost } = await getL2BridgeTxFeeParams(
@@ -349,6 +390,7 @@ async function getL1DepositTx<
     to,
     gasPerPubdataByte,
     baseToken,
+    bridgeAddresses,
     l2GasLimit,
     bridgeAddress,
     customBridgeData,
@@ -357,11 +399,7 @@ async function getL1DepositTx<
   let mintValue: bigint
   let data: Hex
 
-  const isETHBasedChain = isAddressEqual(baseToken, ethAddressInContracts)
-  if (
-    (isETHBasedChain && isAddressEqual(token, ethAddressInContracts)) || // ETH on ETH-based chain
-    isAddressEqual(token, baseToken) // base token on custom chain
-  ) {
+  if (isBaseTokenDeposit) {
     // Deposit base token
     mintValue = baseCost + operatorTip + amount
     let providedValue = isETHBasedChain ? value : mintValue
@@ -411,13 +449,7 @@ async function getL1DepositTx<
           refundRecipient,
           secondBridgeAddress: bridgeAddress,
           secondBridgeValue: 0n,
-          secondBridgeCalldata: await getSecondBridgeCalldata(
-            client,
-            bridgeAddresses.l1NativeTokenVault,
-            token,
-            amount,
-            to,
-          ),
+          secondBridgeCalldata: (await secondBridgeCalldata)!,
         },
       ],
     })
@@ -443,13 +475,7 @@ async function getL1DepositTx<
           refundRecipient,
           secondBridgeAddress: bridgeAddress,
           secondBridgeValue: amount,
-          secondBridgeCalldata: await getSecondBridgeCalldata(
-            client,
-            bridgeAddresses.l1NativeTokenVault,
-            ethAddressInContracts,
-            amount,
-            to,
-          ),
+          secondBridgeCalldata: (await secondBridgeCalldata)!,
         },
       ],
     })
@@ -475,13 +501,7 @@ async function getL1DepositTx<
           refundRecipient,
           secondBridgeAddress: bridgeAddress,
           secondBridgeValue: 0n,
-          secondBridgeCalldata: await getSecondBridgeCalldata(
-            client,
-            bridgeAddresses.l1NativeTokenVault,
-            token,
-            amount,
-            to,
-          ),
+          secondBridgeCalldata: (await secondBridgeCalldata)!,
         },
       ],
     })
@@ -672,6 +692,7 @@ async function getL2BridgeTxFeeParams<
   to: Address,
   gasPerPubdataByte: bigint,
   baseToken: Address,
+  bridgeAddresses: BridgeContractAddresses,
   l2GasLimit?: bigint | undefined,
   bridgeAddress?: Address | undefined,
   customBridgeData?: Hex | undefined,
@@ -701,6 +722,7 @@ async function getL2BridgeTxFeeParams<
           to,
           gasPerPubdataByte,
           baseToken,
+          bridgeAddresses,
         )
 
   const baseCost = await readContract(client, {
@@ -724,6 +746,7 @@ async function getL2GasLimitFromDefaultBridge<
   to: Address,
   gasPerPubdataByte: bigint,
   baseToken: Address,
+  bridgeAddresses: BridgeContractAddresses,
 ) {
   if (isAddressEqual(token, baseToken)) {
     return await estimateGasL1ToL2(l2Client, {
@@ -737,7 +760,6 @@ async function getL2GasLimitFromDefaultBridge<
     })
   }
   const value = 0n
-  const bridgeAddresses = await getDefaultBridgeAddresses(l2Client)
   const l1BridgeAddress = bridgeAddresses.sharedL1
   const l2BridgeAddress = bridgeAddresses.sharedL2
   const bridgeData = await encodeDefaultBridgeData(client, token)
@@ -780,11 +802,9 @@ async function getL2GasLimitFromCustomBridge<
   bridgeAddress: Address,
   customBridgeData?: Hex,
 ) {
-  let customBridgeData_ = customBridgeData
-  if (!customBridgeData_ || customBridgeData_ === '0x')
-    customBridgeData_ = await encodeDefaultBridgeData(client, token)
-
-  const l2BridgeAddress = await readContract(client, {
+  // The L2 bridge address does not depend on the bridge data, so it is read
+  // concurrently with it, and awaited in its original order.
+  const l2BridgeAddressPromise = readContract(client, {
     address: token,
     abi: parseAbi([
       'function l2BridgeAddress(uint256 _chainId) view returns (address)',
@@ -792,6 +812,13 @@ async function getL2GasLimitFromCustomBridge<
     functionName: 'l2BridgeAddress',
     args: [BigInt(l2Client.chain!.id)],
   })
+  l2BridgeAddressPromise.catch(() => {})
+
+  let customBridgeData_ = customBridgeData
+  if (!customBridgeData_ || customBridgeData_ === '0x')
+    customBridgeData_ = await encodeDefaultBridgeData(client, token)
+
+  const l2BridgeAddress = await l2BridgeAddressPromise
 
   const calldata = encodeFunctionData({
     abi: parseAbi([
@@ -821,26 +848,32 @@ async function encodeDefaultBridgeData<chain extends Chain | undefined>(
   let symbol = 'ETH'
   let decimals = 18n
   if (!isAddressEqual(token_, ethAddressInContracts)) {
-    name = await readContract(client, {
+    // The token metadata is read concurrently, and awaited in order.
+    const namePromise = readContract(client, {
       address: token_,
       abi: erc20Abi,
       functionName: 'name',
       args: [],
     })
-    symbol = await readContract(client, {
+    namePromise.catch(() => {})
+    const symbolPromise = readContract(client, {
       address: token_,
       abi: erc20Abi,
       functionName: 'symbol',
       args: [],
     })
-    decimals = BigInt(
-      await readContract(client, {
-        address: token_,
-        abi: erc20Abi,
-        functionName: 'decimals',
-        args: [],
-      }),
-    )
+    symbolPromise.catch(() => {})
+    const decimalsPromise = readContract(client, {
+      address: token_,
+      abi: erc20Abi,
+      functionName: 'decimals',
+      args: [],
+    })
+    decimalsPromise.catch(() => {})
+
+    name = await namePromise
+    symbol = await symbolPromise
+    decimals = BigInt(await decimalsPromise)
   }
 
   const nameBytes = encodeAbiParameters([{ type: 'string' }], [name])
@@ -915,28 +948,32 @@ async function getBridgeAddresses<
   }
 > {
   const addresses = await getDefaultBridgeAddresses(l2Client)
-  let l1Nullifier = addresses.l1Nullifier
-  let l1NativeTokenVault = addresses.l1NativeTokenVault
 
-  if (!l1Nullifier)
-    l1Nullifier = await readContract(client, {
-      address: addresses.sharedL1,
-      abi: parseAbi(['function L1_NULLIFIER() view returns (address)']),
-      functionName: 'L1_NULLIFIER',
-      args: [],
-    })
-  if (!l1NativeTokenVault)
-    l1NativeTokenVault = await readContract(client, {
-      address: addresses.sharedL1,
-      abi: parseAbi(['function nativeTokenVault() view returns (address)']),
-      functionName: 'nativeTokenVault',
-      args: [],
-    })
+  // The missing addresses are read concurrently, and awaited in order.
+  const l1NullifierPromise = addresses.l1Nullifier
+    ? undefined
+    : readContract(client, {
+        address: addresses.sharedL1,
+        abi: parseAbi(['function L1_NULLIFIER() view returns (address)']),
+        functionName: 'L1_NULLIFIER',
+        args: [],
+      })
+  l1NullifierPromise?.catch(() => {})
+  const l1NativeTokenVaultPromise = addresses.l1NativeTokenVault
+    ? undefined
+    : readContract(client, {
+        address: addresses.sharedL1,
+        abi: parseAbi(['function nativeTokenVault() view returns (address)']),
+        functionName: 'nativeTokenVault',
+        args: [],
+      })
+  l1NativeTokenVaultPromise?.catch(() => {})
 
   return {
     ...addresses,
-    l1Nullifier,
-    l1NativeTokenVault,
+    l1Nullifier: addresses.l1Nullifier || (await l1NullifierPromise)!,
+    l1NativeTokenVault:
+      addresses.l1NativeTokenVault || (await l1NativeTokenVaultPromise)!,
   }
 }
 
