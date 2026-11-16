@@ -27,6 +27,11 @@ export const metalL2 = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x7BFfF391A2dbbDc68A259792AC9748F50FcDE93E',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x3B1F7aDa0Fcc26B13515af752Dd07fB1CAc11426',

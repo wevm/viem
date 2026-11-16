@@ -22,6 +22,11 @@ export const ancient8 = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x3CEa4B383D855208f5d06e5b1A602E4006a1d0E1',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0xB09DC08428C8b4EFB4ff9C0827386CDF34277996',
