@@ -1,6 +1,5 @@
+import type { Hex } from 'viem'
 import { expect, test } from 'vitest'
-
-import type { Hex } from '../../types/misc.js'
 
 import { slice, sliceBytes, sliceHex } from './slice.js'
 

@@ -1,6 +1,5 @@
+import type { Hex } from 'viem'
 import { describe, expect, test } from 'vitest'
-
-import type { Hex } from '../../types/misc.js'
 import { trim } from './trim.js'
 
 test('default', () => {
