@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
+import type { BaseError } from '../../errors/base.js'
+import type { Hex } from '../../types/misc.js'
+
 import {
   boolToBytes,
   hexToBytes,
@@ -1040,9 +1043,98 @@ describe('converts hex to bytes', () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('every byte value, mixed case', () => {
+    const hex = Array.from({ length: 256 }, (_, i) =>
+      i.toString(16).padStart(2, '0'),
+    ).join('')
+
+    for (const value of [hex, hex.toUpperCase(), `${hex}${hex.toUpperCase()}`])
+      expect(hexToBytes(`0x${value}`)).toEqual(
+        new Uint8Array(Buffer.from(value, 'hex')),
+      )
+  })
+
+  test('error: characters next to the hex ranges and non-ASCII', () => {
+    const errors = []
+    for (const value of [
+      '0x/0',
+      '0x:0',
+      '0x@0',
+      '0xG0',
+      '0x`0',
+      '0xg0',
+      '0x0\u0130',
+      '0x\u01310',
+      '0x1g',
+      '0xabcdef12345g',
+      '0xABCDEFg0',
+      '0x12 ',
+    ])
+      try {
+        hexToBytes(value as Hex)
+      } catch (error) {
+        errors.push((error as BaseError).shortMessage)
+      }
+    try {
+      hexToBytes('0x1g', { size: 4 })
+    } catch (error) {
+      errors.push((error as BaseError).shortMessage)
+    }
+    expect(errors).toMatchInlineSnapshot(`
+      [
+        "Invalid byte sequence ("/0" in "/0").",
+        "Invalid byte sequence (":0" in ":0").",
+        "Invalid byte sequence ("@0" in "@0").",
+        "Invalid byte sequence ("G0" in "G0").",
+        "Invalid byte sequence ("\`0" in "\`0").",
+        "Invalid byte sequence ("g0" in "g0").",
+        "Invalid byte sequence ("0İ" in "0İ").",
+        "Invalid byte sequence ("ı0" in "ı0").",
+        "Invalid byte sequence ("1g" in "1g").",
+        "Invalid byte sequence ("5g" in "abcdef12345g").",
+        "Invalid byte sequence ("g0" in "ABCDEFg0").",
+        "Invalid byte sequence ("2 " in "012 ").",
+        "Invalid byte sequence ("1g" in "1g000000").",
+      ]
+    `)
+  })
+
+  test('behavior: skips the first two characters without checking them', () => {
+    expect([
+      hexToBytes('0X12' as Hex),
+      hexToBytes('' as Hex),
+      hexToBytes('1' as Hex),
+      hexToBytes('1234' as Hex),
+      hexToBytes('0x'),
+      hexToBytes('12' as Hex, { size: 2 }),
+    ]).toMatchInlineSnapshot(`
+      [
+        Uint8Array [
+          18,
+        ],
+        Uint8Array [],
+        Uint8Array [],
+        Uint8Array [
+          52,
+        ],
+        Uint8Array [],
+        Uint8Array [
+          0,
+          0,
+        ],
+      ]
+    `)
+  })
 })
 
 describe('converts string to bytes', () => {
+  test('behavior: 0x-prefixed strings that are not hex encode as UTF-8', () => {
+    for (const value of ['0xzz', '0x1g', '0x12 ', '0x\u0130'])
+      expect(toBytes(value)).toEqual(new TextEncoder().encode(value))
+    expect(toBytes('0x')).toEqual(new Uint8Array())
+  })
+
   test('default', () => {
     expect(toBytes('')).toMatchInlineSnapshot('Uint8Array []')
     expect(toBytes('a')).toMatchInlineSnapshot(`

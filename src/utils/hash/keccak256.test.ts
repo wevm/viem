@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 
+import { stringToBytes } from '../encoding/toBytes.js'
 import { keccak256 } from './keccak256.js'
 
 test('to hex', () => {
@@ -99,4 +100,9 @@ test('to bytes', () => {
     ]
   `,
   )
+})
+
+test('behavior: hashes non-hex 0x strings as UTF-8', () => {
+  expect(keccak256('0xzz')).toBe(keccak256(stringToBytes('0xzz')))
+  expect(keccak256('0x')).toBe(keccak256(new Uint8Array()))
 })
