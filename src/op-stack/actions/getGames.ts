@@ -99,12 +99,20 @@ export async function getGames<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const disputeGameFactoryAddress = (() => {
+  const disputeGameFactoryAddress = await (async () => {
     if (parameters.disputeGameFactoryAddress)
       return parameters.disputeGameFactoryAddress
-    if (chain)
-      return targetChain!.contracts.disputeGameFactory[chain.id].address
-    return Object.values(targetChain!.contracts.disputeGameFactory)[0].address
+    const disputeGameFactory = targetChain?.contracts.disputeGameFactory
+    const address = chain
+      ? disputeGameFactory?.[chain.id]?.address
+      : Object.values(disputeGameFactory ?? {})[0]?.address
+    if (address) return address
+    // The target chain has no factory for this L1, so read it from the portal.
+    return readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'disputeGameFactory',
+    })
   })()
 
   const [gameCount, gameType] = await Promise.all([

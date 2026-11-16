@@ -74,3 +74,21 @@ test('args: address', async () => {
   expect(game).toHaveProperty('extraData')
   expect(game).toHaveProperty('usesSuperRoots', false)
 })
+
+test('behavior: target chain without disputeGameFactory', async () => {
+  await reset(client, {
+    blockNumber: 26430000n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
+  const targetChain = {
+    ...optimism,
+    contracts: { portal: optimism.contracts.portal },
+  } as unknown as typeof optimism
+
+  const games = await getGames(client, { targetChain, limit: 10 })
+  expect(games.length > 0).toBeTruthy()
+  expect(games).toEqual(
+    await getGames(client, { targetChain: optimism, limit: 10 }),
+  )
+})
