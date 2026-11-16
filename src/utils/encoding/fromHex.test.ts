@@ -235,6 +235,11 @@ describe('converts hex to string', () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('behavior: an incomplete sequence does not affect the next call', () => {
+    expect(hexToString('0xe282')).toBe('\ufffd')
+    expect(hexToString('0xac41')).toBe('\ufffdA')
+  })
 })
 
 describe('converts hex to bytes', () => {

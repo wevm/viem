@@ -221,6 +221,11 @@ describe('converts bytes to string', () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('behavior: an incomplete sequence does not affect the next call', () => {
+    expect(bytesToString(new Uint8Array([0xe2, 0x82]))).toBe('\ufffd')
+    expect(bytesToString(new Uint8Array([0xac, 0x41]))).toBe('\ufffdA')
+  })
 })
 
 describe('converts bytes to hex', () => {
