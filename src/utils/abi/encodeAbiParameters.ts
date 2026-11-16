@@ -2,7 +2,6 @@ import type {
   AbiParameter,
   AbiParameterKind,
   AbiParametersToPrimitiveTypes,
-  AbiParameterToPrimitiveType,
 } from 'abitype'
 
 import {
@@ -22,17 +21,17 @@ import {
   type InvalidAddressErrorType,
 } from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
-import { IntegerOutOfRangeError } from '../../errors/encoding.js'
+import {
+  IntegerOutOfRangeError,
+  type IntegerOutOfRangeErrorType,
+} from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { type PadHexErrorType, padHex } from '../data/pad.js'
 import { type SizeErrorType, size } from '../data/size.js'
-import { type SliceErrorType, slice } from '../data/slice.js'
 import {
-  type BoolToHexErrorType,
-  boolToHex,
   type NumberToHexErrorType,
   numberToHex,
   type StringToHexErrorType,
@@ -43,9 +42,16 @@ import { bytesRegex, integerRegex } from '../regex.js'
 export type EncodeAbiParametersReturnType = Hex
 
 export type EncodeAbiParametersErrorType =
+  | AbiEncodingArrayLengthMismatchErrorType
   | AbiEncodingLengthMismatchErrorType
-  | PrepareParamsErrorType
-  | EncodeParamsErrorType
+  | EncodeBytesErrorType
+  | IntegerOutOfRangeErrorType
+  | InvalidAbiEncodingTypeErrorType
+  | InvalidAddressErrorType
+  | InvalidArrayErrorType
+  | IsAddressErrorType
+  | NumberToHexErrorType
+  | StringToHexErrorType
   | ErrorType
 
 /**
@@ -110,8 +116,9 @@ export function encodeAbiParameters<
 /////////////////////////////////////////////////////////////////
 
 /**
- * A parameter parsed once per call. Values the fast path does not handle are
- * delegated to {@link prepareParam} so output and errors stay the same.
+ * A parameter parsed once per call. Values the fast path does not handle go
+ * through the same checks and encoders as before, so output and errors stay
+ * the same.
  */
 type CompiledParam = {
   /** Element type of an array. */
@@ -156,8 +163,7 @@ function compile(param: AbiParameter): CompiledParam {
     signed: false,
     size: 0,
   }
-  // Malformed parameters are left to `prepareParam`, which throws when it
-  // reaches them.
+  // Malformed parameters throw once they are encoded.
   if (typeof param !== 'object' || param === null) return compiled
   const { type } = param
   if (typeof type !== 'string') return compiled
@@ -174,11 +180,11 @@ function compile(param: AbiParameter): CompiledParam {
   }
   if (type === 'tuple') {
     const { components } = param as Partial<TupleAbiParameter>
-    if (!Array.isArray(components)) return compiled
+    if (components === undefined || components === null) return compiled
     compiled.kind = 'tuple'
-    // `Array.from` visits holes, which `prepareParam` rejects.
-    compiled.components = Array.from(components, (component) =>
-      compile(component),
+    // Indexed like an array, so holes and array-likes reach `compile`.
+    compiled.components = Array.from({ length: components.length }, (_, i) =>
+      compile(components[i]!),
     )
     compiled.dynamic = compiled.components.some(({ dynamic }) => dynamic)
     return compiled
@@ -200,15 +206,12 @@ function compile(param: AbiParameter): CompiledParam {
     compiled.size = Number(size)
     compiled.min = bounds[0]
     compiled.max = bounds[1]
-  } else if (type === 'bytes') {
+  } else if (type.startsWith('bytes')) {
     compiled.kind = 'bytes'
-    compiled.dynamic = true
-  } else if (bytesRegex.test(type)) {
-    compiled.kind = 'bytes'
-    compiled.size = Number(type.slice(5))
-  } else if (type.startsWith('bytes'))
+    // Malformed sizes (e.g. `bytes33`) skip the fast path.
+    compiled.size = bytesRegex.test(type) ? Number(type.slice(5)) : -1
     compiled.dynamic = !type.split('bytes')[1]
-  else if (type === 'string') {
+  } else if (type === 'string') {
     compiled.kind = 'string'
     compiled.dynamic = true
   }
@@ -217,69 +220,72 @@ function compile(param: AbiParameter): CompiledParam {
 
 /** Encodes a value as un-prefixed hex. */
 function encode(compiled: CompiledParam, value: unknown): string {
-  switch (compiled.kind) {
-    case 'address':
-      if (typeof value === 'string' && isAddress(value))
-        return `000000000000000000000000${value.slice(2).toLowerCase()}`
-      break
-    case 'array':
-      return encodeArrayValue(compiled, value)
-    case 'bool':
-      if (typeof value === 'boolean')
-        return value ? `${zeros.slice(1)}1` : zeros
-      break
-    case 'bytes':
-      if (
-        typeof value === 'string' &&
-        value.length % 2 === 0 &&
-        value.startsWith('0x') &&
-        value.indexOf('0x', 2) === -1
-      ) {
-        const data = value.slice(2)
-        const size = data.length / 2
-        if (compiled.size === 0)
-          return word(size) + data.padEnd(Math.ceil(size / 32) * 64, '0')
-        if (size === compiled.size) return data.padEnd(64, '0')
-      }
-      break
-    case 'number':
-      if (
-        typeof value === 'bigint' ||
-        (typeof value === 'number' && Number.isSafeInteger(value))
-      ) {
-        const { max, min, signed, size } = compiled
-        if (value > max || value < min)
-          throw new IntegerOutOfRangeError({
-            max: max.toString(),
-            min: min.toString(),
-            signed,
-            size: size / 8,
-            value: value.toString(),
-          })
-        const hex = (value < 0 ? (1n << 256n) + BigInt(value) : value).toString(
-          16,
-        )
-        return zeros.slice(hex.length) + hex
-      }
-      break
-    case 'string':
-      if (typeof value === 'string') {
-        const data = stringToHex(value).slice(2)
-        const remainder = data.length % 64
-        return (
-          word(data.length / 2) +
-          data +
-          (remainder ? zeros.slice(remainder) : '')
-        )
-      }
-      break
-    case 'tuple':
-      return encodeTupleValue(compiled, value)
+  const { kind, param } = compiled
+  if (kind === 'array') return encodeArrayValue(compiled, value)
+  if (kind === 'tuple') return encodeTupleValue(compiled, value)
+  if (kind === 'address') {
+    if (!isAddress(value as Hex))
+      throw new InvalidAddressError({ address: value as Hex })
+    return `000000000000000000000000${(value as Hex).toLowerCase().slice(2)}`
   }
-  return prepareParam({
-    param: compiled.param,
-    value: value as never,
-  }).encoded.slice(2)
+  if (kind === 'bool') {
+    if (typeof value !== 'boolean')
+      throw new BaseError(
+        `Invalid boolean value: "${value}" (type: ${typeof value}). Expected: \`true\` or \`false\`.`,
+      )
+    return value ? `${zeros.slice(1)}1` : zeros
+  }
+  if (kind === 'bytes') {
+    const { size } = compiled
+    if (
+      typeof value === 'string' &&
+      value.length % 2 === 0 &&
+      value.startsWith('0x') &&
+      value.indexOf('0x', 2) === -1
+    ) {
+      const data = value.slice(2)
+      const length = data.length / 2
+      if (size === 0)
+        return word(length) + data.padEnd(Math.ceil(length / 32) * 64, '0')
+      if (length === size) return data.padEnd(64, '0')
+    }
+    // Odd-length, malformed or mis-sized values.
+    return encodeBytes(value as Hex, { param }).encoded.slice(2)
+  }
+  if (kind === 'number') {
+    const { max, min, signed, size } = compiled
+    if ((value as bigint) > max || (value as bigint) < min)
+      throw new IntegerOutOfRangeError({
+        max: max.toString(),
+        min: min.toString(),
+        signed,
+        size: size / 8,
+        value: (value as bigint).toString(),
+      })
+    if (
+      typeof value !== 'bigint' &&
+      !(typeof value === 'number' && Number.isSafeInteger(value))
+    )
+      return numberToHex(value as number, { size: 32, signed }).slice(2)
+    const hex = (value < 0 ? (1n << 256n) + BigInt(value) : value).toString(16)
+    return zeros.slice(hex.length) + hex
+  }
+  if (kind === 'string') {
+    const data = stringToHex(value as string).slice(2)
+    const remainder = data.length % 64
+    return (
+      word(data.length / 2) + data + (remainder ? zeros.slice(remainder) : '')
+    )
+  }
+  // Reading a malformed parameter's `type` or `components` throws a
+  // `TypeError`, as before.
+  const type = param.type
+  getArrayComponents(type)
+  if (type === 'tuple')
+    (param as TupleAbiParameter).components.length satisfies number
+  throw new InvalidAbiEncodingTypeError(type, {
+    docsPath: '/docs/contract/encodeAbiParameters',
+  })
 }
 
 function encodeArrayValue(compiled: CompiledParam, value: unknown): string {
@@ -363,165 +369,6 @@ function word(value: number): string {
 type PreparedParam = { dynamic: boolean; encoded: Hex }
 
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
-type Tuple = AbiParameterToPrimitiveType<TupleAbiParameter>
-
-type PrepareParamsErrorType = PrepareParamErrorType | ErrorType
-
-type PrepareParamErrorType =
-  | EncodeAddressErrorType
-  | EncodeArrayErrorType
-  | EncodeBytesErrorType
-  | EncodeBoolErrorType
-  | EncodeNumberErrorType
-  | EncodeStringErrorType
-  | EncodeTupleErrorType
-  | GetArrayComponentsErrorType
-  | InvalidAbiEncodingTypeErrorType
-  | ErrorType
-
-function prepareParam<const param extends AbiParameter>({
-  param,
-  value,
-}: {
-  param: param
-  value: AbiParameterToPrimitiveType<param>
-}): PreparedParam {
-  const arrayComponents = getArrayComponents(param.type)
-  if (arrayComponents) {
-    const [length, type] = arrayComponents
-    return encodeArray(value, { length, param: { ...param, type } })
-  }
-  if (param.type === 'tuple') {
-    return encodeTuple(value as unknown as Tuple, {
-      param: param as TupleAbiParameter,
-    })
-  }
-  if (param.type === 'address') {
-    return encodeAddress(value as unknown as Hex)
-  }
-  if (param.type === 'bool') {
-    return encodeBool(value as unknown as boolean)
-  }
-  if (param.type.startsWith('uint') || param.type.startsWith('int')) {
-    const signed = param.type.startsWith('int')
-    const [, , size = '256'] = integerRegex.exec(param.type) ?? []
-    return encodeNumber(value as unknown as number, {
-      signed,
-      size: Number(size),
-    })
-  }
-  if (param.type.startsWith('bytes')) {
-    return encodeBytes(value as unknown as Hex, { param })
-  }
-  if (param.type === 'string') {
-    return encodeString(value as unknown as string)
-  }
-  throw new InvalidAbiEncodingTypeError(param.type, {
-    docsPath: '/docs/contract/encodeAbiParameters',
-  })
-}
-
-/////////////////////////////////////////////////////////////////
-
-type EncodeParamsErrorType = NumberToHexErrorType | SizeErrorType | ErrorType
-
-function encodeParams(preparedParams: PreparedParam[]): Hex {
-  // 1. Compute the size of the static part of the parameters.
-  let staticSize = 0
-  for (let i = 0; i < preparedParams.length; i++) {
-    const { dynamic, encoded } = preparedParams[i]
-    if (dynamic) staticSize += 32
-    else staticSize += size(encoded)
-  }
-
-  // 2. Split the parameters into static and dynamic parts.
-  const staticParams: Hex[] = []
-  const dynamicParams: Hex[] = []
-  let dynamicSize = 0
-  for (let i = 0; i < preparedParams.length; i++) {
-    const { dynamic, encoded } = preparedParams[i]
-    if (dynamic) {
-      staticParams.push(numberToHex(staticSize + dynamicSize, { size: 32 }))
-      dynamicParams.push(encoded)
-      dynamicSize += size(encoded)
-    } else {
-      staticParams.push(encoded)
-    }
-  }
-
-  // 3. Concatenate static and dynamic parts.
-  // `concatHex` returns `'0x'` for empty input (zero-width parameters).
-  return concatHex([...staticParams, ...dynamicParams])
-}
-
-/////////////////////////////////////////////////////////////////
-
-type EncodeAddressErrorType =
-  | InvalidAddressErrorType
-  | IsAddressErrorType
-  | ErrorType
-
-function encodeAddress(value: Hex): PreparedParam {
-  if (!isAddress(value)) throw new InvalidAddressError({ address: value })
-  return { dynamic: false, encoded: padHex(value.toLowerCase() as Hex) }
-}
-
-type EncodeArrayErrorType =
-  | AbiEncodingArrayLengthMismatchErrorType
-  | ConcatHexErrorType
-  | EncodeParamsErrorType
-  | InvalidArrayErrorType
-  | NumberToHexErrorType
-  // TODO: Add back once circular type reference is resolved
-  // | PrepareParamErrorType
-  | ErrorType
-
-function encodeArray<const param extends AbiParameter>(
-  value: AbiParameterToPrimitiveType<param>,
-  {
-    length,
-    param,
-  }: {
-    length: number | null
-    param: param
-  },
-): PreparedParam {
-  const dynamic = length === null
-
-  if (!Array.isArray(value)) throw new InvalidArrayError(value)
-  if (!dynamic && value.length !== length)
-    throw new AbiEncodingArrayLengthMismatchError({
-      expectedLength: length!,
-      givenLength: value.length,
-      type: `${param.type}[${length}]`,
-    })
-
-  // Zero-length fixed arrays of dynamic types (e.g. `string[0]`) are dynamic
-  // per the ABI spec, even though they have no elements to inspect.
-  let dynamicChild = value.length === 0 && isDynamicType(param)
-  const preparedParams: PreparedParam[] = []
-  for (let i = 0; i < value.length; i++) {
-    const preparedParam = prepareParam({ param, value: value[i] })
-    if (preparedParam.dynamic) dynamicChild = true
-    preparedParams.push(preparedParam)
-  }
-
-  if (dynamic || dynamicChild) {
-    const data = encodeParams(preparedParams)
-    if (dynamic) {
-      const length = numberToHex(preparedParams.length, { size: 32 })
-      return {
-        dynamic: true,
-        encoded: concatHex([length, data]),
-      }
-    }
-    if (dynamicChild) return { dynamic: true, encoded: data }
-  }
-  return {
-    dynamic: false,
-    encoded: concatHex(preparedParams.map(({ encoded }) => encoded)),
-  }
-}
 
 type EncodeBytesErrorType =
   | AbiEncodingBytesSizeMismatchErrorType
@@ -563,107 +410,6 @@ function encodeBytes<const param extends AbiParameter>(
     })
   return { dynamic: false, encoded: padHex(hex, { dir: 'right' }) }
 }
-
-type EncodeBoolErrorType = PadHexErrorType | BoolToHexErrorType | ErrorType
-
-function encodeBool(value: boolean): PreparedParam {
-  if (typeof value !== 'boolean')
-    throw new BaseError(
-      `Invalid boolean value: "${value}" (type: ${typeof value}). Expected: \`true\` or \`false\`.`,
-    )
-  return { dynamic: false, encoded: padHex(boolToHex(value)) }
-}
-
-type EncodeNumberErrorType = NumberToHexErrorType | ErrorType
-
-function encodeNumber(
-  value: number,
-  { signed, size = 256 }: { signed: boolean; size?: number | undefined },
-): PreparedParam {
-  if (typeof size === 'number') {
-    const max = 2n ** (BigInt(size) - (signed ? 1n : 0n)) - 1n
-    const min = signed ? -max - 1n : 0n
-    if (value > max || value < min)
-      throw new IntegerOutOfRangeError({
-        max: max.toString(),
-        min: min.toString(),
-        signed,
-        size: size / 8,
-        value: value.toString(),
-      })
-  }
-  return {
-    dynamic: false,
-    encoded: numberToHex(value, {
-      size: 32,
-      signed,
-    }),
-  }
-}
-
-type EncodeStringErrorType =
-  | ConcatHexErrorType
-  | NumberToHexErrorType
-  | PadHexErrorType
-  | SizeErrorType
-  | SliceErrorType
-  | StringToHexErrorType
-  | ErrorType
-
-function encodeString(value: string): PreparedParam {
-  const hexValue = stringToHex(value)
-  const partsLength = Math.ceil(size(hexValue) / 32)
-  const parts: Hex[] = []
-  for (let i = 0; i < partsLength; i++) {
-    parts.push(
-      padHex(slice(hexValue, i * 32, (i + 1) * 32), {
-        dir: 'right',
-      }),
-    )
-  }
-  return {
-    dynamic: true,
-    encoded: concatHex([
-      padHex(numberToHex(size(hexValue), { size: 32 })),
-      ...parts,
-    ]),
-  }
-}
-
-type EncodeTupleErrorType =
-  | ConcatHexErrorType
-  | EncodeParamsErrorType
-  // TODO: Add back once circular type reference is resolved
-  // | PrepareParamErrorType
-  | ErrorType
-
-function encodeTuple<
-  const param extends AbiParameter & { components: readonly AbiParameter[] },
->(
-  value: AbiParameterToPrimitiveType<param>,
-  { param }: { param: param },
-): PreparedParam {
-  let dynamic = false
-  const preparedParams: PreparedParam[] = []
-  for (let i = 0; i < param.components.length; i++) {
-    const param_ = param.components[i]
-    const index = Array.isArray(value) ? i : param_.name
-    const preparedParam = prepareParam({
-      param: param_,
-      value: (value as any)[index!] as readonly unknown[],
-    })
-    preparedParams.push(preparedParam)
-    if (preparedParam.dynamic) dynamic = true
-  }
-  return {
-    dynamic,
-    encoded: dynamic
-      ? encodeParams(preparedParams)
-      : concatHex(preparedParams.map(({ encoded }) => encoded)),
-  }
-}
-
-type GetArrayComponentsErrorType = ErrorType
 
 export function getArrayComponents(
   type: string,

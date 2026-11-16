@@ -2069,10 +2069,10 @@ describe('values outside the fast path', () => {
       { type: 'uint256' },
     ] as const
 
-    const encoded = encodeAbiParameters(params, [420, -1, 2 ** 53 + 2])
+    const encoded = encodeAbiParameters(params, [420, -1, 2 ** 53 + 2] as never)
 
     expect(encoded).toBe(
-      encodeAbiParameters(params, [420n, -1n, 2n ** 53n + 2n]),
+      encodeAbiParameters(params, [420n, -1n, 2n ** 53n + 2n] as never),
     )
     expect(encoded).toMatchInlineSnapshot(
       `"0x00000000000000000000000000000000000000000000000000000000000001a4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000020000000000002"`,
