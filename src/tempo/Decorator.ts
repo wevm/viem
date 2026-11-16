@@ -963,6 +963,33 @@ type DecoratorBase<
       parameters: channelActions.closeSync.Parameters<chain, account>,
     ) => Promise<channelActions.closeSync.ReturnValue>
     /**
+     * Gets the salt to open a TIP-20 channel reserve channel with for a voucher
+     * signer: its nonzero configuration commitment (TIP-1166), else a random
+     * 32-byte salt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const salt = await client.channel.getOpenSalt({
+     *   signer: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The signer's nonzero configuration commitment, else a random 32-byte salt.
+     */
+    getOpenSalt: (
+      parameters: channelActions.getOpenSalt.Parameters,
+    ) => Promise<channelActions.getOpenSalt.ReturnValue>
+    /**
      * Gets TIP-20 channel reserve state for a channel ID or channel.
      *
      * @example
@@ -6289,6 +6316,7 @@ export function decorator() {
       channel: bindActions(client, channelActions, [
         'close',
         'closeSync',
+        'getOpenSalt',
         'getStates',
         'open',
         'openSync',

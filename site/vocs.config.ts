@@ -2784,6 +2784,10 @@ export default defineConfig({
                   link: '/tempo/actions/channel.close',
                 },
                 {
+                  text: 'getOpenSalt',
+                  link: '/tempo/actions/channel.getOpenSalt',
+                },
+                {
                   text: 'getStates',
                   link: '/tempo/actions/channel.getStates',
                 },
