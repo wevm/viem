@@ -206,14 +206,11 @@ export async function multicall<
         chunkedCalls[currentChunk] = []
       }
 
-      chunkedCalls[currentChunk] = [
-        ...chunkedCalls[currentChunk],
-        {
-          allowFailure: true,
-          callData,
-          target: address,
-        },
-      ]
+      chunkedCalls[currentChunk].push({
+        allowFailure: true,
+        callData,
+        target: address,
+      })
     } catch (err) {
       const error = getContractError(err as BaseError, {
         abi,
@@ -224,14 +221,11 @@ export async function multicall<
         sender: account,
       })
       if (!allowFailure) throw error
-      chunkedCalls[currentChunk] = [
-        ...chunkedCalls[currentChunk],
-        {
-          allowFailure: true,
-          callData: '0x' as Hex,
-          target: address,
-        },
-      ]
+      chunkedCalls[currentChunk].push({
+        allowFailure: true,
+        callData: '0x' as Hex,
+        target: address,
+      })
     }
   }
 
