@@ -8,7 +8,7 @@ import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
-import { extractMessages } from '../../utils/rpc/ipc.js'
+import { createMessageExtractor } from '../../utils/rpc/ipc.js'
 import { wait } from '../../utils/wait.js'
 
 import { createClient } from '../createClient.js'
@@ -184,23 +184,34 @@ test('behavior: requests and subscriptions share one socket', async () => {
   const path = join(directory, 'rpc.ipc')
   let connections = 0
   const server = createServer((socket) => {
-    connections++
-    socket.on('data', (data) => {
-      const [messages] = extractMessages(data)
-      for (const message of messages) {
+    // Each connection answers with its own number, so a response shows which
+    // connection served it.
+    const result = `0x${(++connections).toString(16)}`
+    socket.on(
+      'data',
+      createMessageExtractor((message) => {
         const { id } = JSON.parse(message.toString())
-        socket.write(JSON.stringify({ id, jsonrpc: '2.0', result: '0x1' }))
-      }
-    })
+        socket.write(JSON.stringify({ id, jsonrpc: '2.0', result }))
+      }),
+    )
   })
   await new Promise<void>((resolve) => server.listen(path, resolve))
 
   const transport = ipc(path, { reconnect: { attempts: 1 } })({})
   if (!transport.value) return
-  await transport.request({ method: 'eth_blockNumber' })
-  await transport.value.subscribe({ params: ['newHeads'], onData() {} })
+  const blockNumber = await transport.request({ method: 'eth_blockNumber' })
+  const { subscriptionId } = await transport.value.subscribe({
+    params: ['newHeads'],
+    onData() {},
+  })
 
-  expect(connections).toMatchInlineSnapshot('1')
+  // Both were served by the first connection.
+  expect({ blockNumber, subscriptionId }).toMatchInlineSnapshot(`
+    {
+      "blockNumber": "0x1",
+      "subscriptionId": "0x1",
+    }
+  `)
 
   const rpcClient = await transport.value.getRpcClient()
   rpcClient.close()
