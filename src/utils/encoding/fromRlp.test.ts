@@ -1,12 +1,90 @@
 import { describe, expect, test } from 'vitest'
 
+import type { Hex } from '../../types/misc.js'
 import { fromRlp } from './fromRlp.js'
+import { bytesToHex } from './toHex.js'
+import { toRlp } from './toRlp.js'
 
 test('no bytes', () => {
   // hex -> bytes
   expect(fromRlp('0x', 'bytes')).toStrictEqual(new Uint8Array([]))
   // hex -> hex
   expect(fromRlp('0x')).toEqual('0x')
+})
+
+describe('hex input', () => {
+  test('mixed case and odd length', () => {
+    expect(fromRlp('0xC3820ABC')).toMatchInlineSnapshot(`
+      [
+        "0x0abc",
+      ]
+    `)
+    expect(fromRlp('0x1')).toMatchInlineSnapshot(`"0x01"`)
+  })
+
+  test('short and long inputs decode their leaves', () => {
+    const leaves = (count: number) =>
+      Array.from(
+        { length: count },
+        (_, i) => `0x${i.toString(16).padStart(64, 'a')}` as const,
+      )
+    // Past 4096 hex characters, small leaves are copied instead of sliced.
+    for (const count of [61, 62, 63, 200]) {
+      const list = toRlp(leaves(count))
+      expect(fromRlp(list)).toEqual(leaves(count))
+      expect(fromRlp(list.toUpperCase().replace('0X', '0x') as Hex)).toEqual(
+        leaves(count),
+      )
+    }
+    const blob = `0x${'ab'.repeat(131_072)}` as const
+    expect(fromRlp(toRlp([blob, '0x01', leaves(1)]))).toEqual([
+      blob,
+      '0x01',
+      leaves(1),
+    ])
+  })
+
+  test('errors: truncated long input', () => {
+    const list = toRlp(
+      Array.from({ length: 200 }, () => `0x${'ab'.repeat(32)}` as const),
+    )
+    expect(() =>
+      fromRlp(list.slice(0, -2) as `0x${string}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [PositionOutOfBoundsError: Position \`6602\` is out of bounds (\`0 < position < 6602\`).
+
+      Version: viem@x.y.z]
+    `)
+  })
+})
+
+// `toRlp.test.ts` only runs with `TEST_RLP=true`.
+describe('toRlp hex leaves', () => {
+  test('any case or length', () => {
+    const value = ['0xABC', '0x0aBc', '0x8', '0x', '0x0180'] as const
+
+    const encoded = toRlp(value)
+
+    expect(encoded).toMatchInlineSnapshot(`"0xcb820abc820abc0880820180"`)
+    expect(encoded).toBe(bytesToHex(toRlp(value, 'bytes')))
+    expect(fromRlp(encoded)).toMatchInlineSnapshot(`
+      [
+        "0x0abc",
+        "0x0abc",
+        "0x08",
+        "0x",
+        "0x0180",
+      ]
+    `)
+  })
+
+  test('errors: invalid hex leaf', () => {
+    expect(() => toRlp(['0x12', ['0xzz']])).toThrowErrorMatchingInlineSnapshot(`
+      [BaseError: Invalid byte sequence ("zz" in "zz").
+
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 describe('list', () => {
