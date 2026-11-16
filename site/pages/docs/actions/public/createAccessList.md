@@ -14,6 +14,15 @@ const result = await publicClient.createAccessList({ // [!code focus:7]
   data: '0xdeadbeef',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
 })
+// @log: {
+// @log:   accessList: [
+// @log:     {
+// @log:       address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+// @log:       storageKeys: ['0x...', '0x...'],
+// @log:     },
+// @log:   ],
+// @log:   gasUsed: 21000n,
+// @log: }
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"

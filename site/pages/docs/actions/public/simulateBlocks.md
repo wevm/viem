@@ -38,6 +38,16 @@ const result = await client.simulateBlocks({
     }],
   }]
 })
+// @log: [
+// @log:   {
+// @log:     calls: [
+// @log:       { data: '0x', gasUsed: 21000n, logs: [], status: 'success', ... },
+// @log:       { data: '0x', gasUsed: 21000n, logs: [], status: 'success', ... },
+// @log:     ],
+// @log:     number: 69420n,
+// @log:     ...
+// @log:   },
+// @log: ]
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
