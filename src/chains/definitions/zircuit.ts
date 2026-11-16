@@ -25,6 +25,11 @@ export const zircuit = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x6b9e81504e961a9CDf81A06e916720fb4c273e90',
+      },
+    },
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },

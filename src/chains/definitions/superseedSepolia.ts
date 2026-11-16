@@ -26,6 +26,11 @@ export const superseedSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x47Ed8c5764De0C8ceeADA2c979F41F7d215b1777',
+      },
+    },
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },
