@@ -1,12 +1,12 @@
+import { type Chain, defineChain } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { createRpcProxy } from '~test/utils.js'
 import { hyperEvm, hyperliquidEvmTestnet, mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import { createTestClient, defineChain } from '../../index.js'
+import { createTestClient } from '../../index.js'
 import type { Block } from '../../types/block.js'
-import type { Chain } from '../../types/chain.js'
 import { wait } from '../../utils/wait.js'
 import {
   estimateFeesPerGas,
