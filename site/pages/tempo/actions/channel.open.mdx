@@ -53,7 +53,9 @@ const { channelId } = await client.channel.openSync({
 
 ### Configurable Account Signers
 
-From T15 ([TIP-1166](https://github.com/tempoxyz/tempo/pull/9133)), a channel whose voucher signer (`authorizedSigner`, else the payer) is a configurable account with a nonzero configuration commitment must use that commitment as its `salt`. When `salt` is omitted and the signer is a configurable account object, `channel.open` reads its commitment and uses it as the salt. An unregistered configurable account that sends the open as its own signer registers in the same transaction, before the channel opens, so its salt defaults to the commitment of its local config. Accounts that are not configurable keep a random salt, with no extra RPC request.
+From T15 ([TIP-1166](https://github.com/tempoxyz/tempo/pull/9133)), a channel whose voucher signer (`authorizedSigner`, else the payer) has a nonzero configuration commitment must use that commitment as its `salt`. When `salt` is omitted, `channel.open` reads the commitment of a configurable account, or of an access key's parent account, and uses it.
+
+An unregistered configurable account that opens the channel as its own signer registers in the same transaction, so its salt defaults to the commitment of its local config. Other accounts keep a random salt, with no extra RPC request.
 
 ```ts twoslash
 import { parseUnits } from 'viem'
@@ -155,7 +157,7 @@ Account that receives settled voucher payments.
 ### salt (optional)
 
 - **Type:** `Hex`
-- **Default:** The voucher signer's configuration commitment when the signer is a configurable account with a nonzero commitment (or, for an unregistered configurable account that sends the open as its own signer, the commitment of its local config), else `Hex.random(32)`
+- **Default:** The voucher signer's configuration commitment when the signer is a configurable account, or an access key of one, with a nonzero commitment (or, for an unregistered configurable account that sends the open as its own signer, the commitment of its local config), else `Hex.random(32)`
 
 User-supplied salt to distinguish otherwise identical channels.
 

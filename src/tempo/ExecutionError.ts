@@ -289,7 +289,7 @@ export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
       'Check the channel details, or open the channel first.',
     ],
     'SaltNotSignerCommitment(address,bytes32)': [
-      "Open the channel with the signer's configuration commitment as its salt, or omit the salt to default to it.",
+      "Open the channel with the signer's configuration commitment as its salt, from `channel.getOpenSalt`.",
     ],
     'SignerConfigChanged(address)': [
       "The signer's owners changed after the channel opened. Close the channel and open a new one to add funds.",

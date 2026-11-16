@@ -1,5 +1,6 @@
 import { AccountConfig } from 'ox/tempo'
 import { parseEventLogs, parseUnits, toHex, zeroHash } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
 import { Abis, Channel } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
@@ -121,6 +122,38 @@ describe('open', () => {
 
       const { receipt, ...opened } = await actions.channel.openSync(
         getClient({ account: signer, chain: chain.extend({ feeToken }) }),
+        {
+          deposit: parseUnits('1', 6),
+          payee: payee.address,
+          token,
+        },
+      )
+
+      expect(receipt.status).toBe('success')
+      expect(opened.payer).toBe(signer.address)
+      expect(opened.salt).toBe(AccountConfig.getCommitment(signer.config))
+    },
+  )
+
+  test.runIf(signerSnapshots)(
+    "behavior: access key defaults salt to its parent's commitment",
+    async () => {
+      const signer = await setupSigner()
+      const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+        access: signer,
+      })
+      await actions.accessKey.authorizeSync(getClient(), {
+        account: signer,
+        accessKey,
+      })
+      await actions.token.transferSync(payerClient, {
+        amount: parseUnits('10', 6),
+        to: signer.address,
+        token,
+      })
+
+      const { receipt, ...opened } = await actions.channel.openSync(
+        getClient({ account: accessKey, chain: chain.extend({ feeToken }) }),
         {
           deposit: parseUnits('1', 6),
           payee: payee.address,

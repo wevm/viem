@@ -6,7 +6,7 @@ Gets the salt to open a TIP-20 channel reserve channel with for a voucher signer
 
 From T15 ([TIP-1166](https://github.com/tempoxyz/tempo/pull/9133)), a channel whose voucher signer is a [configurable account](/tempo/accounts/account.fromConfig) with a nonzero configuration commitment must use that commitment as its salt. This action returns the signer's commitment when it is nonzero, else a random 32-byte salt.
 
-[`channel.open`](/tempo/actions/channel.open) does this for you when the voucher signer is a configurable account object. Use `channel.getOpenSalt` when you know the signer only by address, or when you build the call with `Actions.channel.open.call`, which makes no RPC request.
+[`channel.open`](/tempo/actions/channel.open) does this for you when the voucher signer is a configurable account object or an access key. Use `channel.getOpenSalt` when you know the signer only by address, or when you build the call with `Actions.channel.open.call`, which makes no RPC request.
 
 ## Usage
 
@@ -21,6 +21,7 @@ const authorizedSigner = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 const salt = await client.channel.getOpenSalt({
   signer: authorizedSigner,
 })
+// @log: '0x...'
 
 const { channelId } = await client.channel.openSync({
   authorizedSigner,
@@ -37,11 +38,20 @@ const { channelId } = await client.channel.openSync({
 
 :::
 
-## Return Type
+### Standalone Action
 
-```ts
-type ReturnType = Hex
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const salt = await Actions.channel.getOpenSalt(client, {
+  signer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
 ```
+
+## Return Value
+
+`Hex`
 
 The signer's configuration commitment when it is nonzero, else a random 32-byte salt.
 

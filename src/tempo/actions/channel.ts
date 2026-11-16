@@ -218,9 +218,11 @@ export namespace closeSync {
  * Resolves the default salt for {@link open}.
  *
  * A configurable voucher signer with a nonzero commitment needs that commitment.
- * An unregistered configurable account (zero commitment) that is also the sender
- * registers its local config in the same transaction (TIP-1107), before the
- * channel reserve runs, so the reserve then sees that config's commitment.
+ * An access key signs as its parent account, which can be configurable, so its
+ * parent's commitment is read too. An unregistered configurable account (zero
+ * commitment) that is also the sender registers its local config in the same
+ * transaction (TIP-1107), before the channel reserve runs, so the reserve then
+ * sees that config's commitment.
  */
 async function getDefaultSalt(
   client: Client<Transport, Chain | undefined, Account | undefined>,
@@ -230,11 +232,13 @@ async function getDefaultSalt(
   },
 ): Promise<Hex.Hex> {
   const { sender, signer } = parameters
-  if (signer?.source !== 'configurable') return Hex.random(32)
+  if (signer?.source !== 'configurable' && signer?.source !== 'accessKey')
+    return Hex.random(32)
   const commitment = await getConfigCommitment(client, {
     account: signer.address,
   })
   if (commitment !== zeroHash) return commitment
+  if (signer.source !== 'configurable') return Hex.random(32)
   const { config } = signer as ConfigurableAccount
   if (config && sender && isAddressEqual(sender.address, signer.address))
     return AccountConfig.getCommitment(config)
@@ -441,11 +445,11 @@ export namespace getStates {
  * Opens and funds a TIP-20 channel reserve channel.
  *
  * When `salt` is omitted and the voucher signer (`authorizedSigner`, else the
- * account) is a configurable account (TIP-1107) with a nonzero configuration
- * commitment, the salt defaults to that commitment, as the channel reserve
- * requires from T15 (TIP-1166). Otherwise it defaults to a random salt. Pass
- * `salt` from {@link getOpenSalt} when the signer is a configurable account
- * known only by address.
+ * account) is a configurable account (TIP-1107), or an access key of one, with
+ * a nonzero configuration commitment, the salt defaults to that commitment, as
+ * the channel reserve requires from T15 (TIP-1166). Otherwise it defaults to a
+ * random salt. Pass `salt` from {@link getOpenSalt} when the signer is a
+ * configurable account known only by address.
  *
  * An unregistered configurable account that sends the open and signs its own
  * vouchers registers (TIP-1107) in the same transaction, before the channel
@@ -500,7 +504,7 @@ export namespace open {
       authorizedSigner?: Account | Address.Address | undefined
       /**
        * User-supplied salt to distinguish otherwise identical channels.
-       * @default The voucher signer's nonzero configuration commitment when the signer is a configurable account (or, for an unregistered configurable account that sends the open as its own signer, the commitment of its local config, registered in the same transaction), else `Hex.random(32)`.
+       * @default The voucher signer's nonzero configuration commitment when the signer is a configurable account or an access key of one (or, for an unregistered configurable account that sends the open as its own signer, the commitment of its local config, registered in the same transaction), else `Hex.random(32)`.
        */
       salt?: Hex.Hex | undefined
     }
@@ -623,6 +627,10 @@ export namespace open {
 /**
  * Opens and funds a TIP-20 channel reserve channel and waits for the
  * transaction receipt.
+ *
+ * `salt` defaults as in {@link open}: to the voucher signer's nonzero
+ * configuration commitment (TIP-1166) when the signer is a configurable
+ * account or an access key of one, else to a random salt.
  *
  * @example
  * ```ts
