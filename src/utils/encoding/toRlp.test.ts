@@ -413,7 +413,9 @@ describe('behavior: leaf from another realm', () => {
 
     const encoded = toRlp(['0x0102', foreign])
 
-    expect(encoded).toBe(toRlp(['0x0102', new Uint8Array([1, 2, 3])]))
+    expect(encoded).toBe(
+      toRlp([hexToBytes('0x0102'), new Uint8Array([1, 2, 3])]),
+    )
     expect(encoded).toMatchInlineSnapshot(`"0xc782010283010203"`)
   })
 

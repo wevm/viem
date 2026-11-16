@@ -52,6 +52,13 @@ import {
   watchBlockNumber,
 } from './watchBlockNumber.js'
 
+/**
+ * Stops the block polling of each shared observer. Only the caller that
+ * started the polling holds its `unwatch`, so the last caller to leave reads
+ * it from here.
+ */
+const unwatchers = /*#__PURE__*/ new Map<string, () => void>()
+
 export type ReplacementReason = 'cancelled' | 'replaced' | 'repriced'
 export type ReplacementReturnType<
   chain extends Chain | undefined = Chain | undefined,
@@ -627,6 +634,7 @@ export async function waitForTransactionReceipt<
           }
         },
       })
+      unwatchers.set(observerId, _unwatch)
     },
   )
 
@@ -636,10 +644,15 @@ export async function waitForTransactionReceipt<
   // later wait for the same hash would join it, see an existing observer and
   // never start polling again. The timer is cleared here as well, since a
   // caller that resolves through another caller's poll never reaches `done`.
+  // The last caller to leave stops the shared polling, which may have been
+  // started by another caller and may never see another block.
   return promise.finally(() => {
     signal?.removeEventListener('abort', onAbort)
     clearTimeout(timer)
     _unobserve?.()
+    if (listenersCache.get(observerId)?.length) return
+    unwatchers.get(observerId)?.()
+    unwatchers.delete(observerId)
   })
 }
 

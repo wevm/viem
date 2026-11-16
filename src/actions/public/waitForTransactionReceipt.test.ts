@@ -1642,6 +1642,49 @@ test('args: timeout (polling continues for a caller sharing it)', async () => {
   expect((await second).transactionHash).toBe(hash)
 })
 
+test('args: timeout (polling stops once every sharing caller timed out)', async () => {
+  const hash = await sendTransaction(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  let settled = false
+  const methods: string[] = []
+  const proxyUrl = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ method }) => {
+      if (settled) methods.push(method)
+      return undefined
+    },
+  )
+  const proxyClient = createPublicClient({
+    pollingInterval: 50,
+    transport: http(proxyUrl),
+  })
+
+  // No block is mined, so polling never sees a new block number.
+  const first = waitForTransactionReceipt(proxyClient, { hash, timeout: 1_000 })
+  first.catch(() => {})
+  await wait(500)
+  const second = waitForTransactionReceipt(proxyClient, {
+    hash,
+    timeout: 1_000,
+  })
+  second.catch(() => {})
+  await expect(first).rejects.toThrowError(
+    WaitForTransactionReceiptTimeoutError,
+  )
+  await expect(second).rejects.toThrowError(
+    WaitForTransactionReceiptTimeoutError,
+  )
+  settled = true
+  await wait(300)
+
+  expect(methods).toMatchInlineSnapshot(`[]`)
+
+  await mine(client, { blocks: 1 })
+})
+
 describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()
