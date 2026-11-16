@@ -18,7 +18,12 @@ import {
   TransactionExecutionError,
   toBlobs,
 } from '../../index.js'
-import { defineChain, nonceManager } from '../../utils/index.js'
+import {
+  createNonceManager,
+  defineChain,
+  nonceManager,
+} from '../../utils/index.js'
+import { jsonRpc } from '../../utils/nonceManager.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
@@ -48,6 +53,28 @@ async function setup() {
     baseFeePerGas: parseGwei('10'),
   })
   await mine(client, { blocks: 1 })
+}
+
+// Records, for each request, the requests that were pending when it was sent.
+function createRecordingClient(chain = anvilMainnet.chain) {
+  const pending = new Map<number, string>()
+  const requests: Record<string, string[]> = {}
+  const recordingClient = createClient({
+    chain,
+    transport: http(anvilMainnet.rpcUrl.http, {
+      onFetchRequest(_, init) {
+        const { id, method } = JSON.parse(init.body as string)
+        requests[method] = [...pending.values()].sort()
+        pending.set(id, method)
+      },
+      async onFetchResponse(response) {
+        const { id } = await response.clone().json()
+        pending.delete(id)
+      },
+    }),
+  })
+  supportsFillTransaction.set(recordingClient.uid, false)
+  return { client: recordingClient, requests }
 }
 
 describe('without `eth_fillTransaction`', () => {
@@ -1312,27 +1339,82 @@ describe('without `eth_fillTransaction`', () => {
     expect(request_5.nonce).toBe(957)
   })
 
-  // Records, for each request, the requests that were pending when it was sent.
-  function createRecordingClient(chain = anvilMainnet.chain) {
-    const pending = new Map<number, string>()
-    const requests: Record<string, string[]> = {}
-    const recordingClient = createClient({
-      chain,
-      transport: http(anvilMainnet.rpcUrl.http, {
-        onFetchRequest(_, init) {
-          const { id, method } = JSON.parse(init.body as string)
-          requests[method] = [...pending.values()].sort()
-          pending.set(id, method)
-        },
-        async onFetchResponse(response) {
-          const { id } = await response.clone().json()
-          pending.delete(id)
-        },
+  test('behavior: consumes the nonce manager nonce concurrently with the other parameters', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+    const args = {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      nonceManager: createNonceManager({ source: jsonRpc() }),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    } as const
+
+    const request = await prepareTransactionRequest(recordingClient, args)
+
+    expect(request.nonce).toMatchInlineSnapshot(`953`)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+
+    const nonces = await Promise.all(
+      [0, 1, 2].map(async () => {
+        const { nonce } = await prepareTransactionRequest(recordingClient, args)
+        return nonce
       }),
+    )
+
+    expect(nonces).toMatchInlineSnapshot(`
+      [
+        954,
+        955,
+        956,
+      ]
+    `)
+  })
+
+  test('behavior: nonce manager error takes precedence over concurrent errors', async () => {
+    await setup()
+
+    const url = await createRpcProxy(
+      anvilMainnet.rpcUrl.http,
+      async ({ method }) => {
+        if (method === 'eth_getTransactionCount') {
+          await wait(100)
+          return { error: { code: -32000, message: 'nonce unavailable' } }
+        }
+        if (method === 'eth_getBlockByNumber')
+          return { error: { code: -32000, message: 'block unavailable' } }
+        return undefined
+      },
+    )
+    const proxyClient = createClient({
+      chain: anvilMainnet.chain,
+      transport: http(url, { retryCount: 0 }),
     })
-    supportsFillTransaction.set(recordingClient.uid, false)
-    return { client: recordingClient, requests }
-  }
+    supportsFillTransaction.set(proxyClient.uid, false)
+
+    const error = await prepareTransactionRequest(proxyClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      nonceManager: createNonceManager({ source: jsonRpc() }),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    }).catch((error) => error)
+
+    expect(error.details).toMatchInlineSnapshot(`"nonce unavailable"`)
+  })
 
   test('behavior: fetches nonce, block, and priority fee concurrently', async () => {
     await setup()
@@ -2499,6 +2581,28 @@ describe('with `eth_fillTransaction`', () => {
     expect(request_3.nonce).toBe(960)
     expect(request_4.nonce).toBe(961)
     expect(request_5.nonce).toBe(962)
+  })
+
+  test('behavior: awaits the nonce manager nonce before `eth_fillTransaction`', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+    supportsFillTransaction.delete(recordingClient.uid)
+
+    const { nonce } = await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      nonceManager: createNonceManager({ source: jsonRpc() }),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    expect(nonce).toMatchInlineSnapshot(`953`)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_fillTransaction": [],
+        "eth_getTransactionCount": [],
+      }
+    `)
   })
 })
 

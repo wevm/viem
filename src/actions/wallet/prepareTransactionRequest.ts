@@ -366,6 +366,9 @@ export async function prepareTransactionRequest<
     account = sender ? parseAccount(sender) : undefined
   }
 
+  // The nonce manager hands out nonces in call order, so the nonce is consumed
+  // here, but awaited with the other parameters.
+  let consumedNonce: Promise<number> | undefined
   if (
     parameters.includes('nonce') &&
     typeof nonce === 'undefined' &&
@@ -373,11 +376,13 @@ export async function prepareTransactionRequest<
     nonceManager
   ) {
     const chainId = await getChainId()
-    nonce = await nonceManager.consume({
+    consumedNonce = nonceManager.consume({
       address: account.address,
       chainId,
       client,
     })
+    // A rejection is thrown when the nonce is awaited.
+    consumedNonce.catch(() => {})
   }
 
   const attemptFill = (() => {
@@ -429,7 +434,12 @@ export async function prepareTransactionRequest<
     // Check if `eth_fillTransaction` needs to be called.
     if (parameters.includes('chainId') && typeof request.chainId !== 'number')
       return true
-    if (parameters.includes('nonce') && typeof nonce !== 'number') return true
+    if (
+      parameters.includes('nonce') &&
+      typeof nonce !== 'number' &&
+      !consumedNonce
+    )
+      return true
     if (
       parameters.includes('fees') &&
       typeof request.gasPrice !== 'bigint' &&
@@ -441,6 +451,10 @@ export async function prepareTransactionRequest<
       return true
     return false
   })()
+
+  // `eth_fillTransaction` and chain hooks read the nonce from the request.
+  if (consumedNonce && (attemptFill || prepareTransactionRequest))
+    nonce = await consumedNonce
 
   let filledChainId: number | undefined
   const fill = (request: PrepareTransactionRequestParameters) =>
@@ -626,19 +640,21 @@ export async function prepareTransactionRequest<
   // The nonce does not depend on the type or the fees, so it is fetched
   // concurrently with them.
   const noncePromise =
-    parameters.includes('nonce') &&
-    typeof nonce === 'undefined' &&
-    account &&
-    !nonceManager
-      ? getAction(
-          client,
-          getTransactionCount,
-          'getTransactionCount',
-        )({
-          address: account.address,
-          blockTag: 'pending',
-        })
-      : undefined
+    typeof nonce === 'undefined' && consumedNonce
+      ? consumedNonce
+      : parameters.includes('nonce') &&
+          typeof nonce === 'undefined' &&
+          account &&
+          !nonceManager
+        ? getAction(
+            client,
+            getTransactionCount,
+            'getTransactionCount',
+          )({
+            address: account.address,
+            blockTag: 'pending',
+          })
+        : undefined
   // A rejection is thrown when the nonce is awaited.
   noncePromise?.catch(() => {})
   if (noncePromise && hasFeeHooks) request.nonce = await noncePromise
