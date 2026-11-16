@@ -237,7 +237,21 @@ export function stringToBytes(
   value: string,
   opts: StringToBytesOpts = {},
 ): ByteArray {
-  const bytes = encoder.encode(value)
+  const bytes = (() => {
+    // ASCII char codes are already the UTF-8 bytes, so short ASCII strings
+    // skip `TextEncoder`. Up to 64 bytes, V8 allocates the array on the heap.
+    if (typeof value === 'string' && value.length <= 64) {
+      const bytes = new Uint8Array(value.length)
+      let i = 0
+      for (; i < value.length; i++) {
+        const code = value.charCodeAt(i)
+        if (code > 0x7f) break
+        bytes[i] = code
+      }
+      if (i === value.length) return bytes
+    }
+    return encoder.encode(value)
+  })()
   if (typeof opts.size === 'number') {
     assertSize(bytes, { size: opts.size })
     return pad(bytes, { dir: 'right', size: opts.size })
