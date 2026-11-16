@@ -231,7 +231,8 @@ function decodeParameter(
 
 type Budget = { limit: number; used: number }
 
-const decoder = /*#__PURE__*/ new TextDecoder()
+// Created on first use, so importing this module needs no `TextDecoder`.
+let decoder: TextDecoder | undefined
 
 /**
  * Reads an offset or length word. Words below 2^53 are read directly; others
@@ -510,7 +511,7 @@ function decodeString(cursor: Cursor, budget: Budget, staticPosition: number) {
   budget.used += length
   if (budget.used > budget.limit)
     throw new AbiDecodingSizeLimitExceededError({ limit: budget.limit })
-  const value = decoder.decode(data)
+  const value = (decoder ??= new TextDecoder()).decode(data)
 
   // As we have gone wondering, restore to the original position + next slot.
   cursor.setPosition(staticPosition + 32)

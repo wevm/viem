@@ -13,7 +13,8 @@ import {
 } from './fromHex.js'
 import { type BytesToHexErrorType, bytesToHex } from './toHex.js'
 
-const decoder = /*#__PURE__*/ new TextDecoder()
+// Created on first use, so importing this module needs no `TextDecoder`.
+let decoder: TextDecoder | undefined
 
 export type FromBytesParameters<
   to extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
@@ -247,5 +248,5 @@ export function bytesToString(
     assertSize(bytes, { size: opts.size })
     bytes = trim(bytes, { dir: 'right' })
   }
-  return decoder.decode(bytes)
+  return (decoder ??= new TextDecoder()).decode(bytes)
 }

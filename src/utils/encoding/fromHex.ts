@@ -13,7 +13,8 @@ import { type TrimErrorType, trim } from '../data/trim.js'
 
 import { type HexToBytesErrorType, hexToBytes } from './toBytes.js'
 
-const decoder = /*#__PURE__*/ new TextDecoder()
+// Created on first use, so importing this module needs no `TextDecoder`.
+let decoder: TextDecoder | undefined
 
 export type AssertSizeErrorType =
   | SizeOverflowErrorType
@@ -275,5 +276,5 @@ export function hexToString(hex: Hex, opts: HexToStringOpts = {}): string {
     assertSize(bytes, { size: opts.size })
     bytes = trim(bytes, { dir: 'right' })
   }
-  return decoder.decode(bytes)
+  return (decoder ??= new TextDecoder()).decode(bytes)
 }
