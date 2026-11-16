@@ -181,30 +181,6 @@ test('waiting-to-finalize', async () => {
   expect(status).toBe('waiting-to-finalize')
 })
 
-test('behavior: target chain without disputeGameFactory', async () => {
-  await reset(client, {
-    blockNumber: 26430000n,
-    jsonRpcUrl: anvilMainnet.forkUrl,
-  })
-
-  const status = await getWithdrawalStatus(client, {
-    gameLimit: 10,
-    l2BlockNumber: 1794830000n,
-    l2Timestamp: 1794830000n,
-    targetChain: {
-      ...optimism,
-      contracts: {
-        l2OutputOracle: optimism.contracts.l2OutputOracle,
-        portal: optimism.contracts.portal,
-      },
-    },
-    sender: '0x0000000000000000000000000000000000000001',
-    withdrawalHash:
-      '0x0000000000000000000000000000000000000000000000000000000000000003',
-  })
-  expect(status).toBe('ready-to-prove')
-})
-
 test('ready-to-finalize', async () => {
   await reset(client, {
     blockNumber: 21890438n,
@@ -237,6 +213,30 @@ test('finalized', async () => {
     sender: '0x7F6a4DfFcE8aE3AD8b75a35b6e2FB611b93Ca1DB',
   })
   expect(status).toBe('finalized')
+})
+
+test('behavior: target chain without disputeGameFactory', async () => {
+  await reset(client, {
+    blockNumber: 26430000n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
+  const status = await getWithdrawalStatus(client, {
+    gameLimit: 10,
+    l2BlockNumber: 159615611n,
+    l2Timestamp: 1794830000n,
+    targetChain: {
+      ...optimism,
+      contracts: {
+        l2OutputOracle: optimism.contracts.l2OutputOracle,
+        portal: optimism.contracts.portal,
+      },
+    },
+    sender: '0x0000000000000000000000000000000000000001',
+    withdrawalHash:
+      '0x0000000000000000000000000000000000000000000000000000000000000003',
+  })
+  expect(status).toBe('ready-to-prove')
 })
 
 test('error: non-withdrawal tx', async () => {
