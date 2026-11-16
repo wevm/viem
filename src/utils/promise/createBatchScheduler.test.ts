@@ -123,7 +123,7 @@ test('args: shouldSplitBatch', async () => {
     id: uid(),
     // biome-ignore lint/complexity/noCommaOperator: _
     fn: async (args: number[]) => (fn(), args),
-    shouldSplitBatch: (args) => args.length > 3,
+    shouldSplitBatch: (size) => size > 3,
   })
 
   const p = []
@@ -195,8 +195,8 @@ describe('behavior', () => {
       wait: 16,
       // biome-ignore lint/complexity/noCommaOperator: _
       fn: async (args: string[]) => (fn(), args),
-      shouldSplitBatch: (args) =>
-        args.reduce((acc, x) => acc + x.length, 0) > 20,
+      getSize: (x) => x.length,
+      shouldSplitBatch: (size) => size > 20,
     })
 
     const p = []
@@ -264,7 +264,7 @@ describe('behavior', () => {
       id: uid(),
       wait: 30,
       fn: async (args: number[]) => args,
-      shouldSplitBatch: (args) => args.length > 2,
+      shouldSplitBatch: (size) => size > 2,
     })
 
     const p = [schedule(1), schedule(2)]
