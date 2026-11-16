@@ -36,8 +36,20 @@ const block = {
     const transactions = formatted?.map((transaction, i) => {
       if (typeof transaction === 'string') return transaction
       const rpcTransaction = args.transactions![i] as CeloRpcTransaction
+      if (rpcTransaction.type === '0x7e')
+        return {
+          ...transaction,
+          isSystemTx: rpcTransaction.isSystemTx,
+          mint: rpcTransaction.mint
+            ? hexToBigInt(rpcTransaction.mint)
+            : undefined,
+          sourceHash: rpcTransaction.sourceHash,
+          type: 'deposit',
+        }
       return {
         ...transaction,
+        ...(rpcTransaction.type === '0x7b' ? { type: 'cip64' } : {}),
+        ...(rpcTransaction.type === '0x7c' ? { type: 'cip42' } : {}),
         ...(rpcTransaction.gatewayFee
           ? {
               gatewayFee: hexToBigInt(rpcTransaction.gatewayFee),
