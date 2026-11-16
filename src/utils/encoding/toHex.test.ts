@@ -286,6 +286,147 @@ describe('converts boolean to hex', () => {
   })
 })
 
+test('numberToHex edge cases', () => {
+  const run = (fn: () => unknown) => {
+    try {
+      return fn()
+    } catch (error) {
+      return `${(error as Error).name}: ${(error as Error).message.split('\n')[0]}`
+    }
+  }
+  const values = [
+    0,
+    -0,
+    255,
+    256,
+    Number.MAX_SAFE_INTEGER,
+    Number.MAX_SAFE_INTEGER + 1,
+    1.5,
+    -1,
+    0n,
+    255n,
+    256n,
+    2n ** 256n - 1n,
+    2n ** 256n,
+    -1n,
+  ]
+
+  expect(
+    values.map((value) => [
+      `${value}${typeof value === 'bigint' ? 'n' : ''}`,
+      run(() => numberToHex(value)),
+      run(() => numberToHex(value, { size: 1 })),
+      run(() => numberToHex(value, { size: 32 })),
+      run(() => numberToHex(value, { size: 0 })),
+    ]),
+  ).toMatchInlineSnapshot(`
+    [
+      [
+        "0",
+        "0x0",
+        "0x00",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0",
+      ],
+      [
+        "0",
+        "0x0",
+        "0x00",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0",
+      ],
+      [
+        "255",
+        "0xff",
+        "0xff",
+        "0x00000000000000000000000000000000000000000000000000000000000000ff",
+        "0xff",
+      ],
+      [
+        "256",
+        "0x100",
+        "IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)",
+        "0x0000000000000000000000000000000000000000000000000000000000000100",
+        "0x100",
+      ],
+      [
+        "9007199254740991",
+        "0x1fffffffffffff",
+        "IntegerOutOfRangeError: Number "9007199254740991" is not in safe 8-bit unsigned integer range (0 to 255)",
+        "0x000000000000000000000000000000000000000000000000001fffffffffffff",
+        "0x1fffffffffffff",
+      ],
+      [
+        "9007199254740992",
+        "IntegerOutOfRangeError: Number "9007199254740992" is not in safe integer range (0 to 9007199254740991)",
+        "IntegerOutOfRangeError: Number "9007199254740992" is not in safe 8-bit unsigned integer range (0 to 255)",
+        "0x0000000000000000000000000000000000000000000000000020000000000000",
+        "IntegerOutOfRangeError: Number "9007199254740992" is not in safe integer range (0 to 9007199254740991)",
+      ],
+      [
+        "1.5",
+        "RangeError: The number 1.5 cannot be converted to a BigInt because it is not an integer",
+        "RangeError: The number 1.5 cannot be converted to a BigInt because it is not an integer",
+        "RangeError: The number 1.5 cannot be converted to a BigInt because it is not an integer",
+        "RangeError: The number 1.5 cannot be converted to a BigInt because it is not an integer",
+      ],
+      [
+        "-1",
+        "IntegerOutOfRangeError: Number "-1" is not in safe integer range (0 to 9007199254740991)",
+        "IntegerOutOfRangeError: Number "-1" is not in safe 8-bit unsigned integer range (0 to 255)",
+        "IntegerOutOfRangeError: Number "-1" is not in safe 256-bit unsigned integer range (0 to 115792089237316195423570985008687907853269984665640564039457584007913129639935)",
+        "IntegerOutOfRangeError: Number "-1" is not in safe integer range (0 to 9007199254740991)",
+      ],
+      [
+        "0n",
+        "0x0",
+        "0x00",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0",
+      ],
+      [
+        "255n",
+        "0xff",
+        "0xff",
+        "0x00000000000000000000000000000000000000000000000000000000000000ff",
+        "0xff",
+      ],
+      [
+        "256n",
+        "0x100",
+        "IntegerOutOfRangeError: Number "256n" is not in safe 8-bit unsigned integer range (0n to 255n)",
+        "0x0000000000000000000000000000000000000000000000000000000000000100",
+        "0x100",
+      ],
+      [
+        "115792089237316195423570985008687907853269984665640564039457584007913129639935n",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "IntegerOutOfRangeError: Number "115792089237316195423570985008687907853269984665640564039457584007913129639935n" is not in safe 8-bit unsigned integer range (0n to 255n)",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      ],
+      [
+        "115792089237316195423570985008687907853269984665640564039457584007913129639936n",
+        "0x10000000000000000000000000000000000000000000000000000000000000000",
+        "IntegerOutOfRangeError: Number "115792089237316195423570985008687907853269984665640564039457584007913129639936n" is not in safe 8-bit unsigned integer range (0n to 255n)",
+        "IntegerOutOfRangeError: Number "115792089237316195423570985008687907853269984665640564039457584007913129639936n" is not in safe 256-bit unsigned integer range (0n to 115792089237316195423570985008687907853269984665640564039457584007913129639935n)",
+        "0x10000000000000000000000000000000000000000000000000000000000000000",
+      ],
+      [
+        "-1n",
+        "IntegerOutOfRangeError: Number "-1n" is not in safe integer range (above 0n)",
+        "IntegerOutOfRangeError: Number "-1n" is not in safe 8-bit unsigned integer range (0n to 255n)",
+        "IntegerOutOfRangeError: Number "-1n" is not in safe 256-bit unsigned integer range (0n to 115792089237316195423570985008687907853269984665640564039457584007913129639935n)",
+        "IntegerOutOfRangeError: Number "-1n" is not in safe integer range (above 0n)",
+      ],
+    ]
+  `)
+
+  expect(numberToHex(69, { signed: true, size: 0 })).toMatchInlineSnapshot(
+    `"0x45"`,
+  )
+})
+
 describe('converts string to hex', () => {
   test('default', () => {
     expect(toHex('')).toMatchInlineSnapshot('"0x"')

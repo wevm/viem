@@ -9,13 +9,27 @@ const generateBytes = (length: number) => {
   return bytes
 }
 
-describe.skip('Number to Hex', () => {
+describe('Number to Hex', () => {
   bench('viem: `numberToHex`', () => {
     numberToHex(52)
   })
 
   bench('ethers: `hexlify`', () => {
     toBeHex(52)
+  })
+})
+
+describe('Number to Hex (size: 32)', () => {
+  bench('viem: `numberToHex`', () => {
+    numberToHex(420, { size: 32 })
+  })
+
+  bench('viem: `numberToHex` (uint256)', () => {
+    numberToHex(2n ** 255n + 420n, { size: 32 })
+  })
+
+  bench('ethers: `toBeHex`', () => {
+    toBeHex(420, 32)
   })
 })
 
