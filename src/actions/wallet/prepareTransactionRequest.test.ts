@@ -1479,16 +1479,32 @@ describe('without `eth_fillTransaction`', () => {
     const { client: recordingClient, requests } = createRecordingClient(
       defineChain({
         ...anvilMainnet.chain,
-        fees: { baseFeeMultiplier: () => 1.2 },
+        fees: { baseFeeMultiplier: () => 1.5 },
       }),
     )
 
-    await prepareTransactionRequest(recordingClient, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { account: _, ...request } = await prepareTransactionRequest(
+      recordingClient,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
 
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 16000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
     expect(requests).toMatchInlineSnapshot(`
       {
         "eth_estimateGas": [],
