@@ -1248,4 +1248,19 @@ describe('converts string to bytes', () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('ascii and non-ascii strings around 64 characters', () => {
+    for (const value of [
+      'a'.repeat(64),
+      'a'.repeat(65),
+      `${'a'.repeat(63)}é`,
+      `é${'a'.repeat(63)}`,
+      '\u007f\u0080',
+      '🦄 unicorn',
+      '\ud800',
+    ])
+      expect(stringToBytes(value)).toEqual(
+        new Uint8Array(Buffer.from(value, 'utf8')),
+      )
+  })
 })

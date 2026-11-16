@@ -1,3 +1,4 @@
+import { runInNewContext } from 'node:vm'
 import { describe, expect, test } from 'vitest'
 
 import {
@@ -302,6 +303,22 @@ describe('converts string to hex', () => {
     )
   })
 
+  test('ascii and non-ascii strings around 64 characters', () => {
+    for (const value of [
+      'a'.repeat(64),
+      'a'.repeat(65),
+      `${'a'.repeat(63)}é`,
+      `é${'a'.repeat(63)}`,
+      '\u007f\u0080',
+      '🦄 unicorn',
+      '\ud800',
+    ])
+      expect(stringToHex(value)).toBe(
+        `0x${Buffer.from(value, 'utf8').toString('hex')}`,
+      )
+    expect(stringToHex('é', { size: 4 })).toMatchInlineSnapshot(`"0xc3a90000"`)
+  })
+
   test('args: size', () => {
     expect(toHex('Hello World!', { size: 16 })).toMatchInlineSnapshot(
       '"0x48656c6c6f20576f726c642100000000"',
@@ -336,6 +353,33 @@ describe('converts string to hex', () => {
 })
 
 describe('converts bytes to hex', () => {
+  test('every byte value, views, and buffers', () => {
+    const bytes = Uint8Array.from({ length: 512 }, (_, i) => (i * 7) % 256)
+    const expected = (value: Uint8Array) =>
+      `0x${Array.from(value, (byte) => byte.toString(16).padStart(2, '0')).join('')}`
+
+    expect(bytesToHex(bytes)).toBe(expected(bytes))
+    expect(bytesToHex(bytes.subarray(3, 40))).toBe(
+      expected(bytes.subarray(3, 40)),
+    )
+    expect(bytesToHex(Buffer.from(bytes))).toBe(expected(bytes))
+  })
+
+  test('Uint8Array from another realm', () => {
+    const bytes = runInNewContext('new Uint8Array([0, 1, 171, 255])')
+
+    expect(bytesToHex(bytes)).toMatchInlineSnapshot(`"0x0001abff"`)
+  })
+
+  test('detached buffer', () => {
+    const buffer = new ArrayBuffer(4)
+    const bytes = new Uint8Array(buffer)
+    structuredClone(buffer, { transfer: [buffer] })
+
+    expect(bytesToHex(bytes)).toMatchInlineSnapshot(`"0x"`)
+    expect(bytesToHex(bytes, { size: 2 })).toMatchInlineSnapshot(`"0x0000"`)
+  })
+
   test('default', () => {
     expect(toHex(new Uint8Array([]))).toMatchInlineSnapshot('"0x"')
     expect(toHex(new Uint8Array([97]))).toMatchInlineSnapshot('"0x61"')

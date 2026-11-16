@@ -7,10 +7,19 @@ import type { ByteArray, Hex } from '../../types/misc.js'
 import { type PadErrorType, pad } from '../data/pad.js'
 
 import { type AssertSizeErrorType, assertSize } from './fromHex.js'
+import { stringToBytes } from './toBytes.js'
 
 const hexes = /*#__PURE__*/ Array.from({ length: 256 }, (_v, i) =>
   i.toString(16).padStart(2, '0'),
 )
+
+// Native `Uint8Array.prototype.toHex` (Node 25+, Chrome 140+, Firefox 133+, Safari 18.2+).
+const nativeToHex = /*#__PURE__*/ (() =>
+  (
+    Uint8Array.prototype as {
+      toHex?: ((this: Uint8Array) => string) | undefined
+    }
+  ).toHex)()
 
 export type ToHexParameters = {
   /** The size (in bytes) of the output hex value. */
@@ -130,9 +139,14 @@ export type BytesToHexErrorType = AssertSizeErrorType | PadErrorType | ErrorType
  */
 export function bytesToHex(value: ByteArray, opts: BytesToHexOpts = {}): Hex {
   let string = ''
-  for (let i = 0; i < value.length; i++) {
-    string += hexes[value[i]]
-  }
+  // Detached and out-of-bounds views have length 0 and make native `toHex`
+  // throw, so empty views use the loop.
+  if (nativeToHex && value instanceof Uint8Array && value.length > 0)
+    string = nativeToHex.call(value)
+  else
+    for (let i = 0; i < value.length; i++) {
+      string += hexes[value[i]]
+    }
   const hex = `0x${string}` as const
 
   if (typeof opts.size === 'number') {
@@ -222,8 +236,6 @@ export type StringToHexOpts = {
 
 export type StringToHexErrorType = BytesToHexErrorType | ErrorType
 
-const encoder = /*#__PURE__*/ new TextEncoder()
-
 /**
  * Encodes a UTF-8 string into a hex string
  *
@@ -244,6 +256,5 @@ const encoder = /*#__PURE__*/ new TextEncoder()
  * // '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000'
  */
 export function stringToHex(value_: string, opts: StringToHexOpts = {}): Hex {
-  const value = encoder.encode(value_)
-  return bytesToHex(value, opts)
+  return bytesToHex(stringToBytes(value_), opts)
 }
