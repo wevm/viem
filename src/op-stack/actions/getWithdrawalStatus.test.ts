@@ -1,10 +1,3 @@
-import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
-import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
-import { createRpcProxy } from '~test/utils.js'
-import { getTransactionReceipt, reset } from '../../actions/index.js'
-import * as readContractModule from '../../actions/public/readContract.js'
-import { mainnet, optimism } from '../../chains/index.js'
-import { multicall3Abi } from '../../constants/abis.js'
 import {
   type AbiFunction,
   createClient,
@@ -13,9 +6,16 @@ import {
   encodeFunctionResult,
   type Hex,
   http,
+  multicall3Abi,
   pad,
   toFunctionSelector,
-} from '../../index.js'
+} from 'viem'
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
+import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
+import { createRpcProxy } from '~test/utils.js'
+import { getTransactionReceipt, reset } from '../../actions/index.js'
+import * as readContractModule from '../../actions/public/readContract.js'
+import { mainnet, optimism } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
 import { disputeGameAbi, disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 
