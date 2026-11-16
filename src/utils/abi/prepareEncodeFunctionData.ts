@@ -26,6 +26,9 @@ import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeFunctionData'
 
+/** Selectors by ABI item, so repeated calls skip formatting and hashing. */
+const selectors = new WeakMap<object, Hex>()
+
 export type PrepareEncodeFunctionDataParameters<
   abi extends Abi | readonly unknown[] = Abi,
   functionName extends
@@ -104,8 +107,14 @@ export function prepareEncodeFunctionData<
   if (abiItem.type !== 'function')
     throw new AbiFunctionNotFoundError(undefined, { docsPath })
 
+  let selector = selectors.get(abiItem)
+  if (!selector) {
+    selector = toFunctionSelector(formatAbiItem(abiItem))
+    selectors.set(abiItem, selector)
+  }
+
   return {
     abi: [abiItem],
-    functionName: toFunctionSelector(formatAbiItem(abiItem)),
+    functionName: selector,
   } as unknown as PrepareEncodeFunctionDataReturnType<abi, functionName>
 }
