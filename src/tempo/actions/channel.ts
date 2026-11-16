@@ -1,6 +1,6 @@
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import { Channel as ox_Channel, TokenId } from 'ox/tempo'
+import { AccountConfig, Channel as ox_Channel, TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
@@ -20,7 +20,10 @@ import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
-import { signVoucher as signVoucher_ } from '../Account.js'
+import {
+  type ConfigurableAccount,
+  signVoucher as signVoucher_,
+} from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type * as Errors from '../errors.js'
 import { TempoExecutionError } from '../errors.js'
@@ -209,6 +212,33 @@ export namespace closeSync {
   >
 
   export type ErrorType = close.ErrorType
+}
+
+/**
+ * Resolves the default salt for {@link open}.
+ *
+ * A configurable voucher signer with a nonzero commitment needs that commitment.
+ * An unregistered configurable account (zero commitment) that is also the sender
+ * registers its local config in the same transaction (TIP-1107), before the
+ * channel reserve runs, so the reserve then sees that config's commitment.
+ */
+async function getDefaultSalt(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  parameters: {
+    sender: Account | undefined
+    signer: Account | undefined
+  },
+): Promise<Hex.Hex> {
+  const { sender, signer } = parameters
+  if (signer?.source !== 'configurable') return Hex.random(32)
+  const commitment = await getConfigCommitment(client, {
+    account: signer.address,
+  })
+  if (commitment !== zeroHash) return commitment
+  const { config } = signer as ConfigurableAccount
+  if (config && sender && isAddressEqual(sender.address, signer.address))
+    return AccountConfig.getCommitment(config)
+  return Hex.random(32)
 }
 
 /**
@@ -417,6 +447,11 @@ export namespace getStates {
  * `salt` from {@link getOpenSalt} when the signer is a configurable account
  * known only by address.
  *
+ * An unregistered configurable account that sends the open and signs its own
+ * vouchers registers (TIP-1107) in the same transaction, before the channel
+ * reserve runs, so the salt then defaults to the commitment of its local
+ * version-zero config instead.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
@@ -465,7 +500,7 @@ export namespace open {
       authorizedSigner?: Account | Address.Address | undefined
       /**
        * User-supplied salt to distinguish otherwise identical channels.
-       * @default The voucher signer's nonzero configuration commitment when the signer is a configurable account, else `Hex.random(32)`.
+       * @default The voucher signer's nonzero configuration commitment when the signer is a configurable account (or, for an unregistered configurable account that sends the open as its own signer, the commitment of its local config, registered in the same transaction), else `Hex.random(32)`.
        */
       salt?: Hex.Hex | undefined
     }
@@ -517,11 +552,8 @@ export namespace open {
     const signer =
       authorizedSigner ??
       (rest.account ? parseAccount(rest.account) : client.account)
-    const salt =
-      salt_ ??
-      (signer?.source === 'configurable'
-        ? await getOpenSalt(client, { signer })
-        : Hex.random(32))
+    const sender = rest.account ? parseAccount(rest.account) : client.account
+    const salt = salt_ ?? (await getDefaultSalt(client, { sender, signer }))
     return (await withExecutionError(action)(client, {
       ...rest,
       ...open.call({
