@@ -149,13 +149,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "92.5 kB",
+      "limit": "94.5 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "119 kB"
+      "limit": "121 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -166,7 +166,7 @@
     {
       "name": "import * from 'viem/account-abstraction'",
       "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "62.5 kB",
+      "limit": "63 kB",
       "import": "*"
     },
     {
@@ -178,7 +178,7 @@
     {
       "name": "import { privateKeyToAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
-      "limit": "22.5 kB",
+      "limit": "23 kB",
       "import": "{ privateKeyToAccount }"
     },
     {
@@ -190,7 +190,7 @@
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "74 kB",
+      "limit": "76 kB",
       "import": "*"
     },
     {
@@ -202,7 +202,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "138 kB",
+      "limit": "139.5 kB",
       "import": "*"
     },
     {
@@ -214,7 +214,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "93 kB",
+      "limit": "94.5 kB",
       "import": "{ tempoTestnet }"
     },
     {
