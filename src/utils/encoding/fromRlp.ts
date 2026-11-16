@@ -28,12 +28,6 @@ type To = 'hex' | 'bytes'
 
 const rlpDepthLimit = 1_024
 
-/**
- * Hex input length up to which decoded leaves are slices of the input. A
- * slice keeps its whole input alive, which this bounds.
- */
-const sliceMaxLength = 4_096
-
 const hexRegex = /^0x[0-9a-fA-F]*$/
 
 export type FromRlpReturnType<to extends To> =
@@ -258,13 +252,9 @@ function fromRlpHexItem(
       throw new RlpNonCanonicalError({
         reason: 'single byte below `0x80` has a length prefix',
       })
-    // A slice keeps the whole input alive. Of a long input, only leaves of at
-    // least an eighth of it (such as blobs) stay slices; `join` copies the rest.
-    if (
-      reader.source.length > sliceMaxLength &&
-      length * 16 < reader.source.length
-    )
-      return ['0x', value].join('') as Hex
+    // A slice keeps the whole input alive, so only leaves of at least half of
+    // it (such as a blob) stay slices; `join` copies the rest.
+    if (length * 4 < reader.source.length) return ['0x', value].join('') as Hex
     return `0x${value}`
   }
 

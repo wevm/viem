@@ -223,12 +223,10 @@ const staticCursor: Cursor = {
     if (this.recursiveReadLimit === Number.POSITIVE_INFINITY) return
     const index = this.position >>> 3
     let reads = this.positionReads
-    // Reads can start up to 32 bytes past the end (e.g. after a short
-    // `bytesN` at the end of ABI data), so the bitset grows to fit.
+    // The bitset grows with the furthest position read rather than the input
+    // length, so decoding a prefix of a large input stays cheap.
     if (!reads || index >= reads.length) {
-      const next = new Uint8Array(
-        Math.max(index + 1, (this.bytes.length >>> 3) + 5),
-      )
+      const next = new Uint8Array(Math.max(index + 1, (reads?.length ?? 8) * 2))
       if (reads) next.set(reads)
       reads = this.positionReads = next
     }
