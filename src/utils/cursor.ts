@@ -13,14 +13,14 @@ export type Cursor = {
   bytes: ByteArray
   dataView: DataView
   position: number
-  positionReadCount: Map<number, number>
+  /** Bitset of positions read so far, created on the first tracked read. */
+  positionReads: Uint8Array | undefined
   recursiveReadCount: number
   recursiveReadLimit: number
   remaining: number
   assertReadLimit(position?: number): void
   assertPosition(position: number): void
   decrementPosition(offset: number): void
-  getReadCount(position?: number): number
   incrementPosition(offset: number): void
   inspectByte(position?: number): ByteArray[number]
   inspectBytes(length: number, position?: number): ByteArray
@@ -60,11 +60,22 @@ type StaticCursorErrorType =
   | NegativeOffsetErrorType
   | RecursiveReadLimitExceededErrorType
 
+type CursorInternal = Cursor & { _dataView: DataView | undefined }
+
 const staticCursor: Cursor = {
   bytes: new Uint8Array(),
-  dataView: new DataView(new ArrayBuffer(0)),
+  // Created on first use: most cursors (e.g. ABI decoding) only read bytes.
+  get dataView() {
+    const cursor = this as CursorInternal
+    cursor._dataView ??= new DataView(
+      this.bytes.buffer ?? this.bytes,
+      this.bytes.byteOffset,
+      this.bytes.byteLength,
+    )
+    return cursor._dataView
+  },
   position: 0,
-  positionReadCount: new Map(),
+  positionReads: undefined,
   recursiveReadCount: 0,
   recursiveReadLimit: Number.POSITIVE_INFINITY,
   assertReadLimit() {
@@ -86,9 +97,6 @@ const staticCursor: Cursor = {
     const position = this.position - offset
     this.assertPosition(position)
     this.position = position
-  },
-  getReadCount(position) {
-    return this.positionReadCount.get(position || this.position) || 0
   },
   incrementPosition(offset) {
     if (offset < 0) throw new NegativeOffsetError({ offset })
@@ -213,9 +221,20 @@ const staticCursor: Cursor = {
   },
   _touch() {
     if (this.recursiveReadLimit === Number.POSITIVE_INFINITY) return
-    const count = this.getReadCount()
-    this.positionReadCount.set(this.position, count + 1)
-    if (count > 0) this.recursiveReadCount++
+    const index = this.position >>> 3
+    let reads = this.positionReads
+    // Reads can start up to 32 bytes past the end (e.g. after a short
+    // `bytesN` at the end of ABI data), so the bitset grows to fit.
+    if (!reads || index >= reads.length) {
+      const next = new Uint8Array(
+        Math.max(index + 1, (this.bytes.length >>> 3) + 5),
+      )
+      if (reads) next.set(reads)
+      reads = this.positionReads = next
+    }
+    const mask = 1 << (this.position & 7)
+    if (reads[index]! & mask) this.recursiveReadCount++
+    else reads[index]! |= mask
   },
 }
 
@@ -230,14 +249,10 @@ export function createCursor(
   bytes: ByteArray,
   { recursiveReadLimit = 8_192 }: CursorConfig = {},
 ): Cursor {
-  const cursor: Cursor = Object.create(staticCursor)
+  const cursor: CursorInternal = Object.create(staticCursor)
   cursor.bytes = bytes
-  cursor.dataView = new DataView(
-    bytes.buffer ?? bytes,
-    bytes.byteOffset,
-    bytes.byteLength,
-  )
-  cursor.positionReadCount = new Map()
+  cursor._dataView = undefined
+  cursor.positionReads = undefined
   cursor.recursiveReadLimit = recursiveReadLimit
   return cursor
 }
