@@ -1401,6 +1401,62 @@ test('errors: no topics', () => {
   `)
 })
 
+test('behavior: indexed topics in any hex case or padding', () => {
+  const event = {
+    type: 'event',
+    name: 'Foo',
+    inputs: [
+      { indexed: true, name: 'a', type: 'address' },
+      { indexed: true, name: 'b', type: 'uint48' },
+      { indexed: true, name: 'c', type: 'uint56' },
+      { indexed: true, name: 'd', type: 'bytes4' },
+    ],
+  } as const
+  const signature = toEventSelector(event)
+
+  expect(
+    decodeEventLog({
+      abi: [event],
+      topics: [
+        signature,
+        '0xffffffffffffffffffffffffA5CC3C03994DB5B0D9A5EEDD10CABAB0813678AC',
+        '0x0000000000000000000000000000000000000000000000000000FFFFFFFFFFFF',
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+        '0xDEADBEEF000000000000000000000000000000000000000000000000000000FF',
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "args": {
+        "a": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+        "b": 281474976710655,
+        "c": 1n,
+        "d": "0xdeadbeef",
+      },
+      "eventName": "Foo",
+    }
+  `)
+  expect(() =>
+    decodeEventLog({
+      abi: [event],
+      topics: [
+        signature,
+        '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678',
+        '0x0000000000000000000000000000000000000000000000000000ffffffffffff',
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+        '0xdeadbeef00000000000000000000000000000000000000000000000000000000',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiDecodingDataSizeTooSmallError: Data size of 31 bytes is too small for given parameters.
+
+    Params: (address a)
+    Data:   0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678 (31 bytes)
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('errors: invalid data size', () => {
   expect(() =>
     decodeEventLog({
