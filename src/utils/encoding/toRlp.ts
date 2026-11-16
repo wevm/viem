@@ -33,6 +33,12 @@ export function toRlp<to extends To = 'hex'>(
   bytes: RecursiveArray<ByteArray> | RecursiveArray<Hex>,
   to: to | To | undefined = 'hex',
 ): ToRlpReturnType<to> {
+  if (to === 'hex') {
+    const body = encodeHex(bytes)
+    // `join` flattens the concatenated string, so the result retains no parts.
+    if (body !== undefined) return ['0x', body].join('') as ToRlpReturnType<to>
+  }
+
   const encodable = getEncodable(bytes)
   const cursor = createCursor(new Uint8Array(encodable.length))
   encodable.encode(cursor)
@@ -57,6 +63,50 @@ export function hexToRlp<to extends To = 'hex'>(
   to: to | To | undefined = 'hex',
 ): ToRlpReturnType<to> {
   return toRlp(hex, to)
+}
+
+const hexRegex = /^0x[0-9a-fA-F]*$/
+
+/**
+ * Encodes straight to un-prefixed hex, skipping the byte conversion of each
+ * leaf and of the output. Returns `undefined` for a leaf that is neither hex
+ * nor bytes, so the byte encoder handles it and throws the same error.
+ */
+function encodeHex(
+  value: RecursiveArray<ByteArray> | RecursiveArray<Hex>,
+): string | undefined {
+  if (Array.isArray(value)) {
+    let body = ''
+    for (const item of value) {
+      const encoded = encodeHex(item)
+      if (encoded === undefined) return undefined
+      body += encoded
+    }
+    return encodeHexPrefix(body.length / 2, 0xc0) + body
+  }
+  const body = (() => {
+    if (typeof value === 'string') {
+      if (!hexRegex.test(value)) return undefined
+      // Same bytes as `hexToBytes`: odd-length hex gets a leading zero.
+      const hex = value.slice(2).toLowerCase()
+      return hex.length % 2 ? `0${hex}` : hex
+    }
+    if (value instanceof Uint8Array) return bytesToHex(value).slice(2)
+    return undefined
+  })()
+  if (body === undefined) return undefined
+  // A single byte below `0x80` is its own encoding.
+  if (body.length === 2 && body < '80') return body
+  return encodeHexPrefix(body.length / 2, 0x80) + body
+}
+
+function encodeHexPrefix(length: number, offset: 0x80 | 0xc0) {
+  if (length <= 55) return (offset + length).toString(16)
+  const size = getSizeOfLength(length)
+  return (
+    (offset + 55 + size).toString(16) +
+    length.toString(16).padStart(size * 2, '0')
+  )
 }
 
 function getEncodable(
