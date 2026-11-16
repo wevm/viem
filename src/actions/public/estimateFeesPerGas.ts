@@ -127,9 +127,40 @@ export async function internal_estimateFeesPerGas<
     (base * BigInt(Math.round(baseFeeMultiplier * denominator))) /
     BigInt(denominator)
 
-  const block = block_
-    ? block_
-    : await getAction(client, getBlock, 'getBlock')({})
+  // Chain fee hooks receive the block and the request, so the requests they
+  // depend on are made in sequence.
+  const hasFeeHooks = Object.values(chain?.fees ?? {}).some(
+    (fee) => typeof fee === 'function',
+  )
+
+  // Without chain fee hooks, legacy fees never read the block.
+  const blockPromise =
+    block_ || (type === 'legacy' && !hasFeeHooks)
+      ? undefined
+      : getAction(client, getBlock, 'getBlock')({})
+  // A rejection is thrown when the block is awaited.
+  blockPromise?.catch(() => {})
+
+  // Without chain fee hooks, the priority fee does not depend on the block,
+  // so it is estimated concurrently with the block request.
+  const priorityFeePromise =
+    type === 'eip1559' &&
+    !hasFeeHooks &&
+    typeof request?.maxPriorityFeePerGas !== 'bigint'
+      ? internal_estimateMaxPriorityFeePerGas(
+          client as Client<Transport, Chain>,
+          {
+            block: block_ ?? blockPromise,
+            chain,
+            request,
+          },
+        )
+      : undefined
+  // A rejection is thrown when the priority fee is awaited.
+  priorityFeePromise?.catch(() => {})
+
+  // The block error takes precedence over the priority fee error.
+  const block = block_ ?? (await blockPromise)
 
   if (typeof chain?.fees?.estimateFeesPerGas === 'function') {
     const fees = (await chain.fees.estimateFeesPerGas({
@@ -144,20 +175,21 @@ export async function internal_estimateFeesPerGas<
   }
 
   if (type === 'eip1559') {
-    if (typeof block.baseFeePerGas !== 'bigint')
+    if (typeof block?.baseFeePerGas !== 'bigint')
       throw new Eip1559FeesNotSupportedError()
 
     const maxPriorityFeePerGas =
       typeof request?.maxPriorityFeePerGas === 'bigint'
         ? request.maxPriorityFeePerGas
-        : await internal_estimateMaxPriorityFeePerGas(
-            client as Client<Transport, Chain>,
-            {
-              block: block as Block,
-              chain,
-              request,
-            },
-          )
+        : await (priorityFeePromise ??
+            internal_estimateMaxPriorityFeePerGas(
+              client as Client<Transport, Chain>,
+              {
+                block: block as Block,
+                chain,
+                request,
+              },
+            ))
 
     const baseFeePerGas = multiply(block.baseFeePerGas)
     const maxFeePerGas =

@@ -743,11 +743,11 @@ export async function prepareTransactionRequest<
           throw new Eip1559FeesNotSupportedError()
 
         if (typeof request.gasPrice === 'undefined') {
-          const block = await getBlock()
           const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
             client,
             {
-              block: block as Block,
+              // Only chain fee hooks read the block for legacy fees.
+              block: hasFeeHooks ? await getBlock() : undefined,
               chain,
               request: request as PrepareTransactionRequestParameters,
               type: 'legacy',
