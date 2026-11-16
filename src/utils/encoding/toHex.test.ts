@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'vitest'
 
-import type { BaseError } from '../../errors/base.js'
-
 import {
   boolToHex,
   bytesToHex,
@@ -292,7 +290,7 @@ test('numberToHex edge cases', () => {
     try {
       return fn()
     } catch (error) {
-      return `${(error as Error).name}: ${(error as BaseError).shortMessage ?? (error as Error).message}`
+      return `${(error as Error).name}: ${(error as Error).message.split('\n')[0]}`
     }
   }
   const values = [
