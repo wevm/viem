@@ -81,6 +81,7 @@ test('behavior: target chain without disputeGameFactory', async () => {
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
+  // `getWithdrawalStatus` and friends accept chains with only `l2OutputOracle`.
   const targetChain = {
     ...optimism,
     contracts: { portal: optimism.contracts.portal },

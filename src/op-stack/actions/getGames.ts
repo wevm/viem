@@ -16,6 +16,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import { withCache } from '../../utils/promise/withCache.js'
 import { disputeGameAbi, disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 import { isSuperGameType } from '../gameTypes.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
@@ -108,11 +109,18 @@ export async function getGames<
       : Object.values(disputeGameFactory ?? {})[0]?.address
     if (address) return address
     // The target chain has no factory for this L1, so read it from the portal.
-    return readContract(client, {
-      abi: portal2Abi,
-      address: portalAddress,
-      functionName: 'disputeGameFactory',
-    })
+    return withCache(
+      () =>
+        readContract(client, {
+          abi: portal2Abi,
+          address: portalAddress,
+          functionName: 'disputeGameFactory',
+        }),
+      {
+        cacheKey: ['disputeGameFactory', client.uid, portalAddress].join('.'),
+        cacheTime: 300,
+      },
+    )
   })()
 
   const [gameCount, gameType] = await Promise.all([
