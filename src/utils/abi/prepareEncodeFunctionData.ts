@@ -21,10 +21,14 @@ import {
   type ToFunctionSelectorErrorType,
   toFunctionSelector,
 } from '../hash/toFunctionSelector.js'
+import { LruMap } from '../lru.js'
 import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
 import { type GetAbiItemErrorType, getAbiItem } from './getAbiItem.js'
 
 const docsPath = '/docs/contract/encodeFunctionData'
+
+/** Selectors by function signature, so repeated calls skip hashing. */
+const selectors = /*#__PURE__*/ new LruMap<Hex>(1024)
 
 export type PrepareEncodeFunctionDataParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -104,8 +108,15 @@ export function prepareEncodeFunctionData<
   if (abiItem.type !== 'function')
     throw new AbiFunctionNotFoundError(undefined, { docsPath })
 
+  const signature = formatAbiItem(abiItem)
+  let selector = selectors.get(signature)
+  if (!selector) {
+    selector = toFunctionSelector(signature)
+    selectors.set(signature, selector)
+  }
+
   return {
     abi: [abiItem],
-    functionName: toFunctionSelector(formatAbiItem(abiItem)),
+    functionName: selector,
   } as unknown as PrepareEncodeFunctionDataReturnType<abi, functionName>
 }

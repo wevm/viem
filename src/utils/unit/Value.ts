@@ -35,11 +35,12 @@ export function format(value: bigint, decimals = 0) {
 
   display = display.padStart(decimals, '0')
 
-  let [integer, fraction] = [
-    display.slice(0, display.length - decimals),
-    display.slice(display.length - decimals),
-  ]
-  fraction = fraction.replace(/(0+)$/, '')
+  const split = display.length - decimals
+  const integer = display.slice(0, split)
+  // Drop the fraction's trailing zeros.
+  let end = display.length
+  while (end > split && display.charCodeAt(end - 1) === 48) end--
+  const fraction = display.slice(split, end)
   return `${negative ? '-' : ''}${integer || '0'}${
     fraction ? `.${fraction}` : ''
   }`

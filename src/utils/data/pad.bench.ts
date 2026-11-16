@@ -23,3 +23,11 @@ describe('Pad Bytes', () => {
     zeroPadValue(new Uint8Array([1, 122, 51, 123]), 32)
   })
 })
+
+describe('Pad Bytes (20 bytes, right)', () => {
+  const bytes = Uint8Array.from({ length: 20 }, (_, i) => i + 1)
+
+  bench('viem: `padBytes`', () => {
+    padBytes(bytes, { dir: 'right' })
+  })
+})

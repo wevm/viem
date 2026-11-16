@@ -58,6 +58,12 @@ export function toBytes(
   if (typeof value === 'number' || typeof value === 'bigint')
     return numberToBytes(value, opts)
   if (typeof value === 'boolean') return boolToBytes(value, opts)
+  // Decode `0x` strings in one pass. Sized or non-hex strings take the
+  // `isHex` path below, so `'0xzz'` still encodes as UTF-8.
+  if (!opts.size && typeof value === 'string' && value.startsWith('0x')) {
+    const bytes = decodeHex(value)
+    if (bytes) return bytes
+  }
   if (isHex(value)) return hexToBytes(value, opts)
   return stringToBytes(value, opts)
 }
@@ -101,7 +107,46 @@ export function boolToBytes(value: boolean, opts: BoolToBytesOpts = {}) {
   return bytes
 }
 
-// We use very optimized technique to convert hex string to byte array
+/** Nibble value of each ASCII character code, or `-1` for non-hex characters. */
+const nibbles = /*#__PURE__*/ (() => {
+  const table = new Int8Array(128).fill(-1)
+  for (let i = 0; i < 10; i++) table[48 + i] = i
+  for (let i = 0; i < 6; i++) table[65 + i] = table[97 + i] = 10 + i
+  return table
+})()
+
+/**
+ * Decodes the hex digits after a 2-character prefix into a byte array of
+ * `size` bytes (right-padded), or of the digits' length. Returns `undefined`
+ * on a non-hex character.
+ */
+function decodeHex(
+  hex: string,
+  size?: number | undefined,
+): ByteArray | undefined {
+  // An odd number of digits decodes as if it had a leading `0`.
+  const odd = hex.length & 1
+  const length = (hex.length - 1) >> 1
+  const bytes = new Uint8Array(size || length)
+  let i = 0
+  let j = 2
+  if (odd) {
+    const code = hex.charCodeAt(j++)
+    const nibble = code < 128 ? nibbles[code]! : -1
+    if (nibble < 0) return undefined
+    bytes[i++] = nibble
+  }
+  for (; i < length; i++) {
+    const a = hex.charCodeAt(j++)
+    const b = hex.charCodeAt(j++)
+    const high = a < 128 ? nibbles[a]! : -1
+    const low = b < 128 ? nibbles[b]! : -1
+    if ((high | low) < 0) return undefined
+    bytes[i] = (high << 4) | low
+  }
+  return bytes
+}
+
 const charCodeMap = {
   zero: 48,
   nine: 57,
@@ -148,6 +193,18 @@ export type HexToBytesErrorType = AssertSizeErrorType | PadErrorType | ErrorType
  * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
  */
 export function hexToBytes(hex: Hex, opts: HexToBytesOpts = {}): ByteArray {
+  const size = opts.size
+  if (
+    typeof hex === 'string' &&
+    hex.length >= 2 &&
+    (!size || (Number.isSafeInteger(size) && size > 0))
+  ) {
+    if (size) assertSize(hex, { size })
+    const bytes = decodeHex(hex, size)
+    if (bytes) return bytes
+  }
+
+  // Invalid input and unusual sizes: this loop throws the error for them.
   let hexString = hex.slice(2)
   if (hexString.length % 2) hexString = `0${hexString}`
   if (opts.size) {
@@ -237,7 +294,21 @@ export function stringToBytes(
   value: string,
   opts: StringToBytesOpts = {},
 ): ByteArray {
-  const bytes = encoder.encode(value)
+  const bytes = (() => {
+    // ASCII char codes are already the UTF-8 bytes, so short ASCII strings
+    // skip `TextEncoder`. Up to 64 bytes, V8 allocates the array on the heap.
+    if (typeof value === 'string' && value.length <= 64) {
+      const bytes = new Uint8Array(value.length)
+      let i = 0
+      for (; i < value.length; i++) {
+        const code = value.charCodeAt(i)
+        if (code > 0x7f) break
+        bytes[i] = code
+      }
+      if (i === value.length) return bytes
+    }
+    return encoder.encode(value)
+  })()
   if (typeof opts.size === 'number') {
     assertSize(bytes, { size: opts.size })
     return pad(bytes, { dir: 'right', size: opts.size })

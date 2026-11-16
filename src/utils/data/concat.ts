@@ -37,8 +37,8 @@ export function concatBytes(values: readonly ByteArray[]): ByteArray {
 export type ConcatHexErrorType = ErrorType
 
 export function concatHex(values: readonly Hex[]): Hex {
-  return `0x${(values as Hex[]).reduce(
-    (acc, x) => acc + x.replace('0x', ''),
-    '',
-  )}`
+  let result = ''
+  for (const value of values)
+    result += value.startsWith('0x') ? value.slice(2) : value.replace('0x', '')
+  return `0x${result}`
 }

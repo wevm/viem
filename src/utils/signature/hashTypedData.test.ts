@@ -408,6 +408,65 @@ test('struct type: with colon', () => {
   )
 })
 
+test('struct types repeated in arrays and recursively', () => {
+  // Expected value from ox `TypedData.getSignPayload`.
+  expect(
+    hashTypedData({
+      domain: { name: 'Grid', chainId: 1 },
+      types: {
+        Grid: [
+          { name: 'rows', type: 'Row[]' },
+          { name: 'owner', type: 'Person' },
+          { name: 'cells', type: 'Cell[2][]' },
+        ],
+        Row: [
+          { name: 'cells', type: 'Cell[]' },
+          { name: 'author', type: 'Person' },
+        ],
+        Cell: [
+          { name: 'x', type: 'int8' },
+          { name: 'owner', type: 'Person' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'friends', type: 'Person[]' },
+        ],
+      },
+      primaryType: 'Grid',
+      message: {
+        rows: [
+          {
+            cells: [
+              { x: 1, owner: { name: 'a', friends: [] } },
+              {
+                x: -1,
+                owner: { name: 'b', friends: [{ name: 'c', friends: [] }] },
+              },
+            ],
+            author: { name: 'd', friends: [] },
+          },
+          {
+            cells: [],
+            author: {
+              name: 'e',
+              friends: [{ name: 'f', friends: [{ name: 'g', friends: [] }] }],
+            },
+          },
+        ],
+        owner: { name: 'h', friends: [] },
+        cells: [
+          [
+            { x: 2, owner: { name: 'i', friends: [] } },
+            { x: 3, owner: { name: 'j', friends: [] } },
+          ],
+        ],
+      },
+    } as any),
+  ).toMatchInlineSnapshot(
+    `"0x8619c904622aeacace1d4f09f05d86a23b9750cac4a00ea3ac808edb149cb789"`,
+  )
+})
+
 test('struct type: array of a Solidity type', () => {
   expect(() =>
     hashTypedData({

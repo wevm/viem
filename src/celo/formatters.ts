@@ -1,7 +1,7 @@
 import type { ChainFormatters } from '../types/chain.js'
-import type { RpcTransaction } from '../types/rpc.js'
+import type { RpcBlock, RpcTransaction } from '../types/rpc.js'
 import { hexToBigInt } from '../utils/encoding/fromHex.js'
-import { defineBlock } from '../utils/formatters/block.js'
+import { formatBlock } from '../utils/formatters/block.js'
 import {
   defineTransaction,
   formatTransaction,
@@ -17,28 +17,43 @@ import type {
 } from './types.js'
 import { isCIP64 } from './utils.js'
 
-export const formatters = {
-  block: /*#__PURE__*/ defineBlock({
-    format(args: CeloRpcBlock): CeloBlock {
-      const transactions = args.transactions?.map((transaction) => {
-        if (typeof transaction === 'string') return transaction
-        const formatted = formatTransaction(transaction as RpcTransaction)
-        return {
-          ...formatted,
-          ...(transaction.gatewayFee
-            ? {
-                gatewayFee: hexToBigInt(transaction.gatewayFee),
-                gatewayFeeRecipient: transaction.gatewayFeeRecipient,
-              }
-            : {}),
-          feeCurrency: transaction.feeCurrency,
-        }
-      })
+const block = {
+  exclude: undefined as [] | undefined,
+  format: (args: CeloRpcBlock, action?: string | undefined) => {
+    // `formatBlock` formats every transaction, so it gets none and each
+    // transaction is formatted once here, in the same order of errors.
+    const formatted = Array.isArray(args.transactions)
+      ? args.transactions.map((transaction) =>
+          typeof transaction === 'string'
+            ? transaction
+            : formatTransaction(transaction as RpcTransaction),
+        )
+      : undefined
+    const base = formatBlock(
+      (formatted ? { ...args, transactions: [] } : args) as RpcBlock,
+      action,
+    )
+    const transactions = formatted?.map((transaction, i) => {
+      if (typeof transaction === 'string') return transaction
+      const rpcTransaction = args.transactions![i] as CeloRpcTransaction
       return {
-        transactions,
-      } as CeloBlock
-    },
-  }),
+        ...transaction,
+        ...(rpcTransaction.gatewayFee
+          ? {
+              gatewayFee: hexToBigInt(rpcTransaction.gatewayFee),
+              gatewayFeeRecipient: rpcTransaction.gatewayFeeRecipient,
+            }
+          : {}),
+        feeCurrency: rpcTransaction.feeCurrency,
+      }
+    })
+    return { ...base, transactions } as CeloBlock
+  },
+  type: 'block' as const,
+}
+
+export const formatters = {
+  block,
   transaction: /*#__PURE__*/ defineTransaction({
     format(args: CeloRpcTransaction): CeloTransaction {
       if (args.type === '0x7e')

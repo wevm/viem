@@ -158,15 +158,29 @@ export async function getSocketRpcClient<socket extends {}>(
               reconnectInProgress = false
               return
             }
-            // biome-ignore lint/suspicious/noConsole: _
-            await setup().catch(console.error)
-            reconnectInProgress = false
+            try {
+              await setup()
+              reconnectInProgress = false
+            } catch (error) {
+              // biome-ignore lint/suspicious/noConsole: _
+              console.error(error)
+              // The failed socket's error and close events arrived while this
+              // attempt was in progress, so schedule the next attempt here.
+              reconnectInProgress = false
+              attemptReconnect()
+            }
           }, delay)
         }
-        // Otherwise, clear all requests and subscriptions.
+        // The last attempt is still running. If it fails, it calls this again.
+        else if (reconnectInProgress && !intentionallyClosed) return
+        // Otherwise, clear all requests and subscriptions, and drop the dead
+        // client so the next request for this url opens a new socket.
         else {
           requests.clear()
           subscriptions.clear()
+          keepAliveTimer && clearInterval(keepAliveTimer)
+          if (socketClientCache.get(id) === socketClient)
+            socketClientCache.delete(id)
         }
       }
 
@@ -233,7 +247,15 @@ export async function getSocketRpcClient<socket extends {}>(
 
         return result
       }
-      await setup()
+      try {
+        await setup()
+      } catch (error) {
+        // The caller receives this error and no client is cached, so stop the
+        // reconnects that the failed socket's error and close events schedule.
+        intentionallyClosed = true
+        clearTimeout(reconnectTimer)
+        throw error
+      }
       error = undefined
 
       // Create a new socket instance.
@@ -247,7 +269,9 @@ export async function getSocketRpcClient<socket extends {}>(
             reconnectInProgress = false
           }
           socket.close()
-          socketClientCache.delete(id)
+          // An evicted client must not evict the client that replaced it.
+          if (socketClientCache.get(id) === socketClient)
+            socketClientCache.delete(id)
         },
         get socket() {
           return socket

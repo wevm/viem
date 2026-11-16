@@ -470,10 +470,8 @@ async function scheduleMulticall<chain extends Chain | undefined>(
   const { schedule } = createBatchScheduler({
     id: `${client.uid}.${blockId}.${getRequestOptionsId(requestOptions)}${stateOverrideKey}`,
     wait,
-    shouldSplitBatch(args) {
-      const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
-      return size > batchSize * 2
-    },
+    getSize: ({ data }: { data: Hex }) => data.length - 2,
+    shouldSplitBatch: (size) => size > batchSize * 2,
     fn: async (
       requests: {
         data: Hex

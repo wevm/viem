@@ -19,8 +19,17 @@ type CreateBatchSchedulerArguments<
   returnType extends readonly unknown[] = readonly unknown[],
 > = {
   fn: (args: parameters[]) => Promise<returnType>
+  /**
+   * Returns the size an item adds to its batch. Defaults to 1, so the size
+   * counts items.
+   */
+  getSize?: ((args: parameters) => number) | undefined
   id: number | string
-  shouldSplitBatch?: ((args: parameters[]) => boolean) | undefined
+  /**
+   * Returns whether a batch would be too large at `size` (the queued items
+   * plus the next item), so the queued items flush before the next item joins.
+   */
+  shouldSplitBatch?: ((size: number) => boolean) | undefined
   wait?: number | undefined
   sort?: BatchResultsCompareFn<returnType[number]> | undefined
 }
@@ -37,7 +46,9 @@ type CreateBatchSchedulerReturnType<
 
 export type CreateBatchSchedulerErrorType = ErrorType
 
-const schedulerCache = /*#__PURE__*/ new Map<number | string, SchedulerItem[]>()
+type Scheduler = { items: SchedulerItem[]; size: number }
+
+const schedulerCache = /*#__PURE__*/ new Map<number | string, Scheduler>()
 const timerCache = /*#__PURE__*/ new Map<
   number | string,
   ReturnType<typeof setTimeout>
@@ -49,6 +60,7 @@ export function createBatchScheduler<
   returnType extends readonly unknown[],
 >({
   fn,
+  getSize = () => 1,
   id,
   shouldSplitBatch,
   wait = 0,
@@ -58,7 +70,7 @@ export function createBatchScheduler<
   returnType
 >): CreateBatchSchedulerReturnType<parameters, returnType> {
   const exec = async () => {
-    const scheduler = getScheduler()
+    const scheduler = schedulerCache.get(id)?.items ?? []
     flush()
 
     const args = scheduler.map(({ args }) => args)
@@ -88,30 +100,24 @@ export function createBatchScheduler<
     schedulerCache.delete(id)
   }
 
-  const getBatchedArgs = () =>
-    getScheduler().map(({ args }) => args) as parameters[]
-
-  const getScheduler = () => schedulerCache.get(id) || []
-
-  const setScheduler = (item: SchedulerItem) =>
-    schedulerCache.set(id, [...getScheduler(), item])
-
   return {
     flush,
     async schedule(args: parameters) {
       const { promise, resolve, reject } = withResolvers()
 
-      const split = shouldSplitBatch?.([...getBatchedArgs(), args])
+      const size = getSize(args)
+      const queued = schedulerCache.get(id)
+      if (queued && shouldSplitBatch?.(queued.size + size)) exec()
 
-      if (split) exec()
-
-      const hasActiveScheduler = getScheduler().length > 0
-      if (hasActiveScheduler) {
-        setScheduler({ args, resolve, reject })
+      // Push in place: `exec` detaches the queue from the cache before it runs.
+      const scheduler = schedulerCache.get(id)
+      if (scheduler) {
+        scheduler.items.push({ args, resolve, reject })
+        scheduler.size += size
         return promise
       }
 
-      setScheduler({ args, resolve, reject })
+      schedulerCache.set(id, { items: [{ args, resolve, reject }], size })
       timerCache.set(id, setTimeout(exec, wait))
       return promise
     },

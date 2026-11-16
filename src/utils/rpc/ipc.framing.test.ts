@@ -1,6 +1,15 @@
 import { expect, test } from 'vitest'
 
-import { extractMessages } from './ipc.js'
+import { createMessageExtractor } from './ipc.js'
+
+function extract(...buffers: Buffer[]) {
+  const messages: unknown[] = []
+  const onData = createMessageExtractor((message) =>
+    messages.push(JSON.parse(message.toString())),
+  )
+  for (const buffer of buffers) onData(buffer)
+  return messages
+}
 
 test.each([
   'execution reverted: {',
@@ -26,13 +35,7 @@ test.each([
     `${JSON.stringify(response)}${JSON.stringify(next)}`,
   )
 
-  const [messages, remaining] = extractMessages(buffer)
-
-  expect(messages.map((value) => JSON.parse(value.toString()))).toEqual([
-    response,
-    next,
-  ])
-  expect(remaining.length).toBe(0)
+  expect(extract(buffer)).toEqual([response, next])
 })
 
 test('handles every byte boundary across escaped strings and messages', () => {
@@ -56,42 +59,30 @@ test('handles every byte boundary across escaped strings and messages', () => {
     ` \n${responses.map((response) => JSON.stringify(response)).join('\n')}\n`,
   )
 
-  for (let split = 0; split <= buffer.length; split++) {
-    const [first, remainder] = extractMessages(buffer.subarray(0, split))
-    const [second, remaining] = extractMessages(
-      Buffer.concat([remainder, buffer.subarray(split)]),
+  for (let split = 0; split <= buffer.length; split++)
+    expect(extract(buffer.subarray(0, split), buffer.subarray(split))).toEqual(
+      responses,
     )
 
-    expect(
-      [...first, ...second].map((message) => JSON.parse(message.toString())),
-    ).toEqual(responses)
-    expect(remaining.length).toBe(0)
-  }
-
-  const messages: Buffer[] = []
-  let remaining = Buffer.alloc(0) as Buffer
-  for (let offset = 0; offset < buffer.length; offset++) {
-    const [complete, remainder] = extractMessages(
-      Buffer.concat([remaining, buffer.subarray(offset, offset + 1)]),
-    )
-    messages.push(...complete)
-    remaining = remainder
-  }
-  expect(messages.map((message) => JSON.parse(message.toString()))).toEqual(
-    responses,
+  const bytes = Array.from({ length: buffer.length }, (_, offset) =>
+    buffer.subarray(offset, offset + 1),
   )
-  expect(remaining.length).toBe(0)
+  expect(extract(...bytes)).toEqual(responses)
 })
 
 test('retains only the incomplete message following a complete response', () => {
   const response = { jsonrpc: '2.0', id: 1, result: 'unmatched { in a string' }
   const incomplete = '{"jsonrpc":"2.0","id":2,"result":"escaped \\'
-  const [messages, remaining] = extractMessages(
-    Buffer.from(`${JSON.stringify(response)}\n${incomplete}`),
+  const messages: string[] = []
+  const onData = createMessageExtractor((message) =>
+    messages.push(message.toString()),
   )
 
-  expect(messages.map((message) => JSON.parse(message.toString()))).toEqual([
-    response,
-  ])
-  expect(remaining.toString()).toBe(incomplete)
+  onData(Buffer.from(`${JSON.stringify(response)}\n${incomplete}`))
+
+  expect(messages).toEqual([JSON.stringify(response)])
+
+  onData(Buffer.from('"" }'))
+
+  expect(messages).toEqual([JSON.stringify(response), `${incomplete}"" }`])
 })

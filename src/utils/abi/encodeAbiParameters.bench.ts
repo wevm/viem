@@ -514,3 +514,62 @@ describe('Seaport function', () => {
     )
   })
 })
+
+const amounts = Array.from(
+  { length: 1000 },
+  (_, i) => (BigInt(i + 1) * 0x9e3779b97f4a7c15n) ** 2n,
+)
+const addresses = amounts.map(
+  (amount) => `0x${amount.toString(16).padStart(40, '0').slice(-40)}` as const,
+)
+
+describe('ABI Encode (uint256[1000])', () => {
+  bench('viem: `encodeAbiParameters`', () => {
+    encodeAbiParameters([{ type: 'uint256[]' }], [amounts])
+  })
+})
+
+describe('ABI Encode (address[1000])', () => {
+  bench('viem: `encodeAbiParameters`', () => {
+    encodeAbiParameters([{ type: 'address[]' }], [addresses])
+  })
+})
+
+const strings = Array.from(
+  { length: 100 },
+  (_, i) => `token-name-${i}-${'x'.repeat(i % 40)}`,
+)
+
+describe('ABI Encode (string[100])', () => {
+  bench('viem: `encodeAbiParameters`', () => {
+    encodeAbiParameters([{ type: 'string[]' }], [strings])
+  })
+})
+
+const pools = Array.from({ length: 300 }, (_, i) => ({
+  pool: addresses[i]!,
+  sqrtPriceX96: amounts[i]! >> 100n,
+  tick: (i % 2 ? -1 : 1) * i * 2711,
+  liquidity: amounts[i + 1]! >> 128n,
+  unlocked: i % 3 !== 0,
+}))
+
+describe('ABI Encode (tuple[300])', () => {
+  bench('viem: `encodeAbiParameters`', () => {
+    encodeAbiParameters(
+      [
+        {
+          type: 'tuple[]',
+          components: [
+            { name: 'pool', type: 'address' },
+            { name: 'sqrtPriceX96', type: 'uint160' },
+            { name: 'tick', type: 'int24' },
+            { name: 'liquidity', type: 'uint128' },
+            { name: 'unlocked', type: 'bool' },
+          ],
+        },
+      ],
+      [pools],
+    )
+  })
+})

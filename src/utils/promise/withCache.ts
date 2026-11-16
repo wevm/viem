@@ -1,9 +1,12 @@
 import type { ErrorType } from '../../errors/utils.js'
+import { LruMap } from '../lru.js'
 
+// Keys usually include a client uid, so a bounded map keeps apps that create a
+// client per request from growing these caches without limit.
 /** @internal */
-export const promiseCache = /*#__PURE__*/ new Map()
+export const promiseCache = /*#__PURE__*/ new LruMap<any>(8192)
 /** @internal */
-export const responseCache = /*#__PURE__*/ new Map()
+export const responseCache = /*#__PURE__*/ new LruMap<any>(8192)
 
 export type GetCacheErrorType = ErrorType
 

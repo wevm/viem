@@ -710,3 +710,11 @@ describe('args: recursiveReadLimit', () => {
     `)
   })
 })
+
+test('behavior: read tracking grows with reads, not input length', () => {
+  const cursor = createCursor(new Uint8Array(1_000_000))
+
+  cursor.readBytes(32)
+
+  expect(cursor.positionReads?.length).toMatchInlineSnapshot(`16`)
+})

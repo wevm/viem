@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { wait } from '../wait.js'
 
-import { getCache, withCache } from './withCache.js'
+import { getCache, responseCache, withCache } from './withCache.js'
 
 beforeEach(() => getCache('foo').clear())
 
@@ -94,4 +94,13 @@ test('behavior: programmatic removal', async () => {
   expect(data).toBe('bar')
 
   expect(fn).toBeCalledTimes(2)
+})
+
+test('behavior: keeps at most 8192 responses', async () => {
+  for (let i = 0; i < 8200; i++)
+    await withCache(async () => i, { cacheKey: `bounded.${i}` })
+
+  expect(responseCache.size).toMatchInlineSnapshot('8192')
+  expect(responseCache.has('bounded.0')).toMatchInlineSnapshot('false')
+  expect(responseCache.has('bounded.8199')).toMatchInlineSnapshot('true')
 })

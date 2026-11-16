@@ -1507,6 +1507,184 @@ test('args: timeout', async () => {
   ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
 })
 
+test('args: timeout (fires during the first receipt lookup)', async () => {
+  let looked = false
+  // Requests sent after the first lookup returned.
+  const late: string[] = []
+  const proxyUrl = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ method }) => {
+      if (looked) late.push(method)
+      if (method === 'eth_getTransactionReceipt') {
+        await wait(100)
+        looked = true
+      }
+      if (method === 'eth_blockNumber') return { result: '0x1' }
+      return { result: null }
+    },
+  )
+  const client = createPublicClient({
+    pollingInterval: 10,
+    transport: http(proxyUrl, { retryCount: 0 }),
+  })
+
+  await expect(() =>
+    waitForTransactionReceipt(client, {
+      hash: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      timeout: 20,
+    }),
+  ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
+  // Let the first lookup finish, then check that no polling started.
+  await wait(400)
+
+  expect(late).toMatchInlineSnapshot('[]')
+})
+
+test('args: timeout (a caller sharing the first receipt lookup keeps its own deadline)', async () => {
+  const hash = await sendTransaction(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  await mine(client, { blocks: 1 })
+  const proxyUrl = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ method }) => {
+      if (method === 'eth_getTransactionReceipt') await wait(150)
+      return undefined
+    },
+  )
+  const proxyClient = createPublicClient({ transport: http(proxyUrl) })
+
+  // Both calls share one lookup, which returns after the first call's
+  // deadline but before the second call's.
+  const first = waitForTransactionReceipt(proxyClient, { hash, timeout: 100 })
+  first.catch(() => {})
+  await wait(80)
+  const second = waitForTransactionReceipt(proxyClient, { hash, timeout: 100 })
+
+  await expect(first).rejects.toThrowError(
+    WaitForTransactionReceiptTimeoutError,
+  )
+  expect((await second).transactionHash).toBe(hash)
+})
+
+test('args: timeout (polls for a caller sharing a lookup that found no receipt)', async () => {
+  const hash = await sendTransaction(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  let looked = false
+  const polling = withResolvers<void>()
+  const proxyUrl = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ method }) => {
+      // The first lookup returns after the first caller's deadline.
+      if (method === 'eth_getTransactionReceipt' && !looked) {
+        await wait(2_100)
+        looked = true
+      }
+      // Polling fetches the block number once the lookup found nothing.
+      if (method === 'eth_blockNumber' && looked) polling.resolve()
+      return undefined
+    },
+  )
+  const proxyClient = createPublicClient({
+    pollingInterval: 50,
+    transport: http(proxyUrl),
+  })
+
+  const first = waitForTransactionReceipt(proxyClient, { hash, timeout: 2_000 })
+  first.catch(() => {})
+  await wait(1_600)
+  const second = waitForTransactionReceipt(proxyClient, {
+    hash,
+    timeout: 2_000,
+  })
+  second.catch(() => {})
+  await expect(first).rejects.toThrowError(
+    WaitForTransactionReceiptTimeoutError,
+  )
+  // Without polling, the second caller times out instead.
+  await Promise.race([polling.promise, second])
+  await mine(client, { blocks: 1 })
+
+  expect((await second).transactionHash).toBe(hash)
+})
+
+test('args: timeout (polling continues for a caller sharing it)', async () => {
+  const hash = await sendTransaction(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+
+  // The first caller starts polling, and times out before the receipt exists.
+  const first = waitForTransactionReceipt(client, {
+    hash,
+    pollingInterval: 50,
+    timeout: 3_000,
+  })
+  first.catch(() => {})
+  await wait(1_500)
+  const second = waitForTransactionReceipt(client, {
+    hash,
+    pollingInterval: 50,
+    timeout: 3_000,
+  })
+  second.catch(() => {})
+  await expect(first).rejects.toThrowError(
+    WaitForTransactionReceiptTimeoutError,
+  )
+  await mine(client, { blocks: 1 })
+
+  expect((await second).transactionHash).toBe(hash)
+})
+
+test('args: timeout (polling stops once every sharing caller timed out)', async () => {
+  const hash = await sendTransaction(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  let settled = false
+  const methods: string[] = []
+  const proxyUrl = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ method }) => {
+      if (settled) methods.push(method)
+      return undefined
+    },
+  )
+  const proxyClient = createPublicClient({
+    pollingInterval: 50,
+    transport: http(proxyUrl),
+  })
+
+  // No block is mined, so polling never sees a new block number.
+  const first = waitForTransactionReceipt(proxyClient, { hash, timeout: 1_000 })
+  first.catch(() => {})
+  await wait(500)
+  const second = waitForTransactionReceipt(proxyClient, {
+    hash,
+    timeout: 1_000,
+  })
+  second.catch(() => {})
+  await expect(first).rejects.toThrowError(
+    WaitForTransactionReceiptTimeoutError,
+  )
+  await expect(second).rejects.toThrowError(
+    WaitForTransactionReceiptTimeoutError,
+  )
+  settled = true
+  await wait(300)
+
+  expect(methods).toMatchInlineSnapshot(`[]`)
+
+  await mine(client, { blocks: 1 })
+})
+
 describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()

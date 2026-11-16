@@ -206,14 +206,11 @@ export async function multicall<
         chunkedCalls[currentChunk] = []
       }
 
-      chunkedCalls[currentChunk] = [
-        ...chunkedCalls[currentChunk],
-        {
-          allowFailure: true,
-          callData,
-          target: address,
-        },
-      ]
+      chunkedCalls[currentChunk].push({
+        allowFailure: true,
+        callData,
+        target: address,
+      })
     } catch (err) {
       const error = getContractError(err as BaseError, {
         abi,
@@ -224,14 +221,11 @@ export async function multicall<
         sender: account,
       })
       if (!allowFailure) throw error
-      chunkedCalls[currentChunk] = [
-        ...chunkedCalls[currentChunk],
-        {
-          allowFailure: true,
-          callData: '0x' as Hex,
-          target: address,
-        },
-      ]
+      chunkedCalls[currentChunk].push({
+        allowFailure: true,
+        callData: '0x' as Hex,
+        target: address,
+      })
     }
   }
 
@@ -366,14 +360,8 @@ async function scheduleMulticall(
   const { schedule } = createBatchScheduler({
     id: stringify(['multicall', client.uid, batchSize, multicallAddress, rest]),
     wait,
-    shouldSplitBatch(calls: Aggregate3Calls) {
-      if (batchSize === 0) return false
-      const size = calls.reduce(
-        (size, { callData }) => size + (callData.length - 2) / 2,
-        0,
-      )
-      return size > batchSize
-    },
+    getSize: ({ callData }: Aggregate3Call) => (callData.length - 2) / 2,
+    shouldSplitBatch: (size) => batchSize !== 0 && size > batchSize,
     fn: (calls: Aggregate3Calls) =>
       getAction(
         client,

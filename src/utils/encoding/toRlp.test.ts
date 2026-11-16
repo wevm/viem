@@ -1,5 +1,7 @@
+import { runInNewContext } from 'node:vm'
 import { describe, expect, test } from 'vitest'
 
+import type { Hex } from '../../types/misc.js'
 import {
   boolToBytes,
   hexToBytes,
@@ -402,5 +404,28 @@ describe('list', () => {
   // This test works, but it's really slow (understandably).
   test.skip('prefix === 0xfb', () => {
     expect(bytesToHex(bytesToRlp(generateList(10_000_000)))).toMatchSnapshot()
+  })
+})
+
+describe('behavior: leaf from another realm', () => {
+  test('encodes like a local Uint8Array', () => {
+    const foreign = runInNewContext('new Uint8Array([1, 2, 3])')
+
+    const encoded = toRlp(['0x0102', foreign])
+
+    expect(encoded).toBe(
+      toRlp([hexToBytes('0x0102'), new Uint8Array([1, 2, 3])]),
+    )
+    expect(encoded).toMatchInlineSnapshot(`"0xc782010283010203"`)
+  })
+
+  test('invalid hex leaf throws', () => {
+    expect(() =>
+      toRlp(['0x0102', ['0xzz' as Hex]]),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [BaseError: Invalid byte sequence ("zz" in "zz").
+
+      Version: viem@x.y.z]
+    `)
   })
 })
