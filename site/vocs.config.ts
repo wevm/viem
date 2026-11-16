@@ -498,6 +498,10 @@ export default defineConfig({
             text: 'Signature',
             items: [
               {
+                text: 'verifyHash',
+                link: '/docs/actions/public/verifyHash',
+              },
+              {
                 text: 'verifyMessage',
                 link: '/docs/actions/public/verifyMessage',
               },

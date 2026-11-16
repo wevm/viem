@@ -15,6 +15,7 @@ Returns the current price of gas (in wei).
 import { publicClient } from './client'
 
 const gasPrice = await publicClient.getGasPrice() // [!code focus:4]
+// @log: 1_000_000_000n
 ```
 
 ```ts twoslash [client.ts] filename="client.ts"
