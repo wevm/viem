@@ -13,6 +13,8 @@ import { type TrimErrorType, trim } from '../data/trim.js'
 
 import { type HexToBytesErrorType, hexToBytes } from './toBytes.js'
 
+const decoder = /*#__PURE__*/ new TextDecoder()
+
 export type AssertSizeErrorType =
   | SizeOverflowErrorType
   | SizeErrorType
@@ -273,5 +275,5 @@ export function hexToString(hex: Hex, opts: HexToStringOpts = {}): string {
     assertSize(bytes, { size: opts.size })
     bytes = trim(bytes, { dir: 'right' })
   }
-  return new TextDecoder().decode(bytes)
+  return decoder.decode(bytes)
 }
