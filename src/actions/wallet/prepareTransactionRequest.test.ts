@@ -1,3 +1,4 @@
+import { createNonceManager } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
@@ -18,11 +19,7 @@ import {
   TransactionExecutionError,
   toBlobs,
 } from '../../index.js'
-import {
-  createNonceManager,
-  defineChain,
-  nonceManager,
-} from '../../utils/index.js'
+import { defineChain, nonceManager } from '../../utils/index.js'
 import { jsonRpc } from '../../utils/nonceManager.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
@@ -1351,9 +1348,30 @@ describe('without `eth_fillTransaction`', () => {
       value: parseEther('1'),
     } as const
 
-    const request = await prepareTransactionRequest(recordingClient, args)
+    const { account: _, ...request } = await prepareTransactionRequest(
+      recordingClient,
+      args,
+    )
 
-    expect(request.nonce).toMatchInlineSnapshot(`953`)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "nonceManager": {
+          "consume": [Function],
+          "get": [Function],
+          "increment": [Function],
+          "reset": [Function],
+        },
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
     expect(requests).toMatchInlineSnapshot(`
       {
         "eth_estimateGas": [],
@@ -2589,14 +2607,35 @@ describe('with `eth_fillTransaction`', () => {
     const { client: recordingClient, requests } = createRecordingClient()
     supportsFillTransaction.delete(recordingClient.uid)
 
-    const { nonce } = await prepareTransactionRequest(recordingClient, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      nonceManager: createNonceManager({ source: jsonRpc() }),
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { account: _, ...request } = await prepareTransactionRequest(
+      recordingClient,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        nonceManager: createNonceManager({ source: jsonRpc() }),
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
 
-    expect(nonce).toMatchInlineSnapshot(`953`)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 11700000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "nonceManager": {
+          "consume": [Function],
+          "get": [Function],
+          "increment": [Function],
+          "reset": [Function],
+        },
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
     expect(requests).toMatchInlineSnapshot(`
       {
         "eth_fillTransaction": [],
