@@ -1,7 +1,23 @@
 import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
+import { createRpcProxy } from '~test/utils.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 import * as readContractModule from '../../actions/public/readContract.js'
+import { mainnet, optimism } from '../../chains/index.js'
+import { multicall3Abi } from '../../constants/abis.js'
+import {
+  type AbiFunction,
+  createClient,
+  decodeFunctionData,
+  type EncodeFunctionResultParameters,
+  encodeFunctionResult,
+  type Hex,
+  http,
+  pad,
+  toFunctionSelector,
+} from '../../index.js'
+import { wait } from '../../utils/wait.js'
+import { disputeGameAbi, disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 
 import { GameNotFoundError } from '../errors/withdrawal.js'
 import * as getGameModule from './getGame.js'
@@ -244,6 +260,126 @@ test('error: portal contract non-existent (old block)', async () => {
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
+  `)
+})
+
+test('behavior: reads the game and finalized state concurrently with the proof submitter', async () => {
+  const game = '0x00000000000000000000000000000000000ca5e0'
+  const sender = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+  const replies: Record<string, unknown> = {
+    checkWithdrawal: undefined,
+    finalizedWithdrawals: false,
+    findLatestGames: [
+      {
+        extraData: '0x',
+        index: 9n,
+        metadata: pad(game, { size: 32 }),
+        rootClaim: pad('0x01', { size: 32 }),
+        timestamp: 1_700_000_000n,
+      },
+    ],
+    gameCount: 10n,
+    l2SequenceNumber: 120_000_100n,
+    numProofSubmitters: 1n,
+    proofSubmitters: sender,
+    provenWithdrawals: [game, 1_700_000_000n],
+    respectedGameType: 0,
+    version: '3.10.0',
+  }
+  const functions = Object.fromEntries(
+    [...portal2Abi, ...disputeGameFactoryAbi, ...disputeGameAbi]
+      .map((item) => item as AbiFunction)
+      .filter((fn) => fn.type === 'function' && fn.name in replies)
+      .map((fn) => [toFunctionSelector(fn), fn]),
+  )
+
+  const answer = (data: Hex) => {
+    const fn = functions[data.slice(0, 10)]!
+    return {
+      name: fn.name,
+      result:
+        fn.outputs.length === 0
+          ? '0x'
+          : encodeFunctionResult({
+              abi: [fn],
+              functionName: fn.name,
+              result: replies[fn.name],
+            } as EncodeFunctionResultParameters),
+    }
+  }
+
+  // Answers each read after 50ms, and groups the reads into rounds by how many
+  // reads each one waited on in sequence.
+  const rounds: string[][] = []
+  const finished: number[] = [0]
+  const url = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ params }) => {
+      const [{ data }] = params as [{ data: Hex }]
+      const { name, result } = (() => {
+        if (
+          !data.startsWith(
+            toFunctionSelector('aggregate3((address,bool,bytes)[])'),
+          )
+        )
+          return answer(data)
+        const { args } = decodeFunctionData({ abi: multicall3Abi, data })
+        const calls = (args[0] as readonly { callData: Hex }[]).map(
+          ({ callData }) => answer(callData),
+        )
+        return {
+          name: `aggregate3(${calls.map(({ name }) => name)})`,
+          result: encodeFunctionResult({
+            abi: multicall3Abi,
+            functionName: 'aggregate3',
+            result: calls.map(({ result }) => ({
+              success: true,
+              returnData: result,
+            })),
+          }),
+        }
+      })()
+      const depth = Math.max(...finished) + 1
+      rounds[depth - 1] = [...(rounds[depth - 1] ?? []), name]
+      await wait(50)
+      finished.push(depth)
+      return { result }
+    },
+  )
+  const client = createClient({ chain: mainnet, transport: http(url) })
+
+  const status = await getWithdrawalStatus(client, {
+    l2BlockNumber: 120_000_000n,
+    sender,
+    targetChain: optimism,
+    withdrawalHash: `0x${'aa'.repeat(32)}`,
+  })
+
+  expect(status).toMatchInlineSnapshot(`"ready-to-finalize"`)
+  expect(rounds.map((names) => names.sort())).toMatchInlineSnapshot(`
+    [
+      [
+        "version",
+      ],
+      [
+        "finalizedWithdrawals",
+        "numProofSubmitters",
+        "respectedGameType",
+      ],
+      [
+        "gameCount",
+        "proofSubmitters",
+        "respectedGameType",
+      ],
+      [
+        "checkWithdrawal",
+        "findLatestGames",
+        "provenWithdrawals",
+      ],
+      [
+        "aggregate3(l2SequenceNumber)",
+      ],
+    ]
   `)
 })
 
