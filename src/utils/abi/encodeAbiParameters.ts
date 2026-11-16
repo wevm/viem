@@ -38,7 +38,7 @@ import {
   type StringToHexErrorType,
   stringToHex,
 } from '../encoding/toHex.js'
-import { integerRegex } from '../regex.js'
+import { bytesRegex, integerRegex } from '../regex.js'
 
 export type EncodeAbiParametersReturnType = Hex
 
@@ -96,12 +96,266 @@ export function encodeAbiParameters<
       expectedLength: params.length as number,
       givenLength: values.length as any,
     })
-  // Prepare the parameters to determine dynamic types to encode.
-  const preparedParams = prepareParams({
-    params: params as readonly AbiParameter[],
-    values: values as any,
-  })
-  return encodeParams(preparedParams)
+  const compiled: CompiledParam[] = new Array(params.length)
+  const parts: string[] = new Array(params.length)
+  for (let i = 0; i < params.length; i++) {
+    compiled[i] = compile((params as readonly AbiParameter[])[i]!)
+    parts[i] = encode(compiled[i]!, (values as readonly unknown[])[i])
+  }
+  // `join` flattens the string built with `+=`, so callers retain one flat
+  // string instead of a tree of small parts.
+  return ['0x', encodeParts(compiled, parts)].join('') as Hex
+}
+
+/////////////////////////////////////////////////////////////////
+
+/**
+ * A parameter parsed once per call. Values the fast path does not handle are
+ * delegated to {@link prepareParam} so output and errors stay the same.
+ */
+type CompiledParam = {
+  /** Element type of an array. */
+  child: CompiledParam | undefined
+  /** Components of a tuple. */
+  components: readonly CompiledParam[] | undefined
+  dynamic: boolean
+  kind:
+    | 'address'
+    | 'array'
+    | 'bool'
+    | 'bytes'
+    | 'number'
+    | 'other'
+    | 'string'
+    | 'tuple'
+  /** Length of a fixed array, or `null` for a dynamic array. */
+  length: number | null
+  max: bigint
+  min: bigint
+  param: AbiParameter
+  signed: boolean
+  /** Bits of an integer, or bytes of a `bytesN` (`0` for `bytes`). */
+  size: number
+}
+
+const zeros = '0'.repeat(64)
+
+/** Integer bounds by signedness and bit size (at most 64 entries). */
+const integerBounds = new Map<string, readonly [min: bigint, max: bigint]>()
+
+function compile(param: AbiParameter): CompiledParam {
+  const compiled: CompiledParam = {
+    child: undefined,
+    components: undefined,
+    dynamic: false,
+    kind: 'other',
+    length: null,
+    max: 0n,
+    min: 0n,
+    param,
+    signed: false,
+    size: 0,
+  }
+  // Malformed parameters are left to `prepareParam`, which throws when it
+  // reaches them.
+  if (typeof param !== 'object' || param === null) return compiled
+  const { type } = param
+  if (typeof type !== 'string') return compiled
+
+  const arrayComponents = getArrayComponents(type)
+  if (arrayComponents) {
+    const [length, innerType] = arrayComponents
+    const child = compile({ ...param, type: innerType })
+    compiled.kind = 'array'
+    compiled.length = length
+    compiled.child = child
+    compiled.dynamic = length === null || child.dynamic
+    return compiled
+  }
+  if (type === 'tuple') {
+    const { components } = param as Partial<TupleAbiParameter>
+    if (!Array.isArray(components)) return compiled
+    compiled.kind = 'tuple'
+    // `Array.from` visits holes, which `prepareParam` rejects.
+    compiled.components = Array.from(components, (component) =>
+      compile(component),
+    )
+    compiled.dynamic = compiled.components.some(({ dynamic }) => dynamic)
+    return compiled
+  }
+  if (type === 'address') compiled.kind = 'address'
+  else if (type === 'bool') compiled.kind = 'bool'
+  else if (type.startsWith('uint') || type.startsWith('int')) {
+    const signed = type.startsWith('int')
+    const [, , size = '256'] = integerRegex.exec(type) ?? []
+    const key = signed ? `i${size}` : size
+    let bounds = integerBounds.get(key)
+    if (!bounds) {
+      const max = 2n ** (BigInt(size) - (signed ? 1n : 0n)) - 1n
+      bounds = [signed ? -max - 1n : 0n, max]
+      integerBounds.set(key, bounds)
+    }
+    compiled.kind = 'number'
+    compiled.signed = signed
+    compiled.size = Number(size)
+    compiled.min = bounds[0]
+    compiled.max = bounds[1]
+  } else if (type === 'bytes') {
+    compiled.kind = 'bytes'
+    compiled.dynamic = true
+  } else if (bytesRegex.test(type)) {
+    compiled.kind = 'bytes'
+    compiled.size = Number(type.slice(5))
+  } else if (type.startsWith('bytes'))
+    compiled.dynamic = !type.split('bytes')[1]
+  else if (type === 'string') {
+    compiled.kind = 'string'
+    compiled.dynamic = true
+  }
+  return compiled
+}
+
+/** Encodes a value as un-prefixed hex. */
+function encode(compiled: CompiledParam, value: unknown): string {
+  switch (compiled.kind) {
+    case 'address':
+      if (typeof value === 'string' && isAddress(value))
+        return `000000000000000000000000${value.slice(2).toLowerCase()}`
+      break
+    case 'array':
+      return encodeArrayValue(compiled, value)
+    case 'bool':
+      if (typeof value === 'boolean')
+        return value ? `${zeros.slice(1)}1` : zeros
+      break
+    case 'bytes':
+      if (
+        typeof value === 'string' &&
+        value.length % 2 === 0 &&
+        value.startsWith('0x') &&
+        value.indexOf('0x', 2) === -1
+      ) {
+        const data = value.slice(2)
+        const size = data.length / 2
+        if (compiled.size === 0)
+          return word(size) + data.padEnd(Math.ceil(size / 32) * 64, '0')
+        if (size === compiled.size) return data.padEnd(64, '0')
+      }
+      break
+    case 'number':
+      if (
+        typeof value === 'bigint' ||
+        (typeof value === 'number' && Number.isSafeInteger(value))
+      ) {
+        const { max, min, signed, size } = compiled
+        if (value > max || value < min)
+          throw new IntegerOutOfRangeError({
+            max: max.toString(),
+            min: min.toString(),
+            signed,
+            size: size / 8,
+            value: value.toString(),
+          })
+        const hex = (value < 0 ? (1n << 256n) + BigInt(value) : value).toString(
+          16,
+        )
+        return zeros.slice(hex.length) + hex
+      }
+      break
+    case 'string':
+      if (typeof value === 'string') {
+        const data = stringToHex(value).slice(2)
+        const remainder = data.length % 64
+        return (
+          word(data.length / 2) +
+          data +
+          (remainder ? zeros.slice(remainder) : '')
+        )
+      }
+      break
+    case 'tuple':
+      return encodeTupleValue(compiled, value)
+  }
+  return prepareParam({
+    param: compiled.param,
+    value: value as never,
+  }).encoded.slice(2)
+}
+
+function encodeArrayValue(compiled: CompiledParam, value: unknown): string {
+  const { length } = compiled
+  const child = compiled.child!
+  if (!Array.isArray(value)) throw new InvalidArrayError(value)
+  if (length !== null && value.length !== length)
+    throw new AbiEncodingArrayLengthMismatchError({
+      expectedLength: length,
+      givenLength: value.length,
+      type: `${child.param.type}[${length}]`,
+    })
+
+  // Zero-length fixed arrays of dynamic types (e.g. `string[0]`) are dynamic
+  // per the ABI spec, even though they have no elements to inspect.
+  const dynamicChild =
+    value.length === 0 ? isDynamicType(child.param) : child.dynamic
+  let data = ''
+  if (dynamicChild) {
+    let head = ''
+    let offset = value.length * 32
+    for (let i = 0; i < value.length; i++) {
+      const part = encode(child, value[i])
+      head += word(offset)
+      data += part
+      offset += Math.ceil(part.length / 2)
+    }
+    data = head + data
+  } else for (let i = 0; i < value.length; i++) data += encode(child, value[i])
+
+  if (length === null) return word(value.length) + data
+  return data
+}
+
+function encodeTupleValue(compiled: CompiledParam, value: unknown): string {
+  const components = compiled.components!
+  const isArray = Array.isArray(value)
+  const parts: string[] = new Array(components.length)
+  for (let i = 0; i < components.length; i++) {
+    const component = components[i]!
+    parts[i] = encode(
+      component,
+      (value as any)[isArray ? i : component.param.name!],
+    )
+  }
+  if (compiled.dynamic) return encodeParts(components, parts)
+  let data = ''
+  for (let i = 0; i < parts.length; i++) data += parts[i]
+  return data
+}
+
+/** Lays out encoded parts as static heads followed by dynamic tails. */
+function encodeParts(
+  compiled: readonly CompiledParam[],
+  parts: readonly string[],
+): string {
+  let offset = 0
+  for (let i = 0; i < parts.length; i++)
+    offset += compiled[i]!.dynamic ? 32 : Math.ceil(parts[i]!.length / 2)
+  let head = ''
+  let tail = ''
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i]!
+    if (compiled[i]!.dynamic) {
+      head += word(offset)
+      tail += part
+      offset += Math.ceil(part.length / 2)
+    } else head += part
+  }
+  return head + tail
+}
+
+/** Encodes a non-negative integer as a 32-byte word. */
+function word(value: number): string {
+  const hex = value.toString(16)
+  return zeros.slice(hex.length) + hex
 }
 
 /////////////////////////////////////////////////////////////////
@@ -112,20 +366,6 @@ type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
 type Tuple = AbiParameterToPrimitiveType<TupleAbiParameter>
 
 type PrepareParamsErrorType = PrepareParamErrorType | ErrorType
-
-function prepareParams<const params extends readonly AbiParameter[]>({
-  params,
-  values,
-}: {
-  params: params
-  values: AbiParametersToPrimitiveTypes<params>
-}) {
-  const preparedParams: PreparedParam[] = []
-  for (let i = 0; i < params.length; i++) {
-    preparedParams.push(prepareParam({ param: params[i], value: values[i] }))
-  }
-  return preparedParams
-}
 
 type PrepareParamErrorType =
   | EncodeAddressErrorType

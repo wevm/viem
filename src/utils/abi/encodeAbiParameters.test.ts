@@ -2060,3 +2060,41 @@ describe('zero-width types', () => {
     )
   })
 })
+
+describe('values outside the fast path', () => {
+  test('numbers encode like bigints', () => {
+    const params = [
+      { type: 'uint256' },
+      { type: 'int24' },
+      { type: 'uint256' },
+    ] as const
+
+    const encoded = encodeAbiParameters(params, [420, -1, 2 ** 53 + 2])
+
+    expect(encoded).toBe(
+      encodeAbiParameters(params, [420n, -1n, 2n ** 53n + 2n]),
+    )
+    expect(encoded).toMatchInlineSnapshot(
+      `"0x00000000000000000000000000000000000000000000000000000000000001a4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000020000000000002"`,
+    )
+  })
+
+  test('odd-length bytes are left-padded', () => {
+    expect(encodeAbiParameters([{ type: 'bytes' }], ['0xabc'])).toBe(
+      encodeAbiParameters([{ type: 'bytes' }], ['0x0abc']),
+    )
+  })
+
+  test('first invalid value throws', () => {
+    expect(() =>
+      encodeAbiParameters(
+        [{ type: 'uint8' }, { type: 'address' }, { type: 'foo' }],
+        [256, '0xinvalid', 1] as never,
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+
+      Version: viem@x.y.z]
+    `)
+  })
+})
