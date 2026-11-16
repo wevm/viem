@@ -129,10 +129,10 @@ export function ipc(
       },
       {
         getRpcClient() {
-          return getIpcRpcClient(path)
+          return getIpcRpcClient(path, { reconnect })
         },
         async subscribe({ params, onData, onError }: any) {
-          const rpcClient = await getIpcRpcClient(path)
+          const rpcClient = await getIpcRpcClient(path, { reconnect })
           // Updated when the subscription is re-established after a reconnect.
           let subscriptionId: Hash
           let unsubscribed = false

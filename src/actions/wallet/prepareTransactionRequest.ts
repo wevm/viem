@@ -93,7 +93,7 @@ export const defaultParameters = [
 ] as const
 
 /** @internal */
-export const eip1559NetworkCache = /*#__PURE__*/ new Map<string, boolean>()
+export const eip1559NetworkCache = /*#__PURE__*/ new LruMap<boolean>(128)
 
 /** @internal */
 export const supportsFillTransaction = /*#__PURE__*/ new LruMap<boolean>(128)

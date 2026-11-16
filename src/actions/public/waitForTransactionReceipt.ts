@@ -23,7 +23,11 @@ import type { Hash, Hex } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { getAction } from '../../utils/getAction.js'
-import { type ObserveErrorType, observe } from '../../utils/observe.js'
+import {
+  listenersCache,
+  type ObserveErrorType,
+  observe,
+} from '../../utils/observe.js'
 import { withResolvers } from '../../utils/promise/withResolvers.js'
 import {
   type WithRetryParameters,
@@ -253,15 +257,21 @@ export async function waitForTransactionReceipt<
 
   let _unobserve: () => void
   let _unwatch: () => void
+  // Set when this caller's timeout fires.
+  let timedOut = false
 
   const { promise, resolve, reject } =
     withResolvers<WaitForTransactionReceiptReturnType<chain>>()
 
   const timer = timeout
     ? setTimeout(() => {
-        _unwatch?.()
+        timedOut = true
         _unobserve?.()
-        latest = undefined
+        // Keep polling for later callers that share this observer.
+        if (!listenersCache.get(observerId)?.length) {
+          _unwatch?.()
+          latest = undefined
+        }
         reject(new WaitForTransactionReceiptTimeoutError({ hash }))
       }, timeout)
     : undefined
@@ -292,6 +302,10 @@ export async function waitForTransactionReceipt<
         _unobserve?.()
         return
       }
+
+      // The timeout fired during the lookup, before polling could be stopped.
+      // Keep going for later callers that share this observer.
+      if (timedOut && !listenersCache.get(observerId)?.length) return
 
       const handleBlock = async (blockNumber_: bigint) => {
         const done = (fn: () => void) => {
@@ -600,6 +614,11 @@ export async function waitForTransactionReceipt<
         poll: true,
         pollingInterval,
         async onBlockNumber(blockNumber) {
+          // Every caller left, for example by timing out, so stop polling.
+          if (!listenersCache.get(observerId)?.length) {
+            _unwatch?.()
+            return
+          }
           latest = blockNumber
           while (latest !== undefined && !retrying) {
             const next = latest

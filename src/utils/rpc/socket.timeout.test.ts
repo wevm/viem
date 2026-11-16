@@ -140,3 +140,25 @@ test('keeps successfully established subscriptions after request cleanup', async
     await connection.close()
   }
 })
+
+test('rejects pending requests when the peer closes the connection', async () => {
+  const connection = await createConnection()
+  try {
+    const response = connection.client.requestAsync({
+      body: { method: 'eth_blockNumber' },
+      timeout: 5_000,
+    })
+    connection.peer.end()
+
+    await expect(response).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [SocketClosedError: The socket has been closed.
+
+      URL: http://localhost
+
+      Version: viem@x.y.z]
+    `)
+    expect(connection.client.requests.size).toBe(0)
+  } finally {
+    await connection.close()
+  }
+})

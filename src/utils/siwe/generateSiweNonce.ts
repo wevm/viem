@@ -1,7 +1,8 @@
-import { uid } from '../../utils/uid.js'
+import * as Hex from 'ox/Hex'
 
 /**
- * @description Generates random EIP-4361 nonce.
+ * @description Generates a random EIP-4361 nonce from a cryptographically
+ * secure source.
  *
  * @example
  * const nonce = generateNonce()
@@ -11,5 +12,5 @@ import { uid } from '../../utils/uid.js'
  * @returns A randomly generated EIP-4361 nonce.
  */
 export function generateSiweNonce(): string {
-  return uid(96)
+  return Hex.random(48).slice(2)
 }
