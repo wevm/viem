@@ -14,25 +14,35 @@ export function trim<value extends ByteArray | Hex>(
   hexOrBytes: value,
   { dir = 'left' }: TrimOptions = {},
 ): TrimReturnType<value> {
-  let data: any =
-    typeof hexOrBytes === 'string' ? hexOrBytes.replace('0x', '') : hexOrBytes
-
-  let sliceLength = 0
-  for (let i = 0; i < data.length - 1; i++) {
-    if (data[dir === 'left' ? i : data.length - i - 1].toString() === '0')
-      sliceLength++
-    else break
-  }
-  data =
-    dir === 'left'
-      ? data.slice(sliceLength)
-      : data.slice(0, data.length - sliceLength)
-
   if (typeof hexOrBytes === 'string') {
+    let data = hexOrBytes.startsWith('0x')
+      ? hexOrBytes.slice(2)
+      : hexOrBytes.replace('0x', '')
+    // Count the zero digits on the `dir` side, keeping at least one digit.
+    let count = 0
+    if (dir === 'left') {
+      while (count < data.length - 1 && data.charCodeAt(count) === 48) count++
+      data = data.slice(count)
+    } else {
+      while (
+        count < data.length - 1 &&
+        data.charCodeAt(data.length - count - 1) === 48
+      )
+        count++
+      data = data.slice(0, data.length - count)
+    }
     if (data.length === 1 && dir === 'right') data = `${data}0`
     return `0x${
       data.length % 2 === 1 ? `0${data}` : data
     }` as TrimReturnType<value>
   }
-  return data as TrimReturnType<value>
+
+  const data = hexOrBytes as ByteArray
+  let count = 0
+  if (dir === 'left') {
+    while (count < data.length - 1 && data[count] === 0) count++
+    return data.slice(count) as TrimReturnType<value>
+  }
+  while (count < data.length - 1 && data[data.length - count - 1] === 0) count++
+  return data.slice(0, data.length - count) as TrimReturnType<value>
 }

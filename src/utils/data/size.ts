@@ -1,7 +1,7 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 
-import { type IsHexErrorType, isHex } from './isHex.js'
+import type { IsHexErrorType } from './isHex.js'
 
 export type SizeErrorType = IsHexErrorType | ErrorType
 
@@ -12,6 +12,7 @@ export type SizeErrorType = IsHexErrorType | ErrorType
  * @returns The size of the value (in bytes).
  */
 export function size(value: Hex | ByteArray) {
-  if (isHex(value, { strict: false })) return Math.ceil((value.length - 2) / 2)
+  if (typeof value === 'string' && value.startsWith('0x'))
+    return Math.ceil((value.length - 2) / 2)
   return value.length
 }

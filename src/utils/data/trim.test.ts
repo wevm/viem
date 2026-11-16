@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
+import type { Hex } from '../../types/misc.js'
 import { trim } from './trim.js'
 
 test('default', () => {
@@ -186,4 +187,94 @@ describe('bytes', () => {
     `,
     )
   })
+})
+
+test('edge cases', () => {
+  const values = [
+    '0x',
+    '0x0',
+    '0x00',
+    '0x0001',
+    '0x00100',
+    '0x1000',
+    '0x10',
+    '000100' as Hex,
+    new Uint8Array([]),
+    new Uint8Array([0]),
+    new Uint8Array([0, 0, 1, 0, 0]),
+    new Uint8Array([1, 0, 0]),
+  ] as const
+
+  expect(
+    values.map((value) => [trim(value), trim(value, { dir: 'right' })]),
+  ).toMatchInlineSnapshot(`
+    [
+      [
+        "0x",
+        "0x",
+      ],
+      [
+        "0x00",
+        "0x00",
+      ],
+      [
+        "0x00",
+        "0x00",
+      ],
+      [
+        "0x01",
+        "0x0001",
+      ],
+      [
+        "0x0100",
+        "0x0001",
+      ],
+      [
+        "0x1000",
+        "0x10",
+      ],
+      [
+        "0x10",
+        "0x10",
+      ],
+      [
+        "0x0100",
+        "0x0001",
+      ],
+      [
+        Uint8Array [],
+        Uint8Array [],
+      ],
+      [
+        Uint8Array [
+          0,
+        ],
+        Uint8Array [
+          0,
+        ],
+      ],
+      [
+        Uint8Array [
+          1,
+          0,
+          0,
+        ],
+        Uint8Array [
+          0,
+          0,
+          1,
+        ],
+      ],
+      [
+        Uint8Array [
+          1,
+          0,
+          0,
+        ],
+        Uint8Array [
+          1,
+        ],
+      ],
+    ]
+  `)
 })
