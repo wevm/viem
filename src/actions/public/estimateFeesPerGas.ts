@@ -21,6 +21,7 @@ import type {
   FeeValuesType,
 } from '../../types/fee.js'
 import { getAction } from '../../utils/getAction.js'
+import { LruMap } from '../../utils/lru.js'
 import type { PrepareTransactionRequestParameters } from '../wallet/prepareTransactionRequest.js'
 import {
   type EstimateMaxPriorityFeePerGasErrorType,
@@ -28,6 +29,13 @@ import {
 } from './estimateMaxPriorityFeePerGas.js'
 import { getBlock } from './getBlock.js'
 import { type GetGasPriceErrorType, getGasPrice } from './getGasPrice.js'
+
+/**
+ * Whether each client's network has EIP-1559 fees, keyed by client uid.
+ *
+ * @internal
+ */
+export const eip1559NetworkCache = /*#__PURE__*/ new LruMap<boolean>(128)
 
 export type EstimateFeesPerGasParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -127,9 +135,48 @@ export async function internal_estimateFeesPerGas<
     (base * BigInt(Math.round(baseFeeMultiplier * denominator))) /
     BigInt(denominator)
 
-  const block = block_
-    ? block_
-    : await getAction(client, getBlock, 'getBlock')({})
+  // Chain fee hooks receive the block and the request, so the requests they
+  // depend on are made in sequence.
+  const hasFeeHooks = Object.values(chain?.fees ?? {}).some(
+    (fee) => typeof fee === 'function',
+  )
+
+  // Without chain fee hooks, legacy fees never read the block.
+  const blockPromise =
+    block_ || (type === 'legacy' && !hasFeeHooks)
+      ? undefined
+      : getAction(client, getBlock, 'getBlock')({})
+  // A rejection is thrown when the block is awaited.
+  blockPromise?.catch(() => {})
+
+  // Without chain fee hooks, the priority fee does not depend on the block,
+  // so it is estimated concurrently with the block request, unless the
+  // network is already known to lack EIP-1559 fees.
+  const priorityFeePromise =
+    blockPromise &&
+    type === 'eip1559' &&
+    !hasFeeHooks &&
+    typeof request?.maxPriorityFeePerGas !== 'bigint' &&
+    eip1559NetworkCache.get(client.uid) !== false
+      ? internal_estimateMaxPriorityFeePerGas(
+          client as Client<Transport, Chain>,
+          {
+            block: blockPromise,
+            chain,
+            request,
+          },
+        )
+      : undefined
+  // A rejection is thrown when the priority fee is awaited.
+  priorityFeePromise?.catch(() => {})
+
+  // The block error takes precedence over the priority fee error.
+  const block = block_ ?? (await blockPromise)
+  if (blockPromise)
+    eip1559NetworkCache.set(
+      client.uid,
+      typeof block?.baseFeePerGas === 'bigint',
+    )
 
   if (typeof chain?.fees?.estimateFeesPerGas === 'function') {
     const fees = (await chain.fees.estimateFeesPerGas({
@@ -144,20 +191,21 @@ export async function internal_estimateFeesPerGas<
   }
 
   if (type === 'eip1559') {
-    if (typeof block.baseFeePerGas !== 'bigint')
+    if (typeof block?.baseFeePerGas !== 'bigint')
       throw new Eip1559FeesNotSupportedError()
 
     const maxPriorityFeePerGas =
       typeof request?.maxPriorityFeePerGas === 'bigint'
         ? request.maxPriorityFeePerGas
-        : await internal_estimateMaxPriorityFeePerGas(
-            client as Client<Transport, Chain>,
-            {
-              block: block as Block,
-              chain,
-              request,
-            },
-          )
+        : await (priorityFeePromise ??
+            internal_estimateMaxPriorityFeePerGas(
+              client as Client<Transport, Chain>,
+              {
+                block: block as Block,
+                chain,
+                request,
+              },
+            ))
 
     const baseFeePerGas = multiply(block.baseFeePerGas)
     const maxFeePerGas =

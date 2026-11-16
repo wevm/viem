@@ -5,6 +5,7 @@ import { accounts } from '~test/constants.js'
 import { kzg } from '~test/kzg.js'
 import { createRpcProxy } from '~test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { eip1559NetworkCache } from '../../actions/public/estimateFeesPerGas.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
 import { setBalance } from '../../actions/test/setBalance.js'
@@ -25,7 +26,6 @@ import { wait } from '../../utils/wait.js'
 import * as fillTransaction from '../public/fillTransaction.js'
 import {
   defaultParameters,
-  eip1559NetworkCache,
   prepareTransactionRequest,
   supportsFillTransaction,
 } from './prepareTransactionRequest.js'
@@ -1398,6 +1398,69 @@ describe('without `eth_fillTransaction`', () => {
         "eth_getBlockByNumber": [],
         "eth_getTransactionCount": [],
         "eth_maxPriorityFeePerGas": [],
+      }
+    `)
+  })
+
+  test('behavior: skips the block for legacy fees', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+
+    const request = await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'legacy',
+      value: parseEther('1'),
+    })
+
+    const { account: _, ...rest } = request
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "gasPrice": 11700000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "legacy",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_gasPrice": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+      }
+    `)
+  })
+
+  test('behavior: fetches the block for legacy fees with chain fee hooks', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient(
+      defineChain({
+        ...anvilMainnet.chain,
+        fees: { baseFeeMultiplier: () => 1.2 },
+      }),
+    )
+
+    await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'legacy',
+      value: parseEther('1'),
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_gasPrice": [],
+        "eth_getBlockByNumber": [],
+        "eth_getTransactionCount": [],
       }
     `)
   })

@@ -6,6 +6,7 @@ import {
 } from '../../accounts/utils/parseAccount.js'
 import {
   type EstimateFeesPerGasErrorType,
+  eip1559NetworkCache,
   internal_estimateFeesPerGas,
 } from '../../actions/public/estimateFeesPerGas.js'
 import {
@@ -91,9 +92,6 @@ export const defaultParameters = [
   'nonce',
   'type',
 ] as const
-
-/** @internal */
-export const eip1559NetworkCache = /*#__PURE__*/ new LruMap<boolean>(128)
 
 /** @internal */
 export const supportsFillTransaction = /*#__PURE__*/ new LruMap<boolean>(128)
@@ -743,11 +741,11 @@ export async function prepareTransactionRequest<
           throw new Eip1559FeesNotSupportedError()
 
         if (typeof request.gasPrice === 'undefined') {
-          const block = await getBlock()
           const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
             client,
             {
-              block: block as Block,
+              // Only chain fee hooks read the block for legacy fees.
+              block: hasFeeHooks ? await getBlock() : undefined,
               chain,
               request: request as PrepareTransactionRequestParameters,
               type: 'legacy',
