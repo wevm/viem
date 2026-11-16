@@ -1595,6 +1595,129 @@ describe('without `eth_fillTransaction`', () => {
 
     expect(error.details).toMatchInlineSnapshot(`"nonce unavailable"`)
   })
+  test('behavior: estimates the priority fee with the type detection block', async () => {
+    await setup()
+
+    // A new client has not detected the network's transaction type yet.
+    const { client: recordingClient, requests } = createRecordingClient()
+
+    const request = await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    const { account: _, ...rest } = request
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+  })
+
+  test('behavior: estimates the priority fee after the type detection block with chain fee hooks', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient(
+      defineChain({
+        ...anvilMainnet.chain,
+        fees: { baseFeeMultiplier: () => 1.5 },
+      }),
+    )
+
+    const { account: _, ...request } = await prepareTransactionRequest(
+      recordingClient,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 16000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [],
+      }
+    `)
+  })
+
+  test('behavior: discards the concurrent priority fee on legacy networks', async () => {
+    await setup()
+
+    const url = await createRpcProxy(
+      anvilMainnet.rpcUrl.http,
+      async ({ method }) => {
+        if (method !== 'eth_getBlockByNumber') return undefined
+        const block = await client.request({
+          method,
+          params: ['latest', false],
+        })
+        return { result: { ...block, baseFeePerGas: undefined } }
+      },
+    )
+    const proxyClient = createClient({
+      chain: anvilMainnet.chain,
+      transport: http(url),
+    })
+    supportsFillTransaction.set(proxyClient.uid, false)
+
+    const request = await prepareTransactionRequest(proxyClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    const { account: _, ...rest } = request
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "gasPrice": 11700000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "legacy",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
 })
 
 describe('with `eth_fillTransaction`', () => {

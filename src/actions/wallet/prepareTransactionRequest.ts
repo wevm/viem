@@ -687,6 +687,8 @@ export async function prepareTransactionRequest<
 
     if (parameters.includes('chainId')) request.chainId = await getChainId()
 
+    let priorityFeePromise: Promise<bigint> | undefined
+
     if (
       (parameters.includes('fees') || parameters.includes('type')) &&
       typeof type === 'undefined'
@@ -698,6 +700,18 @@ export async function prepareTransactionRequest<
       } catch {
         let isEip1559Network = eip1559NetworkCache.get(client.uid)
         if (typeof isEip1559Network === 'undefined') {
+          // EIP-1559 fees will most likely be needed, so without chain fee
+          // hooks the priority fee is estimated concurrently with the block
+          // that decides the type. On legacy networks, it goes unused.
+          if (parameters.includes('fees') && !hasFeeHooks) {
+            priorityFeePromise = internal_estimateMaxPriorityFeePerGas(client, {
+              block: getBlock(),
+              chain,
+              request: request as PrepareTransactionRequestParameters,
+            })
+            // A rejection is thrown when the priority fee is awaited.
+            priorityFeePromise.catch(() => {})
+          }
           const block = await getBlock()
           isEip1559Network = typeof block?.baseFeePerGas === 'bigint'
           eip1559NetworkCache.set(client.uid, isEip1559Network)
@@ -721,11 +735,12 @@ export async function prepareTransactionRequest<
             getBlock(),
             hasFeeHooks || typeof request.maxPriorityFeePerGas === 'bigint'
               ? undefined
-              : internal_estimateMaxPriorityFeePerGas(client, {
+              : (priorityFeePromise ??
+                internal_estimateMaxPriorityFeePerGas(client, {
                   block: getBlock(),
                   chain,
                   request: request as PrepareTransactionRequestParameters,
-                }),
+                })),
           ])
           const { maxFeePerGas, maxPriorityFeePerGas } =
             await internal_estimateFeesPerGas(client, {
