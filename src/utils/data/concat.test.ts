@@ -1,3 +1,4 @@
+import type { Hex } from 'viem'
 import { expect, test } from 'vitest'
 
 import { concat, concatBytes, concatHex } from './concat.js'
@@ -32,4 +33,20 @@ test('concat', () => {
       new Uint8Array([0, 0, 420, 69]),
     ]),
   ).toStrictEqual(new Uint8Array([0, 0, 0, 1, 0, 0, 0, 69, 0, 0, 420, 69]))
+})
+
+test('hex: values without a 0x prefix', () => {
+  expect([
+    concatHex([]),
+    concatHex(['0x', '0x']),
+    concatHex(['ab', '0x12'] as Hex[]),
+    concatHex(['0x0x12', '120x34'] as Hex[]),
+  ]).toMatchInlineSnapshot(`
+    [
+      "0x",
+      "0x",
+      "0xab12",
+      "0x0x121234",
+    ]
+  `)
 })

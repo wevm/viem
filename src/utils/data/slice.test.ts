@@ -1,3 +1,4 @@
+import type { Hex } from 'viem'
 import { expect, test } from 'vitest'
 
 import { slice, sliceBytes, sliceHex } from './slice.js'
@@ -250,4 +251,16 @@ test('bytes', () => {
     Version: viem@x.y.z]
   `,
   )
+})
+
+test('hex: input without a 0x prefix', () => {
+  expect([
+    sliceHex('a4e12a45' as Hex, 1, 3),
+    sliceHex('a40x12' as Hex, 1),
+  ]).toMatchInlineSnapshot(`
+    [
+      "0xe12a",
+      "0x12",
+    ]
+  `)
 })
