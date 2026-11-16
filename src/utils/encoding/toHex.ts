@@ -185,6 +185,20 @@ export function numberToHex(
 ): Hex {
   const { signed, size } = opts
 
+  // Unsigned values fit `size` bytes when their hex has at most `size * 2`
+  // digits, so skip the bigint bounds. Anything else takes the checks below.
+  if (
+    !signed &&
+    (typeof value_ === 'bigint'
+      ? value_ >= 0n
+      : Number.isSafeInteger(value_) && value_ >= 0)
+  ) {
+    const hex = value_.toString(16)
+    if (!size) return `0x${hex}`
+    if (Number.isSafeInteger(size) && size > 0 && hex.length <= size * 2)
+      return `0x${hex.padStart(size * 2, '0')}`
+  }
+
   const value = BigInt(value_)
 
   let maxValue: bigint | number | undefined
