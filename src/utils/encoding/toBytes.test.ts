@@ -1,7 +1,5 @@
+import type { BaseError, Hex } from 'viem'
 import { describe, expect, test } from 'vitest'
-
-import type { BaseError } from '../../errors/base.js'
-import type { Hex } from '../../types/misc.js'
 
 import {
   boolToBytes,

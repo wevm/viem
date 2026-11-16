@@ -1,6 +1,5 @@
+import { stringToBytes } from 'viem'
 import { expect, test } from 'vitest'
-
-import { stringToBytes } from '../encoding/toBytes.js'
 import { keccak256 } from './keccak256.js'
 
 test('to hex', () => {
