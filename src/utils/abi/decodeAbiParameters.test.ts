@@ -1593,6 +1593,27 @@ test('error: recursive decode array', () => {
   `)
 })
 
+test('zst after reading past the end', () => {
+  // `bytes1` in the last, partial word moves the cursor past the end, and
+  // zero-width reads there must still count against the read limit.
+  const payload = `0x${'00'.repeat(31)}01ff` as const
+
+  expect(() =>
+    decodeAbiParameters(
+      [
+        { type: 'uint256' },
+        { type: 'bytes1' },
+        { type: 'uint256[0][4294967295]' },
+      ],
+      payload,
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('zst', () => {
   const payload =
     '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000FFFFFFFF' as const
@@ -1905,4 +1926,83 @@ describe('decoded size limit', () => {
       decodeAbiParameters(parseAbiParameters('string[], bytes[]'), data),
     ).toEqual([strings, bytes])
   })
+})
+
+test('round-trips random types', () => {
+  let seed = 0x12345678
+  const random = () => {
+    seed ^= seed << 13
+    seed ^= seed >>> 17
+    seed ^= seed << 5
+    return (seed >>> 0) / 4294967296
+  }
+  const randomInt = (n: number) => Math.floor(random() * n)
+  const randomHex = (bytes: number) =>
+    `0x${Array.from({ length: bytes }, () => randomInt(256).toString(16).padStart(2, '0')).join('')}` as Hex
+
+  type Param = { type: string; name?: string; components?: Param[] }
+  const randomParam = (depth: number): Param => {
+    const r = random()
+    if (depth < 3 && r < 0.15) {
+      const named = random() < 0.7
+      return {
+        type: 'tuple',
+        components: Array.from({ length: 1 + randomInt(4) }, (_, i) => ({
+          ...randomParam(depth + 1),
+          ...(named ? { name: `f${i}` } : {}),
+        })),
+      }
+    }
+    if (depth < 3 && r < 0.3) {
+      const inner = randomParam(depth + 1)
+      const length = random() < 0.5 ? '' : String(1 + randomInt(3))
+      return { ...inner, type: `${inner.type}[${length}]` }
+    }
+    const bits = 8 * (1 + randomInt(32))
+    return {
+      type: [
+        'address',
+        'bool',
+        'bytes',
+        'string',
+        `bytes${1 + randomInt(32)}`,
+        `uint${bits}`,
+        `int${bits}`,
+      ][randomInt(7)]!,
+    }
+  }
+  const randomValue = (param: Param): unknown => {
+    const array = param.type.match(/^(.*)\[(\d*)\]$/)
+    if (array) {
+      const length = array[2] ? Number(array[2]) : randomInt(5)
+      return Array.from({ length }, () =>
+        randomValue({ ...param, type: array[1]! }),
+      )
+    }
+    if (param.type === 'tuple') return param.components!.map(randomValue)
+    if (param.type === 'address') return randomHex(20)
+    if (param.type === 'bool') return random() < 0.5
+    if (param.type === 'string')
+      return ['', 'hello', 'ünïcødé 🚀'][randomInt(3)]
+    if (param.type === 'bytes') return randomHex(randomInt(80))
+    if (param.type.startsWith('bytes'))
+      return randomHex(Number(param.type.slice(5)))
+    const signed = param.type.startsWith('int')
+    const bits = BigInt(param.type.replace(/^u?int/, ''))
+    const value = BigInt(randomHex(32)) % 2n ** (bits - (signed ? 1n : 0n))
+    return signed && random() < 0.5 ? -value - 1n : value
+  }
+
+  for (let i = 0; i < 500; i++) {
+    const params = Array.from({ length: 1 + randomInt(3) }, () =>
+      randomParam(0),
+    )
+    const data = encodeAbiParameters(params, params.map(randomValue))
+    // Zero-width parameters (e.g. `uint8[0]`) encode to no data.
+    if (data === '0x') continue
+
+    const decoded = decodeAbiParameters(params, data)
+
+    expect(encodeAbiParameters(params, decoded as never)).toBe(data)
+  }
 })
