@@ -7,6 +7,10 @@ const hardfork = process.env.VITE_TEMPO_HARDFORK
 const configurableAccounts =
   nodeEnv === 'localnet' &&
   (!hardfork || hardfork === 'Tnext' || Number(hardfork.slice(1)) >= 14)
+// T15 removed the ValidatorConfig V1 precompile.
+const validatorConfigV1 =
+  nodeEnv !== 'localnet' ||
+  (!!hardfork && hardfork !== 'Tnext' && Number(hardfork.slice(1)) < 15)
 
 const zoneNodeConfigured =
   nodeEnv !== 'localnet' || process.env.VITE_TEMPO_ZONES === 'true'
@@ -91,6 +95,7 @@ export default defineConfig({
           exclude: [
             configurableAccounts ? '' : '**/*.accounts.test.ts',
             zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
+            validatorConfigV1 ? '' : 'src/tempo/actions/validator.test.ts',
             'src/tempo/**/*.fuzz.test.ts',
             'src/tempo/**/*.node-fuzz.test.ts',
           ],

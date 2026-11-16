@@ -39,6 +39,14 @@ export const configurableAccounts =
     't14',
   )
 
+/** Whether the test chain serves the ValidatorConfig V1 precompile (removed in T15). */
+export const validatorConfigV1 =
+  nodeEnv !== 'localnet' ||
+  Hardfork.lt(
+    (import.meta.env.VITE_TEMPO_HARDFORK ?? 'Tnext').toLowerCase(),
+    't15',
+  )
+
 const accountsMnemonic = (() => {
   if (nodeEnv === 'localnet')
     return 'test test test test test test test test test test test junk'
