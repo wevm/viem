@@ -1,6 +1,6 @@
 import { AbiEvent, Hex, Secp256k1, Value } from 'ox'
 import { AccountConfig, Channel } from 'ox/tempo'
-import { Abis, Account, Actions, Hardfork } from 'viem/tempo'
+import { Abis, Account, Actions } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, chain, feeToken, getClient } from '~test/tempoAccounts.js'
 
@@ -16,10 +16,8 @@ const token = feeToken
  * Whether the test chain accepts configurable voucher signers (T15, TIP-1166).
  * Earlier forks reject a registered configurable signer with `RootKeyRetired`.
  */
-const signerSnapshots = !Hardfork.lt(
-  (process.env.VITE_TEMPO_HARDFORK ?? 't14').toLowerCase(),
-  't15',
-)
+const signerSnapshots =
+  Number(/^T(\d+)$/.exec(process.env.VITE_TEMPO_HARDFORK ?? '')?.[1]) >= 15
 
 let signerId = 0
 
