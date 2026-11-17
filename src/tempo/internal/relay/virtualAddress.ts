@@ -47,6 +47,7 @@ function decodeTransferRecipient(data?: string): Address | undefined {
   try {
     const fn = AbiFunction.fromAbi(Abis.tip20, data as Hex.Hex)
     const args = AbiFunction.decodeData(fn, data as Hex.Hex)
+    if (!args) return undefined
     const functionName = fn.name
 
     if (

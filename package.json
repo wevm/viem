@@ -144,25 +144,25 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./dist/index.js",
-      "limit": "103.5 kB",
+      "limit": "104.5 kB",
       "import": "*"
     },
     {
       "name": "import { Actions } from 'viem'",
       "path": "./dist/index.js",
-      "limit": "85 kB",
+      "limit": "86 kB",
       "import": "{ Actions }"
     },
     {
       "name": "import { Client } from 'viem'",
       "path": "./dist/index.js",
-      "limit": "26.5 kB",
+      "limit": "27 kB",
       "import": "{ Client }"
     },
     {
       "name": "import * from 'viem/chains'",
       "path": "./dist/chains/index.js",
-      "limit": "98.5 kB",
+      "limit": "100.5 kB",
       "import": "*"
     },
     {
@@ -174,7 +174,7 @@
     {
       "name": "import * from 'viem/erc4337'",
       "path": "./dist/erc4337/index.js",
-      "limit": "76.5 kB",
+      "limit": "77 kB",
       "import": "*"
     },
     {
@@ -192,13 +192,13 @@
     {
       "name": "import * from 'viem/op-stack'",
       "path": "./dist/op-stack/index.js",
-      "limit": "71 kB",
+      "limit": "72 kB",
       "import": "*"
     },
     {
       "name": "import * from 'viem/tempo'",
       "path": "./dist/tempo/index.js",
-      "limit": "195 kB",
+      "limit": "197.5 kB",
       "import": "*"
     },
     {
@@ -210,7 +210,7 @@
     {
       "name": "import * from 'viem/utils'",
       "path": "./dist/utils/index.js",
-      "limit": "170 kB",
+      "limit": "171.5 kB",
       "import": "*"
     },
     {
@@ -228,7 +228,7 @@
     {
       "name": "import * from 'viem/zod'",
       "path": "./dist/zod/index.js",
-      "limit": "118.5 kB",
+      "limit": "119.5 kB",
       "import": "*"
     }
   ],
@@ -289,7 +289,7 @@
   },
   "dependencies": {
     "abitype": "1.3.0",
-    "ox": "1.8.13"
+    "ox": "1.8.16"
   },
   "exports": {
     ".": {

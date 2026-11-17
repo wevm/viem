@@ -14,7 +14,7 @@ const revealTo =
   '0x0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'
 
 test('behavior: encodes the outbox requestWithdrawal call with revealTo', () => {
-  const revealTo = '0x02abc'
+  const revealTo = '0x02abcd'
   const [, call] = requestVerifiableWithdrawal.calls({
     amount: 1n,
     revealTo,
@@ -34,7 +34,7 @@ test('behavior: encodes callback gas', () => {
     data: '0x1234',
     fallbackRecipient: recipient,
     memo: `0x${'01'.repeat(32)}`,
-    revealTo: '0x02abc',
+    revealTo: '0x02abcd',
     to: account.address,
     token: '0x20c0000000000000000000000000000000000001',
   })
@@ -46,7 +46,7 @@ test('behavior: encodes callback gas', () => {
       10000000n,
       "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
       "0x1234",
-      "0x02abc",
+      "0x02abcd",
     ]
   `)
 })
@@ -79,7 +79,7 @@ test('error: no account', async () => {
   await expect(
     requestVerifiableWithdrawal(client, {
       amount: 1n,
-      revealTo: '0x02abc',
+      revealTo: '0x02abcd',
       token: '0x20c0000000000000000000000000000000000000',
     }),
   ).rejects.toThrow('`account` is required.')
@@ -87,7 +87,7 @@ test('error: no account', async () => {
   await expect(
     requestVerifiableWithdrawalSync(client, {
       amount: 1n,
-      revealTo: '0x02abc',
+      revealTo: '0x02abcd',
       token: '0x20c0000000000000000000000000000000000000',
     }),
   ).rejects.toThrow('`account` is required.')
