@@ -45,7 +45,7 @@ jobs:
 
       - name: Create Version Pull Request
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/v1@31d7c5bc5f75932a367cf341ca5e26818eb9ec9d # upstream v1.9.0
+        uses: wevm/actions/vendor/changesets/action/v1@9bf103bd47b43c77baa02648201039b6ef3d713b # upstream v1.9.0
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
@@ -76,7 +76,7 @@ jobs:
           skip-cache: true # avoid cache poisoning attacks
 
       - name: Publish to NPM
-        uses: wevm/actions/vendor/changesets/action/v1@31d7c5bc5f75932a367cf341ca5e26818eb9ec9d # upstream v1.9.0
+        uses: wevm/actions/vendor/changesets/action/v1@9bf103bd47b43c77baa02648201039b6ef3d713b # upstream v1.9.0
         with:
           createGithubReleases: false
           publish: pnpm changeset:publish
@@ -108,7 +108,7 @@ jobs:
 
       - name: Publish to NPM
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/v1@31d7c5bc5f75932a367cf341ca5e26818eb9ec9d # upstream v1.9.0
+        uses: wevm/actions/vendor/changesets/action/v1@9bf103bd47b43c77baa02648201039b6ef3d713b # upstream v1.9.0
         with:
           createGithubReleases: true
           publish: pnpm changeset:publish
