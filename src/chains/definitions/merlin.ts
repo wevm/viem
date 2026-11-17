@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const merlin = /*#__PURE__*/ defineChain({
+export const merlin = /*#__PURE__*/ Chain.from({
   id: 4200,
   name: 'Merlin',
   nativeCurrency: {
@@ -8,14 +9,13 @@ export const merlin = /*#__PURE__*/ defineChain({
     symbol: 'BTC',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.merlinchain.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.merlinchain.io' },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://scan.merlinchain.io',
-      apiUrl: 'https://scan.merlinchain.io/api',
-    },
+    name: 'blockscout',
+    url: 'https://scan.merlinchain.io',
+    apiUrl: 'https://scan.merlinchain.io/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

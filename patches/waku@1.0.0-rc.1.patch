@@ -1,0 +1,142 @@
+diff --git a/dist/lib/vite-plugins/static-build.js b/dist/lib/vite-plugins/static-build.js
+index 3d01cda28fd2684634f4f2f4a327e5388dcd5218..05528912b031bd8e83d21ede0e393e267d8933ae 100644
+--- a/dist/lib/vite-plugins/static-build.js
++++ b/dist/lib/vite-plugins/static-build.js
+@@ -1,5 +1,5 @@
+ import fs from 'node:fs';
+-import { mkdir } from 'node:fs/promises';
++import { mkdir, writeFile, readFile } from 'node:fs/promises';
+ import path from 'node:path';
+ import { Readable } from 'node:stream';
+ import { pipeline } from 'node:stream/promises';
+@@ -8,53 +8,96 @@ import pc from 'picocolors';
+ import { joinPath } from '../utils/path.js';
+ import { createProgressLogger } from '../utils/progress-logger.js';
+ import { pruneBuildOutput } from '../utils/prune-build.js';
++// Keeps only the bundle fields `pruneBuildOutput` reads, so chunk code is not
++// retained in memory (or serialized) during static generation.
++const slimBundle = (bundle)=>Object.fromEntries(Object.entries(bundle).map(([key, item])=>[
++            key,
++            item.type === 'chunk' ? {
++                type: item.type,
++                fileName: item.fileName,
++                name: item.name,
++                isEntry: item.isEntry,
++                isDynamicEntry: item.isDynamicEntry,
++                facadeModuleId: item.facadeModuleId,
++                imports: item.imports,
++                dynamicImports: item.dynamicImports,
++                viteMetadata: item.viteMetadata ? {
++                    importedAssets: Array.from(item.viteMetadata.importedAssets ?? []),
++                    importedCss: Array.from(item.viteMetadata.importedCss ?? [])
++                } : undefined
++            } : {
++                type: item.type,
++                fileName: item.fileName
++            }
++        ]));
++// Runs static generation. Exported so it can run in a fresh process after the
++// Vite build exits (see `WAKU_SSG_DEFER_FILE`), releasing bundler memory first.
++export async function runStaticBuild({ rootDir, srcDir, distDir, entryPath, rscBundle }) {
++    const progress = createProgressLogger();
++    const emitFile = async (filePath, body)=>{
++        const destFile = joinPath(rootDir, distDir, filePath);
++        const rel = path.relative(rootDir, destFile);
++        if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
++            throw new Error('Invalid filePath: ' + filePath);
++        }
++        progress.update(`generating a file ${pc.dim(filePath)}`);
++        await mkdir(joinPath(destFile, '..'), {
++            recursive: true
++        });
++        await pipeline(Readable.fromWeb(body), fs.createWriteStream(destFile));
++    };
++    console.log(pc.blue('[ssg] processing static generation...'));
++    const startTime = performance.now();
++    const entry = await import(pathToFileURL(entryPath).href);
++    const { prunableFiles } = await entry.INTERNAL_runBuild({
++        rootDir,
++        emitFile
++    });
++    if (prunableFiles.length && rscBundle) {
++        const { stubbedChunks, deletedAssets } = await pruneBuildOutput({
++            rootDir,
++            srcDir,
++            distDir,
++            rscBundle,
++            prunableFiles
++        });
++        console.log(pc.blue(`[prune] removed static-only ${stubbedChunks.length} chunk(s) and ${deletedAssets.length} asset(s) from server bundle`));
++    }
++    progress.done();
++    const fileCount = progress.getCount();
++    console.log(pc.green(`✓ ${fileCount} file${fileCount !== 1 ? 's' : ''} generated in ${Math.ceil(performance.now() - startTime)}ms`));
++}
++// Runs static generation deferred by `WAKU_SSG_DEFER_FILE`.
++export async function runDeferredStaticBuild(file) {
++    await runStaticBuild(JSON.parse(await readFile(file, 'utf8')));
++}
+ export function staticBuildPlugin({ srcDir, distDir }) {
+     let rscBundle;
+     return {
+         name: 'waku:vite-plugins:static-build',
+         generateBundle (_options, bundle) {
+             if (this.environment.name === 'rsc' && this.environment.mode === 'build') {
+-                rscBundle = bundle;
++                rscBundle = slimBundle(bundle);
+             }
+         },
+         buildApp: {
+             async handler (builder) {
+                 const viteConfig = builder.config;
+-                const rootDir = viteConfig.root;
+-                const progress = createProgressLogger();
+-                const emitFile = async (filePath, body)=>{
+-                    const destFile = joinPath(rootDir, distDir, filePath);
+-                    const rel = path.relative(rootDir, destFile);
+-                    if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
+-                        throw new Error('Invalid filePath: ' + filePath);
+-                    }
+-                    progress.update(`generating a file ${pc.dim(filePath)}`);
+-                    await mkdir(joinPath(destFile, '..'), {
+-                        recursive: true
+-                    });
+-                    await pipeline(Readable.fromWeb(body), fs.createWriteStream(destFile));
++                const options = {
++                    rootDir: viteConfig.root,
++                    srcDir,
++                    distDir,
++                    entryPath: path.resolve(viteConfig.root, viteConfig.environments.rsc.build.outDir, 'build.js'),
++                    rscBundle
+                 };
+-                const entryPath = path.join(viteConfig.environments.rsc.build.outDir, 'build.js');
+-                console.log(pc.blue('[ssg] processing static generation...'));
+-                const startTime = performance.now();
+-                const entry = await import(pathToFileURL(entryPath).href);
+-                const { prunableFiles } = await entry.INTERNAL_runBuild({
+-                    rootDir,
+-                    emitFile
+-                });
+-                if (prunableFiles.length && rscBundle) {
+-                    const { stubbedChunks, deletedAssets } = await pruneBuildOutput({
+-                        rootDir,
+-                        srcDir,
+-                        distDir,
+-                        rscBundle,
+-                        prunableFiles
+-                    });
+-                    console.log(pc.blue(`[prune] removed static-only ${stubbedChunks.length} chunk(s) and ${deletedAssets.length} asset(s) from server bundle`));
++                rscBundle = undefined;
++                const deferFile = process.env.WAKU_SSG_DEFER_FILE;
++                if (deferFile) {
++                    await writeFile(deferFile, JSON.stringify(options));
++                    console.log(pc.blue(`[ssg] deferred static generation to ${deferFile}`));
++                    return;
+                 }
+-                progress.done();
+-                const fileCount = progress.getCount();
+-                console.log(pc.green(`✓ ${fileCount} file${fileCount !== 1 ? 's' : ''} generated in ${Math.ceil(performance.now() - startTime)}ms`));
++                await runStaticBuild(options);
+             }
+         }
+     };

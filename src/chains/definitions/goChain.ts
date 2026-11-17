@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const goChain = /*#__PURE__*/ defineChain({
+export const goChain = /*#__PURE__*/ Chain.from({
   id: 60,
   name: 'GoChain',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const goChain = /*#__PURE__*/ defineChain({
     name: 'GO',
     symbol: 'GO',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.gochain.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.gochain.io' },
   blockExplorers: {
-    default: {
-      name: 'GoChain Explorer',
-      url: 'https://explorer.gochain.io',
-    },
+    name: 'GoChain Explorer',
+    url: 'https://explorer.gochain.io',
   },
   testnet: false,
 })

@@ -1,52 +1,50 @@
-import type { Abi, Address } from 'abitype'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { call } from '../../actions/public/call.js'
-import { multicall } from '../../actions/public/multicall.js'
-import type { Client } from '../../clients/createClient.js'
-import { BaseError } from '../../errors/base.js'
-import { TransactionReceiptRevertedError } from '../../errors/transaction.js'
-import type { ContractFunctionParameters } from '../../types/contract.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
-import { toFunctionSelector } from '../../utils/hash/toFunctionSelector.js'
-import { errorResolvers as accessKeyResolvers } from '../actions/accessKey.js'
-import { errorResolvers as ammResolvers } from '../actions/amm.js'
-import { errorResolvers as channelResolvers } from '../actions/channel.js'
-import { errorResolvers as dexResolvers } from '../actions/dex.js'
-import { errorResolvers as feeResolvers } from '../actions/fee.js'
-import { errorResolvers as nonceResolvers } from '../actions/nonce.js'
-import { errorResolvers as policyResolvers } from '../actions/policy.js'
-import { errorResolvers as tokenResolvers } from '../actions/token.js'
+import type { Abi, Address, Hex } from 'ox'
+import { AbiFunction, AbiItem } from 'ox'
+
+import * as Account from '../../core/Account.js'
+import type * as Client from '../../core/Client.js'
+import { call } from '../../core/actions/call.js'
+import { read } from '../../core/actions/contract/read.js'
+import { TransactionReceiptRevertedError } from '../../core/actions/transaction/sendRawSync.js'
+import { BaseError } from '../../core/Errors.js'
 import * as ExecutionError from '../ExecutionError.js'
+import { errorResolvers as accessKeyResolvers } from '../actions/accessKey/errors.js'
+import { errorResolvers as ammResolvers } from '../actions/amm/errors.js'
+import { errorResolvers as channelResolvers } from '../actions/channel/errors.js'
+import { errorResolvers as dexResolvers } from '../actions/dex/errors.js'
+import { errorResolvers as feeResolvers } from '../actions/fee/errors.js'
+import { errorResolvers as nonceResolvers } from '../actions/nonce/errors.js'
+import { errorResolvers as policyResolvers } from '../actions/policy/errors.js'
+import { errorResolvers as tokenResolvers } from '../actions/token/errors.js'
 import { TempoExecutionError } from '../errors.js'
-import type { Context, Hints, Resolvers } from './errors.js'
+import type { Context, Resolvers, withExecutionError } from './errors.js'
 
 /** Node messages that carry no revert data, mapped to the error they describe. */
 const messages = [
   [/Access key expired: expiry \d+ <= min allowed \d+/, 'ExpiryInPast()'],
 ] as const
 
+/** Converts an action failure into a {@link TempoExecutionError} when it carries a decoded Tempo error. */
 export async function toExecutionError(
   cause: unknown,
-  options: {
-    client: Client
-    hints?: Hints | undefined
-    parameters: Record<string, any>
-  },
+  options: withExecutionError.Options,
 ) {
   if (!(cause instanceof BaseError)) return cause
-  const { client, parameters } = options
+  const { client } = options
+  const parameters = options.parameters as Record<string, any>
   const source = (await replay(cause, client, parameters)) ?? cause
   const details = source.details ?? ''
-  let error: ExecutionError.ExecutionError = ExecutionError.from(source)
-  if (error.errorName === 'unknown') {
+  const error = (() => {
+    const error = ExecutionError.from(source)
+    if (error.errorName !== 'unknown') return error
     const signature = messages.find(([pattern]) => pattern.test(details))?.[1]
-    if (!signature) return cause
-    error = ExecutionError.from(toFunctionSelector(signature))
-  }
-  if (error.errorName === 'unknown') return cause
+    if (!signature) return undefined
+    const decoded = ExecutionError.from(AbiItem.getSelector(signature))
+    return decoded.errorName === 'unknown' ? undefined : decoded
+  })()
+  if (!error) return cause
 
-  const signature = formatAbiItem(
+  const signature = AbiItem.getSignature(
     error.abiItem,
   ) as keyof typeof ExecutionError.messages
   // Solidity `Error(string)` and `Panic(uint256)` are not Tempo errors.
@@ -58,24 +56,23 @@ export async function toExecutionError(
   const base = { cause, error, hints } as TempoExecutionError.Parameters
 
   const account_ = parameters.account ?? client.account
-  const account = account_ ? parseAccount(account_) : undefined
+  const account = account_ ? Account.from(account_) : undefined
   const context: Context = {
     base,
     call: getCall(parameters),
     client,
     details,
     parameters,
-    read: (contracts) =>
-      multicall(client, {
-        allowFailure: true,
-        contracts: contracts as readonly ContractFunctionParameters[],
-        deployless: true,
-      }).catch(() => []) as never,
+    read: (options) =>
+      read(client, options as read.Options).then(
+        (result) => result as never,
+        () => undefined,
+      ),
     signer: account && {
       address: account.address,
       accessKey:
-        account.source === 'accessKey' && 'accessKeyAddress' in account
-          ? (account.accessKeyAddress as Address)
+        'accessKeyAddress' in account
+          ? (account.accessKeyAddress as Address.Address | undefined)
           : undefined,
     },
     validation: !hasRevertData(source),
@@ -100,27 +97,32 @@ export async function toExecutionError(
 /** Replays a call whose receipt reverted, to recover its revert data. */
 async function replay(
   cause: BaseError,
-  client: Client,
+  client: Client.Client,
   parameters: Record<string, any>,
 ) {
   const reverted = cause.walk(
     (error) => error instanceof TransactionReceiptRevertedError,
   ) as TransactionReceiptRevertedError | null
+  // The reverted error carries the full receipt at runtime.
+  const blockNumber = (
+    reverted?.receipt as { blockNumber?: bigint | undefined } | undefined
+  )?.blockNumber
   const to = parameters.to ?? parameters.address
-  const data =
+  const data: Hex.Hex | undefined =
     parameters.data ??
     (parameters.abi && parameters.functionName
-      ? encodeFunctionData({
-          abi: parameters.abi,
-          args: parameters.args,
-          functionName: parameters.functionName,
-        })
+      ? AbiFunction.encodeData(
+          AbiFunction.fromAbi(parameters.abi, parameters.functionName, {
+            args: parameters.args,
+          }),
+          parameters.args,
+        )
       : undefined)
-  if (!reverted || !to || !data) return undefined
-  // ponytail: replays on the parent block, so earlier transactions in the same block are not applied.
+  if (!reverted || blockNumber === undefined || !to || !data) return undefined
+  // Replays on the parent block, so earlier transactions in the same block are not applied.
   return call(client, {
     account: parameters.account ?? client.account,
-    blockNumber: reverted.receipt.blockNumber - 1n,
+    blockNumber: blockNumber - 1n,
     data,
     to,
     value: parameters.value,
@@ -149,8 +151,8 @@ function getCall(parameters: Record<string, any>): Context['call'] {
     args = [],
     functionName,
   } = parameters as {
-    abi?: Abi
-    address?: Address
+    abi?: Abi.Abi
+    address?: Address.Address
     args?: readonly unknown[]
     functionName?: string
   }
@@ -163,7 +165,9 @@ function getCall(parameters: Record<string, any>): Context['call'] {
     address,
     args,
     functionName,
-    arg: (name) =>
-      args[inputs.findIndex((input) => input.name === name)] as never,
+    arg: <type>(name: string) =>
+      args[inputs.findIndex((input) => input.name === name)] as
+        | type
+        | undefined,
   }
 }

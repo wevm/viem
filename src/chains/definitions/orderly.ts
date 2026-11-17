@@ -1,17 +1,17 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const orderly = /*#__PURE__*/ defineChain({
+export const orderly = /*#__PURE__*/ Chain.from({
   id: 291,
   name: 'Orderly',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://rpc.orderly.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.orderly.network' },
   blockExplorers: {
-    default: {
-      name: 'Orderly Explorer',
-      url: 'https://explorer.orderly.network',
-    },
+    name: 'Orderly Explorer',
+    url: 'https://explorer.orderly.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

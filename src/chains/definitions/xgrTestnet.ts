@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const xgrTestnet = /*#__PURE__*/ defineChain({
+export const xgrTestnet = /*#__PURE__*/ Chain.from({
   id: 1879,
   name: 'XGR Testnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const xgrTestnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc1.testnet.xgr.network'],
-    },
+    http: ['https://rpc1.testnet.xgr.network'],
   },
   blockExplorers: {
-    default: {
-      name: 'XGR Testnet Explorer',
-      url: 'https://explorer.testnet.xgr.network',
-    },
+    name: 'XGR Testnet Explorer',
+    url: 'https://explorer.testnet.xgr.network',
   },
   testnet: true,
 })

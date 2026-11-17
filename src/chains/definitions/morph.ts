@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const morph = /*#__PURE__*/ defineChain({
+export const morph = /*#__PURE__*/ Chain.from({
   id: 2818,
   name: 'Morph',
   nativeCurrency: {
@@ -9,18 +10,15 @@ export const morph = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.morphl2.io'],
-      webSocket: ['wss://rpc.morphl2.io:8443'],
-    },
+    http: 'https://rpc.morphl2.io',
+    ws: 'wss://rpc.morphl2.io:8443',
   },
   blockExplorers: {
-    default: {
-      name: 'Morph Explorer',
-      url: 'https://explorer.morphl2.io',
-    },
+    name: 'Morph Explorer',
+    url: 'https://explorer.morphl2.io',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 3654913,

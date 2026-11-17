@@ -1,19 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const zeroGMainnet = /*#__PURE__*/ defineChain({
+export const zeroGMainnet = /*#__PURE__*/ Chain.from({
   id: 16_661,
   name: '0G Mainnet',
   nativeCurrency: { name: '0G', symbol: '0G', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://evmrpc.0g.ai'],
-    },
+    http: 'https://evmrpc.0g.ai',
   },
   blockExplorers: {
-    default: {
-      name: '0G Chainscan',
-      url: 'https://chainscan.0g.ai',
-    },
+    name: '0G Chainscan',
+    url: 'https://chainscan.0g.ai',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

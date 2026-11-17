@@ -1,5 +1,4 @@
-import * as Hex from 'ox/Hex'
-import * as Json from 'ox/Json'
+import { Hex, Json } from 'ox'
 import { AccountConfig } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Store from '../Store.js'

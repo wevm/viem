@@ -1,8 +1,9 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const plumeSepolia = /*#__PURE__*/ defineChain({
+export const plumeSepolia = /*#__PURE__*/ Chain.from({
   id: 98_867,
   name: 'Plume Testnet',
   nativeCurrency: {
@@ -11,19 +12,16 @@ export const plumeSepolia = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.plume.org'],
-      webSocket: ['wss://testnet-rpc.plume.org'],
-    },
+    http: 'https://testnet-rpc.plume.org',
+    ws: 'wss://testnet-rpc.plume.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://testnet-explorer.plume.org',
-      apiUrl: 'https://testnet-explorer.plume.org/api',
-    },
+    name: 'Blockscout',
+    url: 'https://testnet-explorer.plume.org',
+    apiUrl: 'https://testnet-explorer.plume.org/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 199_712,

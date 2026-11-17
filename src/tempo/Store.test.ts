@@ -1,3 +1,5 @@
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
 import { Store } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 
@@ -48,26 +50,19 @@ describe('Store.memory', () => {
 
 describe('Store.defaultStore', () => {
   test('falls back to memory when session storage access is denied', async () => {
-    const descriptor = Object.getOwnPropertyDescriptor(
-      globalThis,
-      'sessionStorage',
-    )
-    Object.defineProperty(globalThis, 'sessionStorage', {
-      configurable: true,
-      get() {
-        throw new DOMException('Access denied.', 'SecurityError')
-      },
-    })
-
-    try {
-      const store = Store.defaultStore()
+    // A fresh process exercises initial selection without reusing the transport's singleton.
+    const { stdout } = await promisify(execFile)(process.execPath, [
+      '--input-type=module',
+      '-e',
+      `Object.defineProperty(globalThis, 'sessionStorage', {
+        get() { throw new DOMException('Access denied.', 'SecurityError') },
+      })
+      const { defaultStore } = await import(${JSON.stringify(new URL('./Store.ts', import.meta.url).href)})
+      const store = defaultStore()
       await store.setItem('fallback', 'value')
-      expect(await store.getItem('fallback')).toBe('value')
-    } finally {
-      if (descriptor)
-        Object.defineProperty(globalThis, 'sessionStorage', descriptor)
-      else delete (globalThis as { sessionStorage?: unknown }).sessionStorage
-    }
+      console.log(await store.getItem('fallback'))`,
+    ])
+    expect(stdout.trim()).toBe('value')
   })
 
   test('returns a working store', async () => {

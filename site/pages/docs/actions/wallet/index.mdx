@@ -1,0 +1,240 @@
+import { Card, Cards } from 'vocs'
+
+# Wallet Actions
+
+## Overview
+
+Wallet Actions connect accounts, sign data, and broadcast transactions or call batches.
+They support [JSON-RPC Accounts](/docs/accounts/json-rpc) and [Local Accounts](/docs/accounts).
+
+A JSON-RPC Account delegates signing to a wallet, such as a browser extension, through a
+[`custom` transport](/docs/transports/custom).
+
+A Local Account signs locally and broadcasts through the Client transport.
+
+Pass `walletActions()` to [`.extend()`](/docs/clients/create#extending-a-client) to add Wallet
+Actions to a Client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @twoslash-cache: {"v":1,"hash":"b61618b2076679a52d7df3e2545d0f4451f838325b9471a3dae8ce9b5e100a34","data":"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"}
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// @twoslash-cache: {"v":1,"hash":"b7b42709458d78a04ac22ad24f2397cac4aea400158ab63c6c1f0eab54320b0d","data":"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"}
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Accounts and Permissions
+
+<Cards>
+  <Card
+    title="Connect"
+    description="Connect to a wallet and request capabilities."
+    icon="lucide:plug"
+    to="/docs/actions/wallet/connect"
+  />
+  <Card
+    title="Disconnect"
+    description="Disconnect from a wallet."
+    icon="lucide:unplug"
+    to="/docs/actions/wallet/disconnect"
+  />
+  <Card
+    title="Get Addresses"
+    description="Read addresses that a wallet already exposes."
+    icon="lucide:list"
+    to="/docs/actions/wallet/getAddresses"
+  />
+  <Card
+    title="Request Addresses"
+    description="Prompt a wallet to expose account addresses."
+    icon="lucide:user-round-plus"
+    to="/docs/actions/wallet/requestAddresses"
+  />
+  <Card
+    title="Get Permissions"
+    description="Read the wallet's current permissions."
+    icon="lucide:shield-check"
+    to="/docs/actions/wallet/getPermissions"
+  />
+  <Card
+    title="Request Permissions"
+    description="Request permissions from a wallet."
+    icon="lucide:shield-plus"
+    to="/docs/actions/wallet/requestPermissions"
+  />
+  <Card
+    title="Get Assets"
+    description="Read wallet assets across supported chains."
+    icon="lucide:coins"
+    to="/docs/actions/wallet/getAssets"
+  />
+  <Card
+    title="Watch Asset"
+    description="Ask a wallet to track an asset."
+    icon="lucide:eye"
+    to="/docs/actions/wallet/watchAsset"
+  />
+</Cards>
+
+### Calls and Capabilities
+
+<Cards>
+  <Card
+    title="Send Calls"
+    description="Submit calls and wait for completion, or return asynchronously."
+    icon="lucide:send"
+    to="/docs/actions/wallet/sendCalls"
+  />
+  <Card
+    title="Get Call Status"
+    description="Read the status of a call batch."
+    icon="lucide:list-checks"
+    to="/docs/actions/wallet/getCallsStatus"
+  />
+  <Card
+    title="Show Call Status"
+    description="Ask a wallet to display a call batch."
+    icon="lucide:panel-top-open"
+    to="/docs/actions/wallet/showCallsStatus"
+  />
+  <Card
+    title="Wait for Call Status"
+    description="Wait for a call batch to reach a target status."
+    icon="lucide:hourglass"
+    to="/docs/actions/wallet/waitForCallsStatus"
+  />
+  <Card
+    title="Get Capabilities"
+    description="Read the capabilities that a wallet supports."
+    icon="lucide:badge-check"
+    to="/docs/actions/wallet/getCapabilities"
+  />
+</Cards>
+
+### Authorizations and Signatures
+
+<Cards>
+  <Card
+    title="Prepare Authorization"
+    description="Prepare an EIP-7702 authorization for signing."
+    icon="lucide:file-key"
+    to="/docs/actions/wallet/prepareAuthorization"
+  />
+  <Card
+    title="Sign Authorization"
+    description="Sign an EIP-7702 authorization."
+    icon="lucide:signature"
+    to="/docs/actions/wallet/signAuthorization"
+  />
+  <Card
+    title="Sign Message"
+    description="Sign an EIP-191 message."
+    icon="lucide:message-square-lock"
+    to="/docs/actions/wallet/signMessage"
+  />
+  <Card
+    title="Sign Transaction"
+    description="Ask a wallet to sign a transaction."
+    icon="lucide:file-pen-line"
+    to="/docs/actions/wallet/signTransaction"
+  />
+  <Card
+    title="Sign Typed Data"
+    description="Sign EIP-712 typed data."
+    icon="lucide:braces"
+    to="/docs/actions/wallet/typedData/sign"
+  />
+</Cards>
+
+### Chains
+
+<Cards>
+  <Card
+    title="Add Chain"
+    description="Add an EVM chain to a wallet."
+    icon="lucide:circle-plus"
+    to="/docs/actions/wallet/chains/add"
+  />
+  <Card
+    title="Switch Chain"
+    description="Switch the wallet's active chain."
+    icon="lucide:repeat-2"
+    to="/docs/actions/wallet/chains/switch"
+  />
+</Cards>
+
+### Contracts
+
+<Cards>
+  <Card
+    title="Deploy Contract"
+    description="Deploy a contract and wait for its receipt, or return asynchronously."
+    icon="lucide:rocket"
+    to="/docs/actions/wallet/contract/deploy"
+  />
+  <Card
+    title="Write Contract"
+    description="Write to a contract and wait for its receipt, or return asynchronously."
+    icon="lucide:file-pen"
+    to="/docs/actions/wallet/contract/write"
+  />
+</Cards>
+
+### Tokens
+
+<Cards>
+  <Card
+    title="Approve Token"
+    description="Approve token spending and wait for its receipt, or return asynchronously."
+    icon="lucide:badge-check"
+    to="/docs/actions/wallet/token/approve"
+  />
+  <Card
+    title="Transfer Token"
+    description="Transfer a token and wait for its receipt, or return asynchronously."
+    icon="lucide:arrow-right-left"
+    to="/docs/actions/wallet/token/transfer"
+  />
+</Cards>
+
+### Transactions
+
+<Cards>
+  <Card
+    title="Send Transaction"
+    description="Send a transaction and wait for its receipt, or return asynchronously."
+    icon="lucide:send"
+    to="/docs/actions/wallet/transaction/send"
+  />
+  <Card
+    title="Send Raw Transaction"
+    description="Broadcast a serialized transaction and wait, or return asynchronously."
+    icon="lucide:radio"
+    to="/docs/actions/wallet/transaction/sendRaw"
+  />
+  <Card
+    title="Sign Transaction"
+    description="Sign and serialize a transaction locally."
+    icon="lucide:signature"
+    to="/docs/actions/wallet/transaction/sign"
+  />
+</Cards>

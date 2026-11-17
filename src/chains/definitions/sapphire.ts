@@ -1,23 +1,20 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const sapphire = /*#__PURE__*/ defineChain({
+export const sapphire = /*#__PURE__*/ Chain.from({
   id: 23294,
   name: 'Oasis Sapphire',
-  network: 'sapphire',
   nativeCurrency: { name: 'Sapphire Rose', symbol: 'ROSE', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sapphire.oasis.io'],
-      webSocket: ['wss://sapphire.oasis.io/ws'],
-    },
+    http: 'https://sapphire.oasis.io',
+    ws: 'wss://sapphire.oasis.io/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Oasis Explorer',
-      url: 'https://explorer.oasis.io/mainnet/sapphire',
-    },
+    name: 'Oasis Explorer',
+    url: 'https://explorer.oasis.io/mainnet/sapphire',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 734531,

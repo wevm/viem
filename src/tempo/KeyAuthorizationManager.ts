@@ -1,15 +1,16 @@
-import type { Address } from 'abitype'
+import type { Address, Hex } from 'ox'
 import { KeyAuthorization } from 'ox/tempo'
-import type { MaybePromise } from '../types/utils.js'
+
+import type { MaybePromise } from '../core/internal/types.js'
 import * as Store from './Store.js'
 
-/** Identifies a pending key authorization by account, access key, and chain. */
+/** Cache key identifying a signed key authorization. */
 export type Key = {
-  /** Account the access key acts for. */
-  address: Address
+  /** Root account address the authorization is bound to. */
+  address: Address.Address
   /** Access key address. */
-  accessKey: Address
-  /** Chain the authorization is for. */
+  accessKey: Address.Address
+  /** Chain ID. */
   chainId: number
 }
 
@@ -41,7 +42,7 @@ export type KeyAuthorizationManager = {
  * })
  * ```
  *
- * @param options - Manager options.
+ * @param options - Options.
  * @returns A key authorization manager.
  */
 export function from(options: from.Options): KeyAuthorizationManager {
@@ -51,9 +52,11 @@ export function from(options: from.Options): KeyAuthorizationManager {
       const value = await store.getItem(getStoreKey(key))
       if (!value) return undefined
       try {
-        return KeyAuthorization.deserialize(
-          value as `0x${string}`,
-        ) as KeyAuthorization.Signed
+        const { signature, ...rest } = KeyAuthorization.deserialize(
+          value as Hex.Hex,
+        )
+        if (!signature) return undefined
+        return { ...rest, signature }
       } catch {
         return undefined
       }
@@ -84,7 +87,7 @@ export declare namespace from {
  * ```ts
  * import { KeyAuthorizationManager } from 'viem/tempo'
  *
- * const keyAuthorizationManager = KeyAuthorizationManager.memory()
+ * const manager = KeyAuthorizationManager.memory()
  * ```
  *
  * @returns A key authorization manager.

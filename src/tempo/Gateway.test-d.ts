@@ -1,5 +1,6 @@
-import { Actions, createClient, Gateway, gatewayActions } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
+
+import { Actions, Client, Gateway, gatewayActions } from 'viem/tempo'
 
 const gateway = Gateway.from({
   app: 'my-app',
@@ -75,8 +76,7 @@ test('compute.create: tunnels keyed by ports', async () => {
     '8000': string
     '8080': string
   }>()
-  // @ts-expect-error
-  sandbox.tunnels[9000]
+  expectTypeOf(sandbox.tunnels).not.toHaveProperty('9000')
 })
 
 test('compute.stream: events narrow by type', async () => {
@@ -101,11 +101,17 @@ test('ai.streamText: deltas then usage', async () => {
 })
 
 test('gatewayActions: defaults', () => {
-  const client = createClient().extend(gatewayActions())
+  const client = Client.create().extend(gatewayActions())
   expectTypeOf(
     client.gateway.getCapabilities(),
   ).resolves.toEqualTypeOf<Gateway.Capabilities>()
   expectTypeOf(
     Actions.gateway.getCapabilities(Gateway.from()),
   ).resolves.toEqualTypeOf<Gateway.Capabilities>()
+})
+
+test('gatewayActions: compute.create tunnels keyed by ports', async () => {
+  const client = Client.create().extend(gatewayActions())
+  const sandbox = await client.compute.create({ ports: [8000] })
+  expectTypeOf(sandbox.tunnels).toEqualTypeOf<{ '8000': string }>()
 })

@@ -1,0 +1,317 @@
+import { Value } from 'ox'
+import { describe, expect, test } from 'vitest'
+
+import { Account, Actions, Client, http, testActions } from 'viem'
+import { ContractError } from 'viem'
+import { mainnet } from 'viem/chains'
+
+import * as generated from '~contracts/generated.js'
+import * as anvil from '~test/anvil.js'
+import * as constants from '~test/constants.js'
+import * as contract from '~test/contract.js'
+
+const client = anvil.getClient(anvil.mainnet)
+const testClient = anvil.getClient(anvil.mainnet).extend(testActions())
+
+const jsonRpc = Account.from(constants.accounts[0].address)
+const source = constants.accounts[0]
+
+async function setup() {
+  await testClient.address.setBalance({
+    address: source.address,
+    value: source.balance,
+  })
+  await testClient.block.setNextBaseFeePerGas({
+    baseFeePerGas: Value.fromGwei('10'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+}
+
+const writeExample = {
+  abi: generated.WriteExample.abi,
+  address: (
+    await contract.deploy(client, {
+      bytecode: generated.WriteExample.bytecode.object,
+    })
+  ).address,
+}
+
+const errors = {
+  abi: generated.ErrorsExample.abi,
+  address: (
+    await contract.deploy(client, {
+      bytecode: generated.ErrorsExample.bytecode.object,
+    })
+  ).address,
+}
+
+test('default: returns result and a write-compatible request', async () => {
+  const { request, result } = await Actions.contract.simulate(client, {
+    ...writeExample,
+    account: jsonRpc,
+    args: [69n],
+    functionName: 'foo',
+  })
+  expect(result).toBe(69n)
+  expect(request.functionName).toBe('foo')
+  expect(request.args).toEqual([69n])
+
+  // The returned request can be broadcast via `contract.write`.
+  await setup()
+  const hash = await Actions.contract.write(client, request)
+  await testClient.block.mine({ blocks: 1 })
+  const receipt = await Actions.transaction.getReceipt(client, { hash })
+  expect(receipt.status).toBe('success')
+})
+
+test('overloaded function: selects the matching overload', async () => {
+  const { result } = await Actions.contract.simulate(client, {
+    ...writeExample,
+    account: jsonRpc,
+    args: [2n, 3n],
+    functionName: 'foo',
+  })
+  expect(result).toBe(5n)
+})
+
+test('args: value (payable)', async () => {
+  const { request, result } = await Actions.contract.simulate(client, {
+    ...writeExample,
+    account: jsonRpc,
+    functionName: 'pay',
+    value: 1n,
+  })
+  expect(result).toBeUndefined()
+  expect(request.value).toBe(1n)
+})
+
+test('account: inferred from client', async () => {
+  const client = Client.create({
+    account: jsonRpc,
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const { result } = await Actions.contract.simulate(client, {
+    ...writeExample,
+    args: [7n],
+    functionName: 'foo',
+  })
+  expect(result).toBe(7n)
+})
+
+test('account: address string', async () => {
+  const { result } = await Actions.contract.simulate(client, {
+    ...writeExample,
+    account: source.address,
+    args: [7n],
+    functionName: 'foo',
+  })
+  expect(result).toBe(7n)
+})
+
+test('account: none', async () => {
+  const { result } = await Actions.contract.simulate(client, {
+    ...writeExample,
+    args: [7n],
+    functionName: 'foo',
+  })
+  expect(result).toBe(7n)
+})
+
+test('dataSuffix: appends to the calldata and is carried on the request', async () => {
+  const { request, result } = await Actions.contract.simulate(client, {
+    ...writeExample,
+    account: jsonRpc,
+    args: [69n],
+    dataSuffix: '0x12345678',
+    functionName: 'foo',
+  })
+  expect(result).toBe(69n)
+  expect(request.dataSuffix).toBe('0x12345678')
+
+  // Broadcasting the returned request appends the suffix exactly once.
+  await setup()
+  const hash = await Actions.contract.write(client, request)
+  await testClient.block.mine({ blocks: 1 })
+  const transaction = await Actions.transaction.get(client, { hash })
+  // `foo(uint256)` selector + the encoded argument + the suffix.
+  expect(transaction.input).toMatchInlineSnapshot(
+    `"0x2fbebd38000000000000000000000000000000000000000000000000000000000000004512345678"`,
+  )
+})
+
+test('dataSuffix: defaults to client.dataSuffix', async () => {
+  const clientWithSuffix = Client.create({
+    dataSuffix: '0x12345678',
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const { request, result } = await Actions.contract.simulate(
+    clientWithSuffix,
+    {
+      ...writeExample,
+      account: jsonRpc,
+      args: [69n],
+      functionName: 'foo',
+    },
+  )
+  expect(result).toBe(69n)
+  expect(request.dataSuffix).toBe('0x12345678')
+
+  // The resolved suffix travels with the request to a suffix-less client.
+  await setup()
+  const hash = await Actions.contract.write(client, request)
+  await testClient.block.mine({ blocks: 1 })
+  const transaction = await Actions.transaction.get(client, { hash })
+  // `foo(uint256)` selector + the encoded argument + the suffix.
+  expect(transaction.input).toMatchInlineSnapshot(
+    `"0x2fbebd38000000000000000000000000000000000000000000000000000000000000004512345678"`,
+  )
+})
+
+test('dataSuffix: applies client.dataSuffix (object format)', async () => {
+  const clientWithSuffix = Client.create({
+    dataSuffix: { required: true, value: '0x12345678' },
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const { request, result } = await Actions.contract.simulate(
+    clientWithSuffix,
+    {
+      ...writeExample,
+      account: jsonRpc,
+      args: [69n],
+      functionName: 'foo',
+    },
+  )
+  expect(result).toBe(69n)
+
+  await setup()
+  const hash = await Actions.contract.write(client, request)
+  await testClient.block.mine({ blocks: 1 })
+  const transaction = await Actions.transaction.get(client, { hash })
+  // `foo(uint256)` selector + the encoded argument + the suffix.
+  expect(transaction.input).toMatchInlineSnapshot(
+    `"0x2fbebd38000000000000000000000000000000000000000000000000000000000000004512345678"`,
+  )
+})
+
+test('dataSuffix: parameter takes precedence over client.dataSuffix', async () => {
+  const clientWithSuffix = Client.create({
+    dataSuffix: '0xaabbccdd',
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const { request } = await Actions.contract.simulate(clientWithSuffix, {
+    ...writeExample,
+    account: jsonRpc,
+    args: [69n],
+    dataSuffix: '0x12345678',
+    functionName: 'foo',
+  })
+  expect(request.dataSuffix).toBe('0x12345678')
+})
+
+test('error: aborted request is not wrapped', async () => {
+  const controller = new AbortController()
+  controller.abort()
+  const error = await Actions.contract
+    .simulate(client, {
+      ...writeExample,
+      account: jsonRpc,
+      args: [1n],
+      functionName: 'foo',
+      requestOptions: { signal: controller.signal },
+    })
+    .catch((error) => error)
+  expect(error).not.toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+})
+
+// Simulate runs via `eth_call`, so reverts surface synchronously with decoded
+// revert data (mirrors `read.test.ts`). Custom-error `Details:` lines carry
+// anvil's raw (binary) payload, so assert viem's decoded fields for those.
+describe('reverts', () => {
+  test('revert message', async () => {
+    const error = await Actions.contract
+      .simulate(client, {
+        ...errors,
+        account: jsonRpc,
+        functionName: 'revertWrite',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "revertWrite" reverted with the following reason:
+      This is a revert message
+
+      Contract Call:
+        address:   0x<address>
+        function:  function revertWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+       
+      Request Arguments:
+        from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        data:  0x940b8802
+        to:    0x<address>
+
+      Details: execution reverted: This is a revert message
+      Version: viem@x.x.x"
+    `)
+  })
+
+  test('panic: assert', async () => {
+    const error = await Actions.contract
+      .simulate(client, {
+        ...errors,
+        account: jsonRpc,
+        functionName: 'assertWrite',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "assertWrite" reverted with the following reason:
+      An \`assert\` condition failed.
+
+      Contract Call:
+        address:   0x<address>
+        function:  function assertWrite()
+        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+       
+      Request Arguments:
+        from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        data:  0x04696152
+        to:    0x<address>
+
+      Details: execution reverted: panic: assertion failed (0x01)
+      Version: viem@x.x.x"
+    `)
+  })
+
+  test('custom error: with args', async () => {
+    const error = (await Actions.contract
+      .simulate(client, {
+        ...errors,
+        account: jsonRpc,
+        functionName: 'simpleCustomWrite',
+      })
+      .catch((error) => error)) as ContractError.ContractFunctionExecutionError
+    expect(error.name).toBe('ContractFunctionExecutionError')
+    expect(error.shortMessage).toBe(
+      'The contract function "simpleCustomWrite" reverted.',
+    )
+    const cause = error.cause as ContractError.ContractFunctionRevertedError
+    expect(cause.data).toMatchInlineSnapshot(`
+      {
+        "args": [
+          "bugger",
+        ],
+        "name": "SimpleError",
+      }
+    `)
+  })
+})

@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const qMainnet = /*#__PURE__*/ defineChain({
+export const qMainnet = /*#__PURE__*/ Chain.from({
   id: 35441,
   name: 'Q Mainnet',
   nativeCurrency: {
@@ -8,14 +9,13 @@ export const qMainnet = /*#__PURE__*/ defineChain({
     name: 'Q',
     symbol: 'Q',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.q.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.q.org' },
   blockExplorers: {
-    default: {
-      name: 'Q Mainnet Explorer',
-      url: 'https://explorer.q.org',
-      apiUrl: 'https://explorer.q.org/api',
-    },
+    name: 'Q Mainnet Explorer',
+    url: 'https://explorer.q.org',
+    apiUrl: 'https://explorer.q.org/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

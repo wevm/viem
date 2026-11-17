@@ -1,13 +1,16 @@
+import { http as tempoHttp_ } from 'viem/tempo'
+import { Client as CoreClient_ } from 'viem'
+import { tempoLocalnet as chain_ } from 'viem/chains'
 import { Hex } from 'ox'
-import { createClient } from 'viem'
+
 import { type Relay, VirtualAddress, withRelay } from 'viem/tempo'
 import { expect, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
+import * as Tempo from '~test/tempo.js'
 import { resolveVirtualAddresses } from './virtualAddress.js'
 
 test('rejects excessive virtual-address targets', async () => {
   await expect(
-    resolveVirtualAddresses(Tempo.getClient({ chain: Tempo.chain }), {
+    resolveVirtualAddresses(Tempo.getClient({}), {
       calls: Array.from({ length: 101 }, (_, i) => ({
         to: VirtualAddress.from({
           masterId: Hex.fromNumber(i + 1000, { size: 4 }),
@@ -23,9 +26,9 @@ test('rejects excessive virtual-address targets', async () => {
 
 test('resolves targets within a downstream concurrency budget', async () => {
   const active = new Set<symbol>()
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
       plugins: [
         {
           async handleRequest(_context, next) {

@@ -1,20 +1,16 @@
-import { defineChain } from '../../../utils/chain/defineChain.js'
+import * as Chain from '../../../core/Chain.js'
 
-export const skaleNebulaTestnet = /*#__PURE__*/ defineChain({
+export const skaleNebulaTestnet = /*#__PURE__*/ Chain.from({
   id: 37_084_624,
   name: 'SKALE Nebula Testnet',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.skalenodes.com/v1/lanky-ill-funny-testnet'],
-      webSocket: ['wss://testnet.skalenodes.com/v1/ws/lanky-ill-funny-testnet'],
-    },
+    http: 'https://testnet.skalenodes.com/v1/lanky-ill-funny-testnet',
+    ws: 'wss://testnet.skalenodes.com/v1/ws/lanky-ill-funny-testnet',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://lanky-ill-funny-testnet.explorer.testnet.skalenodes.com',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://lanky-ill-funny-testnet.explorer.testnet.skalenodes.com',
   },
   contracts: {
     multicall3: {

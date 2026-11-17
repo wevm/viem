@@ -1,11 +1,12 @@
-import { Secp256k1 } from 'ox'
-import { parseUnits } from 'viem'
-import { sendTransactionSync } from 'viem/actions'
+import { Secp256k1, Value } from 'ox'
+import { Actions as CoreActions_ } from 'viem'
 import { Account, Actions, Relay, Tick } from 'viem/tempo'
 import { beforeAll, expect, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
+import * as Tempo from '~test/tempo.js'
 
-const maker = Tempo.getClient({ account: Tempo.accounts[0] })
+const maker = Tempo.getClient({
+  account: Account.fromSecp256k1(Tempo.accounts[0]!.privateKey),
+})
 const recipient = Tempo.accounts[7]!.address
 /** Holds only the quote token and the faucet's fee tokens. */
 const payer = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
@@ -21,22 +22,22 @@ beforeAll(async () => {
   quote = pair.quote
   await Actions.faucet.fundSync(maker, { account: payer, timeout: 60_000 })
   await Actions.faucet.fundSync(maker, { account: tight, timeout: 60_000 })
-  await sendTransactionSync(maker, {
+  await CoreActions_.transaction.sendSync(maker, {
     calls: [
       Actions.token.transfer.call(maker, {
-        amount: parseUnits('10', 6),
+        amount: Value.from('10', 6),
         to: payer.address,
         token: quote,
       }),
       Actions.token.transfer.call(maker, {
-        amount: parseUnits('2.05', 6),
+        amount: Value.from('2.05', 6),
         to: tight.address,
         token: quote,
       }),
     ],
   })
   await Actions.dex.placeSync(maker, {
-    amount: parseUnits('500', 6),
+    amount: Value.from('500', 6),
     tick: Tick.fromPrice('1.001'),
     token: base,
     type: 'sell',
@@ -54,16 +55,15 @@ test('buys a missing token and previews every leg', async () => {
     method: 'eth_fillTransaction',
     params: [
       {
-        calls: [transfer(parseUnits('2', 6))],
+        calls: [transfer(Value.from('2', 6))],
         capabilities: { autoSwap: true, balanceDiffs: true },
         from: payer.address,
       },
     ],
   })) as Relay.Plugin.FillResult
 
-  expect(
-    (tx.calls as readonly { to: string }[]).map(({ to }) => label(to)),
-  ).toMatchInlineSnapshot(`
+  expect((tx.calls as readonly { to: string }[]).map(({ to }) => label(to)))
+    .toMatchInlineSnapshot(`
       [
         "0xdec0000000000000000000000000000000000000",
         "0x<base>",
@@ -154,7 +154,7 @@ test('applies the configured slippage', async () => {
     method: 'eth_fillTransaction',
     params: [
       {
-        calls: [transfer(parseUnits('2', 6))],
+        calls: [transfer(Value.from('2', 6))],
         capabilities: { autoSwap: true },
         from: payer.address,
       },
@@ -188,7 +188,7 @@ test('never rounds the slippage bound up', async () => {
     method: 'eth_fillTransaction',
     params: [
       {
-        calls: [transfer(parseUnits('2', 6))],
+        calls: [transfer(Value.from('2', 6))],
         capabilities: { autoSwap: true },
         from: payer.address,
       },
@@ -210,7 +210,7 @@ test('swaps from a balance that covers the quote but not the slippage bound', as
     method: 'eth_fillTransaction',
     params: [
       {
-        calls: [transfer(parseUnits('2', 6))],
+        calls: [transfer(Value.from('2', 6))],
         capabilities: { autoSwap: true },
         from: tight.address,
       },
@@ -243,7 +243,7 @@ test('reports the missing funds when no funded token has a route', async () => {
     method: 'eth_fillTransaction',
     params: [
       {
-        calls: [transfer(parseUnits('1000', 6))],
+        calls: [transfer(Value.from('1000', 6))],
         capabilities: { autoSwap: true, errors: true },
         from: payer.address,
       },
@@ -278,7 +278,7 @@ test('leaves the revert alone without an opt-in', async () => {
     method: 'eth_fillTransaction',
     params: [
       {
-        calls: [transfer(parseUnits('2', 6))],
+        calls: [transfer(Value.from('2', 6))],
         capabilities: { errors: true },
         from: payer.address,
       },
@@ -313,7 +313,7 @@ test.each([
       method: 'eth_fillTransaction',
       params: [
         {
-          calls: [transfer(parseUnits('2', 6))],
+          calls: [transfer(Value.from('2', 6))],
           capabilities: { autoSwap: { slippage: requested } },
           from: payer.address,
         },
@@ -343,7 +343,7 @@ test('error: rejects a requested slippage outside 0 and 1', async () => {
       method: 'eth_fillTransaction',
       params: [
         {
-          calls: [transfer(parseUnits('2', 6))],
+          calls: [transfer(Value.from('2', 6))],
           capabilities: { autoSwap: { slippage: 2 } },
           from: payer.address,
         },

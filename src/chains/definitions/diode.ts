@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const diode = /*#__PURE__*/ defineChain({
+export const diode = /*#__PURE__*/ Chain.from({
   id: 15,
   name: 'Diode Prenet',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const diode = /*#__PURE__*/ defineChain({
     symbol: 'DIODE',
   },
   rpcUrls: {
-    default: {
-      http: ['https://prenet.diode.io:8443'],
-      webSocket: ['wss://prenet.diode.io:8443/ws'],
-    },
+    http: 'https://prenet.diode.io:8443',
+    ws: 'wss://prenet.diode.io:8443/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Diode Explorer',
-      url: 'https://diode.io/prenet',
-    },
+    name: 'Diode Explorer',
+    url: 'https://diode.io/prenet',
   },
   testnet: false,
 })

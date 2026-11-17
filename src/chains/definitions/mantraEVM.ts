@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const mantraEVM = /*#__PURE__*/ defineChain({
+export const mantraEVM = /*#__PURE__*/ Chain.from({
   id: 5888,
   name: 'MANTRA EVM',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const mantraEVM = /*#__PURE__*/ defineChain({
     symbol: 'MANTRA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://evm.mantrachain.io'],
-      webSocket: ['https://evm.mantrachain.io/ws'],
-    },
+    http: 'https://evm.mantrachain.io',
+    ws: 'https://evm.mantrachain.io/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'MANTRA Blockscout Explorer',
-      url: 'https://blockscout.mantrascan.io',
-    },
+    name: 'MANTRA Blockscout Explorer',
+    url: 'https://blockscout.mantrascan.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

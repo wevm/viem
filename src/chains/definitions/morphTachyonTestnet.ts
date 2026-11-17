@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const morphTachyonTestnet = /*#__PURE__*/ defineChain({
+export const morphTachyonTestnet = /*#__PURE__*/ Chain.from({
   id: 34952,
   name: 'Morph Tachyon Testnet',
   nativeCurrency: {
@@ -8,16 +8,10 @@ export const morphTachyonTestnet = /*#__PURE__*/ defineChain({
     symbol: 'BGB',
     decimals: 18,
   },
-  rpcUrls: {
-    default: {
-      http: ['https://testnet-api.popdex.xyz/api/v1/web3/rpc'],
-    },
-  },
+  rpcUrls: { http: 'https://testnet-api.popdex.xyz/api/v1/web3/rpc' },
   blockExplorers: {
-    default: {
-      name: 'Morph Tachyon Testnet Explorer',
-      url: 'https://testnet-app.popdex.xyz/explorer',
-    },
+    name: 'Morph Tachyon Testnet Explorer',
+    url: 'https://testnet-app.popdex.xyz/explorer',
   },
   testnet: true,
 })

@@ -1,40 +1,35 @@
+import type { Capabilities as TempoCapabilities_ } from 'viem/tempo'
+import { http as tempoHttp_ } from 'viem/tempo'
+import { Client as CoreClient_ } from 'viem'
+import { randomPrivateKey as generatePrivateKey } from 'ox/Secp256k1'
+import { Actions as CoreActions_ } from 'viem'
+import * as Transaction from 'ox/tempo/TxEnvelopeTempo'
+import { tempoLocalnet as chain_ } from 'viem/chains'
+import { Account as TempoAccount_ } from 'viem/tempo'
+import { withResolvers } from '../../../core/internal/promise.js'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Hex, P256, Rlp, Secp256k1 } from 'ox'
 import { SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import { createClient, http, maxUint256 } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import {
-  fillTransaction,
-  getBlock,
-  getTransactionCount,
-  prepareTransactionRequest,
-  sendRawTransactionSync,
-  sendTransaction,
-  sendTransactionSync,
-  waitForTransactionReceipt,
-} from 'viem/actions'
-import {
-  Account,
-  Actions,
-  Addresses,
-  Relay,
-  Transaction,
-  withRelay,
-} from 'viem/tempo'
+import { http } from 'viem'
+
+import { Account, Actions, Addresses, Relay, withRelay } from 'viem/tempo'
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
+import * as Tempo from '~test/tempo.js'
 import * as FeePayer from '~test/tempo/feePayer.js'
-import { createHttpServer, createRpcProxy } from '~test/utils.js'
+import { createServer as createHttpServer, createRpcProxy } from '~test/http.js'
 import type * as Request from './request.js'
 import * as Utils from './utils.js'
 
-const userAccount = Tempo.accounts[9]!
-const feePayerAccount = Tempo.accounts[0]!
-const recipient = Tempo.accounts[7]!
+const userAccount = TempoAccount_.fromSecp256k1(Tempo.accounts[9]!.privateKey)
+const feePayerAccount = TempoAccount_.fromSecp256k1(
+  Tempo.accounts[0]!.privateKey,
+)
+const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
 
-const caller = Tempo.getClient({ chain: Tempo.chain })
+const caller = Tempo.getClient({})
+const maxUint256 = 2n ** 256n - 1n
 const transfer = Actions.token.transfer.call(caller, {
-  token: Tempo.addresses.alphaUsd,
+  token: Tempo.alphaUsd,
   to: recipient.address,
   amount: 1n,
 })
@@ -42,22 +37,22 @@ const transfer = Actions.token.transfer.call(caller, {
 beforeAll(async () => {
   await Promise.all(
     [0, 9].map((index) =>
-      Actions.faucet.fundSync(Tempo.getClient({ chain: Tempo.chain }), {
-        account: Tempo.accounts[index]!,
+      Actions.faucet.fundSync(Tempo.getClient({}), {
+        account: TempoAccount_.fromSecp256k1(Tempo.accounts[index]!.privateKey),
         timeout: 60_000,
       }),
     ),
   )
-  await Actions.fee.setUserTokenSync(caller, {
+  await CoreActions_.contract.writeSync(caller, {
+    ...Actions.fee.setUserToken.call({ token: Tempo.alphaUsd }),
     account: userAccount,
-    token: Tempo.addresses.alphaUsd,
   })
 })
 
 test.each([undefined, 1])(
   'preserves relay-filled validity bounds for sequential nonce sponsorship, validAfter: %s',
   async (validAfter) => {
-    const block = await getBlock(caller)
+    const block = await CoreActions_.block.get(caller)
     const validBefore = Number(block.timestamp) + 600
     const relay = Relay.create({
       client: caller,
@@ -86,7 +81,7 @@ test.each([undefined, 1])(
         },
         Relay.feePayer({
           account: feePayerAccount,
-          feeToken: Tempo.addresses.alphaUsd,
+          feeToken: Tempo.alphaUsd,
         }),
       ],
     })
@@ -94,26 +89,26 @@ test.each([undefined, 1])(
     onTestFinished(async () => {
       await server.close()
     })
-    const client = createClient({
-      chain: Tempo.chain,
+    const client = CoreClient_.create({
+      chain: chain_,
       transport: http(server.url),
     })
-    const nonce = await getTransactionCount(caller, {
+    const nonce = await CoreActions_.address.getTransactionCount(caller, {
       address: userAccount.address,
       blockTag: 'pending',
     })
 
-    const request = await prepareTransactionRequest(client, {
+    const { request } = await CoreActions_.transaction.prepare(client, {
       account: userAccount,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
       ],
       feePayer: true,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       nonce,
       nonceKey: 0n,
     })
@@ -135,8 +130,8 @@ test.each([undefined, 1])(
       }),
     ).toBe(feePayerAccount.address.toLowerCase())
 
-    const receipt = await sendRawTransactionSync(caller, {
-      serializedTransaction,
+    const receipt = await CoreActions_.transaction.sendRawSync(caller, {
+      transaction: serializedTransaction,
     })
 
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
@@ -154,15 +149,13 @@ test.each(
     const plugins = [
       Relay.feePayer({
         account: feePayerAccount,
-        ...(selection === 'configured'
-          ? { feeToken: Tempo.addresses.alphaUsd }
-          : {}),
+        ...(selection === 'configured' ? { feeToken: Tempo.alphaUsd } : {}),
       }),
       Relay.feeToken(),
     ]
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.pathUsd],
+      resolveTokens: () => [Tempo.pathUsd],
       plugins: feeTokenFirst ? [...plugins].reverse() : plugins,
     })
     const result = (await relay.request({
@@ -170,12 +163,10 @@ test.each(
       params: [
         {
           from: userAccount.address,
-          ...(selection === 'requested'
-            ? { feeToken: Tempo.addresses.alphaUsd }
-            : {}),
+          ...(selection === 'requested' ? { feeToken: Tempo.alphaUsd } : {}),
           calls: [
             Actions.token.transfer.call(caller, {
-              token: Tempo.addresses.alphaUsd,
+              token: Tempo.alphaUsd,
               to: recipient.address,
               amount: 1n,
             }),
@@ -185,12 +176,10 @@ test.each(
     })) as Relay.Plugin.FillResult
     const transaction = Utils.normalizeTempoTransaction(result.tx)
     expect(transaction.feeToken?.toLowerCase()).toBe(
-      Tempo.addresses.alphaUsd.toLowerCase(),
+      Tempo.alphaUsd.toLowerCase(),
     )
-    const receipt = await sendRawTransactionSync(caller, {
-      serializedTransaction: await userAccount.signTransaction(
-        transaction as never,
-      ),
+    const receipt = await CoreActions_.transaction.sendRawSync(caller, {
+      transaction: await userAccount.signTransaction(transaction as never),
     })
     expect(receipt.status).toBe('success')
     expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -198,9 +187,9 @@ test.each(
 )
 
 test.each([true, false])('sponsorship accepted: %s', async (accepted) => {
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
       plugins: [
         Relay.feePayer({
           account: feePayerAccount,
@@ -209,18 +198,24 @@ test.each([true, false])('sponsorship accepted: %s', async (accepted) => {
       ],
     }),
   })
-  const { transaction, capabilities } = await fillTransaction(client, {
-    account: userAccount.address,
-    calls: [
-      Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
-        to: recipient.address,
-        amount: 1n,
-      }),
-    ],
-    feeToken: Tempo.addresses.alphaUsd,
-  })
-  expect(capabilities?.sponsored).toBe(accepted)
+  const { transaction, capabilities } = await CoreActions_.transaction.fill(
+    client,
+    {
+      account: userAccount.address,
+      calls: [
+        Actions.token.transfer.call(caller, {
+          token: Tempo.alphaUsd,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+      feeToken: Tempo.alphaUsd,
+    },
+  )
+  expect(
+    (capabilities as TempoCapabilities_.FillTransactionCapabilities | undefined)
+      ?.sponsored,
+  ).toBe(accepted)
   expect(Boolean(transaction.feePayerSignature)).toBe(accepted)
   const signed = await (async () => {
     if (accepted) return userAccount.signTransaction(transaction as never)
@@ -234,8 +229,8 @@ test.each([true, false])('sponsorship accepted: %s', async (accepted) => {
       signature: SignatureEnvelope.from(signature),
     })
   })()
-  const receipt = await sendRawTransactionSync(client, {
-    serializedTransaction: signed,
+  const receipt = await CoreActions_.transaction.sendRawSync(client, {
+    transaction: signed,
   })
   expect(receipt.status).toBe('success')
   expect(receipt.feePayer).toBe(
@@ -244,26 +239,27 @@ test.each([true, false])('sponsorship accepted: %s', async (accepted) => {
 })
 
 test('raw sponsorship resolves chain from the signed envelope', async () => {
-  const request = await prepareTransactionRequest(
-    Tempo.getClient({ chain: Tempo.chain }),
+  const { request } = await CoreActions_.transaction.prepare(
+    Tempo.getClient({}),
     {
       account: userAccount,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
       ],
       feePayer: true,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
     },
   )
   const signed = await userAccount.signTransaction(request as never)
   const relay = Relay.create({
     getClient: ({ chainId }) =>
-      Tempo.getClient({
-        chain: { ...Tempo.chain, id: chainId },
+      CoreClient_.create({
+        chain: { ...chain_, id: chainId },
+        transport: tempoHttp_(Tempo.rpcUrl),
         batch: { multicall: { deployless: true } },
       }),
     plugins: [Relay.feePayer({ account: feePayerAccount })],
@@ -291,7 +287,7 @@ test('raw sponsorship resolves chain from the signed envelope', async () => {
 
 test('rejects a mismatched resolver before signing a prepared fill', async () => {
   const relay = Relay.create({
-    getClient: () => Tempo.getClient({ chain: Tempo.chain }),
+    getClient: () => Tempo.getClient({}),
     plugins: [Relay.feePayer({ account: feePayerAccount })],
   })
   await expect(
@@ -306,7 +302,7 @@ test('rejects a mismatched resolver before signing a prepared fill', async () =>
           maxFeePerGas: '0x1',
           calls: [
             Actions.token.transfer.call(caller, {
-              token: Tempo.addresses.alphaUsd,
+              token: Tempo.alphaUsd,
               to: recipient.address,
               amount: 1n,
             }),
@@ -324,24 +320,24 @@ test.each([
   'spend_limit_exceeded',
   'tx_fee_limit_exceeded',
 ] as const)('raw sponsorship returns the %s refusal code', async (verdict) => {
-  const request = await prepareTransactionRequest(
-    Tempo.getClient({ chain: Tempo.chain }),
+  const { request } = await CoreActions_.transaction.prepare(
+    Tempo.getClient({}),
     {
       account: userAccount,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
       ],
       feePayer: true,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
     },
   )
   const signed = await userAccount.signTransaction(request as never)
   const relay = Relay.create({
-    client: Tempo.getClient({ chain: Tempo.chain }),
+    client: Tempo.getClient({}),
     plugins: [
       Relay.feePayer({ account: feePayerAccount, validate: () => verdict }),
     ],
@@ -355,24 +351,24 @@ test.each([
 })
 
 test('a failed sponsorship record prevents broadcast', async () => {
-  const request = await prepareTransactionRequest(
-    Tempo.getClient({ chain: Tempo.chain }),
+  const { request } = await CoreActions_.transaction.prepare(
+    Tempo.getClient({}),
     {
       account: userAccount,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
       ],
       feePayer: true,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
     },
   )
   const signed = await userAccount.signTransaction(request as never)
   const relay = Relay.create({
-    client: Tempo.getClient({ chain: Tempo.chain }),
+    client: Tempo.getClient({}),
     plugins: [
       Relay.feePayer({
         account: feePayerAccount,
@@ -384,7 +380,7 @@ test('a failed sponsorship record prevents broadcast', async () => {
   })
   const before = await Actions.token.getBalance(caller, {
     account: recipient.address,
-    token: Tempo.addresses.alphaUsd,
+    token: Tempo.alphaUsd,
   })
   await expect(
     relay.request({ method: 'eth_sendRawTransactionSync', params: [signed] }),
@@ -392,30 +388,30 @@ test('a failed sponsorship record prevents broadcast', async () => {
   expect(
     await Actions.token.getBalance(caller, {
       account: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     }),
   ).toEqual(before)
 })
 
 test('a rejected prepared fill can be signed and sent without sponsorship', async () => {
-  const prepared = await prepareTransactionRequest(caller, {
+  const { request: prepared } = await CoreActions_.transaction.prepare(caller, {
     account: userAccount,
     type: 'tempo',
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
     ],
     feePayer: true,
     gas: 1_000_000n,
-    feeToken: Tempo.addresses.alphaUsd,
+    feeToken: Tempo.alphaUsd,
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
+      resolveTokens: () => [Tempo.alphaUsd],
 
       plugins: [
         Relay.feePayer({ account: feePayerAccount, validate: () => false }),
@@ -423,12 +419,20 @@ test('a rejected prepared fill can be signed and sent without sponsorship', asyn
       ],
     }),
   })
-  const { transaction, capabilities } = await fillTransaction(client, {
-    ...prepared,
-    chain: Tempo.chain,
-  })
-  expect(transaction.nonceKey).toBe(prepared.nonceKey)
-  expect(capabilities?.sponsored).toBe(false)
+  const { transaction, capabilities } = await CoreActions_.transaction.fill(
+    client,
+    {
+      ...prepared,
+      chain: chain_,
+    },
+  )
+  expect(transaction.nonceKey).toBe(
+    (prepared as typeof prepared & { nonceKey?: bigint }).nonceKey,
+  )
+  expect(
+    (capabilities as TempoCapabilities_.FillTransactionCapabilities | undefined)
+      ?.sponsored,
+  ).toBe(false)
   expect(transaction.feePayerSignature).toBeUndefined()
   expect(transaction).not.toMatchObject({ feePayer: true })
   const envelope = TxEnvelopeTempo.deserialize(
@@ -437,8 +441,8 @@ test('a rejected prepared fill can be signed and sent without sponsorship', asyn
   const signature = await userAccount.sign({
     hash: TxEnvelopeTempo.getSignPayload(envelope),
   })
-  const receipt = await sendRawTransactionSync(client, {
-    serializedTransaction: TxEnvelopeTempo.serialize(envelope, {
+  const receipt = await CoreActions_.transaction.sendRawSync(client, {
+    transaction: TxEnvelopeTempo.serialize(envelope, {
       signature: SignatureEnvelope.from(signature),
     }),
   })
@@ -472,9 +476,9 @@ test.each([false, true])(
     })
     const server = await createHttpServer(createRequestListener(upstream.fetch))
     try {
-      const client = createClient({
-        chain: Tempo.chain,
-        transport: withRelay(Tempo.http(), {
+      const client = CoreClient_.create({
+        chain: chain_,
+        transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
           plugins: [
             Relay.feePayer({
               allowedFeePayers: [server.url],
@@ -487,33 +491,48 @@ test.each([false, true])(
         account: userAccount,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
         ],
-        feeToken: Tempo.addresses.alphaUsd,
-      }
-      const { transaction, capabilities } = await fillTransaction(client, {
-        ...(prepared
-          ? await prepareTransactionRequest(caller, {
-              ...parameters,
-              type: 'tempo',
-              feePayer: true,
-              gas: 1_000_000n,
-            })
-          : parameters),
-        chain: Tempo.chain,
-        feeToken: Tempo.addresses.alphaUsd,
-        feePayer: server.url as never,
-      })
+        feeToken: Tempo.alphaUsd,
+      } as const
+      const { transaction, capabilities } = await CoreActions_.transaction.fill(
+        client,
+        {
+          ...(prepared
+            ? (
+                await CoreActions_.transaction.prepare(caller, {
+                  ...parameters,
+                  type: 'tempo',
+                  feePayer: true,
+                  gas: 1_000_000n,
+                })
+              ).request
+            : parameters),
+          chain: chain_,
+          feeToken: Tempo.alphaUsd,
+          feePayer: server.url,
+        },
+      )
       expect(transaction.feePayerSignature).toBeDefined()
-      expect(capabilities?.sponsored).toBe(true)
-      expect(capabilities?.sponsor).toBeUndefined()
-      const receipt = await sendRawTransactionSync(caller, {
-        serializedTransaction: await userAccount.signTransaction(
-          transaction as never,
-        ),
+      expect(
+        (
+          capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(true)
+      expect(
+        (
+          capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsor,
+      ).toBeUndefined()
+      const receipt = await CoreActions_.transaction.sendRawSync(caller, {
+        transaction: await userAccount.signTransaction(transaction as never),
       })
       expect(receipt.status).toBe('success')
       expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -524,8 +543,8 @@ test.each([false, true])(
 )
 
 test('cancelling a fill closes the external fee-payer request', async () => {
-  const started = Promise.withResolvers<void>()
-  const closed = Promise.withResolvers<void>()
+  const started = withResolvers<void>()
+  const closed = withResolvers<void>()
   const server = await createHttpServer((request, response) => {
     request.resume()
     response.on('close', () => closed.resolve())
@@ -549,7 +568,7 @@ test('cancelling a fill closes the external fee-payer request', async () => {
           {
             from: userAccount.address,
             feePayer: server.url,
-            feeToken: Tempo.addresses.alphaUsd,
+            feeToken: Tempo.alphaUsd,
           },
         ],
       },
@@ -570,7 +589,7 @@ test.each(['validate', 'onSponsored'] as const)(
   'redacts failures in %s with error capabilities enabled',
   async (hook) => {
     const relay = Relay.create({
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      resolveTokens: () => [Tempo.alphaUsd],
 
       client: caller,
       plugins: [
@@ -580,7 +599,7 @@ test.each(['validate', 'onSponsored'] as const)(
           [hook]: async () => {
             await Actions.token.getBalance(caller, {
               account: userAccount.address,
-              token: Tempo.addresses.alphaUsd,
+              token: Tempo.alphaUsd,
             })
             throw new Error('Recording failed')
           },
@@ -672,44 +691,42 @@ test('unsafe development URLs still require an allowlist entry', async () => {
 })
 
 test('sponsors a transaction prepared for sender-paid gas', async () => {
-  const prepared = await prepareTransactionRequest(caller, {
+  const { request: prepared } = await CoreActions_.transaction.prepare(caller, {
     account: userAccount,
-    feeToken: Tempo.addresses.alphaUsd,
+    feeToken: Tempo.alphaUsd,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
     ],
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
       plugins: [Relay.feePayer({ account: feePayerAccount })],
     }),
   })
-  const { transaction } = await fillTransaction(client, {
+  const { transaction } = await CoreActions_.transaction.fill(client, {
     ...prepared,
-    chain: Tempo.chain,
+    chain: chain_,
   })
-  const receipt = await sendRawTransactionSync(caller, {
-    serializedTransaction: await userAccount.signTransaction(
-      transaction as never,
-    ),
+  const receipt = await CoreActions_.transaction.sendRawSync(caller, {
+    transaction: await userAccount.signTransaction(transaction as never),
   })
   expect(receipt.status).toBe('success')
   expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
 })
 
 test('replaces an untrusted fee-payer signature and applies sponsorship recording', async () => {
-  const prepared = await prepareTransactionRequest(caller, {
+  const { request: prepared } = await CoreActions_.transaction.prepare(caller, {
     account: userAccount,
     feePayer: true,
-    feeToken: Tempo.addresses.alphaUsd,
+    feeToken: Tempo.alphaUsd,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
@@ -746,23 +763,21 @@ test('replaces an untrusted fee-payer signature and applies sponsorship recordin
     params: [parameters],
   })) as Request.Result
   const transaction = Utils.normalizeTempoTransaction(result.tx)
-  const receipt = await sendRawTransactionSync(caller, {
-    serializedTransaction: await userAccount.signTransaction(
-      transaction as never,
-    ),
+  const receipt = await CoreActions_.transaction.sendRawSync(caller, {
+    transaction: await userAccount.signTransaction(transaction as never),
   })
   expect(receipt.status).toBe('success')
   expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
 })
 
 test('preserves the synchronous broadcast timeout after signing', async () => {
-  const prepared = await prepareTransactionRequest(caller, {
+  const { request: prepared } = await CoreActions_.transaction.prepare(caller, {
     account: userAccount,
     feePayer: true,
-    feeToken: Tempo.addresses.alphaUsd,
+    feeToken: Tempo.alphaUsd,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
@@ -787,18 +802,24 @@ test('preserves the synchronous broadcast timeout after signing', async () => {
   })
   const receipt = await relay.request({
     method: 'eth_sendRawTransactionSync',
-    params: [await userAccount.signTransaction(prepared as never), 5000],
+    params: [
+      await CoreActions_.transaction.sign(caller, {
+        ...prepared,
+        account: userAccount,
+      }),
+      5000,
+    ],
   })
   expect(receipt).toMatchObject({ status: '0x1' })
 })
 
 test('does not sign a cached sponsored fill that skipped validation', async () => {
-  const { transaction } = await fillTransaction(caller, {
+  const { transaction } = await CoreActions_.transaction.fill(caller, {
     account: userAccount,
-    feeToken: Tempo.addresses.alphaUsd,
+    feeToken: Tempo.alphaUsd,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
@@ -844,10 +865,10 @@ test('refuses to sign a transaction changed after sponsorship validation', async
       params: [
         {
           from: userAccount.address,
-          feeToken: Tempo.addresses.alphaUsd,
+          feeToken: Tempo.alphaUsd,
           calls: [
             Actions.token.transfer.call(caller, {
-              token: Tempo.addresses.alphaUsd,
+              token: Tempo.alphaUsd,
               to: recipient.address,
               amount: 1n,
             }),
@@ -868,7 +889,7 @@ test.each([
   'sponsors a fill only for the requested sender, filled from: $from',
   async ({ from, sponsored }) => {
     const url = await createRpcProxy(
-      Tempo.chain.rpcUrls.default.http[0],
+      Tempo.rpcUrl,
       async ({ method, params }) => {
         if (method !== 'eth_fillTransaction') return undefined
         const result = (await caller.request({
@@ -879,7 +900,7 @@ test.each([
       },
     )
     const relay = Relay.create({
-      client: Tempo.getClient({ chain: Tempo.chain, transport: http(url) }),
+      client: Tempo.getClient({ transport: http(url) }),
       plugins: [
         Relay.feePayer({
           account: feePayerAccount,
@@ -891,8 +912,8 @@ test.each([
     onTestFinished(async () => {
       await server.close()
     })
-    const client = createClient({
-      chain: Tempo.chain,
+    const client = CoreClient_.create({
+      chain: chain_,
       transport: http(server.url),
     })
 
@@ -901,17 +922,16 @@ test.each([
       params: [
         {
           from: userAccount.address,
-          feeToken: Tempo.addresses.alphaUsd,
+          feeToken: Tempo.alphaUsd,
           calls: [{ data: transfer.data, to: transfer.to }],
         },
       ],
     } as never) as Promise<Request.Result>
 
     if (!sponsored) {
-      await expect(request).rejects.toMatchObject({
-        code: -32602,
-        details: 'Transaction sender does not match the request.',
-      })
+      await expect(request).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidParamsError: Transaction sender does not match the request.]`,
+      )
       return
     }
     const { tx } = await request
@@ -963,7 +983,7 @@ test.each([0, 3])(
             params: [
               {
                 from: userAccount.address,
-                feeToken: Tempo.addresses.alphaUsd,
+                feeToken: Tempo.alphaUsd,
                 feePayer: server.url,
               },
             ],
@@ -981,7 +1001,7 @@ test.each([0, 3])(
 )
 
 test
-  .skipIf(Tempo.nodeEnv !== 'localnet')
+  .skipIf('localnet' !== 'localnet')
   .each(['sendTransaction', 'sendTransactionSync'] as const)(
   'plain HTTP transport: %s sponsors a sender without a fee-token balance',
   async (action) => {
@@ -1001,12 +1021,11 @@ test
     })
 
     const client = Tempo.getClient({
-      chain: Tempo.chain,
       transport: http(server.url),
     })
 
     const account = Account.fromSecp256k1(generatePrivateKey())
-    const token = Tempo.addresses.alphaUsd
+    const token = Tempo.alphaUsd
 
     await Actions.token.transferSync(caller, {
       account: feePayerAccount,
@@ -1048,10 +1067,10 @@ test
 
     const receipt =
       action === 'sendTransactionSync'
-        ? await sendTransactionSync(client, parameters)
-        : await waitForTransactionReceipt(client, {
-            hash: await sendTransaction(client, parameters),
-          })
+        ? await CoreActions_.transaction.sendSync(client, parameters)
+        : await CoreActions_.transaction.waitForReceipt(client, {
+            hash: await CoreActions_.transaction.send(client, parameters),
+          }).receipt
 
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
     expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
@@ -1086,6 +1105,42 @@ test
   },
 )
 
+test('transferSync uses an external sponsor through withRelay', async () => {
+  const upstream = Relay.create({
+    client: caller,
+    plugins: [Relay.feePayer({ account: feePayerAccount })],
+  })
+  const server = await createHttpServer(createRequestListener(upstream.fetch))
+  onTestFinished(async () => {
+    await server.close()
+  })
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
+      plugins: [
+        Relay.feePayer({
+          allowedFeePayers: [server.url],
+          internal_allowUnsafeUrls: true,
+        }),
+      ],
+    }),
+  })
+
+  const { receipt } = await Actions.token.transferSync(client, {
+    account: userAccount,
+    token: Tempo.alphaUsd,
+    to: recipient.address,
+    amount: 1n,
+    feeToken: Tempo.alphaUsd,
+    feePayer: server.url,
+  })
+
+  expect(receipt).toMatchObject({
+    status: 'success',
+    feePayer: feePayerAccount.address.toLowerCase(),
+  })
+})
+
 describe('raw sender verification', () => {
   const relay = Relay.create({
     client: caller,
@@ -1093,11 +1148,14 @@ describe('raw sender verification', () => {
   })
 
   test('rejects a sender placeholder its signature does not recover', async () => {
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount.address,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
     const envelope = TxEnvelopeTempo.deserialize(
       (await userAccount.signTransaction(
         transaction as never,
@@ -1134,11 +1192,14 @@ describe('raw sender verification', () => {
 
   test('rejects a P256 signature that does not verify for its public key', async () => {
     const signer = Account.fromP256(P256.randomPrivateKey())
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount.address,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
     const envelope = TxEnvelopeTempo.deserialize(
       (await signer.signTransaction(
         transaction as never,
@@ -1166,11 +1227,14 @@ describe('raw sender verification', () => {
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
       access: userAccount,
     })
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount.address,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
 
     await expect(
       relay.request({
@@ -1186,11 +1250,14 @@ describe('raw sender verification', () => {
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
       access: userAccount,
     })
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount.address,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
     const envelope = TxEnvelopeTempo.deserialize(
       (await accessKey.signTransaction(
         transaction as never,
@@ -1222,11 +1289,14 @@ describe('raw sender verification', () => {
       account: recipient,
     })
     // Gas estimation rejects the foreign authorization, so attach it after preparation.
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount.address,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
 
     await expect(
       relay.request({
@@ -1235,7 +1305,7 @@ describe('raw sender verification', () => {
           await accessKey.signTransaction({
             ...transaction,
             keyAuthorization,
-          } as never),
+          } as never as never),
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1250,14 +1320,17 @@ describe('raw sender verification', () => {
     const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
       accessKey,
       account: userAccount,
-      chainId: Tempo.chain.id + 1,
+      chainId: chain_.id + 1,
     })
     // Gas estimation rejects the foreign authorization, so attach it after preparation.
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount.address,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
 
     await expect(
       relay.request({
@@ -1266,7 +1339,7 @@ describe('raw sender verification', () => {
           await accessKey.signTransaction({
             ...transaction,
             keyAuthorization,
-          } as never),
+          } as never as never),
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1284,11 +1357,14 @@ describe('raw sender verification', () => {
       expiry: Math.floor(Date.now() / 1000) - 60,
     })
     // Gas estimation rejects the expired authorization, so attach it after preparation.
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount.address,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount.address,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
 
     await expect(
       relay.request({
@@ -1297,7 +1373,7 @@ describe('raw sender verification', () => {
           await accessKey.signTransaction({
             ...transaction,
             keyAuthorization,
-          } as never),
+          } as never as never),
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1311,15 +1387,18 @@ describe('raw sender verification', () => {
       access: root,
     })
     await Actions.faucet.fundSync(caller, { account: root, timeout: 60_000 })
-    await Actions.accessKey.authorizeSync(
-      Tempo.getClient({ account: root, chain: Tempo.chain }),
-      { accessKey, feeToken: Tempo.addresses.alphaUsd },
-    )
-    const transaction = await prepareTransactionRequest(caller, {
-      account: accessKey,
-      calls: [transfer],
-      feePayer: true,
+    await Actions.accessKey.authorizeSync(Tempo.getClient({ account: root }), {
+      accessKey,
+      feeToken: Tempo.alphaUsd,
     })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: accessKey,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
 
     const receipt = (await relay.request({
       method: 'eth_sendRawTransactionSync',
@@ -1344,12 +1423,15 @@ describe('raw sender verification', () => {
       accessKey,
       account: root,
     })
-    const transaction = await prepareTransactionRequest(caller, {
-      account: accessKey,
-      calls: [transfer],
-      feePayer: true,
-      keyAuthorization,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: accessKey,
+        calls: [transfer],
+        feePayer: true,
+        keyAuthorization,
+      },
+    )
 
     const receipt = (await relay.request({
       method: 'eth_sendRawTransactionSync',
@@ -1374,18 +1456,21 @@ describe('raw sender verification', () => {
       accessKey,
       account: root,
     })
-    const transaction = await prepareTransactionRequest(caller, {
-      account: accessKey,
-      calls: [transfer],
-      feePayer: true,
-      keyAuthorization,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: accessKey,
+        calls: [transfer],
+        feePayer: true,
+        keyAuthorization,
+      },
+    )
     await relay.request({
       method: 'eth_sendRawTransactionSync',
       params: [await accessKey.signTransaction(transaction as never)],
     })
     // Gas estimation rejects the consumed authorization, so attach it after preparation.
-    const replay = await prepareTransactionRequest(caller, {
+    const { request: replay } = await CoreActions_.transaction.prepare(caller, {
       account: accessKey,
       calls: [transfer],
       feePayer: true,
@@ -1398,7 +1483,7 @@ describe('raw sender verification', () => {
           await accessKey.signTransaction({
             ...replay,
             keyAuthorization,
-          } as never),
+          } as never as never),
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1416,11 +1501,14 @@ describe('raw canonical encoding', () => {
   test.each(['eth_signRawTransaction', 'eth_sendRawTransactionSync'])(
     'rejects a u64 field past the safe integer range: %s',
     async (method) => {
-      const transaction = await prepareTransactionRequest(caller, {
-        account: userAccount,
-        calls: [transfer],
-        feePayer: true,
-      })
+      const { request: transaction } = await CoreActions_.transaction.prepare(
+        caller,
+        {
+          account: userAccount,
+          calls: [transfer],
+          feePayer: true,
+        },
+      )
       const signed = reencode(
         await userAccount.signTransaction(transaction as never),
         {
@@ -1438,14 +1526,20 @@ describe('raw canonical encoding', () => {
   )
 
   test('rejects a non-canonical integer encoding', async () => {
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
     const signed = reencode(
       await userAccount.signTransaction(transaction as never),
-      { field: 'gas', fn: (gas) => Hex.concat('0x00', gas) },
+      {
+        field: 'gas',
+        fn: (gas) => Hex.concat('0x00', gas),
+      },
     )
 
     await expect(
@@ -1462,15 +1556,18 @@ test('raw sponsorship overrides an envelope fee token with the sponsor token', a
     plugins: [
       Relay.feePayer({
         account: feePayerAccount,
-        feeToken: Tempo.addresses.alphaUsd,
+        feeToken: Tempo.alphaUsd,
       }),
     ],
   })
-  const transaction = await prepareTransactionRequest(caller, {
-    account: userAccount,
-    calls: [transfer],
-    feePayer: true,
-  })
+  const { request: transaction } = await CoreActions_.transaction.prepare(
+    caller,
+    {
+      account: userAccount,
+      calls: [transfer],
+      feePayer: true,
+    },
+  )
   // The sender's signature does not commit to the fee-payer format's token.
   const partial = TxEnvelopeTempo.serialize(
     {
@@ -1479,13 +1576,11 @@ test('raw sponsorship overrides an envelope fee token with the sponsor token', a
           transaction as never,
         )) as TxEnvelopeTempo.Serialized,
       ),
-      feeToken: Tempo.addresses.pathUsd,
+      feeToken: Tempo.pathUsd,
     },
     { format: 'feePayer', sender: userAccount.address },
   )
-  expect(Transaction.deserialize(partial).feeToken).toBe(
-    Tempo.addresses.pathUsd,
-  )
+  expect(Transaction.deserialize(partial).feeToken).toBe(Tempo.pathUsd)
 
   const receipt = (await relay.request({
     method: 'eth_sendRawTransactionSync',
@@ -1495,19 +1590,19 @@ test('raw sponsorship overrides an envelope fee token with the sponsor token', a
   const { feePayer, feeToken, status } = receipt
   expect({ feePayer, feeToken, status }).toEqual({
     feePayer: feePayerAccount.address.toLowerCase(),
-    feeToken: Tempo.addresses.alphaUsd,
+    feeToken: Tempo.alphaUsd,
     status: '0x1',
   })
 })
 
 describe('fee token resolver', () => {
   const feeToken = ({ chainId }: { chainId: number }) =>
-    chainId === Tempo.chain.id ? Tempo.addresses.alphaUsd : undefined
+    chainId === chain_.id ? Tempo.alphaUsd : undefined
 
   test('resolves the sponsor token from the request chain', async () => {
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.pathUsd],
+      resolveTokens: () => [Tempo.pathUsd],
       plugins: [Relay.feePayer({ account: feePayerAccount, feeToken })],
     })
 
@@ -1516,14 +1611,14 @@ describe('fee token resolver', () => {
       params: [{ from: userAccount.address, calls: [transfer] }],
     })) as Request.Result
 
-    expect(result.tx.feeToken).toBe(Tempo.addresses.alphaUsd)
+    expect(result.tx.feeToken).toBe(Tempo.alphaUsd)
   })
 
   test('validated fills retain the resolved fee token in the signed envelope', async () => {
     const events: Relay.feePayer.SponsoredEvent[] = []
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.pathUsd],
+      resolveTokens: () => [Tempo.pathUsd],
       plugins: [
         Relay.feePayer({
           account: feePayerAccount,
@@ -1541,7 +1636,7 @@ describe('fee token resolver', () => {
       params: [{ from: userAccount.address, calls: [transfer] }],
     })) as Request.Result
 
-    expect(result.tx.feeToken).toBe(Tempo.addresses.alphaUsd)
+    expect(result.tx.feeToken).toBe(Tempo.alphaUsd)
     expect(
       events.map(({ feePayer, feeToken, method, sender, transaction }) => ({
         feePayer,
@@ -1558,7 +1653,7 @@ describe('fee token resolver', () => {
           "feePayer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "feeToken": "0x20c0000000000000000000000000000000000001",
           "method": "eth_fillTransaction",
-          "sender": "0x9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64a",
+          "sender": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
           "transactionFeeToken": "0x20c0000000000000000000000000000000000001",
         },
       ]
@@ -1568,23 +1663,24 @@ describe('fee token resolver', () => {
   test('raw sponsor signing prefers the chain resolver', async () => {
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.pathUsd],
+      resolveTokens: () => [Tempo.pathUsd],
       plugins: [Relay.feePayer({ account: feePayerAccount, feeToken })],
     })
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount,
-      calls: [transfer],
-      feePayer: true,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount,
+        calls: [transfer],
+        feePayer: true,
+      },
+    )
 
     const result = (await relay.request({
       method: 'eth_signRawTransaction',
       params: [await userAccount.signTransaction(transaction as never)],
     })) as `0x76${string}`
 
-    expect(Transaction.deserialize(result).feeToken).toBe(
-      Tempo.addresses.alphaUsd,
-    )
+    expect(Transaction.deserialize(result).feeToken).toBe(Tempo.alphaUsd)
   })
 
   test('an external fee payer chooses its own fee token', async () => {
@@ -1608,12 +1704,12 @@ describe('fee token resolver', () => {
     })
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      resolveTokens: () => [Tempo.alphaUsd],
       plugins: [
         Relay.feePayer({
           account: feePayerAccount,
           allowedFeePayers: [server.url],
-          feeToken: () => Tempo.addresses.pathUsd,
+          feeToken: () => Tempo.pathUsd,
           internal_allowUnsafeUrls: true,
         }),
       ],
@@ -1628,7 +1724,7 @@ describe('fee token resolver', () => {
 
     expect(
       requests.map((request) => (request as { feeToken?: unknown }).feeToken),
-    ).toEqual([Tempo.addresses.alphaUsd])
+    ).toEqual([Tempo.alphaUsd])
   })
 })
 
@@ -1636,7 +1732,7 @@ describe('fee-payer signature validity', () => {
   // Prepared fills skip the node, so the relay's own bound check refuses them.
   const prepared = {
     calls: [transfer],
-    chainId: Hex.fromNumber(Tempo.chain.id),
+    chainId: Hex.fromNumber(chain_.id),
     from: userAccount.address,
     gas: '0x100000',
     maxFeePerGas: '0x4a817c800',
@@ -1651,15 +1747,18 @@ describe('fee-payer signature validity', () => {
         client: caller,
         plugins: [Relay.feePayer({ account: feePayerAccount })],
       })
-      const transaction = await prepareTransactionRequest(caller, {
-        account: userAccount,
-        calls: [transfer],
-        feePayer: true,
-        nonceKey: 1n,
-        ...(offset
-          ? { validBefore: Math.floor(Date.now() / 1000) + offset }
-          : {}),
-      })
+      const { request: transaction } = await CoreActions_.transaction.prepare(
+        caller,
+        {
+          account: userAccount,
+          calls: [transfer],
+          feePayer: true,
+          nonceKey: 1n,
+          ...(offset
+            ? { validBefore: Math.floor(Date.now() / 1000) + offset }
+            : {}),
+        },
+      )
 
       await expect(
         relay.request({
@@ -1686,7 +1785,7 @@ describe('fee-payer signature validity', () => {
   test('bounds fills by the configured validity', async () => {
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      resolveTokens: () => [Tempo.alphaUsd],
       plugins: [Relay.feePayer({ account: feePayerAccount, validity: 600 })],
     })
     const now = Math.floor(Date.now() / 1000)
@@ -1721,7 +1820,7 @@ describe('fee-payer signature validity', () => {
   test('bounds expiring nonce fills by the protocol limit', async () => {
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      resolveTokens: () => [Tempo.alphaUsd],
       plugins: [Relay.feePayer({ account: feePayerAccount })],
     })
     const expiring = { ...prepared, nonceKey: Hex.fromNumber(maxUint256) }
@@ -1750,7 +1849,7 @@ describe('fee-payer signature validity', () => {
     async (validBefore) => {
       const relay = Relay.create({
         client: caller,
-        resolveTokens: () => [Tempo.addresses.alphaUsd],
+        resolveTokens: () => [Tempo.alphaUsd],
         plugins: [Relay.feePayer({ account: feePayerAccount })],
       })
 
@@ -1768,7 +1867,7 @@ describe('fee-payer signature validity', () => {
   test('identical fill retries share one sign payload', async () => {
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      resolveTokens: () => [Tempo.alphaUsd],
       plugins: [Relay.feePayer({ account: feePayerAccount })],
     })
     const request = {
@@ -1788,7 +1887,7 @@ describe('fee-payer signature validity', () => {
   test('refuses fills whose validAfter is at or past the generated validBefore', async () => {
     const relay = Relay.create({
       client: caller,
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      resolveTokens: () => [Tempo.alphaUsd],
       plugins: [Relay.feePayer({ account: feePayerAccount })],
     })
 
@@ -1824,15 +1923,18 @@ describe('rejected broadcasts', () => {
         }),
       ],
     })
-    const transaction = await prepareTransactionRequest(caller, {
-      account: userAccount,
-      calls: [transfer],
-      feePayer: true,
-      feeToken: Tempo.addresses.alphaUsd,
-      gas: 1_000_000n,
-      maxFeePerGas: 1n,
-      maxPriorityFeePerGas: 0n,
-    })
+    const { request: transaction } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        account: userAccount,
+        calls: [transfer],
+        feePayer: true,
+        feeToken: Tempo.alphaUsd,
+        gas: 1_000_000n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 0n,
+      },
+    )
 
     await expect(
       relay.request({
@@ -1840,7 +1942,7 @@ describe('rejected broadcasts', () => {
         params: [await userAccount.signTransaction(transaction as never)],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[RpcResponse.BaseError: fee cap less than base fee: max_fee_per_gas 1, base_fee 600000000]`,
+      `[RpcResponse.InvalidInputError: fee cap less than base fee: max_fee_per_gas 1, base_fee 600000000]`,
     )
 
     expect(
@@ -1856,7 +1958,7 @@ describe('rejected broadcasts', () => {
           "chainId": 1337,
           "feePayer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "method": "eth_sendRawTransaction",
-          "sender": "0x9ac4fdc8e5d72aaade30f9ff52d392d60c68a64a",
+          "sender": "0xa0ee7a142d267c1f36714e4a8f75612f20a79720",
         },
       ]
     `)
@@ -1894,11 +1996,11 @@ describe('rejected broadcasts', () => {
       })
       const rejected: Relay.feePayer.SponsoredEvent[] = []
       const relay = Relay.create({
-        client: createClient({
-          chain: Tempo.chain,
+        client: CoreClient_.create({
+          chain: chain_,
           transport: http(server.url, { retryCount: 0 }),
         }),
-        resolveTokens: () => [Tempo.addresses.alphaUsd],
+        resolveTokens: () => [Tempo.alphaUsd],
         plugins: [
           Relay.feePayer({
             account: feePayerAccount,
@@ -1909,15 +2011,18 @@ describe('rejected broadcasts', () => {
           }),
         ],
       })
-      const transaction = await prepareTransactionRequest(caller, {
-        account: userAccount,
-        calls: [transfer],
-        feePayer: true,
-        feeToken: Tempo.addresses.alphaUsd,
-        gas: 1_000_000n,
-        maxFeePerGas,
-        maxPriorityFeePerGas: 0n,
-      })
+      const { request: transaction } = await CoreActions_.transaction.prepare(
+        caller,
+        {
+          account: userAccount,
+          calls: [transfer],
+          feePayer: true,
+          feeToken: Tempo.alphaUsd,
+          gas: 1_000_000n,
+          maxFeePerGas,
+          maxPriorityFeePerGas: 0n,
+        },
+      )
 
       await expect(
         relay.request({
@@ -1971,12 +2076,12 @@ describe('scenarios', () => {
       await server.close()
     })
     const sender = Account.fromSecp256k1(generatePrivateKey())
-    const client = createClient({
-      chain: { ...Tempo.chain, feeToken: Tempo.addresses.alphaUsd },
-      transport: withRelay(Tempo.http(), http(server.url)),
+    const client = CoreClient_.create({
+      chain: { ...chain_, feeToken: Tempo.alphaUsd },
+      transport: withRelay(tempoHttp_(Tempo.rpcUrl), http(server.url)),
     })
 
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await CoreActions_.transaction.sendSync(client, {
       account: sender,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       feePayer: true,

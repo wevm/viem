@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const plasmaTestnet = /*#__PURE__*/ defineChain({
+export const plasmaTestnet = /*#__PURE__*/ Chain.from({
   id: 9746,
   name: 'Plasma Testnet',
   nativeCurrency: {
@@ -9,17 +10,14 @@ export const plasmaTestnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.plasma.to'],
-    },
+    http: 'https://testnet-rpc.plasma.to',
   },
   blockExplorers: {
-    default: {
-      name: 'RouteScan',
-      url: 'https://testnet.plasmascan.to',
-    },
+    name: 'RouteScan',
+    url: 'https://testnet.plasmascan.to',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 0,

@@ -1,9 +1,10 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const whitechain = /*#__PURE__*/ defineChain({
+export const whitechain = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 1875,
   name: 'Whitechain',
@@ -14,17 +15,14 @@ export const whitechain = /*#__PURE__*/ defineChain({
   },
   blockTime: 1_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.whitechain.io'],
-    },
+    http: 'https://rpc.whitechain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Whitechain Explorer',
-      url: 'https://explorer.whitechain.io',
-    },
+    name: 'Whitechain Explorer',
+    url: 'https://explorer.whitechain.io',
   },
   contracts: {
+    create2: Contracts.create2,
     ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',

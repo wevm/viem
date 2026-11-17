@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const metachain = /*#__PURE__*/ defineChain({
+export const metachain = /*#__PURE__*/ Chain.from({
   id: 571,
   name: 'MetaChain Mainnet',
   nativeCurrency: { name: 'Metatime Coin', symbol: 'MTC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.metatime.com'],
-    },
+    http: 'https://rpc.metatime.com',
   },
   blockExplorers: {
-    default: {
-      name: 'MetaExplorer',
-      url: 'https://explorer.metatime.com',
-    },
+    name: 'MetaExplorer',
+    url: 'https://explorer.metatime.com',
   },
   contracts: {
     multicall3: {

@@ -1,8 +1,8 @@
 // Generated with `pnpm gen:tokenlist`. Do not modify manually.
 
-import { defineToken } from '../defineToken.js'
+import * as Token from '../../core/Token.js'
 
-export const frxusd = /*#__PURE__*/ defineToken({
+export const frxusd = /*#__PURE__*/ Token.from({
   addresses: {
     4217: '0x20c0000000000000000000003554d28269e0f3c2', // tempo
   },

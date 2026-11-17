@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const turkchain = /*#__PURE__*/ defineChain({
+export const turkchain = /*#__PURE__*/ Chain.from({
   id: 1919,
   name: 'Turkchain',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const turkchain = /*#__PURE__*/ defineChain({
     symbol: 'TURK',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.turkscan.com'],
-      webSocket: ['wss://evm-ws.turkscan.com'],
-    },
+    http: 'https://rpc.turkscan.com',
+    ws: 'wss://evm-ws.turkscan.com',
   },
   blockExplorers: {
-    default: {
-      name: 'TurkScan',
-      url: 'https://turkscan.com',
-    },
+    name: 'TurkScan',
+    url: 'https://turkscan.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

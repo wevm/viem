@@ -1,20 +1,20 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const citreaTestnet = /*#__PURE__*/ defineChain({
+export const citreaTestnet = /*#__PURE__*/ Chain.from({
   id: 5115,
   name: 'Citrea Testnet',
   nativeCurrency: { name: 'cBTC', symbol: 'cBTC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.citrea.xyz'],
-    },
+    http: 'https://rpc.testnet.citrea.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Citrea Explorer',
-      url: 'https://explorer.testnet.citrea.xyz',
-      apiUrl: 'https://explorer.testnet.citrea.xyz/api',
-    },
+    name: 'Citrea Explorer',
+    url: 'https://explorer.testnet.citrea.xyz',
+    apiUrl: 'https://explorer.testnet.citrea.xyz/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

@@ -1,0 +1,67 @@
+import { Card, Cards } from 'vocs'
+
+# Account
+
+## Overview
+
+The **Account** module represents an Ethereum account that can sign messages, transactions, typed data, and authorizations.
+
+Viem distinguishes between two kinds of account:
+
+- **Local Account**: signing happens locally through a private key, mnemonic, KMS, or other signing logic. The raw signing material is available to your program.
+- **JSON-RPC Account**: signing is delegated to a JSON-RPC provider (for example, a browser wallet). Only the address is known.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"7863e550f03b5f129832d97b05ffeafa2b78cff5ab46e37cd43c9d910d73df14","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBBAY14gBXMAypw0AQw5IAnFQA2MMAHM0+JAHYqk0spgNEIPgOGiQ8xmFyIADFV74pE3jXKIZAXwrps1gsTJKajoDEAEwcU5nExFEHn4hEQA6AAVSRiIJGgBpGAwg8SkDAGYADgUlVXVELWopPVDoxLMLKyQAJntHUmdXJAA2Lx8cPEIScm0QplZ2LmNmgp0DABZy80q1TW16/Tx50yDW606w7t7AxABGQe9qX1GAieD6PAAzYRdGCDBOV9IIZhpDJZGC5DAACiw6UyOTycQAEnQKJwIFg0F8IgB+OL7ZJ/AFAmGgvJJADyaIxcAAlDiEqZUtCQWCADpgMASZjwLDOGC/f6Axmw/JUKAQXgIQwAYVIMBBcCinFZwAAAq0ANaKsCEpl5VkeVl8gEKqHAmicNUkoKSZQS5DIEB0DlYRRBAAG7rQcFZLDYHE4wHiMS4HkNzE4AHIiIwYMxw6zWeFIk1TJwALyB5pJfEC03EiHhmy0QBkBOGqaz3a6QABdKtiJZIACs/QqKk2V2W210u0M2e1QsOlmOXScLgu7WWQzuI0MY0CkxehkTXGTsQz9L7ecWRSQpUuLaqWzqXcadJEA7aiA7pxHfVsk8w0/84ytU0MkP+OA4GCpUSgUBlcBwHErqFgAJMA4jpCoHiViKYoSkYf4AfKECvJwai8iuaBJFu0iIKUcjrK21S1DoDR4BISHwAgCiDkgV4ODeFylB4tZhNAfg+rM/priInAhtmEZRjGcZgAm3xJqeXDpri2G9oKebggWtBJKppbxuyUlJJR/7UayAD0+kRoWqlJOGQScpISCgCEShwBieCeiAHgeEAA="}
+import { Account } from 'viem'
+
+const account = Account.fromPrivateKey('0x...')
+
+account.address
+// '0x...'
+```
+
+<Cards>
+  <Card
+    title="JSON-RPC Accounts"
+    description="Signing delegated to a JSON-RPC provider, referenced by address."
+    icon="lucide:globe"
+    to="/docs/accounts/json-rpc"
+  />
+  <Card
+    title="Private Key Accounts"
+    description="Local account backed by a secp256k1 private key."
+    icon="lucide:key-round"
+    to="/docs/accounts/local/private-key"
+  />
+  <Card
+    title="Passkey Accounts"
+    description="Local account derived from a credential-bound WebAuthn PRF."
+    icon="lucide:fingerprint"
+    to="/docs/accounts/local/passkey"
+  />
+  <Card
+    title="Mnemonic Accounts"
+    description="Local account derived from a BIP-39 mnemonic phrase."
+    icon="lucide:spell-check"
+    to="/docs/accounts/local/mnemonic"
+  />
+  <Card
+    title="HD Accounts"
+    description="Local account derived from a BIP-32 HD key."
+    icon="lucide:network"
+    to="/docs/accounts/local/hd"
+  />
+  <Card
+    title="Custom Accounts"
+    description="Local account backed by custom signing logic, such as a KMS or HSM."
+    icon="lucide:settings"
+    to="/docs/accounts/local/custom"
+  />
+  <Card
+    title="Nonce Manager"
+    description="Coordinate transaction nonces across concurrent sends."
+    icon="lucide:list-ordered"
+    to="/docs/accounts/nonce-manager"
+  />
+</Cards>

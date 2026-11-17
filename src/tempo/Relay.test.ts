@@ -1,10 +1,12 @@
+import { Client as CoreClient_ } from 'viem'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import * as RpcResponse from 'ox/RpcResponse'
-import { createClient, createClientResolver, http } from 'viem'
+import { http } from 'viem'
 import { Relay, Store } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { chain, getClient } from '~test/tempo/config.js'
-import { createHttpServer } from '~test/utils.js'
+import { getClient, rpcUrl } from '~test/tempo.js'
+import { tempoLocalnet as chain } from 'viem/chains'
+import { createServer as createHttpServer } from '~test/http.js'
 
 const client = getClient()
 
@@ -17,6 +19,35 @@ function request(body: unknown) {
 }
 
 describe('create', () => {
+  test('fetch preserves an upstream execution revert without plugins', async () => {
+    const server = await createHttpServer((_request, response) => {
+      response.setHeader('Content-Type', 'application/json')
+      response.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 0,
+          error: { code: 3, message: 'execution reverted', data: '0x82b42900' },
+        }),
+      )
+    })
+    try {
+      const relay = Relay.create({
+        client: CoreClient_.create({ chain, transport: http(server.url) }),
+      })
+      const response = await relay.fetch(
+        request({ jsonrpc: '2.0', id: 0, method: 'eth_call' }),
+      )
+
+      expect(await response.json()).toEqual({
+        jsonrpc: '2.0',
+        id: 0,
+        error: { code: 3, message: 'execution reverted', data: '0x82b42900' },
+      })
+    } finally {
+      await server.close()
+    }
+  })
+
   test('create forwards through a single client with its default chain', async () => {
     const relay = Relay.create({ client })
     expect(await relay.request({ method: 'eth_chainId' })).toBe(
@@ -34,9 +65,9 @@ describe('create', () => {
   })
 
   test('create resolves clients lazily and requires a chain only when forwarding', async () => {
-    const resolver = createClientResolver({
+    const resolver = CoreClient_.createResolver({
       chains: [chain],
-      transport: () => http(),
+      transport: () => http(rpcUrl),
     })
     const relay = Relay.create({
       getClient: resolver.getClient,
@@ -76,9 +107,9 @@ describe('create', () => {
   )
 
   test('create reports an unsupported fill chain as invalid params', async () => {
-    const resolver = createClientResolver({
+    const resolver = CoreClient_.createResolver({
       chains: [chain],
-      transport: () => http(),
+      transport: () => http(rpcUrl),
     })
     const relay = Relay.create({
       getClient: resolver.getClient,
@@ -131,7 +162,7 @@ describe('create', () => {
     ).toThrow('Expected exactly one')
     expect(() =>
       Relay.create({
-        client: createClient({ transport: http('https://rpc.example') }),
+        client: CoreClient_.create({ transport: http('https://rpc.example') }),
       } as never),
     ).toThrow('configured chain')
   })
@@ -151,7 +182,7 @@ describe('create', () => {
     const relay = Relay.create({ client })
     const server = await createHttpServer(createRequestListener(relay.fetch))
     try {
-      const remote = createClient({
+      const remote = CoreClient_.create({
         transport: http(server.url),
       })
       expect(await remote.request({ method: 'eth_chainId' })).toBe(

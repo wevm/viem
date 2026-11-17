@@ -1,21 +1,17 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const kinetiqElysium = /*#__PURE__*/ defineChain({
+export const kinetiqElysium = /*#__PURE__*/ Chain.from({
   id: 99_901,
   name: 'Elysium',
   blockTime: 100,
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.elysium.kinetiq.xyz'],
-    },
+    http: 'https://rpc.elysium.kinetiq.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Elysium Explorer',
-      url: 'https://elysium.kinetiq.xyz',
-      apiUrl: 'https://elysium.kinetiq.xyz/api',
-    },
+    name: 'Elysium Explorer',
+    url: 'https://elysium.kinetiq.xyz',
+    apiUrl: 'https://elysium.kinetiq.xyz/api',
   },
   contracts: {
     multicall3: {
@@ -24,4 +20,5 @@ export const kinetiqElysium = /*#__PURE__*/ defineChain({
     },
   },
   sourceId: 999,
+  testnet: false,
 })

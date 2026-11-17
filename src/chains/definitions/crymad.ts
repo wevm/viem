@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const crymad = /*#__PURE__*/ defineChain({
+export const crymad = /*#__PURE__*/ Chain.from({
   id: 1475,
   name: 'CRYMAD Chain',
   nativeCurrency: {
@@ -8,17 +8,11 @@ export const crymad = /*#__PURE__*/ defineChain({
     symbol: 'CMX-R',
     decimals: 18,
   },
-  rpcUrls: {
-    default: {
-      http: ['https://rpc.cmxofficial.com'],
-    },
-  },
+  rpcUrls: { http: 'https://rpc.cmxofficial.com' },
   blockExplorers: {
-    default: {
-      name: 'CRYMAD Chain Explorer',
-      url: 'https://explorer.cmxofficial.com',
-      apiUrl: 'https://explorer.cmxofficial.com/api/v2',
-    },
+    name: 'CRYMAD Chain Explorer',
+    url: 'https://explorer.cmxofficial.com',
+    apiUrl: 'https://explorer.cmxofficial.com/api/v2',
   },
   contracts: {
     multicall3: {

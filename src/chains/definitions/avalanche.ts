@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const avalanche = /*#__PURE__*/ defineChain({
+export const avalanche = /*#__PURE__*/ Chain.from({
   id: 43_114,
   name: 'Avalanche',
   blockTime: 1_700,
@@ -9,17 +10,14 @@ export const avalanche = /*#__PURE__*/ defineChain({
     name: 'Avalanche',
     symbol: 'AVAX',
   },
-  rpcUrls: {
-    default: { http: ['https://api.avax.network/ext/bc/C/rpc'] },
-  },
+  rpcUrls: { http: 'https://api.avax.network/ext/bc/C/rpc' },
   blockExplorers: {
-    default: {
-      name: 'SnowTrace',
-      url: 'https://snowtrace.io',
-      apiUrl: 'https://api.snowtrace.io',
-    },
+    name: 'SnowTrace',
+    url: 'https://snowtrace.io',
+    apiUrl: 'https://api.snowtrace.io',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 11907934,

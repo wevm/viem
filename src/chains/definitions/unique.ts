@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const unique = /*#__PURE__*/ defineChain({
+export const unique = /*#__PURE__*/ Chain.from({
   id: 8880,
   name: 'Unique Mainnet',
   nativeCurrency: {
@@ -8,13 +8,9 @@ export const unique = /*#__PURE__*/ defineChain({
     name: 'UNQ',
     symbol: 'UNQ',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.unique.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.unique.network' },
   blockExplorers: {
-    default: {
-      name: 'Unique Subscan',
-      url: 'https://unique.subscan.io/',
-    },
+    name: 'Unique Subscan',
+    url: 'https://unique.subscan.io/',
   },
 })

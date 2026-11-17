@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const sidraChain = /*#__PURE__*/ defineChain({
+export const sidraChain = /*#__PURE__*/ Chain.from({
   id: 97_453,
   name: 'Sidra Chain',
   nativeCurrency: {
@@ -9,14 +10,13 @@ export const sidraChain = /*#__PURE__*/ defineChain({
     symbol: 'SDA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://node.sidrachain.com'],
-    },
+    http: 'https://node.sidrachain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Sidra Chain Explorer',
-      url: 'https://ledger.sidrachain.com',
-    },
+    name: 'Sidra Chain Explorer',
+    url: 'https://ledger.sidrachain.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

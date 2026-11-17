@@ -1,9 +1,11 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 56 // bsc mainnet
 
-export const opBNB = /*#__PURE__*/ defineChain({
+export const opBNB = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 204,
   name: 'opBNB',
   nativeCurrency: {
@@ -11,18 +13,15 @@ export const opBNB = /*#__PURE__*/ defineChain({
     symbol: 'BNB',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://opbnb-mainnet-rpc.bnbchain.org'] },
-  },
+  rpcUrls: { http: 'https://opbnb-mainnet-rpc.bnbchain.org' },
   blockExplorers: {
-    default: {
-      name: 'opBNB (BSCScan)',
-      url: 'https://opbnb.bscscan.com',
-      apiUrl: 'https://api-opbnb.bscscan.com/api',
-    },
+    name: 'opBNB (BSCScan)',
+    url: 'https://opbnb.bscscan.com',
+    apiUrl: 'https://api-opbnb.bscscan.com/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 512881,

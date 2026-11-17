@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const assetChainTestnet = /*#__PURE__*/ defineChain({
+export const assetChainTestnet = /*#__PURE__*/ Chain.from({
   id: 42_421,
   name: 'AssetChain Testnet',
   nativeCurrency: {
@@ -8,15 +8,11 @@ export const assetChainTestnet = /*#__PURE__*/ defineChain({
     name: 'Real World Asset',
     symbol: 'RWA',
   },
-  rpcUrls: {
-    default: { http: ['https://enugu-rpc.assetchain.org'] },
-  },
+  rpcUrls: { http: 'https://enugu-rpc.assetchain.org' },
   blockExplorers: {
-    default: {
-      name: 'Asset Chain Testnet Explorer',
-      url: 'https://scan-testnet.assetchain.org',
-      apiUrl: 'https://scan-testnet.assetchain.org/api',
-    },
+    name: 'Asset Chain Testnet Explorer',
+    url: 'https://scan-testnet.assetchain.org',
+    apiUrl: 'https://scan-testnet.assetchain.org/api',
   },
   testnet: true,
   contracts: {

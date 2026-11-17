@@ -1,17 +1,17 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const loadAlphanet = /*#__PURE__*/ defineChain({
+export const loadAlphanet = /*#__PURE__*/ Chain.from({
   id: 9496,
   name: 'Load Alphanet',
   nativeCurrency: { name: 'Testnet LOAD', symbol: 'tLOAD', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://alphanet.load.network'] },
-  },
+  rpcUrls: { http: 'https://alphanet.load.network' },
   blockExplorers: {
-    default: {
-      name: 'Load Alphanet Explorer',
-      url: 'https://explorer.load.network',
-    },
+    name: 'Load Alphanet Explorer',
+    url: 'https://explorer.load.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

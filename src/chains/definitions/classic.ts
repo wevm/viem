@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const classic = /*#__PURE__*/ defineChain({
+export const classic = /*#__PURE__*/ Chain.from({
   id: 61,
   name: 'Ethereum Classic',
   nativeCurrency: {
@@ -8,13 +9,12 @@ export const classic = /*#__PURE__*/ defineChain({
     name: 'ETC',
     symbol: 'ETC',
   },
-  rpcUrls: {
-    default: { http: ['https://etc.rivet.link'] },
-  },
+  rpcUrls: { http: 'https://etc.rivet.link' },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://blockscout.com/etc/mainnet',
-    },
+    name: 'Blockscout',
+    url: 'https://blockscout.com/etc/mainnet',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const goat = /*#__PURE__*/ defineChain({
+export const goat = /*#__PURE__*/ Chain.from({
   id: 2345,
   name: 'GOAT',
   nativeCurrency: {
@@ -8,16 +9,13 @@ export const goat = /*#__PURE__*/ defineChain({
     name: 'Bitcoin',
     symbol: 'BTC',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.goat.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.goat.network' },
   blockExplorers: {
-    default: {
-      name: 'Goat Explorer',
-      url: 'https://explorer.goat.network',
-    },
+    name: 'Goat Explorer',
+    url: 'https://explorer.goat.network',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 0,

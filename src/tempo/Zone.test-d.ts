@@ -4,27 +4,25 @@ import { expectTypeOf, test } from 'vitest'
 test('exposes Zone definitions', () => {
   expectTypeOf(Zone.a.id).toEqualTypeOf<4217000006>()
   expectTypeOf(
-    Zone.a.rpcUrls.default.http[0],
+    Zone.a.rpcUrls.http[0],
   ).toEqualTypeOf<'https://rpc-zone-a.testnet.tempo.xyz'>()
   expectTypeOf(Zone.a.sourceId).toEqualTypeOf<42431>()
   expectTypeOf(Zone.b.id).toEqualTypeOf<4217000007>()
   expectTypeOf(
-    Zone.b.rpcUrls.default.http[0],
+    Zone.b.rpcUrls.http[0],
   ).toEqualTypeOf<'https://rpc-zone-b.testnet.tempo.xyz'>()
   expectTypeOf(Zone.b.sourceId).toEqualTypeOf<42431>()
   expectTypeOf(Zone.internal.id).toEqualTypeOf<421700001>()
-  expectTypeOf(Zone.internal.rpcUrls.default.http).toEqualTypeOf<string[]>()
+  expectTypeOf(Zone.internal.rpcUrls.http).toEqualTypeOf<string[]>()
   expectTypeOf(Zone.internal.sourceId).toEqualTypeOf<4217>()
   expectTypeOf(Zone.internalTestnet.id).toEqualTypeOf<1424310003>()
-  expectTypeOf(Zone.internalTestnet.rpcUrls.default.http).toEqualTypeOf<
-    string[]
-  >()
+  expectTypeOf(Zone.internalTestnet.rpcUrls.http).toEqualTypeOf<string[]>()
   expectTypeOf(Zone.internalTestnet.sourceId).toEqualTypeOf<42431>()
   expectTypeOf(Addresses.zonePortal(Zone.a.id)).toEqualTypeOf<`0x${string}`>()
   const zone = Zone.from({ id: 123, name: 'Custom Zone', sourceId: 1 })
   expectTypeOf(zone.id).toEqualTypeOf<123>()
   expectTypeOf(zone.name).toEqualTypeOf<'Custom Zone'>()
-  expectTypeOf(zone.rpcUrls.default.http).toEqualTypeOf<string[]>()
+  expectTypeOf(zone.rpcUrls.http).toEqualTypeOf<string[]>()
   expectTypeOf(zone.sourceId).toEqualTypeOf<1>()
 
   const annotated: ReturnType<typeof Zone.from> = zone

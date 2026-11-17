@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const moonriver = /*#__PURE__*/ defineChain({
+export const moonriver = /*#__PURE__*/ Chain.from({
   id: 1285,
   name: 'Moonriver',
   nativeCurrency: {
@@ -9,19 +10,16 @@ export const moonriver = /*#__PURE__*/ defineChain({
     symbol: 'MOVR',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.api.moonriver.moonbeam.network'],
-      webSocket: ['wss://wss.api.moonriver.moonbeam.network'],
-    },
+    http: 'https://rpc.api.moonriver.moonbeam.network',
+    ws: 'wss://wss.api.moonriver.moonbeam.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Moonscan',
-      url: 'https://moonriver.moonscan.io',
-      apiUrl: 'https://api-moonriver.moonscan.io/api',
-    },
+    name: 'Moonscan',
+    url: 'https://moonriver.moonscan.io',
+    apiUrl: 'https://api-moonriver.moonscan.io/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 1597904,

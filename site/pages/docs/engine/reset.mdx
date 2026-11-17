@@ -1,0 +1,83 @@
+# Resetting an Engine
+
+## Overview
+
+[`Engine.reset`](/docs/engine/reset) removes installed overrides. Reset one slot when replacing a
+provider completely, or omit the slot to restore every cryptographic primitive to Viem's defaults.
+
+## Recipes
+
+### Reset One Slot
+
+Reset a slot before installing another provider when primitives omitted by the new provider should
+not remain installed.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"4c43582ff56b540c3c6ae3707f0ba48f5e747cd545d154575854b7c1f0e3072e","data":"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"}
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+
+Engine.reset('Hash') // [!code focus]
+
+const { Hash } = await NodeEngine.engine()
+await Engine.install({ Hash })
+```
+
+### Reset Every Slot
+
+Restore Viem's default implementations between tests or isolated application runs.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"453feec18a5746157d49960031ef66c90c5bb22b53bdd33dd3cd5c29b79c3e6a","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRMAc0ZhcVOGgCGHJAE4qAGxj80+JADYq40nxgNEIXgKGUQswbkQAGKgGN8EsVZrlEUgL4V02MwWJkjNekys7Fz6pkaiEjoAzACMcgp8SqrqElo6evxhcmGIAEzWtqT2jkjmbh44eIQk5Op06QBmAK5gDowQYJyk8NoAFHCyEGgA/IicANYwGBANPJlCAHShQgCUY0QQjFAAOmBgYszwWPYwXT0MVFAQVgi6AErwaOzwnBC0AORwnLANYk2yXBYWHkhzA4jQ7TAcAWfjEfFuyGQIDoB2BwhAAAMsWgvmgAO4QAZiOD4XZA4KcYBzAynFycBqkCDMTjvN7vXa7ZYwBbdOB9d4ACWJ+HeK05825vL6YrAWIxIAAuhQkccisxwoMuABaTgAZU1nCeZz5aAWnAeJq+MBqGE4AyGnDx+AUr2YjDQNCgMIVSpAEUkiCiAA54oplIgAKwpTTaPBSi7GHL5EA2OwOXyIADsLl9VmgXnJHEp1NMnDpDKZLKIjBgzHZYHFNJ5516K04AHp25xkABCPOwenXJpwBVGQ7iJCgeoKOCQvA4kAuFxAA"}
+import { Engine } from 'viem'
+
+Engine.reset() // [!code focus]
+```
+
+## `Engine.reset`
+
+Restores one slot or the complete Engine to its default implementations.
+
+### Usage
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"5550826bdb98ee972ecdf94309a38f2193baea381fdc96add483a34f0ee58815","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRMAc0ZhcVOGgCGHJAE4qAGxj80+JADYq40nxgNEIXgKGUQswbkQAGKgGN8EsVZrlEUgL4V02MwWJkjNekys7Fz6pkaiEjoAzACMcgp8SqrqElo6evxhcmGIAEzWtqT2jkjmbh44eIQk5Op06QBmAK5gDowQYJyk8NoAFHCyEGgA/IicANYwGBANPJlCAHShQgCUY0QQjFAAOmBgYszwWPYwXT0MVFAQVgi6AErwaOzwnBC0AORwnLANYk2yXBYWHkhzA4jQ7TAcAWfjEfFuyGQIDoB2BwhAAAMsWgvmgAO4QAZiOD4XZA4KcYBzAynFycBqkCDMTjvN7vXa7ZYwBbdOB9d4ACWJ+HeK05825vL6YrAWIxIAAuhQkccisxwoMuABaTgAZU1nCeZz5aAWnAeJq+MBqGE4AyGnDx+AUr2YjDQNCgMIVSpAEUkiCiAA54oplIgAKwpTTaPBSi7GHL5EA2OwOXyIADs5WoniqPlq1HqgTYHGpWT9Gh0EeT8jDyWoqVjui5RhMhkDBTTJQsOcwlV01V8dQCumarQhHWNfXtIzGk2msy5Swla04Gy2u32hzgxysp3jRiuNzwFqevNeHy+Pz+AM4QJBCnBkOhsPhSERyNoqPkRjlOMNAkiRJMkgjLKkuU4OkGSZFk2Q5MBl3jXpBWFUVxRpHlzl6GU5UVZUQFVA4NQdHV9QdI14zNC1tCtG07QNJ0XSZd1PW9X1/WrGRjASJJI2jNI43ONsciiLsinTJxs19KxoC8clwPLIQoPpRlmXeIhGBgZh2TADDTCwk0UKFEl0MQiVDOlIxDnEJBQHqBQ4EhPAcRAFwXCAA"}
+import { Engine } from 'viem'
+
+Engine.reset('Hash')
+Engine.reset()
+```
+
+### Definition
+
+```ts
+function reset(slot?: keyof Engine.Engine): void
+```
+
+### Parameters
+
+#### slot
+
+- **Type:** `keyof Engine.Engine`
+- **Optional**
+
+The slot to reset. When omitted, every slot is reset.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"b69da21eeb02361e9cd1cac80937a3ede2eb7cbe060e653a9242578d65fe194c","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRMAc0ZhcVOGgCGHJAAYqAGxj80+JADYq40nxgNEIXgKGUQswbkQyQAY3wSxlmuXMBfCumxmCxMkZr08AMwBXMHtGCDBOUnhtAAo4WQg0AH5ETgBrGAwIfx5+UwA6fVMASlSiCEYoAB0wMDFmeCw7GEjohiooCEsEXQAleDR2eE4IWgByOE5YfzFA2S4WLHkGsHE0MLA4fJ8xPh7kZBA6eqXhEAADS7RJtAB3CHixOHwaxfYuYFyDFqdOf1IIMxOGNRmMajUikJ8lE4LExgAJJ74MbFCF5KEw2KosCXc4gAC6FEOTVI9SM8USnAAtJwAMoJLiDVqwtD5Tj9FmTGAkUgYTgUri3fAKEbMRhoGhQbb4wkgUQSHQAdjkCj4SiQAFZ1BItDoQJj2sZTNIqNZbPZvIhFU5ZZZoB5ITBoW0YgikSjOAB6T2cZAAQjtsD+XUCcHxRga4iQoDoNE2Gzw1xATicQA="}
+import { Engine } from 'viem'
+// ---cut---
+Engine.reset('Hash') // [!code focus]
+```
+
+### Return Value
+
+`void`
+
+No value is returned.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| [`Engine.UnknownSlotError`](/docs/engine/errors#engineunknownsloterror) | `slot` is not a recognized Engine slot. |

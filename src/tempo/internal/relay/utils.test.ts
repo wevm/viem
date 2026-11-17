@@ -1,5 +1,6 @@
+import { Client as CoreClient_ } from 'viem'
 import { RpcResponse } from 'ox'
-import { createClient, http } from 'viem'
+import { http } from 'viem'
 import { tempo } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
 import {
@@ -13,7 +14,7 @@ describe('formatFillTransactionRequest', () => {
   test.each([false, true])(
     'preserves encoded fields while formatting sponsorship: %s',
     (signed) => {
-      const client = createClient({ chain: tempo, transport: http() })
+      const client = CoreClient_.create({ chain: tempo, transport: http() })
       const feeToken = '0x20c0000000000000000000000000000000000001'
       const signature = { r: '0x1', s: '0x2', yParity: 0 }
       const request = {
@@ -115,6 +116,20 @@ describe('normalizeFillTransactionRequest', () => {
 })
 
 describe('toRpcError', () => {
+  test('preserves execution errors wrapped by the RPC parser', () => {
+    const error = RpcResponse.parseError({
+      code: 3,
+      message: 'execution reverted',
+      data: '0x82b42900',
+    })
+
+    expect(toRpcError(error)).toMatchObject({
+      code: 3,
+      message: 'execution reverted',
+      data: '0x82b42900',
+    })
+  })
+
   test('preserves the original RPC error class through wrappers', () => {
     const error = new RpcResponse.InvalidParamsError({
       message: 'Conflicting chain ids.',

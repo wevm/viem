@@ -1,28 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const liskSepolia = /*#__PURE__*/ defineChain({
+export const liskSepolia = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 4202,
-  network: 'lisk-sepolia',
   name: 'Lisk Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sepolia-api.lisk.com'],
-    },
+    http: 'https://rpc.sepolia-api.lisk.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia-blockscout.lisk.com',
-      apiUrl: 'https://sepolia-blockscout.lisk.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://sepolia-blockscout.lisk.com',
+    apiUrl: 'https://sepolia-blockscout.lisk.com/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     l2OutputOracle: {
       [sourceId]: {
         address: '0xA0E35F56C318DE1bD5D9ca6A94Fe7e37C5663348',

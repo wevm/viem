@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const cronos = /*#__PURE__*/ defineChain({
+export const cronos = /*#__PURE__*/ Chain.from({
   id: 25,
   name: 'Cronos Mainnet',
   nativeCurrency: {
@@ -8,17 +9,14 @@ export const cronos = /*#__PURE__*/ defineChain({
     name: 'Cronos',
     symbol: 'CRO',
   },
-  rpcUrls: {
-    default: { http: ['https://evm.cronos.org'] },
-  },
+  rpcUrls: { http: 'https://evm.cronos.org' },
   blockExplorers: {
-    default: {
-      name: 'Cronos Explorer',
-      url: 'https://explorer.cronos.org',
-      apiUrl: 'https://explorer-api.cronos.org/mainnet/api',
-    },
+    name: 'Cronos Explorer',
+    url: 'https://explorer.cronos.org',
+    apiUrl: 'https://explorer-api.cronos.org/mainnet/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 1963112,

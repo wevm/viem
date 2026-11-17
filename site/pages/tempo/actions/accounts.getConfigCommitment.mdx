@@ -89,9 +89,12 @@ zero for every account on it.
 The account address.
 
 ```ts twoslash
-import { Account, createClient } from 'viem/tempo'
+import { Account, Client, http } from 'viem/tempo'
 
-const client = createClient({ account: Account.fromSecp256k1('0x...') })
+const client = Client.create({
+  account: Account.fromSecp256k1('0x...'),
+  transport: http(),
+})
 // ---cut---
 await client.accounts.getConfigCommitment({
   account: '0x7b378778e4b0dfd068bc74979508219e2ba2074c', // [!code focus]

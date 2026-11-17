@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const fraxtal = /*#__PURE__*/ defineChain({
+export const fraxtal = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 252,
   name: 'Fraxtal',
   nativeCurrency: { name: 'Frax', symbol: 'FRAX', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.frax.com'],
-    },
+    http: 'https://rpc.frax.com',
   },
   blockExplorers: {
-    default: {
-      name: 'fraxscan',
-      url: 'https://fraxscan.com',
-      apiUrl: 'https://api.fraxscan.com/api',
-    },
+    name: 'fraxscan',
+    url: 'https://fraxscan.com',
+    apiUrl: 'https://api.fraxscan.com/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x66CC916Ed5C6C2FA97014f7D1cD141528Ae171e4',

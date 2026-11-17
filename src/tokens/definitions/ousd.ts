@@ -1,4 +1,4 @@
-import { defineToken } from '../defineToken.js'
+import * as Token from '../../core/Token.js'
 
 /**
  * [Open USD](https://joinopenstandard.com/) token, with canonical contract
@@ -12,7 +12,7 @@ import { defineToken } from '../defineToken.js'
  * // { address: '0x20c0000000000000000000006a37DA5C996874BE', ... }
  * ```
  */
-export const ousd = /*#__PURE__*/ defineToken({
+export const ousd = /*#__PURE__*/ Token.from({
   addresses: {
     1: '0x9f6F3991D525015a6F8CaF062C83b62fD3AC4436', // mainnet
     4217: '0x20c0000000000000000000006a37DA5C996874BE', // tempo

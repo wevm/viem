@@ -1,11 +1,10 @@
 import type { Address } from 'abitype'
-import { AbiEvent, Hex } from 'ox'
-import type { Client } from '../../../clients/createClient.js'
-import { zeroAddress } from '../../../constants/address.js'
-import type { Call } from '../../../types/calls.js'
-import type { Log } from '../../../types/log.js'
-import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
-import { formatUnits } from '../../../utils/unit/formatUnits.js'
+import { AbiEvent, Hex, Log as Log_ } from 'ox'
+import * as TransactionRequest from 'ox/TransactionRequest'
+import type { Client } from '../../../core/Client.js'
+import type { Call } from 'ox/tempo/TxEnvelopeTempo'
+import type { Log } from 'ox/Log'
+import { format as formatUnits } from 'ox/Value'
 import * as Abis from '../../Abis.js'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
@@ -15,6 +14,8 @@ import { formatError, isExecutionError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
 import * as Utils from './utils.js'
 import { extractCalls } from './virtualAddress.js'
+
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 export function create(options: Relay.simulate.Options): Relay.Plugin {
   return {
@@ -102,23 +103,17 @@ export async function simulateAndParseDiffs(
             }),
           ]
         : []
-    const simulation = await Actions.simulate.simulateCalls(client, {
+    const simulation = await simulateV1(client, {
       account: account === zeroAddress ? undefined : account,
       blockNumber,
-      calls: [...calls, ...probe] as Call[],
+      calls: [...calls, ...probe],
       traceTransfers: true,
     })
-    const results = simulation.results.slice(0, calls.length)
-    const { tokenMetadata } = simulation
-
+    const tokenMetadata = simulation.tokenMetadata ?? {}
     signal?.throwIfAborted()
-
-    // Collect all logs across all call results.
-    const logs: (typeof results)[number]['logs'] = []
-    for (const result of results as {
-      logs?: (typeof logs)[number][] | undefined
-    }[])
-      if (result.logs) logs.push(...result.logs)
+    const logs = (simulation.blocks[0]?.calls ?? [])
+      .slice(0, calls.length)
+      .flatMap((result) => result.logs?.map((log) => Log_.fromRpc(log)) ?? [])
 
     const allowances =
       account && account !== zeroAddress
@@ -188,16 +183,16 @@ export async function buildBalanceDiffs(
   signal?.throwIfAborted()
   const accountLower = account.toLowerCase()
 
-  const transferLogs = parseEventLogs({
-    abi: [AbiEvent.fromAbi(Abis.tip20, 'Transfer')],
-    eventName: 'Transfer',
+  const transferLogs = AbiEvent.extractLogs(
+    [AbiEvent.fromAbi(Abis.tip20, 'Transfer')],
     logs,
-  })
-  const approvalLogs = parseEventLogs({
-    abi: [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
-    eventName: 'Approval',
+    { eventName: 'Transfer' },
+  )
+  const approvalLogs = AbiEvent.extractLogs(
+    [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
     logs,
-  })
+    { eventName: 'Approval' },
+  )
 
   // Track gross movement per token, so a token received and passed on in one transaction stays visible.
   const tokenMap = new Map<
@@ -338,7 +333,7 @@ export declare namespace buildBalanceDiffs {
     allowances?: ReadonlyMap<string, bigint> | undefined
     store?: Store.Store | undefined
     signal?: AbortSignal | undefined
-    logs: Log[]
+    logs: readonly Log<boolean>[]
     tokenMetadata: Record<
       Address,
       { name: string; symbol: string; currency: string }
@@ -399,11 +394,11 @@ async function readAllowances(
   const { account, blockNumber, calls, logs } = options
   const accountLower = account.toLowerCase()
   const pairs = new Map<string, { spender: Address; token: Address }>()
-  for (const log of parseEventLogs({
-    abi: [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
-    eventName: 'Approval',
+  for (const log of AbiEvent.extractLogs(
+    [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
     logs,
-  })) {
+    { eventName: 'Approval' },
+  )) {
     if (log.args.owner.toLowerCase() !== accountLower) continue
     pairs.set(
       `${log.address.toLowerCase()}:${log.args.spender.toLowerCase()}`,
@@ -414,7 +409,7 @@ async function readAllowances(
   if (pairs.size === 0 || pairs.size > 100) return undefined
   try {
     const entries = [...pairs.entries()]
-    const simulation = await Actions.simulate.simulateCalls(client, {
+    const simulation = await simulateV1(client, {
       account,
       blockNumber,
       calls: [
@@ -422,16 +417,19 @@ async function readAllowances(
         ...entries.map(([, { spender, token }]) =>
           Actions.token.getAllowance.call(client, { account, spender, token }),
         ),
-      ] as Call[],
+      ],
     })
+    const results = simulation.blocks[0]?.calls ?? []
     const allowances = new Map<string, bigint>()
     for (const [index, [key]] of entries.entries()) {
-      const result = simulation.results[calls.length + index] as
-        | { data?: Hex.Hex | undefined; status?: string | undefined }
-        | undefined
-      if (result?.status !== 'success' || !result.data || result.data === '0x')
+      const result = results[calls.length + index]
+      if (
+        result?.status !== '0x1' ||
+        !result.returnData ||
+        result.returnData === '0x'
+      )
         continue
-      allowances.set(key, Hex.toBigInt(result.data))
+      allowances.set(key, Hex.toBigInt(result.returnData))
     }
     return allowances
   } catch {
@@ -450,5 +448,53 @@ declare namespace readAllowances {
     calls: readonly Call[]
     /** Logs the calls emitted. */
     logs: Log[]
+  }
+}
+
+/** Simulates calls in one block with `tempo_simulateV1`. */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function simulateV1(client: Client, options: simulateV1.Options) {
+  const { account, blockNumber, calls, traceTransfers } = options
+  return (await client.request({
+    method: 'tempo_simulateV1',
+    params: [
+      {
+        blockStateCalls: [
+          {
+            calls: calls.map((call) =>
+              TransactionRequest.toRpc({ ...call, from: account }),
+            ),
+          },
+        ],
+        ...(traceTransfers ? { traceTransfers } : {}),
+      },
+      blockNumber === undefined ? 'latest' : Hex.fromNumber(blockNumber),
+    ],
+  })) as {
+    blocks: readonly {
+      calls?:
+        | readonly {
+            logs?: readonly Log_.Rpc[] | undefined
+            returnData?: Hex.Hex | undefined
+            status?: Hex.Hex | undefined
+          }[]
+        | undefined
+    }[]
+    tokenMetadata?:
+      | Record<string, { name: string; symbol: string; currency: string }>
+      | undefined
+  }
+}
+
+declare namespace simulateV1 {
+  type Options = {
+    /** Sender of the calls. */
+    account?: Address | undefined
+    /** Block to simulate against. Defaults to the latest block. */
+    blockNumber?: bigint | undefined
+    /** Calls to simulate. */
+    calls: readonly Call[]
+    /** Whether to report native and TIP-20 transfers as logs. */
+    traceTransfers?: boolean | undefined
   }
 }

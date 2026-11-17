@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const crossbell = /*#__PURE__*/ defineChain({
+export const crossbell = /*#__PURE__*/ Chain.from({
   id: 3_737,
   name: 'Crossbell',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const crossbell = /*#__PURE__*/ defineChain({
     symbol: 'CSB',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.crossbell.io'],
-    },
+    http: 'https://rpc.crossbell.io',
   },
   blockExplorers: {
-    default: {
-      name: 'CrossScan',
-      url: 'https://scan.crossbell.io',
-      apiUrl: 'https://scan.crossbell.io/api',
-    },
+    name: 'CrossScan',
+    url: 'https://scan.crossbell.io',
+    apiUrl: 'https://scan.crossbell.io/api',
   },
   contracts: {
     multicall3: {

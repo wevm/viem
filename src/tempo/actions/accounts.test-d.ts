@@ -1,12 +1,12 @@
-import type { KeyAuthorization } from 'ox/tempo'
+import { http } from 'viem/tempo'
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
   type AccountConfig,
   type AccountOperation,
   Actions,
-  createClient,
-  http,
+  Client,
+  type KeyAuthorization,
   Relay,
   Store,
   withRelay,
@@ -17,7 +17,7 @@ const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
 const account = Account.fromConfig({ address: 'infer', owners: [owner] })
-const client = createClient({
+const client = Client.create({
   chain: tempoLocalnet,
   transport: withRelay(http(), {
     plugins: [Relay.accounts({ store: Store.memory() })],
@@ -25,17 +25,17 @@ const client = createClient({
 })
 
 test('wallet actions expose account operations', async () => {
-  const hash = await client.sendTransaction({
+  const hash = await client.transaction.send({
     account,
     calls: [],
     owner,
   })
-  const receipt = await client.sendTransactionSync({
+  const receipt = await client.transaction.sendSync({
     account,
     hash,
     owner,
   })
-  const transaction = await client.getTransaction({ hash })
+  const transaction = await client.transaction.get({ hash })
   const config = await client.accounts.getConfig({ address: account.address })
   const operation = await client.accounts.getOperation({ hash })
 

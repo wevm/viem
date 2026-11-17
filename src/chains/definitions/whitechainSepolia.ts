@@ -1,9 +1,10 @@
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const whitechainSepolia = /*#__PURE__*/ defineChain({
+export const whitechainSepolia = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 1874,
   name: 'Whitechain Sepolia',
@@ -14,18 +15,15 @@ export const whitechainSepolia = /*#__PURE__*/ defineChain({
   },
   blockTime: 1_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.whitechain.io'],
-      webSocket: ['wss://rpc.testnet.whitechain.io/ws'],
-    },
+    http: ['https://rpc.testnet.whitechain.io'],
+    ws: ['wss://rpc.testnet.whitechain.io/ws'],
   },
   blockExplorers: {
-    default: {
-      name: 'Whitechain Testnet Explorer',
-      url: 'https://explorer.testnet.whitechain.io',
-    },
+    name: 'Whitechain Testnet Explorer',
+    url: 'https://explorer.testnet.whitechain.io',
   },
   contracts: {
+    create2: Contracts.create2,
     ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',

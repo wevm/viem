@@ -1,21 +1,21 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 /** ValueChain testnet. */
-export const valuechainTestnet = /*#__PURE__*/ defineChain({
+export const valuechainTestnet = /*#__PURE__*/ Chain.from({
   id: 138_565,
   name: 'ValueChain Testnet',
   blockTime: 2_000,
   nativeCurrency: { name: 'SOSO', symbol: 'SOSO', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.valuechain.xyz'],
-    },
+    http: 'https://testnet.valuechain.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'ValueChain Testnet Explorer',
-      url: 'https://test-scan.valuechain.xyz',
-    },
+    name: 'ValueChain Testnet Explorer',
+    url: 'https://test-scan.valuechain.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

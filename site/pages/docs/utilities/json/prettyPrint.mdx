@@ -1,0 +1,81 @@
+# Json.prettyPrint
+
+Pretty-prints a JSON-like value into an aligned, human-readable block.
+
+Objects render as aligned `key: value` entries and arrays as indented bullet lists, recursing into nested arrays and objects. Scalars render inline; `bigint` is rendered via `toString` (so it never throws like `JSON.stringify`); empty arrays/objects render as `[]`/`{}`; and circular references render as `[Circular]` instead of throwing.
+
+## Imports
+
+```ts
+import { Json } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"a8d66564464c22875841edd154eea589c63e29d0a2632484b84584d34d14be83","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIApOCMSiDhoAhhyQBOKgBsYYAOZp8SACxVRpeTAaIQvfoOmMwuRAAYqAY3xiRlmuUQSAvhXTZTBYmUE16eS35hTggAVzQscMROYVJjeUFhMR0VAEYZOUVlRAA2dTEtHRAwiPDDY1MAJisbUjsHJBzXdxw8QhJydToiljYOHj4BKiTxRABWCxBZBSVVfM1tPH0hqYqkapBrW3sfRFSx5uoPNu9O6m68ADNQsHtGfk4sUm1MAAU4sDQACiIRaVCYNFlgA6J4vDDvYxoYEANT+AIoISwaHuYDgAH4gYNQc80G8PtCAPLI1FwACU0Vi8QAOmAwCJmPAsHYYI9cfioYIoBBLAhdO9wQBaJ5QuCcEQ8ADKhIAcoKjABrVm/f6sqEQcVgcVGeQmKCI/ChZgiMCC54iKAiABGsk4Np5CuBtNpACU5LBSGKIFaAFYwexikSBnV6zgAAyVGGiKoBYc4cjQcXgmqg4tIdQwgbFxlgnxgUFpVtC0lkXCMwjgiOellCnvinHVnBMwnzaYzgbAqe9foDwM4kssfzEYuenbItOMRhMAG5w1bGPIoXHGCP3WRW0RGBKw2gIJLE/E418TB1OEpSBAAO71xUwWlh7jSmXAqkKRiXDBhsmzmCsTBtkRMwAem7f00FXMdSHFMUw2QABdMMgLDYBnDDPsAGFGFIGtpDEWlnkuddbmTMRWVHD1WyDcNkEw7DizEBCGzRGgLRCS4z3wC9rwUYFfBEeQ+WQZAQDoBksFkQQwyk8CJ1YdguGAAYHmcThLgvZhOAAck3X8gPCRhpDgTTnTAEEwTxCECS+YBaU4VT1OiTSzFoMxXLc9yPM8rzvPczSKFs8VLEseA4AAGRXNBomQAK7MUi0oGeOA4Ec5zUjS9KMsyrLspyjK/JiXc6i0ABpGBMyipyXM0uDOFcAK4P8sBnDJWkgKA+yIGYaI7J6uznJ8gbBoG1r2rsYKkvC4REBGnrBXFKAEpC7retS3K1vW3KZt64R2H4mBSvKrbes4Ob+vvKSQAa4TmTqZhBBjVk5oAFXwZV4VZXc2SFEVPl4q6QBuhlBAgEkghOzhiRRII/ooYTcVrNFBBe1lzMwYUCVbe1LEdS6GqEDQdDGMYMhmbI0vmQo8FRyzORkNZEA2LY6h2RxKjMQ5MFaXR2h8Lp/F0L4nhBshMDJDquoKj4EmGAmkAAdnSKZMlmRA1GoApFl0NTOvKEwkAAZhqbYGgZjnjm505fAuAWhZwDgMDFh7onnRdPkSWW9kqYmldJpBvY0SndAe3XTDVpn6l2Soza5rwOit/mQEFi87dFwLxrCiLohsrUevixLksl+JpxigrdpKsqC9feR4OLpr4Pd5IkH2PIfayJvJgDzWQDGkLJoYOm9fGI3mZNqO3COGOebOPwiiT4X7bFvOlsLhQG9GVIAA4NmmNvEDlimu6XpKQ/l4eI8cJpx85zwp/j2fbZFh3S6K/aK8pA8FHrmXG4ZlRDdblW5N1YLCKDtF+B0EAD1MBvM+LNGjR08KIaW4AGSeGkBAZBIwdCVA3pMHeKsO7WxANrCWx0+ouSGpQqh1JQiuVSJcJ2ZDOCpCoe5GhdDLg9wmpndhZh6F2TmkfAux1VobTEWI3h/CepgL2hA6atC+HsWOqdFyJ89j/3DnA8wzg8aBFgEwOS/RFLLFquLLSOlmB6RRIZYyYBaSBGYiEcIkQuAAF4lJgBxOCSEnxrIBRISlChrDgleT8gFRhLCQlgEanZLhGcpqcGijnWKJdYkLXzoE8RWT1phOSdIwqsi36JMqmYaqMSep1Rzg1WkzVaSCEZKIJAoBuhyDgKiPA4EQDOGcEAA==="}
+// @noErrors
+import { Json } from 'viem/utils'
+
+const output = Json.prettyPrint({
+  from: '0x0000000000000000000000000000000000000000',
+  value: 1000000000000000000n,
+  accessList: [
+    {
+      address: '0x1111111111111111111111111111111111111111',
+      storageKeys: ['0x0'],
+    },
+  ],
+})
+// @log: from:        0x0000000000000000000000000000000000000000
+// @log: value:       1000000000000000000
+// @log: accessList:
+// @log:   - address:      0x1111111111111111111111111111111111111111
+// @log:     storageKeys:
+// @log:       - 0x0
+```
+
+### Indenting the Block
+
+Use `options.indent` to offset the whole block (for example, when nesting the output inside a larger message).
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"2a0add1f360e16502733244b3414d5f02891657b4715885637afac032f8454a4","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIApOCMSiDhoAhhyQBOKgBsYYAOZp8SACxVRpeTAaIQvfoOmMwuRAAYqAY3xiRlmuUQSAvhXTZTBYmUE16eS35hTggAVzQscMROYVJjeUFhMR0VAEYZOUVlRAA2dTEtHRAwiPDDY1MAJisbUjsHJBzXdxw8QhJydToiljYOHj4BKiTxRABWCxBZBSVVfM1tPH0hqYqkapBrW3sfRFSx5uoPNu9O6m68ADNQsHtGfk4sUm1MAAU4sDQACiIRaVCYNFlgA6J4vDDvYxoYEANT+AIoISwaHuYDgAH4gYNQc80G8PtCAPLI1FwACU0Vi8QAOmAwCJmPAsHYYI9cfioYIoBBLAhdO9wQBaJ5QuCcEQ8ADKhIAcoKjABrVm/f6sqEQcVgcVGeQmKCI/ChZgiMCC54iKAiABGsk4Np5CuBtNpACU5LBSGKIFaAFYwexikSBnV6zgAAyVGGiKoBYc4cjQcXgmqg4tIdQwgbFxlgnxgUFpVtC0lkXCMwjgiOellCnvinHVnBMwnzaYzgbAqe9foDwM4kssfzEYuenbItOMRhMAG5w1bGPIoXHGCP3WRW0RGBKw2gIJLE/E418TB1OEpSBAAO71xUwWlh7jSmXAqkKRiXDBhsmzmCsTBtkRMwAem7f00FXMdSHFMUw2QABdMMgLDYBnDDPsAGFGFIGtpDEWlnkuddbmTMRWVHD1WyDcNkEw7DizEBCGzRGgLRCS4z3wC9rwUYFfBEeQ+WQZAQDoBksFkQQwyk8CJ1YdguGAAYHmcThLgvZhOAAck3X8gPCRhpDgTTnTAEEwTxCECS+YBaU4VT1OiTSzFoMxXLc9yPM8rzvPczSKFs8VLEseA4AAGRXNBomQAK7MUi0oGeOA4Ec5zUjS9KMsyrLspyjK/JiXc6i0ABpGBMyipyXM0uDOFcAK4P8sBnDJWkgKA+yIGYaI7J6uznJ8gbBoG1r2rsYKkvC4REBGnrBXFKAEpC7retS3K1vW3KZt64R2H4mBSvKrbes4Ob+vvKSQAa4TmTqZhBBjVk5oAFXwZV4VZXc2SFEVPl4q6QBuhlBAgEkghOzhiRRII/ooYTcVrNFBBe1lzMwYUCVbe1LEdS6GqEDQdDGMYMhmbI0vmQo8FRyzORkNZEA2LY6h2RxKjMQ5MFaXR2h8Lp/F0L4nhBshMDJDquoKj4EmGAnGikKZMlmRA1GoApFl0NTOvKEx1hqbYGkQABmFQOeObnTl8C4BaFnAOAwMX5CDaJ50XT5EllxAAA4VemLIkENin1ZAR2EDpnWGb15mDZUFw3COLmvA6S3+ZAQWL1t0WmNzNBMSbI0rTITgAB9OBuWBLgqKAuR5PkQFCmALXrHMExEKGtS+YwYmZcaxZELBxMYVtPqUD6Qc4WQSGkXj8gEpAhJAcuRGLBgqDMXGZeSJBUjMdIFdJxpA56Mc3bDqpI/qXYciaOPOc8URpfABlPGkCAH5GHQ0p9xXskmPwijszWEtODOWtJYakoRXKpHYpwEOy1Kjb1ctrUwKsmYX0cOzPGgRYBMDkv0RSyxariy0jpZgekUSGWMmAWkgRmIhHCJELgABeJSYAcTgkhJ8ay4sUq0FAflWBnB4FuS1K4Tgilm6fGiJUWqLUViMlEEgUA3Q5BwFRHgcCIBnDOCAA="}
+// @noErrors
+import { Json } from 'viem/utils'
+
+const output = Json.prettyPrint({ from: '0xabc', gas: 21000n }, { indent: 2 })
+// @log:   from:  0xabc
+// @log:   gas:   21000
+```
+
+## Definition
+
+```ts
+function prettyPrint(
+  value: prettyPrint.Value,
+  options?: prettyPrint.Options,
+): string
+```
+
+## Parameters
+
+### value
+
+- **Type:** `bigint | boolean | number | string | null | undefined | readonly Value[] | { readonly [key: string]: Value }`
+
+The value to pretty-print. `undefined` object entries are dropped (matching `JSON.stringify` semantics).
+
+### options.indent
+
+- **Type:** `number`
+- **Optional**
+- **Default:** `0`
+
+Leading indentation (in spaces) applied to the top level.
+
+## Return Type
+
+The pretty-printed block.
+
+`string`

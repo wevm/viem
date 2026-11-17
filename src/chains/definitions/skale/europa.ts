@@ -1,20 +1,16 @@
-import { defineChain } from '../../../utils/chain/defineChain.js'
+import * as Chain from '../../../core/Chain.js'
 
-export const skaleEuropa = /*#__PURE__*/ defineChain({
+export const skaleEuropa = /*#__PURE__*/ Chain.from({
   id: 2_046_399_126,
   name: 'SKALE Europa Hub',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.skalenodes.com/v1/elated-tan-skat'],
-      webSocket: ['wss://mainnet.skalenodes.com/v1/ws/elated-tan-skat'],
-    },
+    http: 'https://mainnet.skalenodes.com/v1/elated-tan-skat',
+    ws: 'wss://mainnet.skalenodes.com/v1/ws/elated-tan-skat',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://elated-tan-skat.explorer.mainnet.skalenodes.com',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://elated-tan-skat.explorer.mainnet.skalenodes.com',
   },
   contracts: {
     multicall3: {

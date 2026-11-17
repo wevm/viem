@@ -1,11 +1,10 @@
-import * as Hex from 'ox/Hex'
+import { Address, Hash, Hex } from 'ox'
 import { TxEnvelopeTempo } from 'ox/tempo'
-import type { ReplacementReason } from '../../actions/public/waitForTransactionReceipt.js'
-import { maxUint256 } from '../../constants/number.js'
-import type { ChainTransactionReplacement } from '../../types/chain.js'
-import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
-import { keccak256 } from '../../utils/hash/keccak256.js'
-import type { Transaction } from '../Transaction.js'
+
+import type * as Chain from '../../core/Chain.js'
+import type { Transaction } from '../chainConfig.js'
+
+const maxUint256 = 2n ** 256n - 1n
 
 /**
  * Tempo transaction replacement semantics.
@@ -17,75 +16,68 @@ import type { Transaction } from '../Transaction.js'
  *   (e.g. re-sponsored with a different fee payer signature or fee token).
  */
 export const transactionReplacement = {
-  getKey(transaction) {
-    const tx = transaction as Transaction
-    if (tx.type !== 'tempo') return `0:${tx.nonce}`
-    const nonceKey = tx.nonceKey ?? 0n
-    if (nonceKey === maxUint256) return `expiring:${getExpiringNonceHash(tx)}`
-    return `${nonceKey}:${tx.nonce}`
+  getKey(transaction: Transaction) {
+    if (transaction.type !== 'tempo') return `0:${transaction.nonce}`
+    const nonceKey = transaction.nonceKey ?? 0n
+    if (nonceKey === maxUint256)
+      return `expiring:${getExpiringNonceHash(transaction)}`
+    return `${nonceKey}:${transaction.nonce}`
   },
-  getReason({ replaced, replacement }) {
-    return getReason(replaced as Transaction, replacement as Transaction)
+  getReason(options: { replaced: Transaction; replacement: Transaction }) {
+    const { replaced, replacement } = options
+    const calls = getCalls(replacement)
+    const replacedCalls = getCalls(replaced)
+    if (
+      calls.length === replacedCalls.length &&
+      calls.every((call, i) => isSameCall(call, replacedCalls[i]!))
+    )
+      return 'repriced'
+    if (
+      calls.every(
+        (call) =>
+          call.to &&
+          Address.isEqual(call.to, replacement.from) &&
+          !call.value &&
+          isEmpty(call.data),
+      )
+    )
+      return 'cancelled'
+    return 'replaced'
   },
-} as const satisfies ChainTransactionReplacement
+} as const satisfies Chain.Chain.Transaction.Replacement
 
 /**
  * Returns the expiring nonce hash of a Tempo transaction:
  * `keccak256(encodeForSigning(tx) || sender)`. It excludes the fee payer
  * signature and fee token, so it is invariant to sponsorship.
- *
- * @internal
  */
-export function getExpiringNonceHash(transaction: Transaction) {
-  const tx = transaction as Extract<Transaction, { type: 'tempo' }>
+export function getExpiringNonceHash(
+  transaction: Extract<Transaction, { type: 'tempo' }>,
+) {
   const envelope = TxEnvelopeTempo.from({
-    accessList: tx.accessList,
-    authorizationList: tx.authorizationList,
-    calls: tx.calls,
-    chainId: tx.chainId,
-    feePayerSignature: tx.feePayerSignature ? null : undefined,
-    feeToken: tx.feeToken,
-    gas: tx.gas,
-    keyAuthorization: tx.keyAuthorization ?? undefined,
-    maxFeePerGas: tx.maxFeePerGas,
-    maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
-    nonce: BigInt(tx.nonce),
-    nonceKey: tx.nonceKey,
-    validAfter: tx.validAfter,
-    validBefore: tx.validBefore,
+    accessList: transaction.accessList,
+    authorizationList: transaction.authorizationList,
+    calls: transaction.calls,
+    chainId: transaction.chainId,
+    feePayerSignature: transaction.feePayerSignature ? null : undefined,
+    feeToken: transaction.feeToken,
+    gas: transaction.gas,
+    keyAuthorization: transaction.keyAuthorization ?? undefined,
+    maxFeePerGas: transaction.maxFeePerGas,
+    maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+    nonce: transaction.nonce,
+    nonceKey: transaction.nonceKey,
+    validAfter: transaction.validAfter,
+    validBefore: transaction.validBefore,
   })
-  return keccak256(
-    Hex.concat(TxEnvelopeTempo.encodeForSigning(envelope), tx.from),
+  return Hash.keccak256(
+    Hex.concat(TxEnvelopeTempo.encodeForSigning(envelope), transaction.from),
   )
-}
-
-function getReason(
-  replaced: Transaction,
-  replacement: Transaction,
-): ReplacementReason {
-  const calls = getCalls(replacement)
-  const replacedCalls = getCalls(replaced)
-  if (
-    calls.length === replacedCalls.length &&
-    calls.every((call, i) => isSameCall(call, replacedCalls[i]!))
-  )
-    return 'repriced'
-  if (
-    calls.every(
-      (call) =>
-        call.to &&
-        isAddressEqual(call.to, replacement.from) &&
-        !call.value &&
-        isEmpty(call.data),
-    )
-  )
-    return 'cancelled'
-  return 'replaced'
 }
 
 type Call = {
   data?: Hex.Hex | undefined
-  to?: Hex.Hex | null | undefined
+  to?: Address.Address | null | undefined
   value?: bigint | undefined
 }
 
@@ -98,7 +90,7 @@ function getCalls(transaction: Transaction): readonly Call[] {
 
 function isSameCall(a: Call, b: Call) {
   return (
-    (a.to && b.to ? isAddressEqual(a.to, b.to) : !a.to && !b.to) &&
+    (a.to && b.to ? Address.isEqual(a.to, b.to) : !a.to && !b.to) &&
     (a.value ?? 0n) === (b.value ?? 0n) &&
     (isEmpty(a.data) ? isEmpty(b.data) : a.data === b.data)
   )

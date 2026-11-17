@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const shape = /*#__PURE__*/ defineChain({
+export const shape = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 360,
   name: 'Shape',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.shape.network'],
-    },
+    http: 'https://mainnet.shape.network',
   },
   blockExplorers: {
-    default: {
-      name: 'shapescan',
-      url: 'https://shapescan.xyz',
-      apiUrl: 'https://shapescan.xyz/api',
-    },
+    name: 'shapescan',
+    url: 'https://shapescan.xyz',
+    apiUrl: 'https://shapescan.xyz/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x2c03e8BF8b16Af89079852BE87f0e9eC674a5952',

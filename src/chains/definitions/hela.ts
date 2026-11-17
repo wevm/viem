@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const hela = /*#__PURE__*/ defineChain({
+export const hela = /*#__PURE__*/ Chain.from({
   id: 8668,
   name: 'Hela Mainnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const hela = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.helachain.com'],
-    },
+    http: 'https://mainnet-rpc.helachain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Hela explorer',
-      url: 'https://mainnet-blockexplorer.helachain.com',
-    },
+    name: 'Hela explorer',
+    url: 'https://mainnet-blockexplorer.helachain.com',
   },
   testnet: false,
 })

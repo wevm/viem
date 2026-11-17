@@ -1,64 +1,59 @@
-import { privateKeyToAccount, toAccount } from 'viem/accounts'
-import { Account, AccountConfig } from 'viem/tempo'
+import type { AccountConfig } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 
-const owner = Account.fromSecp256k1(
-  '0x0000000000000000000000000000000000000000000000000000000000000001',
-)
+import * as viem_Account from '../core/Account.js'
+import * as Account from './Account.js'
 
-test('fromConfig preserves config availability', () => {
-  const config = {
-    owners: [owner],
-  } satisfies Account.fromConfig.Config
-  const initial = Account.fromConfig(config)
-  const normalizedInitial = Account.fromConfig({
-    address: 'infer',
-    ...AccountConfig.from({
-      owners: [{ owner: owner.address, weight: 1 }],
-      threshold: 1,
-    }),
-  })
-  const current = Account.fromConfig({
-    address: initial.address,
-    owners: [owner],
-    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    threshold: 1,
-    version: 1,
-  })
-  const upgraded = Account.fromConfig({
-    address: owner.address,
-    upgrade: { owners: [owner], threshold: 1 },
-  })
-  const addressOnly = Account.fromConfig(initial.address)
+const privateKey =
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+const privateKey_p256 =
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 
-  expectTypeOf(initial.config).toEqualTypeOf<AccountConfig.Config>()
-  expectTypeOf(upgraded.config).toEqualTypeOf<AccountConfig.Config>()
-  expectTypeOf(normalizedInitial.config).toEqualTypeOf<AccountConfig.Config>()
-  expectTypeOf(current.config).toEqualTypeOf<AccountConfig.Config>()
-  expectTypeOf(addressOnly.config).toEqualTypeOf<undefined>()
+test('from: discriminates on `access`', () => {
+  const root = Account.fromSecp256k1(privateKey)
+  expectTypeOf(root).toEqualTypeOf<Account.RootAccount>()
+  expectTypeOf(root.source).toEqualTypeOf<'root'>()
+  expectTypeOf(root.signKeyAuthorization).toBeFunction()
+
+  const accessKey = Account.fromSecp256k1(privateKey_p256, { access: root })
+  expectTypeOf(accessKey).toEqualTypeOf<Account.AccessKeyAccount>()
+  expectTypeOf(accessKey.source).toEqualTypeOf<'accessKey'>()
+  expectTypeOf(accessKey.accessKeyAddress).toEqualTypeOf<`0x${string}`>()
 })
 
-test('fromConfig distinguishes initial and current configs', () => {
-  Account.fromConfig({ owners: [owner] })
-  Account.fromConfig({ address: 'infer', owners: [owner] })
-  Account.fromConfig({
-    address: 'infer',
-    // @ts-expect-error Addresses derive from the config alone.
-    factory: '0x9999999999999999999999999999999999999999',
-    owners: [owner],
-  })
-  // @ts-expect-error Current configs require `salt`.
-  Account.fromConfig({
-    address: owner.address,
-    owners: [owner],
+test('accounts satisfy the core local account shape', () => {
+  const root = Account.fromSecp256k1(privateKey)
+  expectTypeOf(root).toMatchTypeOf<viem_Account.Local>()
+  expectTypeOf(root).toMatchTypeOf<viem_Account.Account>()
+
+  const accessKey = Account.fromP256(privateKey_p256, { access: root })
+  expectTypeOf(accessKey).toMatchTypeOf<viem_Account.Local>()
+
+  const configurable = Account.fromConfig({
+    owners: [{ owner: root.address, weight: 1 }],
     threshold: 1,
-    version: 1,
   })
-  // @ts-expect-error Address-only accounts use the string overload.
-  Account.fromConfig({
-    address: owner.address,
-  })
+  expectTypeOf(configurable).toMatchTypeOf<viem_Account.Local>()
 })
+
+test('keyType is narrowed to signature envelope types', () => {
+  const account = Account.fromP256(privateKey_p256)
+  expectTypeOf(account.keyType).toEqualTypeOf<
+    'secp256k1' | 'p256' | 'webAuthn'
+  >()
+})
+
+test('Account union discriminates on `source`', () => {
+  const account = {} as Account.Account
+  if (account.source === 'accessKey') {
+    expectTypeOf(account.accessKeyAddress).toEqualTypeOf<`0x${string}`>()
+  }
+  if (account.source === 'root') {
+    expectTypeOf(account.signKeyAuthorization).toBeFunction()
+  }
+})
+
+const owner = Account.fromSecp256k1(privateKey)
 
 test('fromConfig rejects non-root owner accounts', () => {
   const child = Account.fromConfig({ owners: [owner] })
@@ -75,14 +70,37 @@ test('fromConfig rejects non-root owner accounts', () => {
   Account.fromConfig({ owners: [{ owner: accessKey, weight: 1 }] })
 })
 
+test('fromConfig distinguishes initial, upgrade, and address-only configs', () => {
+  expectTypeOf(
+    Account.fromConfig({ address: 'infer', owners: [owner] }).config,
+  ).toEqualTypeOf<NonNullable<Account.ConfigurableAccount['config']>>()
+  expectTypeOf(
+    Account.fromConfig({
+      address: owner.address,
+      upgrade: { owners: [owner], threshold: 1 },
+    }).config,
+  ).toEqualTypeOf<NonNullable<Account.ConfigurableAccount['config']>>()
+  expectTypeOf(
+    Account.fromConfig(owner.address).config,
+  ).toEqualTypeOf<undefined>()
+  Account.fromConfig({
+    address: 'infer',
+    // @ts-expect-error Addresses derive from the config alone.
+    factory: '0x9999999999999999999999999999999999999999',
+    owners: [owner],
+  })
+})
+
 test('fromConfig accepts primitive owner accounts', () => {
-  const ethereumOwner = privateKeyToAccount(`0x${'1'.repeat(64)}`)
+  const ethereumOwner = viem_Account.fromPrivateKey(`0x${'1'.repeat(64)}`)
   Account.fromConfig({ owners: [owner, ethereumOwner, owner.address] })
   Account.fromConfig({ owners: [{ owner: ethereumOwner, weight: 2 }] })
 })
 
 test('fromConfig accepts custom local owners', () => {
-  const customOwner = toAccount(privateKeyToAccount(`0x${'1'.repeat(64)}`))
+  const customOwner = viem_Account.from(
+    viem_Account.fromPrivateKey(`0x${'1'.repeat(64)}`),
+  )
   Account.fromConfig({ owners: [customOwner] })
   Account.fromConfig({ owners: [{ owner: customOwner, weight: 2 }] })
 })

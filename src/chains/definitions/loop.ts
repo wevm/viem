@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const loop = /*#__PURE__*/ defineChain({
+export const loop = /*#__PURE__*/ Chain.from({
   id: 15551,
   name: 'LoopNetwork Mainnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const loop = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://api.mainnetloop.com'],
-    },
+    http: 'https://api.mainnetloop.com',
   },
   blockExplorers: {
-    default: {
-      name: 'LoopNetwork Blockchain Explorer',
-      url: 'https://explorer.mainnetloop.com/',
-    },
+    name: 'LoopNetwork Blockchain Explorer',
+    url: 'https://explorer.mainnetloop.com/',
   },
   testnet: false,
 })

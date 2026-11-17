@@ -1,9 +1,10 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const zora = /*#__PURE__*/ defineChain({
+export const zora = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 7777777,
   name: 'Zora',
@@ -13,20 +14,17 @@ export const zora = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.zora.energy'],
-      webSocket: ['wss://rpc.zora.energy'],
-    },
+    http: 'https://rpc.zora.energy',
+    ws: 'wss://rpc.zora.energy',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://explorer.zora.energy',
-      apiUrl: 'https://explorer.zora.energy/api',
-    },
+    name: 'Explorer',
+    url: 'https://explorer.zora.energy',
+    apiUrl: 'https://explorer.zora.energy/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0xB0F15106fa1e473Ddb39790f197275BC979Aa37e',

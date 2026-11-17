@@ -1,15 +1,8 @@
+import { Relay, Store, withRelay } from 'viem/tempo'
+import { http } from 'viem/tempo'
 import type { KeyAuthorization } from 'ox/tempo'
 import { tempoLocalnet } from 'viem/chains'
-import {
-  Account,
-  type AccountOperation,
-  Actions,
-  createClient,
-  http,
-  Relay,
-  Store,
-  withRelay,
-} from 'viem/tempo'
+import { Account, type AccountOperation, Actions, Client } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 const owner = Account.fromSecp256k1(
@@ -23,7 +16,7 @@ const accessKey = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000002',
   { access: configurable },
 )
-const client = createClient({
+const client = Client.create({
   chain: tempoLocalnet,
   transport: withRelay(http(), {
     plugins: [Relay.accounts({ store: Store.memory() })],

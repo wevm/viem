@@ -1,4 +1,5 @@
 {
+	"extends": "./tsconfig.base.json",
 	"files": [],
 	"references": [
 		{ "path": "./scripts/tsconfig.json" },
@@ -7,6 +8,9 @@
 		{ "path": "./test/tsconfig.json" }
 	],
 	"compilerOptions": {
+		"incremental": false,
+		"outDir": "./dist",
+		"rootDir": "./src",
 		"module": "nodenext",
 		"moduleResolution": "nodenext"
 	}

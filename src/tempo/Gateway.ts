@@ -1,6 +1,6 @@
-import type { Address } from 'abitype'
-import { BaseError } from '../errors/base.js'
-import { formatUnits } from '../utils/unit/formatUnits.js'
+import { type Address, Value } from 'ox'
+
+import * as Errors from '../core/Errors.js'
 
 /**
  * Free discovery document of a Gateway.
@@ -33,7 +33,7 @@ export type Capabilities = {
     memoryGiBPerSecond: number
   }
   /** Payment currencies by name. */
-  currencies: Record<string, Address>
+  currencies: Record<string, Address.Address>
   /** Request and storage limits. */
   limits: {
     /** Maximum CPU cores per sandbox. */
@@ -76,7 +76,7 @@ export type Capabilities = {
    */
   prices: Record<string, string>
   /** Payment recipient. */
-  recipient: Address
+  recipient: Address.Address
   /**
    * Price of metered AI operations per million tokens, by model. A request
    * reserves the most it can cost and the unused part is refunded.
@@ -121,14 +121,7 @@ const defaultUrl = 'https://gateway.tempo-dev.workers.dev'
  *
  * @example
  * ```ts
- * import { Mppx, tempo } from 'mppx/client'
- * import { privateKeyToAccount } from 'viem/accounts'
  * import { Gateway } from 'viem/tempo'
- *
- * const mppx = Mppx.create({
- *   methods: [tempo({ account: privateKeyToAccount('0x...') })],
- *   polyfill: false,
- * })
  *
  * const gateway = Gateway.from({ fetch: mppx.fetch })
  * ```
@@ -144,12 +137,6 @@ export function from(options: from.Options = {}): Gateway {
     fetch: options.fetch ?? ((input, init) => globalThis.fetch(input, init)),
     url: trimSlashes(url),
   }
-}
-
-function trimSlashes(url: string) {
-  let end = url.length
-  while (end > 0 && url[end - 1] === '/') end--
-  return url.slice(0, end)
 }
 
 export declare namespace from {
@@ -303,16 +290,114 @@ export declare namespace request {
   type ErrorType = PaymentRequiredError | RequestError | VersionConflictError
 }
 
+function trimSlashes(url: string) {
+  let end = url.length
+  while (end > 0 && url[end - 1] === '/') end--
+  return url.slice(0, end)
+}
+
+/**
+ * Thrown when a Client with an account pays the Gateway on a different chain
+ * than the one the Gateway asks for payment on.
+ *
+ * @experimental
+ */
+export class ChainMismatchError extends Errors.BaseError {
+  override readonly name = 'Gateway.ChainMismatchError'
+
+  constructor(options: { chainId: number; expected: number }) {
+    const { chainId, expected } = options
+    super(
+      `The Gateway asks for payment on chain ${chainId}, but the Client is on chain ${expected}.`,
+      {
+        metaMessages: [
+          'Create the Client on the chain the Gateway is paid on (see `getCapabilities().chainId`).',
+        ],
+      },
+    )
+  }
+}
+
+/**
+ * Thrown when the Client's account holds too little of the Gateway's
+ * currencies to pay for a request.
+ *
+ * @experimental
+ */
+export class InsufficientFundsError extends Errors.BaseError<
+  Error | undefined
+> {
+  override readonly name = 'Gateway.InsufficientFundsError'
+
+  /** The paying account. */
+  address: Address.Address
+  /** The account's balance of each Gateway currency, in base units. */
+  balances: InsufficientFundsError.Options['balances']
+
+  constructor(options: InsufficientFundsError.Options) {
+    const { address, balances, cause } = options
+    const held = balances
+      .map(({ amount, symbol }) => `${Value.format(amount, 6)} ${symbol}`)
+      .join(' and ')
+    super(
+      `The account ${address} can't pay the Gateway${held ? `: it holds ${held}` : ''}.`,
+      {
+        cause,
+        metaMessages: [
+          'Fund it with OUSD (send it from any wallet), or with MACH through Tempo Wallet (`wallet.deposit`). MACH cannot be transferred to a new address.',
+        ],
+      },
+    )
+    this.address = address
+    this.balances = balances
+  }
+}
+
+export declare namespace InsufficientFundsError {
+  type Options = {
+    /** The paying account. */
+    address: Address.Address
+    /** The account's balance of each Gateway currency, in base units. */
+    balances: readonly {
+      amount: bigint
+      currency: Address.Address
+      symbol: string
+    }[]
+    /** The payment failure, when a payment was attempted. */
+    cause?: Error | undefined
+  }
+}
+
 /**
  * Thrown when an app namespace does not match `[a-z0-9][a-z0-9-]{0,62}`.
  *
  * @experimental
  */
-export class InvalidAppError extends BaseError {
-  constructor({ app }: { app: string }) {
-    super(`App "${app}" is not a valid Gateway app namespace.`, {
+export class InvalidAppError extends Errors.BaseError {
+  override readonly name = 'Gateway.InvalidAppError'
+
+  constructor(options: { app: string }) {
+    super(`App "${options.app}" is not a valid Gateway app namespace.`, {
       metaMessages: ['Use 1 to 63 lowercase letters, digits, or hyphens.'],
-      name: 'Gateway.InvalidAppError',
+    })
+  }
+}
+
+/**
+ * Thrown when a Client with a local account pays the Gateway but `mppx` is
+ * not installed.
+ *
+ * @experimental
+ */
+export class MppxNotInstalledError extends Errors.BaseError<Error | undefined> {
+  override readonly name = 'Gateway.MppxNotInstalledError'
+
+  constructor(options: { cause?: Error | undefined } = {}) {
+    super('mppx is required to pay the Gateway with the Client account.', {
+      cause: options.cause,
+      metaMessages: [
+        'Install it (`npm i mppx`), or pass a payment-aware `fetch` to `gatewayActions`.',
+      ],
     })
   }
 }
@@ -322,7 +407,9 @@ export class InvalidAppError extends BaseError {
  *
  * @experimental
  */
-export class RequestError extends BaseError {
+export class RequestError extends Errors.BaseError {
+  override name = 'Gateway.RequestError'
+
   /** Stable problem code, such as `not_found` or `invalid_request`. */
   code: string
   /** Problem detail. */
@@ -340,8 +427,8 @@ export class RequestError extends BaseError {
     super(options.shortMessage ?? 'Gateway request failed.', {
       details: detail,
       metaMessages: [`Code: ${code}`, `Status: ${status}`, `URL: ${url}`],
-      name: options.name ?? 'Gateway.RequestError',
     })
+    if (options.name) this.name = options.name
     this.code = code
     this.detail = detail
     this.status = status
@@ -380,84 +467,7 @@ export class PaymentRequiredError extends RequestError {
     super(parameters, {
       name: 'Gateway.PaymentRequiredError',
       shortMessage:
-        'Gateway requires payment. Give the Client an account (with mppx installed), or pass a payment-aware fetch to gatewayActions.',
-    })
-  }
-}
-
-/**
- * Thrown when the Client's account holds too little of the Gateway's
- * currencies to pay for a request.
- *
- * @experimental
- */
-export class InsufficientFundsError extends BaseError {
-  /** The paying account. */
-  address: Address
-  /** The account's balance of each Gateway currency, in base units. */
-  balances: InsufficientFundsError.Parameters['balances']
-
-  constructor({ address, balances, cause }: InsufficientFundsError.Parameters) {
-    const held = balances
-      .map(({ amount, symbol }) => `${formatUnits(amount, 6)} ${symbol}`)
-      .join(' and ')
-    super(
-      `The account ${address} can't pay the Gateway${held ? `: it holds ${held}` : ''}.`,
-      {
-        ...(cause ? { cause } : {}),
-        metaMessages: [
-          'Fund it with OUSD (send it from any wallet), or with MACH through Tempo Wallet (wallet.deposit). MACH cannot be transferred to a new address.',
-        ],
-        name: 'Gateway.InsufficientFundsError',
-      },
-    )
-    this.address = address
-    this.balances = balances
-  }
-}
-
-export declare namespace InsufficientFundsError {
-  type Parameters = {
-    address: Address
-    balances: readonly { amount: bigint; currency: Address; symbol: string }[]
-    cause?: Error | undefined
-  }
-}
-
-/**
- * Thrown when the Gateway asks for payment on a different chain than the
- * Client's.
- *
- * @experimental
- */
-export class ChainMismatchError extends BaseError {
-  constructor({ chainId, expected }: { chainId: number; expected: number }) {
-    super(
-      `The Gateway asks for payment on chain ${chainId}, but the Client is on chain ${expected}.`,
-      {
-        metaMessages: [
-          'Create the Client on the chain the Gateway is paid on (see getCapabilities().chainId).',
-        ],
-        name: 'Gateway.ChainMismatchError',
-      },
-    )
-  }
-}
-
-/**
- * Thrown when a Client with an account pays the Gateway but `mppx` is not
- * installed.
- *
- * @experimental
- */
-export class MppxNotInstalledError extends BaseError {
-  constructor({ cause }: { cause?: Error | undefined } = {}) {
-    super('mppx is required to pay the Gateway with the Client account.', {
-      cause,
-      metaMessages: [
-        'Install it (npm i mppx), or pass a payment-aware fetch to gatewayActions.',
-      ],
-      name: 'Gateway.MppxNotInstalledError',
+        'Gateway requires payment. Give the Client a local account (with mppx installed), or pass a payment-aware fetch to `gatewayActions`.',
     })
   }
 }

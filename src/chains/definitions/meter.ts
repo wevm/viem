@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const meter = /*#__PURE__*/ defineChain({
+export const meter = /*#__PURE__*/ Chain.from({
   id: 82,
   name: 'Meter',
   nativeCurrency: {
@@ -8,13 +8,9 @@ export const meter = /*#__PURE__*/ defineChain({
     name: 'MTR',
     symbol: 'MTR',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.meter.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.meter.io' },
   blockExplorers: {
-    default: {
-      name: 'MeterScan',
-      url: 'https://scan.meter.io',
-    },
+    name: 'MeterScan',
+    url: 'https://scan.meter.io',
   },
 })

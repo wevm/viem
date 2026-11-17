@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const xrplevmDevnet = /*#__PURE__*/ defineChain({
+export const xrplevmDevnet = /*#__PURE__*/ Chain.from({
   id: 1440002,
   name: 'XRPL EVM Devnet',
   nativeCurrency: {
@@ -9,18 +9,11 @@ export const xrplevmDevnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.xrplevm.org/'],
-    },
-    public: {
-      http: ['https://rpc.xrplevm.org/'],
-    },
+    http: 'https://rpc.xrplevm.org/',
   },
   blockExplorers: {
-    default: {
-      name: 'XRPLEVM Devnet Explorer',
-      url: 'https://explorer.xrplevm.org/',
-    },
+    name: 'XRPLEVM Devnet Explorer',
+    url: 'https://explorer.xrplevm.org/',
   },
   contracts: {
     multicall3: {

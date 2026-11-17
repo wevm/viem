@@ -1,50 +1,33 @@
-import { AccountConfig } from 'ox/tempo'
-import { parseEventLogs, parseUnits, toHex, zeroHash } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import { Abis, Channel } from 'viem/tempo'
-import { beforeAll, describe, expect, test } from 'vitest'
-import {
-  accounts,
-  chain,
-  feeToken,
-  getClient,
-  setupToken,
-} from '~test/tempo/config.js'
-import * as Account from '../Account.js'
-import * as actions from './index.js'
+import { AbiEvent, Hex, Secp256k1, Value } from 'ox'
+import { AccountConfig, Channel } from 'ox/tempo'
+import { Abis, Account, Actions } from 'viem/tempo'
+import { describe, expect, test } from 'vitest'
+import { accounts, chain, feeToken, getClient } from '~test/tempoAccounts.js'
+
+const zeroHash =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const payer = accounts[0]
 const payee = accounts[1]
-
-const payerClient = getClient({
-  account: payer,
-  chain: chain.extend({ feeToken }),
-})
+const client = getClient()
+const token = feeToken
 
 /**
  * Whether the test chain accepts configurable voucher signers (T15, TIP-1166).
  * Earlier forks reject a registered configurable signer with `RootKeyRetired`.
  */
 const signerSnapshots =
-  Number(/^T(\d+)$/.exec(import.meta.env.VITE_TEMPO_HARDFORK ?? '')?.[1]) >= 15
+  Number(/^T(\d+)$/.exec(process.env.VITE_TEMPO_HARDFORK ?? '')?.[1]) >= 15
 
-let token: `0x${string}`
 let signerId = 0
-
-beforeAll(async () => {
-  ;({ token } = await setupToken(payerClient, {
-    name: 'Channel Signer Test',
-    symbol: 'CST',
-  }))
-})
 
 describe('getOpenSalt', () => {
   test('behavior: configurable signer without a commitment', async () => {
     const signer = await setupSigner({ commit: false })
 
     const [salt_1, salt_2] = await Promise.all([
-      actions.channel.getOpenSalt(payerClient, { signer }),
-      actions.channel.getOpenSalt(payerClient, { signer: signer.address }),
+      Actions.channel.getOpenSalt(client, { signer }),
+      Actions.channel.getOpenSalt(client, { signer: signer.address }),
     ])
 
     expect(salt_1).toMatch(/^0x[0-9a-f]{64}$/)
@@ -56,8 +39,8 @@ describe('getOpenSalt', () => {
     const signer = await setupSigner()
 
     const [byAccount, byAddress] = await Promise.all([
-      actions.channel.getOpenSalt(payerClient, { signer }),
-      actions.channel.getOpenSalt(payerClient, { signer: signer.address }),
+      Actions.channel.getOpenSalt(client, { signer }),
+      Actions.channel.getOpenSalt(client, { signer: signer.address }),
     ])
 
     expect(byAccount).toBe(AccountConfig.getCommitment(signer.config))
@@ -65,9 +48,7 @@ describe('getOpenSalt', () => {
   })
 
   test('behavior: root account', async () => {
-    const salt = await actions.channel.getOpenSalt(payerClient, {
-      signer: payer,
-    })
+    const salt = await Actions.channel.getOpenSalt(client, { signer: payer })
 
     expect(salt).toMatch(/^0x[0-9a-f]{64}$/)
     expect(salt).not.toBe(zeroHash)
@@ -81,15 +62,12 @@ describe('open', () => {
       const signer = await setupSigner()
       const commitment = AccountConfig.getCommitment(signer.config)
 
-      const { receipt, ...opened } = await actions.channel.openSync(
-        payerClient,
-        {
-          authorizedSigner: signer,
-          deposit: parseUnits('1', 6),
-          payee: payee.address,
-          token,
-        },
-      )
+      const { receipt, ...opened } = await Actions.channel.openSync(client, {
+        authorizedSigner: signer,
+        deposit: Value.from('1', 6),
+        payee: payee.address,
+        token,
+      })
 
       expect(receipt.status).toBe('success')
       expect(opened.authorizedSigner).toBe(signer.address)
@@ -97,16 +75,14 @@ describe('open', () => {
       expect(opened.channelId).toBe(
         Channel.computeId(toChannel(opened), { chainId: chain.id }),
       )
-      if (signerSnapshots)
-        expect(
-          parseEventLogs({
-            abi: Abis.tip20ChannelReserve,
-            eventName: 'SignerSnapshotCached',
-            logs: receipt.logs,
-          }).map((log) => log.args),
-        ).toEqual([
-          { channelId: opened.channelId, commitment, signer: signer.address },
-        ])
+      expect(
+        AbiEvent.extractLogs(Abis.tip20ChannelReserve, receipt.logs, {
+          eventName: 'SignerSnapshotCached',
+          strict: true,
+        }).map((log) => log.args),
+      ).toEqual([
+        { channelId: opened.channelId, commitment, signer: signer.address },
+      ])
     },
   )
 
@@ -114,16 +90,11 @@ describe('open', () => {
     'behavior: account defaults salt to its commitment',
     async () => {
       const signer = await setupSigner()
-      await actions.token.transferSync(payerClient, {
-        amount: parseUnits('10', 6),
-        to: signer.address,
-        token,
-      })
 
-      const { receipt, ...opened } = await actions.channel.openSync(
-        getClient({ account: signer, chain: chain.extend({ feeToken }) }),
+      const { receipt, ...opened } = await Actions.channel.openSync(
+        getClient({ account: signer }),
         {
-          deposit: parseUnits('1', 6),
+          deposit: Value.from('1', 6),
           payee: payee.address,
           token,
         },
@@ -139,23 +110,18 @@ describe('open', () => {
     "behavior: access key defaults salt to its parent's commitment",
     async () => {
       const signer = await setupSigner()
-      const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
         access: signer,
       })
-      await actions.accessKey.authorizeSync(getClient(), {
+      await Actions.accessKey.authorizeSync(client, {
         account: signer,
         accessKey,
       })
-      await actions.token.transferSync(payerClient, {
-        amount: parseUnits('10', 6),
-        to: signer.address,
-        token,
-      })
 
-      const { receipt, ...opened } = await actions.channel.openSync(
-        getClient({ account: accessKey, chain: chain.extend({ feeToken }) }),
+      const { receipt, ...opened } = await Actions.channel.openSync(
+        getClient({ account: accessKey }),
         {
-          deposit: parseUnits('1', 6),
+          deposit: Value.from('1', 6),
           payee: payee.address,
           token,
         },
@@ -171,23 +137,18 @@ describe('open', () => {
     'behavior: unregistered account defaults salt to its initial commitment',
     async () => {
       const signer = await setupSigner({ commit: false })
-      await actions.token.transferSync(payerClient, {
-        amount: parseUnits('10', 6),
-        to: signer.address,
-        token,
-      })
       const commitment = AccountConfig.getCommitment(signer.config)
       expect(
-        await actions.accounts.getConfigCommitment(payerClient, {
+        await Actions.accounts.getConfigCommitment(client, {
           account: signer.address,
         }),
       ).toBe(zeroHash)
 
       // The open registers the account (TIP-1107) before the channel reserve runs.
-      const { receipt, ...opened } = await actions.channel.openSync(
-        getClient({ account: signer, chain: chain.extend({ feeToken }) }),
+      const { receipt, ...opened } = await Actions.channel.openSync(
+        getClient({ account: signer }),
         {
-          deposit: parseUnits('1', 6),
+          deposit: Value.from('1', 6),
           payee: payee.address,
           token,
         },
@@ -197,7 +158,7 @@ describe('open', () => {
       expect(opened.payer).toBe(signer.address)
       expect(opened.salt).toBe(commitment)
       expect(
-        await actions.accounts.getConfigCommitment(payerClient, {
+        await Actions.accounts.getConfigCommitment(client, {
           account: signer.address,
         }),
       ).toBe(commitment)
@@ -207,9 +168,9 @@ describe('open', () => {
   test('behavior: configurable signer without a commitment', async () => {
     const signer = await setupSigner({ commit: false })
 
-    const { receipt, ...opened } = await actions.channel.openSync(payerClient, {
+    const { receipt, ...opened } = await Actions.channel.openSync(client, {
       authorizedSigner: signer,
-      deposit: parseUnits('1', 6),
+      deposit: Value.from('1', 6),
       payee: payee.address,
       token,
     })
@@ -222,11 +183,11 @@ describe('open', () => {
 
   test('behavior: explicit salt wins', async () => {
     const signer = await setupSigner({ commit: false })
-    const salt = toHex(0x1166, { size: 32 })
+    const salt = Hex.fromNumber(0x1166, { size: 32 })
 
-    const { receipt, ...opened } = await actions.channel.openSync(payerClient, {
+    const { receipt, ...opened } = await Actions.channel.openSync(client, {
       authorizedSigner: signer,
-      deposit: parseUnits('1', 6),
+      deposit: Value.from('1', 6),
       payee: payee.address,
       salt,
       token,
@@ -239,10 +200,10 @@ describe('open', () => {
   test.runIf(signerSnapshots)('error: salt not signer commitment', async () => {
     const signer = await setupSigner()
 
-    const error = await actions.channel
-      .openSync(payerClient, {
+    const error = await Actions.channel
+      .openSync(client, {
         authorizedSigner: signer.address,
-        deposit: parseUnits('1', 6),
+        deposit: Value.from('1', 6),
         payee: payee.address,
         salt: zeroHash,
         token,
@@ -250,7 +211,7 @@ describe('open', () => {
       .catch((error) => error)
 
     expect(error).toBeInstanceOf(
-      actions.channel.ChannelSaltNotSignerCommitmentError,
+      Actions.channel.ChannelSaltNotSignerCommitmentError,
     )
     expect({
       commitment: error.commitment,
@@ -265,30 +226,27 @@ describe('open', () => {
 describe('topUp', () => {
   test.runIf(signerSnapshots)('error: signer config changed', async () => {
     const signer = await setupSigner()
-    const { receipt: _, ...opened } = await actions.channel.openSync(
-      payerClient,
-      {
-        authorizedSigner: signer,
-        deposit: parseUnits('1', 6),
-        payee: payee.address,
-        token,
-      },
-    )
-    await actions.accounts.updateConfigSync(getClient(), {
+    const { receipt: _, ...opened } = await Actions.channel.openSync(client, {
+      authorizedSigner: signer,
+      deposit: Value.from('1', 6),
+      payee: payee.address,
+      token,
+    })
+    await Actions.accounts.updateConfigSync(client, {
       account: signer,
       currentConfig: signer.config,
       nextConfig: { owners: signer.config.owners, threshold: 1 },
     })
 
-    const error = await actions.channel
-      .topUpSync(payerClient, {
-        additionalDeposit: parseUnits('1', 6),
+    const error = await Actions.channel
+      .topUpSync(client, {
+        additionalDeposit: Value.from('1', 6),
         channel: toChannel(opened),
       })
       .catch((error) => error)
 
     expect(error).toBeInstanceOf(
-      actions.channel.ChannelSignerConfigChangedError,
+      Actions.channel.ChannelSignerConfigChangedError,
     )
     expect(error.signer).toBe(signer.address)
   })
@@ -298,24 +256,24 @@ describe('topUp', () => {
  * Funds a new configurable account and, by default, commits its first config.
  * A committed signer is returned as an account of its committed config.
  */
-async function setupSigner(parameters: { commit?: boolean } = {}) {
-  const { commit = true } = parameters
+async function setupSigner(options: { commit?: boolean | undefined } = {}) {
+  const { commit = true } = options
   signerId += 1
   const owners = [accounts[17], accounts[18]]
-  const salt = toHex(0x116600 + signerId, { size: 32 })
+  const salt = Hex.fromNumber(0x116600 + signerId, { size: 32 })
   const signer = Account.fromConfig({
     address: 'infer',
     owners,
     salt,
     threshold: 2,
   })
-  await actions.token.transferSync(payerClient, {
+  await Actions.token.transferSync(client, {
     amount: { formatted: '100' },
     to: signer.address,
     token: feeToken,
   })
   if (!commit) return signer
-  const { config } = await actions.accounts.updateConfigSync(getClient(), {
+  const { config } = await Actions.accounts.updateConfigSync(client, {
     account: signer,
     currentConfig: signer.config,
     nextConfig: {
@@ -332,7 +290,7 @@ async function setupSigner(parameters: { commit?: boolean } = {}) {
   })
 }
 
-function toChannel(opened: Channel.from.Value & Record<string, unknown>) {
+function toChannel(opened: Channel.from.Value) {
   return Channel.from({
     authorizedSigner: opened.authorizedSigner,
     expiringNonceHash: opened.expiringNonceHash,

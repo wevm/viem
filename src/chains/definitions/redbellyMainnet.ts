@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const redbellyMainnet = /*#__PURE__*/ defineChain({
+export const redbellyMainnet = /*#__PURE__*/ Chain.from({
   id: 151,
   name: 'Redbelly Network Mainnet',
   nativeCurrency: {
@@ -9,17 +10,15 @@ export const redbellyMainnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://governors.mainnet.redbelly.network'],
-    },
+    http: 'https://governors.mainnet.redbelly.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Routescan',
-      url: 'https://redbelly.routescan.io',
-      apiUrl:
-        'https://api.routescan.io/v2/network/mainnet/evm/151/etherscan/api',
-    },
+    name: 'Routescan',
+    url: 'https://redbelly.routescan.io',
+    apiUrl: 'https://api.routescan.io/v2/network/mainnet/evm/151/etherscan/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

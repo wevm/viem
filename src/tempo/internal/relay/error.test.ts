@@ -1,4 +1,7 @@
-import { createClient, encodeErrorResult, http, RawContractError } from 'viem'
+import { AbiError } from 'ox'
+import { Client as CoreClient_ } from 'viem'
+import { ContractError as ContractError_ } from 'viem'
+import { http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import { Abis, Actions, Addresses, Store, VirtualAddress } from 'viem/tempo'
 import { expect, test } from 'vitest'
@@ -6,7 +9,7 @@ import * as Cache from './cache.js'
 import { formatError } from './error.js'
 
 test('preserves insufficient-funds details when virtual-address lookups fail', async () => {
-  const client = createClient({
+  const client = CoreClient_.create({
     chain: tempoLocalnet,
     transport: http('http://127.0.0.1:1', { retryCount: 0, timeout: 500 }),
   })
@@ -20,13 +23,12 @@ test('preserves insufficient-funds details when virtual-address lookups fail', a
       ttl: 60_000,
     },
   )
-  const data = encodeErrorResult({
-    abi: Abis.tip20,
-    errorName: 'InsufficientBalance',
-    args: [40_000_000n, 100_000_000n, token],
-  })
+  const data = AbiError.encode(
+    AbiError.fromAbi(Abis.tip20, 'InsufficientBalance'),
+    [40_000_000n, 100_000_000n, token],
+  )
   const result = await formatError(
-    new RawContractError({ data }),
+    new ContractError_.RawContractError({ data }),
     {
       from: '0x0000000000000000000000000000000000000001',
       calls: [

@@ -1,0 +1,61 @@
+---
+description: Type Viem errors, narrow runtime failures, and inspect nested causes.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Error Handling
+
+## Overview
+
+Fallible Viem functions expose an `ErrorType` from the same namespace as their options and return
+type. Concrete error classes let applications narrow those declared failures at runtime without
+parsing messages.
+
+Every Viem error inherits from [`Errors.BaseError`](/docs/errors/base-error) and preserves its
+underlying failure as `cause`.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"e1a7bd81af9ce998613bf6c1e306cf600933b0f0a0c2045eeb54712740e7c310","data":"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"}
+import { Actions, ContractError } from 'viem'
+
+function getMessage(error: Actions.contract.read.ErrorType) {
+  if (error instanceof ContractError.ContractFunctionExecutionError)
+    return `Could not read ${error.functionName}.`
+  if (error instanceof Error) return error.message
+  return 'Unknown error.'
+}
+```
+
+<Cards>
+  <Card
+    title="Typed Errors"
+    description="Use function ErrorType namespaces and narrow runtime failures."
+    icon="lucide:braces"
+    to="/docs/errors/typed-errors"
+  />
+  <Card
+    title="Contract Errors"
+    description="Handle contract failures and decoded revert reasons."
+    icon="lucide:file-warning"
+    to="/docs/errors/contract"
+  />
+  <Card
+    title="RPC Errors"
+    description="Match node failures across reverts, fees, nonces, and gas."
+    icon="lucide:server-crash"
+    to="/docs/errors/rpc"
+  />
+  <Card
+    title="Base Error"
+    description="The base error class inherited by all errors thrown by Viem."
+    icon="lucide:circle-alert"
+    to="/docs/errors/base-error"
+  />
+  <Card
+    title="Configuration"
+    description="Set Viem-scoped defaults (docs origin, version) applied to every error."
+    icon="lucide:settings"
+    to="/docs/errors/configuration"
+  />
+</Cards>

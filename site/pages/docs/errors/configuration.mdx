@@ -1,0 +1,100 @@
+# Configuration
+
+## Overview
+
+Use [`Errors.setConfig`](/docs/errors/configuration) to set Viem defaults for every
+[`Errors.BaseError`](/docs/errors/base-error) instance. Each call merges the supplied values into
+the current configuration.
+
+The configuration controls the documentation origin in `See:` URLs and the version line. Wrapper
+libraries can use these values to change error attribution.
+
+This function does not change Ox's global static options.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"a29ac8a1dad0fd3956b0c1b9eb860c64d55b0f20065009d902c662d7999cf4a7","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRU09hFThoAhhyQBOKgBsYYAOZp8SAGxVRpeTAaIQvfqUEhpjMLkQAGKgGN8YkdZrlEEgL4V02cwWJlK1Oh0QFjYOHj4Bf2ExHQBmAEYZOUVlRDVqMS0g/UiZU3MAJhs7UgcnJAt3Txw8QhJydUC8ADMAVzBHRggwTjhtAGFu5sZ5AAoiEWlWmERwgzgAOkGwYfkASlmiCEYofygIawRdAGVtOE4iRhhmAFo4awgcKE5YZpFW6TRz5vZOSelOAAdMDAAACJjAAGsgWAAEIiPo5UjA1zAzimaIdeCcUbMMhaYF9ZgiMBoRiHNYLTgAVT6bQBP1InAeYDgrTxhhxMAW8ipAHcRPJmIw1pwlCIuKQYDcJWhSIwAEatGicMjzBbAiC0ADk53k0ggCsmvVEZOsnEeZO65zEME4ZnqYogrVsMCgC38onkR2QyBAdBErFk/gABmGvsCQuwuMA5gJOK5OM1+MxONrLtdtcDgUjFn00MtVqNY/U4F0wLNdXyYNoTArQfEFgUFrFtQm1sCwyGQABdHtCDRxAAcSQUSkk6ky2jw+cLI38EMKxXsjj8iAA7FVqF5ar4GgF6HhRlh+DgOBhRaXywB+WbCeUKTgAH047Ve+V2VH2hzwADUyGW3R/GgcqKsq5acFKYCwFKzwIpwIb/oY5azAAPBMUwwAAfCGVKnFwaAQAhb4wMMZhQCGwKERawoEfgdpXkBi4epO3pIL6ICvO8nyhhmzCgqhWAOJCgoMQB5Y4b2/YgNE4iIAArFYxjJOOG6Tpo066IxYALvkSBFCAtgruUiDxG40kPLATCsNGnCxrmCZJimaZ8VmYA5hEhgLLOQwjMWFzid0lZwNWtaKg2TYtm2rhrP4eKiEgoCBHIgE6boXwgK4rhAA"}
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' })
+```
+
+## Recipes
+
+### Setting the Docs Origin
+
+Set the docs origin when errors should link to documentation hosted at a specific origin.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"ec2f4537f0135bcecc03b7af34c5528996c60293fac535cbaac95310b82137c4","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRU09hFThoAhhyQBOKgBsYYAOZp8SAGxVRpeTAaIQvfqUEhpjMLkQAGKgGN8YkdZrlEEgL4V02cwWJlK1Oh0QFjYOHj4Bf2ExHQBmAEYZOUVlRDVqMS0g/UiZU3MAJhs7UgcnJAt3Txw8QhJydUC8ADMAVzBHRggwTjhtAGFu5sZ5AAoiEWlWmERwgzgAOkGwYfkASlmiCEYofygIawRdAGVtOE4iRhhmAFo4awgcKE5YZpFW6TRz5vZOSelOAAdMDAAACJjAAGsgWAAEIiPo5UjA1zAzimaIdeCcUbMMhaYF9ZgiMBoRiHNYLTgAVT6bQBP1InAeYDgrTxhhxMAW8ipAHcRPJmIw1pwlCIuKQYDcJWhSIwAEatGicMjzBbAiC0ADk53k0ggCsmvVEZOsnEeZO65zEME4ZnqYogrVsMCgC38onkR2QyBAdBErFk/gABmGvsCQuwuMA5gJOK5OM1+MxONrLtdtcDgUjFn00MtVqNY/U4F0wLNdXyYNoTArQfEFgUFrFtQm1sCwyGQABdHtCDRxAAcSQUSkk6ky2jw+cLI38EMKxXsjj8iAA7FVqF5ar4GgF6HhRlh+DgOBhRftDgB5eXyUwAflmwnlCk4AB9OO1XvldlQr0cIC3iMpicFKYCwFKzymGgECcCGpwzCGLwHOc1IAEoADKLJ6go+n6rzvJ8/javgaBoFgcCIAA9NRGbMAscD4Nqvb9iA0TiIgACsVjGMk46IPEvEaFkeAAcB95gAu+RIEUIC2Cu5SCW4bEPLATCsNGnCxrmCZJimab0VmYA5hEhiMQMQwjMWKE3nepiVmRFFUbR9GMcx7acLRnDIAAhGpdo/NYrRwD2/h4qISCgIEchlt0eBfCAriuEAA"}
+import { Errors } from 'viem'
+
+Errors.setConfig({ docsOrigin: 'https://viem.sh' }) // [!code focus]
+```
+
+### Overriding the Version
+
+Override the version when errors should attribute themselves to a wrapper library or integration.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"18a5b0a7f812d6b046c128fc161351d1ec133e94262c0b68bb42f55b6dc8e98c","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRU09hFThoAhhyQBOKgBsYYAOZp8SAGxVRpeTAaIQvfqUEhpjMLkQAGKgGN8YkdZrlEEgL4V02cwWJlK1Oh0QFjYOHj4Bf2ExHQBmAEYZOUVlRDVqMS0g/UiZU3MAJhs7UgcnJAt3Txw8QhJydUC8ADMAVzBHRggwTjhtAGFu5sZ5AAoiEWlWmERwgzgAOkGwYfkASlmiCEYofygIawRdAGVtOE4iRhhmAFo4awgcKE5YZpFW6TRz5vZOSelOAAdMDAAACJjAAGsgWAAEIiPo5UjA1zAzimaIdeCcUbMMhaYF9ZgiMBoRiHNYLTgAVT6bQBP1InAeYDgrTxhhxMAW8ipAHcRPJmIw1pwlCIuKQYDcJWhSIwAEatGicMjzBbAiC0ADk53k0ggCsmvVEZOsnEeZO65zEME4ZnqYogrVsMCgC38onkR2QyBAdBErFk/gABmGvsCQuwuMA5gJOK5OM1+MxONrLtdtcDgUjFn00MtVqNY/U4F0wLNdXyYNoTArQfEFgUFrFtQm1sCwyGQABdHtCDRxAAcSQUSkk6ky2jw+cLI38EMKxXsjj8iAA7FVqF5ar4GgF6HhRlh+DgOBhRaXywB+WbCeUKTgAH047Ve+V2VH2hzwADUyGW3R/GgcqKsq5acFKYCwFKzwIpwIb/oY5azAAPBMUwwAAfCGVKnFwaAQAhb4wMMZhQCGwKERawoEfgdpXkBi4epO3pIL6ICvO8nyhhmzCgqhWAOJCgoMQB5Y4b2/YgNE4iIAArFYxjJOOG6Tpo066IxYALvkSBFCAtgruUiDxG40kPLATCsNGnCxrmCZJimaZ8VmYA5hEhgLLOQwjMWFzid0lZwNWtaKg2TYtm2riigA9LFnDIAAhJZdo/NYrRwD2/h4qISCgIEciATpuhfCAriuEAA="}
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' }) // [!code focus]
+```
+
+## `Errors.setConfig`
+
+Sets Viem-scoped defaults applied to every `BaseError` instance (merge semantics).
+
+### Usage
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"a29ac8a1dad0fd3956b0c1b9eb860c64d55b0f20065009d902c662d7999cf4a7","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRU09hFThoAhhyQBOKgBsYYAOZp8SAGxVRpeTAaIQvfqUEhpjMLkQAGKgGN8YkdZrlEEgL4V02cwWJlK1Oh0QFjYOHj4Bf2ExHQBmAEYZOUVlRDVqMS0g/UiZU3MAJhs7UgcnJAt3Txw8QhJydUC8ADMAVzBHRggwTjhtAGFu5sZ5AAoiEWlWmERwgzgAOkGwYfkASlmiCEYofygIawRdAGVtOE4iRhhmAFo4awgcKE5YZpFW6TRz5vZOSelOAAdMDAAACJjAAGsgWAAEIiPo5UjA1zAzimaIdeCcUbMMhaYF9ZgiMBoRiHNYLTgAVT6bQBP1InAeYDgrTxhhxMAW8ipAHcRPJmIw1pwlCIuKQYDcJWhSIwAEatGicMjzBbAiC0ADk53k0ggCsmvVEZOsnEeZO65zEME4ZnqYogrVsMCgC38onkR2QyBAdBErFk/gABmGvsCQuwuMA5gJOK5OM1+MxONrLtdtcDgUjFn00MtVqNY/U4F0wLNdXyYNoTArQfEFgUFrFtQm1sCwyGQABdHtCDRxAAcSQUSkk6ky2jw+cLI38EMKxXsjj8iAA7FVqF5ar4GgF6HhRlh+DgOBhRaXywB+WbCeUKTgAH047Ve+V2VH2hzwADUyGW3R/GgcqKsq5acFKYCwFKzwIpwIb/oY5azAAPBMUwwAAfCGVKnFwaAQAhb4wMMZhQCGwKERawoEfgdpXkBi4epO3pIL6ICvO8nyhhmzCgqhWAOJCgoMQB5Y4b2/YgNE4iIAArFYxjJOOG6Tpo066IxYALvkSBFCAtgruUiDxG40kPLATCsNGnCxrmCZJimaZ8VmYA5hEhgLLOQwjMWFzid0lZwNWtaKg2TYtm2rhrP4eKiEgoCBHIgE6boXwgK4rhAA"}
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' })
+```
+
+### Parameters
+
+#### value
+
+- **Type:** `Errors.Config`
+
+##### value.docsOrigin
+
+- **Type:** `string`
+- **Default:** `'https://viem.sh'`
+
+Origin rendered into `See:` docs URLs.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"a3851094a37e5d5d3001dd3224a829707bb89a43197221bee32c14159b17227b","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRU09hFThoAhhyQAGKgBsYYAOZp8SAGxVRpeTAaIQvfqUEhpjMLkRSQAY3xiRVmuQsBfCumzmCxMpWp0dIABmAK5gDowQYJxw2gDCkYGM8gAURCLSwTCIPHwCAHTxYInyAJTZRBCMUL5QEFYIugDK2nCcRIwwzAC0cFYQOFCcsIEiwdJorYHsnOnSnAA6YMAAAiZgANYLYABCIjH67IvOi5ymwiJh8JzJzGRaizHMF2iM9SV5nACqMSFzU6ScPpgODBW6Ga4wPLyD4AdxE8mYjBKnCUIi4pBgXTRaFIjAARsEaJwyAY4HlFhBaAByVryaQQPHpaKiF5WTj9F6RVpiGCcMwkAFoCDBGwwKB5XyieQNZDIEB0ESsWS+AAGaomixYbA4nGAOVJnGcnEC/GYnCp7U6VMWiwOhjyMTQhWKyT1ArgETA2RpMJg2hMeOWAEY8gAmPIAZiphpKizVKpAAF1E0INDoAOwyOSKZSIACc6jEWgCjudSV8a3MlhsdgcPkQ6dc7hweEIAsl/jwySw/BwHAwyNq9QA8rj5KYAPzZYS4hScAA+nFCw1MYpqdQaIFHSVMnAxYFgGMGpiFnBVzSyKqGG6+ACUADJkyXwmVy4ajca+Kn4NBoLBwRAAHpAMtZgHXwKkkxTEBznERBQyDLMFCUJAg0sDRizwIc4G3ccwArVdUKoGtSHsRwkFDZxoL6WA8DtMlSwSJJXROa8RzHUxvR/P8AOA0DwKpChOGAzhkAAQho3kpisYI4ETI4Sl8W5RCQUB/DkD1IjwCYQGcZwgA"}
+import { Errors } from 'viem'
+// ---cut---
+Errors.setConfig({
+  docsOrigin: 'https://viem.sh', // [!code focus]
+})
+```
+
+##### value.version
+
+- **Type:** `string`
+- **Default:** `` `viem@<package version>` ``
+
+Version attribution rendered as `Version: <value>`. Set to `undefined` to omit the version line.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"b80f64b1d488263fe83719de1b5e15880efa002d5c71d49e1703540e5ff05946","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBRU09hFThoAhhyQAGKgBsYYAOZp8SAGxVRpeTAaIQvfqUEhpjMLkRSQAY3xiRVmuQsBfCumzmCxMpWp0dIABmAK5gDowQYJxw2gDCkYGM8gAURCLSwTCIPHwCAHTxYInyAJTZRBCMUL5QEFYIugDK2nCcRIwwzAC0cFYQOFCcsIEiwdJorYHsnOnSnAA6YMAAAiZgANYLYABCIjH67IvOi5ymwiJh8JzJzGRaizHMF2iM9SV5nACqMSFzU6ScPpgODBW6Ga4wPLyD4AdxE8mYjBKnCUIi4pBgXTRaFIjAARsEaJwyAY4HlFhBaAByVryaQQPHpaKiF5WTj9F6RVpiGCcMwkAFoCDBGwwKB5XyieQNZDIEB0ESsWS+AAGaomixYbA4nGAOVJnGcnEC/GYnCp7U6VMWiwOhjyMTQhWKyT1ArgETA2RpMJg2hMeOWAEY8gAmPIAZiphpKizVKpAAF1E0INDoAOwyOSKZSIACc6jEWgCjudSV8a3MlhsdgcPkQ6dc7hweEIAsl/jwySw/BwHAwyPdnoA/NlhLiFJwAD6cULDUximp1BogABqZA9kRmaBx+MJns4GLAsAxgz2nBV68MnuyAB40hkYAA+FUfZpcIUXucwRJmKAqxZPwgREP3wXkhy3SsJULaUkFlEBhlGcZVUtZhllvLB7HWeFwI3T0XyTFMQHOcREFDIMswUJQkEzagi20PAILACsFyQCjrFsUh7EcJBQ2cIi+lgPA7TJUsEiSV0TjaPDIm9OBfX9fFgzDSMqQoTgAHoNM4ZAAEJBN5KYrGCOBEyOEpfFuUQkFAfw5E3ZjdAmEBnGcIA=="}
+import { Errors } from 'viem'
+// ---cut---
+Errors.setConfig({
+  version: 'sweetlib@1.2.3', // [!code focus]
+})
+```
+
+### Return Value
+
+`void`
+
+No value is returned.

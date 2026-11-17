@@ -1,24 +1,20 @@
-import { formatters } from '../../op-stack/formatters.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import { codecs } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const pgnTestnet = /*#__PURE__*/ defineChain({
+export const pgnTestnet = /*#__PURE__*/ Chain.from({
+  codecs,
   id: 58008,
-  network: 'pgn-testnet',
   name: 'PGN',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.publicgoods.network'],
-    },
+    http: 'https://sepolia.publicgoods.network',
   },
   blockExplorers: {
-    default: {
-      name: 'PGN Testnet Explorer',
-      url: 'https://explorer.sepolia.publicgoods.network',
-      apiUrl: 'https://explorer.sepolia.publicgoods.network/api',
-    },
+    name: 'PGN Testnet Explorer',
+    url: 'https://explorer.sepolia.publicgoods.network',
+    apiUrl: 'https://explorer.sepolia.publicgoods.network/api',
   },
   contracts: {
     l2OutputOracle: {
@@ -41,7 +37,6 @@ export const pgnTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 3754925,
     },
   },
-  formatters,
   sourceId,
   testnet: true,
 })

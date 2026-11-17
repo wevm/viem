@@ -1,30 +1,17 @@
-import type { Address } from 'abitype'
-import * as Hex from 'ox/Hex'
+import type { Block } from 'ox'
+import { Address, Hash, Hex } from 'ox'
 import {
   KeyAuthorization,
   SignatureEnvelope,
   SignaturePreAuthorized,
 } from 'ox/tempo'
-import { getBlock } from '../../actions/public/getBlock.js'
-import { getChainId } from '../../actions/public/getChainId.js'
-import { readContract } from '../../actions/public/readContract.js'
-import type { Client } from '../../clients/createClient.js'
-import { zeroAddress } from '../../constants/address.js'
-import { BaseError } from '../../errors/base.js'
-import { ContractFunctionRevertedError } from '../../errors/contract.js'
-import type { BlockTag } from '../../types/block.js'
-import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
-import { getAction } from '../../utils/getAction.js'
-import { keccak256 } from '../../utils/hash/keccak256.js'
+
+import type * as Client from '../../core/Client.js'
+import { read } from '../../core/actions/contract/read.js'
+import * as ContractError from '../../core/ContractError.js'
+import { BaseError } from '../../core/Errors.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import {
-  getMetadata,
-  isWitnessBurned,
-  verifyHash as verifyAccessKey,
-} from '../actions/accessKey.js'
-import { verifyHash as verifyConfigurableAccount } from '../actions/accounts.js'
-import { isTip20 } from './utils.js'
 
 /** Most spending limits the transaction pool accepts in a key authorization. */
 const maxLimits = 256
@@ -40,6 +27,9 @@ const keySlotGas = 20_000n
 const maxLimit = 2n ** 128n - 1n
 /** TIP-20 selectors a recipient-constrained selector rule may name: `transfer`, `approve`, and `transferWithMemo`. */
 const constrainedSelectors = ['0xa9059cbb', '0x095ea7b3', '0x95777d59']
+/** TIP-20 token address prefix. */
+const tip20Prefix = '0x20c000000000000000000000'
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 /** Whether a signature ends with the TIP-1165 pre-authorized signature magic suffix. */
 export function isPreAuthorized(signature: Hex.Hex): boolean {
@@ -57,10 +47,12 @@ export function isPreAuthorized(signature: Hex.Hex): boolean {
  * register it. Every failure, including a decode failure or a reverted read, returns `false`.
  */
 export async function verify(
-  client: Client,
+  client: Client.Client,
   options: verify.Options,
 ): Promise<boolean> {
-  const { account, chainId: chainId_, hash, signature, ...block } = options
+  const { account, blockHash, blockNumber, blockTag, hash, requireCanonical } =
+    options
+  const signature = options.signature as SignaturePreAuthorized.Wrapped
 
   const unwrapped = (() => {
     try {
@@ -78,20 +70,22 @@ export async function verify(
     return false
   const { keyAuthorization } = unwrapped
   const keychain = unwrapped.signature
-  if (!isAddressEqual(keychain.userAddress, account)) return false
+  if (!Address.isEqual(keychain.userAddress, account)) return false
+
+  const block = blockHash
+    ? { blockHash, requireCanonical }
+    : typeof blockNumber === 'bigint'
+      ? { blockNumber }
+      : { blockTag }
 
   // Registered path: an active registered access key verifies without the authorization.
-  const registered = await (
-    readContract(client, {
-      ...block,
-      ...verifyAccessKey.call({
-        account,
-        admin: false,
-        hash,
-        signature: SignatureEnvelope.serialize(keychain),
-      }),
-    } as never) as Promise<boolean>
-  ).catch(catchRevert)
+  const registered = await read(client, {
+    ...block,
+    abi: Abis.signatureVerifier,
+    address: Addresses.signatureVerifier,
+    args: [account, hash, SignatureEnvelope.serialize(keychain)],
+    functionName: 'verifyKeychain',
+  }).catch(catchRevert)
   if (registered) return true
 
   // Access key signature: the inner signature is the authorized key's, over the keychain digest.
@@ -102,7 +96,7 @@ export async function verify(
     try {
       return SignatureEnvelope.verify(inner, {
         address: keyId,
-        payload: keccak256(Hex.concat('0x04', hash, account)),
+        payload: Hash.keccak256(Hex.concat('0x04', hash, account)),
       })
     } catch {
       return false
@@ -114,67 +108,67 @@ export async function verify(
 
   const root = keyAuthorization.signature
   const digest = KeyAuthorization.getSignPayload(keyAuthorization)
-  const read = (call: object) =>
-    (
-      readContract(client, { ...block, ...call } as never) as Promise<unknown>
-    ).catch(catchRevert)
-  const [chainId, reference, rootValid, rootActive, keyIdActive, key, burned] =
+  const [chainId, timestamp, rootValid, rootActive, keyIdActive, key, burned] =
     await Promise.all([
-      chainId_ ?? getAction(client, getChainId, 'getChainId')({}),
-      getAction(client, getBlock, 'getBlock')(getBlockParameters(block)),
-      root.type === 'configurable'
-        ? read(
-            verifyConfigurableAccount.call({
-              account,
-              hash: digest,
-              signature: SignatureEnvelope.serialize(root),
-            }),
-          )
-        : read({
-            address: Addresses.signatureVerifier,
-            abi: Abis.signatureVerifier,
-            functionName: 'verify',
-            args: [account, digest, SignatureEnvelope.serialize(root)],
-          }),
+      client.chain?.id ??
+        client
+          .request({ method: 'eth_chainId' }, { dedupe: true })
+          .then(Hex.toNumber),
+      getTimestamp(client, block),
+      read(client, {
+        ...block,
+        abi: Abis.signatureVerifier,
+        address: Addresses.signatureVerifier,
+        args: [account, digest, SignatureEnvelope.serialize(root)],
+        functionName:
+          root.type === 'configurable' ? 'verifyConfigurableAccount' : 'verify',
+      }).catch(catchRevert),
       // A configuration commitment retires the account's root key.
       root.type === 'configurable'
         ? true
-        : read({
-            address: Addresses.accountKeychain,
+        : read(client, {
+            ...block,
             abi: Abis.accountKeychain,
-            functionName: 'isAdminKey',
+            address: Addresses.accountKeychain,
             args: [account, account],
-          }),
+            functionName: 'isAdminKey',
+          }).catch(catchRevert),
       // `authorizeKey` refuses a retired root key as an access key.
-      read({
-        address: Addresses.accountKeychain,
+      read(client, {
+        ...block,
         abi: Abis.accountKeychain,
-        functionName: 'isAdminKey',
+        address: Addresses.accountKeychain,
         args: [keyId, keyId],
-      }),
-      read(getMetadata.call({ account, accessKey: keyId })) as Promise<
-        { keyId: Address; isRevoked: boolean } | false
-      >,
+        functionName: 'isAdminKey',
+      }).catch(catchRevert),
+      read(client, {
+        ...block,
+        abi: Abis.accountKeychain,
+        address: Addresses.accountKeychain,
+        args: [account, keyId],
+        functionName: 'getKey',
+      }).catch(catchRevert),
       keyAuthorization.witness
-        ? read(
-            isWitnessBurned.call({
-              account,
-              witness: keyAuthorization.witness,
-            }),
-          )
+        ? read(client, {
+            ...block,
+            abi: Abis.accountKeychain,
+            address: Addresses.accountKeychain,
+            args: [account, keyAuthorization.witness],
+            functionName: 'isKeyAuthorizationWitnessBurned',
+          }).catch(catchRevert)
         : false,
     ])
 
   if (BigInt(chainId) !== keyAuthorization.chainId) return false
   if (
     keyAuthorization.expiry != null &&
-    BigInt(keyAuthorization.expiry) <= reference.timestamp
+    BigInt(keyAuthorization.expiry) <= timestamp
   )
     return false
   if (rootValid !== true || rootActive !== true || keyIdActive !== true)
     return false
   // The access key was never registered and never revoked.
-  if (!key || !isAddressEqual(key.keyId, zeroAddress) || key.isRevoked)
+  if (!key || !Address.isEqual(key.keyId, zeroAddress) || key.isRevoked)
     return false
   return burned === false
 }
@@ -182,15 +176,13 @@ export async function verify(
 export declare namespace verify {
   type Options = {
     /** Account the signature claims to sign for. */
-    account: Address
+    account: Address.Address
     /** Hash of the reference block. */
     blockHash?: Hex.Hex | undefined
     /** Number of the reference block. */
     blockNumber?: bigint | undefined
     /** Tag of the reference block. */
-    blockTag?: BlockTag | undefined
-    /** Chain ID the key authorization must name. Read from the node when omitted. */
-    chainId?: number | undefined
+    blockTag?: Block.Tag | undefined
     /** Signed hash. */
     hash: Hex.Hex
     /** Whether the reference block hash must be canonical. */
@@ -208,13 +200,13 @@ export declare namespace verify {
  */
 export function isRegistrable(
   keyAuthorization: KeyAuthorization.Signed,
-  account: Address,
+  account: Address.Address,
 ): boolean {
   const { address, isAdmin, limits, scopes } = keyAuthorization
-  if (isAddressEqual(address, zeroAddress)) return false
+  if (Address.isEqual(address, zeroAddress)) return false
   if (
     keyAuthorization.account &&
-    !isAddressEqual(keyAuthorization.account, account)
+    !Address.isEqual(keyAuthorization.account, account)
   )
     return false
   if (isAdmin) return false
@@ -228,10 +220,8 @@ export function isRegistrable(
 
   // Strict decoding rejects a repeated target, which would not encode back to the same bytes,
   // so grouping the flat scopes by target restores the wire order.
-  const targets = new Map<
-    string,
-    { selector: Hex.Hex; recipients: readonly Address[] }[]
-  >()
+  type Rule = { selector: Hex.Hex; recipients: readonly Address.Address[] }
+  const targets = new Map<string, Rule[]>()
   for (const scope of scopes ?? []) {
     const rules = targets.get(scope.address.toLowerCase()) ?? []
     targets.set(scope.address.toLowerCase(), rules)
@@ -245,7 +235,7 @@ export function isRegistrable(
   let selectorCount = 0n
   let recipientCount = 0n
   for (const [target, rules] of targets) {
-    if (isAddressEqual(target as Address, zeroAddress)) return false
+    if (target === zeroAddress) return false
     if (rules.length > maxScopes) return false
     const selectors = new Set(
       rules.map(({ selector }) => selector.toLowerCase()),
@@ -255,10 +245,10 @@ export function isRegistrable(
       if (Hex.size(selector) !== 4) return false
       if (recipients.length === 0) continue
       if (recipients.length > maxScopes) return false
-      if (!isTip20(target)) return false
+      if (!target.startsWith(tip20Prefix)) return false
       if (!constrainedSelectors.includes(selector.toLowerCase())) return false
       if (
-        recipients.some((recipient) => isAddressEqual(recipient, zeroAddress))
+        recipients.some((recipient) => Address.isEqual(recipient, zeroAddress))
       )
         return false
       const unique = new Set(
@@ -285,24 +275,46 @@ export function isRegistrable(
   return baseTransactionGas + keySlotGas + surcharge <= maxTransactionGas
 }
 
-/** Returns the `getBlock` parameters for a reference block. */
-function getBlockParameters(block: {
-  blockHash?: Hex.Hex | undefined
-  blockNumber?: bigint | undefined
-  blockTag?: BlockTag | undefined
-}) {
-  if (block.blockHash) return { blockHash: block.blockHash }
-  if (typeof block.blockNumber === 'bigint')
-    return { blockNumber: block.blockNumber }
-  // An omitted tag keeps the client's default, as the state reads do.
-  return block.blockTag ? { blockTag: block.blockTag } : {}
+/** Returns the timestamp of the reference block. */
+async function getTimestamp(
+  client: Client.Client,
+  block: {
+    blockHash?: Hex.Hex | undefined
+    blockNumber?: bigint | undefined
+    blockTag?: Block.Tag | undefined
+  },
+): Promise<bigint> {
+  const { blockHash, blockNumber, blockTag } = block
+  const result = await (() => {
+    if (blockHash)
+      return client.request(
+        { method: 'eth_getBlockByHash', params: [blockHash, false] },
+        { dedupe: true },
+      )
+    return client.request(
+      {
+        method: 'eth_getBlockByNumber',
+        params: [
+          typeof blockNumber === 'bigint'
+            ? Hex.fromNumber(blockNumber)
+            : (blockTag ?? client.blockTag ?? 'latest'),
+          false,
+        ],
+      },
+      { dedupe: typeof blockNumber === 'bigint' },
+    )
+  })()
+  if (!result) throw new Error('Reference block not found.')
+  return BigInt(result.timestamp)
 }
 
 /** Returns `false` for a reverted read, and rethrows other errors. */
 function catchRevert(error: unknown): false {
   if (
     error instanceof BaseError &&
-    error.walk((cause) => cause instanceof ContractFunctionRevertedError)
+    error.walk(
+      (cause) => cause instanceof ContractError.ContractFunctionRevertedError,
+    )
   )
     return false
   throw error

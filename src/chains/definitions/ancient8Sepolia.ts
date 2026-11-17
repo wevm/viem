@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const ancient8Sepolia = /*#__PURE__*/ defineChain({
+export const ancient8Sepolia = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 28122024,
   name: 'Ancient8 Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpcv2-testnet.ancient8.gg'],
-    },
+    http: 'https://rpcv2-testnet.ancient8.gg',
   },
   blockExplorers: {
-    default: {
-      name: 'Ancient8 Celestia Testnet explorer',
-      url: 'https://scanv2-testnet.ancient8.gg',
-      apiUrl: 'https://scanv2-testnet.ancient8.gg/api',
-    },
+    name: 'Ancient8 Celestia Testnet explorer',
+    url: 'https://scanv2-testnet.ancient8.gg',
+    apiUrl: 'https://scanv2-testnet.ancient8.gg/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x7750F6deD68435d6EA3415CEA544126bE54d208D',

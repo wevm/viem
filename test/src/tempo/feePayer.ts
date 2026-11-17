@@ -1,18 +1,20 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { P256 } from 'ox'
-import { createClient, http, maxUint256, zeroAddress } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
+import { P256, Secp256k1 } from 'ox'
+import { Client as CoreClient_, Actions as CoreActions_, http } from 'viem'
+import { tempoLocalnet as chain_ } from 'viem/chains'
 import {
-  fillTransaction,
-  getTransaction,
-  prepareTransactionRequest,
-  sendRawTransactionSync,
-  sendTransactionSync,
-} from 'viem/actions'
-import { Account, Relay, withRelay } from 'viem/tempo'
+  Account,
+  Expiry,
+  Relay,
+  http as tempoHttp_,
+  withRelay,
+} from 'viem/tempo'
 import { expect } from 'vitest'
-import { createHttpServer } from '../utils.js'
-import * as Tempo from './config.js'
+import { createServer as createHttpServer } from '../http.js'
+import * as Tempo from '../tempo.js'
+
+const maxUint256 = 2n ** 256n - 1n
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 /** Route that sponsors and delivers the transaction. */
 export const paths = [
@@ -62,13 +64,17 @@ export type Scenario = {
   validity: (typeof validities)[number]
 }
 
-export const sponsor = Tempo.accounts[0]!
+/** Options for the scenario assertions. */
+export type Options = {
+  /** RPC URL of the node. @default the pool instance's URL */
+  rpcUrl?: string | undefined
+}
 
-const caller = Tempo.getClient({ chain: Tempo.chain })
-const expiringNonceMaxExpiry = 300
+export const sponsor = Account.fromSecp256k1(Tempo.accounts[0]!.privateKey)
+
 const senderGas = 1_000_000n
-const senderToken = Tempo.addresses.alphaUsd
-const sponsorToken = Tempo.addresses.pathUsd
+const senderToken = Tempo.alphaUsd
+const sponsorToken = Tempo.pathUsd
 
 /** Returns every path and nonce mode pair, cycling the remaining dimensions so each value appears. */
 export function table(): readonly Scenario[] {
@@ -88,7 +94,12 @@ export function table(): readonly Scenario[] {
 }
 
 /** Sends a sponsored transaction for `scenario` and asserts the result against the protocol rules. */
-export async function assertScenario(scenario: Scenario) {
+export async function assertScenario(
+  scenario: Scenario,
+  options: Options = {},
+) {
+  const { rpcUrl = Tempo.rpcUrl } = options
+  const caller = Tempo.getClient({ rpcUrl })
   const { feeToken, gas, nonceMode, path, validity } = scenario
   const now = Math.floor(Date.now() / 1000)
   const sender = createSender(scenario)
@@ -113,14 +124,14 @@ export async function assertScenario(scenario: Scenario) {
 
   // Raw co-signing requires the sender to bound its own signature.
   if (path === 'sign-only' && !expiring && validity === 'unset') {
-    await expect(send(scenario, request)).rejects.toThrow(
+    await expect(send(scenario, request, rpcUrl)).rejects.toThrow(
       'Sponsored transactions require a `validBefore` within 3600 seconds.',
     )
     return
   }
 
-  const receipt = await send(scenario, request)
-  const transaction = await getTransaction(caller, {
+  const receipt = await send(scenario, request, rpcUrl)
+  const transaction = await CoreActions_.transaction.get(caller, {
     hash: receipt.transactionHash,
   })
 
@@ -133,7 +144,7 @@ export async function assertScenario(scenario: Scenario) {
     expect.soft(transaction.validBefore).toBeGreaterThan(now)
     expect
       .soft(transaction.validBefore)
-      .toBeLessThanOrEqual(now + expiringNonceMaxExpiry + 5)
+      .toBeLessThanOrEqual(now + Expiry.expiringNonceMax + 5)
   }
   if (nonceMode === 'expiring-nonce') expect.soft(transaction.nonce).toBe(42n)
   if (nonceMode === 'lane') expect.soft(transaction.nonceKey).toBe(lane)
@@ -141,7 +152,8 @@ export async function assertScenario(scenario: Scenario) {
 
   if (validity !== 'unset') expect.soft(transaction.validBefore).toBe(now + 60)
   if (validity === 'window') expect.soft(transaction.validAfter).toBe(now - 10)
-  if (validity === 'before') expect.soft(transaction.validAfter).toBeNull()
+  if (validity === 'before')
+    expect.soft(transaction.validAfter ?? null).toBeNull()
 
   // Sponsorship reserves gas for the fee payer's signature, so a sender's gas is a floor.
   if (gas === 'sender')
@@ -155,15 +167,20 @@ export async function assertScenario(scenario: Scenario) {
 }
 
 /** Asserts that changing a signed field after the fee payer signs keeps the transaction off chain. */
-export async function assertTamperRejected(tamper: (typeof tampers)[number]) {
-  const sender = Account.fromSecp256k1(generatePrivateKey())
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
+export async function assertTamperRejected(
+  tamper: (typeof tampers)[number],
+  options: Options = {},
+) {
+  const { rpcUrl = Tempo.rpcUrl } = options
+  const caller = Tempo.getClient({ rpcUrl })
+  const sender = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(rpcUrl), {
       plugins: [Relay.feePayer({ account: sponsor })],
     }),
   })
-  const { transaction } = await fillTransaction(client, {
+  const { transaction } = await CoreActions_.transaction.fill(client, {
     account: sender.address,
     calls: [{ to: zeroAddress }],
     feePayer: true,
@@ -188,8 +205,8 @@ export async function assertTamperRejected(tamper: (typeof tampers)[number]) {
   }
 
   await expect(
-    sendRawTransactionSync(caller, {
-      serializedTransaction: await sender.signTransaction(tampered as never),
+    CoreActions_.transaction.sendRawSync(caller, {
+      transaction: await sender.signTransaction(tampered as never),
     }),
   ).rejects.toThrow()
 }
@@ -202,10 +219,11 @@ declare namespace send {
 
 function createSender(scenario: Scenario) {
   if (scenario.key === 'p256') return Account.fromP256(P256.randomPrivateKey())
-  return Account.fromSecp256k1(generatePrivateKey())
+  return Account.fromSecp256k1(Secp256k1.randomPrivateKey())
 }
 
-async function send(scenario: Scenario, request: send.Request) {
+async function send(scenario: Scenario, request: send.Request, rpcUrl: string) {
+  const caller = Tempo.getClient({ rpcUrl })
   const { feeToken, path } = scenario
   const plugins = [
     Relay.feePayer({
@@ -215,17 +233,17 @@ async function send(scenario: Scenario, request: send.Request) {
   ]
 
   if (path === 'local')
-    return sendTransactionSync(caller, {
+    return CoreActions_.transaction.sendSync(caller, {
       ...request,
       feePayer: sponsor,
     } as never)
 
   if (path === 'fill') {
-    const client = createClient({
-      chain: Tempo.chain,
-      transport: withRelay(Tempo.http(), { plugins }),
+    const client = CoreClient_.create({
+      chain: chain_,
+      transport: withRelay(tempoHttp_(rpcUrl), { plugins }),
     })
-    return sendTransactionSync(client, {
+    return CoreActions_.transaction.sendSync(client, {
       ...request,
       feePayer: true,
     } as never)
@@ -235,9 +253,9 @@ async function send(scenario: Scenario, request: send.Request) {
   const server = await createHttpServer(createRequestListener(upstream.fetch))
   try {
     if (path === 'external') {
-      const client = createClient({
-        chain: Tempo.chain,
-        transport: withRelay(Tempo.http(), {
+      const client = CoreClient_.create({
+        chain: chain_,
+        transport: withRelay(tempoHttp_(rpcUrl), {
           plugins: [
             Relay.feePayer({
               allowedFeePayers: [server.url],
@@ -246,25 +264,28 @@ async function send(scenario: Scenario, request: send.Request) {
           ],
         }),
       })
-      return await sendTransactionSync(client, {
+      return await CoreActions_.transaction.sendSync(client, {
         ...request,
         feePayer: server.url,
       } as never)
     }
 
     // The sender signs before the relay co-signs.
-    const prepared = await prepareTransactionRequest(caller, {
-      ...request,
-      feePayer: true,
-    } as never)
-    const client = createClient({
-      chain: Tempo.chain,
-      transport: withRelay(Tempo.http(), http(server.url), { policy: path }),
+    const { request: prepared } = await CoreActions_.transaction.prepare(
+      caller,
+      {
+        ...request,
+        feePayer: true,
+      } as never,
+    )
+    const client = CoreClient_.create({
+      chain: chain_,
+      transport: withRelay(tempoHttp_(rpcUrl), http(server.url), {
+        policy: path,
+      }),
     })
-    return await sendRawTransactionSync(client, {
-      serializedTransaction: await request.account.signTransaction(
-        prepared as never,
-      ),
+    return await CoreActions_.transaction.sendRawSync(client, {
+      transaction: await request.account.signTransaction(prepared as never),
     })
   } finally {
     await server.close()

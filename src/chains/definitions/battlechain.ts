@@ -1,23 +1,16 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
+import * as Chain from '../../core/Chain.js'
 
-export const battlechain = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const battlechain = /*#__PURE__*/ Chain.from({
   id: 626,
   name: 'BattleChain Mainnet',
-  network: 'battlechain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.battlechain.com'],
-    },
+    http: 'https://mainnet.battlechain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'BattleChain Explorer',
-      url: 'https://explorer.battlechain.com',
-      apiUrl: 'https://block-explorer-api.battlechain.com/api',
-    },
+    name: 'BattleChain Explorer',
+    url: 'https://explorer.battlechain.com',
+    apiUrl: 'https://block-explorer-api.battlechain.com/api',
   },
   contracts: {
     multicall3: {

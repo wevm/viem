@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
-import { Hex, RpcResponse } from 'ox'
-import { formatUnits } from '../../../utils/unit/formatUnits.js'
+import { Hex, RpcResponse, Value } from 'ox'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
 import * as ExecutionError from '../../ExecutionError.js'
@@ -164,7 +163,7 @@ async function selectTokenIn(
   const [preference, tokens] = await Promise.all([
     Actions.fee
       .getUserToken(context.client, { account })
-      .then((token) => token?.address)
+      .then((token) => token ?? undefined)
       .catch(() => undefined),
     context.resolveTokens(),
   ])
@@ -254,7 +253,7 @@ function describe(
 ): Capabilities.AutoSwapAmount {
   return {
     decimals: metadata.decimals,
-    formatted: formatUnits(Hex.toBigInt(amount.value), metadata.decimals),
+    formatted: Value.format(Hex.toBigInt(amount.value), metadata.decimals),
     name: metadata.name,
     symbol: metadata.symbol,
     token: amount.token,

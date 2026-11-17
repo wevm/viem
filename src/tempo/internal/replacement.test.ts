@@ -1,78 +1,70 @@
+import { Value } from 'ox'
+import * as tempo from '~test/tempo.js'
 import { beforeAll, describe, expect, test } from 'vitest'
-import {
-  accounts,
-  chain,
-  feeToken,
-  getClient,
-  nodeEnv,
-  setupFeeToken,
-  setupToken,
-} from '~test/tempo/config.js'
-import {
-  getTransaction,
-  sendTransactionSync,
-  waitForTransactionReceipt,
-} from '../../actions/index.js'
-import { maxUint256 } from '../../constants/number.js'
-import {
-  type Address,
-  custom,
-  type Hash,
-  type Hex,
-  parseUnits,
-} from '../../index.js'
-import * as actions from '../actions/index.js'
-import type { Transaction } from '../Transaction.js'
+
+import { Actions, custom } from 'viem'
+import { tempoLocalnet } from 'viem/chains'
+import { Account, Client, Actions as TempoActions } from 'viem/tempo'
+
+import type { Transaction } from '../chainConfig.js'
 import { getExpiringNonceHash, transactionReplacement } from './replacement.js'
 
-const sender = accounts.at(0)!
-const sponsor = accounts.at(1)!
-
-const client = getClient({
-  account: sender,
-  chain: chain.extend({ feeToken }),
-})
+const maxUint256 = 2n ** 256n - 1n
+const sender = Account.fromSecp256k1(tempo.accounts[0]!.privateKey)
+const sponsor = Account.fromSecp256k1(tempo.accounts[1]!.privateKey)
+const client = tempo.getClient({ account: sender, feeToken: tempo.pathUsd })
 
 beforeAll(async () => {
-  await setupFeeToken(client, { account: sponsor })
+  await tempo.setupFeeToken(client, { account: sponsor })
 })
 
+// Partial transactions exercise only the fields each hook reads.
 const getKey = (transaction: Record<string, unknown>) =>
-  transactionReplacement.getKey(transaction as never)
+  transactionReplacement.getKey(transaction as unknown as Transaction)
 
 const getReason = (
   replaced: Record<string, unknown>,
   replacement: Record<string, unknown>,
 ) =>
   transactionReplacement.getReason({
-    replaced: replaced as never,
-    replacement: replacement as never,
+    replaced: replaced as unknown as Transaction,
+    replacement: replacement as unknown as Transaction,
   })
+
+/** Sends an expiring nonce transaction and returns it as the node records it. */
+async function sendExpiring(
+  options: { feePayer?: Account.Account | undefined } = {},
+) {
+  const { transactionHash } = await Actions.transaction.sendSync(client, {
+    ...options,
+    nonceKey: 'expiring',
+    to: '0x0000000000000000000000000000000000000000',
+  })
+  const transaction = await Actions.transaction.get(client, {
+    hash: transactionHash,
+  })
+  if (transaction.type !== 'tempo') throw new Error('expected tempo')
+  return transaction
+}
 
 describe('getKey', () => {
   test('protocol nonces share a slot across transaction types', () => {
-    const ethereum = getKey({ nonce: 3, type: 'eip1559' })
-    expect(getKey({ nonce: 3, type: 'tempo' })).toBe(ethereum)
-    expect(getKey({ nonce: 3, nonceKey: 0n, type: 'tempo' })).toBe(ethereum)
-    expect(getKey({ nonce: 4, type: 'eip1559' })).not.toBe(ethereum)
+    const ethereum = getKey({ nonce: 3n, type: 'eip1559' })
+    expect(ethereum).toMatchInlineSnapshot(`"0:3"`)
+    expect(getKey({ nonce: 3n, type: 'tempo' })).toBe(ethereum)
+    expect(getKey({ nonce: 3n, nonceKey: 0n, type: 'tempo' })).toBe(ethereum)
+    expect(getKey({ nonce: 4n, type: 'eip1559' })).not.toBe(ethereum)
   })
 
   test('2D nonces occupy their own key', () => {
-    const key = getKey({ nonce: 0, nonceKey: 5n, type: 'tempo' })
-    expect(key).not.toBe(getKey({ nonce: 0, type: 'tempo' }))
-    expect(key).not.toBe(getKey({ nonce: 0, nonceKey: 6n, type: 'tempo' }))
-    expect(key).toBe(getKey({ nonce: 0, nonceKey: 5n, type: 'tempo' }))
+    const key = getKey({ nonce: 0n, nonceKey: 5n, type: 'tempo' })
+    expect(key).toMatchInlineSnapshot(`"5:0"`)
+    expect(key).not.toBe(getKey({ nonce: 0n, type: 'tempo' }))
+    expect(key).not.toBe(getKey({ nonce: 0n, nonceKey: 6n, type: 'tempo' }))
   })
 
   test('expiring nonces are keyed by sender payload, not sponsorship', async () => {
-    const { transactionHash } = await sendTransactionSync(client, {
-      feePayer: sponsor,
-      nonceKey: 'expiring',
-      to: '0x0000000000000000000000000000000000000000',
-    })
-    const transaction = (await getTransaction(client, {
-      hash: transactionHash,
-    })) as Transaction
+    const transaction = await sendExpiring({ feePayer: sponsor })
     expect(transaction.nonceKey).toBe(maxUint256)
     expect(transaction.feePayerSignature).toBeDefined()
 
@@ -87,7 +79,7 @@ describe('getKey', () => {
           ...transaction.feePayerSignature!,
           r: `0x${'1'.repeat(64)}`,
         },
-        feeToken: '0x20c0000000000000000000000000000000000001',
+        feeToken: tempo.alphaUsd,
         hash: `0x${'f'.repeat(64)}`,
       }),
     ).toBe(key)
@@ -109,7 +101,7 @@ describe('getKey', () => {
 describe('getReason', () => {
   const from = sender.address
   const to = '0x0000000000000000000000000000000000000001'
-  const tempo = (calls: readonly Record<string, unknown>[]) => ({
+  const calls = (calls: readonly Record<string, unknown>[]) => ({
     calls,
     from,
     type: 'tempo',
@@ -118,12 +110,12 @@ describe('getReason', () => {
   test('repriced: same calls', () => {
     expect(
       getReason(
-        tempo([{ data: '0x1234', to }]),
-        tempo([{ data: '0x1234', to: to.toUpperCase().replace('0X', '0x') }]),
+        calls([{ data: '0x1234', to }]),
+        calls([{ data: '0x1234', to: to.toUpperCase().replace('0X', '0x') }]),
       ),
     ).toBe('repriced')
     expect(
-      getReason(tempo([{ to }]), {
+      getReason(calls([{ to }]), {
         from,
         input: '0x',
         to,
@@ -134,51 +126,48 @@ describe('getReason', () => {
   })
 
   test('cancelled: empty calls to the sender', () => {
-    expect(getReason(tempo([{ to }]), tempo([{ to: from }]))).toBe('cancelled')
+    expect(getReason(calls([{ to }]), calls([{ to: from }]))).toBe('cancelled')
   })
 
   test('replaced: different calls', () => {
-    expect(getReason(tempo([{ to }]), tempo([{ data: '0x1234', to }]))).toBe(
+    expect(getReason(calls([{ to }]), calls([{ data: '0x1234', to }]))).toBe(
       'replaced',
     )
-    expect(getReason(tempo([{ to }]), tempo([{ to }, { to }]))).toBe('replaced')
+    expect(getReason(calls([{ to }]), calls([{ to }, { to }]))).toBe('replaced')
     expect(
-      getReason(tempo([{ to }]), tempo([{ data: '0x12', to: from }])),
+      getReason(calls([{ to }]), calls([{ data: '0x12', to: from }])),
     ).toBe('replaced')
   })
 })
 
-describe.runIf(nodeEnv === 'localnet')('node', () => {
-  test('expiring nonce hash matches the hash the node records', async (ctx) => {
-    if (!(await supportsChannelReserve())) ctx.skip()
-
-    const { token } = await setupToken(client, {
+describe('node', () => {
+  test('expiring nonce hash matches the hash the node records', async () => {
+    const { token } = await tempo.setupToken(client, {
       name: 'Replacement Test',
       symbol: 'RPL',
     })
 
-    for (const parameters of [
+    for (const options of [
       { nonceKey: 'expiring' },
       { feePayer: sponsor, nonceKey: 'expiring' },
       {},
     ] as const) {
-      const { expiringNonceHash, receipt } = await actions.channel.openSync(
-        client,
-        {
-          ...parameters,
-          deposit: parseUnits('1', 6),
+      const { expiringNonceHash, receipt } =
+        await TempoActions.channel.openSync(client, {
+          ...options,
+          deposit: Value.from('1', 6),
           payee: sponsor.address,
           token,
-        },
-      )
-      const transaction = (await getTransaction(client, {
+        })
+      const transaction = await Actions.transaction.get(client, {
         hash: receipt.transactionHash,
-      })) as Transaction
+      })
+      if (transaction.type !== 'tempo') throw new Error('expected tempo')
       expect(getExpiringNonceHash(transaction)).toBe(expiringNonceHash)
     }
   })
 
-  test('waits for the awaited expiring-nonce transaction when a sibling shares its block', async () => {
+  test('waits for the awaited expiring nonce transaction when a sibling shares its block', async () => {
     const [first, second] = await sendSiblings()
 
     const { receipt, replacements } = await waitLagging(second.transactionHash)
@@ -188,7 +177,7 @@ describe.runIf(nodeEnv === 'localnet')('node', () => {
     expect(first.blockNumber).toBe(second.blockNumber)
   })
 
-  test('does not treat a pending expiring-nonce transaction as replaced by a sibling', async () => {
+  test('does not treat a pending expiring nonce transaction as replaced by a sibling', async () => {
     const [, second] = await sendSiblings()
 
     // The RPC still reports the awaited transaction as pending, and its
@@ -203,10 +192,10 @@ describe.runIf(nodeEnv === 'localnet')('node', () => {
   })
 })
 
-/** Sends two expiring-nonce transactions from one sender into one block. */
+/** Sends two expiring nonce transactions from one sender into one block. */
 async function sendSiblings() {
-  const send = (to: Address) =>
-    sendTransactionSync(client, { nonceKey: 'expiring', to })
+  const send = (to: `0x${string}`) =>
+    Actions.transaction.sendSync(client, { nonceKey: 'expiring', to })
   const sendPair = () =>
     Promise.all([
       send('0x0000000000000000000000000000000000000000'),
@@ -228,34 +217,36 @@ async function sendSiblings() {
  * wait into replacement detection.
  */
 async function waitLagging(
-  hash: Hash,
+  hash: `0x${string}`,
   options: { pendingIn?: bigint | undefined } = {},
 ) {
   let lagging = 3
-  const isLagging = () => lagging > 0
-  const laggingClient = getClient({
+  const laggingClient = Client.create({
+    chain: tempoLocalnet,
+    pollingInterval: 100,
     transport: custom({
-      async request(args) {
-        const params = args.params as readonly unknown[] | undefined
-        if (args.method === 'eth_getTransactionReceipt' && params?.[0] === hash)
-          if (lagging-- > 0) return null
-        if (options.pendingIn !== undefined && isLagging()) {
-          if (args.method === 'eth_getBlockByNumber')
+      async request(request) {
+        const params = request.params as readonly unknown[] | undefined
+        if (
+          request.method === 'eth_getTransactionReceipt' &&
+          params?.[0] === hash &&
+          lagging-- > 0
+        )
+          return null
+        if (typeof options.pendingIn !== 'undefined' && lagging > 0) {
+          if (request.method === 'eth_getBlockByNumber')
             return client.request({
-              ...args,
-              params: [
-                `0x${options.pendingIn.toString(16)}`,
-                ...params!.slice(1),
-              ],
-            } as never)
+              method: 'eth_getBlockByNumber',
+              params: [`0x${options.pendingIn.toString(16)}`, true],
+            })
           if (
-            args.method === 'eth_getTransactionByHash' &&
+            request.method === 'eth_getTransactionByHash' &&
             params?.[0] === hash
           ) {
-            const transaction = (await client.request(args as never)) as Record<
-              string,
-              Hex | null
-            >
+            const transaction = await client.request({
+              method: 'eth_getTransactionByHash',
+              params: [hash],
+            })
             return {
               ...transaction,
               blockHash: null,
@@ -264,27 +255,13 @@ async function waitLagging(
             }
           }
         }
-        return client.request(args as never)
+        return client.request(request as Parameters<typeof client.request>[0])
       },
     }),
   })
   const replacements: unknown[] = []
-  const receipt = await waitForTransactionReceipt(laggingClient, {
-    hash,
-    onReplaced: (replacement) => replacements.push(replacement),
-  })
+  const watcher = Actions.transaction.waitForReceipt(laggingClient, { hash })
+  watcher.onReplaced((replacement) => replacements.push(replacement))
+  const receipt = await watcher.receipt
   return { receipt, replacements }
-}
-
-async function supportsChannelReserve() {
-  const schedule = (await client.request({
-    method: 'tempo_forkSchedule',
-  } as never)) as {
-    schedule: readonly { active: boolean; name: string }[]
-  }
-  return schedule.schedule.some((fork) => {
-    if (!fork.active) return false
-    const match = fork.name.match(/^T(\d+)$/)
-    return match ? Number(match[1]) >= 5 : false
-  })
 }

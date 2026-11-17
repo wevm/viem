@@ -1,22 +1,21 @@
+import type { TransactionReceipt as TempoReceipt_ } from './chainConfig.js'
+import type { Capabilities as TempoCapabilities_ } from 'viem/tempo'
+import { http as tempoHttp_ } from 'viem/tempo'
+import type { Address } from 'ox/Address'
+import type { BaseError } from '../core/Errors.js'
+import { Client as CoreClient_ } from 'viem'
+import { from as parseUnits } from 'ox/Value'
+import { fromNumber as toHex } from 'ox/Hex'
+import { randomPrivateKey as generatePrivateKey } from 'ox/Secp256k1'
+import { Actions as CoreActions_ } from 'viem'
+import * as Transaction from 'ox/tempo/TxEnvelopeTempo'
+import { tempoLocalnet as chain_ } from 'viem/chains'
+import { Account as TempoAccount_ } from 'viem/tempo'
 // Adapted from tempoxyz/api relay.test.ts at f209a9aca75123540fe5b959fd224b62494af399.
 
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import {
-  type Address,
-  type BaseError,
-  createClient,
-  parseUnits,
-  toHex,
-} from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import {
-  fillTransaction,
-  getTransaction,
-  prepareTransactionRequest,
-  sendTransactionSync,
-  waitForTransactionReceipt,
-} from 'viem/actions'
+
 import {
   Account,
   Actions,
@@ -25,20 +24,21 @@ import {
   Relay,
   Store,
   Tick,
-  Transaction,
   VirtualAddress,
   withRelay,
 } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
-import { configurableAccounts, nodeEnv } from '~test/tempo/config.js'
-import { createHttpServer } from '~test/utils.js'
+import * as Tempo from '~test/tempo.js'
+const nodeEnv = 'localnet'
+import { createServer as createHttpServer } from '~test/http.js'
 
 type Server = Awaited<ReturnType<typeof createHttpServer>>
 
-const userAccount = Tempo.accounts[9]!
-const feePayerAccount = Tempo.accounts[0]!
-const recipient = Tempo.accounts[7]!
+const userAccount = TempoAccount_.fromSecp256k1(Tempo.accounts[9]!.privateKey)
+const feePayerAccount = TempoAccount_.fromSecp256k1(
+  Tempo.accounts[0]!.privateKey,
+)
+const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
 
 /**
  * Tokens the relay handler probes for fee-token resolution. The default
@@ -76,41 +76,37 @@ function virtualAddresses(
 }
 
 /** Client used only to build typed calldata (`Actions.token.*.call`). */
-const caller = Tempo.getClient({ chain: Tempo.chain })
+const caller = Tempo.getClient({})
 
 beforeAll(async () => {
   // Faucet-fund the accounts that pay fees or create fresh tokens. The faucet is
   // permissionless, so no genesis privileges are required. Left unfunded on
-  // purpose: accounts[5]/[10] (balance-sensitive fee-resolution and
-  // insufficient-balance tests) and accounts[7] (recipient only).
+  // purpose: accounts[10] (insufficient-balance tests) and accounts[7]
+  // (recipient only).
   await Promise.all(
     [0, 2, 3, 4, 6, 8, 9].map((index) =>
-      Actions.faucet.fundSync(Tempo.getClient({ chain: Tempo.chain }), {
-        account: Tempo.accounts[index]!,
+      Actions.faucet.fundSync(Tempo.getClient({}), {
+        account: TempoAccount_.fromSecp256k1(Tempo.accounts[index]!.privateKey),
         timeout: 60_000,
       }),
     ),
   )
   // userAccount prefers alphaUsd (a faucet-funded genesis token) as its fee token.
-  await waitForTransactionReceipt(caller, {
-    hash: await Actions.fee.setUserToken(
-      Tempo.getClient({ chain: Tempo.chain }),
-      {
-        account: userAccount,
-        token: Tempo.addresses.alphaUsd,
-      },
-    ),
+  await CoreActions_.transaction.waitForReceipt(caller, {
+    hash: await Actions.fee.setUserToken(Tempo.getClient({}), {
+      account: userAccount,
+      token: Tempo.alphaUsd,
+    }),
   })
 })
 
 describe.skipIf(nodeEnv !== 'localnet')('default', () => {
-  let client: typeof caller
+  let client: CoreClient_.Client<typeof chain_>
   let server: Server
 
   beforeAll(async () => {
     const relay = Relay.create({
       client: Tempo.getClient({
-        chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
       plugins: [Relay.feePayer()],
@@ -118,8 +114,7 @@ describe.skipIf(nodeEnv !== 'localnet')('default', () => {
 
     server = await createHttpServer(createRequestListener(relay.fetch))
     client = Tempo.getClient({
-      chain: Tempo.chain,
-      transport: Tempo.http(server.url),
+      transport: tempoHttp_(server.url),
     })
   })
 
@@ -128,11 +123,11 @@ describe.skipIf(nodeEnv !== 'localnet')('default', () => {
   })
 
   test('default: returns filled transaction with capabilities', async () => {
-    const { transaction } = await fillTransaction(client, {
+    const { transaction } = await CoreActions_.transaction.fill(client, {
       account: userAccount.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
@@ -145,7 +140,7 @@ describe.skipIf(nodeEnv !== 'localnet')('default', () => {
 
   test('behavior: proxies other methods to RPC node', async () => {
     const chainId = await client.request({ method: 'eth_chainId' })
-    expect(Number(chainId)).toMatchInlineSnapshot(`${Tempo.chain.id}`)
+    expect(Number(chainId)).toMatchInlineSnapshot(`${chain_.id}`)
   })
 
   test('behavior: surfaces upstream RPC errors as JSON-RPC errors', async () => {
@@ -154,7 +149,7 @@ describe.skipIf(nodeEnv !== 'localnet')('default', () => {
     // forward the revert as a structured JSON-RPC error response (HTTP 200
     // with `error.code`/`error.data`), not a 500.
     const call = Actions.token.grantRoles.call(caller, {
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
       role: 'issuer',
       to: recipient.address,
     })
@@ -230,20 +225,19 @@ describe.skipIf(nodeEnv !== 'localnet')('default', () => {
     expect(body).toHaveLength(2)
     expect(body[0]!.id).toBe(1)
     expect(body[1]!.id).toBe(2)
-    expect(Number(body[0]!.result)).toBe(Tempo.chain.id)
-    expect(Number(body[1]!.result)).toBe(Tempo.chain.id)
+    expect(Number(body[0]!.result)).toBe(chain_.id)
+    expect(Number(body[1]!.result)).toBe(chain_.id)
   })
 })
 
 describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
   let server: Server
-  let client: typeof caller
+  let client: CoreClient_.Client<typeof chain_>
   let requests: Relay.handleRequest.Request[] = []
 
   beforeAll(async () => {
     const relay = Relay.create({
       client: Tempo.getClient({
-        chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
       plugins: [
@@ -264,8 +258,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
 
     server = await createHttpServer(createRequestListener(relay.fetch))
     client = Tempo.getClient({
-      chain: Tempo.chain,
-      transport: Tempo.http(server.url),
+      transport: tempoHttp_(server.url),
     })
   })
 
@@ -278,11 +271,11 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
   })
 
   test('default: returns sponsored tx with feePayerSignature', async () => {
-    const { transaction } = await fillTransaction(client, {
+    const { transaction } = await CoreActions_.transaction.fill(client, {
       account: userAccount.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
@@ -298,17 +291,19 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
   })
 
   test('behavior: returns sponsor capabilities', async () => {
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       account: userAccount.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
       ],
     })
-    const meta = result.capabilities
+    const meta = result.capabilities as
+      | TempoCapabilities_.FillTransactionCapabilities
+      | undefined
 
     expect(meta?.sponsored).toBe(true)
     expect(meta?.sponsor).toMatchInlineSnapshot(`
@@ -321,31 +316,38 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
   })
 
   test('behavior: sponsored tx can be signed and broadcast', async () => {
-    const { transaction } = await fillTransaction(client, {
+    const { transaction } = await CoreActions_.transaction.fill(client, {
       account: userAccount.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
       ],
     })
     const signed = await userAccount.signTransaction(transaction as never)
-    const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
-      method: 'eth_sendRawTransactionSync' as never,
+    const receipt = (await Tempo.getClient({}).request({
+      method: 'eth_sendRawTransactionSync',
       params: [signed],
     })) as { feePayer?: string | undefined }
 
-    expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+    expect((receipt as TempoReceipt_).feePayer).toBe(
+      feePayerAccount.address.toLowerCase(),
+    )
   })
 
   test('behavior: missing from remains an RPC error when errors capability is enabled', async () => {
+    const anonymous = CoreClient_.create({
+      chain: chain_,
+      transport: tempoHttp_(server.url),
+    })
+
     await expect(
-      fillTransaction(client, {
+      CoreActions_.transaction.fill(anonymous, {
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -353,13 +355,13 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
         capabilities: { errors: true },
       }),
     ).rejects.toMatchObject({
-      cause: { code: -32602, details: 'unknown account' },
+      cause: { code: -32602, message: 'unknown account' },
     })
   })
 })
 
-describe.runIf(configurableAccounts)('accounts', () => {
-  let client: typeof caller
+describe.runIf(Tempo.configurableAccounts)('accounts', () => {
+  let client: CoreClient_.Client<typeof chain_>
   let server: Server
   const store = Store.memory()
 
@@ -368,17 +370,16 @@ describe.runIf(configurableAccounts)('accounts', () => {
       resolveTokens: () => localnetTokens,
 
       client: Tempo.getClient({
-        chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
       plugins: [Relay.accounts({ store }), Relay.feePayer(), Relay.feeToken()],
     })
 
     server = await createHttpServer(createRequestListener(relay.fetch))
-    client = createClient({
-      chain: Tempo.chain,
+    client = CoreClient_.create({
+      chain: chain_,
       pollingInterval: 100,
-      transport: withRelay(Tempo.http(), Tempo.http(server.url)),
+      transport: withRelay(tempoHttp_(Tempo.rpcUrl), tempoHttp_(server.url)),
     })
   })
 
@@ -387,8 +388,8 @@ describe.runIf(configurableAccounts)('accounts', () => {
   })
 
   test('example: initial configuration', async () => {
-    const owner_1 = Tempo.accounts[1]!
-    const owner_2 = Tempo.accounts[2]!
+    const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
+    const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
     const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
@@ -400,11 +401,11 @@ describe.runIf(configurableAccounts)('accounts', () => {
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     const balance = await Actions.token.getBalance(client, {
       account: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
 
     const { receipt: pending } = await Actions.token.transferSync(client, {
@@ -412,13 +413,13 @@ describe.runIf(configurableAccounts)('accounts', () => {
       amount: 1n,
       owner: owner_1,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     expect({
-      signatureCount: pending.operation?.signatureCount,
+      signatureCount: (pending as TempoReceipt_).operation?.signatureCount,
       status: pending.status,
-      threshold: pending.operation?.threshold,
-      weight: pending.operation?.weight,
+      threshold: (pending as TempoReceipt_).operation?.threshold,
+      weight: (pending as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "signatureCount": 1,
@@ -434,13 +435,13 @@ describe.runIf(configurableAccounts)('accounts', () => {
       hash: pending.transactionHash,
       owner: owner_2,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     } as never)
     expect({
-      signatureCount: receipt.operation?.signatureCount,
+      signatureCount: (receipt as TempoReceipt_).operation?.signatureCount,
       status: receipt.status,
-      threshold: receipt.operation?.threshold,
-      weight: receipt.operation?.weight,
+      threshold: (receipt as TempoReceipt_).operation?.threshold,
+      weight: (receipt as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "signatureCount": 2,
@@ -453,12 +454,12 @@ describe.runIf(configurableAccounts)('accounts', () => {
       (
         await Actions.token.getBalance(client, {
           account: recipient.address,
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
         })
       ).amount - balance.amount,
     ).toMatchInlineSnapshot(`1n`)
 
-    const transaction = await getTransaction(client, {
+    const transaction = await CoreActions_.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     if (transaction.signature?.type !== 'configurable')
@@ -479,15 +480,17 @@ describe.runIf(configurableAccounts)('accounts', () => {
   })
 
   test('rejects configurable accounts as owners', () => {
-    const child = Account.fromConfig({ owners: [Tempo.accounts[3]!] })
+    const child = Account.fromConfig({
+      owners: [TempoAccount_.fromSecp256k1(Tempo.accounts[3]!.privateKey)],
+    })
     expect(() => Account.fromConfig({ owners: [child as never] })).toThrow()
   })
 
   test('example: weighted quorum', async () => {
     const owners = [
-      Tempo.accounts[4]!,
-      Tempo.accounts[6]!,
-      Tempo.accounts[8]!,
+      TempoAccount_.fromSecp256k1(Tempo.accounts[4]!.privateKey),
+      TempoAccount_.fromSecp256k1(Tempo.accounts[6]!.privateKey),
+      TempoAccount_.fromSecp256k1(Tempo.accounts[8]!.privateKey),
     ].sort((a, b) => a.address.localeCompare(b.address))
     const heavy = owners[0]!
     const light_1 = owners[1]!
@@ -507,7 +510,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
 
     const { receipt: alicePending } = await Actions.token.transferSync(client, {
@@ -515,11 +518,11 @@ describe.runIf(configurableAccounts)('accounts', () => {
       amount: 3n,
       owner: heavy,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     expect({
       status: alicePending.status,
-      weight: alicePending.operation?.weight,
+      weight: (alicePending as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "status": "pending",
@@ -532,7 +535,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       hash: alicePending.transactionHash,
       owner: light_1,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     } as never)
     expect(aliceBob.status).toMatchInlineSnapshot(`"success"`)
 
@@ -543,7 +546,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
         amount: 4n,
         owner: heavy,
         to: recipient.address,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
       },
     )
     const { receipt: aliceCarol } = await Actions.token.transferSync(client, {
@@ -552,7 +555,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       hash: secondAlicePending.transactionHash,
       owner: light_2,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     } as never)
     expect(aliceCarol.status).toMatchInlineSnapshot(`"success"`)
 
@@ -561,7 +564,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       amount: 5n,
       owner: light_1,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     const { receipt: bobCarolPending } = await Actions.token.transferSync(
       client,
@@ -571,12 +574,12 @@ describe.runIf(configurableAccounts)('accounts', () => {
         hash: bobPending.transactionHash,
         owner: light_2,
         to: recipient.address,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
       } as never,
     )
     expect({
       status: bobCarolPending.status,
-      weight: bobCarolPending.operation?.weight,
+      weight: (bobCarolPending as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "status": "pending",
@@ -590,11 +593,11 @@ describe.runIf(configurableAccounts)('accounts', () => {
       hash: bobCarolPending.transactionHash,
       owner: heavy,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     } as never)
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
 
-    const transaction = await getTransaction(client, {
+    const transaction = await CoreActions_.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     if (transaction.signature?.type !== 'configurable')
@@ -602,7 +605,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
     expect({
       signatureCount: transaction.signature.signatures.length,
       status: receipt.status,
-      weight: receipt.operation?.weight,
+      weight: (receipt as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "signatureCount": 2,
@@ -618,7 +621,6 @@ describe.runIf(configurableAccounts)('accounts', () => {
       resolveTokens: () => localnetTokens,
 
       client: Tempo.getClient({
-        chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
       plugins: [
@@ -634,26 +636,32 @@ describe.runIf(configurableAccounts)('accounts', () => {
     const sponsorServer = await createHttpServer(
       createRequestListener(sponsorRelay.fetch),
     )
-    const sponsorClient = createClient({
-      chain: Tempo.chain,
+    const sponsorClient = CoreClient_.create({
+      chain: chain_,
       pollingInterval: 100,
-      transport: withRelay(Tempo.http(), Tempo.http(sponsorServer.url)),
+      transport: withRelay(
+        tempoHttp_(Tempo.rpcUrl),
+        tempoHttp_(sponsorServer.url),
+      ),
     })
-    const owner_1 = Tempo.accounts[1]!
-    const owner_2 = Tempo.accounts[2]!
+    const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
+    const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
 
     try {
-      const transaction = await prepareTransactionRequest(caller, {
-        account: userAccount.address,
-        calls: [
-          Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
-            to: recipient.address,
-            amount: 1n,
-          }),
-        ],
-        feePayer: true,
-      })
+      const { request: transaction } = await CoreActions_.transaction.prepare(
+        caller,
+        {
+          account: userAccount.address,
+          calls: [
+            Actions.token.transfer.call(caller, {
+              token: Tempo.alphaUsd,
+              to: recipient.address,
+              amount: 1n,
+            }),
+          ],
+          feePayer: true,
+        },
+      )
       const serialized = await userAccount.signTransaction(transaction as never)
       const response = await fetch(sponsorServer.url, {
         body: JSON.stringify({
@@ -679,7 +687,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
         account: feePayerAccount,
         amount: parseUnits('1', 6),
         to: ownerFirst.address,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
       })
 
       const { receipt: ownerFirstPending } = await Actions.token.transferSync(
@@ -690,13 +698,15 @@ describe.runIf(configurableAccounts)('accounts', () => {
           feePayer: true,
           owner: owner_1,
           to: recipient.address,
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
         },
       )
-      if (!ownerFirstPending.operation)
+      const ownerFirstPendingOperation = (ownerFirstPending as TempoReceipt_)
+        .operation
+      if (!ownerFirstPendingOperation)
         throw new Error('Expected an account operation.')
       const ownerFirstTransaction = Transaction.deserialize(
-        ownerFirstPending.operation.transaction,
+        ownerFirstPendingOperation.transaction as Transaction.Serialized,
       )
       expect({
         feePayerSigned:
@@ -718,11 +728,11 @@ describe.runIf(configurableAccounts)('accounts', () => {
           hash: ownerFirstPending.transactionHash,
           owner: owner_2,
           to: recipient.address,
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
         } as never,
       )
       expect({
-        feePayer: ownerFirstReceipt.feePayer,
+        feePayer: (ownerFirstReceipt as TempoReceipt_).feePayer,
         status: ownerFirstReceipt.status,
       }).toMatchInlineSnapshot(`
         {
@@ -741,7 +751,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
         account: feePayerAccount,
         amount: parseUnits('1', 6),
         to: feePayerFirst.address,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
       })
 
       const { receipt: feePayerFirstPending } =
@@ -752,12 +762,15 @@ describe.runIf(configurableAccounts)('accounts', () => {
           maxPriorityFeePerGas: 0n,
           owner: owner_1,
           to: recipient.address,
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
         })
-      if (!feePayerFirstPending.operation)
+      const feePayerFirstPendingOperation = (
+        feePayerFirstPending as TempoReceipt_
+      ).operation
+      if (!feePayerFirstPendingOperation)
         throw new Error('Expected an account operation.')
       const feePayerFirstTransaction = Transaction.deserialize(
-        feePayerFirstPending.operation.transaction,
+        feePayerFirstPendingOperation.transaction as Transaction.Serialized,
       )
       if (!('feePayerSignature' in feePayerFirstTransaction))
         throw new Error('Expected a Tempo transaction.')
@@ -773,11 +786,14 @@ describe.runIf(configurableAccounts)('accounts', () => {
         }
       `)
 
-      const approval = await prepareTransactionRequest(sponsorClient, {
-        account: feePayerFirst,
-        hash: feePayerFirstPending.transactionHash,
-        owner: owner_2,
-      })
+      const { request: approval } = await CoreActions_.transaction.prepare(
+        sponsorClient,
+        {
+          account: feePayerFirst,
+          hash: feePayerFirstPending.transactionHash,
+          owner: owner_2,
+        },
+      )
       expect(approval.maxPriorityFeePerGas).toBe(0n)
       expect(approval.gas).toBe(feePayerFirstTransaction.gas)
       expect(approval).toMatchObject({
@@ -791,10 +807,10 @@ describe.runIf(configurableAccounts)('accounts', () => {
           hash: feePayerFirstPending.transactionHash,
           owner: owner_2,
           to: recipient.address,
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
         } as never)
       expect({
-        feePayer: feePayerFirstReceipt.feePayer,
+        feePayer: (feePayerFirstReceipt as TempoReceipt_).feePayer,
         status: feePayerFirstReceipt.status,
       }).toMatchInlineSnapshot(`
         {
@@ -808,8 +824,8 @@ describe.runIf(configurableAccounts)('accounts', () => {
   })
 
   test('example: initial config and immediate access key use', async () => {
-    const owner_1 = Tempo.accounts[3]!
-    const owner_2 = Tempo.accounts[4]!
+    const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[3]!.privateKey)
+    const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[4]!.privateKey)
     const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
@@ -824,7 +840,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     const pending = await Actions.accessKey.signAuthorization(client, {
       accessKey,
@@ -854,9 +870,9 @@ describe.runIf(configurableAccounts)('accounts', () => {
       amount: 8n,
       keyAuthorization,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
-    const transaction = await getTransaction(client, {
+    const transaction = await CoreActions_.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     expect({
@@ -880,8 +896,8 @@ describe.runIf(configurableAccounts)('accounts', () => {
   })
 
   test('example: initial config and subsequent access key use', async () => {
-    const owner_1 = Tempo.accounts[6]!
-    const owner_2 = Tempo.accounts[8]!
+    const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[6]!.privateKey)
+    const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[8]!.privateKey)
     const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
@@ -896,7 +912,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     const pendingAuthorization = await Actions.accessKey.signAuthorization(
       client,
@@ -917,7 +933,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       keyAuthorization,
       owner: owner_1,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     const { receipt: initialReceipt } = await Actions.token.transferSync(
       client,
@@ -928,10 +944,10 @@ describe.runIf(configurableAccounts)('accounts', () => {
         keyAuthorization,
         owner: owner_2,
         to: recipient.address,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
       } as never,
     )
-    const initialTransaction = await getTransaction(client, {
+    const initialTransaction = await CoreActions_.transaction.get(client, {
       hash: initialReceipt.transactionHash,
     })
     expect({
@@ -951,7 +967,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       account: accessKey,
       amount: 10n,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     expect({
       from: receipt.from,
@@ -965,9 +981,9 @@ describe.runIf(configurableAccounts)('accounts', () => {
   })
 
   test('example: current configuration and configuration rotation', async () => {
-    const owner_1 = Tempo.accounts[1]!
-    const owner_2 = Tempo.accounts[2]!
-    const owner_3 = Tempo.accounts[3]!
+    const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
+    const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
+    const owner_3 = TempoAccount_.fromSecp256k1(Tempo.accounts[3]!.privateKey)
     const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
@@ -983,7 +999,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     const { receipt: pending } = await Actions.accounts.updateConfigSync(
       client,
@@ -995,7 +1011,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
     )
     expect({
       status: pending.status,
-      version: pending.operation?.config.version,
+      version: (pending as TempoReceipt_).operation?.config.version,
     }).toMatchInlineSnapshot(`
       {
         "status": "pending",
@@ -1030,9 +1046,9 @@ describe.runIf(configurableAccounts)('accounts', () => {
       amount: 11n,
       owner: owner_3,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
-    const transaction = await getTransaction(client, {
+    const transaction = await CoreActions_.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     expect({
@@ -1052,8 +1068,8 @@ describe.runIf(configurableAccounts)('accounts', () => {
   })
 
   test('behavior: routes pathless approvals to their operation chain', async () => {
-    const owner_1 = Tempo.accounts[1]!
-    const owner_2 = Tempo.accounts[2]!
+    const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
+    const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
     const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
@@ -1065,24 +1081,23 @@ describe.runIf(configurableAccounts)('accounts', () => {
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
     const { receipt: pending } = await Actions.token.transferSync(client, {
       account,
       amount: 12n,
       owner: owner_1,
       to: recipient.address,
-      token: Tempo.addresses.alphaUsd,
+      token: Tempo.alphaUsd,
     })
 
     const routedRelay = Relay.create({
       resolveTokens: () => localnetTokens,
 
       getClient({ chainId }) {
-        if (chainId !== Tempo.chain.id)
+        if (chainId !== chain_.id)
           throw new Error('Expected the account operation chain.')
         return Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         })
       },
@@ -1093,10 +1108,13 @@ describe.runIf(configurableAccounts)('accounts', () => {
       createRequestListener(routedRelay.fetch),
     )
     try {
-      const routedClient = createClient({
-        chain: Tempo.chain,
+      const routedClient = CoreClient_.create({
+        chain: chain_,
         pollingInterval: 100,
-        transport: withRelay(Tempo.http(), Tempo.http(routedServer.url)),
+        transport: withRelay(
+          tempoHttp_(Tempo.rpcUrl),
+          tempoHttp_(routedServer.url),
+        ),
       })
       const { receipt } = await Actions.token.transferSync(routedClient, {
         account,
@@ -1104,7 +1122,7 @@ describe.runIf(configurableAccounts)('accounts', () => {
         hash: pending.transactionHash,
         owner: owner_2,
         to: recipient.address,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
       } as never)
 
       expect(receipt.status).toMatchInlineSnapshot(`"success"`)
@@ -1118,7 +1136,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: with feePayer.feeToken',
   () => {
     let server: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
 
     const sponsorFeeToken =
       '0x20c0000000000000000000000000000000000000' as const // pathUSD
@@ -1128,7 +1146,6 @@ describe.skipIf(nodeEnv !== 'localnet')(
         resolveTokens: () => localnetTokens,
 
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -1142,8 +1159,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
       server = await createHttpServer(createRequestListener(relay.fetch))
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(server.url),
+        transport: tempoHttp_(server.url),
       })
     })
 
@@ -1152,11 +1168,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('default: sponsor.feeToken is used when request omits feeToken', async () => {
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -1167,36 +1183,36 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: sponsor.feeToken overrides request feeToken on sponsored fills', async () => {
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
         ],
-        feeToken: Tempo.addresses.alphaUsd as Address,
+        feeToken: Tempo.alphaUsd as Address,
       })
       expect(transaction.feeToken?.toLowerCase()).toBe(sponsorFeeToken)
       expect(transaction.feePayerSignature).toBeDefined()
     })
 
     test('behavior: request feeToken wins when sponsorship is opted out via feePayer:false', async () => {
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
         ],
         feePayer: false as never,
-        feeToken: Tempo.addresses.alphaUsd as Address,
+        feeToken: Tempo.alphaUsd as Address,
       })
       expect(transaction.feeToken?.toLowerCase()).toBe(
-        Tempo.addresses.alphaUsd.toLowerCase(),
+        Tempo.alphaUsd.toLowerCase(),
       )
       expect(transaction.feePayerSignature).toBeUndefined()
     })
@@ -1205,36 +1221,38 @@ describe.skipIf(nodeEnv !== 'localnet')(
       // Fill via relay (where override kicks in), then sign + broadcast manually.
       // viem's `sendTransactionSync` with a hydrated account does local prep and
       // would skip the relay's `eth_fillTransaction`, bypassing the override.
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
         ],
-        feeToken: Tempo.addresses.alphaUsd as Address,
+        feeToken: Tempo.alphaUsd as Address,
       })
       expect(transaction.feeToken?.toLowerCase()).toBe(sponsorFeeToken)
 
       const signed = await userAccount.signTransaction(transaction as never)
-      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
-        method: 'eth_sendRawTransactionSync' as never,
+      const receipt = (await Tempo.getClient({}).request({
+        method: 'eth_sendRawTransactionSync',
         params: [signed],
       })) as { feePayer?: string | undefined; feeToken?: string | undefined }
 
-      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+      expect((receipt as TempoReceipt_).feePayer).toBe(
+        feePayerAccount.address.toLowerCase(),
+      )
       expect(receipt.feeToken?.toLowerCase()).toBe(sponsorFeeToken)
     })
 
     test('behavior: raw sponsor signing restores sponsor.feeToken when envelope omits feeToken', async () => {
-      const rpc = Tempo.getClient({ chain: Tempo.chain, account: userAccount })
-      const { transaction } = await fillTransaction(rpc, {
+      const rpc = Tempo.getClient({ account: userAccount })
+      const { transaction } = await CoreActions_.transaction.fill(rpc, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -1242,12 +1260,15 @@ describe.skipIf(nodeEnv !== 'localnet')(
         feePayer: true as never,
       })
       // The node's fill carries a placeholder sender signature and no validity bound.
-      const partial = await userAccount.signTransaction({
-        ...transaction,
-        feePayer: true,
-        signature: undefined,
-        validBefore: Math.floor(Date.now() / 1000) + 600,
-      } as never)
+      const partial = await userAccount.signTransaction(
+        chain_.transaction.toEnvelope({
+          ...transaction,
+          feePayer: true,
+          signature: undefined,
+          validBefore: Math.floor(Date.now() / 1000) + 600,
+        } as never) as never,
+        { chain: chain_ } as never,
+      )
       expect([null, undefined]).toContain(
         Transaction.deserialize(partial as `0x76${string}`).feeToken,
       )
@@ -1276,7 +1297,6 @@ describe.skipIf(nodeEnv !== 'localnet')(
         resolveTokens: () => localnetTokens,
 
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -1294,12 +1314,12 @@ describe.skipIf(nodeEnv !== 'localnet')(
       const customServer = await createHttpServer(
         createRequestListener(customRelay.fetch),
       )
-      const rpc = Tempo.getClient({ chain: Tempo.chain, account: userAccount })
-      const { transaction } = await fillTransaction(rpc, {
+      const rpc = Tempo.getClient({ account: userAccount })
+      const { transaction } = await CoreActions_.transaction.fill(rpc, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -1307,12 +1327,15 @@ describe.skipIf(nodeEnv !== 'localnet')(
         feePayer: true as never,
       })
       // The node's fill carries a placeholder sender signature and no validity bound.
-      const partial = await userAccount.signTransaction({
-        ...transaction,
-        feePayer: true,
-        signature: undefined,
-        validBefore: Math.floor(Date.now() / 1000) + 600,
-      } as never)
+      const partial = await userAccount.signTransaction(
+        chain_.transaction.toEnvelope({
+          ...transaction,
+          feePayer: true,
+          signature: undefined,
+          validBefore: Math.floor(Date.now() / 1000) + 600,
+        } as never) as never,
+        { chain: chain_ } as never,
+      )
 
       try {
         const response = await fetch(customServer.url, {
@@ -1344,13 +1367,12 @@ describe.skipIf(nodeEnv !== 'localnet')(
   () => {
     let appServer: Server
     let walletServer: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
 
     beforeAll(async () => {
       // App relay: has a fee payer account and signs transactions.
       const appRelay = Relay.create({
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -1367,7 +1389,6 @@ describe.skipIf(nodeEnv !== 'localnet')(
       // Wallet relay: no fee payer configured — proxies to app relay.
       const walletRelay = Relay.create({
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -1383,8 +1404,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       )
 
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(walletServer.url),
+        transport: tempoHttp_(walletServer.url),
       })
     })
 
@@ -1394,11 +1414,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('default: proxies fill to app relay and returns sponsored tx', async () => {
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -1423,11 +1443,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
       try {
         await expect(
-          fillTransaction(client, {
+          CoreActions_.transaction.fill(client, {
             account: userAccount.address,
             calls: [
               Actions.token.transfer.call(caller, {
-                token: Tempo.addresses.alphaUsd,
+                token: Tempo.alphaUsd,
                 to: recipient.address,
                 amount: 1n,
               }),
@@ -1443,11 +1463,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: relays sponsor metadata from app relay', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -1455,8 +1475,20 @@ describe.skipIf(nodeEnv !== 'localnet')(
         feePayer: appServer.url as never,
       })
 
-      expect(result.capabilities?.sponsored).toBe(true)
-      expect(result.capabilities?.sponsor).toMatchInlineSnapshot(`
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(true)
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsor,
+      ).toMatchInlineSnapshot(`
       {
         "address": "${feePayerAccount.address}",
         "name": "App Sponsor",
@@ -1466,11 +1498,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: sponsored tx from app relay can be signed and broadcast', async () => {
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -1478,12 +1510,14 @@ describe.skipIf(nodeEnv !== 'localnet')(
         feePayer: appServer.url as never,
       })
       const signed = await userAccount.signTransaction(transaction as never)
-      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
-        method: 'eth_sendRawTransactionSync' as never,
+      const receipt = (await Tempo.getClient({}).request({
+        method: 'eth_sendRawTransactionSync',
         params: [signed],
       })) as { feePayer?: string | undefined }
 
-      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+      expect((receipt as TempoReceipt_).feePayer).toBe(
+        feePayerAccount.address.toLowerCase(),
+      )
     })
   },
 )
@@ -1493,14 +1527,13 @@ describe.skipIf(nodeEnv !== 'localnet')(
   () => {
     let appServer: Server
     let walletServer: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
 
     beforeAll(async () => {
       // App relay is the authoritative sponsor — it has its own fee payer
       // account and signs sponsored transactions.
       const appRelay = Relay.create({
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -1521,7 +1554,6 @@ describe.skipIf(nodeEnv !== 'localnet')(
         resolveTokens: () => [],
 
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -1542,8 +1574,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       )
 
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(walletServer.url),
+        transport: tempoHttp_(walletServer.url),
       })
     })
 
@@ -1553,11 +1584,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: external feePayer URL is sponsored even when wallet validate rejects', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -1568,8 +1599,20 @@ describe.skipIf(nodeEnv !== 'localnet')(
       expect(result.transaction.feePayerSignature).toBeDefined()
       expect(result.transaction.maxFeePerGas).toBeDefined()
       expect(result.transaction.maxFeePerGas).not.toBe(0n)
-      expect(result.capabilities?.sponsored).toBe(true)
-      expect(result.capabilities?.sponsor?.name).toBe('App Sponsor')
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(true)
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsor?.name,
+      ).toBe('App Sponsor')
     })
   },
 )
@@ -1578,12 +1621,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: chainId path parameter',
   () => {
     let server: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
 
     beforeAll(async () => {
       const relay = Relay.create<number>({
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [Relay.feePayer()],
@@ -1597,8 +1639,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
         ),
       )
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(`${server.url}/${Tempo.chain.id}`),
+        transport: tempoHttp_(`${server.url}/${chain_.id}`),
       })
     })
 
@@ -1608,15 +1649,15 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
     test('default: proxies RPC methods via /:chainId path', async () => {
       const chainId = await client.request({ method: 'eth_chainId' })
-      expect(Number(chainId)).toMatchInlineSnapshot(`${Tempo.chain.id}`)
+      expect(Number(chainId)).toMatchInlineSnapshot(`${chain_.id}`)
     })
 
     test('behavior: fills transaction via /:chainId path', async () => {
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -1628,7 +1669,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: handles batch requests via /:chainId path', async () => {
-      const response = await fetch(`${server.url}/${Tempo.chain.id}`, {
+      const response = await fetch(`${server.url}/${chain_.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([
@@ -1640,22 +1681,21 @@ describe.skipIf(nodeEnv !== 'localnet')(
       expect(response.status).toBe(200)
       const body = (await response.json()) as { id: number; result: string }[]
       expect(body).toHaveLength(2)
-      expect(Number(body[0]!.result)).toBe(Tempo.chain.id)
-      expect(Number(body[1]!.result)).toBe(Tempo.chain.id)
+      expect(Number(body[0]!.result)).toBe(chain_.id)
+      expect(Number(body[1]!.result)).toBe(chain_.id)
     })
   },
 )
 
 describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   let server: Server
-  let client: typeof caller
+  let client: CoreClient_.Client<typeof chain_>
 
   beforeAll(async () => {
     const relay = Relay.create({
       resolveTokens: () => [],
 
       client: Tempo.getClient({
-        chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
       plugins: [Relay.simulate(), Relay.feePayer(), Relay.feeToken()],
@@ -1663,8 +1703,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
 
     server = await createHttpServer(createRequestListener(relay.fetch))
     client = Tempo.getClient({
-      chain: Tempo.chain,
-      transport: Tempo.http(server.url),
+      transport: tempoHttp_(server.url),
     })
   })
 
@@ -1673,17 +1712,19 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('default: returns fee and sponsored info', async () => {
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       account: userAccount.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: 1n,
         }),
       ],
     })
-    const meta = result.capabilities
+    const meta = result.capabilities as
+      | TempoCapabilities_.FillTransactionCapabilities
+      | undefined
 
     expect(meta?.fee).toBeDefined()
     expect(meta?.fee?.decimals).toBe(6)
@@ -1692,20 +1733,17 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('behavior: token transfer produces balance diffs', async () => {
-    const sender = Tempo.accounts[6]!
-    const recipient = Tempo.accounts[7]!
-    const token = Tempo.addresses.alphaUsd
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[6]!.privateKey)
+    const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
+    const token = Tempo.alphaUsd
 
     // Sender is faucet-funded with alphaUsd (enough for transfer + fee).
     // Set fee token so relay doesn't need pathUSD balance.
-    await waitForTransactionReceipt(caller, {
-      hash: await Actions.fee.setUserToken(
-        Tempo.getClient({ chain: Tempo.chain }),
-        {
-          account: sender,
-          token,
-        },
-      ),
+    await CoreActions_.transaction.waitForReceipt(caller, {
+      hash: await Actions.fee.setUserToken(Tempo.getClient({}), {
+        account: sender,
+        token,
+      }),
     })
 
     const { data, to: callTo } = Actions.token.transfer.call(caller, {
@@ -1713,14 +1751,16 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
       to: recipient.address,
       amount: 100n,
     })
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       capabilities: { balanceDiffs: true },
       account: sender.address,
       to: callTo,
       data,
     })
 
-    const meta = result.capabilities
+    const meta = result.capabilities as
+      | TempoCapabilities_.FillTransactionCapabilities
+      | undefined
     const senderDiffs = findDiffs(meta?.balanceDiffs, sender.address)!
     const tokenDiff = senderDiffs.find(
       (d) => d.address.toLowerCase() === token.toLowerCase(),
@@ -1738,7 +1778,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
       userTag: '0x000000000001',
     })
 
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       account: userAccount.address,
       to: virtualAddress,
     })
@@ -1756,14 +1796,14 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
       userTag: '0x000000000002',
     })
 
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       account: userAccount.address,
       calls: [
         Actions.token.transfer.call(caller, {
           amount: 1n,
           memo: '0x01',
           to: virtualAddress,
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
         }),
       ],
       capabilities: { errors: true },
@@ -1777,13 +1817,12 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('behavior: approve + dex swap + transfer produces balance diffs', async () => {
-    const sender = Tempo.accounts[8]!
-    const recipient = Tempo.accounts[7]!
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[8]!.privateKey)
+    const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
 
     // Set up token pair + DEX liquidity.
     const rpc = Tempo.getClient({
-      chain: Tempo.chain,
-      account: Tempo.accounts[0]!,
+      account: TempoAccount_.fromSecp256k1(Tempo.accounts[0]!.privateKey),
     })
     const { token: quote } = await Actions.token.createSync(rpc, {
       name: 'Test Quote',
@@ -1796,7 +1835,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
       currency: 'USD',
       quoteToken: quote,
     })
-    await sendTransactionSync(rpc, {
+    await CoreActions_.transaction.sendSync(rpc, {
       calls: [
         Actions.token.grantRoles.call(caller, {
           token: base,
@@ -1844,17 +1883,17 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
       amount: parseUnits('1000', 6),
       to: sender.address,
     })
-    await waitForTransactionReceipt(caller, {
+    await CoreActions_.transaction.waitForReceipt(caller, {
       hash: await Actions.fee.setUserToken(
-        Tempo.getClient({ chain: Tempo.chain, account: sender }),
+        Tempo.getClient({ account: sender }),
         {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
         },
       ),
     })
 
     const buyAmount = parseUnits('10', 6)
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       capabilities: { balanceDiffs: true },
       account: sender.address,
       calls: [
@@ -1876,7 +1915,9 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
         }),
       ],
     })
-    const meta = result.capabilities
+    const meta = result.capabilities as
+      | TempoCapabilities_.FillTransactionCapabilities
+      | undefined
 
     const diffs = findDiffs(meta?.balanceDiffs, sender.address)!
     expect(diffs).toHaveLength(3)
@@ -1913,12 +1954,12 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('behavior: transfer to a spender retains approval exposure', async () => {
-    const sender = Tempo.accounts[6]!
-    const recipient = Tempo.accounts[7]!
-    const token = Tempo.addresses.alphaUsd
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[6]!.privateKey)
+    const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
+    const token = Tempo.alphaUsd
 
     // Transferring to the spender does not consume its allowance.
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       capabilities: { balanceDiffs: true },
       account: sender.address,
       calls: [
@@ -1934,7 +1975,9 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
         }),
       ],
     })
-    const meta = result.capabilities
+    const meta = result.capabilities as
+      | TempoCapabilities_.FillTransactionCapabilities
+      | undefined
 
     const diffs = findDiffs(meta?.balanceDiffs, sender.address)!
     const tokenDiff = diffs.find(
@@ -1946,12 +1989,12 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('behavior: uncovered approval shows as outgoing', async () => {
-    const sender = Tempo.accounts[6]!
-    const spender = Tempo.accounts[7]!
-    const token = Tempo.addresses.alphaUsd
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[6]!.privateKey)
+    const spender = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
+    const token = Tempo.alphaUsd
 
     // The full approval remains available after the direct transfer.
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       capabilities: { balanceDiffs: true },
       account: sender.address,
       calls: [
@@ -1967,7 +2010,9 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
         }),
       ],
     })
-    const meta = result.capabilities
+    const meta = result.capabilities as
+      | TempoCapabilities_.FillTransactionCapabilities
+      | undefined
 
     const diffs = findDiffs(meta?.balanceDiffs, sender.address)!
     const tokenDiff = diffs.find(
@@ -1983,23 +2028,19 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: conditional sponsoring',
   () => {
     let server: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
 
     beforeAll(async () => {
       // accounts[3] is faucet-funded with alphaUsd so transfers succeed.
-      await waitForTransactionReceipt(caller, {
-        hash: await Actions.fee.setUserToken(
-          Tempo.getClient({ chain: Tempo.chain }),
-          {
-            account: Tempo.accounts[3]!,
-            token: Tempo.addresses.alphaUsd,
-          },
-        ),
+      await CoreActions_.transaction.waitForReceipt(caller, {
+        hash: await Actions.fee.setUserToken(Tempo.getClient({}), {
+          account: TempoAccount_.fromSecp256k1(Tempo.accounts[3]!.privateKey),
+          token: Tempo.alphaUsd,
+        }),
       })
 
       const relay = Relay.create({
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -2009,15 +2050,16 @@ describe.skipIf(nodeEnv !== 'localnet')(
             url: 'https://test.com',
             validate: (request) =>
               request.from?.toLowerCase() !==
-              Tempo.accounts[3]!.address.toLowerCase(),
+              TempoAccount_.fromSecp256k1(
+                Tempo.accounts[3]!.privateKey,
+              ).address.toLowerCase(),
           }),
         ],
       })
 
       server = await createHttpServer(createRequestListener(relay.fetch))
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(server.url),
+        transport: tempoHttp_(server.url),
       })
     })
 
@@ -2026,11 +2068,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: approved tx is sponsored and can be broadcast', async () => {
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2039,21 +2081,23 @@ describe.skipIf(nodeEnv !== 'localnet')(
       expect(transaction.feePayerSignature).toBeDefined()
 
       const signed = await userAccount.signTransaction(transaction as never)
-      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
-        method: 'eth_sendRawTransactionSync' as never,
+      const receipt = (await Tempo.getClient({}).request({
+        method: 'eth_sendRawTransactionSync',
         params: [signed],
       })) as { feePayer?: string | undefined }
 
-      expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+      expect((receipt as TempoReceipt_).feePayer).toBe(
+        feePayerAccount.address.toLowerCase(),
+      )
     })
 
     test('behavior: rejected tx is not sponsored and can be self-paid', async () => {
-      const sender = Tempo.accounts[3]!
-      const result = await fillTransaction(client, {
+      const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[3]!.privateKey)
+      const result = await CoreActions_.transaction.fill(client, {
         account: sender.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2061,7 +2105,9 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
       expect(result.transaction.feePayerSignature).toBeUndefined()
 
-      const meta = result.capabilities
+      const meta = result.capabilities as
+        | TempoCapabilities_.FillTransactionCapabilities
+        | undefined
       expect(meta?.sponsored).toBe(false)
       expect(meta?.sponsor).toBeUndefined()
 
@@ -2075,13 +2121,15 @@ describe.skipIf(nodeEnv !== 'localnet')(
       const signed = TxEnvelopeTempo.serialize(envelope, {
         signature: SignatureEnvelope.from(signature),
       })
-      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
-        method: 'eth_sendRawTransactionSync' as never,
+      const receipt = (await Tempo.getClient({}).request({
+        method: 'eth_sendRawTransactionSync',
         params: [signed],
       })) as { feePayer?: string | undefined }
 
       // Sender pays their own fee — no external fee payer.
-      expect(receipt.feePayer).not.toBe(feePayerAccount.address.toLowerCase())
+      expect((receipt as TempoReceipt_).feePayer).not.toBe(
+        feePayerAccount.address.toLowerCase(),
+      )
     })
   },
 )
@@ -2090,7 +2138,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: path A — guaranteed sponsorship (no validate)',
   () => {
     let server: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
     let requests: Relay.handleRequest.Request[] = []
 
     beforeAll(async () => {
@@ -2098,7 +2146,6 @@ describe.skipIf(nodeEnv !== 'localnet')(
         resolveTokens: () => localnetTokens,
 
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -2120,8 +2167,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
       server = await createHttpServer(createRequestListener(relay.fetch))
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(server.url),
+        transport: tempoHttp_(server.url),
       })
     })
 
@@ -2134,11 +2180,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: skips fee token resolution and sponsors', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2146,8 +2192,20 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
 
       expect(result.transaction.feePayerSignature).toBeDefined()
-      expect(result.capabilities?.sponsored).toBe(true)
-      expect(result.capabilities?.sponsor?.name).toBe('Path A Sponsor')
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(true)
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsor?.name,
+      ).toBe('Path A Sponsor')
       // Only one fill request — no fee token resolution round-trip.
       expect(
         requests.filter((r) => r.method === 'eth_fillTransaction'),
@@ -2155,29 +2213,53 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: returns fee even when no feeToken in request', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
         ],
       })
 
-      expect(result.capabilities?.fee).toBeDefined()
-      expect(result.capabilities?.fee?.decimals).toBeTypeOf('number')
-      expect(result.capabilities?.fee?.symbol).toBeTypeOf('string')
-      expect(result.capabilities?.fee?.formatted).toBeTypeOf('string')
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.fee,
+      ).toBeDefined()
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.fee?.decimals,
+      ).toBeTypeOf('number')
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.fee?.symbol,
+      ).toBeTypeOf('string')
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.fee?.formatted,
+      ).toBeTypeOf('string')
     })
 
     test('behavior: simulate and sign run concurrently with fill', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2186,18 +2268,24 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
       // All capabilities are present despite parallel execution.
       expect(result.transaction.feePayerSignature).toBeDefined()
-      expect(result.capabilities?.sponsored).toBe(true)
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(true)
     })
 
     test('behavior: defaults feeToken to chain default when caller omits it', async () => {
       // Without the default, the broadcast envelope has no feeToken and
       // the chain falls back to the sender's account token, which often
       // lacks FeeAMM liquidity.
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2210,20 +2298,20 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: preserves caller-supplied feeToken', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
         ],
-        feeToken: Tempo.addresses.alphaUsd as Address,
+        feeToken: Tempo.alphaUsd as Address,
       })
 
       expect(result.transaction.feeToken?.toLowerCase()).toBe(
-        Tempo.addresses.alphaUsd.toLowerCase(),
+        Tempo.alphaUsd.toLowerCase(),
       )
     })
   },
@@ -2233,29 +2321,27 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: path B — conditional sponsorship (validate)',
   () => {
     let server: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
     let requests: Relay.handleRequest.Request[] = []
 
     // Reject accounts[3], approve everyone else.
-    const rejectedSender = Tempo.accounts[3]!
+    const rejectedSender = TempoAccount_.fromSecp256k1(
+      Tempo.accounts[3]!.privateKey,
+    )
 
     beforeAll(async () => {
       // rejectedSender is faucet-funded with alphaUsd so it can self-pay.
-      await waitForTransactionReceipt(caller, {
-        hash: await Actions.fee.setUserToken(
-          Tempo.getClient({ chain: Tempo.chain }),
-          {
-            account: rejectedSender,
-            token: Tempo.addresses.alphaUsd,
-          },
-        ),
+      await CoreActions_.transaction.waitForReceipt(caller, {
+        hash: await Actions.fee.setUserToken(Tempo.getClient({}), {
+          account: rejectedSender,
+          token: Tempo.alphaUsd,
+        }),
       })
 
       const relay = Relay.create({
         resolveTokens: () => [],
 
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -2280,8 +2366,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
       server = await createHttpServer(createRequestListener(relay.fetch))
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(server.url),
+        transport: tempoHttp_(server.url),
       })
     })
 
@@ -2294,11 +2379,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: approved sender gets sponsorship with parallel fills', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2306,16 +2391,28 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
 
       expect(result.transaction.feePayerSignature).toBeDefined()
-      expect(result.capabilities?.sponsored).toBe(true)
-      expect(result.capabilities?.sponsor?.name).toBe('Path B Sponsor')
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(true)
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsor?.name,
+      ).toBe('Path B Sponsor')
     })
 
     test('behavior: rejected sender gets unsponsored tx from parallel fill', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: rejectedSender.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2323,16 +2420,28 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
 
       expect(result.transaction.feePayerSignature).toBeUndefined()
-      expect(result.capabilities?.sponsored).toBe(false)
-      expect(result.capabilities?.sponsor).toBeUndefined()
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(false)
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsor,
+      ).toBeUndefined()
     })
 
     test('behavior: rejected tx can be signed and broadcast by sender', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: rejectedSender.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2349,12 +2458,14 @@ describe.skipIf(nodeEnv !== 'localnet')(
       const signed = TxEnvelopeTempo.serialize(envelope, {
         signature: SignatureEnvelope.from(signature),
       })
-      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
-        method: 'eth_sendRawTransactionSync' as never,
+      const receipt = (await Tempo.getClient({}).request({
+        method: 'eth_sendRawTransactionSync',
         params: [signed],
       })) as { feePayer?: string | undefined }
 
-      expect(receipt.feePayer).not.toBe(feePayerAccount.address.toLowerCase())
+      expect((receipt as TempoReceipt_).feePayer).not.toBe(
+        feePayerAccount.address.toLowerCase(),
+      )
     })
   },
 )
@@ -2363,7 +2474,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: path C — no sponsorship',
   () => {
     let server: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
     let requests: Relay.handleRequest.Request[] = []
 
     beforeAll(async () => {
@@ -2371,7 +2482,6 @@ describe.skipIf(nodeEnv !== 'localnet')(
         resolveTokens: () => [],
 
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
@@ -2390,8 +2500,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
       server = await createHttpServer(createRequestListener(relay.fetch))
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(server.url),
+        transport: tempoHttp_(server.url),
       })
     })
 
@@ -2404,11 +2513,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: resolves fee token and fills without sponsorship', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2416,8 +2525,20 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
 
       expect(result.transaction.feePayerSignature).toBeUndefined()
-      expect(result.capabilities?.sponsored).toBe(false)
-      expect(result.capabilities?.fee).toBeDefined()
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(false)
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.fee,
+      ).toBeDefined()
       // Single fill — no speculative second fill.
       expect(
         requests.filter((r) => r.method === 'eth_fillTransaction'),
@@ -2425,11 +2546,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: simulation includes fees for an unsponsored fill', async () => {
-      const result = await fillTransaction(client, {
+      const result = await CoreActions_.transaction.fill(client, {
         account: userAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2439,8 +2560,20 @@ describe.skipIf(nodeEnv !== 'localnet')(
       // Capabilities are populated despite parallel execution.
       expect(result.transaction.gas).toBeDefined()
       expect(result.transaction.nonce).toBeDefined()
-      expect(result.capabilities?.fee).toBeDefined()
-      expect(result.capabilities?.sponsored).toBe(false)
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.fee,
+      ).toBeDefined()
+      expect(
+        (
+          result.capabilities as
+            | TempoCapabilities_.FillTransactionCapabilities
+            | undefined
+        )?.sponsored,
+      ).toBe(false)
     })
   },
 )
@@ -2448,29 +2581,27 @@ describe.skipIf(nodeEnv !== 'localnet')(
 describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: fee token resolution',
   () => {
-    const feeTokenAccount = Tempo.accounts[0]!
-    const preferredToken = Tempo.addresses.alphaUsd
+    const feeTokenAccount = TempoAccount_.fromSecp256k1(
+      Tempo.accounts[0]!.privateKey,
+    )
+    const preferredToken = Tempo.alphaUsd
     let server: Server
-    let client: typeof caller
+    let client: CoreClient_.Client<typeof chain_>
 
     beforeAll(async () => {
       // feeTokenAccount is faucet-funded with alphaUsd so the balance check passes.
       // Set on-chain fee token preference.
-      await waitForTransactionReceipt(caller, {
-        hash: await Actions.fee.setUserToken(
-          Tempo.getClient({ chain: Tempo.chain }),
-          {
-            account: feeTokenAccount,
-            token: preferredToken,
-          },
-        ),
+      await CoreActions_.transaction.waitForReceipt(caller, {
+        hash: await Actions.fee.setUserToken(Tempo.getClient({}), {
+          account: feeTokenAccount,
+          token: preferredToken,
+        }),
       })
 
       const relay = Relay.create({
         resolveTokens: () => localnetTokens,
 
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [Relay.simulate(), Relay.feePayer(), Relay.feeToken()],
@@ -2478,8 +2609,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
       server = await createHttpServer(createRequestListener(relay.fetch))
       client = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(server.url),
+        transport: tempoHttp_(server.url),
       })
     })
 
@@ -2489,11 +2619,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
     test('behavior: uses explicitly provided feeToken', async () => {
       const feeToken = '0x20c0000000000000000000000000000000000001'
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: feeTokenAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2505,11 +2635,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: resolves to onchain user token when it has balance', async () => {
-      const { transaction } = await fillTransaction(client, {
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: feeTokenAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: recipient.address,
             amount: 1n,
           }),
@@ -2525,24 +2655,23 @@ describe.skipIf(nodeEnv !== 'localnet')(
       // (a faucet-funded account would carry genesis balances that dominate).
       // The relay's tokenlist is restricted to just these two so the
       // highest-balance resolver picks between them deterministically.
-      const freshAccount = Tempo.accounts[5]!
+      const freshAccount = TempoAccount_.fromSecp256k1(generatePrivateKey())
       const rpc = Tempo.getClient({
-        chain: Tempo.chain,
-        account: Tempo.accounts[0]!,
+        account: TempoAccount_.fromSecp256k1(Tempo.accounts[0]!.privateKey),
       })
       const { token: lowUsd } = await Actions.token.createSync(rpc, {
         name: 'LowUSD',
         symbol: 'LowUSD',
         currency: 'USD',
-        quoteToken: Tempo.addresses.alphaUsd,
+        quoteToken: Tempo.alphaUsd,
       })
       const { token: highUsd } = await Actions.token.createSync(rpc, {
         name: 'HighUSD',
         symbol: 'HighUSD',
         currency: 'USD',
-        quoteToken: Tempo.addresses.alphaUsd,
+        quoteToken: Tempo.alphaUsd,
       })
-      await sendTransactionSync(rpc, {
+      await CoreActions_.transaction.sendSync(rpc, {
         calls: [
           Actions.token.grantRoles.call(caller, {
             token: lowUsd,
@@ -2571,7 +2700,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       for (const token of [lowUsd, highUsd])
         await Actions.amm.mintSync(rpc, {
           userTokenAddress: token,
-          validatorTokenAddress: Tempo.addresses.pathUsd,
+          validatorTokenAddress: Tempo.pathUsd,
           validatorTokenAmount: parseUnits('10', 6),
           to: rpc.account.address,
         })
@@ -2580,7 +2709,6 @@ describe.skipIf(nodeEnv !== 'localnet')(
         resolveTokens: () => [lowUsd, highUsd],
 
         client: Tempo.getClient({
-          chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [Relay.simulate(), Relay.feePayer(), Relay.feeToken()],
@@ -2590,20 +2718,22 @@ describe.skipIf(nodeEnv !== 'localnet')(
         createRequestListener(customRelay.fetch),
       )
       const customClient = Tempo.getClient({
-        chain: Tempo.chain,
-        transport: Tempo.http(customServer.url),
+        transport: tempoHttp_(customServer.url),
       })
 
-      const { transaction } = await fillTransaction(customClient, {
-        account: freshAccount.address,
-        calls: [
-          Actions.token.transfer.call(caller, {
-            token: highUsd,
-            to: recipient.address,
-            amount: 1n,
-          }),
-        ],
-      })
+      const { transaction } = await CoreActions_.transaction.fill(
+        customClient,
+        {
+          account: freshAccount.address,
+          calls: [
+            Actions.token.transfer.call(caller, {
+              token: highUsd,
+              to: recipient.address,
+              amount: 1n,
+            }),
+          ],
+        },
+      )
       await customServer.close()
 
       // highUsd has the higher balance (500 > 100).
@@ -2611,12 +2741,14 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: falls back to pathUSD when no preference or balances', async () => {
-      const freshAccount = Tempo.accounts[10]!
-      const { transaction } = await fillTransaction(client, {
+      const freshAccount = TempoAccount_.fromSecp256k1(
+        Tempo.accounts[10]!.privateKey,
+      )
+      const { transaction } = await CoreActions_.transaction.fill(client, {
         account: freshAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
             to: freshAccount.address,
             amount: 0n,
           }),
@@ -2630,14 +2762,13 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
 describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   let server: Server
-  let client: typeof caller
+  let client: CoreClient_.Client<typeof chain_>
 
   beforeAll(async () => {
     const relay = Relay.create({
       resolveTokens: () => [],
 
       client: Tempo.getClient({
-        chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
       plugins: [Relay.simulate(), Relay.feePayer(), Relay.feeToken()],
@@ -2645,8 +2776,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
 
     server = await createHttpServer(createRequestListener(relay.fetch))
     client = Tempo.getClient({
-      chain: Tempo.chain,
-      transport: Tempo.http(server.url),
+      transport: tempoHttp_(server.url),
     })
   })
 
@@ -2655,13 +2785,13 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   })
 
   test('behavior: returns insufficientFunds on InsufficientBalance when errors capability is enabled', async () => {
-    const sender = Tempo.accounts[10]!
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[10]!.privateKey)
 
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       account: sender.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           to: recipient.address,
           amount: parseUnits('100', 6),
         }),
@@ -2712,13 +2842,13 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   })
 
   test('behavior: returns error capability on generic revert when errors capability is enabled', async () => {
-    const sender = Tempo.accounts[10]!
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[10]!.privateKey)
 
-    const result = await fillTransaction(client, {
+    const result = await CoreActions_.transaction.fill(client, {
       account: sender.address,
       calls: [
         Actions.token.grantRoles.call(caller, {
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
           role: 'issuer',
           to: sender.address,
         }),
@@ -2744,67 +2874,85 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   })
 
   test('default: throws JSON-RPC error on InsufficientBalance', async () => {
-    const sender = Tempo.accounts[10]!
-    const error = await fillTransaction(client, {
-      account: sender.address,
-      calls: [
-        Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
-          to: recipient.address,
-          amount: parseUnits('100', 6),
-        }),
-      ],
-    }).then(
-      () => undefined,
-      (e: BaseError) => e,
-    )
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[10]!.privateKey)
+    const error = await CoreActions_.transaction
+      .fill(client, {
+        account: sender.address,
+        calls: [
+          Actions.token.transfer.call(caller, {
+            token: Tempo.alphaUsd,
+            to: recipient.address,
+            amount: parseUnits('100', 6),
+          }),
+        ],
+      })
+      .then(
+        () => undefined,
+        (e: BaseError) => e,
+      )
     expect(error).toBeDefined()
     // Walk the viem error chain to the underlying RPC error. The default path
     // surfaces the chain revert as a JSON-RPC error (`code: 3`) with the
     // ABI-encoded `InsufficientBalance(uint256, uint256, address)` selector.
-    const rpc = error?.walk(isRpcError) as { data?: string } | undefined
+    const rpc = (
+      error?.walk(isRpcError) as
+        | { data: { code: number; data?: string } }
+        | undefined
+    )?.data
     expect(rpc?.data?.startsWith('0x832f98b5')).toBe(true)
   })
 
   test('default: throws JSON-RPC error on generic revert', async () => {
-    const sender = Tempo.accounts[10]!
-    const error = await fillTransaction(client, {
-      account: sender.address,
-      calls: [
-        Actions.token.grantRoles.call(caller, {
-          token: Tempo.addresses.alphaUsd,
-          role: 'issuer',
-          to: sender.address,
-        }),
-      ],
-    }).then(
-      () => undefined,
-      (e: BaseError) => e,
-    )
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[10]!.privateKey)
+    const error = await CoreActions_.transaction
+      .fill(client, {
+        account: sender.address,
+        calls: [
+          Actions.token.grantRoles.call(caller, {
+            token: Tempo.alphaUsd,
+            role: 'issuer',
+            to: sender.address,
+          }),
+        ],
+      })
+      .then(
+        () => undefined,
+        (e: BaseError) => e,
+      )
     expect(error).toBeDefined()
-    const rpc = error?.walk(isRpcError) as { data?: string } | undefined
+    const rpc = (
+      error?.walk(isRpcError) as
+        | { data: { code: number; data?: string } }
+        | undefined
+    )?.data
     // ABI-encoded `Unauthorized()`.
     expect(rpc?.data).toBe('0x82b42900')
   })
 
   test('behavior: explicit `errors: false` matches default JSON-RPC error behavior', async () => {
-    const sender = Tempo.accounts[10]!
-    const error = await fillTransaction(client, {
-      account: sender.address,
-      calls: [
-        Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
-          to: recipient.address,
-          amount: parseUnits('100', 6),
-        }),
-      ],
-      capabilities: { errors: false } as never,
-    }).then(
-      () => undefined,
-      (e: BaseError) => e,
-    )
+    const sender = TempoAccount_.fromSecp256k1(Tempo.accounts[10]!.privateKey)
+    const error = await CoreActions_.transaction
+      .fill(client, {
+        account: sender.address,
+        calls: [
+          Actions.token.transfer.call(caller, {
+            token: Tempo.alphaUsd,
+            to: recipient.address,
+            amount: parseUnits('100', 6),
+          }),
+        ],
+        capabilities: { errors: false } as never,
+      })
+      .then(
+        () => undefined,
+        (e: BaseError) => e,
+      )
     expect(error).toBeDefined()
-    const rpc = error?.walk(isRpcError) as { data?: string } | undefined
+    const rpc = (
+      error?.walk(isRpcError) as
+        | { data: { code: number; data?: string } }
+        | undefined
+    )?.data
     expect(rpc?.data?.startsWith('0x832f98b5')).toBe(true)
   })
 })
@@ -2813,7 +2961,10 @@ function isRpcError(e: unknown): boolean {
   return (
     typeof e === 'object' &&
     e !== null &&
-    'code' in e &&
-    (e as { code: unknown }).code === 3
+    'data' in e &&
+    typeof e.data === 'object' &&
+    e.data !== null &&
+    'code' in e.data &&
+    e.data.code === 3
   )
 }

@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const godwoken = /*#__PURE__*/ defineChain({
+export const godwoken = /*#__PURE__*/ Chain.from({
   id: 71402,
   name: 'Godwoken Mainnet',
   nativeCurrency: { decimals: 18, name: 'pCKB', symbol: 'pCKB' },
   rpcUrls: {
-    default: {
-      http: ['https://v1.mainnet.godwoken.io/rpc'],
-    },
+    http: 'https://v1.mainnet.godwoken.io/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'GW Scan',
-      url: 'https://v1.gwscan.com',
-    },
+    name: 'GW Scan',
+    url: 'https://v1.gwscan.com',
   },
   contracts: {
     multicall3: {

@@ -1,0 +1,50 @@
+# PersonalMessage.recoverAddress
+
+Recovers the signing address of a personal ([EIP-191](https://eips.ethereum.org/EIPS/eip-191)) message.
+
+## Imports
+
+```ts
+import { PersonalMessage } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"bb97aab9703a21e6244f8e0430f3cf5b8e43ab89c0dc5bf38e844b5b75a53e37","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIAFMuCMAEMANgFl4cQQHNcVOGkEckATirCYYKWnxIAjAFYqC0jIaIQvUvyFiJ02SGGMwuRAAYqAY3yLBnmuSIygC+FOjYrgTEZJTUdGYgngLynIJQUKQSiJwABm60ACTA8qTOUsE5sfKKZvoATGoaWjqIAOxGiqZ4aRkSsU4uSA2JPqR+AUgAbKHhOHiEJORG8Uys7FyW1iLicJIyVcZmk8Pqmtp6htSdMAmbAtt2+2rOrsPevv4xiLrTYdQR82iSzi9DwADMAK5gfyMAScTJJRYAQXSmV2AAoIFg0LCwHBsncbDs9jAAHQIoEo3q7UkAeWxuLgAEpslS0XAADpgITMeBYPwweEwRFkNl9KhQCCeBDmABKwqBcE42kFcEYUjAZVSqIknAgYNSnBwVnuwk46OQAFEAJLcAC0umUugAuuj8Gg0Fh8QB6b0wRhe0k3fBkGAQ5ik9hSb027gAZT9AYdTqZTK5vN29lJsQUUhlyGQIDoglY6liOQraE5mrWHE4wB4fFNxPsnGCnDBpAgzE4AHIiIwYMxvRCccI4L2uVykniuD12ZwALyNk1Ex5kinInUY4BczicDMk7K9kPCYQQTgAd3YwigvYoe84ao1gjQEMyx/ygDICe9c4JpsAK0qZ1nTkQ4kFaAAORozhaXQABYOhMG48E3UVtwQZ5BkQN5RnGL4AGY6hmf45nMBYYmWUFzHRLAu2NTAmQPdcCSbNdMxkUk43VIQACN1BbJ4QElaU8AAFRDZiOMFbRXyvQQlWfFwoGzMCahUdpHCac42iQrpzEPex+heJACK8PDPkCYi/kwMiokWHMVhouisTIRinx4193xgbI8kKYo0FKTQKk4AAfTgACEMBoJVwt3MB933UhsgACToABuR993xTg0toTKEsSjBuEURhMGyMBw14sgCuCWIRJlEBuJfN9Mj1A0VSkklVJAaolG+OozK02CVD0lDzCUrzMmM7DEJGD4Jhw4JQMSaBIhYNg6wbQkHmktsOy7Ht+0HYdR0YcdJzAadkjnDClxXLZbGk8kFS3ak4HReL90MmRj1Pc8rxvO8H0KybWp8vtv1/MB/1iXkFCQUB4g0NUBDwKsQGCYIgA"}
+// @noErrors
+import { PersonalMessage } from 'viem/utils'
+
+const address = PersonalMessage.recoverAddress({
+  message: 'hello world',
+  signature: '0x…',
+})
+```
+
+## Definition
+
+```ts
+function recoverAddress(
+  options: recoverAddress.Options,
+): Address
+```
+
+## Parameters
+
+### options.message
+
+- **Type:** `SignableMessage`
+
+The message that was signed.
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+
+Signature of the message.
+
+## Return Type
+
+The recovered signing address.
+
+`Address`

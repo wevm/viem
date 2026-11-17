@@ -1,20 +1,20 @@
-import { defineToken } from '../defineToken.js'
+import * as Token from '../../core/Token.js'
 
 /**
  * [USDC](https://www.circle.com/usdc) token, with canonical contract addresses
  * across supported chains.
  *
  * Pass to a Client's `tokens` array, call with a chain id to produce a
- * [token config](/tokens/guides/defining-tokens), or read the metadata and `addresses`
+ * token config, or read the metadata and `addresses`
  * map directly.
  *
  * @example
  * ```ts
- * import { createPublicClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { mainnet } from 'viem/chains'
  * import { usdc } from 'viem/tokens'
  *
- * const client = createPublicClient({
+ * const client = Client.create({
  *   chain: mainnet,
  *   tokens: [usdc],
  *   transport: http(),
@@ -29,7 +29,7 @@ import { defineToken } from '../defineToken.js'
  * // '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
  * ```
  */
-export const usdc = /*#__PURE__*/ defineToken({
+export const usdc = /*#__PURE__*/ Token.from({
   addresses: {
     1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // mainnet
     10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', // optimism

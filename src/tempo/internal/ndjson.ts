@@ -19,8 +19,7 @@ export async function* read<event extends { type: string }>(
     for (;;) {
       const result = await reader.read()
       done = result.done
-      const value = result.value
-      buffer += decoder.decode(value, { stream: !done })
+      buffer += decoder.decode(result.value, { stream: !done })
 
       const lines = buffer.split('\n')
       buffer = done ? '' : (lines.pop() ?? '')
@@ -29,8 +28,8 @@ export async function* read<event extends { type: string }>(
         if (!line.trim()) continue
 
         const event = JSON.parse(line) as event & {
-          code?: string
-          detail?: string
+          code?: string | undefined
+          detail?: string | undefined
         }
         if (event.type === 'error')
           throw new Gateway.RequestError({

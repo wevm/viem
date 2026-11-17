@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const hyperliquidEvmTestnet = /*#__PURE__*/ defineChain({
+export const hyperliquidEvmTestnet = /*#__PURE__*/ Chain.from({
   id: 998,
   name: 'Hyperliquid EVM Testnet',
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
@@ -8,9 +9,10 @@ export const hyperliquidEvmTestnet = /*#__PURE__*/ defineChain({
     baseFeeMultiplier: 2,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.hyperliquid-testnet.xyz/evm'],
-    },
+    http: 'https://rpc.hyperliquid-testnet.xyz/evm',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const plasmaDevnet = /*#__PURE__*/ defineChain({
+export const plasmaDevnet = /*#__PURE__*/ Chain.from({
   id: 9747,
   name: 'Plasma Devnet',
   nativeCurrency: {
@@ -9,9 +9,7 @@ export const plasmaDevnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://devnet-rpc.plasma.to'],
-    },
+    http: 'https://devnet-rpc.plasma.to',
   },
   testnet: true,
   contracts: {

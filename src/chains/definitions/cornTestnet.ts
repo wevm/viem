@@ -1,8 +1,8 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const cornTestnet = /*#__PURE__*/ defineChain({
+export const cornTestnet = /*#__PURE__*/ Chain.from({
   id: 21_000_001,
   name: 'Corn Testnet',
   nativeCurrency: {
@@ -10,16 +10,12 @@ export const cornTestnet = /*#__PURE__*/ defineChain({
     name: 'Bitcorn',
     symbol: 'BTCN',
   },
-  rpcUrls: {
-    default: { http: ['https://21000001.rpc.thirdweb.com'] },
-  },
+  rpcUrls: { http: 'https://21000001.rpc.thirdweb.com' },
   blockExplorers: {
-    default: {
-      name: 'Corn Testnet Explorer',
-      url: 'https://testnet.cornscan.io',
-      apiUrl:
-        'https://api.routescan.io/v2/network/testnet/evm/21000001/etherscan/api',
-    },
+    name: 'Corn Testnet Explorer',
+    url: 'https://testnet.cornscan.io',
+    apiUrl:
+      'https://api.routescan.io/v2/network/testnet/evm/21000001/etherscan/api',
   },
   contracts: {
     multicall3: {

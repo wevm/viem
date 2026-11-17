@@ -1,25 +1,24 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const sketchpad = /*#__PURE__*/ defineChain({
+export const sketchpad = /*#__PURE__*/ Chain.from({
   id: 984123,
   name: 'Forma Sketchpad',
-  network: 'sketchpad',
   nativeCurrency: {
     symbol: 'TIA',
     name: 'TIA',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sketchpad-1.forma.art'],
-      webSocket: ['wss://ws.sketchpad-1.forma.art'],
-    },
+    http: 'https://rpc.sketchpad-1.forma.art',
+    ws: 'wss://ws.sketchpad-1.forma.art',
   },
   blockExplorers: {
-    default: {
-      name: 'Sketchpad Explorer',
-      url: 'https://explorer.sketchpad-1.forma.art',
-    },
+    name: 'Sketchpad Explorer',
+    url: 'https://explorer.sketchpad-1.forma.art',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

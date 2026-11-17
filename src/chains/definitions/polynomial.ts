@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const polynomial = /*#__PURE__*/ defineChain({
+export const polynomial = /*#__PURE__*/ Chain.from({
   id: 8008,
   name: 'Polynomial',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const polynomial = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.polynomial.fi'],
-    },
+    http: 'https://rpc.polynomial.fi',
   },
   blockExplorers: {
-    default: {
-      name: 'Polynomial Scan',
-      url: 'https://polynomialscan.io',
-    },
+    name: 'Polynomial Scan',
+    url: 'https://polynomialscan.io',
   },
   testnet: false,
   contracts: {

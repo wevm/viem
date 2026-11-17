@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const mevTestnet = /*#__PURE__*/ defineChain({
+export const mevTestnet = /*#__PURE__*/ Chain.from({
   id: 4759,
   name: 'MEVerse Chain Testnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const mevTestnet = /*#__PURE__*/ defineChain({
     symbol: 'MEV',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.meversetestnet.io'],
-    },
+    http: 'https://rpc.meversetestnet.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://testnet.meversescan.io/',
-    },
+    name: 'Explorer',
+    url: 'https://testnet.meversescan.io/',
   },
   contracts: {
     multicall3: {

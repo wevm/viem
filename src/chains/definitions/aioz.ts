@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const aioz = /*#__PURE__*/ defineChain({
+export const aioz = /*#__PURE__*/ Chain.from({
   id: 168,
   name: 'AIOZ Network',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const aioz = /*#__PURE__*/ defineChain({
     symbol: 'AIOZ',
   },
   rpcUrls: {
-    default: {
-      http: ['https://eth-dataseed.aioz.network'],
-    },
+    http: 'https://eth-dataseed.aioz.network',
   },
   blockExplorers: {
-    default: {
-      name: 'AIOZ Explorer',
-      url: 'https://explorer.aioz.network',
-    },
+    name: 'AIOZ Explorer',
+    url: 'https://explorer.aioz.network',
   },
   testnet: false,
 })

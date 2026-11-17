@@ -1,9 +1,10 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const bobSepolia = /*#__PURE__*/ defineChain({
+export const bobSepolia = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 808813,
   name: 'BOB Sepolia',
@@ -13,19 +14,16 @@ export const bobSepolia = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://bob-sepolia.rpc.gobob.xyz'],
-      webSocket: ['wss://bob-sepolia.rpc.gobob.xyz'],
-    },
+    http: 'https://bob-sepolia.rpc.gobob.xyz',
+    ws: 'wss://bob-sepolia.rpc.gobob.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'BOB Sepolia Explorer',
-      url: 'https://bob-sepolia.explorer.gobob.xyz',
-    },
+    name: 'BOB Sepolia Explorer',
+    url: 'https://bob-sepolia.explorer.gobob.xyz',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 35677,

@@ -1,8 +1,8 @@
 import { AccountConfig } from 'ox/tempo'
-import { custom, toHex } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
+import { custom, Actions as viem_Actions } from 'viem'
+import { Hex } from 'viem/utils'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, chain, feeToken, getClient } from '~test/tempo/config.js'
+import { accounts, chain, feeToken, getClient } from '~test/tempoAccounts.js'
 import * as Account from '../Account.js'
 import * as actions from './index.js'
 
@@ -10,7 +10,7 @@ const client = getClient()
 const account = Account.fromConfig({
   address: 'infer',
   owners: [accounts[17], accounts[18]],
-  salt: toHex(0x502200, { size: 32 }),
+  salt: Hex.fromNumber(0x502200, { size: 32 }),
   threshold: 2,
 })
 
@@ -44,7 +44,7 @@ describe('updateConfig', () => {
       transport: custom({
         async request(request) {
           requests.push(request)
-          if (request.method === 'eth_chainId') return toHex(chain.id)
+          if (request.method === 'eth_chainId') return Hex.fromNumber(chain.id)
           if (request.method === 'eth_sendTransaction') return hash
           throw new Error(`Unexpected request: ${request.method}`)
         },
@@ -62,7 +62,10 @@ describe('updateConfig', () => {
 
     expect({ requests, result }).toMatchInlineSnapshot(
       {
-        requests: [{}, { params: [{ data: expect.any(String) }] }],
+        requests: [
+          {},
+          { params: [{ data: expect.any(String), input: expect.any(String) }] },
+        ],
       },
       `
       {
@@ -74,8 +77,10 @@ describe('updateConfig', () => {
             "method": "eth_sendTransaction",
             "params": [
               {
+                "chainId": "0x539",
                 "data": Any<String>,
                 "from": "0xAE12465Eb9301b14296d15788730393e5d8DA1a2",
+                "input": Any<String>,
                 "to": "0xAACC000000000000000000000000000000000000",
               },
             ],
@@ -87,38 +92,6 @@ describe('updateConfig', () => {
     )
   })
 
-  test('behavior: preserves a null account override', async () => {
-    const client = getClient({ account })
-
-    const error = await actions.accounts
-      .updateConfig(client, {
-        account: null,
-        currentConfig: account.config,
-        nextConfig: {
-          owners: account.config.owners,
-          threshold: account.config.threshold,
-        },
-      })
-      .catch((error) => error)
-    const commitment = await actions.accounts.getConfigCommitment(client, {
-      account: account.address,
-    })
-
-    expect({
-      commitment,
-      details: error.details,
-      name: error.name,
-      sender: error.sender,
-    }).toMatchInlineSnapshot(`
-      {
-        "commitment": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "details": "unknown account",
-        "name": "ContractFunctionExecutionError",
-        "sender": undefined,
-      }
-    `)
-  })
-
   test('behavior: commits the first current config', async () => {
     const hash = await actions.accounts.updateConfig(client, {
       account,
@@ -128,7 +101,9 @@ describe('updateConfig', () => {
         threshold: account.config.threshold,
       },
     })
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const receipt = await viem_Actions.transaction.waitForReceipt(client, {
+      hash,
+    }).receipt
     const config = AccountConfig.from({ ...account.config, version: 1n })
     const commitment = await actions.accounts.getConfigCommitment(client, {
       account: account.address,
@@ -148,36 +123,12 @@ describe('updateConfig', () => {
   })
 })
 
-describe('upgrade', () => {
-  test('behavior: null account ignores the client account', async () => {
-    const client = getClient({ account })
-
-    const error = await actions.accounts
-      .upgrade(client, {
-        account: null,
-        owners: [{ owner: accounts[2].address, weight: 1 }],
-        threshold: 1,
-      })
-      .catch((error) => error)
-
-    const { details, name, shortMessage } = error
-    expect({ details, name, shortMessage }).toMatchInlineSnapshot(`
-      {
-        "details": "unknown account",
-        "name": "ContractFunctionExecutionError",
-        "shortMessage": "Invalid parameters were provided to the RPC method.
-      Double check you have provided the correct parameters.",
-      }
-    `)
-  })
-})
-
 describe('updateConfigSync', () => {
   test('behavior: returns the committed config', async () => {
     const account = Account.fromConfig({
       address: 'infer',
       owners: [accounts[17], accounts[18]],
-      salt: toHex(0x502201, { size: 32 }),
+      salt: Hex.fromNumber(0x502201, { size: 32 }),
       threshold: 2,
     })
     await actions.token.transferSync(client, {
@@ -229,6 +180,8 @@ describe('updateConfigSync', () => {
           "version": 1n,
         },
         "receipt": {
+          "blobGasPrice": undefined,
+          "blobGasUsed": undefined,
           "blockHash": Any<String>,
           "blockNumber": Any<BigInt>,
           "contractAddress": null,
@@ -240,12 +193,11 @@ describe('updateConfigSync', () => {
           "gasUsed": Any<BigInt>,
           "logs": Any<Array>,
           "logsBloom": Any<String>,
-          "operation": undefined,
           "status": "success",
           "to": "0xaacc000000000000000000000000000000000000",
           "transactionHash": Any<String>,
           "transactionIndex": Any<Number>,
-          "type": "0x76",
+          "type": "tempo",
         },
       }
     `,

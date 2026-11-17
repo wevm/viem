@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const haqqMainnet = /*#__PURE__*/ defineChain({
+export const haqqMainnet = /*#__PURE__*/ Chain.from({
   id: 11235,
   name: 'HAQQ Mainnet',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const haqqMainnet = /*#__PURE__*/ defineChain({
     symbol: 'ISLM',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.eth.haqq.network'],
-    },
+    http: 'https://rpc.eth.haqq.network',
   },
   blockExplorers: {
-    default: {
-      name: 'HAQQ Explorer',
-      url: 'https://explorer.haqq.network',
-      apiUrl: 'https://explorer.haqq.network/api',
-    },
+    name: 'HAQQ Explorer',
+    url: 'https://explorer.haqq.network',
+    apiUrl: 'https://explorer.haqq.network/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

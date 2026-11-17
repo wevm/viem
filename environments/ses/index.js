@@ -4,16 +4,21 @@ require('ses')
 // MetaMask Snaps do, before viem is evaluated.
 lockdown()
 
-const { exports: entrypoints } = require('viem/package.json')
-for (const [path, entry] of Object.entries(entrypoints))
-  if (typeof entry === 'object') require(`viem${path.slice(1)}`)
+const { readFileSync } = require('node:fs')
+const { join } = require('node:path')
 
-const { createClient, http } = require('viem')
-const { token } = require('viem/actions')
+const { exports: entrypoints } = JSON.parse(
+  readFileSync(join(__dirname, 'node_modules/viem/package.json'), 'utf8'),
+)
+for (const [path, entry] of Object.entries(entrypoints))
+  if (typeof entry === 'object' && !path.includes('*'))
+    require(`viem${path.slice(1)}`)
+
+const { Actions, Client, http } = require('viem')
 const { mainnet } = require('viem/chains')
 
-const client = createClient({ chain: mainnet, transport: http() })
-const call = token.getAllowance.call(client, {
+const client = Client.create({ chain: mainnet, transport: http() })
+const call = Actions.token.getAllowance.call(client, {
   account: '0x0000000000000000000000000000000000000001',
   spender: '0x0000000000000000000000000000000000000002',
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

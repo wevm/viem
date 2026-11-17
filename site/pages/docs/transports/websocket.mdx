@@ -1,0 +1,272 @@
+# WebSocket
+
+## Overview
+
+The [`webSocket`](/docs/transports/websocket) transport carries JSON-RPC requests over WebSocket.
+Without a `url`, it uses the [Chain](/docs/chains) default WebSocket RPC URL.
+
+Unlike [HTTP](/docs/transports/http), WebSocket supports JSON-RPC subscriptions. The Transport keeps
+the connection open across requests, then reconnects and restores subscriptions after closure.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"77f4a2a68391cc6e14949fb8e46af95fb3774742f5b649b6bf84f5e2b4bfe5ab","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgp9UcsB4MU8q8Oyc3omqGoxdKhpJaa3GhpRNqnVGMZxgmSYNWmGZZjm3A1BkRJIKAy7XHAIR4IyICCoKQA"}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io/ws')
+```
+
+## Recipes
+
+### Disabling Reconnection
+
+By default the socket reconnects on closure. Pass `reconnect: false`, or an options object to tune the attempts.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"6a19e0edf67baf34268677bc99fca012df6d9977dda269107782e3c97ac430d1","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgHUDOIHEGB1DLkwKk4OUGB8GJfoSZ4cgQBANILKhc3+BMpziWIQQ4Z0Vg2EZmE1LR9HSUmZC8Cw6G8IQ0h8FsBzvddYjOFIcA9hCrAQHAWjNTZJJIGStRGYiyKEqQgi4OWlZtiutYnmeF5Xm2t54FdJxiM+/ZLZ+1areOiCDQBfVHLAeDFPKvDsi9/nqoFMXSoaSWmtxoaUTaUtVTGcYJkmDVphmWY5k47KsxJ+gaf8uSFrwCa8MgACEwu5PwyiCHApY1BkRJIKAy7XHAIR4IyICCoKQA="}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io/ws', { reconnect: false }) // [!code focus]
+```
+
+### Disabling Keep-Alive
+
+Keep-alive traffic holds the connection open between requests. Disable it with `keepAlive: false`.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"f2333b54b2ee08f4062c68f1d455bc632ff414dc6d7919abd14ec8c26a3aae33","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgHUDOIHEGB1DLkwKk4OUGB8GoMBYAAghwJCeAA0jA113ewJA1LR9HSUmZA6XA1xQLwV1YGMUEkIq8BwMS8AEq2tlIGStRGYiyKEqQgi4OWlZtiutYnmeF5Xm2t54CDb0fQts7LV+q3jogg0AX1RywHgxTyrw7JzeiaoajF0qGklprcaGlE2tzUYxnGCZJg1aYZlmOZOOy5P3TA+gaf8uSFrwCa8MgACELO5PwyiCHApY1BkRJIKAy7XHAIR4IyICCoKQA="}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io/ws', { keepAlive: false }) // [!code focus]
+```
+
+### Tuning Reconnection
+
+Pass a `reconnect` object to control how often the socket retries and the delay before reconnecting.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"b200fc4f08ec7d1e2f2dd69da317903045d643ecbb9578807a87d178c9ddf73b","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgHUDOIHEGB1DLkwKk4OUGB8GJfoSZ4cgQBANILKhc3+BMpziWIQQ4Z0Vg2EZmE1LR9HSUmZC8Cw6G8IQ0h8FsBzvddYjOFIcA9hCrAQHAWjNTZJJIGStRGYiyKEqQgi4OWlZtium1XmeF5Xm2t54FdJxiM+/aIAAzJ+1areOS07ZgwFzgdi5HRBjSMKdZCYHwOy0G9RhSh4+hgIIaRyGDv3of9JxQID9R4AAsswtDwyabM4V0aA0CUjIEq2tn4+SCImTUACSYB2GAqwYL1VPViu60DiN9MTYgIdO9Nd4K0rxjwBzi08yAK1jr+62DULe2iwuhLHVLMvnfLJhvZbEkhAAIjArDMBgnjq5r2toRh+uG3RJsmLwsC1xg4NpDBWv8GUuTdKzFeSDbduuI7154ygrtE+7VBcwA+gOG8B/11MbVtDZjReb4nkzM0gGkpcI1bVc13XSezinadrdz62Cn1RywHgxTyrw7Ivf56qBRitKQ0SVTTcVDJRG0f8qoxjjAmJMDU0wZgkDCJwuUPTjzEPodkcd1AJzjLwKOioL7lzOJIauvd9BvnXhvIUTgEy8GQAAQnfrkYeIhBBwFLPEQsNQMhEiQKAZc1w4AhDwIyEAgpBRAA"}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', {
+  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
+})
+```
+
+### Tuning Keep-Alive
+
+Pass a `keepAlive` object to tune the interval used for connection health checks.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"58863e2b6952274dcdee57979538cf3bf785d56f7d026455e6893d4c19010346","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgHUDOIHEGB1DLkwKk4OUGB8GoMBYAAghwJCeAA0jA113ewJA1LR9HSUmZA6XA1xQLwV1YGMUEkIq8BwMS8AEq2tlIGStRGYiyKEqQgi4OWlZtium1XmeF5Xm2t54CDb0fQts4AMyftWq3jktO2YMBc4HYuR0QY0jCnWQmB8CYP5EGwnhgIIaRyH9Vg2EZmGffUeAAJKWmQwusLwjAmIqMGS2gsjXMDL2g+DuQZLGMNwHD14koj5IIiZNTUwOAD6A5u71OPViu60DiNhMTYgm3w9Nd6C6rbDPv2iC0yAK1jr+62DYKfVHLAeDFPKvDsnN6JqhqMXSoaSWmtxoaUTaOdRjGcYJkmDVphmEgwk4uUeuT90wPo7Jh6Qav6E7rtu0KTgJrwyAAISp7k/DKIIcClvEhY1BkRJIKAy7XHAIR4IyICCoKQA==="}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', {
+  keepAlive: { interval: 30_000 }, // [!code focus]
+})
+```
+
+### Restricting RPC Methods
+
+Use `methods` to allow or deny specific RPC methods for this transport.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"2c5e3ee93e37a4b542c9794f30b05aa1dfc82e007a28a631d4b7bb8ae2b703f4","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgHUDOIHEGB1DLkwKk4OUGB8BkazQB4+i5R6HomOagiwIhRgmKYyClgA3PEwpWPdD10M9r36EhH1fb9BaoTYRmYTUtH0RZV2EFAnRbC8oisC9uRlLwwPY7ABKVm2K6bVeZ4XgA7K2N4zSAKM3c+/aIAAzJ+1areOS07ZgwFzgdi5HRBjSMKdZCYHwT2EzAb3IZ9pYw+hcMnFAe6kxtA4npTE2IDTU23ng0s48zi3syAK1jr+62s4KfVHLARssh5VECmqGoxdKhpJaa3GhpRNpzeoVUxnGCZJg1aYZhIMJOIDjNo3dmMgzA+jIDCSYAPpwIIchwI67ByDAsfilnIh/DCiuTrwCa8MgACEDu5PwyiCHApZ/dwNRXcwSCgMu1xwCEeCMiAgqCkAA=="}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', {
+  methods: { include: ['eth_subscribe', 'eth_call'] }, // [!code focus]
+})
+```
+
+### Configuring Retries
+
+Set `retryCount` and `retryDelay` to control how many times failed requests retry and the base backoff between attempts.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"2d38ce05300ac369d63a2fba84e9981b81ed398aa1659d038e244ef40e87ce0d","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgHUDOIHEGB1DLkwKk4OUGB8K0RgYE0EDCGgnhgIIaRyGQqE2EZmE1LR9EALLMLQBzqMY8DKW9rQAI6CPA9o2SSSBkrURmIsiNQAMy9ZWbYrptV5nhe60nm2t54FdpA3XdlrPv2iBo5+1areOS07ZgwFzgdi5HRBjSMKdZCYJdwMYAAIjArDMBgj3Pa9pDvehn0nFA331HgABCXC5LA4sYLwjBpDBr1oLI1xA0YUpwASra2Qj5IIiZNTrYNA6Y/12MbW+dOjU2E2IITVvTXeZMi2LEvU4th709+TNvoKfVHLAeDFPKvDsnN6JqhqMXSoaSWmtxoaUTaadRjGcYJkmDVphmEgwk4uUekHt33fog1OAmvDIAAhPHuT8MoghwKWgZB6L2v6G+A5Drw7ddz3Aj94P8SFjUGREkgoDLtccAhHgjIgIKgpAA="}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', {
+  retryCount: 5, // [!code focus]
+  retryDelay: 200, // [!code focus]
+})
+```
+
+### Setting a Request Timeout
+
+Set `timeout` to limit how long a JSON-RPC request can take before it fails.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"7730651cf46154fbd0a4490014f01b99448ac3871b9148f25ca2de9bb6abdc50","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgHUDOIHEGB1DLkwKk4OUGB8OIGQQJsnhgIIaRyGQqE2EZmE1LR9ETDAACOgjwBUV0wDdFSMGkPAEq2tlIGStRGYiyI1OtA4APoDujvWVm2K6bQA7A2Y0XvjU23ngQMg8+/ZLZ+1areOiCDQAzIKfVHLAeDFPKvDsnN6JqhqMXSoaSWmtxoaUTavNRjGcYJkmDVphmEgwk47Lk5s+hvqj6MDkKfAJrwyAAIRs7k/DKIIcCljUGREkgoDLtccAhGTCCCoKQA"}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', { timeout: 20_000 }) // [!code focus]
+```
+
+## `webSocket`
+
+Creates a WebSocket JSON-RPC transport.
+
+### Usage
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"77f4a2a68391cc6e14949fb8e46af95fb3774742f5b649b6bf84f5e2b4bfe5ab","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvAO4wARgGUIIgNYw0jQaVYB+RLzhpS7MAHNeAH17DY/EzCgVeELOMlw9M+UtXqAdADyrhJgPPoA6t7KamgAOmAsHFx8YMwAtvBYzCIwXorR6vHsaVgQpGh5PjGUIFDKCIggAMKkMMw0cLzMvJH5vhUAUgoBAHIAtABKAApNvEbMoaXlMuxo+F2CaBBp7ewivK0ikmAwYiF+PfgwUpDxAAZarHe87J1YpMTssI4CbKydcmyKjmEDmV14InwzBMAHJOrZmIJWBVelV1LxprMAKoTAAyfhqaGYpgayGQIDo6SwrFwVDu9LQcCKJTKFWAvCaHGuaCcsj6MV4AF8BB80rwYUR2DA0jDmUs2bwdiYThVhfxReLJdKAPSQ6GhWVgeJHUIVERcsAVAC8HItaD8Ila7RgjGA8V4EKhJn0SrAKoo7rmpAWcHl+j5aI0MOkcDgiG12vU+D8GVIKhpfgk2pjMO4AbAgu493pIAAuqWqIZmOUkABOKg0sxrOtUImkUzqPARgoMBv2JAABioeuDYjIdcFFHQ2FwjUIJHIrboDEaJsMQZDYZ6UX6NSrNcQABYhyBG6Zm4h69Rqx2V9Rg4tWTUOCckAAmYdQ0c0ciIABsk7TjgeDzuOS70EwbCcDwlQ9po2ieIYxhmJY1hgLY9g/C4bihJ43b9IEwTuNwEQ7jEcqsrBu5UHUIgNM0TodF0278uiQyjJMMwbo+yzSKs6yIlsOziPshzHKcOEXOEVw3BA9yPM8ry8O8nzfE4/B/ACQIgmCuR6rC8IwBpSIomR6KYrwOL4oSxKkuSlIlDSNT0ncjIUcs7KclKlq8mZqoitsmpSjK7kKr6KpCgFYoSsFupega8TGu4Zp2rwNpedyDqMS6bpSJ6+o+vq/qBvMPFoOGfmMNGsbxomawpmQ6YwJmEDZnAub5oWxZ3GWFYgPuK4AKwfqe1znvgLbXu2naNPh1R9q+iAjSO2Q/kgACMAAcgp9UcsB4MU8q8Oyc3omqGoxdKhpJaa3GhpRNqnVGMZxgmSYNWmGZZjm3A1BkRJIKAy7XHAIR4IyICCoKQA"}
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io/ws')
+```
+
+### Parameters
+
+#### url
+
+- **Type:** `string`
+- **Optional**
+
+The WebSocket RPC URL. When omitted, the chain's default WebSocket RPC URL is used.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"bb20987a3cfe43a7ab861bbaf1d02863f8509263b6213e491bd0bbb0cba5cdae","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu14EF1foOF4xxrIDBOw08fRk2W22HZdj2fYDn0o7sB27DIAAhMwsBUjIhRwLO0S9mYSCgLEOhwDMVgIIEgRAA"}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io') // [!code focus]
+```
+
+#### options.keepAlive
+
+- **Type:** `boolean | { interval?: number }`
+- **Default:** `true`
+
+Whether (and how often) to send keep-alive messages.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"be8eed9b6a748f1b24271cfd1728390ecfd1ffa4b7cbc537c71aa798ca41b42c","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu18FQjg8IQSORTLE8AkSd0yJhMvIMBYAAgikJCDAA0jAQGgQ4JDRIcjDHCAIjogYZBMuwcA6FA7CAVg7zJHBMA+vAcDcBYcCyqYFGKsqvL8vsXCFLg86LiocQAKycZuegGMYNGkBYcQgPhsHwY456rh4Xg3n4SAAEyPtQYQvpE74xPQX4/jgggYJkTh+EQySDGAhTrOIGH1I0LRtFACFHHgACSyZkMZmjsAkTg+hk7CWWgOQYvhhFgSRvathR8DUfuCpIEqBwwNSjHRAAzK4AD6rhZXOC4gMoy5qBuIDaHxO5FUuwl4IZbnJKebRICuMneLe/grpxgS5cwsBMP0HDWICgjsGmx6jE2LZth2XY9n2A59JynT5mAhZiaFwhGtVpDucIaWZVlNqdB27DIAAhF1JHNDIhRwLOqyTtEvZmEgoCxDocAzFYCCBIEQA="}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  keepAlive: { interval: 30_000 }, // [!code focus]
+})
+```
+
+#### options.key
+
+- **Type:** `string`
+- **Default:** `'webSocket'`
+
+Transport key.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"563145d3387bbec8f4746abcafc629ba7f65130f41224f9ee6713b6134322792","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu18FQjg8IQSORTLE8AkSd0yJhMvIGCDJU1R1A0TQwK0zhQNEhyMMcIAACoArYXqAbKpjcAqSBKgckF8gK0TNvcoycnOC4gMoy4AKzUZuegGEgADMmGkBYcQgIBp5tEgK4eF4N5+EgABMgQUcwsBMP0HDWICgjsGmx6jE2LZth2XY9n2A59JynT5mAhaAcIxG7KRnQduwyAAIQSTAVIyIUcCzqsk7RL2ZhIKAsQ6HAMxWAggSBEAA="}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  key: 'webSocket', // [!code focus]
+})
+```
+
+#### options.methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"df5cf65cb5cc47bad708324dd36f04e39c80befffd3d91fbafe13f7a3eeb91d7","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu18FQjg8IQSORTLE8AkSd0yJhMr2BjQAMwj5mAhaFk4jCaIUsCDJU1TILOADcqy2vUYEQewdDQbBMDwVwiEoWhdQNE0MCtM4UDRIcjDHCAYo+l2wFMoSYC4bAXSkNhtAcTAsqLiocQAKzCZuegGEgADspgHnEICAYQUAII456rh4Xg3n4SAAEyPtQYQvpE74xPQX4/jgggYJkUEwXBFSEXoSGkY0LRtNRgnLmoGggNoEk7jJ+6kBY8m2Xhp5tEgK4ad4t7+CuADMgQLle0DhPGHDWICgjsGmx6jE2LZth2XY9n2A59JynSYUxQHKaBbF8cIyCcl2AD6cCFOIcBZg44gwFVjrtYwNKcrONqdB27DIAAhMwnHNDIhRwLOaHpNEgHcEgoCxDocAzFYCCBIEQA==="}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  methods: { include: ['eth_subscribe', 'eth_call'] }, // [!code focus]
+})
+```
+
+#### options.name
+
+- **Type:** `string`
+- **Default:** `'WebSocket JSON-RPC'`
+
+Transport name.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"37b2f137914b6eed917fb5346437b7369c697c92d49acf3988e0cc3b296eb280","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu18FQjg8IQSORTLE8AkSd0yJhMmAaowIMlTVHUDRNDArTOFA0SHIwxwgAAKgCtheoBvayqY3AKkgSoHFBfICtEnJCg2TwvB8YqcnOC4gMoy4AKyMZuegGEgAAs2GkBYcTgEBp5tEgK4eF4N5+EgABMgR0cwsBMP0HDWICgjsGmx6jE2LZth2XY9n2A59JynT5mAhYYTAwikfcIrPG8Xy/MZ7AduwyAAIRyTAVIyIUcCzqsk7RL2ZhIKAsQ6HAMxWAggSBEAA="}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  name: 'WebSocket JSON-RPC', // [!code focus]
+})
+```
+
+#### options.reconnect
+
+- **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
+- **Default:** `true`
+
+Whether (and how) to reconnect on socket closure. `maxRetries` caps reconnection attempts (default `Infinity`); `minReconnectionDelay`/`maxReconnectionDelay` bound the backoff window.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"39f7bf3e1df54321f93b3d054a9dcbc707d0d8da9b2d2248efcd8c871feb8130","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu18FQjg8IQSORTLE8AkSd0yJhMvCLBImggziBAEDaLwdRDLsoxjJ8MAIsBUy9P00GNC0bRQNEhyMMcIAiOiBhkOwSRNOwhBZJkEJwohQGIRwLDsHADaJhAcDFDAsqmNwCpIEqBwwNS/L7FwhS4POi4qHEACsMmbnoBjGDxpAWHEICAeWvinm0SArh4Xg3n4SAAEyPtQYQvpE74xPQX4/jgggYJkUK0AhXAugMwhgIU6ziCR9QYUJWE4UceAALLcLQtFIQxMw3GgNCbDq3H7nxKDKryInRAAkmArRrJgc4LiAyjLmoG4gNoik7iul5LmpeCue5VTwDp56rgZ3i3v4K4yeZmDPvEr5RB+dnxN+pKOf+PpOAhsXIiwAAiMCaNwGCDD5fkBQ0TTBc42FULh+HhU47CwGtGCkesGTsP5zQCDANwxfRi1gAlSU9Kl8qKplQl8gK0QAMwAPquODxVScua4ACwKdupn1Qe6nrHNdFaahYArZd7UuPpV6GT4xmIEDK6BCVzCwEw/QcNYgKCOwabHqMTYtm2HZdj2fYDn0nKdPm70vRjwhGs1CitW27B1Z0qNgPNr2Y9j63CCZYPgzanQduwyAAISU09D2MIUcCzqsk7RL2ZhIKAsQ6HAMxWAggSBEAA==="}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
+})
+```
+
+#### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"444f772cbb3d5f9f4d2b1b3d7c308af5ab911ed04c587d9156d26143abc88633","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu18FQjg8IQSORTLE8AkSd0yJhMucXAYCcECNGggxgIU6ziGQdQNE0MCtM4UDRIcjDHCAACy3C0HCChVPA7A4KQeEAI6FPA4xytwCpIEqByIXyArRAAzHOC4gMoy4AKzcZuegGEgK6XkuFhxCAgGkMBoHJqebRCR4Xg3n4SAAEyBBxzCwEw/QcNYgKCOwabHqMTYtm2HZdj2fYDn0nKdPmYCFpJ0lgcIfHsB27DIAAhFpMBUjIhRwLOqyTtEvZmEgoCxDocAzFYCCBIEQA"}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  retryCount: 5, // [!code focus]
+})
+```
+
+#### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"d84261e9b674cfe2cef1780e99e7c2fc7323b577b9711d8c133eb18992775791","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu18FQjg8IQSORTLE8AkSd0yJhMucXAYAAIjAmjcBggxgIU6ziGQdQNE0MCtM4UDRIcjDHCAABCaQwOwsDgRg7AJOsGTsHBaA5BigFVPAsqmNwCpIEqBzIXyArRCuACsrhzguIDKMu3HcZuegGEgK6XkuFhxCAtEgWBEGnm0kkeF4N5+EgABMgQCcwsBMP0HDWICgjsGmx6jE2LZth2XY9n2A59JynT5mAhYKaBRHCNprjuOwHbsMgACEBn4c0MiFHAs6rJO0S9mYSCgLEOhwDMVgIIEgRAA=="}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+#### options.timeout
+
+- **Type:** `number`
+- **Default:** `10_000`
+
+Request timeout (ms).
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"ee7d3d085fcee6874688341babbae9e0da8e137f0f2172d802a5ec4c27b0c6d1","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwDqMAEYBlCIwDWMBlTbdBSAGxUANjDABzNPiQBOKmhW6FeLrzj9VWgJZhciAAxVG+Fd0Y1yiNQBfCnRsFwJiMkpqOgZEEAAKbk0HbjgASnYAdwlpOQUEgFdSTQB+YTZSJ112AB92QrBYADMnGCgKdggsNAcWOHLs3Jl5NAA6AHkevtZ04TEpEYUAHTAHAFs7DhzF/MUQKBkEeIBhUhhuGjh2blFhvfYAKUkJgDkAWgAlAAUTzh4+AJtg4DDdCmgIOtLg5GOxzswwM5fDMxqJ8Dp2JBVgADYqabHsBzXLCkYgOWAddjNZKaa7iHyyTgQTjo9iebhOADk1xa3EKmg4Czyo3YPz+AFVPgAZMbRMy6Y7IZAgOjcTbaaLYrVoOCrDZbdjAdgnFI6NCdHbChTsQJU0nrdicogOGDrTl6zZAw3sKFOZwcW3Ne2O52ugD07KccHdYFWCLYbNNYA4AF5jUnxoxzpcYAlgKt2GyvE5hL7EQoKAX/jYtsJLUs0AlOVk4HBEGGwwp8GN1mRZNoxn0wy3OelK2BAukcVqQABdWdKMyqRAARgAHFodPpDIgTNRzJZ4vW9tEUs4kO4QOyeL4oqu18FQjg8IQSORTLE8AkSd0yJhMr0vYQOCgxgIU6ziGQdQNE0MCtM4UDRIcjDHCAnwwAAjoU8AcIBMDARwCTrBksqmNwCpIEqBxwXyArRCurgAPquCxc4LiAyjLgArFxm56AYSAAOxkaQFhxNQGz4eCp5tEgK4eF4N5+EgABMgTscwsBMP0uEArYXppseoxNi2bYdl2PZ9gOfScp0+ZgIWeEEcIKlMSx7jsB27DIAAhJpMBUjIhRwLOqyTtEvZmEgoCxDocAzFYCCBIEQA"}
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  timeout: 20_000, // [!code focus]
+})
+```
+
+### Return Value
+
+`Transport<'webSocket', { getRpcClient, subscribe }>`
+
+A WebSocket transport. The instance exposes `getRpcClient()` for the live client and `subscribe()` for JSON-RPC subscriptions.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Transport.UrlRequiredError` | No `url` was provided and the chain has no default WebSocket RPC URL. |

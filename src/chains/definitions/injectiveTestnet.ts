@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const injectiveTestnet = /*#__PURE__*/ defineChain({
+export const injectiveTestnet = /*#__PURE__*/ Chain.from({
   id: 1439,
   name: 'Injective Testnet',
   nativeCurrency: {
@@ -9,17 +10,16 @@ export const injectiveTestnet = /*#__PURE__*/ defineChain({
     symbol: 'INJ',
   },
   rpcUrls: {
-    default: {
-      http: ['https://k8s.testnet.json-rpc.injective.network'],
-      webSocket: ['wss://k8s.testnet.ws.injective.network'],
-    },
+    http: 'https://k8s.testnet.json-rpc.injective.network',
+    ws: 'wss://k8s.testnet.ws.injective.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Injective Explorer',
-      url: 'https://testnet.blockscout.injective.network',
-      apiUrl: 'https://testnet.blockscout.injective.network/api',
-    },
+    name: 'Injective Explorer',
+    url: 'https://testnet.blockscout.injective.network',
+    apiUrl: 'https://testnet.blockscout.injective.network/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

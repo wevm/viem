@@ -1,21 +1,17 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const kinetiqElysiumTestnet = /*#__PURE__*/ defineChain({
+export const kinetiqElysiumTestnet = /*#__PURE__*/ Chain.from({
   id: 99_801,
   name: 'Kinetiq Elysium Testnet',
   blockTime: 100,
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.elysium.kinetiq.xyz'],
-    },
+    http: 'https://testnet-rpc.elysium.kinetiq.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Elysium Testnet Explorer',
-      url: 'https://testnet.elysium.kinetiq.xyz',
-      apiUrl: 'https://testnet.elysium.kinetiq.xyz/api',
-    },
+    name: 'Elysium Testnet Explorer',
+    url: 'https://testnet.elysium.kinetiq.xyz',
+    apiUrl: 'https://testnet.elysium.kinetiq.xyz/api',
   },
   contracts: {
     multicall3: {

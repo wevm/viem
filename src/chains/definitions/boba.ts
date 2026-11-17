@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const boba = /*#__PURE__*/ defineChain({
+export const boba = /*#__PURE__*/ Chain.from({
   id: 288,
   name: 'Boba Network',
   nativeCurrency: {
@@ -8,16 +9,13 @@ export const boba = /*#__PURE__*/ defineChain({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet.boba.network'] },
-  },
+  rpcUrls: { http: 'https://mainnet.boba.network' },
   blockExplorers: {
-    default: {
-      name: 'BOBAScan',
-      url: 'https://bobascan.com',
-    },
+    name: 'BOBAScan',
+    url: 'https://bobascan.com',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 446859,

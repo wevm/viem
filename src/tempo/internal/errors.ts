@@ -1,11 +1,12 @@
-import type { Address } from 'abitype'
-import { TokenId } from 'ox/tempo'
+import type { Abi, Address } from 'ox'
+import { Value } from 'ox'
+
+import type * as Client from '../../core/Client.js'
+import type { read } from '../../core/actions/contract/read.js'
 import type {
-  MulticallParameters,
-  MulticallReturnType,
-} from '../../actions/public/multicall.js'
-import type { Client } from '../../clients/createClient.js'
-import { formatUnits } from '../../utils/unit/formatUnits.js'
+  ContractFunctionArgs,
+  ContractFunctionName,
+} from '../../core/actions/internal/contract.js'
 import type * as ExecutionError from '../ExecutionError.js'
 import type { TempoExecutionError } from '../errors.js'
 
@@ -24,16 +25,19 @@ export type Resolvers = {
   [signature in keyof typeof ExecutionError.messages]?: Resolver
 }
 
+/** Context passed to {@link Resolver}s. */
 export type Context = {
   /** Parameters for the base `TempoExecutionError`. */
   base: TempoExecutionError.Parameters
-  client: Client
+  client: Client.Client
   /** Signer, with its access key when signing with one. */
-  signer: { address: Address; accessKey: Address | undefined } | undefined
+  signer:
+    | { address: Address.Address; accessKey: Address.Address | undefined }
+    | undefined
   /** Contract call that failed, when the action made one. */
   call:
     | {
-        address: Address
+        address: Address.Address
         args: readonly unknown[]
         functionName: string
         /** Reads an argument by its ABI input name. */
@@ -45,44 +49,52 @@ export type Context = {
   /** Raw node message. */
   details: string
   parameters: Record<string, any>
-  /** Multicall with `allowFailure: true`. Resolves an empty array when the request fails. */
-  read: <const contracts extends readonly unknown[]>(
-    contracts: MulticallParameters<contracts>['contracts'],
-  ) => Promise<Partial<MulticallReturnType<contracts, true>>>
+  /** Reads a contract. Resolves `undefined` when the read fails. */
+  read: <
+    const abi extends Abi.Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+    const args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  >(
+    options: read.Options<abi, functionName, args>,
+  ) => Promise<read.ReturnType<abi, functionName, args> | undefined>
 }
 
 /**
- * Wraps an action so failures with a decoded Tempo error throw a {@link TempoExecutionError}.
+ * Runs an action so failures with a decoded Tempo error throw a {@link TempoExecutionError}.
  * Other errors are rethrown unchanged.
  *
  * @internal
  */
-export function withExecutionError<
-  action extends (client: any, parameters: any) => Promise<any>,
->(action: action, options: { hints?: Hints | undefined } = {}): action {
-  return (async (client: Client, parameters: Record<string, any>) => {
-    try {
-      return await action(client, parameters)
-    } catch (error) {
-      // Loaded on failure only, so resolvers and error tables stay out of the success path.
-      const { toExecutionError } = await import('./resolveError.js')
-      throw await toExecutionError(error, { ...options, client, parameters })
-    }
-  }) as action
+export async function withExecutionError<result>(
+  fn: () => Promise<result>,
+  options: withExecutionError.Options,
+): Promise<result> {
+  try {
+    return await fn()
+  } catch (error) {
+    // Loaded on failure only, so resolvers and error tables stay out of the success path.
+    const { toExecutionError } = await import('./resolveError.js')
+    throw await toExecutionError(error, options)
+  }
+}
+
+export declare namespace withExecutionError {
+  type Options = {
+    client: Client.Client
+    /** Action-specific steps to resolve errors. */
+    hints?: Hints | undefined
+    /** Action options, including the contract call. */
+    parameters: object
+  }
 }
 
 /** Fee token from the action parameters or chain, when set. */
-export function getFeeToken(context: Context) {
+export function getFeeToken(context: Context): Address.Address | undefined {
   const feeToken =
     context.parameters.feeToken ??
-    (
-      context.client.chain as
-        | { feeToken?: TokenId.TokenIdOrAddress }
-        | undefined
-    )?.feeToken
-  return feeToken === undefined || feeToken === null
-    ? undefined
-    : TokenId.toAddress(feeToken)
+    (context.client.chain as { feeToken?: Address.Address } | undefined)
+      ?.feeToken
+  return feeToken ?? undefined
 }
 
 /** Formats an amount as `formatted (raw)` when decimals are known. */
@@ -92,7 +104,7 @@ export function formatAmount(
 ) {
   if (value === undefined) return undefined
   if (decimals === undefined) return value.toString()
-  return `${formatUnits(value, decimals)} (${value})`
+  return `${Value.format(value, decimals)} (${value})`
 }
 
 /** Formats Unix seconds as an ISO 8601 string. */

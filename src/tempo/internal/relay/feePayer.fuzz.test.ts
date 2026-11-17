@@ -1,20 +1,22 @@
 import fc from 'fast-check'
 import { Hex, Secp256k1 } from 'ox'
 import { TxEnvelopeTempo } from 'ox/tempo'
-import { maxUint256, zeroAddress } from 'viem'
-import { Relay } from 'viem/tempo'
+import { tempoLocalnet as chain_ } from 'viem/chains'
+import { Account, Relay } from 'viem/tempo'
 import { expect, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
+import * as Tempo from '~test/tempo.js'
 import { fuzzParameters } from '~test/tempo/fuzz.js'
 import type * as Request from './request.js'
 import * as Utils from './utils.js'
 
-const sender = Tempo.accounts[9]!
-const sponsor = Tempo.accounts[0]!
+const maxUint256 = 2n ** 256n - 1n
+const zeroAddress = '0x0000000000000000000000000000000000000000'
+const sender = Account.fromSecp256k1(Tempo.accounts[9]!.privateKey)
+const sponsor = Account.fromSecp256k1(Tempo.accounts[0]!.privateKey)
 const tokens = {
   configured: '0x20c0000000000000000000000000000000000002',
-  requested: Tempo.addresses.alphaUsd,
-  resolved: Tempo.addresses.pathUsd,
+  requested: Tempo.alphaUsd,
+  resolved: Tempo.pathUsd,
 } as const
 
 const fill = fc.record({
@@ -64,7 +66,7 @@ test('signs a fill only within the validity limit of its nonce lane', async () =
       )
 
       const relay = Relay.create({
-        client: Tempo.getClient({ chain: Tempo.chain }),
+        client: Tempo.getClient({}),
         resolveTokens: () => [tokens.resolved],
         plugins: [
           Relay.feePayer({
@@ -81,7 +83,7 @@ test('signs a fill only within the validity limit of its nonce lane', async () =
         params: [
           {
             calls: [{ to: zeroAddress }],
-            chainId: Hex.fromNumber(Tempo.chain.id),
+            chainId: Hex.fromNumber(chain_.id),
             feePayer: true,
             from: sender.address,
             gas: '0x100000',

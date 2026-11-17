@@ -1,21 +1,17 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const qmsTestnet = /*#__PURE__*/ defineChain({
+export const qmsTestnet = /*#__PURE__*/ Chain.from({
   id: 19480,
   name: 'QMS Testnet',
   nativeCurrency: { name: 'QMS', symbol: 'QMS', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.qms.finance'],
-      webSocket: ['wss://rpc.testnet.qms.finance'],
-    },
+    http: 'https://rpc.testnet.qms.finance',
+    ws: 'wss://rpc.testnet.qms.finance',
   },
   blockExplorers: {
-    default: {
-      name: 'QMS Testnet Explorer',
-      url: 'https://testnet.qmsscan.io',
-      apiUrl: 'https://testnet.qmsscan.io/api',
-    },
+    name: 'QMS Testnet Explorer',
+    url: 'https://testnet.qmsscan.io',
+    apiUrl: 'https://testnet.qmsscan.io/api',
   },
   contracts: {
     multicall3: {

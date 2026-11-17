@@ -1,0 +1,493 @@
+import { describe, expect, test } from 'vitest'
+
+import * as anvil from '~test/anvil.js'
+import * as Http from '~test/http.js'
+import { custom, http, Transport } from 'viem'
+import { wait } from '../internal/wait.js'
+import * as fallback from './fallback.js'
+
+const url = anvil.mainnet.rpcUrl.http
+/** A transport whose endpoint always refuses the connection. */
+const dead = () => http('http://127.0.0.1:1')
+
+/** Poll until `fn` returns true, or throw on timeout. */
+async function waitFor(fn: () => boolean, timeout = 5_000) {
+  const start = Date.now()
+  while (!fn()) {
+    if (Date.now() - start > timeout) throw new Error('waitFor timeout')
+    await wait(10)
+  }
+}
+
+describe('shouldThrow', () => {
+  const withCode = (code: number) => Object.assign(new Error('x'), { code })
+
+  test('rethrows user-rejection and terminal codes', () => {
+    for (const code of [4001, 5000, -32003, 7000])
+      expect(fallback.shouldThrow(withCode(code))).toBe(true)
+  })
+
+  test('rethrows execution-reverted messages', () => {
+    expect(
+      fallback.shouldThrow(
+        Object.assign(new Error('execution reverted'), { code: 3 }),
+      ),
+    ).toBe(true)
+  })
+
+  test('does not rethrow other coded errors', () => {
+    expect(fallback.shouldThrow(withCode(-32000))).toBe(false)
+  })
+
+  test('does not rethrow errors without a numeric code', () => {
+    expect(fallback.shouldThrow(new Error('network'))).toBe(false)
+  })
+})
+
+describe('fallback', () => {
+  test('uses the first transport when it succeeds', async () => {
+    const transport = fallback.fallback([http(url)]).setup()
+    expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
+  })
+
+  test('falls through to the next transport on error', async () => {
+    const transport = fallback.fallback([dead(), http(url)]).setup()
+    expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
+  })
+
+  test('rethrows immediately when shouldThrow returns true', async () => {
+    const transport = fallback
+      .fallback([dead(), http(url)], {
+        retryCount: 0,
+        shouldThrow: () => true,
+      })
+      .setup()
+    await expect(transport.request({ method: 'eth_chainId' })).rejects.toThrow()
+  })
+
+  test('throws when the last transport fails', async () => {
+    const transport = fallback
+      .fallback([dead(), dead()], { retryCount: 0 })
+      .setup()
+    await expect(transport.request({ method: 'eth_chainId' })).rejects.toThrow()
+  })
+
+  test('does not fall through when the next transport excludes the method', async () => {
+    const next = http(url, { methods: { exclude: ['eth_chainId'] } })
+    const transport = fallback
+      .fallback([dead(), next], { retryCount: 0 })
+      .setup()
+    await expect(transport.request({ method: 'eth_chainId' })).rejects.toThrow()
+  })
+
+  test('falls through when the next transport includes the method', async () => {
+    const next = http(url, { methods: { include: ['eth_chainId'] } })
+    const transport = fallback.fallback([dead(), next]).setup()
+    expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
+  })
+
+  test('treats an empty method filter as supporting everything', async () => {
+    const next = http(url, { methods: {} })
+    const transport = fallback.fallback([dead(), next]).setup()
+    expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
+  })
+
+  test('invokes onResponse for each attempt', async () => {
+    const statuses: string[] = []
+    const transport = fallback.fallback([dead(), http(url)]).setup()
+    transport.onResponse((response) => statuses.push(response.status))
+    await transport.request({ method: 'eth_chainId' })
+    expect(statuses).toEqual(['error', 'success'])
+  })
+
+  test('threads the abort signal through to the inner transports', async () => {
+    // An in-process transport that hangs until its abort signal fires.
+    const hanging = Transport.from({
+      key: 'hanging',
+      name: 'Hanging',
+      type: 'hanging',
+      setup: () => ({
+        request: (_args, opts) =>
+          new Promise((_resolve, reject) => {
+            opts?.signal?.addEventListener(
+              'abort',
+              () => reject(new Error('aborted')),
+              { once: true },
+            )
+          }),
+      }),
+    })
+    const transport = fallback.fallback([hanging], { retryCount: 0 }).setup()
+    const controller = new AbortController()
+    const promise = transport.request(
+      { method: 'eth_chainId' },
+      { signal: controller.signal },
+    )
+    controller.abort()
+    const error = await promise.catch((error) => error as Error)
+    expect((error as Error).name).toBe('AbortError')
+  })
+
+  test('aborts an in-flight request', async () => {
+    const server = await Http.createServer((_req, res) => {
+      setTimeout(() => {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ result: '0x1' }))
+      }, 200)
+    })
+    try {
+      const transport = fallback.fallback([http(server.url)]).setup()
+      const controller = new AbortController()
+      const promise = transport.request(
+        { method: 'eth_chainId' },
+        { signal: controller.signal },
+      )
+      controller.abort()
+      const error = await promise.catch((error) => error as Error)
+      expect((error as Error).name).toBe('AbortError')
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('retries a JSON-RPC error from a non-2xx response by its HTTP status', async () => {
+    // Only the first request is rate limited.
+    const rateLimits = [{ error: { code: -32000, message: 'rate limited' } }]
+    const server = await Http.createServer((_req, res) => {
+      const rateLimit = rateLimits.shift()
+      res.writeHead(
+        rateLimit ? 429 : 200,
+        rateLimit
+          ? { 'Content-Type': 'application/json', 'Retry-After': '1' }
+          : { 'Content-Type': 'application/json' },
+      )
+      res.end(JSON.stringify(rateLimit ?? { result: '0x1' }))
+    })
+    try {
+      const transport = fallback.fallback([http(server.url)]).setup()
+
+      const start = Date.now()
+      const result = await transport.request({ method: 'eth_chainId' })
+      const elapsed = Date.now() - start
+
+      expect(result).toMatchInlineSnapshot(`"0x1"`)
+      expect(elapsed).toBeGreaterThan(900)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not retry a JSON-RPC error with a non-retryable HTTP status', async () => {
+    // A retry would receive the second, successful response.
+    const responses = [
+      { status: 400, body: { error: { code: -32000, message: 'bad' } } },
+      { status: 200, body: { result: '0x1' } },
+    ]
+    const server = await Http.createServer((_req, res) => {
+      const { status, body } = responses.shift()!
+      res.writeHead(status, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(body))
+    })
+    try {
+      const transport = fallback
+        .fallback([http(server.url)], { retryDelay: 0 })
+        .setup()
+
+      await expect(
+        transport.request({ method: 'eth_chainId' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidInputError: bad]`,
+      )
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not fall through on an eth_sendRawTransactionSync timeout', async () => {
+    const timeout = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 4,
+            data: '0xd75b1cdc25d0b1ad1e2a0d03b4a9b1f2a2f7a5fbd6e2ca3c40b8ce8a04f8e5c8',
+            message: 'Transaction confirmation timeout',
+          },
+        }),
+      )
+    })
+    const nonceTooLow = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({ error: { code: -32003, message: 'nonce too low' } }),
+      )
+    })
+    try {
+      const transport = fallback
+        .fallback([http(timeout.url), http(nonceTooLow.url)], {
+          retryCount: 0,
+        })
+        .setup()
+
+      await expect(
+        transport.request({
+          method: 'eth_sendRawTransactionSync',
+          params: ['0x02'],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InternalError: Transaction confirmation timeout]`,
+      )
+    } finally {
+      await timeout.close()
+      await nonceTooLow.close()
+    }
+  })
+
+  test('does not fall through on an eth_sendRawTransactionSync timeout (custom provider)', async () => {
+    const timeout = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 4,
+            data: '0xd75b1cdc25d0b1ad1e2a0d03b4a9b1f2a2f7a5fbd6e2ca3c40b8ce8a04f8e5c8',
+            message: 'Transaction confirmation timeout',
+          },
+        }),
+      )
+    })
+    const nonceTooLow = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({ error: { code: -32003, message: 'nonce too low' } }),
+      )
+    })
+    try {
+      const transport = fallback
+        .fallback(
+          [
+            // An EIP-1193 provider throws the plain JSON-RPC error.
+            custom({
+              async request({ method, params }) {
+                const response = await fetch(timeout.url, {
+                  body: JSON.stringify({
+                    id: 0,
+                    jsonrpc: '2.0',
+                    method,
+                    params,
+                  }),
+                  headers: { 'Content-Type': 'application/json' },
+                  method: 'POST',
+                })
+                const { error, result } = await response.json()
+                if (error) throw error
+                return result
+              },
+            }),
+            http(nonceTooLow.url),
+          ],
+          { retryCount: 0 },
+        )
+        .setup()
+
+      await expect(
+        transport.request({
+          method: 'eth_sendRawTransactionSync',
+          params: ['0x02'],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InternalError: Transaction confirmation timeout]`,
+      )
+    } finally {
+      await timeout.close()
+      await nonceTooLow.close()
+    }
+  })
+
+  test('falls through on error code 4 for other methods', async () => {
+    const failing = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: { code: 4, message: 'error' } }))
+    })
+    const succeeding = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    try {
+      const transport = fallback
+        .fallback([http(failing.url), http(succeeding.url)], {
+          retryCount: 0,
+        })
+        .setup()
+
+      expect(
+        await transport.request({ method: 'eth_blockNumber' }),
+      ).toMatchInlineSnapshot(`"0x1"`)
+    } finally {
+      await failing.close()
+      await succeeding.close()
+    }
+  })
+
+  test('exposes the inner transport instances', () => {
+    const transport = fallback.fallback([http(url), http(url)]).setup()
+    expect(transport.transports).toHaveLength(2)
+  })
+
+  test('stopRank: no-op when rank is disabled', () => {
+    const transport = fallback.fallback([http(url)]).setup()
+    expect(transport.stopRank()).toBeUndefined()
+  })
+
+  test('rank: enabling ranking still serves requests', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const transport = fallback
+      .fallback([http(server.url)], {
+        rank: { interval: 100, ping: async () => true },
+      })
+      .setup({ chain: undefined })
+
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
+    transport.stopRank()
+    await server.close()
+  })
+
+  test('rank: true uses defaults', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const transport = fallback
+      .fallback([http(server.url)], { rank: true })
+      .setup()
+
+    expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
+    transport.stopRank()
+    await server.close()
+  })
+})
+
+describe('rankTransports', () => {
+  test('ranks healthy/fast transports ahead of unhealthy ones', async () => {
+    const healthy = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: true }))
+    })
+    const unhealthy = await Http.createServer((_req, res) => {
+      res.writeHead(500, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: { code: -1, message: 'fail' } }))
+    })
+
+    const rankings: string[][] = []
+    const stop = fallback.rankTransports({
+      chain: undefined,
+      interval: 10,
+      sampleCount: 2,
+      timeout: 500,
+      transports: [
+        http(unhealthy.url, { key: 'unhealthy' }),
+        http(healthy.url, { key: 'healthy' }),
+      ],
+      onTransports: (transports) =>
+        rankings.push(transports.map((transport) => transport.key)),
+    })
+
+    await waitFor(() => rankings.length >= 3)
+    expect(rankings.at(-1)).toEqual(['healthy', 'unhealthy'])
+
+    stop()
+    await healthy.close()
+    await unhealthy.close()
+  })
+
+  test('weights: stability-only weighting still orders by success', async () => {
+    const healthy = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: true }))
+    })
+    const unhealthy = await Http.createServer((_req, res) => {
+      res.writeHead(500, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: { code: -1, message: 'fail' } }))
+    })
+
+    const rankings: string[][] = []
+    const stop = fallback.rankTransports({
+      interval: 10,
+      timeout: 500,
+      transports: [
+        http(unhealthy.url, { key: 'unhealthy' }),
+        http(healthy.url, { key: 'healthy' }),
+      ],
+      weights: { latency: 0, stability: 1 },
+      onTransports: (transports) =>
+        rankings.push(transports.map((transport) => transport.key)),
+    })
+
+    await waitFor(() => rankings.length >= 2)
+    expect(rankings.at(-1)).toEqual(['healthy', 'unhealthy'])
+
+    stop()
+    await healthy.close()
+    await unhealthy.close()
+  })
+
+  test('custom ping: invokes the provided ping function', async () => {
+    const methods: string[] = []
+    const server = await Http.createServer((req, res) => {
+      req.setEncoding('utf8')
+      req.on('data', (body) => {
+        methods.push(JSON.parse(body).method)
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+    })
+
+    let count = 0
+    const stop = fallback.rankTransports({
+      interval: 10,
+      transports: [http(server.url)],
+      onTransports: () => {},
+      ping: ({ transport }) => {
+        count++
+        return transport.request({
+          method: count % 2 === 0 ? 'eth_blockNumber' : 'eth_getBlockByNumber',
+        })
+      },
+    })
+
+    await waitFor(() => methods.length >= 2)
+    expect(methods.slice(0, 2)).toEqual([
+      'eth_getBlockByNumber',
+      'eth_blockNumber',
+    ])
+
+    stop()
+    await server.close()
+  })
+
+  test('stop: halts the ranking loop', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: true }))
+    })
+
+    const rankings: number[] = []
+    const stop = fallback.rankTransports({
+      interval: 10,
+      timeout: 500,
+      transports: [http(server.url)],
+      onTransports: () => rankings.push(rankings.length),
+    })
+
+    await waitFor(() => rankings.length >= 2)
+    stop()
+    const count = rankings.length
+    await wait(100)
+    expect(rankings.length).toBe(count)
+
+    await server.close()
+  })
+})

@@ -29,11 +29,10 @@ account pays any `402 Payment Required` the Gateway answers: a local account thr
 3. Extend a Client with `gatewayActions()` and call it.
 
 ```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, gatewayActions } from 'viem/tempo'
+import { Account, Client, gatewayActions } from 'viem/tempo'
 
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
-const client = createClient({ account }).extend(gatewayActions())
+const account = Account.fromSecp256k1('0x...')
+const client = Client.create({ account }).extend(gatewayActions())
 
 const { text } = await client.ai.generateText({
   maxOutputTokens: 256,
@@ -53,7 +52,7 @@ For a user's wallet instead of a key you hold, see [Use with Tempo Wallet](/temp
 4. The Gateway serves the request. Metered routes (AI tokens, compute seconds) reserve the most a call can cost
    and credit the unused part back to the channel.
 
-Your data is scoped by chain, paying wallet and **app** (the `Gateway-App` header viem sends from `app`), so
+Your data is scoped by chain, paying wallet and **app** (the `Gateway-App` header Viem sends from `app`), so
 two apps paid by the same wallet never see each other's keys or objects.
 
 ## See More

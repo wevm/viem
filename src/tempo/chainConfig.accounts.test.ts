@@ -1,17 +1,17 @@
-import { Signature } from 'ox'
 import { AccountConfig, KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
-import { hashMessage, hexToBytes, parseSignature, toHex } from 'viem'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { Account as CoreAccount, Actions as viem_Actions } from 'viem'
+import { Account, Actions } from 'viem/tempo'
 import {
-  prepareTransactionRequest,
-  verifyHash,
-  verifyMessage,
-} from 'viem/actions'
-import { createSiweMessage, verifySiweMessage } from 'viem/siwe'
-import { Account, Actions, P256 } from 'viem/tempo'
+  Hex,
+  P256,
+  PersonalMessage,
+  Secp256k1,
+  Signature,
+  Siwe,
+} from 'viem/utils'
 import { describe, expect, test } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
-import type { RootAccount } from './Account.js'
+import { accounts, feeToken, getClient } from '~test/tempoAccounts.js'
+import type { TransactionRequest } from './chainConfig.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -28,12 +28,15 @@ describe('prepareTransactionRequest', () => {
       threshold: 2,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account: Account.fromConfig({ address: 'infer', ...config }),
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: Account.fromConfig({ address: 'infer', ...config }),
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.accountSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).accountSimulation)
+      .toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -80,12 +83,15 @@ describe('prepareTransactionRequest', () => {
       threshold: 2,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account: Account.fromConfig({ address: 'infer', ...config }),
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: Account.fromConfig({ address: 'infer', ...config }),
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.accountSimulation?.approvals).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).accountSimulation?.approvals)
+      .toMatchInlineSnapshot(`
       [
         {
           "keyData": "0x0578",
@@ -107,12 +113,15 @@ describe('prepareTransactionRequest', () => {
       version: 2n,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account,
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.accountSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).accountSimulation)
+      .toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -145,12 +154,13 @@ describe('prepareTransactionRequest', () => {
       { access: accounts[0] },
     )
 
-    const request = await prepareTransactionRequest(client, {
+    const { request } = await viem_Actions.transaction.prepare(client, {
       account: accessKey,
       parameters: ['chainId'],
     })
 
-    expect(request.accountSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).accountSimulation)
+      .toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -188,10 +198,10 @@ describe('prepareTransactionRequest', () => {
     const owner_2 = accounts[2]
     const parent = Account.fromConfig({
       owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x111201, { size: 32 }),
+      salt: Hex.fromNumber(0x111201, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: parent,
     })
     await Actions.token.transferSync(client, {
@@ -204,7 +214,7 @@ describe('prepareTransactionRequest', () => {
       account: parent,
       accessKey,
     })
-    const keyAuthorization = (approvals: readonly RootAccount[]) =>
+    const keyAuthorization = (approvals: readonly Account.RootAccount[]) =>
       Promise.all(
         approvals.map((owner) =>
           owner.sign({ hash: authorization.signPayload }),
@@ -223,17 +233,21 @@ describe('prepareTransactionRequest', () => {
             })),
           }),
           type: 'secp256k1',
-        } as never),
+        } as KeyAuthorization.Signed),
       )
 
-    const pending = await prepareTransactionRequest(client, {
-      account: accessKey,
-      calls: [{ to: accounts[3].address }],
-      feeToken,
-      keyAuthorization: await keyAuthorization([owner_1]),
-    })
+    const { request: pending } = await viem_Actions.transaction.prepare(
+      client,
+      {
+        account: accessKey,
+        calls: [{ to: accounts[3].address }],
+        feeToken,
+        keyAuthorization: await keyAuthorization([owner_1]),
+      },
+    )
     expect(pending.gas).toBeGreaterThan(0n)
-    expect(pending.keyAuthorizationSimulation).toMatchInlineSnapshot(`
+    expect((pending as TransactionRequest).keyAuthorizationSimulation)
+      .toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -266,32 +280,29 @@ describe('prepareTransactionRequest', () => {
       }
     `)
 
-    const approved = await prepareTransactionRequest(client, {
-      account: accessKey,
-      calls: [{ to: accounts[3].address }],
-      feeToken,
-      keyAuthorization: await keyAuthorization([owner_1, owner_2]),
-    })
-    expect(approved.keyAuthorizationSimulation).toBeUndefined()
-  })
-
-  test('behavior: rejects nested account simulation', () => {
-    const child = Account.fromConfig({ owners: [accounts[1]] })
-    // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromConfig({ owners: [child] })).toThrow(
-      'Configurable account owners must use primitive signatures.',
+    const { request: approved } = await viem_Actions.transaction.prepare(
+      client,
+      {
+        account: accessKey,
+        calls: [{ to: accounts[3].address }],
+        feeToken,
+        keyAuthorization: await keyAuthorization([owner_1, owner_2]),
+      },
     )
+    expect(
+      (approved as TransactionRequest).keyAuthorizationSimulation,
+    ).toBeUndefined()
   })
 
   test('error: rejects a generic local owner account', async () => {
-    const owner = privateKeyToAccount(generatePrivateKey())
+    const owner = CoreAccount.fromPrivateKey(Secp256k1.randomPrivateKey())
     const config = AccountConfig.from({
       owners: [{ owner: owner.address, weight: 1 }],
       threshold: 1,
     })
 
     await expect(
-      prepareTransactionRequest(client, {
+      viem_Actions.transaction.prepare(client, {
         account: Account.fromConfig({ address: 'infer', ...config }),
         owner,
         parameters: ['chainId'],
@@ -303,10 +314,10 @@ describe('prepareTransactionRequest', () => {
 })
 
 describe('verifyHash', () => {
-  const hash = hashMessage('hello world')
+  const hash = PersonalMessage.getSignPayload(Hex.fromString('hello world'))
 
   /** Commits a config for the account, which retires its root key (TIP-1113). */
-  async function retire(root: RootAccount) {
+  async function retire(root: Account.RootAccount) {
     await Actions.token.transferSync(client, {
       account: accounts[0],
       amount: { formatted: '100' },
@@ -322,10 +333,10 @@ describe('verifyHash', () => {
   }
 
   test('behavior: rejects a retired secp256k1 root key', async () => {
-    const root = Account.fromSecp256k1(generatePrivateKey())
+    const root = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
     const { address } = root
     const signature = await root.sign({ hash })
-    const message = createSiweMessage({
+    const message = Siwe.createMessage({
       address,
       chainId: client.chain.id,
       domain: 'example.com',
@@ -335,33 +346,38 @@ describe('verifyHash', () => {
     })
     const siweSignature = await root.signMessage({ message })
     const verify = async () => ({
-      allowAccessKey: await verifyHash(client, {
+      allowAccessKey: await viem_Actions.verifyHash(client, {
         address,
         hash,
         mode: 'allowAccessKey',
         signature,
       }),
-      auto: await verifyHash(client, { address, hash, signature }),
-      bytes: await verifyHash(client, {
+      auto: await viem_Actions.verifyHash(client, { address, hash, signature }),
+      bytes: await viem_Actions.verifyHash(client, {
         address,
         hash,
         mode: 'eoa',
-        signature: hexToBytes(signature),
+        signature: Hex.toBytes(signature),
       }),
-      eoa: await verifyHash(client, { address, hash, mode: 'eoa', signature }),
-      object: await verifyHash(client, {
+      eoa: await viem_Actions.verifyHash(client, {
         address,
         hash,
-        signature: parseSignature(signature),
+        mode: 'eoa',
+        signature,
       }),
-      verifyMessage: await verifyMessage(client, {
+      object: await viem_Actions.verifyHash(client, {
+        address,
+        hash,
+        signature: Signature.fromHex(signature),
+      }),
+      siwe: await viem_Actions.siwe.verify(client, {
+        message,
+        signature: siweSignature,
+      }),
+      verifyMessage: await viem_Actions.verifyMessage(client, {
         address,
         message: 'hello world',
         signature,
-      }),
-      verifySiweMessage: await verifySiweMessage(client, {
-        message,
-        signature: siweSignature,
       }),
     })
 
@@ -377,8 +393,8 @@ describe('verifyHash', () => {
           "bytes": true,
           "eoa": true,
           "object": true,
+          "siwe": true,
           "verifyMessage": true,
-          "verifySiweMessage": true,
         },
         "retired": {
           "allowAccessKey": false,
@@ -386,8 +402,8 @@ describe('verifyHash', () => {
           "bytes": false,
           "eoa": false,
           "object": false,
+          "siwe": false,
           "verifyMessage": false,
-          "verifySiweMessage": false,
         },
       }
     `)
@@ -406,14 +422,19 @@ describe('verifyHash', () => {
     const { address } = root
     const signature = await root.sign({ hash })
     const verify = async () => ({
-      allowAccessKey: await verifyHash(client, {
+      allowAccessKey: await viem_Actions.verifyHash(client, {
         address,
         hash,
         mode: 'allowAccessKey',
         signature,
       }),
-      auto: await verifyHash(client, { address, hash, signature }),
-      eoa: await verifyHash(client, { address, hash, mode: 'eoa', signature }),
+      auto: await viem_Actions.verifyHash(client, { address, hash, signature }),
+      eoa: await viem_Actions.verifyHash(client, {
+        address,
+        hash,
+        mode: 'eoa',
+        signature,
+      }),
     })
 
     const active = await verify()

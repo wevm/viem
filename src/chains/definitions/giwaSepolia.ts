@@ -1,29 +1,26 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const giwaSepolia = /*#__PURE__*/ defineChain({
+export const giwaSepolia = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 91342,
-  network: 'giwa-sepolia',
   name: 'GIWA Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   blockTime: 1_000,
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-rpc.giwa.io'],
-    },
+    http: 'https://sepolia-rpc.giwa.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia-explorer.giwa.io',
-      apiUrl: 'https://sepolia-explorer.giwa.io/api',
-    },
+    name: 'Blockscout',
+    url: 'https://sepolia-explorer.giwa.io',
+    apiUrl: 'https://sepolia-explorer.giwa.io/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 0,
@@ -48,12 +45,10 @@ export const giwaSepolia = /*#__PURE__*/ defineChain({
   sourceId,
 })
 
-export const giwaSepoliaPreconf = defineChain({
+export const giwaSepoliaPreconf = Chain.from({
   ...giwaSepolia,
-  experimental_preconfirmationTime: 200,
+  preconfirmationTime: 200,
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-rpc-flashblocks.giwa.io'],
-    },
+    http: 'https://sepolia-rpc-flashblocks.giwa.io',
   },
 })

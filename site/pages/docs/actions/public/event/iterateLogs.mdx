@@ -1,0 +1,328 @@
+# Iterate Event Logs [event.iterateLogs]
+
+Iterates over the event logs in a block range, one page of blocks at a time.
+
+Use `event.iterateLogs` to read logs across more blocks than an RPC Provider allows in one [`event.getLogs`](/docs/actions/public/event/getLogs) call, such as when backfilling event history. To get every log in the range at once, pass `blockRange` to [`event.getLogs`](/docs/actions/public/event/getLogs#blockrange).
+
+## Usage
+
+Each page contains the logs from `fromBlock` to `toBlock`. Pages are contiguous and are yielded even when they contain no logs.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+for await (const page of client.event.iterateLogs({
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  fromBlock: 16330000n,
+  toBlock: 16340000n,
+})) {
+  console.log(page)
+  // @log: {
+  // @log:   endBlock: 16340000n,
+  // @log:   fromBlock: 16330000n,
+  // @log:   logs: [{ args: { from: '0x…', to: '0x…', value: 1n }, eventName: 'Transfer', ... }],
+  // @log:   toBlock: 16330999n,
+  // @log: }
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.event.iterateLogs` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+for await (const page of Actions.event.iterateLogs(client, {
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  fromBlock: 16330000n,
+  toBlock: 16340000n,
+})) {
+  console.log(page)
+  // @log: {
+  // @log:   endBlock: 16340000n,
+  // @log:   fromBlock: 16330000n,
+  // @log:   logs: [{ args: { from: '0x…', to: '0x…', value: 1n }, eventName: 'Transfer', ... }],
+  // @log:   toBlock: 16330999n,
+  // @log: }
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+### Resume an Iteration
+
+A page is only requested once the previous one has been consumed, and a page that fails is never yielded. Store each page's `toBlock` along with its logs, and resume from `toBlock + 1n`.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+declare function getCursor(): Promise<bigint>
+declare function save(
+  logs: readonly unknown[],
+  toBlock: bigint,
+  endBlock: bigint,
+): Promise<void>
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+for await (const page of client.event.iterateLogs({
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  fromBlock: (await getCursor()) + 1n, // [!code focus]
+  toBlock: 16340000n,
+})) {
+  await save(page.logs, page.toBlock, page.endBlock) // [!code focus]
+}
+```
+
+:::tip
+When `toBlock` is a block tag, it is resolved to a block number once, before the first page. Pass the resolved `endBlock` as `toBlock` when resuming so the iteration keeps the same end.
+:::
+
+### Handle Block Range Limits
+
+Pages span `blockRange` blocks. If a request fails with an error that a smaller block range may avoid (such as an RPC Provider's block range or response size limit), the page is halved and requested again. Network, authorization and rate limit errors are thrown instead.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+for await (const page of client.event.iterateLogs({
+  blockRange: 500n, // [!code focus]
+  fromBlock: 16330000n,
+  toBlock: 16340000n,
+}))
+  console.log(page.fromBlock, page.toBlock, page.logs.length)
+```
+
+## Return Value
+
+`AsyncGenerator<{ endBlock: bigint; fromBlock: bigint; logs: readonly Log[]; toBlock: bigint }>`
+
+An async iterator of pages. `endBlock` is the last block of the whole iteration, and each page's `logs` are typed the same as the return value of [`event.getLogs`](/docs/actions/public/event/getLogs#return-value).
+
+## Parameters
+
+### address
+
+- **Type:** `Address | readonly Address[]`
+
+One or more addresses from which the logs originated.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const pages = Actions.event.iterateLogs(client, {
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // [!code focus]
+  fromBlock: 16330000n,
+})
+```
+
+### args
+
+- **Type:** Inferred from `event`.
+
+The indexed argument values to filter the logs by. Requires `event`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const pages = Actions.event.iterateLogs(client, {
+  args: { // [!code focus]
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
+  }, // [!code focus]
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  fromBlock: 16330000n,
+})
+```
+
+### blockRange
+
+- **Type:** `bigint`
+- **Default:** `1_000n`
+
+The most blocks to request in one `eth_getLogs` call. Must be at least `1n`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const pages = Actions.event.iterateLogs(client, {
+  blockRange: 2_000n, // [!code focus]
+  fromBlock: 16330000n,
+})
+```
+
+### event
+
+- **Type:** `AbiEvent`
+
+The event to filter and decode the logs by. The returned logs include the decoded `args` and `eventName`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const pages = Actions.event.iterateLogs(client, {
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
+  fromBlock: 16330000n,
+})
+```
+
+### events
+
+- **Type:** `readonly AbiEvent[]`
+
+A list of events to filter and decode the logs by. Mutually exclusive with `event`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const pages = Actions.event.iterateLogs(client, {
+  events: [ // [!code focus]
+    AbiEvent.from('event Approval(address indexed owner, address indexed spender, uint256 value)'), // [!code focus]
+    AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
+  ], // [!code focus]
+  fromBlock: 16330000n,
+})
+```
+
+### fromBlock
+
+- **Type:** `bigint`
+
+The first block to include logs from (inclusive).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const pages = Actions.event.iterateLogs(client, {
+  fromBlock: 16330000n, // [!code focus]
+})
+```
+
+### strict
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether the logs must conform exactly to the indexed and non-indexed arguments on `event`. When `false`, logs that partially conform are included (and their non-conforming `args` are omitted).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const pages = Actions.event.iterateLogs(client, {
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  fromBlock: 16330000n,
+  strict: true, // [!code focus]
+})
+```
+
+### toBlock
+
+- **Type:** `bigint | 'latest' | 'earliest' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+The last block to include logs from (inclusive). A block tag is resolved to a block number once, before the first page.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const pages = Actions.event.iterateLogs(client, {
+  fromBlock: 16330000n,
+  toBlock: 16340000n, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.block.Errors.BlockNotFoundError` | The block for a `toBlock` tag could not be found. |
+| `Actions.event.Errors.InvalidBlockRangeError` | `blockRange` is less than `1n`. |
+| `AbiEvent.FilterTypeNotSupportedError` | `args` includes an indexed tuple or array, which event topic filters do not support. |
+| `AbiParameters.InvalidTypeError` | `args` includes an indexed ABI type that the topic encoder does not support. |
+| `Address.InvalidAddressError` | `args` includes an invalid indexed address. |
+| `Hex.IntegerOutOfRangeError` | `args` includes an indexed integer outside the supported 256-bit range. |
+| `Hex.SizeExceedsPaddingSizeError` | An indexed fixed-bytes value exceeds the 32-byte topic size. |

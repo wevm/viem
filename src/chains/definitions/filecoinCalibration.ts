@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const filecoinCalibration = /*#__PURE__*/ defineChain({
+export const filecoinCalibration = /*#__PURE__*/ Chain.from({
   id: 314_159,
   name: 'Filecoin Calibration',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const filecoinCalibration = /*#__PURE__*/ defineChain({
     name: 'testnet filecoin',
     symbol: 'tFIL',
   },
-  rpcUrls: {
-    default: { http: ['https://api.calibration.node.glif.io/rpc/v1'] },
-  },
+  rpcUrls: { http: 'https://api.calibration.node.glif.io/rpc/v1' },
   blockExplorers: {
-    default: {
-      name: 'Filscan',
-      url: 'https://calibration.filscan.io',
-    },
+    name: 'Filscan',
+    url: 'https://calibration.filscan.io',
   },
   testnet: true,
 })

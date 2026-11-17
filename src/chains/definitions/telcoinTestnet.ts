@@ -1,19 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const telcoinTestnet = /*#__PURE__*/ defineChain({
+export const telcoinTestnet = /*#__PURE__*/ Chain.from({
   id: 2017,
   name: 'Telcoin Adiri Testnet',
   nativeCurrency: { name: 'Telcoin', symbol: 'TEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.telcoin.network'],
-    },
+    http: 'https://rpc.telcoin.network',
   },
   blockExplorers: {
-    default: {
-      name: 'telscan',
-      url: 'https://telscan.io',
-    },
+    name: 'telscan',
+    url: 'https://telscan.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

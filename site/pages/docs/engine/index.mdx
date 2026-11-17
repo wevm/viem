@@ -1,0 +1,92 @@
+import { Card, Cards } from 'vocs'
+
+# Engine
+
+## Overview
+
+The **Engine** module configures the implementations used by Viem's
+[cryptography utilities](/docs/utilities/hash). Viem uses portable JavaScript implementations by
+default.
+
+An Engine can replace individual primitives with WebAssembly, Node.js, or custom implementations.
+The utility APIs remain unchanged.
+
+Engine slots are partial. An omitted slot or primitive keeps its current override. When no override
+exists, Viem uses its default implementation.
+
+The loaded Ox module instance owns the registry. Each cryptographic function resolves its
+implementation when called.
+
+| Entrypoint | Behavior |
+| --- | --- |
+| `viem` | Manages custom or prepared Engines. [`Engine.install`](/docs/engine/install) accepts an Engine value. |
+| `viem/wasm` | Compiles and installs every WebAssembly implementation supplied by the entrypoint. |
+| `viem/node` | Installs every `node:crypto` implementation supplied by the entrypoint. |
+
+```ts twoslash
+// @twoslash-cache: {"v":1,"hash":"ee02e16c8702d142afd1c43d3eb14028aa6f7ef07e53fa51d501e6d455f51444","data":"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="}
+import { Engine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+await Engine.install()
+
+const digest = Hash.sha256('0xdeadbeef')
+// @log: '0x5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
+```
+
+<Cards>
+  <Card
+    title="WASM and Engines"
+    description="Use WebAssembly, Node.js, and custom cryptography Engines with Viem."
+    icon="lucide:cpu"
+    to="/docs/guides/engine"
+  />
+  <Card
+    title="Install an Engine"
+    description="Install a runtime Engine or a prepared set of slots."
+    icon="lucide:download"
+    to="/docs/engine/install"
+  />
+  <Card
+    title="Create an Engine"
+    description="Prepare a Node.js or WebAssembly Engine without installing it."
+    icon="lucide:package-plus"
+    to="/docs/engine/engine"
+  />
+  <Card
+    title="Inspect an Engine"
+    description="Read the currently installed overrides."
+    icon="lucide:search"
+    to="/docs/engine/get"
+  />
+  <Card
+    title="Set an Engine"
+    description="Synchronously install custom cryptographic implementations."
+    icon="lucide:settings"
+    to="/docs/engine/set"
+  />
+  <Card
+    title="Reset an Engine"
+    description="Restore one slot or every slot to its default."
+    icon="lucide:rotate-ccw"
+    to="/docs/engine/reset"
+  />
+  <Card
+    title="Scope an Engine"
+    description="Temporarily install an Engine for one synchronous function."
+    icon="lucide:brackets"
+    to="/docs/engine/with"
+  />
+  <Card
+    title="Errors"
+    description="Handle invalid slots, primitives, and asynchronous scopes."
+    icon="lucide:circle-alert"
+    to="/docs/engine/errors"
+  />
+  <Card
+    title="Types"
+    description="Reference Engine slots and primitive contracts."
+    icon="lucide:braces"
+    to="/docs/engine/types"
+  />
+</Cards>

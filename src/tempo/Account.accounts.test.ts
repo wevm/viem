@@ -1,21 +1,16 @@
 import { SignatureEnvelope } from 'ox/tempo'
-import { hashMessage, toHex } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import {
-  getTransaction,
-  prepareTransactionRequest,
-  sendRawTransactionSync,
-  sendTransactionSync,
-  signTransaction,
-  verifyHash,
-} from 'viem/actions'
+import { Actions as viem_Actions } from 'viem'
 import { Account, Actions } from 'viem/tempo'
+import { Hex, PersonalMessage, Secp256k1 } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
-import * as tempo from '~test/tempo/config.js'
+import * as tempo from '~test/tempoAccounts.js'
+import type { TransactionRequest } from './chainConfig.js'
 
 const client = tempo.getClient()
 const { accounts, feeToken } = tempo
 const to = '0x0000000000000000000000000000000000000001'
+const hashMessage = (message: string) =>
+  PersonalMessage.getSignPayload(Hex.fromString(message))
 
 describe('fromConfig (access key)', () => {
   test('default', async () => {
@@ -23,7 +18,7 @@ describe('fromConfig (access key)', () => {
     const accessKey = Account.fromConfig(
       {
         owners: [accounts[2], accounts[3]],
-        salt: toHex(0x111101, { size: 32 }),
+        salt: Hex.fromNumber(0x111101, { size: 32 }),
         threshold: 2,
       },
       { access: parent },
@@ -35,7 +30,7 @@ describe('fromConfig (access key)', () => {
       feeToken,
     })
     const metadata = await Actions.accessKey.getMetadata(client, {
-      account: parent,
+      account: parent.address,
       accessKey,
     })
     expect({
@@ -50,7 +45,7 @@ describe('fromConfig (access key)', () => {
       }
     `)
 
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await viem_Actions.transaction.sendSync(client, {
       account: accessKey,
       calls: [{ to, value: 0n }],
       feeToken,
@@ -58,7 +53,7 @@ describe('fromConfig (access key)', () => {
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(parent.address.toLowerCase())
 
-    const { signature } = await getTransaction(client, {
+    const { signature } = await viem_Actions.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     if (signature?.type !== 'keychain') throw new Error('Expected keychain.')
@@ -83,7 +78,7 @@ describe('fromConfig (access key)', () => {
     const parent = accounts[0]
     const teamConfig = {
       owners: [accounts[5], accounts[6]],
-      salt: toHex(0x111102, { size: 32 }),
+      salt: Hex.fromNumber(0x111102, { size: 32 }),
       threshold: 1,
     }
     const team = Account.fromConfig(teamConfig)
@@ -103,17 +98,19 @@ describe('fromConfig (access key)', () => {
       }
     `)
 
-    const request = await prepareTransactionRequest(client, {
+    const { request } = await viem_Actions.transaction.prepare(client, {
       account: accessKey,
       feeToken,
       keyAuthorization,
       to,
       value: 0n,
     })
-    expect(request.accountSimulation?.signer).toBe(team.address)
+    expect((request as TransactionRequest).accountSimulation?.signer).toBe(
+      team.address,
+    )
 
-    const receipt = await sendRawTransactionSync(client, {
-      serializedTransaction: await signTransaction(client, request),
+    const receipt = await viem_Actions.transaction.sendRawSync(client, {
+      transaction: await viem_Actions.transaction.sign(client, request),
     })
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(parent.address.toLowerCase())
@@ -123,7 +120,7 @@ describe('fromConfig (access key)', () => {
     const parent = accounts[0]
     const teamConfig = {
       owners: [accounts[8]],
-      salt: toHex(0x111103, { size: 32 }),
+      salt: Hex.fromNumber(0x111103, { size: 32 }),
     }
     const team = Account.fromConfig(teamConfig)
     const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
@@ -135,23 +132,25 @@ describe('fromConfig (access key)', () => {
       keyAuthorization,
     })
 
-    const first = await prepareTransactionRequest(client, {
+    const { request: first } = await viem_Actions.transaction.prepare(client, {
       account: accessKey,
       calls: [{ to, value: 0n }],
       feeToken,
     })
-    expect(first.keyAuthorization?.address).toBe(team.address)
-    const receipt = await sendRawTransactionSync(client, {
-      serializedTransaction: await signTransaction(client, first),
+    expect((first as TransactionRequest).keyAuthorization?.address).toBe(
+      team.address,
+    )
+    const receipt = await viem_Actions.transaction.sendRawSync(client, {
+      transaction: await viem_Actions.transaction.sign(client, first),
     })
     expect(receipt.status).toBe('success')
 
-    const second = await prepareTransactionRequest(client, {
+    const { request: second } = await viem_Actions.transaction.prepare(client, {
       account: accessKey,
       calls: [{ to, value: 0n }],
       feeToken,
     })
-    expect(second.keyAuthorization).toBeUndefined()
+    expect((second as TransactionRequest).keyAuthorization).toBeUndefined()
   })
 
   test('behavior: external owner approvals', async () => {
@@ -160,7 +159,7 @@ describe('fromConfig (access key)', () => {
     const accessKey = Account.fromConfig(
       {
         owners: [accounts[10], owner_external.address],
-        salt: toHex(0x111104, { size: 32 }),
+        salt: Hex.fromNumber(0x111104, { size: 32 }),
         threshold: 2,
       },
       { access: parent },
@@ -171,16 +170,16 @@ describe('fromConfig (access key)', () => {
       feeToken,
     })
 
-    const request = await prepareTransactionRequest(client, {
+    const { request } = await viem_Actions.transaction.prepare(client, {
       account: accessKey,
       calls: [{ to, value: 0n }],
       feeToken,
     })
-    const approval = await signTransaction(client, {
+    const approval = await viem_Actions.transaction.sign(client, {
       ...request,
       account: owner_external,
     })
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await viem_Actions.transaction.sendSync(client, {
       ...request,
       signatures: [approval],
     })
@@ -189,14 +188,14 @@ describe('fromConfig (access key)', () => {
     expect(receipt.from).toBe(parent.address.toLowerCase())
   })
 
-  test('behavior: owner approval', async () => {
+  test('behavior: approvals from address-only owners', async () => {
     const parent = accounts[0]
     const owner_1 = accounts[13]
     const owner_2 = accounts[14]
     const accessKey = Account.fromConfig(
       {
         owners: [owner_1.address, owner_2.address],
-        salt: toHex(0x111105, { size: 32 }),
+        salt: Hex.fromNumber(0x111105, { size: 32 }),
         threshold: 2,
       },
       { access: parent },
@@ -207,17 +206,17 @@ describe('fromConfig (access key)', () => {
       feeToken,
     })
 
-    const request = await prepareTransactionRequest(client, {
+    const { request } = await viem_Actions.transaction.prepare(client, {
       account: accessKey,
       calls: [{ to, value: 0n }],
       feeToken,
     })
     const signatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
-        signTransaction(client, { ...request, owner } as never),
+        viem_Actions.transaction.sign(client, { ...request, account: owner }),
       ),
     )
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await viem_Actions.transaction.sendSync(client, {
       ...request,
       signatures,
     })
@@ -231,7 +230,7 @@ describe('fromConfig (access key)', () => {
     const accessKey = Account.fromConfig(
       {
         owners: [accounts[16], accounts[17]],
-        salt: toHex(0x111106, { size: 32 }),
+        salt: Hex.fromNumber(0x111106, { size: 32 }),
         threshold: 2,
       },
       { access: parent },
@@ -244,8 +243,8 @@ describe('fromConfig (access key)', () => {
 
     const hash = hashMessage('hello')
     const signature = await accessKey.signMessage({ message: 'hello' })
-    const verify = (hash: `0x${string}`) =>
-      verifyHash(client, {
+    const verify = (hash: Hex.Hex) =>
+      viem_Actions.verifyHash(client, {
         address: parent.address,
         hash,
         mode: 'allowAccessKey',
@@ -269,14 +268,14 @@ describe('fromConfig (access key)', () => {
     const accessKey = Account.fromConfig(
       {
         owners: [accounts[19]],
-        salt: toHex(0x111107, { size: 32 }),
+        salt: Hex.fromNumber(0x111107, { size: 32 }),
       },
       { access: parent },
     )
 
     const hash = hashMessage('hello')
     expect(
-      await verifyHash(client, {
+      await viem_Actions.verifyHash(client, {
         address: parent.address,
         hash,
         mode: 'allowAccessKey',
@@ -289,7 +288,7 @@ describe('fromConfig (access key)', () => {
     const parent = accounts[0]
     const teamConfig = {
       owners: [accounts[20]],
-      salt: toHex(0x111109, { size: 32 }),
+      salt: Hex.fromNumber(0x111109, { size: 32 }),
     }
     const team = Account.fromConfig(teamConfig)
     await Actions.accessKey.authorizeSync(client, {
@@ -301,7 +300,7 @@ describe('fromConfig (access key)', () => {
 
     const hash = hashMessage('hello')
     expect(
-      await verifyHash(client, {
+      await viem_Actions.verifyHash(client, {
         address: parent.address,
         hash,
         mode: 'allowAccessKey',
@@ -312,9 +311,9 @@ describe('fromConfig (access key)', () => {
 
   test('behavior: verifyHash accepts a migrated delegate whatever key type its grant stores', async () => {
     const parent = accounts[0]
-    const privateKey = generatePrivateKey()
+    const privateKey = Secp256k1.randomPrivateKey()
     const root = Account.fromSecp256k1(privateKey)
-    const owner = Account.fromSecp256k1(generatePrivateKey())
+    const owner = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
     await Actions.token.transferSync(client, {
       account: parent,
       amount: { formatted: '100' },
@@ -334,7 +333,7 @@ describe('fromConfig (access key)', () => {
     })
     const hash = hashMessage('hello')
     const verify = async (account: Account.AccessKeyAccount) =>
-      verifyHash(client, {
+      viem_Actions.verifyHash(client, {
         address: parent.address,
         hash,
         mode: 'allowAccessKey',
@@ -364,7 +363,7 @@ describe('fromConfig (access key)', () => {
 
   test('behavior: verifyHash rejects an inner signature of another key type', async () => {
     const parent = accounts[0]
-    const privateKey = generatePrivateKey()
+    const privateKey = Secp256k1.randomPrivateKey()
     const accessKey = Account.fromSecp256k1(privateKey, { access: parent })
     await Actions.accessKey.authorizeSync(client, {
       account: parent,
@@ -374,12 +373,30 @@ describe('fromConfig (access key)', () => {
 
     const hash = hashMessage('hello')
     expect(
-      await verifyHash(client, {
+      await viem_Actions.verifyHash(client, {
         address: parent.address,
         hash,
         mode: 'allowAccessKey',
         signature: await accessKey.sign({ hash }),
       }),
     ).toBe(false)
+  })
+
+  test('error: owner option', async () => {
+    const accessKey = Account.fromConfig(
+      { owners: [accounts[13].address], threshold: 1 },
+      { access: accounts[0] },
+    )
+
+    await expect(
+      viem_Actions.transaction.prepare(client, {
+        account: accessKey,
+        calls: [{ to, value: 0n }],
+        feeToken,
+        owner: accounts[13],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: A configurable account is required when an owner is provided.]`,
+    )
   })
 })

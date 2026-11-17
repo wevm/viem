@@ -1,56 +1,87 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { Hex } from 'ox'
+import { Address, Hex, P256, Secp256k1 } from 'ox'
 import { KeyAuthorization } from 'ox/tempo'
-import { createClient, http, isAddressEqual, zeroAddress } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import { fillTransaction, sendTransactionSync } from 'viem/actions'
-import { Account, Actions, Relay, Store, withRelay } from 'viem/tempo'
-import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
-import { createHttpServer } from '~test/utils.js'
-import { wait } from '../../../utils/wait.js'
+import { Actions as CoreActions, Client as CoreClient } from 'viem'
+import { tempoLocalnet } from 'viem/chains'
+import {
+  Account,
+  Actions,
+  Client,
+  http,
+  Relay,
+  Store,
+  withRelay,
+} from 'viem/tempo'
+import { describe, expect, onTestFinished, test } from 'vitest'
+import { createServer as createHttpServer } from '~test/http.js'
+import * as Tempo from '~test/tempo.js'
+import { wait } from '../../../core/internal/wait.js'
 import { parseApproval } from '../../accounts/Signature.js'
 import { remove, write } from './keyAuthorization.js'
 
-const root = Tempo.accounts[1]!
-const feeToken = Tempo.addresses.alphaUsd
-const caller = Tempo.getClient({ chain: Tempo.chain })
+const root = Account.fromSecp256k1(Tempo.accounts[0]!.privateKey)
+const feeToken = Tempo.pathUsd
+const caller = Tempo.getClient({ account: root, feeToken })
+const to = '0x0000000000000000000000000000000000000000'
 
 const expiry = () => Math.floor(Date.now() / 1000) + 3_600
 
-beforeAll(async () => {
-  await Actions.faucet.fundSync(caller, {
-    account: root,
-    timeout: 60_000,
-  })
-})
+/** Serializes a key authorization, ignoring address casing from node round trips. */
+const serialize = (keyAuthorization: KeyAuthorization.Signed) =>
+  KeyAuthorization.serialize(keyAuthorization).toLowerCase()
 
-test('default: attaches a signed key authorization to the next transaction', async () => {
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [Relay.keyAuthorization()],
+/** Prepares an access key transaction and returns its serialized key authorization. */
+async function prepare(
+  client: CoreClient.Client<typeof tempoLocalnet>,
+  options: {
+    accessKey: Account.AccessKeyAccount
+    keyAuthorization?: KeyAuthorization.Signed | undefined
+  },
+) {
+  const { accessKey, keyAuthorization } = options
+  const { request } = await CoreActions.transaction.prepare(client, {
+    account: accessKey,
+    feeToken,
+    ...(keyAuthorization ? { keyAuthorization } : {}),
+    to,
+  })
+  return request.keyAuthorization && serialize(request.keyAuthorization)
+}
+
+function getClient(options: Relay.keyAuthorization.Options = {}) {
+  return Tempo.getClient({
+    account: root,
+    feeToken,
+    transport: withRelay(http(Tempo.rpcUrl), {
+      plugins: [Relay.keyAuthorization(options)],
     }),
   })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+}
+
+function getKey(accessKey: Address.Address) {
+  return [
+    'keyAuthorization',
+    caller.chain.id,
+    root.address.toLowerCase(),
+    accessKey.toLowerCase(),
+  ].join(':')
+}
+
+test('default: attaches a signed key authorization to the next transaction', async () => {
+  const client = getClient()
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
 
   const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
     account: root,
     accessKey,
     expiry: expiry(),
   })
-  const { transaction } = await fillTransaction(client, {
+  expect(await prepare(client, { accessKey })).toBe(serialize(keyAuthorization))
+
+  const receipt = await CoreActions.transaction.sendSync(client, {
     account: accessKey,
     feeToken,
-    to: zeroAddress,
-  })
-
-  expect(transaction.keyAuthorization).toEqual(keyAuthorization)
-
-  const receipt = await sendTransactionSync(client, {
-    account: accessKey,
-    feeToken,
-    to: zeroAddress,
+    to,
   })
   const metadata = await Actions.accessKey.getMetadata(client, {
     account: root.address,
@@ -58,18 +89,12 @@ test('default: attaches a signed key authorization to the next transaction', asy
   })
 
   expect(receipt.status).toMatchInlineSnapshot(`"success"`)
-  expect(isAddressEqual(metadata.address, accessKey.accessKeyAddress)).toBe(
+  expect(Address.isEqual(metadata.address, accessKey.accessKeyAddress)).toBe(
     true,
   )
   expect(metadata.isRevoked).toMatchInlineSnapshot(`false`)
 
-  const next = await fillTransaction(client, {
-    account: accessKey,
-    feeToken,
-    to: zeroAddress,
-  })
-
-  expect(next.transaction.keyAuthorization).toBeUndefined()
+  expect(await prepare(client, { accessKey })).toBeUndefined()
 })
 
 test('behavior: plain HTTP relay saves and attaches key authorizations', async () => {
@@ -81,13 +106,14 @@ test('behavior: plain HTTP relay saves and attaches key authorizations', async (
   onTestFinished(async () => {
     await server.close()
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), http(server.url), {
+  const client = Client.create({
+    chain: tempoLocalnet,
+    pollingInterval: 100,
+    transport: withRelay(http(Tempo.rpcUrl), http(server.url), {
       keyAuthorization: true,
     }),
   })
-  const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+  const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
     access: root,
   })
 
@@ -96,18 +122,12 @@ test('behavior: plain HTTP relay saves and attaches key authorizations', async (
     accessKey,
     expiry: expiry(),
   })
-  const { transaction } = await fillTransaction(client, {
+  expect(await prepare(client, { accessKey })).toBe(serialize(keyAuthorization))
+
+  const receipt = await CoreActions.transaction.sendSync(client, {
     account: accessKey,
     feeToken,
-    to: zeroAddress,
-  })
-
-  expect(transaction.keyAuthorization).toEqual(keyAuthorization)
-
-  const receipt = await sendTransactionSync(client, {
-    account: accessKey,
-    feeToken,
-    to: zeroAddress,
+    to,
   })
 
   expect(receipt.status).toMatchInlineSnapshot(`"success"`)
@@ -119,13 +139,14 @@ test('behavior: relays without the plugin still return signed key authorizations
   onTestFinished(async () => {
     await server.close()
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), http(server.url), {
+  const client = Client.create({
+    chain: tempoLocalnet,
+    pollingInterval: 100,
+    transport: withRelay(http(Tempo.rpcUrl), http(server.url), {
       keyAuthorization: true,
     }),
   })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
 
   const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
     account: root,
@@ -134,43 +155,25 @@ test('behavior: relays without the plugin still return signed key authorizations
   })
 
   expect(
-    isAddressEqual(keyAuthorization.address, accessKey.accessKeyAddress),
+    Address.isEqual(keyAuthorization.address, accessKey.accessKeyAddress),
   ).toBe(true)
 })
 
 test('behavior: does not attach to keys authorized onchain', async () => {
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [Relay.keyAuthorization()],
-    }),
-  })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const client = getClient()
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
 
   await Actions.accessKey.authorizeSync(client, {
     account: root,
     accessKey,
     expiry: expiry(),
-    feeToken,
   })
-  const { transaction } = await fillTransaction(client, {
-    account: accessKey,
-    feeToken,
-    to: zeroAddress,
-  })
-
-  expect(transaction.keyAuthorization).toBeUndefined()
+  expect(await prepare(client, { accessKey })).toBeUndefined()
 })
 
 test('behavior: keeps an explicit key authorization', async () => {
-  const store = Store.memory()
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [Relay.keyAuthorization({ store })],
-    }),
-  })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const client = getClient()
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
 
   await Actions.accessKey.signAuthorization(client, {
     account: root,
@@ -182,65 +185,40 @@ test('behavior: keeps an explicit key authorization', async () => {
     accessKey,
     expiry: expiry() + 1,
   })
-  const { transaction } = await fillTransaction(client, {
-    account: accessKey,
-    feeToken,
-    keyAuthorization,
-    to: zeroAddress,
-  })
-
-  expect(transaction.keyAuthorization).toEqual(keyAuthorization)
+  expect(await prepare(client, { accessKey, keyAuthorization })).toBe(
+    serialize(keyAuthorization),
+  )
 })
 
 test('behavior: drops expired key authorizations', async () => {
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [Relay.keyAuthorization()],
-    }),
-  })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const store = Store.memory()
+  const client = getClient({ store })
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
 
   await Actions.accessKey.signAuthorization(client, {
     account: root,
     accessKey,
     expiry: Math.floor(Date.now() / 1000) + 2,
   })
+
+  expect(await store.getItem(getKey(accessKey.accessKeyAddress))).toBeTypeOf(
+    'string',
+  )
+
   await wait(2_000)
-  await expect(
-    fillTransaction(client, {
-      account: accessKey,
-      feeToken,
-      to: zeroAddress,
-    }),
-  ).rejects.toThrow('KeyNotFound')
+  await expect(prepare(client, { accessKey })).rejects.toThrow('KeyNotFound')
+  expect(await store.getItem(getKey(accessKey.accessKeyAddress))).toBeNull()
 })
 
 test('behavior: drops malformed stored key authorizations', async () => {
   const store = Store.memory()
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [Relay.keyAuthorization({ store })],
-    }),
-  })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
-  const key = [
-    'keyAuthorization',
-    Tempo.chain.id,
-    root.address.toLowerCase(),
-    accessKey.accessKeyAddress.toLowerCase(),
-  ].join(':')
+  const client = getClient({ store })
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
+  const key = getKey(accessKey.accessKeyAddress)
 
   await store.setItem(key, '0xdeadbeef')
 
-  await expect(
-    fillTransaction(client, {
-      account: accessKey,
-      feeToken,
-      to: zeroAddress,
-    }),
-  ).rejects.toThrow('KeyNotFound')
+  await expect(prepare(client, { accessKey })).rejects.toThrow('KeyNotFound')
   expect(await store.getItem(key)).toBeNull()
 })
 
@@ -250,13 +228,8 @@ test('behavior: keeps a newer pending key authorization', async () => {
     client: caller,
     plugins: [Relay.keyAuthorization({ store })],
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [Relay.keyAuthorization({ store })],
-    }),
-  })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const client = getClient({ store })
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
   const [older, newer, newest] = await Promise.all(
     [1, 2, 3].map((hours) =>
       Actions.accessKey.signAuthorization(caller, {
@@ -271,14 +244,6 @@ test('behavior: keeps a newer pending key authorization', async () => {
       method: 'relay_saveKeyAuthorization',
       params: [KeyAuthorization.toRpc(keyAuthorization)],
     })
-  const fill = async () => {
-    const { transaction } = await fillTransaction(client, {
-      account: accessKey,
-      feeToken,
-      to: zeroAddress,
-    })
-    return transaction.keyAuthorization
-  }
 
   await save(newer!)
 
@@ -286,11 +251,11 @@ test('behavior: keeps a newer pending key authorization', async () => {
     `[RpcResponse.InvalidParamsError: A pending key authorization for this access key expires later.]`,
   )
   expect(await save(newer!)).toMatchInlineSnapshot(`null`)
-  expect(await fill()).toEqual(newer)
+  expect(await prepare(client, { accessKey })).toBe(serialize(newer!))
 
   await save(newest!)
 
-  expect(await fill()).toEqual(newest)
+  expect(await prepare(client, { accessKey })).toBe(serialize(newest!))
 })
 
 test('behavior: does not save key authorizations for active keys', async () => {
@@ -299,7 +264,7 @@ test('behavior: does not save key authorizations for active keys', async () => {
     client: caller,
     plugins: [Relay.keyAuthorization({ store })],
   })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
   const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
     account: root,
     accessKey,
@@ -309,7 +274,6 @@ test('behavior: does not save key authorizations for active keys', async () => {
     account: root,
     accessKey,
     expiry: expiry(),
-    feeToken,
   })
 
   expect(
@@ -318,21 +282,12 @@ test('behavior: does not save key authorizations for active keys', async () => {
       params: [KeyAuthorization.toRpc(keyAuthorization)],
     }),
   ).toMatchInlineSnapshot(`null`)
-  expect(
-    await store.getItem(
-      [
-        'keyAuthorization',
-        Tempo.chain.id,
-        root.address.toLowerCase(),
-        accessKey.accessKeyAddress.toLowerCase(),
-      ].join(':'),
-    ),
-  ).toBeNull()
+  expect(await store.getItem(getKey(accessKey.accessKeyAddress))).toBeNull()
 })
 
 test('behavior: concurrent writes keep the later expiry', async () => {
   const store = Store.memory()
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
   const [earlier, later] = await Promise.all(
     [1, 2].map((hours) =>
       Actions.accessKey.signAuthorization(caller, {
@@ -354,27 +309,15 @@ test('behavior: concurrent writes keep the later expiry', async () => {
       false,
     ]
   `)
-  expect(
-    await store.getItem(
-      [
-        'keyAuthorization',
-        Tempo.chain.id,
-        root.address.toLowerCase(),
-        accessKey.accessKeyAddress.toLowerCase(),
-      ].join(':'),
-    ),
-  ).toBe(KeyAuthorization.serialize(later!))
+  expect(await store.getItem(getKey(accessKey.accessKeyAddress))).toBe(
+    KeyAuthorization.serialize(later!),
+  )
 })
 
 test('behavior: writes replace malformed values and keep unbounded authorizations', async () => {
   const store = Store.memory()
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
-  const key = [
-    'keyAuthorization',
-    Tempo.chain.id,
-    root.address.toLowerCase(),
-    accessKey.accessKeyAddress.toLowerCase(),
-  ].join(':')
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
+  const key = getKey(accessKey.accessKeyAddress)
   const [unbounded, expiring] = await Promise.all([
     Actions.accessKey.signAuthorization(caller, {
       account: root,
@@ -408,13 +351,8 @@ test('behavior: replaces a pending key authorization whose witness was burned', 
     client: caller,
     plugins: [Relay.keyAuthorization({ store })],
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [Relay.keyAuthorization({ store })],
-    }),
-  })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const client = getClient({ store })
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
   const witness = Hex.random(32)
   const [burned, replacement] = await Promise.all([
     Actions.accessKey.signAuthorization(caller, {
@@ -434,22 +372,13 @@ test('behavior: replaces a pending key authorization whose witness was burned', 
     })
 
   await save(burned)
-  await Actions.accessKey.burnWitnessSync(caller, {
-    account: root,
-    feeToken,
-    witness,
-  })
+  await Actions.accessKey.burnWitnessSync(caller, { account: root, witness })
 
   await expect(save(burned)).rejects.toThrowErrorMatchingInlineSnapshot(
     `[RpcResponse.InvalidParamsError: Key authorization witness has been burned.]`,
   )
   expect(await save(replacement)).toMatchInlineSnapshot(`null`)
-  const { transaction } = await fillTransaction(client, {
-    account: accessKey,
-    feeToken,
-    to: zeroAddress,
-  })
-  expect(transaction.keyAuthorization).toEqual(replacement)
+  expect(await prepare(client, { accessKey })).toBe(serialize(replacement))
 })
 
 test('behavior: removes only an unchanged stored value', async () => {
@@ -469,7 +398,8 @@ test('error: requires an atomic store', () => {
   const { compareAndSet: _, ...store } = Store.memory()
 
   expect(() =>
-    Relay.keyAuthorization({ store: store as never }),
+    // @ts-expect-error The store lacks `compareAndSet`.
+    Relay.keyAuthorization({ store }),
   ).toThrowErrorMatchingInlineSnapshot(
     `[RpcResponse.InvalidParamsError: Key authorization storage requires a store with atomic \`compareAndSet\`.]`,
   )
@@ -482,7 +412,9 @@ describe('relay_saveKeyAuthorization', () => {
   })
 
   test('behavior: accepts a serialized key authorization', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: root,
+    })
     const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
       account: root,
       accessKey,
@@ -498,11 +430,13 @@ describe('relay_saveKeyAuthorization', () => {
   })
 
   test('behavior: accepts a root key authorization bound to its account', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: root,
+    })
     const unsigned = KeyAuthorization.from({
       account: root.address,
       address: accessKey.accessKeyAddress,
-      chainId: BigInt(Tempo.chain.id),
+      chainId: BigInt(caller.chain.id),
       expiry: expiry(),
       type: 'p256',
     })
@@ -522,8 +456,10 @@ describe('relay_saveKeyAuthorization', () => {
   })
 
   test('error: rejects an invalid signature', async () => {
-    const owner = Account.fromP256(generatePrivateKey())
-    const accessKey = Account.fromP256(generatePrivateKey(), { access: owner })
+    const owner = Account.fromP256(P256.randomPrivateKey())
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: owner,
+    })
     const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
       account: owner,
       accessKey,
@@ -546,7 +482,9 @@ describe('relay_saveKeyAuthorization', () => {
   })
 
   test('error: rejects an unsigned key authorization', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: root,
+    })
     const { signature: _, ...keyAuthorization } = KeyAuthorization.toRpc(
       await Actions.accessKey.signAuthorization(caller, {
         account: root,
@@ -566,7 +504,9 @@ describe('relay_saveKeyAuthorization', () => {
   })
 
   test('error: rejects an expired key authorization', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: root,
+    })
     const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
       account: root,
       accessKey,
@@ -584,7 +524,9 @@ describe('relay_saveKeyAuthorization', () => {
   })
 
   test('error: rejects a key authorization for another chain', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: root,
+    })
     const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
       account: root,
       accessKey,
@@ -603,7 +545,9 @@ describe('relay_saveKeyAuthorization', () => {
   })
 
   test('error: rejects a key authorization bound to another account', async () => {
-    const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: root,
+    })
     const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
       account: root,
       accessKey,

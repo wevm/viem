@@ -1,6 +1,6 @@
 import * as Abis from '../src/tempo/Abis.js'
 import * as ExecutionError from '../src/tempo/ExecutionError.js'
-import { formatAbiItem } from '../src/utils/abi/formatAbiItem.js'
+import { getSignature as formatAbiItem } from 'ox/AbiItem'
 
 const errors = new Map<string, number>()
 for (const item of Abis.core)

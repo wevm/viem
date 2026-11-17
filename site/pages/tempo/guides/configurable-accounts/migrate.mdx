@@ -31,14 +31,13 @@ These recipes assume you have [set up a Tempo client](/tempo).
 ### Check the Account Can Migrate
 
 Only an account without code, EIP-7702 delegation, or a config commitment can migrate. Read its code
-with [`getCode`](/docs/contract/getCode) and its commitment with
+with [`address.getCode`](/docs/actions/public/address/getCode) and its commitment with
 [`accounts.getConfigCommitment`](/tempo/actions/accounts.getConfigCommitment) before asking for a
 signature.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { zeroHash } from 'viem'
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -46,12 +45,12 @@ const root = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 
-const code = await client.getCode({ address: root.address }) // [!code focus]
+const code = await client.address.getCode({ address: root.address }) // [!code focus]
 const commitment = await client.accounts.getConfigCommitment({ // [!code focus]
   account: root.address, // [!code focus]
 }) // [!code focus]
 
-const canMigrate = !code && commitment === zeroHash // [!code focus]
+const canMigrate = !code && BigInt(commitment) === 0n // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -79,7 +78,7 @@ const owner = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: root,
   calls: [
     Actions.accessKey.revoke.call({ // [!code focus]
@@ -146,8 +145,8 @@ offline for recovery.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { generatePrivateKey } from 'viem/accounts'
 import { Account } from 'viem/tempo'
+import { Secp256k1 } from 'viem/utils'
 import { client } from './viem.config'
 
 const owner_1 = Account.fromSecp256k1(
@@ -161,7 +160,7 @@ const feePayer = Account.fromSecp256k1(
 )
 
 // 1. Generate a fresh key. Its address becomes the account address.
-const recoveryKey = generatePrivateKey() // [!code focus]
+const recoveryKey = Secp256k1.randomPrivateKey() // [!code focus]
 const recovery = Account.fromSecp256k1(recoveryKey) // [!code focus]
 
 // 2. Migrate it before sharing or funding the address.
@@ -235,7 +234,7 @@ const isFinal = finalized === commitment // [!code focus]
 ### Recover the Installed Config
 
 If the config was not kept, read it from the account's `AccountUpgraded` event with
-[`getContractEvents`](/docs/contract/getContractEvents). Then recreate the account from its address
+[`contract.getLogs`](/docs/actions/public/contract/getLogs). Then recreate the account from its address
 and the installed owners.
 
 :::code-group
@@ -246,7 +245,7 @@ import { client } from './viem.config'
 
 const address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 
-const [event] = await client.getContractEvents({ // [!code focus]
+const [event] = await client.contract.getLogs({ // [!code focus]
   abi: Abis.configurableAccount, // [!code focus]
   address: Addresses.configurableAccount, // [!code focus]
   args: { account: address }, // [!code focus]

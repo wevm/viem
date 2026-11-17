@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const bearNetworkChainTestnet = /*#__PURE__*/ defineChain({
+export const bearNetworkChainTestnet = /*#__PURE__*/ Chain.from({
   id: 751230,
   name: 'Bear Network Chain Testnet',
   nativeCurrency: {
@@ -8,15 +8,11 @@ export const bearNetworkChainTestnet = /*#__PURE__*/ defineChain({
     name: 'tBRNKC',
     symbol: 'tBRNKC',
   },
-  rpcUrls: {
-    default: { http: ['https://brnkc-test.bearnetwork.net'] },
-  },
+  rpcUrls: { http: 'https://brnkc-test.bearnetwork.net' },
   blockExplorers: {
-    default: {
-      name: 'BrnkTestScan',
-      url: 'https://brnktest-scan.bearnetwork.net',
-      apiUrl: 'https://brnktest-scan.bearnetwork.net/api',
-    },
+    name: 'BrnkTestScan',
+    url: 'https://brnktest-scan.bearnetwork.net',
+    apiUrl: 'https://brnktest-scan.bearnetwork.net/api',
   },
   testnet: true,
 })

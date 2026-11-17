@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const zagros = /*#__PURE__*/ defineChain({
+export const zagros = /*#__PURE__*/ Chain.from({
   id: 21072026,
   name: 'Zagros',
   nativeCurrency: {
@@ -9,17 +9,13 @@ export const zagros = /*#__PURE__*/ defineChain({
     symbol: 'ZAGROS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.zagros.network', 'https://rpc.zagrosnetwork.com'],
-      webSocket: ['wss://rpc.zagros.network/ws'],
-    },
+    http: ['https://rpc.zagros.network', 'https://rpc.zagrosnetwork.com'],
+    ws: ['wss://rpc.zagros.network/ws'],
   },
   blockExplorers: {
-    default: {
-      name: 'ZagrosRadar',
-      url: 'https://zagrosradar.com',
-      apiUrl: 'https://zagrosradar.com/api/v1',
-    },
+    name: 'ZagrosRadar',
+    url: 'https://zagrosradar.com',
+    apiUrl: 'https://zagrosradar.com/api/v1',
   },
   contracts: {
     multicall3: {

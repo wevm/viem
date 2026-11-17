@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `channel.getOpenSalt`
+# Get Channel Open Salt [channel.getOpenSalt]
 
 Gets the salt to open a TIP-20 channel reserve channel with for a voucher signer.
 
@@ -13,7 +13,7 @@ From T15 ([TIP-1166](https://github.com/tempoxyz/tempo/pull/9133)), a channel wh
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
+import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
 const authorizedSigner = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
@@ -21,11 +21,11 @@ const authorizedSigner = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 const salt = await client.channel.getOpenSalt({
   signer: authorizedSigner,
 })
-// @log: '0x...'
+// @log: '0x5c1d1b0e8f7a3c2e6d4b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d'
 
 const { channelId } = await client.channel.openSync({
   authorizedSigner,
-  deposit: parseUnits('100', 6),
+  deposit: Value.from('100', 6),
   payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   salt,
   token: '0x20c0000000000000000000000000000000000001',

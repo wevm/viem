@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const bsquared = /*#__PURE__*/ defineChain({
+export const bsquared = /*#__PURE__*/ Chain.from({
   id: 223,
   name: 'B2',
   nativeCurrency: {
@@ -9,14 +10,13 @@ export const bsquared = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.bsquared.network'],
-    },
+    http: 'https://rpc.bsquared.network',
   },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://explorer.bsquared.network',
-    },
+    name: 'blockscout',
+    url: 'https://explorer.bsquared.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })
