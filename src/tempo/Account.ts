@@ -19,6 +19,7 @@ import {
   Channel,
   KeyAuthorization,
   SignatureEnvelope,
+  SignaturePreAuthorized,
   TxEnvelopeTempo,
 } from 'ox/tempo'
 
@@ -43,8 +44,13 @@ export type Base<source extends string = string> = RequiredBy<
    * Signs a hash.
    *
    * Access key accounts sign through a keychain envelope by default (so the
-   * signature authorizes the parent account). Set `raw` to `true` to sign
-   * directly with the key, without keychain hashing or enveloping.
+   * signature authorizes the parent account). While an access key account's
+   * key authorization manager holds the key authorization the account was
+   * created with, `sign`, `signMessage`, and `signTypedData` return a
+   * pre-authorized signature (TIP-1165) that bundles it, so `verifyHash`
+   * accepts the signature before the chain registers the access key. Set
+   * `raw` to `true` to sign directly with the key, without keychain hashing
+   * or enveloping.
    */
   sign: (parameters: {
     /** Hash to sign. */
@@ -1606,10 +1612,41 @@ function fromAccessKey(parameters: fromAccessKey.Parameters): AccessKeyAccount {
     keyAuthorizationManager,
     parentAddress,
   })
+
+  // While the manager holds the access key's unregistered authorization,
+  // signatures carry it (TIP-1165) so verifiers accept them before the chain
+  // registers the key.
+  async function preAuthorize(signature: Hex.Hex) {
+    if (!keyAuthorization || !keyAuthorizationManager) return signature
+    const pending = await keyAuthorizationManager.get({
+      accessKey: accessKeyAddress,
+      address: account.address,
+      chainId: Number(keyAuthorization.chainId),
+    })
+    if (!pending) return signature
+    return SignaturePreAuthorized.wrap({
+      keyAuthorization: pending,
+      signature: SignatureEnvelope.from(
+        signature,
+      ) as SignatureEnvelope.Keychain,
+    })
+  }
+
   return {
     ...account,
     accessKeyAddress,
     keyAuthorizationManager,
+    async sign(parameters: { hash: Hex.Hex; raw?: boolean | undefined }) {
+      const signature = await account.sign(parameters)
+      if (parameters.raw) return signature
+      return await preAuthorize(signature)
+    },
+    async signMessage(parameters) {
+      return await preAuthorize(await account.signMessage(parameters))
+    },
+    async signTypedData(typedData) {
+      return await preAuthorize(await account.signTypedData(typedData))
+    },
     source: 'accessKey',
   }
 }

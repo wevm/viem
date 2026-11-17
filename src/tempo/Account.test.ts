@@ -19,6 +19,7 @@ import {
   Channel,
   KeyAuthorization,
   SignatureEnvelope,
+  SignaturePreAuthorized,
   TxEnvelopeTempo,
 } from 'ox/tempo'
 import { afterAll, describe, expect, test } from 'vitest'
@@ -26,6 +27,7 @@ import * as tempo from '~test/tempo.js'
 
 import { Actions } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
+import { KeyAuthorizationManager } from 'viem/tempo'
 
 import * as Account from './Account.js'
 
@@ -1084,6 +1086,131 @@ describe('keyAuthorization', () => {
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: Key authorization does not authorize this access key.]`,
     )
+  })
+
+  test('behavior: signs pre-authorized signatures while the authorization is pending', async () => {
+    const key = Account.fromP256(privateKey_p256, { access: parent })
+    const chainId = tempoLocalnet.id
+    const keyAuthorization = await parent.signKeyAuthorization(key, {
+      chainId: BigInt(chainId),
+    })
+    const account = Account.fromP256(privateKey_p256, {
+      access: parent,
+      keyAuthorization,
+    })
+    const typedData = {
+      domain: { name: 'Test' },
+      message: { value: 'hello' },
+      primaryType: 'Mail',
+      types: { Mail: [{ name: 'value', type: 'string' }] },
+    } as const
+
+    const signatures = [
+      await account.sign({ hash: Hash.keccak256('0xdeadbeef') }),
+      await account.signMessage({ message: 'hello' }),
+      await account.signTypedData(typedData),
+    ]
+    const raw = await account.sign({
+      hash: Hash.keccak256('0xdeadbeef'),
+      raw: true,
+    })
+
+    expect(
+      signatures.map((signature) => {
+        const { keyAuthorization: authorization, signature: keychain } =
+          SignaturePreAuthorized.unwrap(signature as never)
+        return [
+          KeyAuthorization.serialize(authorization).toLowerCase() ===
+            KeyAuthorization.serialize(keyAuthorization).toLowerCase(),
+          keychain.type,
+          keychain.userAddress,
+          keychain.inner.type,
+        ]
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+      ]
+    `)
+    expect(SignatureEnvelope.deserialize(raw).type).toMatchInlineSnapshot(
+      `"p256"`,
+    )
+
+    await account.keyAuthorizationManager!.remove({
+      accessKey: account.accessKeyAddress,
+      address: parent.address,
+      chainId,
+    })
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(SignaturePreAuthorized.validate(signature as never)).toBe(false)
+    expect(SignatureEnvelope.deserialize(signature).type).toMatchInlineSnapshot(
+      `"keychain"`,
+    )
+  })
+
+  test('behavior: signs plain keychain signatures without an initial authorization', async () => {
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const account = Account.fromP256(privateKey_p256, {
+      access: parent,
+      keyAuthorizationManager,
+    })
+    await keyAuthorizationManager.set(
+      {
+        accessKey: account.accessKeyAddress,
+        address: parent.address,
+        chainId: tempoLocalnet.id,
+      },
+      await parent.signKeyAuthorization(account, {
+        chainId: BigInt(tempoLocalnet.id),
+      }),
+    )
+
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(SignaturePreAuthorized.validate(signature as never)).toBe(false)
+  })
+
+  test('behavior: wraps the pending authorization', async () => {
+    const privateKey = Secp256k1.randomPrivateKey()
+    const key = Account.fromSecp256k1(privateKey, { access: parent })
+    const keyAuthorization = await parent.signKeyAuthorization(key, {
+      chainId: 4217n,
+      expiry: 1_900_000_000,
+    })
+    const account = Account.fromSecp256k1(privateKey, {
+      access: parent,
+      keyAuthorization,
+    })
+
+    const signature = await account.sign({
+      hash: Hash.keccak256(Hex.fromString('hello')),
+    })
+
+    const unwrapped = SignaturePreAuthorized.unwrap(signature as never)
+    expect(
+      KeyAuthorization.serialize(unwrapped.keyAuthorization).toLowerCase(),
+    ).toBe(KeyAuthorization.serialize(keyAuthorization).toLowerCase())
+    expect(
+      Address.isEqual(unwrapped.signature.userAddress, parent.address),
+    ).toBe(true)
   })
 })
 

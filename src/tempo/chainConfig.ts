@@ -40,6 +40,7 @@ import { getConfig } from './actions/accounts/getConfig.js'
 import { parseApproval } from './accounts/Signature.js'
 import * as Expiry from './Expiry.js'
 import * as Concurrent from './internal/concurrent.js'
+import * as PreAuthorized from './internal/preAuthorized.js'
 import * as Replacement from './internal/replacement.js'
 
 /**
@@ -723,6 +724,20 @@ export const chainConfig = {
       requireCanonical,
       signature,
     } = parameters
+
+    // A pre-authorized signature (TIP-1165) carries the root key's
+    // authorization of an access key that the chain may not have registered
+    // yet.
+    if (mode === 'allowAccessKey' && PreAuthorized.isPreAuthorized(signature))
+      return await PreAuthorized.verify(client, {
+        account: address,
+        blockHash,
+        blockNumber,
+        blockTag,
+        hash,
+        requireCanonical,
+        signature,
+      })
 
     // `verifyHash` supports "signature envelopes" (a Tempo proposal) to
     // natively verify envelope-compatible (WebAuthn, P256, …) signatures.

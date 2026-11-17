@@ -3,6 +3,7 @@ import {
   Hash,
   Hex,
   P256,
+  PersonalMessage,
   Secp256k1,
   Signature,
   WebCryptoP256,
@@ -11,6 +12,7 @@ import {
   AccountConfig,
   KeyAuthorization,
   SignatureEnvelope,
+  SignaturePreAuthorized,
   TxEnvelopeTempo,
 } from 'ox/tempo'
 import { afterAll, describe, expect, test } from 'vitest'
@@ -1962,4 +1964,315 @@ describe('verifyHash', () => {
       ).resolves.toBe(true)
     },
   )
+})
+
+describe('verifyHash: pre-authorized signature', () => {
+  const root = Account.fromSecp256k1(tempo.accounts[5]!.privateKey)
+  const other = Account.fromSecp256k1(tempo.accounts[6]!.privateKey)
+  const hash = PersonalMessage.getSignPayload(Hex.fromString('hello world'))
+  const now = () => Math.floor(Date.now() / 1000)
+
+  async function getClient() {
+    return tempo.getClient({
+      account: root,
+      feeToken: tempo.pathUsd,
+      rpcUrl: await node.start(),
+    })
+  }
+
+  /** Signs a key authorization for an access key with the root key, and returns the access key account. */
+  async function setup(
+    options: Partial<KeyAuthorization.KeyAuthorization> & {
+      signer?: Account.RootAccount | undefined
+    } = {},
+  ) {
+    const { signer = root, ...rest } = options
+    const privateKey = Secp256k1.randomPrivateKey()
+    const key = Account.fromSecp256k1(privateKey, { access: root })
+    const authorization = KeyAuthorization.from({
+      address: key.accessKeyAddress,
+      chainId: BigInt(tempoLocalnet.id),
+      expiry: now() + 3_600,
+      type: 'secp256k1',
+      ...rest,
+    } as KeyAuthorization.KeyAuthorization)
+    const keyAuthorization = KeyAuthorization.from(authorization, {
+      signature: SignatureEnvelope.from(
+        await signer.sign({
+          hash: KeyAuthorization.getSignPayload(authorization),
+        }),
+      ) as KeyAuthorization.Signature,
+    }) as KeyAuthorization.Signed
+    const account = Account.fromSecp256k1(privateKey, {
+      access: root,
+      keyAuthorization,
+    })
+    return { account, keyAuthorization }
+  }
+
+  // The node's clock can differ from the local clock, so expiries follow the chain.
+  async function blockTimestamp() {
+    return Number((await CoreActions.block.get(await getClient())).timestamp)
+  }
+
+  async function waitForTimestamp(timestamp: number) {
+    while ((await blockTimestamp()) <= timestamp)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+  }
+
+  async function verify(signature: Hex.Hex, address = root.address) {
+    return await CoreActions.verifyHash(await getClient(), {
+      address,
+      hash,
+      mode: 'allowAccessKey',
+      signature,
+    })
+  }
+
+  async function register(account: Account.AccessKeyAccount) {
+    await CoreActions.transaction.sendSync(await getClient(), {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+  }
+
+  test('behavior: unregistered access key', async () => {
+    const { account } = await setup({
+      limits: [{ limit: 1_000_000n, token: tempo.pathUsd }],
+      witness: Hash.keccak256('0x01'),
+    })
+
+    const signature = await account.sign({ hash })
+
+    expect({
+      allowAccessKey: await verify(signature),
+      auto: await CoreActions.verifyHash(await getClient(), {
+        address: root.address,
+        hash,
+        signature,
+      }),
+      validate: SignaturePreAuthorized.validate(signature as never),
+    }).toMatchInlineSnapshot(`
+      {
+        "allowAccessKey": true,
+        "auto": false,
+        "validate": true,
+      }
+    `)
+  })
+
+  test('behavior: verifyMessage', async () => {
+    const { account } = await setup()
+
+    const signature = await account.signMessage({ message: 'hello world' })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: registered access key', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    await register(account)
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: registered access key with an unrelated authorization', async () => {
+    const key = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
+      access: root,
+    })
+    await Actions.accessKey.authorizeSync(await getClient(), {
+      accessKey: key,
+      expiry: now() + 3_600,
+    })
+    // The chain would refuse this authorization: it is for another chain.
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: 1n,
+    })
+
+    const signature = SignaturePreAuthorized.wrap({
+      keyAuthorization,
+      signature: SignatureEnvelope.from(
+        await key.sign({ hash }),
+      ) as SignatureEnvelope.Keychain,
+    })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: plain keychain signature is unchanged', async () => {
+    const key = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
+      access: root,
+    })
+    const signature = await key.sign({ hash })
+
+    expect(SignaturePreAuthorized.validate(signature as never)).toBe(false)
+    expect(await verify(signature)).toBe(false)
+
+    await Actions.accessKey.authorizeSync(await getClient(), {
+      accessKey: key,
+      expiry: now() + 3_600,
+    })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: revoked access key', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+    await register(account)
+
+    await Actions.accessKey.revokeSync(await getClient(), {
+      accessKey: account,
+    })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: registered access key that expired', async () => {
+    const expiry = (await blockTimestamp()) + 5
+    const { account } = await setup({ expiry })
+    const signature = await account.sign({ hash })
+    await register(account)
+
+    await waitForTimestamp(expiry)
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: burned witness', async () => {
+    const witness = Hash.keccak256(Secp256k1.randomPrivateKey())
+    const { account } = await setup({ witness })
+    const signature = await account.sign({ hash })
+
+    expect(await verify(signature)).toBe(true)
+
+    await Actions.accessKey.burnWitnessSync(await getClient(), { witness })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: expired authorization', async () => {
+    const { account } = await setup({ expiry: now() - 60 })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: reference block before the authorization expires', async () => {
+    const expiry = (await blockTimestamp()) + 5
+    const { account } = await setup({ expiry })
+    const signature = await account.sign({ hash })
+    const blockNumber = await CoreActions.block.getNumber(await getClient())
+
+    await waitForTimestamp(expiry)
+
+    expect({
+      latest: await verify(signature),
+      reference: await CoreActions.verifyHash(await getClient(), {
+        address: root.address,
+        blockNumber,
+        hash,
+        mode: 'allowAccessKey',
+        signature,
+      }),
+    }).toMatchInlineSnapshot(`
+      {
+        "latest": false,
+        "reference": true,
+      }
+    `)
+  })
+
+  test('behavior: wrong chain', async () => {
+    const { account } = await setup({ chainId: 1n })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: account mismatch', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    expect(await verify(signature, other.address)).toBe(false)
+  })
+
+  test('behavior: bound to another account', async () => {
+    const bound = await setup({ account: root.address })
+    const unbound = await setup({ account: other.address })
+
+    expect({
+      bound: await verify(await bound.account.sign({ hash })),
+      other: await verify(await unbound.account.sign({ hash })),
+    }).toMatchInlineSnapshot(`
+      {
+        "bound": true,
+        "other": false,
+      }
+    `)
+  })
+
+  test('behavior: signed by a key other than the root', async () => {
+    const { account } = await setup({ signer: other })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: admin authorization', async () => {
+    const { account } = await setup({ isAdmin: true })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: key type mismatch', async () => {
+    const { account } = await setup({ type: 'p256' })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: wrong hash', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({
+      hash: PersonalMessage.getSignPayload(Hex.fromString('other')),
+    })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: invalid call scope', async () => {
+    const { account } = await setup({
+      scopes: [
+        {
+          address: '0x0000000000000000000000000000000000000001',
+          recipients: [other.address],
+          selector: '0xa9059cbb',
+        },
+      ],
+    })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: malformed signature', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    expect({
+      empty: await verify(
+        Hex.concat('0xc0', SignaturePreAuthorized.magicBytes),
+      ),
+      truncated: await verify(
+        Hex.concat(
+          Hex.slice(signature, 0, -32),
+          '0x00',
+          SignaturePreAuthorized.magicBytes,
+        ),
+      ),
+    }).toMatchInlineSnapshot(`
+      {
+        "empty": false,
+        "truncated": false,
+      }
+    `)
+  })
 })
