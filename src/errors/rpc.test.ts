@@ -82,25 +82,73 @@ test('RpcError', () => {
 })
 
 test('ProviderRpcError', () => {
-  expect(
-    new ProviderRpcError(
-      new RpcRequestError({
-        body: { foo: 'bar' },
-        url: 'https://viem.sh',
-        error: { code: 1337, message: 'error details' },
-      }),
-      {
-        shortMessage: 'An internal error was received.',
-      },
-    ),
-  ).toMatchInlineSnapshot(`
-    [RpcRequestError: An internal error was received.
+  const cause = new RpcRequestError({
+    body: { foo: 'bar' },
+    url: 'https://viem.sh',
+    error: { code: 1337, message: 'error details' },
+  })
+  const error = new ProviderRpcError(cause, {
+    shortMessage: 'An internal error was received.',
+  })
+
+  expect(error).toMatchInlineSnapshot(`
+    [ProviderRpcError: An internal error was received.
 
     URL: http://localhost
     Request body: {"foo":"bar"}
 
     Details: error details
     Version: viem@x.y.z]
+  `)
+  expect(error.cause).toBe(cause)
+  expect(error.code).toMatchInlineSnapshot(`1337`)
+  expect(error.details).toMatchInlineSnapshot(`"error details"`)
+})
+
+test('ProviderRpcError: explicit name', () => {
+  const error = new ProviderRpcError<{ foo: string }>(
+    new RpcRequestError({
+      body: { foo: 'bar' },
+      url: 'https://viem.sh',
+      error: { code: 1337, message: 'error details' },
+    }),
+    {
+      data: { foo: 'bar' },
+      name: 'CustomProviderRpcError',
+      shortMessage: 'An internal error was received.',
+    },
+  )
+
+  expect(error.name).toMatchInlineSnapshot(`"CustomProviderRpcError"`)
+  expect(error.data).toMatchInlineSnapshot(`
+    {
+      "foo": "bar",
+    }
+  `)
+})
+
+test('ProviderRpcError: subclass name', () => {
+  class CustomProviderRpcError extends ProviderRpcError<{ foo: string }> {
+    override name = 'CustomProviderRpcError'
+  }
+
+  const error = new CustomProviderRpcError(
+    new RpcRequestError({
+      body: { foo: 'bar' },
+      url: 'https://viem.sh',
+      error: { code: 1337, message: 'error details' },
+    }),
+    {
+      data: { foo: 'bar' },
+      shortMessage: 'An internal error was received.',
+    },
+  )
+
+  expect(error.name).toMatchInlineSnapshot(`"CustomProviderRpcError"`)
+  expect(error.data).toMatchInlineSnapshot(`
+    {
+      "foo": "bar",
+    }
   `)
 })
 

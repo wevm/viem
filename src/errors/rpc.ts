@@ -98,7 +98,10 @@ export class ProviderRpcError<
       }
     >,
   ) {
-    super(cause, options)
+    super(cause, {
+      ...options,
+      name: options.name ?? 'ProviderRpcError',
+    })
 
     this.data = options.data
   }

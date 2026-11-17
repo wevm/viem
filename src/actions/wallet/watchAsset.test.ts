@@ -32,6 +32,6 @@ test('errors: unsupported type', async () => {
       },
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    '[Error: Token type ERC721 not supported.]',
+    '[ProviderRpcError: Token type ERC721 not supported.]',
   )
 })
