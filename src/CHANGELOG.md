@@ -1,5 +1,81 @@
 # viem
 
+## 2.58.0
+
+### Minor Changes
+
+- [`1f9d4ea9f581e4cd94662b900966c4345f7053b8`](https://github.com/wevm/viem/commit/1f9d4ea9f581e4cd94662b900966c4345f7053b8) Thanks [@ampagent](https://github.com/ampagent)! - Implemented performance improvements across ABI encoding and decoding, event logs, RLP, hex and data utilities, formatters, request batching, IPC, `multicall`, and transaction preparation.
+
+### Patch Changes
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Bounded the `withCache` caches and the EIP-1559 network cache in `prepareTransactionRequest`, which grew by one entry per client.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Rejected pending IPC requests when the node closes the connection, and shared one IPC socket between requests and subscriptions when `reconnect` is set.
+
+- [#5546](https://github.com/wevm/viem/pull/5546) [`ffbbc7eb9b4cee8b81b9e3031d654d75a6bc514b`](https://github.com/wevm/viem/commit/ffbbc7eb9b4cee8b81b9e3031d654d75a6bc514b) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Fixed the Celo block formatter leaving `type` undefined on CIP-64 and deposit transactions, and `mint` unparsed on deposits, when `includeTransactions` is set.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `formatLog` by assigning `args` and `eventName` instead of spreading them into the formatted log.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Read the dispute game and the finalized state concurrently with the proof submitter in `getWithdrawalStatus`.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Estimated the priority fee concurrently with the block that detects the transaction type in `prepareTransactionRequest` when the chain has no fee hooks.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `decodeAbiParameters` by parsing parameters once per call, reading offsets, lengths and integers straight from the data, and tracking re-reads with a bitset.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `encodeAbiParameters` and `encodeFunctionData` by parsing parameters once per call, building the hex output in one pass, and caching function selectors per ABI item.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `formatTransaction` and the OP Stack, Celo, and zkSync block formatters by building transactions without `delete` and formatting each block transaction once.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `padBytes`, `padHex`, `concatHex`, `trim`, `sliceHex` and `size` by copying bytes with `Uint8Array.set`, comparing characters by char code and stripping the `0x` prefix with `slice`.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `parseEventLogs` and `decodeEventLog` by preparing each event once per call, looking events up by selector, and reading `address`, `uint` and `bytesN` topics directly.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `numberToHex` for unsigned values, `hexToNumber` for safe integers, `bytesToNumber` and `bytesToBigInt` for unsigned values of up to 6 significant bytes, and signed `hexToBigInt` for negative values.
+
+- [#5524](https://github.com/wevm/viem/pull/5524) [`10d4ee2c6fb1b14d3e449ca186fab00cbde0dfe2`](https://github.com/wevm/viem/commit/10d4ee2c6fb1b14d3e449ca186fab00cbde0dfe2) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `InvalidAbiEncodingTypeError`, `InvalidAbiDecodingTypeError`, and `InvalidSerializedTransactionTypeError` to set their documented `name`.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `toRlp`, `fromRlp`, `serializeTransaction` and `parseTransaction` by encoding and decoding hex RLP directly from strings instead of converting through bytes.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Stopped requesting the latest block for legacy fees in `prepareTransactionRequest` when the chain has no fee hooks.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Queued batched requests in place and tracked a running batch size for split checks, so scheduling `n` requests in one batch no longer copies the queue `n` times.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Kept IPC message framing state across `data` events and concatenated each message once, so large IPC responses are no longer rescanned and copied on every chunk.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Appended calls to `multicall` chunks in place instead of copying the chunk for every call, making chunking linear in the number of calls.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `hashTypedData` and `hashStruct` by computing each struct type hash once per call.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `bytesToHex` by using the native `Uint8Array.prototype.toHex` when the runtime has it, and `stringToHex` and `stringToBytes` by skipping `TextEncoder` for ASCII strings of up to 64 characters.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Awaited the nonce from a `nonceManager` together with the other parameters in `prepareTransactionRequest`, while still consuming it in call order.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Read the bridge addresses, fees, and token metadata concurrently in the ZKsync `deposit` Action, and reused the bridge addresses instead of requesting them twice.
+
+- [#5548](https://github.com/wevm/viem/pull/5548) [`2970f8c74816bdf25ef248c08edb648680195b4a`](https://github.com/wevm/viem/commit/2970f8c74816bdf25ef248c08edb648680195b4a) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Fixed `getGames` and the OP Stack actions built on it (`getWithdrawalStatus`, `waitToProve`, `getTimeToProve`, `getGame`, `getL2Output`) throwing a `TypeError` on fault-proof chains that do not define `disputeGameFactory`, by reading the factory address from the portal instead.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `bytesToString` and `hexToString` by reusing one `TextDecoder`, `normalizeSignature` by comparing characters directly, and `formatUnits` by trimming trailing zeros without a regular expression.
+
+- [#5521](https://github.com/wevm/viem/pull/5521) [`c368d8393edae7cb7f7bcdc09711bfc9e102bff2`](https://github.com/wevm/viem/commit/c368d8393edae7cb7f7bcdc09711bfc9e102bff2) Thanks [@jxom](https://github.com/jxom)! - Looked up the in-flight request cache once instead of twice on deduplicated cache hits, halving the LRU refreshes per hit.
+
+- [#5547](https://github.com/wevm/viem/pull/5547) [`73f5149b38fcf82975bc1bf8fdbab9b613db1476`](https://github.com/wevm/viem/commit/73f5149b38fcf82975bc1bf8fdbab9b613db1476) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Added `disputeGameFactory` to 10 OP Stack chains whose portals use fault proofs and updated Superseed's stale one, which fixed the withdrawal status actions on those chains.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Stopped `waitForTransactionReceipt` from starting to poll when its `timeout` fired during the first receipt lookup.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Generated `generateSiweNonce` nonces from `crypto.getRandomValues`, since consecutive nonces previously shared 95 of their 96 characters.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Kept WebSocket and IPC clients reconnecting after a failed attempt, and dropped a client whose attempts ran out so the next request opens a new socket.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Requested the block and the priority fee concurrently in `estimateFeesPerGas` when the chain has no fee hooks, and stopped requesting the unused block for legacy fees.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `hexToBytes` by decoding through a nibble lookup table straight into the output, and `toBytes` by decoding `0x` strings in one pass instead of checking them with `isHex` first.
+
+- [#5550](https://github.com/wevm/viem/pull/5550) [`4bd026ac8088650fd98679c30de99641b75b9345`](https://github.com/wevm/viem/commit/4bd026ac8088650fd98679c30de99641b75b9345) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added the `t15` hardfork to `Hardfork`.
+
+- [#5545](https://github.com/wevm/viem/pull/5545) [`076464179ad0a1c17576dc23f8c5695470e31219`](https://github.com/wevm/viem/commit/076464179ad0a1c17576dc23f8c5695470e31219) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added TIP-1166 support to `viem/tempo` channels: the `SignerSnapshotCached` event and `SignerConfigChanged` and `SaltNotSignerCommitment` errors on the channel reserve ABI, `channel.getOpenSalt`, typed `ChannelSignerConfigChangedError` and `ChannelSaltNotSignerCommitmentError`, and a default `salt` for `channel.open` set to the voucher signer's configuration commitment when the signer is a configurable account or an access key of one.
+
+- [#5544](https://github.com/wevm/viem/pull/5544) [`f390caa499468231e7b282400e683df9f79081d2`](https://github.com/wevm/viem/commit/f390caa499468231e7b282400e683df9f79081d2) Thanks [@dmytrozahumennov-wb](https://github.com/dmytrozahumennov-wb)! - Added OP Stack config to `whitechain` and deprecated `whitechainTestnet`.
+
 ## 2.57.20
 
 ### Patch Changes
