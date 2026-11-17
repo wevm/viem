@@ -661,6 +661,26 @@ describe('validateTypedData', () => {
     `)
   })
 
+  test('fixed-length array in a struct array: wrong number of elements', () => {
+    expect(() =>
+      validateTypedData({
+        primaryType: 'Mail',
+        types: {
+          Mail: [{ name: 'to', type: 'Person[]' }],
+          Person: [{ name: 'ids', type: 'uint256[2]' }],
+        },
+        // @ts-expect-error
+        message: { to: [{ ids: [1n, 2n] }, { ids: [1n, 2n, 3n] }] },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+      Expected length: 2
+      Given length: 3
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('EIP712Domain as primaryType', () => {
     validateTypedData({
       domain: {

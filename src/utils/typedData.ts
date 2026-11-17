@@ -1,6 +1,9 @@
 import type { TypedData, TypedDataDomain, TypedDataParameter } from 'abitype'
 
-import { BytesSizeMismatchError } from '../errors/abi.js'
+import {
+  AbiEncodingArrayLengthMismatchError,
+  BytesSizeMismatchError,
+} from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
 import {
   InvalidDomainError,
@@ -116,7 +119,26 @@ export function validateTypedData<
 
       if (Object.hasOwn(types, type))
         validateData(types[type]!, value as Record<string, unknown>)
+
+      if (type.endsWith(']')) validateArray(type, value as readonly unknown[])
     }
+  }
+
+  // Validate fixed array lengths in every dimension, and the structs inside
+  // arrays.
+  const validateArray = (type: string, value: readonly unknown[]) => {
+    const inner = type.slice(0, type.lastIndexOf('['))
+    const length = type.slice(type.lastIndexOf('[') + 1, -1)
+    if (length && value.length !== Number.parseInt(length, 10))
+      throw new AbiEncodingArrayLengthMismatchError({
+        expectedLength: Number.parseInt(length, 10),
+        givenLength: value.length,
+        type,
+      })
+    for (const item of value)
+      if (inner.endsWith(']')) validateArray(inner, item as readonly unknown[])
+      else if (Object.hasOwn(types, inner))
+        validateData(types[inner]!, item as Record<string, unknown>)
   }
 
   // Validate struct types and their field types, including structs that are
