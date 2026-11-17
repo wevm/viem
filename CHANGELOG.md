@@ -1,5 +1,79 @@
 # viem
 
+## 3.0.0-next.16
+
+### Patch Changes
+
+- Improved batching performance by queuing HTTP transport and multicall requests in place and tracking each batch size incrementally.
+
+- Fixed a split HTTP transport or multicall batch leaving its wait timer armed, which flushed the next batch under the same id before its wait elapsed.
+
+- [`37a88da`](https://github.com/wevm/viem/commit/37a88da74836cb42f82d19ca93a8c873f29fa9b5) Thanks [@ampagent](https://github.com/ampagent)! - Fixed batched HTTP transport and multicall requests never settling when the batch function threw synchronously.
+
+- Bounded the in-memory response caches behind `Actions.block.getNumber`, `Actions.erc7821.supportsExecutionMode`, and OP Stack `getPortalVersion` to 8192 entries each.
+
+- Updated batched `Actions.call` to reject every call in a multicall batch when the number of returned results did not match the number of calls.
+
+- Fixed `Actions.call` running CCIP-Read callbacks at the default block instead of the `blockNumber`, `blockTag`, or `blockHash` passed to it.
+
+- [#5479](https://github.com/wevm/viem/pull/5479) [`ccd1757`](https://github.com/wevm/viem/commit/ccd175704841433e6ba52af0a53a5a7850619220) Thanks [@jxom](https://github.com/jxom)! - Limited the total local batch gateway response size of one CCIP Read lookup to 10 MiB, throwing `CcipRead.LookupLimitExceededError` once exceeded.
+
+- [#5474](https://github.com/wevm/viem/pull/5474) [`429c3fc`](https://github.com/wevm/viem/commit/429c3fce93bb38a12ec0fc8e5bedfe31bf57dce7) Thanks [@jxom](https://github.com/jxom)! - Fixed `Chain.getContractAddress` returning a contract address at block `0n` when the contract was created at a later block.
+
+- Improved request deduplication performance by looking up the dedupe cache once per request.
+
+- Updated ERC-4337 `Actions.paymaster.getData` and `Actions.paymaster.getStubData` to return only paymaster fields from the paymaster response.
+
+- Added `event.iterateLogs` and a `blockRange` option on `event.getLogs`, which read logs across a block range in pages of blocks and split pages that an RPC Provider rejects.
+
+- Improved `ipc` transport performance by framing messages incrementally across data events instead of copying and rescanning the pending buffer.
+
+- [#5495](https://github.com/wevm/viem/pull/5495) [`f3fe670`](https://github.com/wevm/viem/commit/f3fe670de4c8df551462602291caf28ff8f5dfb1) Thanks [@jxom](https://github.com/jxom)! - Resolved the actions called by `Actions.address.getDelegation` and `Actions.wallet.signAuthorization` through `Actions.getAction`, so overrides of those actions on the Client are used.
+
+- Sped up OP Stack `Block.fromRpc` by formatting each block transaction once.
+
+- Sped up OP Stack `Actions.l1.getWithdrawalStatus` by reading the dispute game and the finalized state concurrently with the proof submitter.
+
+- Updated OP Stack `Actions.l1.getL2Output` to read the L2OutputOracle directly when neither `portalAddress` nor a target chain portal is provided.
+
+- Fixed OP Stack `Actions.l1.getGames` and the actions built on it (`getGame`, `getL2Output`, `getWithdrawalStatus`, `waitToProve`, `getTimeToProve`) throwing on target chains without a `disputeGameFactory` contract, by reading the factory address from the portal instead.
+
+- [#5455](https://github.com/wevm/viem/pull/5455) [`ee8e8b7`](https://github.com/wevm/viem/commit/ee8e8b79d86a00deee8087abe37effed592ccb5a) Thanks [@jxom](https://github.com/jxom)! - Added `usesSuperRoots` to OP Stack `Actions.l1.getL2Output` and `Actions.l1.waitToProve` outputs, so `Actions.l2.buildProveWithdrawal` resolved the L2 block for super-root outputs passed as `output`.
+
+- [#4930](https://github.com/wevm/viem/pull/4930) [`b7e7231`](https://github.com/wevm/viem/commit/b7e72311f3fe872c113ffaa4cace09536cf59395) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `1.8.16`, which rejects non-canonical RLP, compressed public keys in `Address.fromPublicKey`, odd-length hex `bytes` values in ABI encoding, and dynamic ABI values whose overlapping data exceeds the decode size limit, includes every present field in the derived EIP-712 domain type, resolves overloaded errors and events by selector, tightens signature, authorization and transaction envelope validation, and adds `SignaturePreAuthorized` to `ox/tempo`.
+
+- Fetched the nonce, block, and priority fee concurrently in `Actions.transaction.prepare` and `Actions.fee.estimateFeesPerGas` when the chain has no fee hooks, and stopped fetching the block for legacy fees.
+
+- Changed `Actions.transaction.prepare` to keep the `chainId` option or chain id over the `eth_fillTransaction` result and throw `Chain.MismatchError` when they differ.
+
+- [#5488](https://github.com/wevm/viem/pull/5488) [`5c6a920`](https://github.com/wevm/viem/commit/5c6a920eb5ce88d50f64e22f1d848b29818c48d7) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added `chainId` to `Token.Resolved`, so a token resolved with `token(chainId)` records the chain it was resolved for, and added the Tempo Moderato address to `ousd`.
+
+- Fixed closing an already closed WebSocket or IPC RPC client evicting the cached client that replaced it.
+
+- Added TIP-1166 support to `viem/tempo` channels: the `SignerSnapshotCached` event and `SignerConfigChanged` and `SaltNotSignerCommitment` errors on the channel reserve ABI, `Actions.channel.getOpenSalt`, typed `ChannelSignerConfigChangedError` and `ChannelSaltNotSignerCommitmentError`, and a default `salt` for `Actions.channel.open` set to the voucher signer's configuration commitment when the signer is a configurable account or an access key of one.
+
+- Fixed `Actions.accounts.getConfigCommitment` in `viem/tempo` rejecting on chains without the configurable account precompile, where it now returns the zero commitment.
+
+- [#4930](https://github.com/wevm/viem/pull/4930) [`97283b8`](https://github.com/wevm/viem/commit/97283b83b76ef8e79492c160edc041ac8a3b42c9) Thanks [@jxom](https://github.com/jxom)! - Added [TIP-1165](https://tips.sh/1165) pre-authorized access key signatures: `viem/tempo` access key accounts return them from `sign`, `signMessage`, and `signTypedData` while their key authorization is pending, and Tempo's `verifyHash` hook (with `mode: 'allowAccessKey'`) accepts them before the access key is registered.
+
+- Fixed `Relay.feePayer` to validate, bind, and sign for one sender, rejecting a fill whose sender or key authorization account differs from the request.
+
+- Fixed `Relay.create(...).fetch` never answering a request over 16 MiB while a clone of the request body was unread.
+
+- Fixed the Tempo `verifyHash` hook accepting a signature of a root key that a config commitment retired, so `Actions.verifyHash`, `Actions.verifyMessage`, and `Actions.siwe.verify` read the account's config commitment for a signature that recovers to the account, in every `mode`.
+
+- Fixed `Actions.verifyHash` ignoring `blockTag` when verifying pre-delegated ERC-8010 signatures, which now fall back to `'pending'` only when no block is selected.
+
+- Updated `Actions.verifyHash` to only treat pre-delegated ERC-8010 signatures as valid when the `isValidSignature` call succeeds.
+
+- [#5473](https://github.com/wevm/viem/pull/5473) [`21306d4`](https://github.com/wevm/viem/commit/21306d4605cf7c1830fd6e024b6b9c805b8b17f3) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.verifyHash` sending its onchain verification calls through multicall batching, so they now run as separate `eth_call` requests.
+
+- Updated `Actions.verifyHash` to make its onchain verification calls with CCIP-Read disabled, so an `OffchainLookup` revert from a signer now returns `false`.
+
+- Updated `Actions.verifyHash` to use the deployless validator when `blockNumber` is before the chain's `erc6492Verifier` `blockCreated`.
+
+- Updated `Actions.verifyHash` and the actions built on it to return `false` for the zero address, and the deployless ERC-6492 validator to reject signatures whose ECDSA recovery yields the zero address.
+
 ## 3.0.0-next.15
 
 ### Patch Changes
