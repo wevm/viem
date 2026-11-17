@@ -63,10 +63,11 @@ const output = await Actions.l1.getL2Output(client, { // [!code focus]
   outputIndex: bigint
   outputRoot: Hex
   timestamp: bigint
+  usesSuperRoots?: boolean
 }
 ```
 
-The legacy output proposal or dispute-game claim that covers the requested L2 position.
+The legacy output proposal or dispute-game claim that covers the requested L2 position. For super-root dispute games, `usesSuperRoots` is `true` and `l2BlockNumber` is the L2 timestamp.
 
 ## Parameters
 
@@ -81,7 +82,7 @@ The L1 chain used to read the contracts.
 
 - **Type:** `Address`
 
-An explicit Dispute Game Factory address. Supply all three explicit addresses when omitting `targetChain`.
+An explicit Dispute Game Factory address. Supply it with `portalAddress` when omitting `targetChain`.
 
 ### l2BlockNumber
 
@@ -93,7 +94,7 @@ The L2 block number, or timestamp for super-root games.
 
 - **Type:** `Address`
 
-An explicit L2 Output Oracle address. Supply all three explicit addresses when omitting `targetChain`.
+An explicit L2 Output Oracle address. Supplied without a portal, the action reads the L2 Output Oracle directly.
 
 ### limit
 
@@ -106,7 +107,7 @@ The maximum number of recent dispute games to inspect.
 
 - **Type:** `Address`
 
-An explicit Optimism Portal address. Supply all three explicit addresses when omitting `targetChain`.
+An explicit Optimism Portal address. Supply it with `disputeGameFactoryAddress` when omitting `targetChain`.
 
 ### targetChain
 

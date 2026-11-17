@@ -45,19 +45,37 @@ export async function getStubData(
     ],
   })
 
-  if ('paymasterAndData' in response) return response
+  // Return only paymaster fields, even when the service echoes back others.
+  const { isFinal, sponsor } = response
+  const extra = {
+    ...(isFinal !== undefined && { isFinal }),
+    ...(sponsor !== undefined && { sponsor }),
+  }
 
-  const { paymasterPostOpGasLimit, paymasterVerificationGasLimit, ...result } =
-    response
+  if ('paymasterAndData' in response)
+    return { paymasterAndData: response.paymasterAndData, ...extra }
+
+  const {
+    paymaster,
+    paymasterData,
+    paymasterPostOpGasLimit,
+    paymasterVerificationGasLimit,
+  } = response
 
   return {
-    ...result,
+    paymaster,
+    paymasterData,
     paymasterPostOpGasLimit: Hex.toBigInt(paymasterPostOpGasLimit),
+    ...('paymasterSignature' in response &&
+      response.paymasterSignature !== undefined && {
+        paymasterSignature: response.paymasterSignature,
+      }),
     ...(paymasterVerificationGasLimit !== undefined && {
       paymasterVerificationGasLimit: Hex.toBigInt(
         paymasterVerificationGasLimit,
       ),
     }),
+    ...extra,
   }
 }
 

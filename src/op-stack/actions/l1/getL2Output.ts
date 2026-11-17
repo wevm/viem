@@ -14,15 +14,26 @@ export async function getL2Output<chain extends Chain.Chain | undefined>(
   options: getL2Output.Options,
 ): Promise<getL2Output.ReturnType> {
   const chain = options.chain ?? client.chain
-  const version = await getPortalVersion(client, options)
 
-  if (version.major >= 3) {
-    const game = await getGame(client, options)
-    return {
-      l2BlockNumber: game.l2BlockNumber,
-      outputIndex: game.index,
-      outputRoot: game.rootClaim,
-      timestamp: game.timestamp,
+  // Without a portal, read the L2OutputOracle directly.
+  if (
+    ('portalAddress' in options && options.portalAddress) ||
+    options.targetChain?.contracts?.portal
+  ) {
+    const version = await getPortalVersion(
+      client,
+      options as getPortalVersion.Options,
+    )
+
+    if (version.major >= 3) {
+      const game = await getGame(client, options as getGame.Options)
+      return {
+        l2BlockNumber: game.l2BlockNumber,
+        outputIndex: game.index,
+        outputRoot: game.rootClaim,
+        timestamp: game.timestamp,
+        usesSuperRoots: game.usesSuperRoots,
+      }
     }
   }
 
@@ -44,20 +55,25 @@ export async function getL2Output<chain extends Chain.Chain | undefined>(
 
 export declare namespace getL2Output {
   /** Options for {@link getL2Output}. */
-  type Options = ContractParameters<
-    'disputeGameFactory' | 'l2OutputOracle' | 'portal'
-  > & {
+  type Options = (
+    | ContractParameters<'l2OutputOracle'>
+    | (ContractParameters<'disputeGameFactory' | 'portal'> & {
+        /** Maximum number of dispute games to inspect. @default 100 */
+        limit?: number | undefined
+      })
+  ) & {
     /** Chain used to resolve L1 contracts. @default client.chain */
     chain?: Chain.Chain | undefined
     /** L2 block number or super-root timestamp. */
     l2BlockNumber: bigint
-    /** Maximum number of dispute games to inspect. @default 100 */
-    limit?: number | undefined
   }
 
   /** An L2 output proposal or dispute-game claim. */
   type ReturnType = {
-    /** Anchored L2 block number or timestamp. */
+    /**
+     * Anchored L2 block number. For super-root dispute games, this value is
+     * the L2 timestamp instead. Check `usesSuperRoots` to distinguish the unit.
+     */
     l2BlockNumber: bigint
     /** Output or game index. */
     outputIndex: bigint
@@ -65,6 +81,8 @@ export declare namespace getL2Output {
     outputRoot: Hex.Hex
     /** Proposal or game timestamp. */
     timestamp: bigint
+    /** Whether the output comes from a super-root dispute game. */
+    usesSuperRoots?: boolean | undefined
   }
 
   /** Errors thrown by {@link getL2Output}. */

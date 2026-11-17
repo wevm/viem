@@ -236,3 +236,42 @@ test('rejects when a super-root timestamp maps to a mismatched block', async () 
     await CoreActions.state.revert(client, { id: snapshot })
   }
 })
+
+test('builds a proof for a super-root output', async () => {
+  const snapshot = await CoreActions.state.snapshot(client)
+  try {
+    const head = await CoreActions.block.get(client)
+    await CoreActions.block.setNextTimestamp(client, {
+      timestamp: head.timestamp + 10n,
+    })
+    await CoreActions.block.mine(client, { blocks: 1 })
+    const block = await CoreActions.block.get(client)
+
+    const proof = await Actions.l2.buildProveWithdrawal(client, {
+      output: {
+        l2BlockNumber: block.timestamp,
+        outputIndex: 1n,
+        outputRoot:
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+        timestamp: 0n,
+        usesSuperRoots: true,
+      },
+      withdrawal,
+    })
+
+    expect({
+      l2OutputIndex: proof.l2OutputIndex,
+      latestBlockhashMatches:
+        proof.outputRootProof.latestBlockhash === block.hash,
+      stateRootMatches: proof.outputRootProof.stateRoot === block.stateRoot,
+    }).toMatchInlineSnapshot(`
+      {
+        "l2OutputIndex": 1n,
+        "latestBlockhashMatches": true,
+        "stateRootMatches": true,
+      }
+    `)
+  } finally {
+    await CoreActions.state.revert(client, { id: snapshot })
+  }
+})

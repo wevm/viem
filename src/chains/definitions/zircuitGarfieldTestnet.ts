@@ -17,6 +17,11 @@ export const zircuitGarfieldTestnet = /*#__PURE__*/ Chain.from({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x7853cc1D49d02dFedAFa8bd816ad37cae5537d65',
+      },
+    },
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },

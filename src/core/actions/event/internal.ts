@@ -1,6 +1,8 @@
 import { AbiEvent } from 'ox'
 import type { Hex, Log } from 'ox'
 
+import { HttpError } from '../../../utils/RpcClient.js'
+
 /**
  * Returns the topics for an `event` (with indexed `args`) or a list of
  * `events`. Anonymous events have no signature topic to filter by.
@@ -57,4 +59,23 @@ export function extractLogs(
       return []
     }
   })
+}
+
+/** Whether a failed `eth_getLogs` request may succeed with a smaller block range. */
+export function isRangeError(error: unknown): boolean {
+  let current: unknown = error
+  while (current && typeof current === 'object') {
+    // Unreachable, unauthorized, forbidden or rate limited.
+    if (current instanceof HttpError)
+      return (
+        current.status !== undefined &&
+        current.status !== 401 &&
+        current.status !== 403 &&
+        current.status !== 429
+      )
+    // Rate limited.
+    if ((current as { code?: unknown }).code === 429) return false
+    current = (current as { cause?: unknown }).cause
+  }
+  return true
 }

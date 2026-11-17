@@ -41,11 +41,9 @@ export async function buildProveWithdrawal<
     withdrawal,
   } = options
   const { withdrawalHash } = withdrawal
-  const { l2BlockNumber } = game ?? output
-  const blockNumber = game?.usesSuperRoots
-    ? await Block.getNumberAtTimestamp(client, {
-        timestamp: game.l2BlockNumber,
-      })
+  const { l2BlockNumber, usesSuperRoots } = game ?? output
+  const blockNumber = usesSuperRoots
+    ? await Block.getNumberAtTimestamp(client, { timestamp: l2BlockNumber })
     : l2BlockNumber
   const slot = Withdrawal.getWithdrawalHashStorageSlot({ withdrawalHash })
   const [proof, block_] = await Promise.all([
@@ -57,10 +55,10 @@ export async function buildProveWithdrawal<
     getBlock(client, { blockNumber }),
   ])
   const block = block_ as Block.Block
-  if (game?.usesSuperRoots && block.timestamp !== game.l2BlockNumber)
+  if (usesSuperRoots && block.timestamp !== l2BlockNumber)
     throw new TimestampMismatchError({
       blockTimestamp: block.timestamp,
-      gameTimestamp: game.l2BlockNumber,
+      gameTimestamp: l2BlockNumber,
     })
   const storageProof = proof.storageProof[0]
   if (!storageProof) throw new StorageProofNotFoundError()
@@ -91,9 +89,9 @@ export async function buildProveWithdrawal<
 }
 
 export declare namespace buildProveWithdrawal {
-  /** Legacy L2 output proposal used to prove a withdrawal. */
+  /** L2 output proposal or dispute-game claim used to prove a withdrawal. */
   type Output = {
-    /** L2 block number covered by the output. */
+    /** L2 block number covered by the output, or timestamp for super roots. */
     l2BlockNumber: bigint
     /** Output index. */
     outputIndex: bigint
@@ -101,6 +99,8 @@ export declare namespace buildProveWithdrawal {
     outputRoot: Hex.Hex
     /** Output timestamp. */
     timestamp: bigint
+    /** Whether the output comes from a super-root dispute game. */
+    usesSuperRoots?: boolean | undefined
   }
 
   /** Dispute game used to prove a withdrawal. */
@@ -133,7 +133,7 @@ export declare namespace buildProveWithdrawal {
       }
     | {
         game?: undefined
-        /** Legacy output proposal anchoring the withdrawal. */
+        /** L2 output anchoring the withdrawal. */
         output: Output
       }
   )

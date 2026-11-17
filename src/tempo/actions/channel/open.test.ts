@@ -57,4 +57,38 @@ describe('open', () => {
       Channel.computeId(channel, { chainId: client.chain!.id }),
     )
   })
+
+  test('behavior: root authorized signer keeps a random default salt', async () => {
+    const { receipt, ...opened } = await Actions.channel.openSync(client, {
+      authorizedSigner: operator,
+      deposit: Value.from('1', 6),
+      payee: payee.address,
+      token: tempo.alphaUsd,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(opened.authorizedSigner).toBe(operator.address)
+    expect(opened.salt).toMatch(/^0x[0-9a-f]{64}$/)
+  })
+})
+
+describe('open.call', () => {
+  test('behavior: makes no request and keeps a random default salt', () => {
+    const options = {
+      deposit: Value.from('1', 6),
+      payee: payee.address,
+      token: tempo.alphaUsd,
+    } as const
+
+    const [, , , , salt] = Actions.channel.open.call(options).args
+    const [, , , , explicit] = Actions.channel.open.call({
+      ...options,
+      salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    }).args
+
+    expect(salt).toMatch(/^0x[0-9a-f]{64}$/)
+    expect(explicit).toMatchInlineSnapshot(
+      `"0x0000000000000000000000000000000000000000000000000000000000000000"`,
+    )
+  })
 })

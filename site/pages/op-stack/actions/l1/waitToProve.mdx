@@ -73,6 +73,7 @@ const proof = await Actions.l1.waitToProve(client, { // [!code focus]
     outputIndex: bigint
     outputRoot: Hex
     timestamp: bigint
+    usesSuperRoots?: boolean
   }
   withdrawal: Withdrawal.Withdrawal
 }

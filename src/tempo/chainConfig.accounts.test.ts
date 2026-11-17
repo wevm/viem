@@ -1,7 +1,14 @@
 import { AccountConfig, KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
 import { Account as CoreAccount, Actions as viem_Actions } from 'viem'
 import { Account, Actions } from 'viem/tempo'
-import { Hex, Secp256k1, Signature } from 'viem/utils'
+import {
+  Hex,
+  P256,
+  PersonalMessage,
+  Secp256k1,
+  Signature,
+  Siwe,
+} from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempoAccounts.js'
 import type { TransactionRequest } from './chainConfig.js'
@@ -303,5 +310,150 @@ describe('prepareTransactionRequest', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: A Tempo owner account is required to approve a configurable account transaction.]`,
     )
+  })
+})
+
+describe('verifyHash', () => {
+  const hash = PersonalMessage.getSignPayload(Hex.fromString('hello world'))
+
+  /** Commits a config for the account, which retires its root key (TIP-1113). */
+  async function retire(root: Account.RootAccount) {
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '100' },
+      to: root.address,
+      token: feeToken,
+    })
+    await Actions.accounts.upgradeSync(client, {
+      account: root,
+      feeToken,
+      owners: [{ owner: accounts[1].address, weight: 1 }],
+      threshold: 1,
+    })
+  }
+
+  test('behavior: rejects a retired secp256k1 root key', async () => {
+    const root = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+    const { address } = root
+    const signature = await root.sign({ hash })
+    const message = Siwe.createMessage({
+      address,
+      chainId: client.chain.id,
+      domain: 'example.com',
+      nonce: 'foobarbaz',
+      uri: 'https://example.com/path',
+      version: '1',
+    })
+    const siweSignature = await root.signMessage({ message })
+    const verify = async () => ({
+      allowAccessKey: await viem_Actions.verifyHash(client, {
+        address,
+        hash,
+        mode: 'allowAccessKey',
+        signature,
+      }),
+      auto: await viem_Actions.verifyHash(client, { address, hash, signature }),
+      bytes: await viem_Actions.verifyHash(client, {
+        address,
+        hash,
+        mode: 'eoa',
+        signature: Hex.toBytes(signature),
+      }),
+      eoa: await viem_Actions.verifyHash(client, {
+        address,
+        hash,
+        mode: 'eoa',
+        signature,
+      }),
+      object: await viem_Actions.verifyHash(client, {
+        address,
+        hash,
+        signature: Signature.fromHex(signature),
+      }),
+      siwe: await viem_Actions.siwe.verify(client, {
+        message,
+        signature: siweSignature,
+      }),
+      verifyMessage: await viem_Actions.verifyMessage(client, {
+        address,
+        message: 'hello world',
+        signature,
+      }),
+    })
+
+    const active = await verify()
+    await retire(root)
+    const retired = await verify()
+
+    expect({ active, retired }).toMatchInlineSnapshot(`
+      {
+        "active": {
+          "allowAccessKey": true,
+          "auto": true,
+          "bytes": true,
+          "eoa": true,
+          "object": true,
+          "siwe": true,
+          "verifyMessage": true,
+        },
+        "retired": {
+          "allowAccessKey": false,
+          "auto": false,
+          "bytes": false,
+          "eoa": false,
+          "object": false,
+          "siwe": false,
+          "verifyMessage": false,
+        },
+      }
+    `)
+  })
+
+  test.each([
+    { name: 'p256', root: Account.fromP256(P256.randomPrivateKey()) },
+    {
+      name: 'webAuthn',
+      root: Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://example.com',
+        rpId: 'example.com',
+      }),
+    },
+  ])('behavior: rejects a retired $name root key', async ({ root }) => {
+    const { address } = root
+    const signature = await root.sign({ hash })
+    const verify = async () => ({
+      allowAccessKey: await viem_Actions.verifyHash(client, {
+        address,
+        hash,
+        mode: 'allowAccessKey',
+        signature,
+      }),
+      auto: await viem_Actions.verifyHash(client, { address, hash, signature }),
+      eoa: await viem_Actions.verifyHash(client, {
+        address,
+        hash,
+        mode: 'eoa',
+        signature,
+      }),
+    })
+
+    const active = await verify()
+    await retire(root)
+    const retired = await verify()
+
+    expect({ active, retired }).toMatchInlineSnapshot(`
+      {
+        "active": {
+          "allowAccessKey": true,
+          "auto": true,
+          "eoa": true,
+        },
+        "retired": {
+          "allowAccessKey": false,
+          "auto": false,
+          "eoa": false,
+        },
+      }
+    `)
   })
 })

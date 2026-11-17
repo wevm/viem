@@ -148,3 +148,51 @@ describe('entryPointVersion: 0.6', () => {
     }
   })
 })
+
+test('returns only paymaster fields', async () => {
+  const server = await createServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(
+      JSON.stringify({
+        result: {
+          callData: '0xcafebabe',
+          isFinal: true,
+          maxFeePerGas: '0x3',
+          nonce: '0x5',
+          paymaster: '0x0000000000000000000000000000000000000001',
+          paymasterData: '0xdeadbeef',
+          paymasterPostOpGasLimit: '0x1',
+          paymasterVerificationGasLimit: '0x2',
+          sender: '0x0000000000000000000000000000000000000002',
+          sponsor: { name: 'Viem' },
+        },
+      }),
+    )
+  })
+
+  try {
+    const client = Client.create({ transport: http(server.url) })
+    const result = await getStubData<'0.7'>(client, {
+      callData: '0x',
+      chainId: 1,
+      entryPointAddress: EntryPoint.addressV07,
+      nonce: 0n,
+      sender: constants.accounts[1].address,
+    })
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "isFinal": true,
+        "paymaster": "0x0000000000000000000000000000000000000001",
+        "paymasterData": "0xdeadbeef",
+        "paymasterPostOpGasLimit": 1n,
+        "paymasterVerificationGasLimit": 2n,
+        "sponsor": {
+          "name": "Viem",
+        },
+      }
+    `)
+  } finally {
+    await server.close()
+  }
+})

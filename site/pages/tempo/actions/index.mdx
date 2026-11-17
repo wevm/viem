@@ -18,6 +18,7 @@
 | **Accounts Actions** | |
 | [`accounts.deriveAccount`](/tempo/actions/accounts.deriveAccount) | Derives a configurable account address with the configurable account precompile |
 | [`accounts.getConfig`](/tempo/actions/accounts.getConfig) | Gets the cached config selected by current chain state |
+| [`accounts.getConfigCommitment`](/tempo/actions/accounts.getConfigCommitment) | Gets the current configuration commitment for a configurable account |
 | [`accounts.getOperation`](/tempo/actions/accounts.getOperation) | Gets a coordinated account operation by its hash |
 | [`accounts.updateConfig`](/tempo/actions/accounts.updateConfig) | Replaces a configurable account's current configuration |
 | [`accounts.updateConfigSync`](/tempo/actions/accounts.updateConfigSync) | Replaces a configurable account's current configuration and waits for confirmation |
@@ -35,6 +36,7 @@
 | [`amm.watchRebalanceSwap`](/tempo/actions/amm.watchRebalanceSwap) | Watches `RebalanceSwap` events on the fee AMM |
 | **Channel Actions** | |
 | [`channel.close`](/tempo/actions/channel.close) | Closes a TIP-20 channel reserve channel from the payee or operator side |
+| [`channel.getOpenSalt`](/tempo/actions/channel.getOpenSalt) | Gets the salt to open a TIP-20 channel reserve channel with for a voucher signer |
 | [`channel.getStates`](/tempo/actions/channel.getStates) | Gets TIP-20 channel reserve state for a channel ID or channel |
 | [`channel.open`](/tempo/actions/channel.open) | Opens and funds a TIP-20 channel reserve channel |
 | [`channel.requestClose`](/tempo/actions/channel.requestClose) | Starts the payer close timer for a TIP-20 channel reserve channel |

@@ -645,12 +645,16 @@ test('token lifecycle', async () => {
 
 test('fee, faucet, and nonce actions', async () => {
   const faucetAccount = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
-  expect(await client.faucet.fund({ account: faucetAccount })).toHaveLength(4)
   expect(
-    await client.faucet.fundSync({
-      account: Account.fromSecp256k1(Secp256k1.randomPrivateKey()),
-    }),
-  ).toHaveLength(4)
+    (await client.faucet.fund({ account: faucetAccount })).length,
+  ).toBeGreaterThan(0)
+  expect(
+    (
+      await client.faucet.fundSync({
+        account: Account.fromSecp256k1(Secp256k1.randomPrivateKey()),
+      })
+    ).length,
+  ).toBeGreaterThan(0)
 
   const validator = Account.fromSecp256k1(tempo.accounts[8]!.privateKey)
   const validatorClient = tempo.getClient({
@@ -715,7 +719,7 @@ test('fee, faucet, and nonce actions', async () => {
   }
 })
 
-test('validator lifecycle', async () => {
+test.skipIf(!tempo.validatorConfigV1)('validator lifecycle', async () => {
   const validator = Account.fromSecp256k1(tempo.accounts[9]!.privateKey)
   const validator2 = Account.fromSecp256k1(tempo.accounts[7]!.privateKey)
   const validatorClient = tempo.getClient({

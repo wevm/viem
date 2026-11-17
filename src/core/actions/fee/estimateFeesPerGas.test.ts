@@ -1,8 +1,9 @@
 import type { Block } from 'ox'
-import { Actions } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
+import * as Http from '~test/http.js'
 
 import { hyperEvm, hyperliquidEvmTestnet, mainnet } from 'viem/chains'
 
@@ -10,6 +11,7 @@ import {
   BaseFeeScalarError,
   internal_estimateFeesPerGas,
 } from './estimateFeesPerGas.js'
+import { wait } from '../../internal/wait.js'
 import { Eip1559FeesNotSupportedError } from './estimateMaxPriorityFeePerGas.js'
 const client = anvil.getClient(anvil.mainnet)
 
@@ -186,4 +188,79 @@ test('error: chain does not support EIP-1559 fees', async () => {
       block: { baseFeePerGas: undefined } as Block.Block,
     }),
   ).rejects.toThrowError(Eip1559FeesNotSupportedError)
+})
+
+describe('behavior: requests', () => {
+  // Records, for each method, the methods that were pending when it was sent.
+  function getRecordingClient() {
+    const pending = new Map<number, string>()
+    const requests: Record<string, string[]> = {}
+    const recordingClient = Client.create({
+      chain: mainnet,
+      transport: http(anvil.mainnet.rpcUrl.http, {
+        onFetchRequest(_, init) {
+          const { id, method } = JSON.parse(init.body as string)
+          requests[method] = [...pending.values()].sort()
+          pending.set(id, method)
+        },
+        async onFetchResponse(response) {
+          const { id } = await response.clone().json()
+          pending.delete(id)
+        },
+      }),
+    })
+    return { client: recordingClient, requests }
+  }
+
+  test('fetches the block and priority fee concurrently', async () => {
+    const { client: recordingClient, requests } = getRecordingClient()
+
+    await Actions.fee.estimateFeesPerGas(recordingClient)
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_getBlockByNumber": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+        ],
+      }
+    `)
+  })
+
+  test('does not fetch the block for legacy fees', async () => {
+    const { client: recordingClient, requests } = getRecordingClient()
+
+    await Actions.fee.estimateFeesPerGas(recordingClient, { type: 'legacy' })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_gasPrice": [],
+      }
+    `)
+  })
+
+  test('block error takes precedence over the priority fee error', async () => {
+    const url = await Http.createRpcProxy(
+      anvil.mainnet.rpcUrl.http,
+      async ({ method }) => {
+        if (method === 'eth_getBlockByNumber') {
+          await wait(100)
+          return { error: { code: -32000, message: 'block unavailable' } }
+        }
+        if (method === 'eth_maxPriorityFeePerGas' || method === 'eth_gasPrice')
+          return { error: { code: -32000, message: 'fee unavailable' } }
+        return undefined
+      },
+    )
+    const proxyClient = Client.create({
+      chain: mainnet,
+      transport: http(url, { retryCount: 0 }),
+    })
+
+    await expect(
+      Actions.fee.estimateFeesPerGas(proxyClient),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidInputError: block unavailable]`,
+    )
+  })
 })

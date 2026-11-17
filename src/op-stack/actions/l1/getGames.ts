@@ -1,11 +1,12 @@
 import { Address } from 'ox'
 import type { Errors } from 'ox'
 
-import type * as Chain from '../../../core/Chain.js'
+import * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { read } from '../../../core/actions/contract/read.js'
 import { multicall } from '../../../core/actions/multicall.js'
 import { BaseError } from '../../../core/Errors.js'
+import { withCache } from '../../../core/internal/promise.js'
 import * as Game from '../../Game.js'
 import {
   disputeGameAbi,
@@ -22,10 +23,26 @@ export async function getGames<chain extends Chain.Chain | undefined>(
   const { l2BlockNumber, limit = 100 } = options
   const chain = options.chain ?? client.chain
   const portalAddress = getContractAddress({ ...options, chain }, 'portal')
-  const disputeGameFactoryAddress = getContractAddress(
-    { ...options, chain },
-    'disputeGameFactory',
-  )
+  const disputeGameFactoryAddress = await (async () => {
+    try {
+      return getContractAddress({ ...options, chain }, 'disputeGameFactory')
+    } catch (error) {
+      if (!(error instanceof Chain.DoesNotSupportContract)) throw error
+    }
+    // The target chain has no factory for this L1, so read it from the portal.
+    return withCache(
+      () =>
+        read(client, {
+          abi: portal2Abi,
+          address: portalAddress,
+          functionName: 'disputeGameFactory',
+        }),
+      {
+        cacheKey: `opStack.disputeGameFactory.${client.uid}.${portalAddress}`,
+        cacheTime: 300,
+      },
+    )
+  })()
 
   const [gameCount, gameType] = await Promise.all([
     read(client, {

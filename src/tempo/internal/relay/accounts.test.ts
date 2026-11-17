@@ -286,10 +286,7 @@ test('rejects a signed payload conflicting with the client chain', async () => {
   ).rejects.toThrow('Conflicting chain ids')
 })
 
-describe.runIf(
-  process.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    process.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
-)('plugin: accounts', () => {
+describe.runIf(Tempo.configurableAccounts)('plugin: accounts', () => {
   beforeAll(async () => {
     await Actions.faucet.fundSync(caller, {
       account: feePayerAccount,
@@ -694,10 +691,7 @@ test('plugin: keyAuthorization rejects a configurable account key authorization 
   )
 })
 
-describe.runIf(
-  process.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    process.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
-)('plugin: keyAuthorization', () => {
+describe.runIf(Tempo.configurableAccounts)('plugin: keyAuthorization', () => {
   const relay = Relay.create({
     client: caller,
     plugins: [

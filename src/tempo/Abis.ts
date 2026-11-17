@@ -1774,6 +1774,15 @@ export const tip20ChannelReserve = [
     ],
   },
   {
+    name: 'SignerSnapshotCached',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'channelId', indexed: true },
+      { type: 'address', name: 'signer', indexed: true },
+      { type: 'bytes32', name: 'commitment' },
+    ],
+  },
+  {
     name: 'CloseRequestCancelled',
     type: 'event',
     inputs: [
@@ -1799,6 +1808,19 @@ export const tip20ChannelReserve = [
     name: 'RootKeyRetired',
     type: 'error',
     inputs: [{ type: 'address', name: 'account' }],
+  },
+  {
+    name: 'SignerConfigChanged',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'signer' }],
+  },
+  {
+    name: 'SaltNotSignerCommitment',
+    type: 'error',
+    inputs: [
+      { type: 'address', name: 'signer' },
+      { type: 'bytes32', name: 'commitment' },
+    ],
   },
 ] as const
 
@@ -10163,6 +10185,19 @@ export const coreErrors = [
   { name: 'CaptureAmountInvalid', type: 'error', inputs: [] },
   { name: 'CloseNotReady', type: 'error', inputs: [] },
   { name: 'DepositOverflow', type: 'error', inputs: [] },
+  {
+    name: 'SignerConfigChanged',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'signer' }],
+  },
+  {
+    name: 'SaltNotSignerCommitment',
+    type: 'error',
+    inputs: [
+      { type: 'address', name: 'signer' },
+      { type: 'bytes32', name: 'commitment' },
+    ],
+  },
   { name: 'AddressNotReserved', type: 'error', inputs: [] },
   {
     name: 'TokenAlreadyExists',

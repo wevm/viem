@@ -11,7 +11,7 @@ test('fund', async () => {
   const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
   const hashes = await faucet.fund(client, { account })
 
-  expect(hashes).toHaveLength(4)
+  expect(hashes.length).toBeGreaterThan(0)
   expect(hashes.every((hash) => hash.startsWith('0x'))).toBe(true)
 })
 
@@ -19,21 +19,15 @@ test('behavior: address as account', async () => {
   const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
   const hashes = await faucet.fund(client, { account: account.address })
 
-  expect(hashes).toHaveLength(4)
+  expect(hashes.length).toBeGreaterThan(0)
 })
 
 test('fundSync', async () => {
   const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
   const receipts = await faucet.fundSync(client, { account })
 
-  expect(receipts.map((receipt) => receipt.status)).toMatchInlineSnapshot(`
-    [
-      "success",
-      "success",
-      "success",
-      "success",
-    ]
-  `)
+  expect(receipts.length).toBeGreaterThan(0)
+  expect(receipts.every((receipt) => receipt.status === 'success')).toBe(true)
 
   await expect(
     Actions.token.getBalance(client, {

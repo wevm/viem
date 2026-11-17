@@ -20,6 +20,11 @@ export const modeTestnet = /*#__PURE__*/ Chain.from({
   contracts: {
     ...chainConfig.contracts,
     create2: Contracts.create2,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x7Bb634B42373A87712Da14064deD13Db8b8b14f4',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x2634BD65ba27AB63811c74A63118ACb312701Bfa',

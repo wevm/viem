@@ -9,7 +9,13 @@ import type { WriteSyncParameters } from '../../internal/types.js'
 import { open } from './open.js'
 import type * as TempoErrors from '../../errors.js'
 
-/** Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt. */
+/**
+ * Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt.
+ *
+ * `salt` defaults as in `channel.open`: to the voucher signer's nonzero
+ * configuration commitment (TIP-1166) when the signer is a configurable
+ * account or an access key of one, else to a random salt.
+ */
 export async function openSync<
   chain extends Chain.Chain | undefined,
   account extends Account.Account | undefined,

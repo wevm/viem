@@ -22,8 +22,8 @@ export const superseed = /*#__PURE__*/ Chain.from({
     create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
-        address: '0x8b097CF1f9BbD9cbFD0DD561858a1FCbC8857Be0',
-        blockCreated: 20737481,
+        address: '0x657c1b0e31FFc69A02B207Be20699bDFF938c7E7',
+        blockCreated: 22973334,
       },
     },
     l2OutputOracle: {

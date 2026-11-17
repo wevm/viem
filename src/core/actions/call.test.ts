@@ -3,6 +3,7 @@ import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as testConstants from '~test/constants.js'
 import * as contract from '~test/contract.js'
+import { createRpcProxy } from '~test/http.js'
 import { describe, expect, test } from 'vitest'
 
 import { Actions, Client, http } from 'viem'
@@ -394,6 +395,57 @@ test('batch: sub-call failure throws', async () => {
   }).catch((error) => error)
   expect(error).toBeInstanceOf(RpcError.ExecutionError)
   expect(error.cause).toBeInstanceOf(multicall.MulticallCallFailedError)
+})
+
+test('batch: results length mismatch rejects every call', async () => {
+  const url = await createRpcProxy(anvil.mainnet.rpcUrl.http, ({ method }) => {
+    if (method !== 'eth_call') return
+    return {
+      result: AbiFunction.encodeResult(multicall.aggregate3Abi, [
+        { returnData: '0x01', success: true },
+      ]),
+    }
+  })
+  const batchClient = Client.create({
+    batch: { multicall: true },
+    chain: mainnet,
+    transport: http(url, { retryCount: 0 }),
+  })
+
+  const results = await Promise.allSettled([
+    // The proxy answers every call, so the target only labels the error.
+    Actions.call(batchClient, { data: name4bytes, to: multicall3 }),
+    Actions.call(batchClient, { data: totalSupply4bytes, to: multicall3 }),
+  ])
+
+  expect(results).toMatchInlineSnapshot(`
+    [
+      {
+        "reason": [RpcError.ExecutionError: Multicall returned 1 results for 2 calls.
+
+    Request Arguments:
+      chain:  Ethereum (id: 1)
+      data:   0x06fdde03
+      to:     0xcA11bde05977b3631167028862bE2a173976CA11
+
+    Details: Multicall returned 1 results for 2 calls.
+    Version: viem@x.x.x],
+        "status": "rejected",
+      },
+      {
+        "reason": [RpcError.ExecutionError: Multicall returned 1 results for 2 calls.
+
+    Request Arguments:
+      chain:  Ethereum (id: 1)
+      data:   0x18160ddd
+      to:     0xcA11bde05977b3631167028862bE2a173976CA11
+
+    Details: Multicall returned 1 results for 2 calls.
+    Version: viem@x.x.x],
+        "status": "rejected",
+      },
+    ]
+  `)
 })
 
 test('batch: explicit batch option without client batch config', async () => {

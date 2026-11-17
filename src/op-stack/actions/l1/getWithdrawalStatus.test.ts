@@ -91,6 +91,32 @@ test('returns ready-to-prove for an unproven withdrawal', async () => {
   expect(status).toMatchInlineSnapshot(`"ready-to-prove"`)
 }, 60_000)
 
+test('reads the dispute game factory from the portal', async () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  await CoreActions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+
+  const status = await Actions.l1.getWithdrawalStatus(client, {
+    gameLimit: 1,
+    receipt: readyToProveReceipt,
+    targetChain: {
+      ...optimism,
+      contracts: {
+        l2OutputOracle: optimism.contracts.l2OutputOracle,
+        portal: optimism.contracts.portal,
+      },
+    },
+  })
+
+  expect(status).toMatchInlineSnapshot(`"ready-to-prove"`)
+}, 60_000)
+
 test('returns waiting-to-finalize for a proven withdrawal', async () => {
   // A fresh client skips the portal version cached by earlier cases.
   const client = Client.create({

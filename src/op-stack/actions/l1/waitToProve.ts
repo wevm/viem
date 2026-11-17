@@ -68,6 +68,7 @@ export async function waitToProve<chain extends Chain.Chain | undefined>(
       outputIndex: game.index,
       outputRoot: game.rootClaim,
       timestamp: game.timestamp,
+      usesSuperRoots: game.usesSuperRoots,
     },
     withdrawal,
   }

@@ -4,6 +4,8 @@ import {
   Block as ox_Block,
   Hash,
   Hex,
+  Secp256k1,
+  Signature,
   TransactionRequest as ox_TransactionRequest,
 } from 'ox'
 import {
@@ -860,7 +862,52 @@ export const chainConfig = {
       }
     }
 
-    return await verifyDefault(client, parameters as verifyHash.Options)
+    const verify = () => verifyDefault(client, parameters as verifyHash.Options)
+
+    const root = (() => {
+      try {
+        return Address.isEqual(
+          address,
+          Secp256k1.recoverAddress({
+            payload: hash,
+            signature: Signature.fromHex(signature),
+          }),
+        )
+      } catch {
+        return false
+      }
+    })()
+    if (!root) return await verify()
+
+    // A config commitment retires the root key (TIP-1113), whose signature
+    // still recovers to the account. Only the chain knows the commitment, so
+    // this reads it in every mode.
+    const [commitment, valid] = await Promise.all([
+      read(client, {
+        abi: Abis.configurableAccount,
+        address: Addresses.configurableAccount,
+        args: [address],
+        functionName: 'getConfigCommitment',
+        ...(blockHash
+          ? { blockHash, requireCanonical }
+          : typeof blockNumber === 'bigint'
+            ? { blockNumber }
+            : { blockTag }),
+      }).catch((error) => {
+        // A chain without the precompile holds no commitments.
+        if (
+          error instanceof BaseError &&
+          error.walk(
+            (cause) =>
+              cause instanceof ContractError.ContractFunctionZeroDataError,
+          )
+        )
+          return 0n
+        throw error
+      }),
+      verify(),
+    ])
+    return valid && BigInt(commitment) === 0n
   },
 } satisfies Pick<
   Chain.Chain,

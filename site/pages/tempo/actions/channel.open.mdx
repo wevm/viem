@@ -109,6 +109,36 @@ await client.channel.openSync({
 
 :::
 
+### Open a Channel for a Configurable Account Signer
+
+From T15 ([TIP-1166](https://github.com/tempoxyz/tempo/pull/9133)), a channel whose voucher signer (`authorizedSigner`, else the payer) has a nonzero configuration commitment must use that commitment as its `salt`. When `salt` is omitted, `channel.open` reads the commitment of a configurable account, or of an access key's parent account, and uses it.
+
+An unregistered configurable account that opens the channel as its own signer registers in the same transaction, so its salt defaults to the commitment of its local config. Other accounts keep a random salt, with no extra RPC request.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const signer = Account.fromConfig('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
+
+const { salt } = await client.channel.openSync({
+  authorizedSigner: signer, // [!code focus]
+  deposit: 100_000000n,
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+When the signer is known only by address, or when you build the call with `Actions.channel.open.call` (which makes no RPC request), pass `salt` from [`channel.getOpenSalt`](/tempo/actions/channel.getOpenSalt).
+
 ### Run a Channel per Project with Deterministic Salts
 
 Derive `salt` from an internal identifier to keep several channels open to the same payee and token, one per project, with reproducible channel identities.
@@ -170,9 +200,9 @@ The transaction receipt and decoded event data.
 
 ### authorizedSigner
 
-- **Type:** `Address`
+- **Type:** `Account | Address`
 
-Optional signer for vouchers. Zero means `payer` signs.
+Optional signer for vouchers. Zero means `payer` signs. Pass a configurable account to default `salt` to its configuration commitment.
 
 ### deposit
 
@@ -195,6 +225,7 @@ Account that receives settled voucher payments.
 ### salt
 
 - **Type:** `Hex`
+- **Default:** The voucher signer's configuration commitment when the signer is a configurable account, or an access key of one, with a nonzero commitment (or, for an unregistered configurable account that sends the open as its own signer, the commitment of its local config), else `Hex.random(32)`
 
 User-supplied salt to distinguish otherwise identical channels.
 

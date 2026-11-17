@@ -101,6 +101,7 @@ export function publicActions() {
     event: {
       createFilter: (options) => event.createFilter(client, options as never),
       getLogs: (options) => event.getLogs(client, options as never),
+      iterateLogs: (options) => event.iterateLogs(client, options as never),
       watch: (options) => event.watch(client, options as never),
     },
     fee: {
@@ -1019,6 +1020,39 @@ export declare namespace publicActions {
       ) => Promise<
         event.getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>
       >
+      /**
+       * Iterates over the event logs in a block range, one page of blocks at a
+       * time.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { AbiEvent } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * for await (const page of client.event.iterateLogs({
+       *   event: AbiEvent.from(
+       *     'event Transfer(address indexed from, address indexed to, uint256 value)',
+       *   ),
+       *   fromBlock: 16330000n,
+       *   toBlock: 16340000n,
+       * }))
+       *   console.log(page.toBlock, page.logs)
+       * ```
+       */
+      iterateLogs: <
+        const abiEvent extends
+          | AbiEvent.AbiEvent
+          | readonly AbiEvent.AbiEvent[]
+          | undefined = undefined,
+        strict extends boolean | undefined = undefined,
+      >(
+        options: event.iterateLogs.Options<abiEvent, strict>,
+      ) => event.iterateLogs.ReturnType<abiEvent, strict>
       /**
        * Watches incoming event logs, returning a watcher handle.
        *

@@ -87,3 +87,17 @@ test('filters games by L2 position', async () => {
   })
   expect(games).toMatchInlineSnapshot(`[]`)
 })
+
+test('reads the dispute game factory from the portal', async () => {
+  const targetChain = {
+    ...optimism,
+    contracts: { portal: optimism.contracts.portal },
+  }
+
+  const games = await Actions.l1.getGames(client, { limit: 3, targetChain })
+
+  expect(games.length).toMatchInlineSnapshot(`3`)
+  expect(games).toEqual(
+    await Actions.l1.getGames(client, { limit: 3, targetChain: optimism }),
+  )
+})

@@ -3,6 +3,14 @@ import { defineConfig } from 'vp'
 
 const root = import.meta.dirname
 
+const hardfork = process.env.VITE_TEMPO_HARDFORK
+// Configurable accounts need T14 active.
+const configurableAccounts =
+  !hardfork || hardfork === 'Tnext' || Number(hardfork.slice(1)) >= 14
+// T15 removed the ValidatorConfig V1 precompile.
+const validatorConfigV1 =
+  !!hardfork && hardfork !== 'Tnext' && Number(hardfork.slice(1)) < 15
+
 export default defineConfig({
   fmt: {
     singleQuote: true,
@@ -128,7 +136,8 @@ export default defineConfig({
             '**/node_modules/**',
             '**/*.fuzz-int.test.ts',
             '**/*.fuzz.test.ts',
-            '**/*.accounts.test.ts',
+            ...(configurableAccounts ? [] : ['**/*.accounts.test.ts']),
+            ...(validatorConfigV1 ? [] : ['src/tempo/actions/validator/**']),
           ],
           globalSetup: ['./test/setup.tempo.global.ts'],
           setupFiles: ['./test/setup.tempo.ts'],
@@ -139,24 +148,6 @@ export default defineConfig({
           testTimeout: 60_000,
         },
       },
-      // Register the accounts project only when explicitly enabled so
-      // unfiltered test runs skip its pinned Tempo image.
-      ...(process.env.VITE_TEMPO_ACCOUNTS
-        ? [
-            {
-              extends: true,
-              test: {
-                name: 'tempo-accounts',
-                include: ['src/tempo/**/*.accounts.test.ts'],
-                globalSetup: ['./test/setup.tempo.global.ts'],
-                setupFiles: ['./test/setup.tempo.ts'],
-                retry: 0,
-                hookTimeout: 180_000,
-                testTimeout: 120_000,
-              },
-            },
-          ]
-        : []),
     ],
   },
 })

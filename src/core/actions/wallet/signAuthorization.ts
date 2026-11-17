@@ -3,6 +3,7 @@ import type { Authorization, Errors } from 'ox'
 import * as Account from '../../Account.js'
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
+import { getAction } from '../getAction.js'
 import { prepareAuthorization } from './prepareAuthorization.js'
 
 /**
@@ -40,7 +41,11 @@ export async function signAuthorization(
   if (account.type !== 'local' || !account.signAuthorization)
     throw new AccountTypeNotSupportedError({ type: account.type })
 
-  const authorization = await prepareAuthorization(client, options)
+  const authorization = await getAction(
+    client,
+    prepareAuthorization,
+    'wallet.prepareAuthorization',
+  )(options)
   return account.signAuthorization(authorization)
 }
 

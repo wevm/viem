@@ -712,7 +712,9 @@ export async function fromSocket<
         close() {
           if (keepAliveTimer) clearInterval(keepAliveTimer)
           connection.close()
-          socketClientCache.delete(cacheKey)
+          // A closed client must not evict the client that replaced it.
+          if (socketClientCache.get(cacheKey) === socketClient)
+            socketClientCache.delete(cacheKey)
         },
         get socket() {
           return connection

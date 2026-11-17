@@ -189,6 +189,7 @@ async function call_(
       const { offchainLookup } = await import('./internal/ccip.js')
       return {
         data: await offchainLookup({
+          blockHash,
           blockNumber,
           blockTag,
           call: (options, ccipRead) => call_(client, options, { ccipRead }),
@@ -196,6 +197,7 @@ async function call_(
           data,
           request: client.ccipRead.request,
           requestOptions,
+          requireCanonical,
           to,
           transport: client.transport,
         }),

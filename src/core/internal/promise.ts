@@ -40,8 +40,17 @@ type CreateBatchSchedulerArguments<
   returnType extends readonly unknown[] = readonly unknown[],
 > = {
   fn: (args: parameters[]) => Promise<returnType>
+  /**
+   * Returns the size an item adds to its batch. Defaults to 1, so the size
+   * counts items.
+   */
+  getSize?: ((args: parameters) => number) | undefined
   id: number | string
-  shouldSplitBatch?: ((args: parameters[]) => boolean) | undefined
+  /**
+   * Returns whether a batch would be too large at `size` (the queued items
+   * plus the next item), so the queued items flush before the next item joins.
+   */
+  shouldSplitBatch?: ((size: number) => boolean) | undefined
   wait?: number | undefined
   sort?: BatchResultsCompareFn<returnType[number]> | undefined
 }
@@ -58,7 +67,13 @@ type CreateBatchSchedulerReturnType<
 
 export type CreateBatchSchedulerErrorType = ErrorType
 
-const schedulerCache = /*#__PURE__*/ new Map<number | string, SchedulerItem[]>()
+type Scheduler = { items: SchedulerItem[]; size: number }
+
+const schedulerCache = /*#__PURE__*/ new Map<number | string, Scheduler>()
+const timerCache = /*#__PURE__*/ new Map<
+  number | string,
+  ReturnType<typeof setTimeout>
+>()
 
 /** @internal */
 export function createBatchScheduler<
@@ -66,6 +81,7 @@ export function createBatchScheduler<
   returnType extends readonly unknown[],
 >({
   fn,
+  getSize = () => 1,
   id,
   shouldSplitBatch,
   wait = 0,
@@ -75,14 +91,15 @@ export function createBatchScheduler<
   returnType
 >): CreateBatchSchedulerReturnType<parameters, returnType> {
   const exec = async () => {
-    const scheduler = getScheduler()
+    const scheduler = schedulerCache.get(id)?.items ?? []
     flush()
 
     const args = scheduler.map(({ args }) => args)
 
     if (args.length === 0) return
 
-    fn(args as parameters[])
+    // Wrap `fn` so that synchronous throws reject the scheduled promises.
+    new Promise<returnType>((resolve) => resolve(fn(args as parameters[])))
       .then((data) => {
         if (sort && Array.isArray(data)) data.sort(sort)
         for (let i = 0; i < scheduler.length; i++)
@@ -93,42 +110,42 @@ export function createBatchScheduler<
       })
   }
 
-  const flush = () => schedulerCache.delete(id)
-
-  const getBatchedArgs = () =>
-    getScheduler().map(({ args }) => args) as parameters[]
-
-  const getScheduler = () => schedulerCache.get(id) || []
-
-  const setScheduler = (item: SchedulerItem) =>
-    schedulerCache.set(id, [...getScheduler(), item])
+  const flush = () => {
+    clearTimeout(timerCache.get(id))
+    timerCache.delete(id)
+    schedulerCache.delete(id)
+  }
 
   return {
     flush,
     async schedule(args: parameters) {
       const { promise, resolve, reject } = withResolvers()
 
-      const split = shouldSplitBatch?.([...getBatchedArgs(), args])
+      const size = getSize(args)
+      const queued = schedulerCache.get(id)
+      if (queued && shouldSplitBatch?.(queued.size + size)) exec()
 
-      if (split) exec()
-
-      const hasActiveScheduler = getScheduler().length > 0
-      if (hasActiveScheduler) {
-        setScheduler({ args, resolve, reject })
+      // Push in place: `exec` detaches the queue from the cache before it runs.
+      const scheduler = schedulerCache.get(id)
+      if (scheduler) {
+        scheduler.items.push({ args, resolve, reject })
+        scheduler.size += size
         return promise
       }
 
-      setScheduler({ args, resolve, reject })
-      setTimeout(exec, wait)
+      schedulerCache.set(id, { items: [{ args, resolve, reject }], size })
+      timerCache.set(id, setTimeout(exec, wait))
       return promise
     },
   } as unknown as CreateBatchSchedulerReturnType<parameters, returnType>
 }
 
+// Keys usually include a client uid, so a bounded map keeps apps that create a
+// client per request from growing these caches without limit.
 /** @internal */
-export const promiseCache = /*#__PURE__*/ new Map()
+export const promiseCache = /*#__PURE__*/ new LruMap<any>(8192)
 /** @internal */
-export const responseCache = /*#__PURE__*/ new Map()
+export const responseCache = /*#__PURE__*/ new LruMap<any>(8192)
 
 export type GetCacheErrorType = ErrorType
 
@@ -219,7 +236,8 @@ export function withDedupe<data>(
   { enabled = true, id }: WithDedupeOptions,
 ): Promise<data> {
   if (!enabled || !id) return fn()
-  if (dedupeCache.get(id)) return dedupeCache.get(id)!
+  const cached = dedupeCache.get(id)
+  if (cached) return cached
   const promise = fn().finally(() => dedupeCache.delete(id))
   dedupeCache.set(id, promise)
   return promise

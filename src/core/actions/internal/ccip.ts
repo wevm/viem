@@ -30,12 +30,14 @@ const responseParameters = /*#__PURE__*/ AbiParameters.from('bytes, bytes')
  *
  * Follows at most 4 nested callbacks. Every gateway request of the lookup,
  * including nested local batches, draws from one query and concurrency
- * budget, and uses the transport timeout.
+ * budget, local batch responses draw from one byte budget, and each request
+ * uses the transport timeout.
  */
 export async function offchainLookup(
   options: offchainLookup.Options,
 ): Promise<Hex.Hex | undefined> {
   const {
+    blockHash,
     blockNumber,
     blockTag,
     call,
@@ -43,6 +45,7 @@ export async function offchainLookup(
     data,
     request: request_,
     requestOptions,
+    requireCanonical,
     to,
     transport,
   } = options
@@ -77,6 +80,7 @@ export async function offchainLookup(
 
     const { data: response } = await call(
       {
+        blockHash,
         blockNumber,
         blockTag,
         data: Hex.concat(
@@ -84,6 +88,7 @@ export async function offchainLookup(
           AbiParameters.encode(responseParameters, [result, extraData]),
         ),
         requestOptions,
+        requireCanonical,
         to,
       } as call.Options,
       { budget, lookupCount: lookupCount + 1 },
@@ -110,13 +115,15 @@ export async function offchainLookup(
 export declare namespace offchainLookup {
   /** State shared by the nested callbacks of one lookup. */
   type Context = {
-    /** Query and concurrency budget of the lookup. */
+    /** Byte, query and concurrency budget of the lookup. */
     budget?: Budget | undefined
     /** Completed lookup count. @default 0 */
     lookupCount?: number | undefined
   }
 
   type Options = {
+    /** The block hash the original call executed against. */
+    blockHash?: Hex.Hex | undefined
     /** The block number the original call executed against. */
     blockNumber?: bigint | undefined
     /** The block tag the original call executed against. */
@@ -134,6 +141,8 @@ export declare namespace offchainLookup {
     request: CcipRead.Request
     /** Per-request transport options. */
     requestOptions?: RequestOptions | undefined
+    /** Whether the block of `blockHash` must be canonical. */
+    requireCanonical?: boolean | undefined
     /** The contract that reverted with `OffchainLookup`. */
     to: Address.Address
     /** Transport whose timeout applies to each gateway request. */

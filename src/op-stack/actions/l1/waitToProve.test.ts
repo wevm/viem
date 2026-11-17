@@ -73,6 +73,7 @@ test('returns a dispute game and withdrawal', async () => {
         "outputIndex": 13219n,
         "outputRoot": "0xb767f8b50875a8f60d71ad79e6d1e7a1bda2a640ffa215cb453211b3f5d7aa9f",
         "timestamp": 1765583711n,
+        "usesSuperRoots": false,
       },
     }
   `)

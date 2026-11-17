@@ -2,6 +2,7 @@ import { Address, Hex } from 'ox'
 import type { Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
+import { getAction } from '../getAction.js'
 import type { blockParameter } from '../internal/blockParameter.js'
 import { getCode } from './getCode.js'
 
@@ -26,7 +27,7 @@ export async function getDelegation(
   client: Client.Client,
   options: getDelegation.Options,
 ): Promise<getDelegation.ReturnType> {
-  const code = await getCode(client, options)
+  const code = await getAction(client, getCode, 'address.getCode')(options)
 
   // EIP-7702 delegation designator: `0xef0100` prefix (3 bytes) followed by a
   // 20-byte address (23 bytes total).

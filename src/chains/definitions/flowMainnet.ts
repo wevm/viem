@@ -20,7 +20,7 @@ export const flowMainnet = /*#__PURE__*/ Chain.from({
     create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 6205,
+      blockCreated: 968659,
     },
   },
   blockTime: 800,

@@ -47,9 +47,13 @@ export function fromRpc<
   if (!block)
     return null as fromRpc.ReturnType<block, includeTransactions, blockTag>
 
-  // Conditional transaction inclusion requires the final cast.
+  // Conditional transaction inclusion requires the final cast. The base block
+  // gets no transactions, so each transaction is formatted once below.
   return {
-    ...ox_Block.fromRpc(block as ox_Block.Rpc, options),
+    ...ox_Block.fromRpc(
+      { ...block, transactions: [] } as ox_Block.Rpc,
+      options,
+    ),
     transactions: block.transactions.map((transaction) => {
       if (typeof transaction === 'string') return transaction
       // Widen the tag-conditional RPC shape to the base envelope union.

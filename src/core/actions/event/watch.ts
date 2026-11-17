@@ -1,7 +1,6 @@
 import { Log } from 'ox'
 import type { AbiEvent, Address, Block, Errors } from 'ox'
 
-import { HttpError } from '../../../utils/RpcClient.js'
 import type * as Client from '../../Client.js'
 import { createAsyncIterator } from '../../internal/asyncIterator.js'
 import { observe } from '../../internal/observe.js'
@@ -193,7 +192,8 @@ export function watch<
                     // A single block cannot be split, and a smaller range does
                     // not help when the RPC Provider is unreachable or rejects
                     // the client.
-                    if (from === to || !isRangeError(error)) throw error
+                    if (from === to || !internal.isRangeError(error))
+                      throw error
                     return undefined
                   })
                   if (!active) return
@@ -481,23 +481,4 @@ function isFilterExpired(error: unknown): boolean {
     current = value.cause
   }
   return false
-}
-
-/** Whether a failed `eth_getLogs` request may succeed with a smaller block range. */
-function isRangeError(error: unknown): boolean {
-  let current: unknown = error
-  while (current && typeof current === 'object') {
-    // Unreachable, unauthorized, forbidden or rate limited.
-    if (current instanceof HttpError)
-      return (
-        current.status !== undefined &&
-        current.status !== 401 &&
-        current.status !== 403 &&
-        current.status !== 429
-      )
-    // Rate limited.
-    if ((current as { code?: unknown }).code === 429) return false
-    current = (current as { cause?: unknown }).cause
-  }
-  return true
 }

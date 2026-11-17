@@ -1,4 +1,5 @@
 import { Address } from 'ox'
+import type { Hex } from 'ox'
 import type { Channel } from 'ox/tempo'
 
 import * as Abis from '../../Abis.js'
@@ -16,6 +17,8 @@ export type ExecutionErrorType =
   | ChannelAmountNotIncreasingErrorType
   | ChannelCloseNotReadyErrorType
   | ChannelNotFoundErrorType
+  | ChannelSaltNotSignerCommitmentErrorType
+  | ChannelSignerConfigChangedErrorType
 
 /** `ChannelNotFoundError` with a literal `name`, for narrowing. */
 export type ChannelNotFoundErrorType = ChannelNotFoundError & {
@@ -148,6 +151,68 @@ export class ChannelAmountNotIncreasingError extends TempoExecutionError<
   }
 }
 
+/** `ChannelSaltNotSignerCommitmentError` with a literal `name`, for narrowing. */
+export type ChannelSaltNotSignerCommitmentErrorType =
+  ChannelSaltNotSignerCommitmentError & {
+    name: 'ChannelSaltNotSignerCommitmentError'
+  }
+
+/**
+ * Thrown when a channel opens with a salt other than the voucher signer's
+ * configuration commitment (TIP-1166). Omit `salt`, or pass it from
+ * `channel.getOpenSalt`.
+ */
+export class ChannelSaltNotSignerCommitmentError extends TempoExecutionError<
+  TempoExecutionError.Decoded<'SaltNotSignerCommitment'>
+> {
+  /** Configuration commitment the salt must equal, when known. */
+  commitment: Hex.Hex | undefined
+  /** Voucher signer, when known. */
+  signer: Address.Address | undefined
+
+  constructor(parameters: TempoExecutionError.Parameters) {
+    const [signer, commitment] = (parameters.error.args ?? []) as readonly [
+      Address.Address?,
+      Hex.Hex?,
+    ]
+    super(parameters, {
+      details: { commitment, signer },
+      name: 'ChannelSaltNotSignerCommitmentError',
+    })
+    this.commitment = commitment
+    this.signer = signer
+  }
+}
+
+/** `ChannelSignerConfigChangedError` with a literal `name`, for narrowing. */
+export type ChannelSignerConfigChangedErrorType =
+  ChannelSignerConfigChangedError & {
+    name: 'ChannelSignerConfigChangedError'
+  }
+
+/**
+ * Thrown when a channel is topped up after its voucher signer's configuration
+ * changed since the channel opened (TIP-1166). Close the channel and open a new
+ * one to add funds.
+ */
+export class ChannelSignerConfigChangedError extends TempoExecutionError<
+  TempoExecutionError.Decoded<'SignerConfigChanged'>
+> {
+  /** Voucher signer, when known. */
+  signer: Address.Address | undefined
+
+  constructor(parameters: TempoExecutionError.Parameters) {
+    const [signer] = (parameters.error.args ?? []) as readonly [
+      Address.Address?,
+    ]
+    super(parameters, {
+      details: { signer },
+      name: 'ChannelSignerConfigChangedError',
+    })
+    this.signer = signer
+  }
+}
+
 const reserve = {
   address: Addresses.tip20ChannelReserve,
   abi: Abis.tip20ChannelReserve,
@@ -212,5 +277,17 @@ export const errorResolvers: Resolvers = {
           ? BigInt(closeRequestedAt) + channel.gracePeriod
           : undefined,
     })
+  },
+  'SaltNotSignerCommitment(address,bytes32)': (context) => {
+    const { call } = context
+    if (!call || !Address.isEqual(call.address, Addresses.tip20ChannelReserve))
+      return undefined
+    return new ChannelSaltNotSignerCommitmentError(context.base)
+  },
+  'SignerConfigChanged(address)': (context) => {
+    const { call } = context
+    if (!call || !Address.isEqual(call.address, Addresses.tip20ChannelReserve))
+      return undefined
+    return new ChannelSignerConfigChangedError(context.base)
   },
 }

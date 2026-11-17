@@ -56,3 +56,15 @@ test('not delegated: 23-byte code without designator prefix', async () => {
     await Actions.address.getDelegation(client, { address: account }),
   ).toBeUndefined()
 })
+
+test('behavior: client getCode override', async () => {
+  const extended = client.extend(() => ({
+    address: {
+      getCode: async () => `0xef0100${target.slice(2)}` as const,
+    },
+  }))
+
+  expect(
+    await Actions.address.getDelegation(extended, { address: account }),
+  ).toBe(Address.checksum(target))
+})

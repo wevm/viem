@@ -14,15 +14,16 @@ import { SignatureErc6492 } from 'ox/erc6492'
 import { SignatureErc8010 } from 'ox/erc8010'
 
 import type * as Client from '../Client.js'
-import * as ContractError from '../ContractError.js'
 import * as RpcError from '../RpcError.js'
 import { isAbortError } from '../internal/errors.js'
 import type { OneOf } from '../internal/types.js'
 import { getCode } from './address/getCode.js'
 import { call } from './call.js'
-import { read } from './contract/read.js'
 import type { RequireCanonicalError } from './internal/blockParameter.js'
-import { multicall3Bytecode } from './internal/constants.js'
+import {
+  erc6492SignatureValidatorBytecode,
+  multicall3Bytecode,
+} from './internal/constants.js'
 import { toDeploylessCallViaBytecodeData } from './internal/deployless.js'
 import { aggregate3Abi } from './internal/multicall.js'
 
@@ -33,6 +34,8 @@ const erc1271Abi = /*#__PURE__*/ Abi.from([
 ])
 
 const erc1271MagicValue = '0x1626ba7e'
+
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 /**
  * Verifies a signature over a hash onchain, supporting Smart Contract
@@ -59,6 +62,9 @@ export async function verifyHash(
   client: Client.Client,
   options: verifyHash.Options,
 ): Promise<verifyHash.ReturnType> {
+  // No signature is valid for the zero address.
+  if (options.address === zeroAddress) return false
+
   if (client.chain?.verifyHash)
     return await client.chain.verifyHash(client, {
       ...options,
@@ -80,7 +86,18 @@ export async function verifyDefault(
 ): Promise<verifyHash.ReturnType> {
   const {
     address,
-    erc6492VerifierAddress = client.chain?.contracts?.erc6492Verifier?.address,
+    erc6492VerifierAddress = (() => {
+      const { blockNumber } = options
+      const verifier = client.chain?.contracts?.erc6492Verifier
+      // Use the deployless validator for blocks before the verifier was created.
+      if (
+        blockNumber !== undefined &&
+        verifier?.blockCreated !== undefined &&
+        verifier.blockCreated > blockNumber
+      )
+        return undefined
+      return verifier?.address
+    })(),
     hash,
     mode = 'auto',
     multicallAddress = client.chain?.contracts?.multicall3?.address,
@@ -161,7 +178,11 @@ export declare namespace verifyHash {
       }
     | {
         blockNumber?: undefined
-        /** The block tag to verify against. @default 'latest' */
+        /**
+         * The block tag to verify against. Pre-delegated ERC-8010 signatures
+         * are verified against `'pending'` when no block is selected.
+         * @default 'latest'
+         */
         blockTag?: Block.Tag | undefined
         blockHash?: undefined
         requireCanonical?: undefined
@@ -179,7 +200,6 @@ export declare namespace verifyHash {
 
   type ErrorType =
     | RpcError.ExecutionError
-    | ContractError.ContractFunctionExecutionError
     | RequireCanonicalError
     | Errors.GlobalErrorType
 }
@@ -261,13 +281,15 @@ async function verifyErc6492(
           ),
           {
             args: [address, hash, wrappedSignature],
-            bytecode: SignatureErc6492.universalSignatureValidatorBytecode,
+            bytecode: erc6492SignatureValidatorBytecode,
           },
         ),
       }
 
-  const { data } = await call(client, {
+  // Verification calls run without multicall batching or CCIP-Read.
+  const { data } = await call({ ...client, ccipRead: false }, {
     ...request,
+    batch: false,
     blockHash,
     blockNumber,
     blockTag,
@@ -360,7 +382,7 @@ async function verifyErc8010(
     ],
   ])
 
-  const { data: response } = await call(client, {
+  const { data: response } = await call({ ...client, ccipRead: false }, {
     ...(multicallAddress
       ? { data: calldata, to: multicallAddress }
       : {
@@ -372,9 +394,9 @@ async function verifyErc8010(
     authorizationList: [authorization],
     ...(blockHash
       ? { blockHash, requireCanonical }
-      : blockNumber
+      : typeof blockNumber === 'bigint'
         ? { blockNumber }
-        : { blockTag: 'pending' }),
+        : { blockTag: blockTag ?? 'pending' }),
     requestOptions,
   } as call.Options).catch((error) => {
     if (error instanceof RpcError.ExecutionError) throw new VerificationError()
@@ -382,18 +404,19 @@ async function verifyErc8010(
   })
   if (!response) throw new VerificationError()
 
-  const data = (() => {
+  const result = (() => {
     try {
       const results = AbiFunction.decodeResult(aggregate3Abi, response, {
         as: 'Object',
       }) as readonly { returnData: Hex.Hex; success: boolean }[]
-      return results.at(-1)?.returnData
+      return results.at(-1)
     } catch {
       throw new VerificationError()
     }
   })()
 
-  if (data?.startsWith(erc1271MagicValue)) return true
+  if (result?.success && result.returnData.startsWith(erc1271MagicValue))
+    return true
   throw new VerificationError()
 }
 
@@ -417,23 +440,31 @@ async function verifyErc1271(
     signature,
   } = options
 
-  const result = await read(client, {
-    abi: erc1271Abi,
-    address,
-    args: [hash, signature],
+  const isValidSignature = AbiFunction.fromAbi(erc1271Abi, 'isValidSignature')
+
+  const { data } = await call({ ...client, ccipRead: false }, {
+    batch: false,
     blockHash,
     blockNumber,
     blockTag,
-    functionName: 'isValidSignature',
+    data: AbiFunction.encodeData(isValidSignature, [hash, signature]),
     requestOptions,
     requireCanonical,
-  }).catch((error) => {
-    if (error instanceof ContractError.ContractFunctionExecutionError)
-      throw new VerificationError()
+    to: address,
+  } as call.Options).catch((error) => {
+    if (error instanceof RpcError.ExecutionError) throw new VerificationError()
     throw error
   })
 
-  if ((result as Hex.Hex).startsWith(erc1271MagicValue)) return true
+  const result = (() => {
+    try {
+      return AbiFunction.decodeResult(isValidSignature, data ?? '0x')
+    } catch {
+      throw new VerificationError()
+    }
+  })()
+
+  if (result.startsWith(erc1271MagicValue)) return true
   throw new VerificationError()
 }
 

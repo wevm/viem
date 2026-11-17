@@ -17,6 +17,8 @@ export type Tokens = readonly Token[]
 export type Resolved = {
   /** Token contract address. */
   address: Address.Address
+  /** Chain id the token was resolved for. */
+  chainId: number
   /** Token currency denomination. */
   currency?: string | undefined
   /** Token decimals, used to parse human-readable `amount` strings. */
@@ -52,7 +54,15 @@ export type Resolved = {
  * })
  *
  * usdc(1)
- * // { address: '0xA0b8…48', currency: 'USD', decimals: 6, … }
+ * // {
+ * //   address: '0xA0b8…48',
+ * //   chainId: 1,
+ * //   currency: 'USD',
+ * //   decimals: 6,
+ * //   name: 'USD Coin',
+ * //   popular: true,
+ * //   symbol: 'USDC',
+ * // }
  *
  * usdc.addresses[8453]
  * // '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
@@ -68,7 +78,7 @@ export function from<const token extends from.Parameters>(
   function fn(chainId: number): Resolved {
     const address = (addresses as Record<number, Address.Address>)[chainId]
     if (!address) throw new AddressNotFoundError({ chainId })
-    return { address, currency, decimals, name, popular, symbol }
+    return { address, chainId, currency, decimals, name, popular, symbol }
   }
   return Object.defineProperties(fn, {
     addresses: { enumerable: true, value: addresses },
@@ -108,13 +118,14 @@ export declare namespace from {
 
   type ReturnType<token extends Parameters = Parameters> = {
     /**
-     * Resolves the token config (`address`, `currency`, `decimals`, `name`,
-     * `popular`, `symbol`) for a chain id.
+     * Resolves the token config (`address`, `chainId`, `currency`, `decimals`,
+     * `name`, `popular`, `symbol`) for a chain id.
      */
     <chainId extends keyof token['addresses']>(
       chainId: chainId,
     ): {
       address: token['addresses'][chainId]
+      chainId: chainId
       currency: ParameterValue<token, 'currency'>
       decimals: token['decimals']
       name: ParameterValue<token, 'name'>

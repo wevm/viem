@@ -152,6 +152,23 @@ describe('getContractAddress', () => {
       }),
     ).toThrow(Chain.DoesNotSupportContract)
   })
+
+  test('throws when the contract is not yet deployed at block 0', () => {
+    expect(() =>
+      Chain.getContractAddress({
+        blockNumber: 0n,
+        chain: mainnet,
+        contract: 'multicall3',
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [Chain.DoesNotSupportContract: Chain "Ethereum" does not support contract "multicall3".
+
+      This could be due to any of the following:
+      - The contract "multicall3" was not deployed until block 14353601 (current block 0).
+
+      Version: viem@x.x.x]
+    `)
+  })
 })
 
 describe('assertCurrent', () => {

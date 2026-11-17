@@ -19,6 +19,7 @@ export const hardforks = [
   't12',
   't13',
   't14',
+  't15',
 ] as const
 
 /** A Tempo hardfork. */

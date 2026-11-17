@@ -69,6 +69,48 @@ describe('call integration', () => {
     }
   })
 
+  test('behavior: callback runs at the block of the original call', async () => {
+    const server = await createCcipServer()
+    try {
+      const { address } = await deployExample([`${server.url}/{sender}/{data}`])
+      const { hash: blockHash, number: blockNumber } =
+        await Actions.block.get(client)
+      // Remove the contract after the block, so only callbacks that run at
+      // that block succeed.
+      await Actions.block.mine(client, { blocks: 1 })
+      await Actions.address.setCode(client, { address, bytecode: '0x' })
+      await Actions.block.mine(client, { blocks: 1 })
+
+      const enabled = Client.create({
+        ccipRead: { request: unsafeRequest },
+        transport,
+      })
+      const data = getAddressData('jxom.viem')
+
+      const results = await Promise.all([
+        Actions.call(enabled, { blockNumber, data, to: address }),
+        Actions.call(enabled, { blockHash, data, to: address }),
+        Actions.call(enabled, {
+          blockHash,
+          data,
+          requireCanonical: true,
+          to: address,
+        }),
+      ])
+
+      expect(results.map(({ data }) => data && Hex.trimLeft(data)))
+        .toMatchInlineSnapshot(`
+        [
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+
   test('args: client ccipRead disabled', async () => {
     const server = await createCcipServer()
     try {

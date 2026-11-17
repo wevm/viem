@@ -3,6 +3,7 @@ import type { Block, Errors, Fee, TransactionRequest } from 'ox'
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
+import { LruMap } from '../../internal/lru.js'
 import {
   Eip1559FeesNotSupportedError,
   type estimateMaxPriorityFeePerGas,
@@ -10,6 +11,13 @@ import {
 } from './estimateMaxPriorityFeePerGas.js'
 import { get } from '../block/get.js'
 import { getGasPrice } from './getGasPrice.js'
+
+/**
+ * Whether each client's network has EIP-1559 fees, keyed by client uid.
+ *
+ * @internal
+ */
+export const eip1559NetworkCache = /*#__PURE__*/ new LruMap<boolean>(128)
 
 /**
  * Returns an estimate for the fees per gas (in wei) for a transaction to be
@@ -58,11 +66,47 @@ export async function internal_estimateFeesPerGas<
     type = 'eip1559',
   } = options
 
-  const block = block_ ?? (await get(client))
+  // Chain fee hooks receive the block and the request, so the requests they
+  // depend on are made in sequence.
+  const hasFeeHooks = Object.values(chain?.fees ?? {}).some(
+    (fee) => typeof fee === 'function',
+  )
+
+  // Without chain fee hooks, legacy fees never read the block.
+  const blockPromise =
+    block_ || (type === 'legacy' && !hasFeeHooks) ? undefined : get(client)
+  // A rejection is thrown when the block is awaited.
+  blockPromise?.catch(() => {})
+
+  // Without chain fee hooks, the priority fee does not depend on the block,
+  // so it is estimated concurrently with the block request, unless the
+  // network is already known to lack EIP-1559 fees.
+  const priorityFeePromise =
+    blockPromise &&
+    type === 'eip1559' &&
+    !hasFeeHooks &&
+    typeof request?.maxPriorityFeePerGas !== 'bigint' &&
+    eip1559NetworkCache.get(client.uid) !== false
+      ? internal_estimateMaxPriorityFeePerGas(client, {
+          block: blockPromise,
+          chain,
+          request,
+        })
+      : undefined
+  // A rejection is thrown when the priority fee is awaited.
+  priorityFeePromise?.catch(() => {})
+
+  // The block error takes precedence over the priority fee error.
+  const block = block_ ?? (await blockPromise)
+  if (blockPromise)
+    eip1559NetworkCache.set(
+      client.uid,
+      typeof block?.baseFeePerGas === 'bigint',
+    )
 
   const baseFeeMultiplier = await (async () => {
     if (typeof chain?.fees?.baseFeeMultiplier === 'function')
-      return chain.fees.baseFeeMultiplier({ block, client, request })
+      return chain.fees.baseFeeMultiplier({ block: block!, client, request })
     return chain?.fees?.baseFeeMultiplier ?? 1.2
   })()
   if (baseFeeMultiplier < 1) throw new BaseFeeScalarError()
@@ -75,7 +119,7 @@ export async function internal_estimateFeesPerGas<
 
   if (typeof chain?.fees?.estimateFeesPerGas === 'function') {
     const fees = await chain.fees.estimateFeesPerGas({
-      block,
+      block: block!,
       client,
       multiply,
       request,
@@ -86,17 +130,18 @@ export async function internal_estimateFeesPerGas<
   }
 
   if (type === 'eip1559') {
-    if (typeof block.baseFeePerGas !== 'bigint')
+    if (typeof block?.baseFeePerGas !== 'bigint')
       throw new Eip1559FeesNotSupportedError()
 
     const maxPriorityFeePerGas =
       typeof request?.maxPriorityFeePerGas === 'bigint'
         ? request.maxPriorityFeePerGas
-        : await internal_estimateMaxPriorityFeePerGas(client, {
-            block,
-            chain,
-            request,
-          })
+        : await (priorityFeePromise ??
+            internal_estimateMaxPriorityFeePerGas(client, {
+              block,
+              chain,
+              request,
+            }))
     const baseFeePerGas = multiply(block.baseFeePerGas)
     const maxFeePerGas =
       request?.maxFeePerGas ?? baseFeePerGas + maxPriorityFeePerGas

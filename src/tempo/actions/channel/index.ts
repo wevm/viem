@@ -10,8 +10,13 @@ export {
   type ChannelCloseNotReadyErrorType,
   ChannelNotFoundError,
   type ChannelNotFoundErrorType,
+  ChannelSaltNotSignerCommitmentError,
+  type ChannelSaltNotSignerCommitmentErrorType,
+  ChannelSignerConfigChangedError,
+  type ChannelSignerConfigChangedErrorType,
   type ExecutionErrorType,
 } from './errors.js'
+export { getOpenSalt } from './getOpenSalt.js'
 export { getStates } from './getStates.js'
 export { open } from './open.js'
 export { openSync } from './openSync.js'

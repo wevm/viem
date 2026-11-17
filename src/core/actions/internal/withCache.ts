@@ -1,8 +1,14 @@
-const promiseCache = /*#__PURE__*/ new Map<string, Promise<any>>()
-const responseCache = /*#__PURE__*/ new Map<
-  string,
-  { created: number; data: any }
->()
+import { LruMap } from '../../internal/lru.js'
+
+// Keys usually include a client uid, so a bounded map keeps apps that create a
+// client per request from growing these caches without limit.
+/** @internal */
+export const promiseCache = /*#__PURE__*/ new LruMap<Promise<any>>(8192)
+/** @internal */
+export const responseCache = /*#__PURE__*/ new LruMap<{
+  created: number
+  data: any
+}>(8192)
 
 /**
  * Returns the result of a given promise, and caches the result for subsequent

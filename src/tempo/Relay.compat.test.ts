@@ -360,11 +360,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
   })
 })
 
-describe.runIf(
-  nodeEnv === 'localnet' &&
-    process.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    process.env.VITE_TEMPO_TAG === 'sha-96bdeb7',
-)('accounts', () => {
+describe.runIf(Tempo.configurableAccounts)('accounts', () => {
   let client: CoreClient_.Client<typeof chain_>
   let server: Server
   const store = Store.memory()

@@ -19,6 +19,7 @@ import {
 } from 'viem'
 import { mainnet } from 'viem/chains'
 
+import { wait } from '../../internal/wait.js'
 import { Eip1559FeesNotSupportedError } from '../fee/estimateMaxPriorityFeePerGas.js'
 import { MaxFeePerGasTooLowError } from './prepare.js'
 
@@ -1605,5 +1606,279 @@ describe('errors', () => {
         value: 1n,
       }),
     ).rejects.toThrowError(Eip1559FeesNotSupportedError)
+  })
+})
+
+describe('behavior: filled chainId', () => {
+  // Fills every request with chain id 2.
+  async function getFillClient(chain?: Chain.Chain | undefined) {
+    const url = await Http.createRpcProxy(
+      anvil.mainnet.rpcUrl.http,
+      ({ method }) => {
+        if (method !== 'eth_fillTransaction') return undefined
+        return {
+          result: {
+            raw: '0x02deadbeef',
+            tx: {
+              chainId: '0x2',
+              from: account,
+              gas: '0x5208',
+              maxFeePerGas: '0x77359400',
+              maxPriorityFeePerGas: '0x3b9aca00',
+              nonce: '0x7',
+              type: '0x2',
+            },
+          },
+        }
+      },
+    )
+    return Client.create({ chain, transport: http(url) })
+  }
+
+  test('rejects a value that differs from the chain', async () => {
+    const fillClient = await getFillClient(mainnet)
+
+    await expect(
+      Actions.transaction.prepare(fillClient, { account, to, value: 1n }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [Chain.MismatchError: The current chain of the wallet (id: 2) does not match the target chain for the transaction (id: 1 – Ethereum).
+
+      Current Chain ID:  2
+      Expected Chain ID: 1 – Ethereum
+
+      Version: viem@x.x.x]
+    `)
+  })
+
+  test('rejects a value that differs from the chainId option', async () => {
+    const fillClient = await getFillClient()
+
+    await expect(
+      Actions.transaction.prepare(fillClient, {
+        account,
+        chainId: 1,
+        to,
+        value: 1n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [Chain.MismatchError: The current chain of the wallet (id: 2) does not match the target chain for the transaction (id: 1).
+
+      Current Chain ID:  2
+      Expected Chain ID: 1
+
+      Version: viem@x.x.x]
+    `)
+  })
+
+  test('uses the value without a chain or chainId option', async () => {
+    const fillClient = await getFillClient()
+
+    const { request } = await Actions.transaction.prepare(fillClient, {
+      account,
+      to,
+      value: 1n,
+    })
+
+    expect(request.chainId).toMatchInlineSnapshot(`2`)
+  })
+})
+
+describe('behavior: concurrent parameters', () => {
+  // Records, for each method, the methods that were pending when it was sent.
+  // The node does not support `eth_fillTransaction`, so the parameters are
+  // prepared one by one.
+  async function getRecordingClient(chain: Chain.Chain = mainnet) {
+    const url = await Http.createRpcProxy(
+      anvil.mainnet.rpcUrl.http,
+      ({ method }) =>
+        method === 'eth_fillTransaction'
+          ? { error: { code: -32601, message: 'method not found' } }
+          : undefined,
+    )
+    const pending = new Map<number, string>()
+    const requests: Record<string, string[]> = {}
+    const recordingClient = Client.create({
+      chain,
+      transport: http(url, {
+        onFetchRequest(_, init) {
+          const { id, method } = JSON.parse(init.body as string)
+          requests[method] = [...pending.values()].sort()
+          pending.set(id, method)
+        },
+        async onFetchResponse(response) {
+          const { id } = await response.clone().json()
+          pending.delete(id)
+        },
+      }),
+    })
+    return { client: recordingClient, requests }
+  }
+
+  test('fetches the nonce, block, and priority fee concurrently', async () => {
+    await setup()
+    const { client: recordingClient, requests } = await getRecordingClient()
+
+    await Actions.transaction.prepare(recordingClient, {
+      account,
+      to,
+      type: 'eip1559',
+      value: 1n,
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_fillTransaction": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+  })
+
+  test('estimates the priority fee with the type detection block', async () => {
+    await setup()
+    const { client: recordingClient, requests } = await getRecordingClient()
+
+    const { request } = await Actions.transaction.prepare(recordingClient, {
+      account,
+      to,
+      value: 1n,
+    })
+
+    expect({ requests, type: request.type }).toMatchInlineSnapshot(`
+      {
+        "requests": {
+          "eth_estimateGas": [],
+          "eth_fillTransaction": [],
+          "eth_getBlockByNumber": [
+            "eth_getTransactionCount",
+          ],
+          "eth_getTransactionCount": [],
+          "eth_maxPriorityFeePerGas": [
+            "eth_getBlockByNumber",
+            "eth_getTransactionCount",
+          ],
+        },
+        "type": "eip1559",
+      }
+    `)
+  })
+
+  test('awaits the nonce manager nonce with the other parameters', async () => {
+    await setup()
+    const { client: recordingClient, requests } = await getRecordingClient()
+    const options = {
+      account,
+      nonceManager: NonceManager.jsonRpc(),
+      to,
+      type: 'eip1559',
+      value: 1n,
+    } as const
+    // `eth_fillTransaction` reads the nonce from the request, so the first
+    // prepare awaits it before the fill. Later prepares skip the unsupported
+    // fill.
+    await Actions.transaction.prepare(recordingClient, options)
+    for (const method in requests) delete requests[method]
+
+    await Actions.transaction.prepare(recordingClient, options)
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+  })
+
+  test('does not fetch the block for legacy fees', async () => {
+    await setup()
+    const { client: recordingClient, requests } = await getRecordingClient()
+
+    await Actions.transaction.prepare(recordingClient, {
+      account,
+      to,
+      type: 'legacy',
+      value: 1n,
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_fillTransaction": [],
+        "eth_gasPrice": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+      }
+    `)
+  })
+
+  test('fetches in sequence with chain fee hooks', async () => {
+    await setup()
+    const { client: recordingClient, requests } = await getRecordingClient(
+      Chain.from({ ...mainnet, fees: { baseFeeMultiplier: () => 1.2 } }),
+    )
+
+    await Actions.transaction.prepare(recordingClient, {
+      account,
+      to,
+      type: 'eip1559',
+      value: 1n,
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_fillTransaction": [],
+        "eth_getBlockByNumber": [],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [],
+      }
+    `)
+  })
+
+  test('nonce error takes precedence over concurrent errors', async () => {
+    const url = await Http.createRpcProxy(
+      anvil.mainnet.rpcUrl.http,
+      async ({ method }) => {
+        if (method === 'eth_fillTransaction')
+          return { error: { code: -32601, message: 'method not found' } }
+        if (method === 'eth_getTransactionCount') {
+          await wait(100)
+          return { error: { code: -32000, message: 'nonce unavailable' } }
+        }
+        if (method === 'eth_getBlockByNumber')
+          return { error: { code: -32000, message: 'block unavailable' } }
+        return undefined
+      },
+    )
+    const proxyClient = Client.create({
+      chain: mainnet,
+      transport: http(url, { retryCount: 0 }),
+    })
+
+    await expect(
+      Actions.transaction.prepare(proxyClient, {
+        account,
+        to,
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidInputError: nonce unavailable]`,
+    )
   })
 })

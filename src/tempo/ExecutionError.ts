@@ -202,10 +202,14 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'PublicKeyAlreadyExists()': 'Public key already exists.',
   'ReentrantWithdrawal()': 'Reentrant withdrawals are not allowed.',
   'RootKeyRetired(address)': 'The root key of {0} is retired.',
+  'SaltNotSignerCommitment(address,bytes32)':
+    'The channel salt must be the configuration commitment {1} of signer {0}.',
   'SequencerConfigurationUnchanged()':
     'The sequencer configuration is unchanged.',
   'SignatureTypeMismatch(uint8,uint8)':
     'Signature type mismatch. Expected {0}, got {1}.',
+  'SignerConfigChanged(address)':
+    'The configuration of signer {0} changed since the channel opened.',
   'SpendingLimitExceeded()': 'Spending limit exceeded.',
   'StaleLeadershipEpoch(uint64,uint64)':
     'Stale leadership epoch. Expected {0}, got {1}.',
@@ -284,6 +288,12 @@ export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
     'BelowMinimumOrderSize(uint128)': ['Place a larger order.'],
     'ChannelNotFound()': [
       'Check the channel details, or open the channel first.',
+    ],
+    'SaltNotSignerCommitment(address,bytes32)': [
+      "Open the channel with the signer's configuration commitment as its salt, from `channel.getOpenSalt`.",
+    ],
+    'SignerConfigChanged(address)': [
+      "The signer's owners changed after the channel opened. Close the channel and open a new one to add funds.",
     ],
     'CloseNotReady()': [
       'Request a close, then wait for the grace period to end before withdrawing.',

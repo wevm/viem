@@ -126,10 +126,8 @@ export async function scheduleMulticall(
   >({
     id: `${client.uid}.${block}.${getRequestOptionsId(requestOptions)}${stateOverrideKey}`,
     wait,
-    shouldSplitBatch(args) {
-      const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
-      return size > batchSize * 2
-    },
+    getSize: ({ data }) => data.length - 2,
+    shouldSplitBatch: (size) => size > batchSize * 2,
     async fn(requests) {
       const calls = requests.map((request) => ({
         allowFailure: true,
@@ -159,9 +157,16 @@ export async function scheduleMulticall(
         requestOptions,
       )
 
-      return AbiFunction.decodeResult(aggregate3Abi, response as Hex.Hex, {
-        as: 'Object',
-      }) as readonly { success: boolean; returnData: Hex.Hex }[]
+      const results = AbiFunction.decodeResult(
+        aggregate3Abi,
+        response as Hex.Hex,
+        { as: 'Object' },
+      ) as readonly { success: boolean; returnData: Hex.Hex }[]
+      if (results.length !== requests.length)
+        throw new BaseError(
+          `Multicall returned ${results.length} results for ${requests.length} calls.`,
+        )
+      return results
     },
   })
 

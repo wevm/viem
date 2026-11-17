@@ -827,14 +827,8 @@ async function scheduleMulticall(
       rpcStateOverride,
     ]),
     wait,
-    shouldSplitBatch(calls) {
-      if (batchSize <= 0) return false
-      const size = calls.reduce(
-        (size, { callData }) => size + (callData.length - 2) / 2,
-        0,
-      )
-      return size > batchSize
-    },
+    getSize: ({ callData }) => (callData.length - 2) / 2,
+    shouldSplitBatch: (size) => batchSize > 0 && size > batchSize,
     async fn(calls) {
       const calldata = AbiFunction.encodeData(aggregate3Abi, [calls])
       const request =

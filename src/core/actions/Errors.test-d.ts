@@ -18,6 +18,9 @@ test('exports errors by Action domain', () => {
   expectTypeOf<
     keyof typeof Actions.Errors
   >().toEqualTypeOf<'CounterfactualDeploymentFailedError'>()
+  expectTypeOf<
+    keyof typeof Actions.event.Errors
+  >().toEqualTypeOf<'InvalidBlockRangeError'>()
   expectTypeOf<keyof typeof Actions.fee.Errors>().toEqualTypeOf<
     'BaseFeeScalarError' | 'Eip1559FeesNotSupportedError'
   >()

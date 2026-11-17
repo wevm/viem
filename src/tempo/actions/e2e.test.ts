@@ -155,13 +155,9 @@ describe('transaction.sendSync', () => {
     expect(receipt.feePayer?.toLowerCase()).toBe(feePayer.address.toLowerCase())
   })
 
-  // Configurable accounts (TIP-1107) run only on a capable node: the
-  // public node image has no `0x05` (configurable) signature-envelope decoding
-  // yet, so it rejects the transaction with `failed to decode signed
-  // transaction`. Opt in with `VITE_TEMPO_ACCOUNTS=true` against a
-  // configurable-account-enabled node. (The combining itself is covered hermetically in
-  // `chainConfig.test.ts`.)
-  test.runIf(process.env.VITE_TEMPO_ACCOUNTS)(
+  // Configurable accounts (TIP-1107) activate at T14. (The combining itself is
+  // covered hermetically in `chainConfig.test.ts`.)
+  test.runIf(tempo.configurableAccounts)(
     'configurable (2-of-2): owner approvals combine into the envelope',
     async () => {
       const owner1 = Account.fromSecp256k1(accounts[8]!.privateKey)

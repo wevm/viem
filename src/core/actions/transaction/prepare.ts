@@ -3,7 +3,7 @@ import type { Address, Block, Errors, Hex, Kzg, TxEnvelopeEip4844 } from 'ox'
 
 import * as Account from '../../Account.js'
 import type * as Capabilities from '../../Capabilities.js'
-import type * as Chain from '../../Chain.js'
+import * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
 import * as RpcError from '../../RpcError.js'
@@ -16,10 +16,14 @@ import { getTransactionCount } from '../address/getTransactionCount.js'
 import { get as getBlock } from '../block/get.js'
 import { getId } from '../chains/getId.js'
 import {
+  eip1559NetworkCache,
   type estimateFeesPerGas,
   internal_estimateFeesPerGas,
 } from '../fee/estimateFeesPerGas.js'
-import { Eip1559FeesNotSupportedError } from '../fee/estimateMaxPriorityFeePerGas.js'
+import {
+  Eip1559FeesNotSupportedError,
+  internal_estimateMaxPriorityFeePerGas,
+} from '../fee/estimateMaxPriorityFeePerGas.js'
 import { getAction } from '../getAction.js'
 import { estimateGas } from './estimateGas.js'
 import { FeePayerNonceMismatchError, fill } from './fill.js'
@@ -34,8 +38,6 @@ export const defaultParameters = [
   'type',
 ] as const
 
-/** Whether a network is EIP-1559 enabled, cached per `client.uid`. */
-const eip1559NetworkCache = /*#__PURE__*/ new Map<string, boolean>()
 /** Whether a node supports `eth_fillTransaction`, cached per `client.uid`. */
 const supportsFill = /*#__PURE__*/ new LruMap<boolean>(128)
 
@@ -120,11 +122,17 @@ export async function prepare<
     return chainId
   }
 
-  let block: Block.Block | undefined
-  async function getLatestBlock(): Promise<Block.Block> {
-    block ??= (await getBlock(client, { blockTag: 'latest' })) as Block.Block
+  let block: Promise<Block.Block> | undefined
+  function getLatestBlock(): Promise<Block.Block> {
+    block ??= getBlock(client, { blockTag: 'latest' }) as Promise<Block.Block>
     return block
   }
+
+  // Chain fee hooks receive the block and the request, so the requests they
+  // depend on are made in sequence.
+  const hasFeeHooks = Object.values(chain?.fees ?? {}).some(
+    (fee) => typeof fee === 'function',
+  )
 
   let nonce = request.nonce
   if (hook?.fn && hook.runAt.includes('beforeFillTransaction')) {
@@ -143,17 +151,23 @@ export async function prepare<
       : undefined
   }
 
+  // The nonce manager hands out nonces in call order, so the nonce is consumed
+  // here, but awaited with the other parameters.
+  let consumedNonce: Promise<number> | undefined
   if (
     parameters.includes('nonce') &&
     typeof nonce === 'undefined' &&
     account &&
     nonceManager
-  )
-    nonce = await nonceManager.consume({
+  ) {
+    consumedNonce = nonceManager.consume({
       address: account.address,
       chainId: await getChainId(),
       client,
     })
+    // A rejection is thrown when the nonce is awaited.
+    consumedNonce.catch(() => {})
+  }
 
   const attemptFill = (() => {
     if (
@@ -171,7 +185,12 @@ export async function prepare<
       return false
     if (parameters.includes('chainId') && typeof request.chainId !== 'number')
       return true
-    if (parameters.includes('nonce') && typeof nonce !== 'number') return true
+    if (
+      parameters.includes('nonce') &&
+      typeof nonce !== 'number' &&
+      !consumedNonce
+    )
+      return true
     if (
       parameters.includes('fees') &&
       typeof request.gasPrice !== 'bigint' &&
@@ -184,9 +203,13 @@ export async function prepare<
     return false
   })()
 
+  // `eth_fillTransaction` and chain hooks read the nonce from the request.
+  if (consumedNonce && (attemptFill || hook?.fn)) nonce = await consumedNonce
+
   let capabilities:
     | Capabilities.Extract<'fillTransaction', 'ReturnType'>
     | undefined
+  let filledChainId: number | undefined
   if (attemptFill) {
     const fillRequest = async (request: Record<string, any>) => {
       const result = await fill(client, {
@@ -199,7 +222,7 @@ export async function prepare<
       supportsFill.set(client.uid, true)
 
       const {
-        chainId: filledChainId,
+        chainId,
         from,
         gas,
         gasPrice,
@@ -218,9 +241,6 @@ export async function prepare<
         ...request,
         ...(from ? { from } : {}),
         ...(type && !request.type ? { type } : {}),
-        ...(typeof filledChainId !== 'undefined'
-          ? { chainId: filledChainId }
-          : {}),
         ...(typeof gas !== 'undefined' ? { gas } : {}),
         ...(typeof gasPrice !== 'undefined' && legacyish ? { gasPrice } : {}),
         // Nonces above `Number.MAX_SAFE_INTEGER` (e.g. Tempo expiring nonce
@@ -260,6 +280,7 @@ export async function prepare<
         )
           filled[key] = value
       }
+      filledChainId = chainId
       return { capabilities: result.capabilities, request: filled }
     }
     // Unless the error must surface, fall back to manual preparation below.
@@ -301,6 +322,20 @@ export async function prepare<
   if (account) request.from = account.address
   if (typeof nonce !== 'undefined') request.nonce = nonce
 
+  // The filled chain id only applies when `chainId` is requested and neither
+  // the request nor the chain provides one.
+  if (typeof filledChainId !== 'undefined' && parameters.includes('chainId')) {
+    request.chainId ??= chain?.id ?? filledChainId
+    if (request.chainId !== filledChainId)
+      throw new Chain.MismatchError({
+        chain:
+          chain && chain.id === request.chainId
+            ? chain
+            : ({ id: request.chainId } as Chain.Chain),
+        currentChainId: filledChainId,
+      })
+  }
+
   if (hook?.fn && hook.runAt.includes('beforeFillParameters'))
     request =
       (await hook.fn(
@@ -308,99 +343,148 @@ export async function prepare<
         { client, phase: 'beforeFillParameters' },
       )) ?? request
 
-  if (
-    parameters.includes('nonce') &&
-    typeof request.nonce === 'undefined' &&
-    account &&
-    !nonceManager
-  )
-    request.nonce = await getTransactionCount(client, {
-      address: account.address,
-      blockTag: 'pending',
-    })
-
-  const kzg_ = request.kzg ?? kzg
-  if (
-    (parameters.includes('blobVersionedHashes') ||
-      parameters.includes('sidecars')) &&
-    request.blobs &&
-    kzg_
-  ) {
-    if (parameters.includes('blobVersionedHashes'))
-      request.blobVersionedHashes = Blobs.toVersionedHashes(request.blobs, {
-        as: 'Hex',
-        kzg: kzg_,
-      })
-    if (parameters.includes('sidecars'))
-      request.sidecars = {
-        blobs: request.blobs,
-        commitments: Blobs.toCommitments(request.blobs, {
-          as: 'Hex',
-          kzg: kzg_,
-        }),
-        cellProofs: Blobs.toCellProofs(request.blobs, { as: 'Hex', kzg: kzg_ }),
-      }
-  }
-
-  if (parameters.includes('chainId')) request.chainId = await getChainId()
-
-  if (
-    (parameters.includes('fees') || parameters.includes('type')) &&
-    typeof request.type === 'undefined'
-  ) {
-    const type = getRequestType(request)
-    if (type) request.type = type
-    else {
-      let isEip1559 = eip1559NetworkCache.get(client.uid)
-      if (typeof isEip1559 === 'undefined') {
-        isEip1559 = typeof (await getLatestBlock())?.baseFeePerGas === 'bigint'
-        eip1559NetworkCache.set(client.uid, isEip1559)
-      }
-      request.type = isEip1559 ? 'eip1559' : 'legacy'
-    }
-  }
+  // The nonce does not depend on the type or the fees, so it is fetched
+  // concurrently with them.
+  const noncePromise =
+    typeof request.nonce !== 'undefined'
+      ? undefined
+      : (consumedNonce ??
+        (parameters.includes('nonce') && account && !nonceManager
+          ? getTransactionCount(client, {
+              address: account.address,
+              blockTag: 'pending',
+            })
+          : undefined))
+  // A rejection is thrown when the nonce is awaited.
+  noncePromise?.catch(() => {})
+  if (noncePromise && hasFeeHooks) request.nonce = await noncePromise
 
   let feesFilled = false
-  if (parameters.includes('fees')) {
-    if (request.type !== 'legacy' && request.type !== 'eip2930') {
-      if (
-        typeof request.maxFeePerGas === 'undefined' ||
-        typeof request.maxPriorityFeePerGas === 'undefined'
-      ) {
-        const { maxFeePerGas, maxPriorityFeePerGas } =
-          await internal_estimateFeesPerGas(client, {
-            block: await getLatestBlock(),
-            chain,
-            request,
-          })
-        if (
-          typeof request.maxPriorityFeePerGas === 'undefined' &&
-          typeof request.maxFeePerGas !== 'undefined' &&
-          BigInt(request.maxFeePerGas) < maxPriorityFeePerGas
-        )
-          throw new MaxFeePerGasTooLowError({ maxPriorityFeePerGas })
-        request.maxPriorityFeePerGas = maxPriorityFeePerGas
-        request.maxFeePerGas = maxFeePerGas
-        feesFilled = true
-      }
-    } else {
-      if (
-        typeof request.maxFeePerGas !== 'undefined' ||
-        typeof request.maxPriorityFeePerGas !== 'undefined'
-      )
-        throw new Eip1559FeesNotSupportedError()
-      if (typeof request.gasPrice === 'undefined') {
-        const { gasPrice } = await internal_estimateFeesPerGas(client, {
-          block: await getLatestBlock(),
-          chain,
-          request,
-          type: 'legacy',
+  try {
+    const kzg_ = request.kzg ?? kzg
+    if (
+      (parameters.includes('blobVersionedHashes') ||
+        parameters.includes('sidecars')) &&
+      request.blobs &&
+      kzg_
+    ) {
+      if (parameters.includes('blobVersionedHashes'))
+        request.blobVersionedHashes = Blobs.toVersionedHashes(request.blobs, {
+          as: 'Hex',
+          kzg: kzg_,
         })
-        request.gasPrice = gasPrice
-        feesFilled = true
+      if (parameters.includes('sidecars'))
+        request.sidecars = {
+          blobs: request.blobs,
+          commitments: Blobs.toCommitments(request.blobs, {
+            as: 'Hex',
+            kzg: kzg_,
+          }),
+          cellProofs: Blobs.toCellProofs(request.blobs, {
+            as: 'Hex',
+            kzg: kzg_,
+          }),
+        }
+    }
+
+    if (parameters.includes('chainId')) request.chainId = await getChainId()
+
+    let priorityFeePromise: Promise<bigint> | undefined
+
+    if (
+      (parameters.includes('fees') || parameters.includes('type')) &&
+      typeof request.type === 'undefined'
+    ) {
+      const type = getRequestType(request)
+      if (type) request.type = type
+      else {
+        let isEip1559 = eip1559NetworkCache.get(client.uid)
+        if (typeof isEip1559 === 'undefined') {
+          // EIP-1559 fees will most likely be needed, so without chain fee
+          // hooks the priority fee is estimated concurrently with the block
+          // that decides the type. On legacy networks, it goes unused.
+          if (parameters.includes('fees') && !hasFeeHooks) {
+            priorityFeePromise = internal_estimateMaxPriorityFeePerGas(client, {
+              block: getLatestBlock(),
+              chain,
+              request,
+            })
+            // A rejection is thrown when the priority fee is awaited.
+            priorityFeePromise.catch(() => {})
+          }
+          isEip1559 =
+            typeof (await getLatestBlock())?.baseFeePerGas === 'bigint'
+          eip1559NetworkCache.set(client.uid, isEip1559)
+        }
+        request.type = isEip1559 ? 'eip1559' : 'legacy'
       }
     }
+
+    if (parameters.includes('fees')) {
+      if (request.type !== 'legacy' && request.type !== 'eip2930') {
+        if (
+          typeof request.maxFeePerGas === 'undefined' ||
+          typeof request.maxPriorityFeePerGas === 'undefined'
+        ) {
+          // Without chain fee hooks, the priority fee does not depend on the
+          // block, so it is estimated concurrently with the block request.
+          const [block, priorityFee] = await Promise.all([
+            getLatestBlock(),
+            hasFeeHooks || typeof request.maxPriorityFeePerGas !== 'undefined'
+              ? undefined
+              : (priorityFeePromise ??
+                internal_estimateMaxPriorityFeePerGas(client, {
+                  block: getLatestBlock(),
+                  chain,
+                  request,
+                })),
+          ])
+          const { maxFeePerGas, maxPriorityFeePerGas } =
+            await internal_estimateFeesPerGas(client, {
+              block,
+              chain,
+              request:
+                typeof priorityFee === 'bigint'
+                  ? { ...request, maxPriorityFeePerGas: priorityFee }
+                  : request,
+            })
+          if (
+            typeof request.maxPriorityFeePerGas === 'undefined' &&
+            typeof request.maxFeePerGas !== 'undefined' &&
+            BigInt(request.maxFeePerGas) < maxPriorityFeePerGas
+          )
+            throw new MaxFeePerGasTooLowError({ maxPriorityFeePerGas })
+          request.maxPriorityFeePerGas = maxPriorityFeePerGas
+          request.maxFeePerGas = maxFeePerGas
+          feesFilled = true
+        }
+      } else {
+        if (
+          typeof request.maxFeePerGas !== 'undefined' ||
+          typeof request.maxPriorityFeePerGas !== 'undefined'
+        )
+          throw new Eip1559FeesNotSupportedError()
+        if (typeof request.gasPrice === 'undefined') {
+          const { gasPrice } = await internal_estimateFeesPerGas(client, {
+            // Only chain fee hooks read the block for legacy fees.
+            block: hasFeeHooks ? await getLatestBlock() : undefined,
+            chain,
+            request,
+            type: 'legacy',
+          })
+          request.gasPrice = gasPrice
+          feesFilled = true
+        }
+      }
+    }
+  } catch (error) {
+    // A failed nonce request takes precedence over errors from the other
+    // parameters.
+    await noncePromise
+    throw error
   }
+
+  if (noncePromise) request.nonce = await noncePromise
 
   if (parameters.includes('gas') && typeof request.gas === 'undefined')
     request.gas = await getAction(
@@ -495,6 +579,7 @@ export declare namespace prepare {
     | getId.ErrorType
     | estimateFeesPerGas.ErrorType
     | transactionRequest.assert.ErrorType
+    | Chain.MismatchError
     | MaxFeePerGasTooLowError
     | Errors.GlobalErrorType
 }

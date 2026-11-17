@@ -82,3 +82,33 @@ test('pending blockTag: threads pending into the log type', async () => {
   const logs = await Actions.event.getLogs(client, { fromBlock: 'pending' })
   expectTypeOf(logs).toEqualTypeOf<readonly Log.Log<boolean>[]>()
 })
+
+test('blockRange: requires a numeric `fromBlock`', async () => {
+  const logs = await Actions.event.getLogs(client, {
+    blockRange: 1_000n,
+    event: transferEvent,
+    fromBlock: 0n,
+    toBlock: 'finalized',
+  })
+  expectTypeOf(logs[0]!.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(logs[0]!.eventName).toEqualTypeOf<'Transfer'>()
+
+  await Actions.event.getLogs(client, {
+    blockRange: 1_000n,
+    // @ts-expect-error `fromBlock` must be a block number.
+    fromBlock: 'latest',
+  })
+  // @ts-expect-error `fromBlock` is required.
+  await Actions.event.getLogs(client, { blockRange: 1_000n })
+  await Actions.event.getLogs(client, {
+    blockRange: 1_000n,
+    fromBlock: 0n,
+    // @ts-expect-error `toBlock` cannot be pending.
+    toBlock: 'pending',
+  })
+  await Actions.event.getLogs(client, {
+    blockHash: '0x',
+    // @ts-expect-error `blockHash` cannot be paged.
+    blockRange: 1_000n,
+  })
+})

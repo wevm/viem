@@ -71,6 +71,13 @@ test('decorates a client with public actions', async () => {
   ).toBeTypeOf('bigint')
   expect(await client.fee.getGasPrice()).toBeTypeOf('bigint')
   expect(await client.event.getLogs({ address })).toBeInstanceOf(Array)
+  expect(
+    (
+      await client.event
+        .iterateLogs({ address, fromBlock: blockNumber, toBlock: blockNumber })
+        .next()
+    ).value?.toBlock,
+  ).toBe(blockNumber)
   expect(await client.block.getReceipts({ blockNumber })).toHaveLength(1)
   expect(
     await client.address.getStorageAt({

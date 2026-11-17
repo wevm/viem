@@ -35,27 +35,37 @@ function reply(socket: { write: (data: string) => void }, request: any) {
   }
 }
 
-describe('extractMessages', () => {
-  test('extracts concatenated and partial JSON messages', () => {
-    const [messages, remaining] = ipc.extractMessages(
-      Buffer.from('{"a":1}{"b":2}{"c"'),
+describe('createMessageExtractor', () => {
+  function extract(...buffers: string[]) {
+    const messages: string[] = []
+    const onData = ipc.createMessageExtractor((message) =>
+      messages.push(message.toString()),
     )
-    expect(messages.map((m) => m.toString())).toEqual(['{"a":1}', '{"b":2}'])
-    expect(remaining.toString()).toBe('{"c"')
+    for (const buffer of buffers) onData(Buffer.from(buffer))
+    return messages
+  }
+
+  test('extracts concatenated and partial JSON messages', () => {
+    expect(extract('{"a":1}{"b":2}{"c"', ':3}')).toMatchInlineSnapshot(`
+      [
+        "{"a":1}",
+        "{"b":2}",
+        "{"c":3}",
+      ]
+    `)
   })
 
   test('ignores leading and trailing whitespace between frames', () => {
-    const [messages, remaining] = ipc.extractMessages(
-      Buffer.from(' {"a":1} \n {"b":2} '),
-    )
-    expect(messages.map((m) => m.toString())).toEqual(['{"a":1}', '{"b":2}'])
-    expect(remaining.toString().trim()).toBe('')
+    expect(extract(' {"a":1} \n {"b":2} ')).toMatchInlineSnapshot(`
+      [
+        "{"a":1}",
+        "{"b":2}",
+      ]
+    `)
   })
 
-  test('returns the whole buffer as remaining when no frame is complete', () => {
-    const [messages, remaining] = ipc.extractMessages(Buffer.from('{"a":'))
-    expect(messages).toEqual([])
-    expect(remaining.toString()).toBe('{"a":')
+  test('emits nothing until a frame is complete', () => {
+    expect(extract('{"a":')).toMatchInlineSnapshot(`[]`)
   })
 })
 

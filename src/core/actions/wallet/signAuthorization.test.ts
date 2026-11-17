@@ -106,6 +106,33 @@ test('behavior: hoisted account on client', async () => {
   expect(recovered(authorization)).toBe(true)
 })
 
+test('behavior: client prepareAuthorization override', async () => {
+  const extended = client.extend(() => ({
+    wallet: {
+      prepareAuthorization: async () => ({
+        address,
+        chainId: 69,
+        nonce: 420n,
+      }),
+    },
+  }))
+
+  const authorization = await Actions.wallet.signAuthorization(extended, {
+    account,
+    address,
+  })
+
+  const { r: _r, s: _s, yParity: _yParity, ...rest } = authorization
+  expect(rest).toMatchInlineSnapshot(`
+    {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+      "chainId": 69,
+      "nonce": 420n,
+    }
+  `)
+  expect(recovered(authorization)).toBe(true)
+})
+
 test('error: unsupported account type', async () => {
   await expect(() =>
     Actions.wallet.signAuthorization(client, {

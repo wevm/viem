@@ -5,10 +5,15 @@ import { Value } from 'ox'
 
 import { Actions, Token } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, Actions as TempoActions, http } from 'viem/tempo'
+import {
+  Account,
+  Client,
+  Hardfork,
+  Actions as TempoActions,
+  http,
+} from 'viem/tempo'
 
 import * as constants from './constants.js'
-import * as TempoAccounts from './tempoAccountsInstance.js'
 
 export const port = Number(process.env.VITE_TEMPO_PORT ?? 9545)
 
@@ -24,6 +29,18 @@ export const accounts = constants.accounts
 const hardfork = process.env.VITE_TEMPO_HARDFORK
 const legacyHardfork =
   hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+
+/** Whether the test chain supports configurable accounts (T14). */
+export const configurableAccounts = !Hardfork.lt(
+  (hardfork ?? 'Tnext').toLowerCase(),
+  't14',
+)
+
+/** Whether the test chain serves the ValidatorConfig V1 precompile (removed in T15). */
+export const validatorConfigV1 = Hardfork.lt(
+  (hardfork ?? 'Tnext').toLowerCase(),
+  't15',
+)
 
 /** Dev key that owns and provisions local Zone factories. */
 export const zoneAdminKey = accounts[legacyHardfork ? 1 : 0].privateKey
@@ -251,6 +268,7 @@ export async function registerValidator(
   client: ReturnType<typeof getClient>,
   options: { address: `0x${string}` },
 ) {
+  if (!validatorConfigV1) return
   await Actions.contract.writeSync(client, {
     abi: validatorConfigAbi,
     address: '0xcccccccc00000000000000000000000000000000',
@@ -452,10 +470,10 @@ export function createInstance(options: createInstance.Options = {}) {
   const tag = process.env.VITE_TEMPO_TAG ?? 'latest'
   const blockTime = options.zones ? '500ms' : process.env.CI ? '50ms' : '2ms'
   const image = resolveImage('ghcr.io/tempoxyz/tempo', tag)
-  if (process.env.VITE_TEMPO_ACCOUNTS)
-    return TempoAccounts.create({ image, blockTime })
   return TestContainers.Instance.tempo({
     blockTime,
+    // Tempo removed `--engine.legacy-state-root`, which prool passes by default.
+    engine: { legacyStateRoot: undefined },
     hardfork:
       hardfork === 'Tnext'
         ? undefined

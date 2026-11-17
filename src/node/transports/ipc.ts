@@ -111,45 +111,48 @@ const quote = '"'.charCodeAt(0)
 const backslash = '\\'.charCodeAt(0)
 
 /**
- * Extracts complete JSON messages from a (possibly partial) IPC buffer.
+ * Splits a stream of concatenated JSON-RPC messages into complete messages.
+ * Scanner state and the pending message's chunks carry over between calls,
+ * so each byte is scanned once and each message is concatenated once.
  *
  * @internal
  */
-export function extractMessages(
-  buffer: Buffer,
-): [messages: Buffer[], remaining: Buffer] {
-  const messages: Buffer[] = []
-
-  let cursor = 0
+export function createMessageExtractor(onMessage: (message: Buffer) => void) {
+  let chunks: Buffer[] = []
   let level = 0
   let inString = false
   let escaped = false
-  for (let i = 0; i < buffer.length; i++) {
-    const byte = buffer[i]
-    if (inString) {
-      if (escaped) escaped = false
-      else if (byte === backslash) escaped = true
-      else if (byte === quote) inString = false
-      continue
+  return (buffer: Buffer) => {
+    let cursor = 0
+    for (let i = 0; i < buffer.length; i++) {
+      const byte = buffer[i]
+      if (inString) {
+        if (escaped) escaped = false
+        else if (byte === backslash) escaped = true
+        else if (byte === quote) inString = false
+        continue
+      }
+      if (byte === quote) {
+        inString = true
+        continue
+      }
+      if (byte === openingBrace) level++
+      if (byte === closingBrace) level--
+      if (level === 0) {
+        const end = buffer.subarray(cursor, i + 1)
+        const message =
+          chunks.length > 0 ? Buffer.concat([...chunks, end]) : end
+        chunks = []
+        cursor = i + 1
+        if (
+          message[0] === openingBrace &&
+          message[message.length - 1] === closingBrace
+        )
+          onMessage(message)
+      }
     }
-    if (byte === quote) {
-      inString = true
-      continue
-    }
-    if (byte === openingBrace) level++
-    if (byte === closingBrace) level--
-    if (level === 0) {
-      const message = buffer.subarray(cursor, i + 1)
-      if (
-        message[0] === openingBrace &&
-        message[message.length - 1] === closingBrace
-      )
-        messages.push(message)
-      cursor = i + 1
-    }
+    if (cursor < buffer.length) chunks.push(buffer.subarray(cursor))
   }
-
-  return [messages, buffer.subarray(cursor)]
 }
 
 const defaults = {
@@ -217,7 +220,6 @@ function createConnection(
       if (closed) return
 
       let settled = false
-      let remaining = Buffer.alloc(0) as Buffer
       const netSocket = connect(path)
       current = netSocket
 
@@ -239,14 +241,9 @@ function createConnection(
         onOpen()
       }
 
-      const onData = (buffer: Buffer) => {
-        const [messages, rest] = extractMessages(
-          Buffer.concat([Uint8Array.from(remaining), Uint8Array.from(buffer)]),
-        )
-        for (const message of messages)
-          onResponse(JSON.parse(Buffer.from(message).toString()))
-        remaining = rest
-      }
+      const onData = createMessageExtractor((message) =>
+        onResponse(JSON.parse(message.toString())),
+      )
 
       const onSocketError = (error: Error) => onError(error)
 

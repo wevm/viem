@@ -20,6 +20,11 @@ export const shape = /*#__PURE__*/ Chain.from({
   contracts: {
     ...chainConfig.contracts,
     create2: Contracts.create2,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x2c03e8BF8b16Af89079852BE87f0e9eC674a5952',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x6Ef8c69CfE4635d866e3E02732068022c06e724D',

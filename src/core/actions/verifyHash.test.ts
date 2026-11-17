@@ -15,7 +15,17 @@ import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
 import { describe, expect, test } from 'vitest'
 
-import { Account, Actions, Chain, Client, custom, publicActions } from 'viem'
+import {
+  Account,
+  Actions,
+  Chain,
+  Client,
+  custom,
+  http,
+  publicActions,
+} from 'viem'
+
+import { erc6492SignatureValidatorBytecode } from './internal/constants.js'
 
 const client = anvil.getClient(anvil.mainnet)
 // Non-fork instance for locally-deployed fixtures (no upstream state forwarding).
@@ -36,6 +46,28 @@ const smartAccountSignature =
 
 // Deployed contract without ERC-1271 support.
 const ensPublicResolverAddress = '0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63'
+
+const zeroAddress = '0x0000000000000000000000000000000000000000'
+// Signature with zeroed `r` and `s` (ecrecover yields the zero address).
+const zeroSignature = Hex.concat(Hex.padLeft('0x', 64), '0x1b')
+
+/** Returns a Client for `local` whose chain declares the given contracts. */
+function withContracts(contracts: Chain.Chain['contracts']) {
+  return Client.create({
+    chain: Chain.from({
+      contracts,
+      id: 1,
+      name: 'Test',
+      nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+      rpcUrls: { http: 'http://localhost' },
+    }),
+    transport: custom({
+      async request({ method, params }: { method: string; params: unknown }) {
+        return local.request({ method, params } as never)
+      },
+    }),
+  })
+}
 
 describe('local account signature shapes', () => {
   test('hex', async () => {
@@ -230,6 +262,49 @@ test('behavior: unexpected errors still get thrown', async () => {
       signature: '0xdead',
     }),
   ).rejects.toThrow()
+})
+
+test('behavior: zero address with a verifier that accepts any signature', async () => {
+  // Verifier that returns `true` for every call.
+  const verifier = '0x0000000000000000000000000000000000006492'
+  await Actions.address.setCode(local, {
+    address: verifier,
+    bytecode: '0x600160005260206000f3',
+  })
+  const options = {
+    erc6492VerifierAddress: verifier,
+    hash: helloHash,
+    signature: zeroSignature,
+  } as const
+
+  const results = await Promise.all([
+    Actions.verifyHash(local, {
+      ...options,
+      address: '0x000000000000000000000000000000000000dead',
+    }),
+    Actions.verifyHash(local, { ...options, address: zeroAddress }),
+  ])
+
+  expect(results).toMatchInlineSnapshot(`
+    [
+      true,
+      false,
+    ]
+  `)
+})
+
+test('behavior: deployless verifier rejects the zero address', async () => {
+  const { data } = await Actions.call(local, {
+    data: AbiConstructor.encode(
+      AbiConstructor.fromAbi(SignatureErc6492.universalSignatureValidatorAbi),
+      {
+        args: [zeroAddress, helloHash, zeroSignature],
+        bytecode: erc6492SignatureValidatorBytecode,
+      },
+    ),
+  })
+
+  expect(data).toMatchInlineSnapshot(`"0x00"`)
 })
 
 test('decorator', async () => {
@@ -497,6 +572,141 @@ describe('erc6492', () => {
     ).resolves.toBe(true)
   })
 
+  test('behavior: chain verifier created after `blockNumber`', async () => {
+    const { address } = await deployAccount()
+    // Verifier that returns `false` for every call.
+    const verifier = '0x0000000000000000000000000000000000006493'
+    await Actions.address.setCode(local, {
+      address: verifier,
+      bytecode: '0x600060005260206000f3',
+    })
+    await Actions.block.mine(local, { blocks: 1 })
+    const blockNumber = await Actions.block.getNumber(local, { cacheTime: 0 })
+    const options = {
+      address,
+      blockNumber,
+      hash: helloHash,
+      signature: await localAccount.sign({ hash: helloHash }),
+    } as const
+
+    const results = {
+      created: await Actions.verifyHash(
+        withContracts({
+          erc6492Verifier: {
+            address: verifier,
+            blockCreated: Number(blockNumber),
+          },
+        }),
+        options,
+      ),
+      notCreated: await Actions.verifyHash(
+        withContracts({
+          erc6492Verifier: {
+            address: verifier,
+            blockCreated: Number(blockNumber) + 1,
+          },
+        }),
+        options,
+      ),
+    }
+
+    expect(results).toMatchInlineSnapshot(`
+      {
+        "created": false,
+        "notCreated": true,
+      }
+    `)
+  })
+
+  test('behavior: verification calls are not batched', async () => {
+    const batched = Client.create({
+      batch: { multicall: { wait: 50 } },
+      transport: http(anvil.local.rpcUrl.http),
+    })
+    const { address: verifier } = await contract.deploy(local, {
+      bytecode: generated.Erc6492SignatureVerifier.bytecode.object,
+    })
+    const { address: factory } = await contract.deploy(local, {
+      bytecode: generated.Erc1271AccountFactory.bytecode.object,
+    })
+
+    const salt = Hex.padLeft('0x05', 32)
+    const address = ContractAddress.fromCreate2({
+      bytecode: AbiConstructor.encode(
+        AbiConstructor.fromAbi(generated.Erc1271Account.abi),
+        {
+          args: [localAccount.address],
+          bytecode: generated.Erc1271Account.bytecode.object,
+        },
+      ),
+      from: factory,
+      salt,
+    })
+    const factoryData = AbiFunction.encodeData(
+      AbiFunction.fromAbi(generated.Erc1271AccountFactory.abi, 'createAccount'),
+      [localAccount.address, salt],
+    )
+    const signature = await localAccount.sign({ hash: helloHash })
+
+    // The counterfactual deployment must not leak into a call batched with it.
+    const results = await Promise.all([
+      Actions.verifyHash(batched, {
+        address,
+        erc6492VerifierAddress: verifier,
+        factory,
+        factoryData,
+        hash: helloHash,
+        signature,
+      }),
+      Actions.call(batched, {
+        data: AbiFunction.encodeData(
+          AbiFunction.fromAbi(generated.Erc1271Account.abi, 'isValidSignature'),
+          [helloHash, signature],
+        ),
+        to: address,
+      }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        true,
+        {
+          "data": undefined,
+        },
+      ]
+    `)
+  })
+
+  test('behavior: signer reverts with `OffchainLookup`', async () => {
+    const { address: verifier } = await contract.deploy(local, {
+      bytecode: generated.Erc6492SignatureVerifier.bytecode.object,
+    })
+    const { address: signer } = await contract.deploy(local, {
+      bytecode: generated.OffchainLookupSigner.bytecode.object,
+    })
+    const options = {
+      address: signer,
+      erc6492VerifierAddress: verifier,
+      hash: helloHash,
+      signature: await localAccount.sign({ hash: helloHash }),
+    } as const
+
+    const results = await Promise.all([
+      Actions.verifyHash(local, options),
+      Actions.verifyHash(local, {
+        ...options,
+        erc6492VerifierAddress: undefined,
+      }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        false,
+        false,
+      ]
+    `)
+  })
+
   test('deployed with factory + factoryData', async () => {
     const { address: factory } = await contract.deploy(local, {
       bytecode: generated.Erc1271AccountFactory.bytecode.object,
@@ -700,6 +910,89 @@ describe('erc8010', () => {
         }),
       }),
     ).resolves.toBe(true)
+  })
+
+  test('predelegated: reverting `isValidSignature` (failure)', async () => {
+    const account = Account.random()
+    const { address: impl } = await contract.deploy(local, {
+      bytecode: generated.EoaReverting.bytecode.object,
+    })
+
+    const authorization = await account.signAuthorization!({
+      address: impl,
+      chainId: 1,
+      nonce: 0n,
+    })
+
+    await expect(
+      Actions.verifyHash(local, {
+        address: account.address,
+        hash: helloHash,
+        signature: SignatureErc8010.wrap({
+          authorization,
+          signature: await account.sign({ hash: helloHash }),
+        }),
+      }),
+    ).resolves.toBe(false)
+  })
+
+  test('predelegated: blockTag', async () => {
+    const account = Account.random()
+
+    // Deploy a delegation contract that only exists in the pending state.
+    const nonce = await Actions.address.getTransactionCount(local, {
+      address: constants.accounts[0].address,
+      blockTag: 'pending',
+    })
+    await local.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          data: generated.EoaOptional.bytecode.object,
+          from: constants.accounts[0].address,
+        },
+      ],
+    })
+    const impl = ContractAddress.fromCreate({
+      from: constants.accounts[0].address,
+      nonce: BigInt(nonce),
+    })
+
+    const authorization = await account.signAuthorization!({
+      address: impl,
+      chainId: 1,
+      nonce: 0n,
+    })
+    const options = {
+      address: account.address,
+      hash: helloHash,
+      signature: SignatureErc8010.wrap({
+        authorization,
+        signature: await account.sign({ hash: helloHash }),
+      }),
+    } as const
+
+    const results = {
+      default: await Actions.verifyHash(local, options),
+      latest: await Actions.verifyHash(local, {
+        ...options,
+        blockTag: 'latest',
+      }),
+      pending: await Actions.verifyHash(local, {
+        ...options,
+        blockTag: 'pending',
+      }),
+    }
+
+    await Actions.block.mine(local, { blocks: 1 })
+
+    expect(results).toMatchInlineSnapshot(`
+      {
+        "default": true,
+        "latest": false,
+        "pending": true,
+      }
+    `)
   })
 
   test('predelegated: invalidate nonce (failure)', async () => {

@@ -729,6 +729,6 @@ const { data } = await Actions.call(client, {
 | --- | --- |
 | `BlockParameter.RequireCanonicalError` | `requireCanonical` was provided without a `blockHash`. |
 | `CcipRead.LookupError` | An ERC-3668 offchain lookup failed. |
-| `CcipRead.LookupLimitExceededError` | An ERC-3668 response exceeded the maximum lookup depth. |
+| `CcipRead.LookupLimitExceededError` | An ERC-3668 lookup exceeded its callback depth, gateway query, or local batch response size limit. |
 | `Actions.Errors.CounterfactualDeploymentFailedError` | The counterfactual deployment (`factory`/`factoryData` or `code`) failed. |
 | `RpcError.ExecutionError` | The call could not be executed. |

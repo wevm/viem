@@ -2,13 +2,21 @@ import type { Address } from 'ox'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
+import * as ContractError from '../../../core/ContractError.js'
+import { BaseError } from '../../../core/Errors.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { ReadParameters } from '../../internal/types.js'
 import { defineCall, read } from '../../internal/utils.js'
 
+const zeroHash =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'
+
 /**
  * Gets the current configuration commitment for a configurable account.
+ *
+ * A chain without the configurable account precompile holds no commitments,
+ * so the commitment of every account on it is zero.
  *
  * @example
  * ```ts
@@ -29,7 +37,7 @@ import { defineCall, read } from '../../internal/utils.js'
  * @param client - Client.
  * @param parameters - Parameters.
  * @returns The current configuration commitment, or zero when no config has
- * been committed.
+ * been committed or the chain has no configurable account precompile.
  */
 export async function getConfigCommitment<
   chain extends Chain.Chain | undefined,
@@ -39,10 +47,22 @@ export async function getConfigCommitment<
   parameters: getConfigCommitment.Options,
 ): Promise<getConfigCommitment.ReturnType> {
   const { account, ...rest } = parameters
-  return read(client, {
-    ...rest,
-    ...getConfigCommitment.call({ account }),
-  })
+  try {
+    return await read(client, {
+      ...rest,
+      ...getConfigCommitment.call({ account }),
+    })
+  } catch (error) {
+    // A chain without the precompile answers no data, and holds no commitments.
+    if (
+      error instanceof BaseError &&
+      error.walk(
+        (cause) => cause instanceof ContractError.ContractFunctionZeroDataError,
+      )
+    )
+      return zeroHash
+    throw error
+  }
 }
 
 export namespace getConfigCommitment {

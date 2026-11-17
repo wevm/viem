@@ -1,5 +1,4 @@
-import { Abi, AbiError, AbiFunction } from 'ox'
-import type { Hex } from 'ox'
+import { Abi, AbiError, AbiFunction, Hex } from 'ox'
 
 import * as CcipRead from '../../../../utils/CcipRead.js'
 import { HttpError } from '../../../../utils/RpcClient.js'
@@ -26,19 +25,24 @@ const maxLocalBatchDepth = 4
  * Caps for one CCIP Read lookup, shared across its callbacks and nested local
  * batches.
  *
+ * - `bytes`: local batch response bytes in total. Going over it fails the
+ *   lookup.
  * - `concurrency`: gateway requests in flight at once.
  * - `queries`: gateway requests in total. Each contract-chosen URL counts
  *   once, and a request with none counts once.
  */
 export const limits = {
+  bytes: 10_485_760,
   concurrency: 16,
   queries: 256,
 } as const
 
 type Query = CcipRead.request.Options
 
-/** Query and concurrency budget shared by every gateway request of one lookup. */
+/** Byte, query and concurrency budget shared by every gateway request of one lookup. */
 export type Budget = {
+  /** Local batch response bytes still allowed. */
+  bytes: number
   /** Gateway requests still allowed. */
   queries: number
   /** Runs a gateway request once a concurrency slot is free. */
@@ -52,6 +56,7 @@ export function createBudget(): Budget {
     worker: (fn) => fn(),
   })
   return {
+    bytes: limits.bytes,
     queries: limits.queries,
     run: (fn) => scheduler.add(fn) as ReturnType<typeof fn>,
   }
@@ -165,9 +170,17 @@ async function localBatchGatewayRequest_(
             ),
           }
         const urls = charge(budget, query.urls)
-        const response = await budget.run(() => request({ ...query, urls }))
+        // Requests still queued once the lookup is over budget are skipped.
+        const response = await budget.run(async () =>
+          budget.bytes < 0 ? '0x' : request({ ...query, urls }),
+        )
+        budget.bytes -= Hex.size(response)
+        if (budget.bytes < 0)
+          throw new CcipRead.LookupLimitExceededError({ limit: limits.bytes })
         return { failure: false, response }
       } catch (err) {
+        // Over the byte budget, the whole lookup fails rather than one query.
+        if (budget.bytes < 0) throw err
         return { failure: true, response: encodeError(err as Error) }
       }
     }),

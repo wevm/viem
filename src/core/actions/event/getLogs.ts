@@ -3,7 +3,9 @@ import type { AbiEvent, Address, Block, Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import type { OneOf } from '../../internal/types.js'
+import type { get } from '../block/get.js'
 import * as internal from './internal.js'
+import { type InvalidBlockRangeError, iterateLogs } from './iterateLogs.js'
 
 /**
  * Returns a list of event logs matching the provided parameters (`eth_getLogs`).
@@ -40,6 +42,7 @@ export async function getLogs<
   const {
     address,
     blockHash,
+    blockRange,
     fromBlock,
     toBlock,
     event,
@@ -47,6 +50,22 @@ export async function getLogs<
     args,
     strict = false,
   } = options as getLogs.Options
+
+  if (blockRange !== undefined) {
+    const logs = []
+    for await (const page of iterateLogs(client, {
+      address,
+      args,
+      blockRange,
+      event,
+      events: events_,
+      fromBlock,
+      strict,
+      toBlock,
+    } as iterateLogs.Options))
+      for (const log of page.logs) logs.push(log)
+    return logs as never
+  }
 
   const events = events_ ?? (event ? [event] : undefined)
 
@@ -121,6 +140,24 @@ export declare namespace getLogs {
           /** Hash of the block to include logs from. */
           blockHash?: Hex.Hex | undefined
         }
+      | {
+          /**
+           * Most blocks to request in one `eth_getLogs` call. When set, logs
+           * are requested in consecutive ranges of at most this many blocks,
+           * and a range the RPC Provider rejects is halved and requested
+           * again. Must be at least `1n`.
+           */
+          blockRange: bigint
+          /** First block to include logs from. Inclusive. */
+          fromBlock: Block.Number
+          /**
+           * Last block to include logs from. Inclusive. A block tag is
+           * resolved to a block number once, before the first request.
+           *
+           * @default 'latest'
+           */
+          toBlock?: Block.Number | Exclude<Block.Tag, 'pending'> | undefined
+        }
     >
 
   type ReturnType<
@@ -156,5 +193,7 @@ export declare namespace getLogs {
   type ErrorType =
     | AbiEvent.encode.ErrorType
     | AbiEvent.extractLogs.ErrorType
+    | get.ErrorType
+    | InvalidBlockRangeError
     | Errors.GlobalErrorType
 }

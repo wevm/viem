@@ -94,7 +94,7 @@ The dispute game anchoring the withdrawal. Pass either `game` or `output`.
 
 - **Type:** `Actions.l2.buildProveWithdrawal.Output`
 
-The legacy L2 output proposal anchoring the withdrawal. Pass either `output` or `game`.
+The L2 output anchoring the withdrawal, such as one returned by [`Actions.l1.getL2Output`](/op-stack/actions/l1/getL2Output). Outputs with `usesSuperRoots: true` carry an L2 timestamp in `l2BlockNumber`. Pass either `output` or `game`.
 
 ### withdrawal
 

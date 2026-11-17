@@ -33,7 +33,8 @@ export async function estimateMaxPriorityFeePerGas(
 export async function internal_estimateMaxPriorityFeePerGas(
   client: Client.Client,
   options: estimateMaxPriorityFeePerGas.Options & {
-    block?: Block.Block | undefined
+    /** The latest block, or a pending request for it. */
+    block?: Block.Block | Promise<Block.Block> | undefined
     /**
      * The transaction request, supplied to the chain's fee functions. Undefined
      * when estimating fees outside of a transaction request context.
@@ -47,7 +48,7 @@ export async function internal_estimateMaxPriorityFeePerGas(
     const maxPriorityFeePerGas = chain?.fees?.maxPriorityFeePerGas
 
     if (typeof maxPriorityFeePerGas === 'function') {
-      const block = block_ ?? (await get(client))
+      const block = (await block_) ?? (await get(client))
       const result = await maxPriorityFeePerGas({ block, client, request })
       if (result === null) throw new Error()
       return result
@@ -64,7 +65,7 @@ export async function internal_estimateMaxPriorityFeePerGas(
     // fall back to calculating it manually via `gasPrice - baseFeePerGas`.
     // See: https://github.com/ethereum/pm/issues/328#:~:text=eth_maxPriorityFeePerGas%20after%20London%20will%20effectively%20return%20eth_gasPrice%20%2D%20baseFee
     const [block, gasPrice] = await Promise.all([
-      block_ ? Promise.resolve(block_) : get(client),
+      block_ ?? get(client),
       getGasPrice(client),
     ])
 

@@ -270,3 +270,58 @@ test('behavior: limits concurrent requests', async () => {
     await server.close()
   }
 })
+
+test('behavior: limits total response size across nested batches', async () => {
+  const server = await createServer((_request, response) => {
+    response.writeHead(200, { 'Content-Type': 'application/json' })
+    response.end(JSON.stringify({ data: `0x${'00'.repeat(1_048_576)}` }))
+  })
+  const sender = '0x0000000000000000000000000000000000000001'
+  const request = (i: number) =>
+    ({ data: '0x', sender, urls: [`${server.url}/${i}`] }) as const
+  // A nested batch of `inner` 1 MiB responses next to `outer` direct ones.
+  const batch = (inner: number, outer: number) =>
+    AbiFunction.encodeData(query, [
+      [
+        {
+          data: AbiFunction.encodeData(query, [
+            Array.from({ length: inner }, (_, i) => request(i)),
+          ]),
+          sender,
+          urls: [localBatchGatewayUrl],
+        },
+        ...Array.from({ length: outer }, (_, i) => request(inner + i)),
+      ],
+    ])
+
+  try {
+    const result = await localBatchGatewayRequest({
+      data: batch(5, 5),
+      request: unsafeRequest,
+    })
+    const error = await localBatchGatewayRequest({
+      data: batch(6, 5),
+      request: unsafeRequest,
+    }).catch((error) => error)
+
+    expect(AbiFunction.decodeResult(query, result)[0]).toMatchInlineSnapshot(`
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ]
+    `)
+    expect(error).toMatchInlineSnapshot(`
+      [CcipRead.LookupLimitExceededError: CCIP Read lookup limit exceeded.
+
+      Limit: 10485760
+
+      Version: viem@x.x.x]
+    `)
+  } finally {
+    await server.close()
+  }
+})

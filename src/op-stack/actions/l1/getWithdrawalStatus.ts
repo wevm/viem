@@ -60,6 +60,31 @@ export async function getWithdrawalStatus<
       withdrawal,
     })
 
+  // The game and the finalized state do not depend on the proof submitter, so
+  // they are read concurrently with it. Their rejections are read from the
+  // settled results below, so a missing super-root L2 timestamp only fails the
+  // game lookup and a finalized withdrawal still resolves.
+  const game = getGameL2BlockNumber(client, {
+    l2BlockNumber,
+    l2Timestamp: options.l2Timestamp,
+    portalAddress,
+    receipt,
+  }).then((l2BlockNumber) =>
+    getGame(client, {
+      ...options,
+      l2BlockNumber,
+      limit: options.gameLimit ?? 100,
+    }),
+  )
+  game.catch(() => {})
+  const finalized = read(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    args: [withdrawal.withdrawalHash],
+    functionName: 'finalizedWithdrawals',
+  })
+  finalized.catch(() => {})
+
   const numProofSubmitters = await (async () => {
     try {
       return await read(client, {
@@ -90,20 +115,7 @@ export async function getWithdrawalStatus<
 
   const [gameResult, provenResult, checkResult, finalizedResult] =
     await Promise.allSettled([
-      // A missing super-root L2 timestamp only fails the game lookup, so a
-      // finalized withdrawal still resolves.
-      getGameL2BlockNumber(client, {
-        l2BlockNumber,
-        l2Timestamp: options.l2Timestamp,
-        portalAddress,
-        receipt,
-      }).then((l2BlockNumber) =>
-        getGame(client, {
-          ...options,
-          l2BlockNumber,
-          limit: options.gameLimit ?? 100,
-        }),
-      ),
+      game,
       read(client, {
         abi: portal2Abi,
         address: portalAddress,
@@ -116,12 +128,7 @@ export async function getWithdrawalStatus<
         args: [withdrawal.withdrawalHash, proofSubmitter],
         functionName: 'checkWithdrawal',
       }),
-      read(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        args: [withdrawal.withdrawalHash],
-        functionName: 'finalizedWithdrawals',
-      }),
+      finalized,
     ])
 
   if (finalizedResult.status === 'fulfilled' && finalizedResult.value)

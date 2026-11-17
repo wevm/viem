@@ -45,16 +45,27 @@ export async function getData(
     ],
   })
 
-  if ('paymasterAndData' in response) return response
+  // Return only paymaster fields, even when the service echoes back others.
+  if ('paymasterAndData' in response)
+    return { paymasterAndData: response.paymasterAndData }
 
-  const { paymasterPostOpGasLimit, paymasterVerificationGasLimit, ...result } =
-    response
+  const {
+    paymaster,
+    paymasterData,
+    paymasterPostOpGasLimit,
+    paymasterVerificationGasLimit,
+  } = response
 
   return {
-    ...result,
+    paymaster,
+    paymasterData,
     ...(paymasterPostOpGasLimit !== undefined && {
       paymasterPostOpGasLimit: Hex.toBigInt(paymasterPostOpGasLimit),
     }),
+    ...('paymasterSignature' in response &&
+      response.paymasterSignature !== undefined && {
+        paymasterSignature: response.paymasterSignature,
+      }),
     ...(paymasterVerificationGasLimit !== undefined && {
       paymasterVerificationGasLimit: Hex.toBigInt(
         paymasterVerificationGasLimit,

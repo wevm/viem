@@ -1,11 +1,12 @@
 import { AbiEvent, Address, Hex } from 'ox'
-import { Actions } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
+import * as Http from '~test/http.js'
 
 const client = anvil.getClient(anvil.mainnet)
 
@@ -254,6 +255,89 @@ describe('events', () => {
     })
     expect(logs.length).toBe(1)
     expect(logs[0]!.args.value).toBe(7n)
+  })
+
+  test('args: blockRange', async () => {
+    const fromBlock =
+      (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(a, b, 1n)
+    await mine()
+    await mine()
+    await transfer(a, c, 2n)
+    await transfer(a, d, 3n)
+
+    const queries: (readonly [bigint, bigint])[] = []
+    const url = await Http.createRpcProxy(
+      anvil.mainnet.rpcUrl.http,
+      ({ method, params }) => {
+        if (method !== 'eth_getLogs') return undefined
+        const [{ fromBlock, toBlock }] = params as [
+          { fromBlock: Hex.Hex; toBlock: Hex.Hex },
+        ]
+        const from = Hex.toBigInt(fromBlock)
+        const to = Hex.toBigInt(toBlock)
+        queries.push([from, to])
+        if (to - from + 1n > 2n)
+          return {
+            error: { code: -32602, message: 'block range exceeds 2 blocks' },
+          }
+        return undefined
+      },
+    )
+    const proxyClient = Client.create({
+      transport: http(url, { retryCount: 0 }),
+    })
+
+    const logs = await Actions.event.getLogs(proxyClient, {
+      address,
+      blockRange: 4n,
+      event: transferEvent,
+      fromBlock,
+      toBlock: fromBlock + 4n,
+    })
+
+    expect({
+      queries: queries.map(([from, to]) => [from - fromBlock, to - fromBlock]),
+      values: logs.map((log) => log.args.value),
+    }).toMatchInlineSnapshot(`
+      {
+        "queries": [
+          [
+            0n,
+            3n,
+          ],
+          [
+            0n,
+            1n,
+          ],
+          [
+            2n,
+            4n,
+          ],
+          [
+            2n,
+            2n,
+          ],
+          [
+            3n,
+            4n,
+          ],
+        ],
+        "values": [
+          1n,
+          2n,
+          3n,
+        ],
+      }
+    `)
+    expect(logs).toEqual(
+      await Actions.event.getLogs(client, {
+        address,
+        event: transferEvent,
+        fromBlock,
+        toBlock: fromBlock + 4n,
+      }),
+    )
   })
 
   test('args: strict = true (named)', async () => {

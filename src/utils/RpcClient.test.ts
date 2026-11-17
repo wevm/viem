@@ -547,6 +547,18 @@ describe('webSocket', () => {
       b.close()
     })
 
+    test('closing a replaced client keeps its replacement cached', async () => {
+      const a = await RpcClient.webSocket(ws, { keepAlive: false })
+      a.close()
+      const b = await RpcClient.webSocket(ws, { keepAlive: false })
+
+      a.close()
+      const c = await RpcClient.webSocket(ws, { keepAlive: false })
+
+      expect(c).toBe(b)
+      b.close()
+    })
+
     test('close is idempotent', async () => {
       const client = await RpcClient.webSocket(ws, { keepAlive: false })
       expect(() => {

@@ -1378,6 +1378,11 @@ export default defineConfig({
                 badge: badge('public'),
               },
               {
+                text: 'Iterate Event Logs',
+                link: '/docs/actions/public/event/iterateLogs',
+                badge: badge('public'),
+              },
+              {
                 text: 'Watch Events',
                 link: '/docs/actions/public/event/watch',
                 badge: badge('public'),
@@ -2685,6 +2690,10 @@ export default defineConfig({
                 text: 'Upgrade an Account',
                 link: '/tempo/guides/configurable-accounts/upgrade',
               },
+              {
+                text: 'Migrate an Account',
+                link: '/tempo/guides/configurable-accounts/migrate',
+              },
             ],
           },
         ],
@@ -2799,6 +2808,11 @@ export default defineConfig({
               },
               {
                 badge: badge('public'),
+                text: 'Get Config Commitment',
+                link: '/tempo/actions/accounts.getConfigCommitment',
+              },
+              {
+                badge: badge('public'),
                 text: 'Get Operation',
                 link: '/tempo/actions/accounts.getOperation',
               },
@@ -2879,6 +2893,11 @@ export default defineConfig({
             text: 'Channel',
             collapsed: true,
             items: [
+              {
+                badge: badge('public'),
+                text: 'Get Channel Open Salt',
+                link: '/tempo/actions/channel.getOpenSalt',
+              },
               {
                 badge: badge('public'),
                 text: 'Get Channel States',

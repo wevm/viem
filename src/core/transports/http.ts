@@ -78,7 +78,7 @@ export function http<raw extends boolean = false>(
           const { schedule } = promise.createBatchScheduler({
             id: `${batchId}.${url_}.${getSignalId(opts?.signal)}`,
             wait,
-            shouldSplitBatch: (requests) => requests.length > batchSize,
+            shouldSplitBatch: (size) => size > batchSize,
             fn: (body: RpcClient.RpcRequest[]) =>
               client.request({ body, fetchOptions }),
             sort: (a, b) => a.id - b.id,

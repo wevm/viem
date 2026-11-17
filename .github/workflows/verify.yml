@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies
@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies
@@ -92,7 +92,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies
@@ -134,7 +134,7 @@ jobs:
         total-shards: [3]
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies
@@ -145,7 +145,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local
-        uses: wevm/actions/vendor/nick-fields/retry/rev-ad984534de44@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v4.0.0
+        uses: wevm/actions/vendor/nick-fields/retry/rev-ad984534de44@b518cf981b50a4c745a8b7335fc693f34b108a75 # upstream v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -164,7 +164,7 @@ jobs:
       # Fork workflows cannot authenticate to Codecov for this private repository.
       - name: Upload coverage reports to Codecov
         if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-        uses: wevm/actions/vendor/codecov/codecov-action/rev-fb8b3582c8e4@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v7.0.0
+        uses: wevm/actions/vendor/codecov/codecov-action/rev-fb8b3582c8e4@b518cf981b50a4c745a8b7335fc693f34b108a75 # upstream v7.0.0
         with:
           disable_search: true
           fail_ci_if_error: true
@@ -185,14 +185,14 @@ jobs:
           # - mainnet
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Run tests
-        uses: wevm/actions/vendor/nick-fields/retry/rev-ad984534de44@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v4.0.0
+        uses: wevm/actions/vendor/nick-fields/retry/rev-ad984534de44@b518cf981b50a4c745a8b7335fc693f34b108a75 # upstream v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -201,37 +201,6 @@ jobs:
           CI: true
           VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
-
-  test-tempo-multisig:
-    name: Test Local Tempo Multisig
-    if: ${{ inputs.full }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Build contracts
-        run: pnpm contracts:build
-
-      - name: Run tests
-        uses: wevm/actions/vendor/nick-fields/retry/rev-ad984534de44@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v4.0.0
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          command: pnpm test --run --bail=1 --project tempo-accounts
-        env:
-          CI: true
-          VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_ACCOUNTS: 'true'
-          # Built from tempoxyz/tempo main (96bdeb7).
-          VITE_TEMPO_TAG: sha-96bdeb7
 
   test-tempo-fuzz:
     if: ${{ inputs.full }}
@@ -243,7 +212,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -272,7 +241,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies
@@ -282,7 +251,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local Tempo
-        uses: wevm/actions/vendor/nick-fields/retry/rev-ad984534de44@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v4.0.0
+        uses: wevm/actions/vendor/nick-fields/retry/rev-ad984534de44@b518cf981b50a4c745a8b7335fc693f34b108a75 # upstream v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -297,7 +266,7 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-        uses: wevm/actions/vendor/codecov/codecov-action/rev-fb8b3582c8e4@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v7.0.0
+        uses: wevm/actions/vendor/codecov/codecov-action/rev-fb8b3582c8e4@b518cf981b50a4c745a8b7335fc693f34b108a75 # upstream v7.0.0
         with:
           disable_search: true
           fail_ci_if_error: true
@@ -336,22 +305,22 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Set up foundry
-        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           version: nightly-08e262a80b23493d13b3811d4b4ba4b10b1221be
 
       - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/.github/actions/pnpm@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           node-version: 24.22.1
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
-        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           bun-version: 1.4.4
 
@@ -393,7 +362,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Install dependencies

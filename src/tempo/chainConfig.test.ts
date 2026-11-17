@@ -1854,6 +1854,102 @@ describe('verifyHash', () => {
   )
 
   test(
+    'secp256k1: valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+      const { address } = account
+      const signature = await account.sign({ hash })
+
+      expect({
+        auto: await CoreActions.verifyHash(client, {
+          address,
+          hash,
+          signature,
+        }),
+        eoa: await CoreActions.verifyHash(client, {
+          address,
+          hash,
+          mode: 'eoa',
+          signature,
+        }),
+      }).toMatchInlineSnapshot(`
+        {
+          "auto": true,
+          "eoa": true,
+        }
+      `)
+    },
+  )
+
+  test(
+    'secp256k1: invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+      const { address } = account
+      const signature = await account.sign({ hash: otherHash })
+
+      expect({
+        auto: await CoreActions.verifyHash(client, {
+          address,
+          hash,
+          signature,
+        }),
+        eoa: await CoreActions.verifyHash(client, {
+          address,
+          hash,
+          mode: 'eoa',
+          signature,
+        }),
+      }).toMatchInlineSnapshot(`
+        {
+          "auto": false,
+          "eoa": false,
+        }
+      `)
+    },
+  )
+
+  test(
+    'secp256k1: failed commitment read rejects (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromSecp256k1(privateKey)
+      const signature = await account.sign({ hash })
+
+      await expect(
+        CoreActions.verifyHash(client, {
+          address: account.address,
+          blockNumber: 2n ** 62n,
+          hash,
+          mode: 'eoa',
+          signature,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [ContractFunctionExecutionError: block not found: 0x4000000000000000
+
+        Contract Call:
+          address:   0xAACC000000000000000000000000000000000000
+          function:  function getConfigCommitment(address account) view returns (bytes32 commitment)
+          args:                         (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+         
+        Request Arguments:
+          chain:  Tempo (id: 1337)
+          from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+          data:   0x5bd93359000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266
+          to:     0xAACC000000000000000000000000000000000000
+
+        Details: block not found: 0x4000000000000000
+        Version: viem@x.x.x]
+      `)
+    },
+  )
+
+  test(
     'falls back to `verifyDefault` for non-envelope signatures (tempo node)',
     { timeout: 120_000 },
     async () => {
