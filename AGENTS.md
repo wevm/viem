@@ -244,6 +244,7 @@ This document contains general guidelines for AI agents working on the Viem code
 
 - **Changesets only for public behavior**; add or update a changeset when a change affects public API or existing behavior.
 - **Update existing changesets first**; if the branch already has a changeset for the same area, update it instead of adding a duplicate.
+- **Performance improvements are `patch`**; one shared `minor` changeset announces them for the release instead of bumping each one.
 - **One sentence, past tense**; changeset entries are a single sentence written in past tense.
 - **Breaking changes include migration shape**; major changes include a `diff` fence showing the before/after migration shape.
 
