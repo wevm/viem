@@ -189,7 +189,7 @@ catalog:
   publint: ^0.3.21
   react: ^19.3.0
   react-dom: ^19.3.0
-  react-server-dom-webpack: 19.3.0
+  react-server-dom-webpack: 19.3.1
   sherif: ^1.11.1
   simple-git-hooks: ^2.13.1
   size-limit: ^12.1.0
