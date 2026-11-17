@@ -2,6 +2,7 @@
 
 import type { AbiParameter, TypedData } from 'abitype'
 
+import { AbiEncodingArrayLengthMismatchError } from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import type {
@@ -268,6 +269,13 @@ function encodeField({
 
   if (type.lastIndexOf(']') === type.length - 1) {
     const parsedType = type.slice(0, type.lastIndexOf('['))
+    const length = type.slice(type.lastIndexOf('[') + 1, -1)
+    if (length && (value as unknown[]).length !== Number.parseInt(length, 10))
+      throw new AbiEncodingArrayLengthMismatchError({
+        expectedLength: Number.parseInt(length, 10),
+        givenLength: (value as unknown[]).length,
+        type,
+      })
     const typeValuePairs = (value as [AbiParameter, any][]).map((item) =>
       encodeField({
         name,
