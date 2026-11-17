@@ -357,6 +357,25 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
   })
 })
 
+describe('open.call', () => {
+  test('behavior: makes no request and keeps a random default salt', () => {
+    const args = {
+      deposit: parseUnits('1', 6),
+      payee: payee.address,
+      token: '0x20c0000000000000000000000000000000000001',
+    } as const
+
+    const [, , , , salt] = actions.channel.open.call(args).args
+    const [, , , , explicit] = actions.channel.open.call({
+      ...args,
+      salt: zeroHash,
+    }).args
+
+    expect(salt).toMatch(/^0x[0-9a-f]{64}$/)
+    expect(explicit).toBe(zeroHash)
+  })
+})
+
 async function setupChannel() {
   tokenId += 1
   const { token } = await setupToken(payerClient, {

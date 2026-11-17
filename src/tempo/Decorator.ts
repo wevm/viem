@@ -963,6 +963,38 @@ type DecoratorBase<
       parameters: channelActions.closeSync.Parameters<chain, account>,
     ) => Promise<channelActions.closeSync.ReturnValue>
     /**
+     * Gets the salt to open a TIP-20 channel reserve channel with for a voucher
+     * signer.
+     *
+     * From T15 (TIP-1166), a channel whose voucher signer is a configurable account
+     * (TIP-1107) with a nonzero configuration commitment must use that commitment as
+     * its salt. This returns the signer's commitment when it is nonzero, else a
+     * random 32-byte salt. Pass the result as `salt` to `client.channel.open` or
+     * `Actions.channel.open.call`.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const salt = await client.channel.getOpenSalt({
+     *   signer: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The signer's nonzero configuration commitment, else a random 32-byte salt.
+     */
+    getOpenSalt: (
+      parameters: channelActions.getOpenSalt.Parameters,
+    ) => Promise<channelActions.getOpenSalt.ReturnValue>
+    /**
      * Gets TIP-20 channel reserve state for a channel ID or channel.
      *
      * @example
@@ -994,6 +1026,18 @@ type DecoratorBase<
     /**
      * Opens and funds a TIP-20 channel reserve channel.
      *
+     * When `salt` is omitted and the voucher signer (`authorizedSigner`, else the
+     * account) is a configurable account (TIP-1107), or an access key of one, with
+     * a nonzero configuration commitment, the salt defaults to that commitment, as
+     * the channel reserve requires from T15 (TIP-1166). Otherwise it defaults to a
+     * random salt. Pass `salt` from `client.channel.getOpenSalt` when the signer is
+     * a configurable account known only by address.
+     *
+     * An unregistered configurable account that sends the open and signs its own
+     * vouchers registers (TIP-1107) in the same transaction, before the channel
+     * reserve runs, so the salt then defaults to the commitment of its local
+     * version-zero config instead.
+     *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
@@ -1013,6 +1057,10 @@ type DecoratorBase<
     ) => Promise<channelActions.open.ReturnValue>
     /**
      * Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt.
+     *
+     * `salt` defaults as in `client.channel.open`: to the voucher signer's nonzero
+     * configuration commitment (TIP-1166) when the signer is a configurable
+     * account or an access key of one, else to a random salt.
      *
      * @example
      * ```ts
@@ -6289,6 +6337,7 @@ export function decorator() {
       channel: bindActions(client, channelActions, [
         'close',
         'closeSync',
+        'getOpenSalt',
         'getStates',
         'open',
         'openSync',
