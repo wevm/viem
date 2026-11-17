@@ -45,6 +45,7 @@ auditConfig:
     - GHSA-9jrq-w75r-8gcw # vite-plus 0.1 bundles a vulnerable Vite dev server; only fixed in the vite-plus 1.x major.
     - GHSA-3g3m-2fjr-6pw4 # glob and minimatch are patched only in majors archiver cannot use.
     - GHSA-g3hv-75wg-m249 # glob and minimatch are patched only in majors archiver cannot use.
+    - GHSA-fc5q-39xc-vjpf # picomatch has no published patched release and is only used by development tooling.
 
 autoInstallPeers: false
 
