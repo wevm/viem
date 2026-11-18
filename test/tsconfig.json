@@ -16,7 +16,8 @@
       "viem/tempo": ["../src/tempo/index.ts"],
       "viem/tempo/chains": ["../src/tempo/chains/index.ts"],
       "viem/tokens": ["../src/tokens/index.ts"],
-      "viem/utils": ["../src/utils/index.ts"]
+      "viem/utils": ["../src/utils/index.ts"],
+      "viem/zksync": ["../src/zksync/index.ts"]
     }
   }
 }
