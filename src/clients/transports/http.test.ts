@@ -512,20 +512,89 @@ describe('request', () => {
     await server.close()
   })
 
+  test('batch: matches responses by id', async () => {
+    const server = await createHttpServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        const [a, , c] = JSON.parse(body) as { id: number }[]
+        res.appendHeader('Content-Type', 'application/json')
+        res.end(
+          JSON.stringify([
+            {
+              jsonrpc: '2.0',
+              id: null,
+              error: { code: -32600, message: 'Invalid Request' },
+            },
+            { jsonrpc: '2.0', id: c?.id, result: 'eth_c' },
+            { jsonrpc: '2.0', id: a?.id, result: 'eth_a' },
+            { jsonrpc: '2.0', id: a?.id, result: 'eth_a' },
+          ]),
+        )
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+      retryCount: 0,
+    })({ chain: localhost })
+
+    const results = await Promise.allSettled([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }),
+      transport.request({ method: 'eth_c' }),
+      transport.request({ method: 'eth_d' }),
+    ])
+
+    expect(
+      results.map((result) =>
+        result.status === 'fulfilled'
+          ? result.value
+          : [result.reason.name, result.reason.details],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "eth_a",
+        [
+          "InvalidRequestRpcError",
+          "Invalid Request",
+        ],
+        "eth_c",
+        [
+          "InternalRpcError",
+          "Missing response for request.",
+        ],
+      ]
+    `)
+
+    await server.close()
+  })
+
   test('batch: single error for the whole batch (one-element array)', async () => {
     let count = 0
-    const server = await createHttpServer((_, res) => {
+    const server = await createHttpServer((req, res) => {
       count++
-      res.appendHeader('Content-Type', 'application/json')
-      res.end(
-        JSON.stringify([
-          {
-            jsonrpc: '2.0',
-            id: 0,
-            error: { code: -32600, message: 'batch too large' },
-          },
-        ]),
-      )
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        // The error carries the id of the first request.
+        const [{ id }] = JSON.parse(body)
+        res.appendHeader('Content-Type', 'application/json')
+        res.end(
+          JSON.stringify([
+            {
+              jsonrpc: '2.0',
+              id,
+              error: { code: -32600, message: 'batch too large' },
+            },
+          ]),
+        )
+      })
     })
 
     const transport = http(server.url, {

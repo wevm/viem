@@ -5,12 +5,13 @@ import {
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
-import type { RpcRequest } from '../../types/rpc.js'
+import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
   getHttpRpcClient,
   type HttpRpcClientOptions,
 } from '../../utils/rpc/http.js'
+import { idCache } from '../../utils/rpc/id.js'
 import { uid } from '../../utils/uid.js'
 
 import {
@@ -152,12 +153,37 @@ export function http<
             id: `${batchId}.${url_}.${getSignalId(options?.signal)}`,
             wait,
             shouldSplitBatch: (size) => size > batchSize,
-            fn: (body: RpcRequest[]) =>
-              rpcClient.request({
-                body,
-                fetchOptions,
-              }),
-            sort: (a, b) => a.id - b.id,
+            // Give every request its id before the batch goes out. A reply
+            // that carries the id of a request goes only to that request.
+            // Replies that carry no requested id, such as `id: null` when the
+            // server could not read a request, fill the requests left without
+            // a reply in order. A request still without a reply gets an error.
+            fn: async (requests: RpcRequest[]) => {
+              const body = requests.map((request) => ({
+                ...request,
+                id: idCache.take(),
+              }))
+              const replies = await rpcClient.request({ body, fetchOptions })
+              const byId = new Map<number, RpcResponse | undefined>(
+                body.map(({ id }) => [id, undefined]),
+              )
+              const unattributed: RpcResponse[] = []
+              for (const reply of replies)
+                if (byId.has(reply.id)) byId.set(reply.id, reply)
+                else unattributed.push(reply)
+              return body.map(
+                ({ id }): RpcResponse =>
+                  byId.get(id) ??
+                  unattributed.shift() ?? {
+                    jsonrpc: '2.0',
+                    id,
+                    error: {
+                      code: -32603,
+                      message: 'Missing response for request.',
+                    },
+                  },
+              )
+            },
           })
 
           const fn = async (body: RpcRequest) =>
