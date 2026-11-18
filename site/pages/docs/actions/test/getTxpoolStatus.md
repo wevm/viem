@@ -14,6 +14,7 @@ Returns a summary of all the transactions currently pending for inclusion in the
 import { testClient } from './client'
 
 const status = await testClient.getTxpoolStatus() // [!code focus]
+// @log: { pending: 1, queued: 0 }
 ```
 
 ```ts [client.ts]

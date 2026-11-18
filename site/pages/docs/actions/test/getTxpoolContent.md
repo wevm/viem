@@ -14,6 +14,14 @@ Returns the details of all transactions currently pending for inclusion in the n
 import { testClient } from './client'
 
 const content = await testClient.getTxpoolContent() // [!code focus]
+// @log: {
+// @log:   pending: {
+// @log:     '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266': {
+// @log:       '0': { hash: '0x...', nonce: '0x0', ... },
+// @log:     },
+// @log:   },
+// @log:   queued: {},
+// @log: }
 ```
 
 ```ts [client.ts]

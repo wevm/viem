@@ -14,6 +14,7 @@ Snapshot the state of the blockchain at the current block.
 import { testClient } from './client'
 
 const id = await testClient.snapshot() // [!code focus]
+// @log: '0x1'
 ```
 
 ```ts [client.ts]
