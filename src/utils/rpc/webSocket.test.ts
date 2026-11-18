@@ -1106,8 +1106,10 @@ async function createNode(port = 0) {
     // connection served it.
     const result = `0x${(++connections).toString(16)}`
     socket.on('message', (data) => {
-      const { id } = JSON.parse(String(data))
-      socket.send(JSON.stringify({ id, jsonrpc: '2.0', result }))
+      const { id, method } = JSON.parse(String(data))
+      // Answers `bad_frame` with a frame that is not JSON.
+      if (method === 'bad_frame') socket.send('not json')
+      else socket.send(JSON.stringify({ id, jsonrpc: '2.0', result }))
     })
   })
   await new Promise((resolve) => server.once('listening', resolve))
@@ -1115,6 +1117,10 @@ async function createNode(port = 0) {
     /** Drops every connection and keeps listening. */
     disconnect() {
       for (const socket of server.clients) socket.terminate()
+    },
+    /** The number of connections the node has open. */
+    get openConnections() {
+      return server.clients.size
     },
     port: (server.address() as { port: number }).port,
     /** Drops every connection and stops listening. */
@@ -1212,5 +1218,54 @@ describe('reconnect', () => {
     expect(result).toMatchInlineSnapshot(`"0x2"`)
 
     nextClient.close()
+  })
+
+  test('closes the dropped socket after a frame that is not JSON', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: false }
+    const socketClient = await getWebSocketRpcClient(url, options)
+
+    await expect(
+      socketClient.requestAsync({ body: { method: 'bad_frame' } }),
+    ).rejects.toThrowError(SyntaxError)
+    const nextClient = await getWebSocketRpcClient(url, options)
+    const { result } = await nextClient.requestAsync({
+      body: { method: 'eth_blockNumber' },
+    })
+    await wait(100)
+
+    expect(nextClient).not.toBe(socketClient)
+    // Served by the replacement's socket, the node's second connection.
+    expect(result).toMatchInlineSnapshot(`"0x2"`)
+    expect(node.openConnections).toMatchInlineSnapshot(`1`)
+    expect(socketClient.socket.readyState).toBe(WebSocket.CLOSED)
+
+    nextClient.close()
+  })
+
+  test('reports a failed request once, not again on later disconnects', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: { attempts: 5, delay: 20 } }
+    const socketClient = await getWebSocketRpcClient(url, options)
+    const errors: string[] = []
+
+    socketClient.request({
+      body: { method: 'bad_frame' },
+      onError: (error) => errors.push((error as Error).name),
+      onResponse: () => {},
+    })
+    await wait(200)
+    node.disconnect()
+    await wait(200)
+
+    expect(errors).toMatchInlineSnapshot(`
+      [
+        "SyntaxError",
+      ]
+    `)
+
+    socketClient.close()
   })
 })
