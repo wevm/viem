@@ -5,12 +5,13 @@ import {
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
-import type { RpcRequest } from '../../types/rpc.js'
+import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
   getHttpRpcClient,
   type HttpRpcClientOptions,
 } from '../../utils/rpc/http.js'
+import { idCache } from '../../utils/rpc/id.js'
 import { uid } from '../../utils/uid.js'
 
 import {
@@ -152,12 +153,19 @@ export function http<
             id: `${batchId}.${url_}.${getSignalId(options?.signal)}`,
             wait,
             shouldSplitBatch: (size) => size > batchSize,
-            fn: (body: RpcRequest[]) =>
-              rpcClient.request({
-                body,
+            // Hand every item its id before the batch goes out, so the replies
+            // can be matched back by id rather than by position.
+            fn: async (requests: RpcRequest[]) => {
+              const ids = requests.map(() => idCache.take())
+              const responses = await rpcClient.request({
+                body: requests.map((request, i) => ({
+                  ...request,
+                  id: ids[i],
+                })),
                 fetchOptions,
-              }),
-            sort: (a, b) => a.id - b.id,
+              })
+              return orderReplies(ids, responses)
+            },
           })
 
           const fn = async (body: RpcRequest) =>
@@ -197,4 +205,37 @@ export function http<
       },
     )
   }
+}
+
+/**
+ * Places each reply at the position of the request it answers.
+ *
+ * JSON-RPC 2.0 lets a server answer an item it could not read with a `null`
+ * id, and nothing ties the reply order to the request order. Matching by id
+ * keeps every reply with the request that asked for it; a reply without a
+ * usable id cannot be attributed, so it goes to the first request that has no
+ * reply of its own.
+ */
+function orderReplies(ids: number[], replies: RpcResponse[]): RpcResponse[] {
+  const ordered: RpcResponse[] = new Array(ids.length)
+  const unattributed: RpcResponse[] = []
+
+  for (const reply of replies) {
+    const index = ids.indexOf(reply.id as number)
+    if (index === -1) {
+      unattributed.push(reply)
+      continue
+    }
+    // A duplicate id keeps the first reply, the rest cannot be attributed.
+    if (ordered[index] === undefined) ordered[index] = reply
+    else unattributed.push(reply)
+  }
+
+  for (let i = 0; i < ordered.length && unattributed.length; i++) {
+    if (ordered[i] === undefined) ordered[i] = unattributed.shift()!
+  }
+
+  // Replies always outnumber requests here, so this leaves a slot empty only
+  // when fewer replies could be attributed than there are requests.
+  return ordered
 }

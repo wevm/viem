@@ -512,6 +512,147 @@ describe('request', () => {
     await server.close()
   })
 
+  test('batch: a reply with a null id does not shift the other replies', async () => {
+    const server = await createHttpServer((req, res) => {
+      res.appendHeader('Content-Type', 'application/json')
+      let body = ''
+      req.on('data', (chunk) => (body += chunk))
+      req.on('end', () => {
+        const requests = JSON.parse(body)
+        res.end(
+          JSON.stringify([
+            { jsonrpc: '2.0', id: requests[0].id, result: '0x1' },
+            { jsonrpc: '2.0', id: requests[1].id, result: '0x2' },
+            {
+              jsonrpc: '2.0',
+              id: null,
+              error: { code: -32600, message: 'id could not be read' },
+            },
+          ]),
+        )
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+    })({ chain: localhost })
+
+    const results = await Promise.allSettled([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }),
+      transport.request({ method: 'eth_c' }),
+    ])
+
+    expect(
+      results.map((result) =>
+        result.status === 'fulfilled' ? result.value : result.reason.name,
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "0x1",
+        "0x2",
+        "InvalidRequestRpcError",
+      ]
+    `)
+
+    await server.close()
+  })
+
+  test('batch: a null-id reply for the first request leaves the rest intact', async () => {
+    const server = await createHttpServer((req, res) => {
+      res.appendHeader('Content-Type', 'application/json')
+      let body = ''
+      req.on('data', (chunk) => (body += chunk))
+      req.on('end', () => {
+        const requests = JSON.parse(body)
+        res.end(
+          JSON.stringify([
+            {
+              jsonrpc: '2.0',
+              id: null,
+              error: { code: -32600, message: 'id could not be read' },
+            },
+            { jsonrpc: '2.0', id: requests[1].id, result: '0x2' },
+            { jsonrpc: '2.0', id: requests[2].id, result: '0x3' },
+          ]),
+        )
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+    })({ chain: localhost })
+
+    const results = await Promise.allSettled([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }),
+      transport.request({ method: 'eth_c' }),
+    ])
+
+    expect(
+      results.map((result) =>
+        result.status === 'fulfilled' ? result.value : result.reason.name,
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "InvalidRequestRpcError",
+        "0x2",
+        "0x3",
+      ]
+    `)
+
+    await server.close()
+  })
+
+  test('batch: a null-id reply for a middle request leaves the rest intact', async () => {
+    const server = await createHttpServer((req, res) => {
+      res.appendHeader('Content-Type', 'application/json')
+      let body = ''
+      req.on('data', (chunk) => (body += chunk))
+      req.on('end', () => {
+        const requests = JSON.parse(body)
+        res.end(
+          JSON.stringify([
+            { jsonrpc: '2.0', id: requests[0].id, result: '0x1' },
+            {
+              jsonrpc: '2.0',
+              id: null,
+              error: { code: -32600, message: 'id could not be read' },
+            },
+            { jsonrpc: '2.0', id: requests[2].id, result: '0x3' },
+          ]),
+        )
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+    })({ chain: localhost })
+
+    const results = await Promise.allSettled([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }),
+      transport.request({ method: 'eth_c' }),
+    ])
+
+    expect(
+      results.map((result) =>
+        result.status === 'fulfilled' ? result.value : result.reason.name,
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "0x1",
+        "InvalidRequestRpcError",
+        "0x3",
+      ]
+    `)
+
+    await server.close()
+  })
+
   test('batch: single error for the whole batch (one-element array)', async () => {
     let count = 0
     const server = await createHttpServer((_, res) => {
