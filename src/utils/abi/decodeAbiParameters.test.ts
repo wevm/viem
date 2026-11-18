@@ -468,10 +468,16 @@ describe('dynamic', () => {
       )
     })
 
-    test('leading zero bytes (round-trip)', () => {
+    test('leading zero bytes and U+FEFF (round-trip)', () => {
       // The ABI length prefix is authoritative, so leading NUL (0x00) bytes
-      // of a string payload must be preserved, not trimmed.
-      for (const value of ['\x00ab', '\x00\x00x', 'a\x00b', '\x00']) {
+      // and a leading U+FEFF of a string payload must be preserved, not trimmed.
+      for (const value of [
+        '\x00ab',
+        '\x00\x00x',
+        'a\x00b',
+        '\x00',
+        '\uFEFFhello',
+      ]) {
         expect(
           decodeAbiParameters(
             parseAbiParameters('string'),

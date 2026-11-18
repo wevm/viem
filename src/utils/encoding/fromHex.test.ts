@@ -370,6 +370,8 @@ describe('converts hex to string', () => {
     expect(hexToString('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
       `"Hello World!"`,
     )
+    // A snapshot would render U+FEFF invisibly.
+    expect(hexToString('0xefbbbf68656c6c6f')).toBe('\uFEFFhello')
   })
 
   test('args: size', () => {

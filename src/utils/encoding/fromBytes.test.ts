@@ -301,6 +301,10 @@ describe('converts bytes to string', () => {
         ]),
       ),
     ).toMatchInlineSnapshot(`"Hello World!"`)
+    // A snapshot would render U+FEFF invisibly.
+    expect(bytesToString(new Uint8Array([0xef, 0xbb, 0xbf, 104, 105]))).toBe(
+      '\uFEFFhi',
+    )
   })
 
   test('args: size', () => {
