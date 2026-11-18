@@ -82,9 +82,13 @@ export async function getIpcRpcClient(
         onClose()
       }
 
-      const onData = createMessageExtractor((message) =>
-        onResponse(JSON.parse(message.toString())),
-      )
+      const onData = createMessageExtractor((message) => {
+        try {
+          onResponse(JSON.parse(message.toString()))
+        } catch (error) {
+          onError(error as Error)
+        }
+      })
 
       socket.on('close', onClose_)
       socket.on('data', onData)
