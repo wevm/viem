@@ -48,7 +48,9 @@ test.each(['closed', 'open', 'silent'] as const)(
         await closed
       }
       const result = await Promise.race([
-        subscription.unsubscribe().catch((error: Error) => error),
+        subscription
+          .unsubscribe()
+          .catch((error: unknown) => ({ status: 'rejected', error })),
         new Promise<string>((resolve) => {
           timer = setTimeout(() => resolve('pending'), 1000)
         }),
@@ -56,7 +58,12 @@ test.each(['closed', 'open', 'silent'] as const)(
 
       if (state === 'open')
         expect(result).toMatchObject({ jsonrpc: '2.0', result: true })
-      else expect(result).toBeInstanceOf(Error)
+      else if (state === 'silent')
+        expect(result).toMatchObject({
+          status: 'rejected',
+          error: { name: 'TimeoutError' },
+        })
+      else expect(result).toMatchObject({ status: 'rejected' })
       expect(client.requests.size).toBe(0)
       expect(client.subscriptions.size).toBe(0)
     } finally {
