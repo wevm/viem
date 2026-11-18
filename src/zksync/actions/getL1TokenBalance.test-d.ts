@@ -1,12 +1,10 @@
+import type { ReadContractErrorType } from 'viem'
 import { expectTypeOf, test } from 'vitest'
 
-import type { ReadContractErrorType } from '../../actions/public/readContract.js'
-import type { GetL1TokenBalanceErrorType } from './getL1TokenBalance.js'
+import type { GetL1TokenBalanceErrorType } from '../index.js'
 
 test('includes readContract errors', () => {
-  const propagated: GetL1TokenBalanceErrorType = {} as ReadContractErrorType
-
-  expectTypeOf(propagated).toExtend<GetL1TokenBalanceErrorType>()
+  expectTypeOf<ReadContractErrorType>().toExtend<GetL1TokenBalanceErrorType>()
 })
 
 test('retains contract error discriminants', () => {
