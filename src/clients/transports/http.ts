@@ -164,16 +164,19 @@ export function http<
                 id: idCache.take(),
               }))
               const replies = await rpcClient.request({ body, fetchOptions })
-              const byId = new Map<number, RpcResponse | undefined>(
-                body.map(({ id }) => [id, undefined]),
+              // Ids are compared as strings, since some servers echo a numeric
+              // id back as a string.
+              const byId = new Map<string, RpcResponse | undefined>(
+                body.map(({ id }) => [String(id), undefined]),
               )
               const unattributed: RpcResponse[] = []
               for (const reply of replies)
-                if (byId.has(reply.id)) byId.set(reply.id, reply)
+                if (byId.has(String(reply.id)))
+                  byId.set(String(reply.id), reply)
                 else unattributed.push(reply)
               return body.map(
                 ({ id }): RpcResponse =>
-                  byId.get(id) ??
+                  byId.get(String(id)) ??
                   unattributed.shift() ?? {
                     jsonrpc: '2.0',
                     id,

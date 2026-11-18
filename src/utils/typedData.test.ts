@@ -681,6 +681,23 @@ describe('validateTypedData', () => {
     `)
   })
 
+  test('missing array and null struct array element: left to the encoder', () => {
+    expect(
+      validateTypedData({
+        primaryType: 'Mail',
+        types: {
+          Mail: [
+            { name: 'ids', type: 'uint256[2]' },
+            { name: 'to', type: 'Person[]' },
+          ],
+          Person: [{ name: 'ids', type: 'uint256[2]' }],
+        },
+        // @ts-expect-error
+        message: { to: [null] },
+      }),
+    ).toMatchInlineSnapshot('undefined')
+  })
+
   test('EIP712Domain as primaryType', () => {
     validateTypedData({
       domain: {

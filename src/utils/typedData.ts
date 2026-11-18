@@ -120,7 +120,7 @@ export function validateTypedData<
       if (Object.hasOwn(types, type))
         validateData(types[type]!, value as Record<string, unknown>)
 
-      if (type.endsWith(']')) validateArray(type, value as readonly unknown[])
+      if (type.endsWith(']') && Array.isArray(value)) validateArray(type, value)
     }
   }
 
@@ -136,8 +136,13 @@ export function validateTypedData<
         type,
       })
     for (const item of value)
-      if (inner.endsWith(']')) validateArray(inner, item as readonly unknown[])
-      else if (Object.hasOwn(types, inner))
+      if (inner.endsWith(']')) {
+        if (Array.isArray(item)) validateArray(inner, item)
+      } else if (
+        Object.hasOwn(types, inner) &&
+        item &&
+        typeof item === 'object'
+      )
         validateData(types[inner]!, item as Record<string, unknown>)
   }
 
