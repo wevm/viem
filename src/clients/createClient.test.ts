@@ -2,7 +2,7 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer } from '~test/utils.js'
-import { base, localhost, mainnet } from '../chains/index.js'
+import { localhost, mainnet } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { getAction } from '../utils/getAction.js'
 import { type Client, createClient } from './createClient.js'
@@ -560,12 +560,12 @@ describe('config', () => {
 
 test('behavior: cacheTime, pollingInterval based on chain.blockTime', () => {
   const client = createClient({
-    chain: base,
+    chain: { ...localhost, blockTime: 2_000 },
     transport: http(),
   })
 
-  expect(client.cacheTime).toEqual(Math.floor(base.blockTime / 2))
-  expect(client.pollingInterval).toEqual(Math.floor(base.blockTime / 2))
+  expect(client.cacheTime).toMatchInlineSnapshot(`1000`)
+  expect(client.pollingInterval).toMatchInlineSnapshot(`1000`)
 })
 
 test('behavior: cacheTime below the polling floor on sub-second chain.blockTime', () => {
