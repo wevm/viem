@@ -22,6 +22,11 @@ export const ancient8Sepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x7750F6deD68435d6EA3415CEA544126bE54d208D',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x942fD5017c0F60575930D8574Eaca13BEcD6e1bB',

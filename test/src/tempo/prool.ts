@@ -11,7 +11,7 @@ import {
 import { pathUsd } from '../../../src/tempo/Addresses.js'
 import * as actions from '../../../src/tempo/actions/index.js'
 import { withRetry } from '../../../src/utils/promise/withRetry.js'
-import { accounts, getClient, nodeEnv } from './config.js'
+import { accounts, getClient, nodeEnv, validatorConfigV1 } from './config.js'
 
 export const port = 9545
 
@@ -288,6 +288,7 @@ export async function setup(client: Client<Transport, Chain>) {
     ),
   )
 
+  if (!validatorConfigV1) return
   await actions.validator.add(client, {
     account: accounts[0],
     newValidatorAddress: accounts[19].address,

@@ -1,10 +1,16 @@
 import { bench, describe } from 'vitest'
 
-import { hexToNumber, hexToString } from './fromHex.js'
+import { hexToBigInt, hexToNumber, hexToString } from './fromHex.js'
 
-describe.skip('Hex to Number', () => {
+describe('Hex to Number', () => {
   bench('viem: `hexToNumber`', () => {
     hexToNumber('0x1a4')
+  })
+})
+
+describe('Hex to BigInt (signed, negative)', () => {
+  bench('viem: `hexToBigInt`', () => {
+    hexToBigInt(`0x${'f'.repeat(63)}e`, { signed: true })
   })
 })
 

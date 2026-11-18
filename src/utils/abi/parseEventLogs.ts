@@ -4,6 +4,7 @@ import type { Abi, AbiEvent, AbiEventParameter, Address } from 'abitype'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ContractEventName, GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
+import type { Hex } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'
 import { stringToBytes, toBytes } from '../encoding/toBytes.js'
@@ -13,7 +14,9 @@ import { toEventSelector } from '../hash/toEventSelector.js'
 import { bytesRegex, integerRegex } from '../regex.js'
 import {
   type DecodeEventLogErrorType,
-  decodeEventLog,
+  decodeEventLogWithPlan,
+  type EventPlan,
+  toEventPlan,
 } from './decodeEventLog.js'
 
 export type ParseEventLogsParameters<
@@ -110,127 +113,140 @@ export function parseEventLogs<
     return [parameters.eventName as string]
   })()
 
-  const abiTopics = (abi as Abi)
-    .filter((abiItem) => abiItem.type === 'event')
-    .map((abiItem) => ({
-      abi: abiItem,
-      selector: toEventSelector(abiItem),
-    }))
+  // Selectors map to events in ABI order, so overloads keep their precedence.
+  const plans: Plan[] = []
+  const bySelector = new Map<Hex, Plan[]>()
+  for (const abiItem of abi as Abi) {
+    if (abiItem.type !== 'event') continue
+    const topic = toEventSelector(abiItem)
+    const plan: Plan = { ...toEventPlan(abiItem), topic }
+    plans.push(plan)
+    if (abiItem.anonymous) continue
+    const list = bySelector.get(plan.topic)
+    if (list) list.push(plan)
+    else bySelector.set(plan.topic, [plan])
+  }
 
   // Nothing in a log identifies an anonymous event, so any log with the same
   // topic count fits it. Anonymous events are only considered when requested:
   // `eventName` names one, or every event in the ABI is anonymous. Otherwise a
   // log from another contract in the same receipt is decoded as the anonymous
   // event.
-  const anonymousTopics = (() => {
+  const anonymousPlans = (() => {
     if (eventName)
-      return abiTopics.filter(
-        (item) => item.abi.anonymous && eventName.includes(item.abi.name),
+      return plans.filter(
+        (item) =>
+          item.abiItem.anonymous && eventName.includes(item.abiItem.name),
       )
-    if (abiTopics.every((item) => item.abi.anonymous)) return abiTopics
+    if (plans.every((item) => item.abiItem.anonymous)) return plans
     return []
   })()
 
-  return logs
-    .map((log) => {
-      // Normalize RpcLog (hex-encoded quantities) to Log (bigint/number).
-      // When logs come directly from an RPC response (e.g. eth_getLogs),
-      // fields like blockNumber are hex strings instead of bigints.
-      const formattedLog =
-        typeof log.blockNumber === 'string' ? formatLog(log as RpcLog) : log
+  const result: unknown[] = []
+  for (const log of logs) {
+    // Normalize RpcLog (hex-encoded quantities) to Log (bigint/number).
+    // When logs come directly from an RPC response (e.g. eth_getLogs),
+    // fields like blockNumber are hex strings instead of bigints.
+    const formattedLog =
+      typeof log.blockNumber === 'string' ? formatLog(log as RpcLog) : log
+    const { topics } = formattedLog
 
-      // Non-anonymous events share a signature topic. Several events can share
-      // that selector and differ in indexed parameters (ERC-20 vs ERC-721
-      // `Transfer`). Check that against the whole ABI before `eventName`, so
-      // an anonymous event never claims a log whose signature is known.
-      const bySelector = abiTopics.filter(
-        (item) =>
-          !item.abi.anonymous && formattedLog.topics[0] === item.selector,
-      )
-      const abiItems = (() => {
-        if (bySelector.length > 0) {
-          if (!eventName) return bySelector
-          return bySelector.filter((item) => eventName.includes(item.abi.name))
-        }
-        // A dynamic ABI value can decode as a static type without throwing, so
-        // several anonymous events of the same arity are not guessed.
-        const anonymous = anonymousTopics.filter(
-          (item) =>
-            (item.abi.inputs?.filter((input) => input.indexed).length ?? 0) ===
-            formattedLog.topics.length,
+    // Non-anonymous events share a signature topic. Several events can share
+    // that selector and differ in indexed parameters (ERC-20 vs ERC-721
+    // `Transfer`). Check that against the whole ABI before `eventName`, so
+    // an anonymous event never claims a log whose signature is known.
+    const plansBySelector = bySelector.get(topics[0]!)
+    const candidates = (() => {
+      if (plansBySelector) {
+        if (!eventName) return plansBySelector
+        return plansBySelector.filter((item) =>
+          eventName.includes(item.abiItem.name),
         )
-        if (anonymous.length === 1) return anonymous
-        return []
-      })()
-      if (abiItems.length === 0) return null
-
-      // Try each matching ABI item until one successfully decodes.
-      let event: { eventName: string; args: unknown } | undefined
-      let abiItem: { abi: AbiEvent; selector: Address } | undefined
-
-      for (const item of abiItems) {
-        try {
-          event = decodeEventLog({
-            ...formattedLog,
-            abi: [item.abi],
-            strict: true,
-          })
-          abiItem = item
-          break
-        } catch {
-          // Try next ABI item
-        }
       }
-
-      // If strict decoding failed for all, and we're in non-strict mode,
-      // fall back to the first signature match. An anonymous candidate that
-      // failed to decode is not identified, so it is left out.
-      if (!event && !strict) {
-        const fallback = abiItems[0]
-        if (!fallback || fallback.abi.anonymous) return null
-        abiItem = fallback
-        try {
-          event = decodeEventLog({
-            data: formattedLog.data,
-            topics: formattedLog.topics,
-            abi: [abiItem.abi],
-            strict: false,
-          })
-        } catch {
-          // If decoding still fails, use a partial log in non-strict mode.
-          const isUnnamed = abiItem.abi.inputs?.some(
-            (x) => !('name' in x && x.name),
-          )
-          event = { eventName: abiItem.abi.name, args: isUnnamed ? [] : {} }
-        }
-      }
-
-      // If no event was found, return null.
-      if (!event || !abiItem) return null
-
-      // Check that the decoded event name matches the provided event name.
-      if (eventName && !eventName.includes(event.eventName)) return null
-
-      // Check that the decoded event args match the provided args.
-      if (
-        !includesArgs({
-          anonymous: abiItem.abi.anonymous,
-          args: event.args,
-          inputs: abiItem.abi.inputs,
-          matchArgs: args,
-          topics: formattedLog.topics,
-        })
+      // A dynamic ABI value can decode as a static type without throwing, so
+      // several anonymous events of the same arity are not guessed.
+      const anonymous = anonymousPlans.filter(
+        (item) => item.indexedInputs.length === topics.length,
       )
-        return null
+      if (anonymous.length === 1) return anonymous
+      return []
+    })()
+    if (candidates.length === 0) continue
 
-      return { ...event, ...formattedLog }
-    })
-    .filter(Boolean) as unknown as ParseEventLogsReturnType<
-    abi,
-    eventName,
-    strict
-  >
+    let event: { eventName: string; args: unknown } | undefined
+    let plan: Plan | undefined
+
+    // Try each matching event until one decodes successfully.
+    for (const item of candidates) {
+      // Strict decoding throws without enough topics, or without data for
+      // non-indexed inputs (an ERC-721 `Transfer` against ERC-20's), so skip
+      // building that error.
+      if (
+        topics.length - (item.abiItem.anonymous ? 0 : 1) <
+          item.indexedInputs.length ||
+        (item.nonIndexedInputs.length > 0 &&
+          (!formattedLog.data || formattedLog.data === '0x'))
+      )
+        continue
+      try {
+        event = decodeEventLogWithPlan(item, {
+          data: formattedLog.data,
+          // A log's own `eventName` narrows anonymous events, as before.
+          eventName: (formattedLog as { eventName?: string | undefined })
+            .eventName,
+          strict: true,
+          topics,
+        })
+        plan = item
+        break
+      } catch {
+        // Try the next matching event.
+      }
+    }
+
+    // In non-strict mode, fall back to the first selector match. Anonymous
+    // events have no selector to prove the log came from them.
+    if (!event && !strict) {
+      const fallback = candidates[0]
+      if (!fallback || fallback.abiItem.anonymous) continue
+      plan = fallback
+      try {
+        event = decodeEventLogWithPlan(plan, {
+          data: formattedLog.data,
+          eventName: undefined,
+          strict: false,
+          topics,
+        })
+      } catch {
+        // If the log cannot be decoded at all, keep its event name with empty args.
+        event = { eventName: plan.abiItem.name, args: plan.isUnnamed ? [] : {} }
+      }
+    }
+
+    if (!event || !plan) continue
+
+    // Check that the decoded event name matches the provided event name.
+    if (eventName && !eventName.includes(event.eventName)) continue
+
+    // Check that the decoded event args match the provided args.
+    if (
+      !includesArgs({
+        anonymous: plan.abiItem.anonymous,
+        args: event.args,
+        inputs: plan.abiItem.inputs,
+        matchArgs: args,
+        topics,
+      })
+    )
+      continue
+
+    result.push({ ...event, ...formattedLog })
+  }
+  return result as unknown as ParseEventLogsReturnType<abi, eventName, strict>
 }
+
+/** An event plan plus its selector as `parseEventLogs` matches it. */
+type Plan = EventPlan & { topic: Hex }
 
 function includesArgs(parameters: {
   anonymous?: boolean | undefined

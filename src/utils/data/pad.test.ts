@@ -1,3 +1,4 @@
+import type { Hex } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import { pad, padBytes, padHex } from './pad.js'
@@ -383,4 +384,69 @@ describe('bytes', () => {
     `,
     )
   })
+})
+
+test('bytes: detached views, `NaN` and fractional sizes', () => {
+  const buffer = new ArrayBuffer(4)
+  const detached = new Uint8Array(buffer)
+  structuredClone(buffer, { transfer: [buffer] })
+  const bytes = new Uint8Array([1, 2])
+
+  expect([
+    padBytes(detached, { size: 4 }),
+    padBytes(bytes, { size: 4 }),
+    padBytes(bytes, { size: 4, dir: 'right' }),
+    padBytes(bytes, { size: 2 }),
+    padBytes(bytes, { size: Number.NaN }),
+    padBytes(bytes, { size: 3.5 }),
+    padBytes(bytes, { size: 3.5, dir: 'right' }),
+  ]).toMatchInlineSnapshot(`
+    [
+      Uint8Array [
+        0,
+        0,
+        0,
+        0,
+      ],
+      Uint8Array [
+        0,
+        0,
+        1,
+        2,
+      ],
+      Uint8Array [
+        1,
+        2,
+        0,
+        0,
+      ],
+      Uint8Array [
+        1,
+        2,
+      ],
+      Uint8Array [],
+      Uint8Array [
+        0,
+        0,
+        0,
+      ],
+      Uint8Array [
+        1,
+        2,
+        0,
+      ],
+    ]
+  `)
+})
+
+test('hex: input without a 0x prefix', () => {
+  expect([
+    padHex('a4' as Hex, { size: 2 }),
+    padHex('a40x12' as Hex, { size: 4 }),
+  ]).toMatchInlineSnapshot(`
+    [
+      "0x00a4",
+      "0x0000a412",
+    ]
+  `)
 })

@@ -13,6 +13,9 @@ import { type TrimErrorType, trim } from '../data/trim.js'
 
 import { type HexToBytesErrorType, hexToBytes } from './toBytes.js'
 
+// Created on first use, so importing this module needs no `TextDecoder`.
+let decoder: TextDecoder | undefined
+
 export type AssertSizeErrorType =
   | SizeOverflowErrorType
   | SizeErrorType
@@ -141,6 +144,10 @@ export function hexToBigInt(hex: Hex, opts: HexToBigIntOpts = {}): bigint {
   const max = (1n << (BigInt(size) * 8n - 1n)) - 1n
   if (value <= max) return value
 
+  // A `0x` value always fits `size` bytes, so `asIntN` gives its two's
+  // complement value.
+  if (typeof hex === 'string' && hex.startsWith('0x'))
+    return BigInt.asIntN(size * 8, value)
   return value - BigInt(`0x${'f'.padStart(size * 2, 'f')}`) - 1n
 }
 
@@ -212,14 +219,20 @@ export type HexToNumberErrorType =
  * // 420
  */
 export function hexToNumber(hex: Hex, opts: HexToNumberOpts = {}): number {
+  const { signed, size } = opts
+  // `Number` parses `0x` hex directly, and a safe integer result is exact.
+  if (!signed && !size && typeof hex === 'string' && hex.startsWith('0x')) {
+    const number = Number(hex)
+    if (Number.isSafeInteger(number)) return number
+  }
   const value = hexToBigInt(hex, opts)
   const number = Number(value)
   if (!Number.isSafeInteger(number))
     throw new IntegerOutOfRangeError({
       max: `${Number.MAX_SAFE_INTEGER}`,
       min: `${Number.MIN_SAFE_INTEGER}`,
-      signed: opts.signed,
-      size: opts.size,
+      signed,
+      size,
       value: `${value}n`,
     })
   return number
@@ -263,5 +276,5 @@ export function hexToString(hex: Hex, opts: HexToStringOpts = {}): string {
     assertSize(bytes, { size: opts.size })
     bytes = trim(bytes, { dir: 'right' })
   }
-  return new TextDecoder().decode(bytes)
+  return (decoder ??= new TextDecoder()).decode(bytes)
 }

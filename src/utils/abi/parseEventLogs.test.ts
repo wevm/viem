@@ -1990,6 +1990,29 @@ describe('RpcLog inputs', () => {
     })
   })
 
+  test('malformed RpcLog throws even when no event matches it', () => {
+    expect(() =>
+      parseEventLogs({
+        abi,
+        logs: [
+          {
+            address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            topics: [`0x${'ab'.repeat(32)}`],
+            data: '0x',
+            blockHash: null,
+            blockNumber: '0xzz' as Hex,
+            transactionHash: null,
+            transactionIndex: null,
+            logIndex: null,
+            removed: false,
+          } as RpcLog,
+        ],
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[SyntaxError: Cannot convert 0xzz to a BigInt]`,
+    )
+  })
+
   test('already-formatted Log inputs are passed through unchanged', () => {
     const formattedLog: Log = {
       address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',

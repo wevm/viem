@@ -1,6 +1,6 @@
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import { Channel as ox_Channel, TokenId } from 'ox/tempo'
+import { AccountConfig, Channel as ox_Channel, TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
@@ -11,6 +11,7 @@ import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroAddress } from '../../constants/address.js'
+import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs } from '../../types/contract.js'
@@ -19,7 +20,10 @@ import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
-import { signVoucher as signVoucher_ } from '../Account.js'
+import {
+  type ConfigurableAccount,
+  signVoucher as signVoucher_,
+} from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type * as Errors from '../errors.js'
 import { TempoExecutionError } from '../errors.js'
@@ -36,6 +40,7 @@ import type {
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import { getConfigCommitment } from './accounts.js'
 
 /**
  * Closes a TIP-20 channel reserve channel from the payee or operator side.
@@ -210,6 +215,93 @@ export namespace closeSync {
 }
 
 /**
+ * Resolves the default salt for {@link open}.
+ *
+ * A configurable voucher signer with a nonzero commitment needs that commitment.
+ * An access key signs as its parent account, which can be configurable, so its
+ * parent's commitment is read too. An unregistered configurable account (zero
+ * commitment) that is also the sender registers its local config in the same
+ * transaction (TIP-1107), before the channel reserve runs, so the reserve then
+ * sees that config's commitment.
+ */
+async function getDefaultSalt(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  parameters: {
+    sender: Account | undefined
+    signer: Account | undefined
+  },
+): Promise<Hex.Hex> {
+  const { sender, signer } = parameters
+  if (signer?.source !== 'configurable' && signer?.source !== 'accessKey')
+    return Hex.random(32)
+  const commitment = await getConfigCommitment(client, {
+    account: signer.address,
+  })
+  if (commitment !== zeroHash) return commitment
+  if (signer.source !== 'configurable') return Hex.random(32)
+  const { config } = signer as ConfigurableAccount
+  if (config && sender && isAddressEqual(sender.address, signer.address))
+    return AccountConfig.getCommitment(config)
+  return Hex.random(32)
+}
+
+/**
+ * Gets the salt to open a TIP-20 channel reserve channel with for a voucher
+ * signer.
+ *
+ * From T15 (TIP-1166), a channel whose voucher signer is a configurable account
+ * (TIP-1107) with a nonzero configuration commitment must use that commitment as
+ * its salt. This returns the signer's commitment when it is nonzero, else a
+ * random 32-byte salt. Pass the result as `salt` to {@link open} or {@link open.call}.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const salt = await Actions.channel.getOpenSalt(client, {
+ *   signer: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The signer's nonzero configuration commitment, else a random 32-byte salt.
+ */
+export async function getOpenSalt<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: getOpenSalt.Parameters,
+): Promise<getOpenSalt.ReturnValue> {
+  const { signer, ...rest } = parameters
+  const commitment = await getConfigCommitment(client, {
+    ...rest,
+    account: parseAccount(signer).address,
+  })
+  if (commitment !== zeroHash) return commitment
+  return Hex.random(32)
+}
+
+export namespace getOpenSalt {
+  export type Parameters = Omit<ReadParameters, 'account'> & {
+    /** Voucher signer: `authorizedSigner` if set, else the payer. */
+    signer: Account | Address.Address
+  }
+
+  export type ReturnValue = Hex.Hex
+
+  export type ErrorType = getConfigCommitment.ErrorType
+}
+
+/**
  * Gets TIP-20 channel reserve state for a channel ID or channel.
  *
  * @example
@@ -352,6 +444,18 @@ export namespace getStates {
 /**
  * Opens and funds a TIP-20 channel reserve channel.
  *
+ * When `salt` is omitted and the voucher signer (`authorizedSigner`, else the
+ * account) is a configurable account (TIP-1107), or an access key of one, with
+ * a nonzero configuration commitment, the salt defaults to that commitment, as
+ * the channel reserve requires from T15 (TIP-1166). Otherwise it defaults to a
+ * random salt. Pass `salt` from {@link getOpenSalt} when the signer is a
+ * configurable account known only by address.
+ *
+ * An unregistered configurable account that sends the open and signs its own
+ * vouchers registers (TIP-1107) in the same transaction, before the channel
+ * reserve runs, so the salt then defaults to the commitment of its local
+ * version-zero config instead.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
@@ -390,7 +494,20 @@ export namespace open {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = WriteParameters<chain, account> &
+    Omit<Args, 'authorizedSigner' | 'salt'> & {
+      /**
+       * Optional signer for vouchers. Zero means `payer` signs. Pass a
+       * configurable account to default `salt` to its configuration commitment.
+       * @default zeroAddress
+       */
+      authorizedSigner?: Account | Address.Address | undefined
+      /**
+       * User-supplied salt to distinguish otherwise identical channels.
+       * @default The voucher signer's nonzero configuration commitment when the signer is a configurable account or an access key of one (or, for an unregistered configurable account that sends the open as its own signer, the commitment of its local config, registered in the same transaction), else `Hex.random(32)`.
+       */
+      salt?: Hex.Hex | undefined
+    }
 
   export type Args = {
     /** Optional signer for vouchers. Zero means `payer` signs. @default zeroAddress */
@@ -422,12 +539,29 @@ export namespace open {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { authorizedSigner, deposit, operator, payee, salt, token, ...rest } =
-      parameters
+    const {
+      authorizedSigner: authorizedSigner_,
+      deposit,
+      operator,
+      payee,
+      salt: salt_,
+      token,
+      ...rest
+    } = parameters
+    const authorizedSigner =
+      authorizedSigner_ &&
+      !isAddressEqual(parseAccount(authorizedSigner_).address, zeroAddress)
+        ? parseAccount(authorizedSigner_)
+        : undefined
+    const signer =
+      authorizedSigner ??
+      (rest.account ? parseAccount(rest.account) : client.account)
+    const sender = rest.account ? parseAccount(rest.account) : client.account
+    const salt = salt_ ?? (await getDefaultSalt(client, { sender, signer }))
     return (await withExecutionError(action)(client, {
       ...rest,
       ...open.call({
-        authorizedSigner,
+        authorizedSigner: authorizedSigner?.address,
         deposit,
         operator,
         payee,
@@ -439,6 +573,11 @@ export namespace open {
 
   /**
    * Defines a call to the `open` function.
+   *
+   * Makes no RPC request, so `salt` defaults to a random value. When the voucher
+   * signer is a configurable account with a nonzero configuration commitment,
+   * the channel reserve requires that commitment as the salt (TIP-1166): pass
+   * `salt` from {@link getOpenSalt}.
    *
    * @param args - Arguments.
    * @returns The call.
@@ -488,6 +627,10 @@ export namespace open {
 /**
  * Opens and funds a TIP-20 channel reserve channel and waits for the
  * transaction receipt.
+ *
+ * `salt` defaults as in {@link open}: to the voucher signer's nonzero
+ * configuration commitment (TIP-1166) when the signer is a configurable
+ * account or an access key of one, else to a random salt.
  *
  * @example
  * ```ts
@@ -1238,6 +1381,8 @@ export type ExecutionErrorType =
   | ChannelAmountNotIncreasingErrorType
   | ChannelCloseNotReadyErrorType
   | ChannelNotFoundErrorType
+  | ChannelSaltNotSignerCommitmentErrorType
+  | ChannelSignerConfigChangedErrorType
 
 /** `ChannelNotFoundError` with a literal `name`, for narrowing. */
 export type ChannelNotFoundErrorType = ChannelNotFoundError & {
@@ -1370,6 +1515,68 @@ export class ChannelAmountNotIncreasingError extends TempoExecutionError<
   }
 }
 
+/** `ChannelSaltNotSignerCommitmentError` with a literal `name`, for narrowing. */
+export type ChannelSaltNotSignerCommitmentErrorType =
+  ChannelSaltNotSignerCommitmentError & {
+    name: 'ChannelSaltNotSignerCommitmentError'
+  }
+
+/**
+ * Thrown when a channel opens with a salt other than the voucher signer's
+ * configuration commitment (TIP-1166). Omit `salt`, or pass it from
+ * {@link getOpenSalt}.
+ */
+export class ChannelSaltNotSignerCommitmentError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'SaltNotSignerCommitment'>
+> {
+  /** Configuration commitment the salt must equal, when known. */
+  commitment: Hex.Hex | undefined
+  /** Voucher signer, when known. */
+  signer: Address.Address | undefined
+
+  constructor(parameters: Errors.TempoExecutionError.Parameters) {
+    const [signer, commitment] = (parameters.error.args ?? []) as readonly [
+      Address.Address?,
+      Hex.Hex?,
+    ]
+    super(parameters, {
+      details: { commitment, signer },
+      name: 'ChannelSaltNotSignerCommitmentError',
+    })
+    this.commitment = commitment
+    this.signer = signer
+  }
+}
+
+/** `ChannelSignerConfigChangedError` with a literal `name`, for narrowing. */
+export type ChannelSignerConfigChangedErrorType =
+  ChannelSignerConfigChangedError & {
+    name: 'ChannelSignerConfigChangedError'
+  }
+
+/**
+ * Thrown when a channel is topped up after its voucher signer's configuration
+ * changed since the channel opened (TIP-1166). Close the channel and open a new
+ * one to add funds.
+ */
+export class ChannelSignerConfigChangedError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'SignerConfigChanged'>
+> {
+  /** Voucher signer, when known. */
+  signer: Address.Address | undefined
+
+  constructor(parameters: Errors.TempoExecutionError.Parameters) {
+    const [signer] = (parameters.error.args ?? []) as readonly [
+      Address.Address?,
+    ]
+    super(parameters, {
+      details: { signer },
+      name: 'ChannelSignerConfigChangedError',
+    })
+    this.signer = signer
+  }
+}
+
 const reserve = {
   address: Addresses.tip20ChannelReserve,
   abi: Abis.tip20ChannelReserve,
@@ -1439,5 +1646,17 @@ export const errorResolvers: Resolvers = {
           ? BigInt(closeRequestedAt) + channel.gracePeriod
           : undefined,
     })
+  },
+  'SaltNotSignerCommitment(address,bytes32)': (context) => {
+    const { call } = context
+    if (!call || !isAddressEqual(call.address, Addresses.tip20ChannelReserve))
+      return undefined
+    return new ChannelSaltNotSignerCommitmentError(context.base)
+  },
+  'SignerConfigChanged(address)': (context) => {
+    const { call } = context
+    if (!call || !isAddressEqual(call.address, Addresses.tip20ChannelReserve))
+      return undefined
+    return new ChannelSignerConfigChangedError(context.base)
   },
 }

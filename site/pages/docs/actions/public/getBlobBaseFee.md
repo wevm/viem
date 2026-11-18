@@ -15,6 +15,7 @@ Returns the current blob base fee (in wei).
 import { publicClient } from './client'
 
 const baseFee = await publicClient.getBlobBaseFee() // [!code focus]
+// @log: 1n
 ```
 
 ```ts twoslash [client.ts] filename="client.ts"

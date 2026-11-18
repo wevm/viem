@@ -408,6 +408,65 @@ test('struct type: with colon', () => {
   )
 })
 
+test('struct types repeated in arrays and recursively', () => {
+  // Expected value from ox `TypedData.getSignPayload`.
+  expect(
+    hashTypedData({
+      domain: { name: 'Grid', chainId: 1 },
+      types: {
+        Grid: [
+          { name: 'rows', type: 'Row[]' },
+          { name: 'owner', type: 'Person' },
+          { name: 'cells', type: 'Cell[2][]' },
+        ],
+        Row: [
+          { name: 'cells', type: 'Cell[]' },
+          { name: 'author', type: 'Person' },
+        ],
+        Cell: [
+          { name: 'x', type: 'int8' },
+          { name: 'owner', type: 'Person' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'friends', type: 'Person[]' },
+        ],
+      },
+      primaryType: 'Grid',
+      message: {
+        rows: [
+          {
+            cells: [
+              { x: 1, owner: { name: 'a', friends: [] } },
+              {
+                x: -1,
+                owner: { name: 'b', friends: [{ name: 'c', friends: [] }] },
+              },
+            ],
+            author: { name: 'd', friends: [] },
+          },
+          {
+            cells: [],
+            author: {
+              name: 'e',
+              friends: [{ name: 'f', friends: [{ name: 'g', friends: [] }] }],
+            },
+          },
+        ],
+        owner: { name: 'h', friends: [] },
+        cells: [
+          [
+            { x: 2, owner: { name: 'i', friends: [] } },
+            { x: 3, owner: { name: 'j', friends: [] } },
+          ],
+        ],
+      },
+    } as any),
+  ).toMatchInlineSnapshot(
+    `"0x8619c904622aeacace1d4f09f05d86a23b9750cac4a00ea3ac808edb149cb789"`,
+  )
+})
+
 test('struct type: array of a Solidity type', () => {
   expect(() =>
     hashTypedData({
@@ -464,4 +523,72 @@ test('https://github.com/wevm/viem/issues/4095', () => {
     },
   })
   expect(result3).toEqual(result)
+})
+
+test('fixed-length array: wrong number of elements', () => {
+  const hash = (values: readonly bigint[]) =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'values', type: 'uint256[2]' }],
+      },
+      primaryType: 'Message',
+      message: { values } as never,
+    })
+
+  expect(hash([1n, 2n])).toMatchInlineSnapshot(
+    `"0x042fde620bf72b76fa3d3f96f6c805a9306cd4c459af3c01ad1a0b08be628685"`,
+  )
+  expect(() => hash([1n, 2n, 3n])).toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+    Expected length: 2
+    Given length: 3
+
+    Version: viem@x.y.z]
+  `)
+  expect(() => hash([1n])).toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+    Expected length: 2
+    Given length: 1
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('fixed-length array: wrong number of elements in an inner dimension', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'values', type: 'uint256[2][]' }],
+      },
+      primaryType: 'Message',
+      // @ts-expect-error
+      message: { values: [[1n, 2n], [3n]] },
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+    Expected length: 2
+    Given length: 1
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('fixed-length array: wrong number of structs', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Mail: [{ name: 'to', type: 'Person[1]' }],
+        Person: [{ name: 'name', type: 'string' }],
+      },
+      primaryType: 'Mail',
+      // @ts-expect-error
+      message: { to: [{ name: 'Bob' }, { name: 'Alice' }] },
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type Person[1].
+    Expected length: 1
+    Given length: 2
+
+    Version: viem@x.y.z]
+  `)
 })

@@ -6,6 +6,7 @@ import {
 } from '../../accounts/utils/parseAccount.js'
 import {
   type EstimateFeesPerGasErrorType,
+  eip1559NetworkCache,
   internal_estimateFeesPerGas,
 } from '../../actions/public/estimateFeesPerGas.js'
 import {
@@ -91,9 +92,6 @@ export const defaultParameters = [
   'nonce',
   'type',
 ] as const
-
-/** @internal */
-export const eip1559NetworkCache = /*#__PURE__*/ new Map<string, boolean>()
 
 /** @internal */
 export const supportsFillTransaction = /*#__PURE__*/ new LruMap<boolean>(128)
@@ -366,6 +364,9 @@ export async function prepareTransactionRequest<
     account = sender ? parseAccount(sender) : undefined
   }
 
+  // The nonce manager hands out nonces in call order, so the nonce is consumed
+  // here, but awaited with the other parameters.
+  let consumedNonce: Promise<number> | undefined
   if (
     parameters.includes('nonce') &&
     typeof nonce === 'undefined' &&
@@ -373,11 +374,13 @@ export async function prepareTransactionRequest<
     nonceManager
   ) {
     const chainId = await getChainId()
-    nonce = await nonceManager.consume({
+    consumedNonce = nonceManager.consume({
       address: account.address,
       chainId,
       client,
     })
+    // A rejection is thrown when the nonce is awaited.
+    consumedNonce.catch(() => {})
   }
 
   const attemptFill = (() => {
@@ -429,7 +432,12 @@ export async function prepareTransactionRequest<
     // Check if `eth_fillTransaction` needs to be called.
     if (parameters.includes('chainId') && typeof request.chainId !== 'number')
       return true
-    if (parameters.includes('nonce') && typeof nonce !== 'number') return true
+    if (
+      parameters.includes('nonce') &&
+      typeof nonce !== 'number' &&
+      !consumedNonce
+    )
+      return true
     if (
       parameters.includes('fees') &&
       typeof request.gasPrice !== 'bigint' &&
@@ -441,6 +449,10 @@ export async function prepareTransactionRequest<
       return true
     return false
   })()
+
+  // `eth_fillTransaction` and chain hooks read the nonce from the request.
+  if (consumedNonce && (attemptFill || prepareTransactionRequest))
+    nonce = await consumedNonce
 
   let filledChainId: number | undefined
   const fill = (request: PrepareTransactionRequestParameters) =>
@@ -626,19 +638,21 @@ export async function prepareTransactionRequest<
   // The nonce does not depend on the type or the fees, so it is fetched
   // concurrently with them.
   const noncePromise =
-    parameters.includes('nonce') &&
-    typeof nonce === 'undefined' &&
-    account &&
-    !nonceManager
-      ? getAction(
-          client,
-          getTransactionCount,
-          'getTransactionCount',
-        )({
-          address: account.address,
-          blockTag: 'pending',
-        })
-      : undefined
+    typeof nonce === 'undefined' && consumedNonce
+      ? consumedNonce
+      : parameters.includes('nonce') &&
+          typeof nonce === 'undefined' &&
+          account &&
+          !nonceManager
+        ? getAction(
+            client,
+            getTransactionCount,
+            'getTransactionCount',
+          )({
+            address: account.address,
+            blockTag: 'pending',
+          })
+        : undefined
   // A rejection is thrown when the nonce is awaited.
   noncePromise?.catch(() => {})
   if (noncePromise && hasFeeHooks) request.nonce = await noncePromise
@@ -673,6 +687,8 @@ export async function prepareTransactionRequest<
 
     if (parameters.includes('chainId')) request.chainId = await getChainId()
 
+    let priorityFeePromise: Promise<bigint> | undefined
+
     if (
       (parameters.includes('fees') || parameters.includes('type')) &&
       typeof type === 'undefined'
@@ -684,6 +700,18 @@ export async function prepareTransactionRequest<
       } catch {
         let isEip1559Network = eip1559NetworkCache.get(client.uid)
         if (typeof isEip1559Network === 'undefined') {
+          // EIP-1559 fees will most likely be needed, so without chain fee
+          // hooks the priority fee is estimated concurrently with the block
+          // that decides the type. On legacy networks, it goes unused.
+          if (parameters.includes('fees') && !hasFeeHooks) {
+            priorityFeePromise = internal_estimateMaxPriorityFeePerGas(client, {
+              block: getBlock(),
+              chain,
+              request: request as PrepareTransactionRequestParameters,
+            })
+            // A rejection is thrown when the priority fee is awaited.
+            priorityFeePromise.catch(() => {})
+          }
           const block = await getBlock()
           isEip1559Network = typeof block?.baseFeePerGas === 'bigint'
           eip1559NetworkCache.set(client.uid, isEip1559Network)
@@ -707,11 +735,12 @@ export async function prepareTransactionRequest<
             getBlock(),
             hasFeeHooks || typeof request.maxPriorityFeePerGas === 'bigint'
               ? undefined
-              : internal_estimateMaxPriorityFeePerGas(client, {
+              : (priorityFeePromise ??
+                internal_estimateMaxPriorityFeePerGas(client, {
                   block: getBlock(),
                   chain,
                   request: request as PrepareTransactionRequestParameters,
-                }),
+                })),
           ])
           const { maxFeePerGas, maxPriorityFeePerGas } =
             await internal_estimateFeesPerGas(client, {
@@ -743,11 +772,11 @@ export async function prepareTransactionRequest<
           throw new Eip1559FeesNotSupportedError()
 
         if (typeof request.gasPrice === 'undefined') {
-          const block = await getBlock()
           const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
             client,
             {
-              block: block as Block,
+              // Only chain fee hooks read the block for legacy fees.
+              block: hasFeeHooks ? await getBlock() : undefined,
               chain,
               request: request as PrepareTransactionRequestParameters,
               type: 'legacy',

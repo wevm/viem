@@ -79,3 +79,60 @@ test('nullish values', () => {
     }
   `)
 })
+
+test('args and eventName', () => {
+  const log = {
+    address: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
+    eventName: 'Stale',
+    logIndex: '0x6c',
+  } as const
+
+  const formatted = formatLog(log as never, {
+    args: { value: 1n },
+    eventName: 'Transfer',
+  })
+  const empty = formatLog(log as never, { args: { value: 1n }, eventName: '' })
+
+  expect({
+    keys: Object.keys(formatted),
+    formatted,
+    empty,
+  }).toMatchInlineSnapshot(`
+      {
+        "empty": {
+          "address": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
+          "blockHash": null,
+          "blockNumber": null,
+          "blockTimestamp": undefined,
+          "eventName": "Stale",
+          "logIndex": 108,
+          "transactionHash": null,
+          "transactionIndex": null,
+        },
+        "formatted": {
+          "address": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
+          "args": {
+            "value": 1n,
+          },
+          "blockHash": null,
+          "blockNumber": null,
+          "blockTimestamp": undefined,
+          "eventName": "Transfer",
+          "logIndex": 108,
+          "transactionHash": null,
+          "transactionIndex": null,
+        },
+        "keys": [
+          "address",
+          "eventName",
+          "logIndex",
+          "blockHash",
+          "blockNumber",
+          "blockTimestamp",
+          "transactionHash",
+          "transactionIndex",
+          "args",
+        ],
+      }
+    `)
+})

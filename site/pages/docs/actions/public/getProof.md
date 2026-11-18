@@ -20,6 +20,12 @@ const proof = await publicClient.getProof({
     '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
   ],
 })
+// @log: {
+// @log:   address: '0x4200000000000000000000000000000000000016',
+// @log:   balance: 1000000000000000000n,
+// @log:   nonce: 1,
+// @log:   ...
+// @log: }
 ```
 
 ```ts twoslash [client.ts] filename="client.ts"

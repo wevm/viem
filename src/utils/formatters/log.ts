@@ -12,7 +12,7 @@ export function formatLog(
     eventName,
   }: { args?: unknown | undefined; eventName?: string | undefined } = {},
 ) {
-  return {
+  const result = {
     ...log,
     blockHash: log.blockHash ? log.blockHash : null,
     blockNumber: log.blockNumber ? BigInt(log.blockNumber) : null,
@@ -26,6 +26,10 @@ export function formatLog(
     transactionIndex: log.transactionIndex
       ? Number(log.transactionIndex)
       : null,
-    ...(eventName ? { args, eventName } : {}),
-  } as Log
+  } as Record<string, unknown>
+  if (eventName) {
+    result.args = args
+    result.eventName = eventName
+  }
+  return result as Log
 }

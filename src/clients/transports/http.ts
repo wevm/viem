@@ -151,9 +151,7 @@ export function http<
           const { schedule } = createBatchScheduler({
             id: `${batchId}.${url_}.${getSignalId(options?.signal)}`,
             wait,
-            shouldSplitBatch(requests) {
-              return requests.length > batchSize
-            },
+            shouldSplitBatch: (size) => size > batchSize,
             fn: (body: RpcRequest[]) =>
               rpcClient.request({
                 body,

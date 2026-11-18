@@ -498,6 +498,10 @@ export default defineConfig({
             text: 'Signature',
             items: [
               {
+                text: 'verifyHash',
+                link: '/docs/actions/public/verifyHash',
+              },
+              {
                 text: 'verifyMessage',
                 link: '/docs/actions/public/verifyMessage',
               },
@@ -2782,6 +2786,10 @@ export default defineConfig({
                 {
                   text: 'close',
                   link: '/tempo/actions/channel.close',
+                },
+                {
+                  text: 'getOpenSalt',
+                  link: '/tempo/actions/channel.getOpenSalt',
                 },
                 {
                   text: 'getStates',

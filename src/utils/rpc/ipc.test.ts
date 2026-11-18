@@ -7,7 +7,7 @@ import { createClient, http } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { numberToHex } from '../index.js'
 import { wait } from '../wait.js'
-import { extractMessages, getIpcRpcClient } from './ipc.js'
+import { createMessageExtractor, getIpcRpcClient } from './ipc.js'
 
 const client = createClient({
   chain: anvilMainnet.chain,
@@ -430,83 +430,77 @@ describe('requestAsync', () => {
   })
 })
 
-describe('extractMessages', () => {
-  test('default', () => {
-    const [messages, remaining] = extractMessages(
-      Buffer.from('{"jsonrpc":"2.0","id":1,"result":1}'),
+describe('createMessageExtractor', () => {
+  function extract(...buffers: string[]) {
+    const messages: string[] = []
+    const onData = createMessageExtractor((message) =>
+      messages.push(message.toString()),
     )
-    expect(messages.map((m) => m.toString())).toMatchInlineSnapshot(
-      `
+    for (const buffer of buffers) onData(Buffer.from(buffer))
+    return messages
+  }
+
+  test('default', () => {
+    expect(
+      extract('{"jsonrpc":"2.0","id":1,"result":1}'),
+    ).toMatchInlineSnapshot(`
       [
         "{"jsonrpc":"2.0","id":1,"result":1}",
       ]
-    `,
-    )
-    expect(remaining.toString()).toMatchInlineSnapshot(`""`)
+    `)
   })
 
   test('remainder', () => {
-    const [messages, remaining] = extractMessages(
-      Buffer.from('{"jsonrpc":"2.0","id":1,'),
-    )
-    expect(messages.map((m) => m.toString())).toMatchInlineSnapshot('[]')
-    expect(remaining.toString()).toMatchInlineSnapshot(
-      `"{"jsonrpc":"2.0","id":1,"`,
-    )
+    expect(extract('{"jsonrpc":"2.0","id":1,')).toMatchInlineSnapshot('[]')
+    expect(
+      extract('{"jsonrpc":"2.0","id":1,', '"result":1}'),
+    ).toMatchInlineSnapshot(`
+      [
+        "{"jsonrpc":"2.0","id":1,"result":1}",
+      ]
+    `)
   })
 
   test('multiple, no remainder', () => {
-    const [messages, remaining] = extractMessages(
-      Buffer.from(
+    expect(
+      extract(
         '{"jsonrpc":"2.0","id":1,"result":1}{"jsonrpc":"2.0","id":2,"result":1}{"jsonrpc":"2.0","id":3,"result":1}',
       ),
-    )
-    expect(messages.map((m) => m.toString())).toMatchInlineSnapshot(
-      `
+    ).toMatchInlineSnapshot(`
       [
         "{"jsonrpc":"2.0","id":1,"result":1}",
         "{"jsonrpc":"2.0","id":2,"result":1}",
         "{"jsonrpc":"2.0","id":3,"result":1}",
       ]
-    `,
-    )
-    expect(remaining.toString()).toMatchInlineSnapshot(`""`)
+    `)
   })
 
   test('multiple, remainder', () => {
-    const [messages, remaining] = extractMessages(
-      Buffer.from(
+    expect(
+      extract(
         '{"jsonrpc":"2.0","id":1,"result":1}{"jsonrpc":"2.0","id":2,"result":1}{"jsonrpc":"2.0","id":3,"result":1}{"jsonrpc":"2.0","id":4,"result":{{{}}',
+        '}}',
       ),
-    )
-    expect(messages.map((m) => m.toString())).toMatchInlineSnapshot(
-      `
+    ).toMatchInlineSnapshot(`
       [
         "{"jsonrpc":"2.0","id":1,"result":1}",
         "{"jsonrpc":"2.0","id":2,"result":1}",
         "{"jsonrpc":"2.0","id":3,"result":1}",
+        "{"jsonrpc":"2.0","id":4,"result":{{{}}}}",
       ]
-    `,
-    )
-    expect(remaining.toString()).toMatchInlineSnapshot(
-      `"{"jsonrpc":"2.0","id":4,"result":{{{}}"`,
-    )
+    `)
   })
 
   test('whitespace', () => {
-    const [messages, remaining] = extractMessages(
-      Buffer.from(
+    expect(
+      extract(
         '  {"jsonrpc":"2.0","id":1,"result":1} \n     {"jsonrpc":"2.0","id":2,"result":{"ok": {"ok": "haha"}}}  ',
       ),
-    )
-    expect(messages.map((m) => m.toString())).toMatchInlineSnapshot(
-      `
+    ).toMatchInlineSnapshot(`
       [
         "{"jsonrpc":"2.0","id":1,"result":1}",
         "{"jsonrpc":"2.0","id":2,"result":{"ok": {"ok": "haha"}}}",
       ]
-    `,
-    )
-    expect(remaining.toString()).toMatchInlineSnapshot(`""`)
+    `)
   })
 })

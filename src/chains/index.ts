@@ -727,6 +727,7 @@ export { wemixTestnet } from './definitions/wemixTestnet.js'
 export { westendAssetHub } from './definitions/westendAssetHub.js'
 export { whitechain } from './definitions/whitechain.js'
 export { whitechainSepolia } from './definitions/whitechainSepolia.js'
+/** @deprecated Use `whitechainSepolia` instead. */
 export { whitechainTestnet } from './definitions/whitechainTestnet.js'
 export { wmcTestnet } from './definitions/wmcTestnet.js'
 export { worldchain } from './definitions/worldchain.js'

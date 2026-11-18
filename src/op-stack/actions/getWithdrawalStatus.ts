@@ -245,20 +245,6 @@ export async function getWithdrawalStatus<
     return seconds > 0 ? 'waiting-to-finalize' : 'ready-to-finalize'
   }
 
-  const numProofSubmitters = await readContract(client, {
-    abi: portal2Abi,
-    address: portalAddress,
-    functionName: 'numProofSubmitters',
-    args: [withdrawal.withdrawalHash],
-  }).catch(() => 1n)
-
-  const proofSubmitter = await readContract(client, {
-    abi: portal2Abi,
-    address: portalAddress,
-    functionName: 'proofSubmitters',
-    args: [withdrawal.withdrawalHash, numProofSubmitters - 1n],
-  }).catch(() => withdrawal.sender)
-
   // Super-root games anchor on L2 timestamps instead of L2 block numbers.
   // Not awaited, so a missing L2 timestamp only fails the game lookup and a
   // finalized withdrawal still resolves.
@@ -276,19 +262,46 @@ export async function getWithdrawalStatus<
     return timestamp
   })()
 
+  // The game and the finalized state do not depend on the proof submitter, so
+  // they are read concurrently with it. Their rejections are read from the
+  // settled results below.
+  const disputeGame = gameL2BlockNumber.then((l2BlockNumber) =>
+    getGame(client, {
+      ...parameters,
+      l2BlockNumber,
+      limit: gameLimit,
+    } as GetGameParameters),
+  )
+  disputeGame.catch(() => {})
+  const finalized = readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'finalizedWithdrawals',
+    args: [withdrawal.withdrawalHash],
+  })
+  finalized.catch(() => {})
+
+  const numProofSubmitters = await readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'numProofSubmitters',
+    args: [withdrawal.withdrawalHash],
+  }).catch(() => 1n)
+
+  const proofSubmitter = await readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'proofSubmitters',
+    args: [withdrawal.withdrawalHash, numProofSubmitters - 1n],
+  }).catch(() => withdrawal.sender)
+
   const [
     disputeGameResult,
     provenWithdrawalsResult,
     checkWithdrawalResult,
     finalizedResult,
   ] = await Promise.allSettled([
-    gameL2BlockNumber.then((l2BlockNumber) =>
-      getGame(client, {
-        ...parameters,
-        l2BlockNumber,
-        limit: gameLimit,
-      } as GetGameParameters),
-    ),
+    disputeGame,
     readContract(client, {
       abi: portal2Abi,
       address: portalAddress,
@@ -301,12 +314,7 @@ export async function getWithdrawalStatus<
       functionName: 'checkWithdrawal',
       args: [withdrawal.withdrawalHash, proofSubmitter],
     }),
-    readContract(client, {
-      abi: portal2Abi,
-      address: portalAddress,
-      functionName: 'finalizedWithdrawals',
-      args: [withdrawal.withdrawalHash],
-    }),
+    finalized,
   ])
 
   if (finalizedResult.status === 'fulfilled' && finalizedResult.value)
