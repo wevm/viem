@@ -173,14 +173,18 @@ export async function getSocketRpcClient<socket extends {}>(
         }
         // The last attempt is still running. If it fails, it calls this again.
         else if (reconnectInProgress && !intentionallyClosed) return
-        // Otherwise, clear all requests and subscriptions, and drop the dead
-        // client so the next request for this url opens a new socket.
+        // Otherwise, clear all requests and subscriptions, and drop the client
+        // and close its socket so the next request for this url opens a new one.
         else {
           requests.clear()
           subscriptions.clear()
           keepAliveTimer && clearInterval(keepAliveTimer)
           if (socketClientCache.get(id) === socketClient)
             socketClientCache.delete(id)
+          // Closing calls this again, so mark the client closed first.
+          if (intentionallyClosed) return
+          intentionallyClosed = true
+          socket?.close()
         }
       }
 
@@ -191,6 +195,7 @@ export async function getSocketRpcClient<socket extends {}>(
             // Notify all requests and subscriptions of the closure error.
             for (const request of requests.values())
               request.onError?.(new SocketClosedError({ url }))
+            requests.clear()
             for (const subscription of subscriptions.values())
               subscription.onError?.(new SocketClosedError({ url }))
 
@@ -201,6 +206,7 @@ export async function getSocketRpcClient<socket extends {}>(
 
             // Notify all requests and subscriptions of the error.
             for (const request of requests.values()) request.onError?.(error)
+            requests.clear()
             for (const subscription of subscriptions.values())
               subscription.onError?.(error)
 
