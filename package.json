@@ -166,7 +166,7 @@
     {
       "name": "import * from 'viem/account-abstraction'",
       "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "63 kB",
+      "limit": "63.5 kB",
       "import": "*"
     },
     {

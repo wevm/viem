@@ -87,6 +87,53 @@ test('inferred account', async () => {
   expect(result).toBeTruthy()
 })
 
+test('behavior: nested type sorts before the primary type', async () => {
+  const permit = {
+    domain: {
+      name: 'Permit2',
+      chainId: 1,
+      verifyingContract: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+    },
+    types: {
+      PermitDetails: [
+        { name: 'token', type: 'address' },
+        { name: 'amount', type: 'uint160' },
+        { name: 'expiration', type: 'uint48' },
+        { name: 'nonce', type: 'uint48' },
+      ],
+      PermitSingle: [
+        { name: 'details', type: 'PermitDetails' },
+        { name: 'spender', type: 'address' },
+        { name: 'sigDeadline', type: 'uint256' },
+      ],
+    },
+    primaryType: 'PermitSingle',
+    message: {
+      details: {
+        token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        amount: 1000000n,
+        expiration: 1735689600,
+        nonce: 0,
+      },
+      spender: '0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD',
+      sigDeadline: 1735689600n,
+    },
+  } as const
+
+  const signature = await signTypedData(client, {
+    ...permit,
+    account: privateKeyToAccount(accounts[0].privateKey),
+    verifier,
+  })
+
+  const result = await verifyTypedData(client, {
+    ...permit,
+    address: verifier,
+    signature,
+  })
+  expect(result).toBeTruthy()
+})
+
 describe('args: verifierDomain', () => {
   test('json-rpc account', async () => {
     const signature = await signTypedData(client, {
