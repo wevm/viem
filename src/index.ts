@@ -617,8 +617,10 @@ export {
 /** Lazily resolves and caches typed Clients across configured chains. */
 export {
   ChainNotConfiguredError,
+  type ChainNotConfiguredErrorType,
   createClientResolver,
   TransportNotConfiguredError,
+  type TransportNotConfiguredErrorType,
 } from './clients/createClientResolver.js'
 export {
   type CreatePublicClientErrorType,

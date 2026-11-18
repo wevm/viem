@@ -1,12 +1,15 @@
 import {
   type Chain,
+  type ChainNotConfiguredErrorType,
   type Client,
+  type CreateClientErrorType,
   createClientResolver,
   type HttpTransport,
   http,
   type JsonRpcAccount,
   publicActions,
   rpcSchema,
+  type TransportNotConfiguredErrorType,
   type WebSocketTransport,
   webSocket,
 } from 'viem'
@@ -129,4 +132,26 @@ test('supports broad resolver types without narrowing the chain to never', () =>
   const resolver: createClientResolver.ReturnType =
     createClientResolver(options)
   expectTypeOf(resolver.getClient({ chainId: 1 }).chain).toEqualTypeOf<Chain>()
+})
+
+test('narrows resolver errors by name', () => {
+  const error = {} as createClientResolver.ErrorType
+
+  if (error.name === 'createClientResolver.ChainNotConfiguredError') {
+    expectTypeOf(
+      error.name,
+    ).toEqualTypeOf<'createClientResolver.ChainNotConfiguredError'>()
+    expectTypeOf(error).toEqualTypeOf<ChainNotConfiguredErrorType>()
+    return
+  }
+
+  if (error.name === 'createClientResolver.TransportNotConfiguredError') {
+    expectTypeOf(
+      error.name,
+    ).toEqualTypeOf<'createClientResolver.TransportNotConfiguredError'>()
+    expectTypeOf(error).toEqualTypeOf<TransportNotConfiguredErrorType>()
+    return
+  }
+
+  expectTypeOf(error).toEqualTypeOf<CreateClientErrorType>()
 })
