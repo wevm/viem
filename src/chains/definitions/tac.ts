@@ -6,7 +6,7 @@ export const tac = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'TAC', symbol: 'TAC', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.ankr.com/tac'],
+      http: ['https://rpc-public.tac.build'],
     },
   },
   blockExplorers: {

@@ -7,7 +7,7 @@ export const shibarium = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Bone', symbol: 'BONE', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.shibrpc.com'],
+      http: ['https://rpc.shibarium.shib.io'],
     },
   },
   blockExplorers: {

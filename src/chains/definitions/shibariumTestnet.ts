@@ -9,7 +9,7 @@ export const shibariumTestnet = /*#__PURE__*/ defineChain({
     symbol: 'BONE',
   },
   rpcUrls: {
-    default: { http: ['https://puppynet.shibrpc.com'] },
+    default: { http: ['https://rpc.puppynet.shib.io'] },
   },
   blockExplorers: {
     default: {
