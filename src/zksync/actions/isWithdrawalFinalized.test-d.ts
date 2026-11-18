@@ -2,9 +2,8 @@ import type {
   GetTransactionReceiptErrorType,
   ReadContractErrorType,
 } from 'viem'
+import type { IsWithdrawalFinalizedErrorType } from 'viem/zksync'
 import { expectTypeOf, test } from 'vitest'
-
-import type { IsWithdrawalFinalizedErrorType } from '../index.js'
 
 test('includes receipt, RPC, and contract errors', () => {
   expectTypeOf<GetTransactionReceiptErrorType>().toExtend<IsWithdrawalFinalizedErrorType>()

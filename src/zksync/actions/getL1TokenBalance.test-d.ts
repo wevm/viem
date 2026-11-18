@@ -1,7 +1,6 @@
 import type { ReadContractErrorType } from 'viem'
+import type { GetL1TokenBalanceErrorType } from 'viem/zksync'
 import { expectTypeOf, test } from 'vitest'
-
-import type { GetL1TokenBalanceErrorType } from '../index.js'
 
 test('includes readContract errors', () => {
   expectTypeOf<ReadContractErrorType>().toExtend<GetL1TokenBalanceErrorType>()
