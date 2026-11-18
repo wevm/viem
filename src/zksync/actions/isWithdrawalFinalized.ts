@@ -1,5 +1,9 @@
 import type { Account } from '../../accounts/types.js'
-import { readContract } from '../../actions/public/readContract.js'
+import type { GetTransactionReceiptErrorType } from '../../actions/public/getTransactionReceipt.js'
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
@@ -8,6 +12,7 @@ import {
 } from '../../errors/chain.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { l1SharedBridgeAbi } from '../constants/abis.js'
 import {
   WithdrawalLogNotFoundError,
@@ -37,6 +42,9 @@ export type IsWithdrawalFinalizedReturnType = boolean
 export type IsWithdrawalFinalizedErrorType =
   | WithdrawalLogNotFoundErrorType
   | ChainNotFoundErrorType
+  | GetTransactionReceiptErrorType
+  | ReadContractErrorType
+  | RequestErrorType
 
 /**
  * Returns whether the withdrawal transaction is finalized on the L1 network.
