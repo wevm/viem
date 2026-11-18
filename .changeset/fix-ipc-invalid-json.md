@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed malformed IPC JSON escaping the socket data listener instead of rejecting pending requests.
+Fixed malformed JSON from the `ipc` transport escaping the socket data listener instead of rejecting pending requests.
