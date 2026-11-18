@@ -421,6 +421,38 @@ test('behavior: invalid statement', () => {
   `)
 })
 
+test('behavior: invalid requestId', () => {
+  // A line break would start a new field: this one appends a `Resources`
+  // section that `parseSiweMessage` reads back as part of the signed message.
+  const requestId = 'foo\nResources:\n- https://example.com/admin'
+  expect(() =>
+    createSiweMessage({ ...message, requestId }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "requestId".
+
+    - Request ID must not include a line break.
+
+    Provided value: foo
+    Resources:
+    - https://example.com/admin
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    createSiweMessage({ ...message, requestId: 'foo\rbar' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "requestId".
+
+    - Request ID must not include a line break.
+
+    Provided value: foo
+    bar
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('behavior: invalid resources', () => {
   expect(() =>
     createSiweMessage({

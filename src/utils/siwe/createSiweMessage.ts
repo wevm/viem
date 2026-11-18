@@ -128,6 +128,15 @@ export function createSiweMessage(
           `Provided value: ${statement}`,
         ],
       })
+    if (requestId && /[\r\n]/.test(requestId))
+      throw new SiweInvalidMessageFieldError({
+        field: 'requestId',
+        metaMessages: [
+          '- Request ID must not include a line break.',
+          '',
+          `Provided value: ${requestId}`,
+        ],
+      })
   }
 
   // Construct message
