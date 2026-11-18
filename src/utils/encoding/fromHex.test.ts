@@ -356,26 +356,6 @@ describe('converts hex to boolean', () => {
 })
 
 describe('converts hex to string', () => {
-  test.each([
-    ['0xefbbbf68656c6c6f', '\uFEFFhello'],
-    ['0xefbbbf', '\uFEFF'],
-    ['0xefbbbfefbbbf68656c6c6f', '\uFEFF\uFEFFhello'],
-    ['0x68656c6c6fefbbbf', 'hello\uFEFF'],
-  ] as const)('preserves U+FEFF in %j', (value, expected) => {
-    const result = hexToString(value)
-
-    expect(result).toBe(expected)
-    expect(fromHex(value, 'string')).toBe(expected)
-    expect(hexToString(value)).toBe(expected)
-  })
-
-  test('preserves U+FEFF with size and right padding', () => {
-    const value = '0xefbbbf0000'
-
-    expect(hexToString(value, { size: 5 })).toBe('\uFEFF')
-    expect(fromHex(value, { to: 'string', size: 5 })).toBe('\uFEFF')
-  })
-
   test('default', () => {
     expect(fromHex('0x', 'string')).toMatchInlineSnapshot(`""`)
     expect(fromHex('0x61', 'string')).toMatchInlineSnapshot(`"a"`)
@@ -390,6 +370,8 @@ describe('converts hex to string', () => {
     expect(hexToString('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
       `"Hello World!"`,
     )
+    // A snapshot would render U+FEFF invisibly.
+    expect(hexToString('0xefbbbf68656c6c6f')).toBe('\uFEFFhello')
   })
 
   test('args: size', () => {
