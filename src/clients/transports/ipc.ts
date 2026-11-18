@@ -154,6 +154,10 @@ export function ipc(
                 method: 'eth_subscribe',
                 params,
               },
+              onError(error) {
+                reject(error)
+                onError?.(error)
+              },
               onResponse(response) {
                 if (response.error) {
                   reject(response.error)
