@@ -12,6 +12,7 @@ import {
 } from '../../errors/chain.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
+import type { IsAddressEqualErrorType } from '../../utils/address/isAddressEqual.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { l1SharedBridgeAbi } from '../constants/abis.js'
 import {
@@ -43,6 +44,7 @@ export type IsWithdrawalFinalizedErrorType =
   | WithdrawalLogNotFoundErrorType
   | ChainNotFoundErrorType
   | GetTransactionReceiptErrorType
+  | IsAddressEqualErrorType
   | ReadContractErrorType
   | RequestErrorType
 

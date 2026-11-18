@@ -2,11 +2,13 @@ import type {
   GetTransactionReceiptErrorType,
   ReadContractErrorType,
 } from 'viem'
+import type { IsAddressEqualErrorType } from 'viem/utils'
 import type { IsWithdrawalFinalizedErrorType } from 'viem/zksync'
 import { expectTypeOf, test } from 'vitest'
 
-test('includes receipt, RPC, and contract errors', () => {
+test('includes receipt, RPC, address, and contract errors', () => {
   expectTypeOf<GetTransactionReceiptErrorType>().toExtend<IsWithdrawalFinalizedErrorType>()
+  expectTypeOf<IsAddressEqualErrorType>().toExtend<IsWithdrawalFinalizedErrorType>()
   expectTypeOf<ReadContractErrorType>().toExtend<IsWithdrawalFinalizedErrorType>()
 })
 
