@@ -86,3 +86,25 @@ test('retains only the incomplete message following a complete response', () => 
 
   expect(messages).toEqual([JSON.stringify(response), `${incomplete}"" }`])
 })
+
+test.each(['}', '}}}\n', ' }\n}\t'])(
+  'recovers from stray closing braces outside a message: %s',
+  (prefix) => {
+    const responses = [
+      { jsonrpc: '2.0', id: 1, result: '0x1' },
+      { jsonrpc: '2.0', id: 2, result: '0x2' },
+    ]
+    const data = Buffer.from(
+      `${prefix}${JSON.stringify(responses[0])}}${JSON.stringify(responses[1])}`,
+    )
+
+    expect(extract(data)).toEqual(responses)
+    for (let split = 0; split <= data.length; split++)
+      expect(extract(data.subarray(0, split), data.subarray(split))).toEqual(
+        responses,
+      )
+    expect(extract(...Array.from(data, (byte) => Buffer.from([byte])))).toEqual(
+      responses,
+    )
+  },
+)
