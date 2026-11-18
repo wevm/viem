@@ -243,7 +243,8 @@ export function getHttpRpcClient(
         if (Array.isArray(data) && data.length >= body.length) return data
         if (!isRpcError(error))
           throw new Error(`Expected ${body.length} responses to batch request.`)
-        return body.map(() => error)
+        // The error answers every request, so each copy carries its request's id.
+        return body.map(({ id }) => ({ ...error, id: id ?? error.id }))
       } catch (err) {
         if (signal_?.aborted) throw getAbortError(signal_)
         if (err === timedOut) throw new TimeoutError({ body, url })
