@@ -23,7 +23,7 @@ export const atletaOlympia = /*#__PURE__*/ defineChain({
   contracts: {
     multicall3: {
       address: '0x1472ec6392180fb84F345d2455bCC75B26577115',
-      blockCreated: 70742,
+      blockCreated: 1076473,
     },
   },
   testnet: true,
