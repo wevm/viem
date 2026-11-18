@@ -18,17 +18,18 @@ export function trim<value extends ByteArray | Hex>(
     let data = hexOrBytes.startsWith('0x')
       ? hexOrBytes.slice(2)
       : hexOrBytes.replace('0x', '')
-    // Count the zero digits on the `dir` side, keeping at least one digit.
+    // Count leading zero digits, or trailing zero bytes, keeping one byte.
     let count = 0
     if (dir === 'left') {
       while (count < data.length - 1 && data.charCodeAt(count) === 48) count++
       data = data.slice(count)
     } else {
       while (
-        count < data.length - 1 &&
-        data.charCodeAt(data.length - count - 1) === 48
+        count < data.length - 2 &&
+        data.charCodeAt(data.length - count - 1) === 48 &&
+        data.charCodeAt(data.length - count - 2) === 48
       )
-        count++
+        count += 2
       data = data.slice(0, data.length - count)
     }
     if (data.length === 1 && dir === 'right') data = `${data}0`

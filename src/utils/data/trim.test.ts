@@ -1,4 +1,4 @@
-import type { Hex } from 'viem'
+import { bytesToHex, type Hex, hexToBytes } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { trim } from './trim.js'
 
@@ -90,7 +90,7 @@ describe('hex', () => {
         '0x1a4e12a450000000000000000000000000000000000000000000000000000000',
         { dir: 'right' },
       ),
-    ).toMatchInlineSnapshot('"0x01a4e12a45"')
+    ).toMatchInlineSnapshot('"0x1a4e12a450"')
   })
 })
 
@@ -276,4 +276,35 @@ test('edge cases', () => {
       ],
     ]
   `)
+})
+
+test('right trimming preserves a nonzero byte with a zero low nibble', () => {
+  const values = [
+    '0x1020',
+    '0x1230',
+    '0x10200000',
+    '0x00',
+    '0x0000',
+    '0x10',
+    '0x',
+  ] as const
+
+  const result = values.map((value) => trim(value, { dir: 'right' }))
+
+  expect(result).toMatchInlineSnapshot(`
+    [
+      "0x1020",
+      "0x1230",
+      "0x1020",
+      "0x00",
+      "0x00",
+      "0x10",
+      "0x",
+    ]
+  `)
+  expect(result).toEqual(
+    values.map((value) =>
+      bytesToHex(trim(hexToBytes(value), { dir: 'right' })),
+    ),
+  )
 })
