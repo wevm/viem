@@ -1206,26 +1206,25 @@ describe('rankTransports', () => {
       { key: 'up' },
     )
 
-    const rankedTransports: (readonly Transport[])[] = []
-    rankTransports({
-      interval: 10,
-      sampleCount: 1,
-      transports: [down, up],
-      onTransports(transports) {
-        rankedTransports.push(transports)
-      },
-    })
-
     // After the first round, each in-process ping measures 0 ms.
-    await vi.waitFor(() => expect(rankedTransports.length).toBeGreaterThan(5))
+    const rankedTransports = await new Promise<(readonly Transport[])[]>(
+      (resolve) => {
+        const rankedTransports: (readonly Transport[])[] = []
+        rankTransports({
+          interval: 10,
+          sampleCount: 1,
+          transports: [down, up],
+          onTransports(transports) {
+            rankedTransports.push(transports)
+            if (rankedTransports.length === 5) resolve(rankedTransports)
+          },
+        })
+      },
+    )
 
-    const rankedKeys = rankedTransports
-      .slice(0, 5)
-      .map((transports) =>
-        transports.map(
-          (transport) => transport({ chain: undefined }).config.key,
-        ),
-      )
+    const rankedKeys = rankedTransports.map((transports) =>
+      transports.map((transport) => transport({ chain: undefined }).config.key),
+    )
     expect(rankedKeys).toMatchInlineSnapshot(`
       [
         [
