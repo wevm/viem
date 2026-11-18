@@ -92,9 +92,9 @@ export function createClientResolver<
 export declare namespace createClientResolver {
   /** Errors thrown while resolving a Client. */
   type ErrorType =
-    | ChainNotConfiguredError
+    | ChainNotConfiguredErrorType
     | CreateClientErrorType
-    | TransportNotConfiguredError
+    | TransportNotConfiguredErrorType
 
   /** Options for {@link createClientResolver}. */
   type Options<
@@ -172,6 +172,11 @@ type ResolvedTransport<
       : never
     : never
 
+/** Type of {@link ChainNotConfiguredError}. */
+export type ChainNotConfiguredErrorType = ChainNotConfiguredError & {
+  name: 'createClientResolver.ChainNotConfiguredError'
+}
+
 /** Thrown when a Client is requested for an unconfigured chain. */
 export class ChainNotConfiguredError extends BaseError {
   constructor({ chainId }: { chainId: number }) {
@@ -179,6 +184,11 @@ export class ChainNotConfiguredError extends BaseError {
       name: 'createClientResolver.ChainNotConfiguredError',
     })
   }
+}
+
+/** Type of {@link TransportNotConfiguredError}. */
+export type TransportNotConfiguredErrorType = TransportNotConfiguredError & {
+  name: 'createClientResolver.TransportNotConfiguredError'
 }
 
 /** Thrown when a configured chain has no transport. */
