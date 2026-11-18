@@ -159,15 +159,13 @@ export function webSocket(
           let unsubscribed = false
           function unsubscribe() {
             unsubscribed = true
-            return new Promise<any>((resolve) =>
-              rpcClient.request({
-                body: {
-                  method: 'eth_unsubscribe',
-                  params: [subscriptionId],
-                },
-                onResponse: resolve,
-              }),
-            )
+            return rpcClient.requestAsync({
+              body: {
+                method: 'eth_unsubscribe',
+                params: [subscriptionId],
+              },
+              timeout,
+            })
           }
           await new Promise<any>((resolve, reject) =>
             rpcClient.request({
