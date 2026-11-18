@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed ABI and UTF-8 string decoding to preserve leading U+FEFF characters.
+Fixed `decodeAbiParameters`, `hexToString`, and `bytesToString` dropping a leading U+FEFF (byte order mark) from decoded strings.
