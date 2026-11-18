@@ -83,11 +83,16 @@ export async function getIpcRpcClient(
       }
 
       const onData = createMessageExtractor((message) => {
-        try {
-          onResponse(JSON.parse(message.toString()))
-        } catch (error) {
-          onError(error as Error)
-        }
+        const response = (() => {
+          try {
+            return JSON.parse(message.toString())
+          } catch (error) {
+            // The `error` event rejects pending requests, and destroying the
+            // socket closes it even when it will not reconnect.
+            socket.destroy(error as Error)
+          }
+        })()
+        if (response) onResponse(response)
       })
 
       socket.on('close', onClose_)
