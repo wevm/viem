@@ -28,7 +28,7 @@ export const celoSepolia = /*#__PURE__*/ defineChain({
     ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1,
+      blockCreated: 0,
     },
     portal: {
       [sourceId]: {
