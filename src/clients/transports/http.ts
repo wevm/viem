@@ -208,34 +208,27 @@ export function http<
 }
 
 /**
- * Places each reply at the position of the request it answers.
- *
- * JSON-RPC 2.0 lets a server answer an item it could not read with a `null`
- * id, and nothing ties the reply order to the request order. Matching by id
- * keeps every reply with the request that asked for it; a reply without a
- * usable id cannot be attributed, so it goes to the first request that has no
- * reply of its own.
+ * Returns the replies in request order. A reply that carries the id of a
+ * request goes only to that request. Replies that carry no requested id, such
+ * as `id: null` when the server could not read a request, fill the requests
+ * left without a reply in order. A request still without a reply gets an error.
  */
-function orderReplies(ids: number[], replies: RpcResponse[]): RpcResponse[] {
-  const ordered: RpcResponse[] = new Array(ids.length)
+function orderReplies(ids: readonly number[], replies: readonly RpcResponse[]) {
+  const requested = new Set(ids)
+  const byId = new Map<number, RpcResponse>()
   const unattributed: RpcResponse[] = []
+  for (const reply of replies)
+    if (!requested.has(reply.id)) unattributed.push(reply)
+    else byId.set(reply.id, reply)
 
-  for (const reply of replies) {
-    const index = ids.indexOf(reply.id as number)
-    if (index === -1) {
-      unattributed.push(reply)
-      continue
-    }
-    // A duplicate id keeps the first reply, the rest cannot be attributed.
-    if (ordered[index] === undefined) ordered[index] = reply
-    else unattributed.push(reply)
-  }
-
-  for (let i = 0; i < ordered.length && unattributed.length; i++) {
-    if (ordered[i] === undefined) ordered[i] = unattributed.shift()!
-  }
-
-  // Replies always outnumber requests here, so this leaves a slot empty only
-  // when fewer replies could be attributed than there are requests.
-  return ordered
+  let next = 0
+  return ids.map(
+    (id): RpcResponse =>
+      byId.get(id) ??
+      unattributed[next++] ?? {
+        jsonrpc: '2.0',
+        id,
+        error: { code: -32603, message: 'Missing response for request.' },
+      },
+  )
 }
