@@ -1,3 +1,4 @@
+import { once } from 'node:events'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
@@ -217,6 +218,68 @@ test('behavior: requests and subscriptions share one socket', async () => {
   rpcClient.close()
   await new Promise((resolve) => server.close(resolve))
   await rm(directory, { recursive: true, force: true })
+})
+
+test('behavior: unsubscribe settles and releases the request', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'viem-ipc-'))
+  const results: Record<string, unknown> = {}
+  for (const name of ['open', 'closed', 'silent']) {
+    const path = join(directory, `${name}.ipc`)
+    // Replies to every request, except `eth_unsubscribe` when silent.
+    const server = createServer((socket) => {
+      socket.on(
+        'data',
+        createMessageExtractor((message) => {
+          const { id, method } = JSON.parse(message.toString())
+          if (method === 'eth_unsubscribe' && name === 'silent') return
+          const result = method === 'eth_subscribe' ? '0xsubscription' : true
+          socket.write(JSON.stringify({ id, jsonrpc: '2.0', result }))
+        }),
+      )
+    })
+    await new Promise<void>((resolve) => server.listen(path, resolve))
+
+    const transport = ipc(path, { reconnect: false, timeout: 200 })({
+      retryCount: 0,
+    })
+    const rpcClient = await transport.value!.getRpcClient()
+    const { unsubscribe } = await transport.value!.subscribe({
+      params: ['newHeads'],
+      onData() {},
+    })
+    if (name === 'closed') {
+      const closed = once(rpcClient.socket, 'close')
+      rpcClient.socket.destroy()
+      await closed
+    }
+
+    const result = await unsubscribe().then(
+      ({ result }) => ({ result }),
+      (error) => ({ error: error.name }),
+    )
+
+    results[name] = { ...result, requests: rpcClient.requests.size }
+    rpcClient.close()
+    await new Promise((resolve) => server.close(resolve))
+  }
+  await rm(directory, { recursive: true, force: true })
+
+  expect(results).toMatchInlineSnapshot(`
+    {
+      "closed": {
+        "error": "WebSocketRequestError",
+        "requests": 0,
+      },
+      "open": {
+        "requests": 0,
+        "result": true,
+      },
+      "silent": {
+        "error": "TimeoutError",
+        "requests": 0,
+      },
+    }
+  `)
 })
 
 test('throws on bogus subscription', async () => {
