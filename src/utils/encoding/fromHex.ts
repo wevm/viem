@@ -276,5 +276,7 @@ export function hexToString(hex: Hex, opts: HexToStringOpts = {}): string {
     assertSize(bytes, { size: opts.size })
     bytes = trim(bytes, { dir: 'right' })
   }
-  return (decoder ??= new TextDecoder()).decode(bytes)
+  return (decoder ??= new TextDecoder('utf-8', { ignoreBOM: true })).decode(
+    bytes,
+  )
 }

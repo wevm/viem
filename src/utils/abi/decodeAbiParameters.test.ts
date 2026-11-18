@@ -420,6 +420,33 @@ describe('static', () => {
 
 describe('dynamic', () => {
   describe('string', () => {
+    test.each(['\uFEFFhello', '\uFEFF', '\uFEFF\uFEFFhello', 'hello\uFEFF'])(
+      'preserves U+FEFF in %j',
+      (value) => {
+        const parameters = parseAbiParameters('string')
+        const encoded = encodeAbiParameters(parameters, [value])
+
+        const result = decodeAbiParameters(parameters, encoded)
+
+        expect(result).toEqual([value])
+      },
+    )
+
+    test('preserves U+FEFF in nested strings across repeated decodes', () => {
+      const parameters = parseAbiParameters('(string[],string)')
+      const encoded = encodeAbiParameters(parameters, [
+        [['\uFEFFhello', '\uFEFF', 'hello\uFEFF'], '\uFEFF\uFEFFhello'],
+      ])
+
+      for (let i = 0; i < 2; i++) {
+        const result = decodeAbiParameters(parameters, encoded)
+
+        expect(result).toEqual([
+          [['\uFEFFhello', '\uFEFF', 'hello\uFEFF'], '\uFEFF\uFEFFhello'],
+        ])
+      }
+    })
+
     test('default', () => {
       const result = decodeAbiParameters(
         parseAbiParameters('string'),

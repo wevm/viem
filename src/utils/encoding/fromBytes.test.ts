@@ -272,6 +272,29 @@ describe('converts bytes to boolean', () => {
 })
 
 describe('converts bytes to string', () => {
+  test.each([
+    [new Uint8Array([239, 187, 191, 104, 101, 108, 108, 111]), '\uFEFFhello'],
+    [new Uint8Array([239, 187, 191]), '\uFEFF'],
+    [
+      new Uint8Array([239, 187, 191, 239, 187, 191, 104, 101, 108, 108, 111]),
+      '\uFEFF\uFEFFhello',
+    ],
+    [new Uint8Array([104, 101, 108, 108, 111, 239, 187, 191]), 'hello\uFEFF'],
+  ] as const)('preserves U+FEFF in %j', (value, expected) => {
+    const result = bytesToString(value)
+
+    expect(result).toBe(expected)
+    expect(fromBytes(value, 'string')).toBe(expected)
+    expect(bytesToString(value)).toBe(expected)
+  })
+
+  test('preserves U+FEFF with size and right padding', () => {
+    const value = new Uint8Array([239, 187, 191, 0, 0])
+
+    expect(bytesToString(value, { size: 5 })).toBe('\uFEFF')
+    expect(fromBytes(value, { to: 'string', size: 5 })).toBe('\uFEFF')
+  })
+
   test('default', () => {
     expect(fromBytes(new Uint8Array([]), 'string')).toMatchInlineSnapshot(`""`)
     expect(fromBytes(new Uint8Array([97]), 'string')).toMatchInlineSnapshot(

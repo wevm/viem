@@ -511,7 +511,9 @@ function decodeString(cursor: Cursor, budget: Budget, staticPosition: number) {
   budget.used += length
   if (budget.used > budget.limit)
     throw new AbiDecodingSizeLimitExceededError({ limit: budget.limit })
-  const value = (decoder ??= new TextDecoder()).decode(data)
+  const value = (decoder ??= new TextDecoder('utf-8', {
+    ignoreBOM: true,
+  })).decode(data)
 
   // As we have gone wondering, restore to the original position + next slot.
   cursor.setPosition(staticPosition + 32)
