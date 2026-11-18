@@ -1188,6 +1188,69 @@ describe('rankTransports', () => {
     `)
   })
 
+  test('behavior: zero latency', async () => {
+    const down = custom(
+      {
+        async request() {
+          throw new Error('node down')
+        },
+      },
+      { key: 'down' },
+    )
+    const up = custom(
+      {
+        async request() {
+          return true
+        },
+      },
+      { key: 'up' },
+    )
+
+    // After the first round, each in-process ping measures 0 ms.
+    const rankedTransports = await new Promise<(readonly Transport[])[]>(
+      (resolve) => {
+        const rankedTransports: (readonly Transport[])[] = []
+        rankTransports({
+          interval: 10,
+          sampleCount: 1,
+          transports: [down, up],
+          onTransports(transports) {
+            rankedTransports.push(transports)
+            if (rankedTransports.length === 5) resolve(rankedTransports)
+          },
+        })
+      },
+    )
+
+    const rankedKeys = rankedTransports.map((transports) =>
+      transports.map((transport) => transport({ chain: undefined }).config.key),
+    )
+    expect(rankedKeys).toMatchInlineSnapshot(`
+      [
+        [
+          "up",
+          "down",
+        ],
+        [
+          "up",
+          "down",
+        ],
+        [
+          "up",
+          "down",
+        ],
+        [
+          "up",
+          "down",
+        ],
+        [
+          "up",
+          "down",
+        ],
+      ]
+    `)
+  })
+
   test('behavior: custom ping', async () => {
     const results: { method: string }[] = []
 

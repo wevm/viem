@@ -305,7 +305,8 @@ export function rankTransports({
         const meanLatency =
           latencies.reduce((acc, latency) => acc + latency, 0) /
           latencies.length
-        const latencyScore = 1 - meanLatency / maxLatency
+        // When every sampled latency is 0 ms, each Transport is equally fast.
+        const latencyScore = maxLatency === 0 ? 1 : 1 - meanLatency / maxLatency
 
         const successes = samples.map((sample) => sample[i].success)
         const stabilityScore =
