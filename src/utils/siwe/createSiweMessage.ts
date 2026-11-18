@@ -128,6 +128,15 @@ export function createSiweMessage(
           `Provided value: ${statement}`,
         ],
       })
+    if (requestId?.includes('\n'))
+      throw new SiweInvalidMessageFieldError({
+        field: 'requestId',
+        metaMessages: [
+          "- Request ID must not include '\\n'.",
+          '',
+          `Provided value: ${requestId}`,
+        ],
+      })
   }
 
   // Construct message
