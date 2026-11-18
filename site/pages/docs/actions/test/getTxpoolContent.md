@@ -29,6 +29,8 @@ export const testClient = createTestClient({
 
 :::
 
-## Returns
+## Return Value
+
+`GetTxpoolContentReturnType`
 
 Transaction pool content. [See here](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool).

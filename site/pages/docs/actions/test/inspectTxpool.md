@@ -29,6 +29,8 @@ export const testClient = createTestClient({
 
 :::
 
-## Returns
+## Return Value
+
+`InspectTxpoolReturnType`
 
 Transaction pool inspection data. [See here](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool).

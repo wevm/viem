@@ -29,6 +29,8 @@ export const testClient = createTestClient({
 
 :::
 
-## Returns
+## Return Value
+
+`0x${string}`
 
 ID of the snapshot that was created.
