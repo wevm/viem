@@ -77,9 +77,9 @@ export function decodeAbiParameters<
   const values = []
   for (let i = 0; i < params.length; ++i) {
     const param = compile(params[i]!)
-    // Zero-width types (e.g. `uint256[0]`, empty tuples) at the end of the
-    // data consume no bytes, so the cursor may already be exhausted.
-    if (consumed < bytes.length) cursor.setPosition(consumed)
+    // Always restore the head position after a dynamic read. Zero-width
+    // types may start at the end; nonempty reads validate their own bounds.
+    cursor.position = consumed
     values.push(decodeParameter(cursor, param, budget, 0))
     consumed += lastSize
   }
