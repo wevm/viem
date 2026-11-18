@@ -2006,3 +2006,25 @@ test('round-trips random types', () => {
     expect(encodeAbiParameters(params, decoded as never)).toBe(data)
   }
 })
+
+test.each(['string', 'bytes'] as const)(
+  'rejects a missing static head after %s rewinds into an earlier word',
+  (type) => {
+    const word = (value: number) => value.toString(16).padStart(64, '0')
+    const data = `0x${word(3)}${word(0x77)}${word(0)}` as const
+    const params = [
+      { type: 'uint256' },
+      { type: 'uint256' },
+      { type },
+      { type: 'uint256' },
+    ] as const
+
+    expect(() =>
+      decodeAbiParameters(params, data),
+    ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`127\` is out of bounds (\`0 < position < 96\`).
+
+    Version: viem@x.y.z]
+  `)
+  },
+)
