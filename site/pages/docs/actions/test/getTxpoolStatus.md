@@ -14,6 +14,7 @@ Returns a summary of all the transactions currently pending for inclusion in the
 import { testClient } from './client'
 
 const status = await testClient.getTxpoolStatus() // [!code focus]
+// @log: { pending: 1, queued: 0 }
 ```
 
 ```ts [client.ts]
@@ -29,6 +30,8 @@ export const testClient = createTestClient({
 
 :::
 
-## Returns
+## Return Value
+
+`GetTxpoolStatusReturnType`
 
 Transaction pool status. [See here](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool).
