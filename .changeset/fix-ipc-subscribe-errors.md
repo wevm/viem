@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed IPC subscription promises hanging when the socket fails before the subscription response.
+Fixed `ipc` transport subscriptions hanging and skipping `onError` when the socket closed or errored.
