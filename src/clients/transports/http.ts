@@ -170,10 +170,11 @@ export function http<
                 body.map(({ id }) => [String(id), undefined]),
               )
               const unattributed: RpcResponse[] = []
-              for (const reply of replies)
-                if (byId.has(String(reply.id)))
-                  byId.set(String(reply.id), reply)
+              for (const reply of replies) {
+                const id = String(reply.id)
+                if (byId.has(id)) byId.set(id, reply)
                 else unattributed.push(reply)
+              }
               return body.map(
                 ({ id }): RpcResponse =>
                   byId.get(String(id)) ??
