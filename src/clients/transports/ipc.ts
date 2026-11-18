@@ -138,15 +138,17 @@ export function ipc(
           let unsubscribed = false
           function unsubscribe() {
             unsubscribed = true
-            return new Promise<any>((resolve) =>
-              rpcClient.request({
-                body: {
-                  method: 'eth_unsubscribe',
-                  params: [subscriptionId],
-                },
-                onResponse: resolve,
-              }),
-            )
+            const promise = rpcClient.requestAsync({
+              body: {
+                method: 'eth_unsubscribe',
+                params: [subscriptionId],
+              },
+              timeout,
+            })
+            // The listener is already removed, and callers such as `watchBlocks`
+            // do not await, so a failure must not become an unhandled rejection.
+            promise.catch(() => {})
+            return promise
           }
           await new Promise<any>((resolve, reject) =>
             rpcClient.request({
