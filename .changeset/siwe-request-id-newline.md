@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `createSiweMessage` accepting a `requestId` that contains a line break. The line break started a new field, so a request ID could append lines such as a `Resources` section to the signed message, which `parseSiweMessage` then read back; it now throws `SiweInvalidMessageFieldError`.
+Fixed `createSiweMessage` accepting a `requestId` with a line break, which let it append fields such as `Resources` to the signed message; it now throws `SiweInvalidMessageFieldError`.
