@@ -54,6 +54,8 @@ export class ProviderRpcError extends Error {
   code: number
   details: string
 
+  override name = 'ProviderRpcError'
+
   constructor(code: number, message: string) {
     super(message)
     this.code = code
