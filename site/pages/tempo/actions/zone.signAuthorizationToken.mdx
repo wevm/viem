@@ -60,6 +60,22 @@ Unix timestamp when the token expires.
 
 Unix timestamp when the token was issued.
 
+### reuse (optional)
+
+- **Type:** `{ refreshBefore?: number }`
+
+Returns the token already stored for this account, chain, and Zone ID instead of signing a new one.
+A new token is signed once the stored token is within `refreshBefore` seconds (default `300`) of
+expiry.
+
+```ts twoslash
+import { client } from './zones.config'
+
+const result = await client.zone.signAuthorizationToken({
+  reuse: { refreshBefore: 300 }, // [!code focus]
+})
+```
+
 ### store (optional)
 
 - **Type:** `Store.Store`

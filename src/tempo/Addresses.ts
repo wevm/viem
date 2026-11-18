@@ -28,6 +28,12 @@ export const zoneInbox = '0x1c00000000000000000000000000000000000001'
 export const zoneOutbox = '0x1c00000000000000000000000000000000000002'
 export const zonePortalImplementation =
   '0x5AD1000000000000000000000000000000000000'
+/**
+ * Moderato Zone router, used with `Abis.zoneRouterCallbackData` to move tokens
+ * between Zone A and Zone B. It receives a Zone withdrawal and deposits it into
+ * the Zone that the callback names.
+ */
+export const zoneRouter = '0xf9B794e0dCa9BC12AC90067dF792D7aaD33436E4'
 export const zoneVerifier = '0x5a56000000000000000000000000000000000000'
 
 /**

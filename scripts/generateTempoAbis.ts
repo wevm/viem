@@ -902,7 +902,8 @@ function getAbiExportNames(content: string) {
         name !== 'core' &&
         name !== 'earn' &&
         name !== 'earnRouterCallbackData' &&
-        name !== 'zone',
+        name !== 'zone' &&
+        name !== 'zoneRouterCallbackData',
     )
 }
 

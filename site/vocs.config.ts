@@ -3457,6 +3457,10 @@ export default defineConfig({
                   link: '/tempo/actions/zone.signAuthorizationToken',
                 },
                 {
+                  text: 'transfer',
+                  link: '/tempo/actions/zone.transfer',
+                },
+                {
                   text: 'waitForTempoBlock',
                   link: '/tempo/actions/zone.waitForTempoBlock',
                 },

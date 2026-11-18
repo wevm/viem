@@ -6,11 +6,13 @@ import {
   createClient,
   decodeAbiParameters,
   decodeFunctionData,
+  encodeAbiParameters,
   encodeFunctionData,
   type Hash,
   isAddressEqual,
   keccak256,
   parseAbi,
+  parseAbiParameters,
   parseEventLogs,
   zeroHash,
 } from 'viem'
@@ -345,6 +347,37 @@ describe('signAuthorizationToken (offline)', () => {
     )
 
     expect(authentication.zoneId).toBe(6)
+  })
+
+  test('behavior: reuses a stored token until it nears expiry', async () => {
+    const store = Store.memory()
+    const issuedAt = Math.floor(Date.now() / 1000)
+    const first = await zoneActions.signAuthorizationToken(zoneAClient, {
+      expiresAt: issuedAt + 600,
+      issuedAt,
+      store,
+    })
+    await store.setItem(`auth:token:${Zone.a.id}`, '0xother')
+
+    const reused = await zoneActions.signAuthorizationToken(zoneAClient, {
+      reuse: { refreshBefore: 300 },
+      store,
+    })
+    const refreshed = await zoneActions.signAuthorizationToken(zoneAClient, {
+      reuse: { refreshBefore: 900 },
+      store,
+    })
+    const otherZone = await zoneActions.signAuthorizationToken(zoneAClient, {
+      reuse: {},
+      store,
+      zoneId: 7,
+    })
+
+    expect(reused).toEqual(first)
+    expect(await store.getItem(`auth:token:${Zone.a.id}`)).not.toBe('0xother')
+    expect(refreshed.token).not.toBe(first.token)
+    expect(refreshed.authentication.expiresAt).toBeGreaterThan(issuedAt + 600)
+    expect(otherZone.authentication.zoneId).toBe(7)
   })
 })
 
@@ -1096,6 +1129,76 @@ describe('requestWithdrawal', () => {
     await expect(
       zoneActions.requestWithdrawalSync(zoneClient, parameters),
     ).rejects.toThrow('`to` is required.')
+  })
+})
+
+describe('transfer', () => {
+  test('behavior: withdraws to the router with a deposit callback for the target Zone', () => {
+    const [approve, withdrawal] = zoneActions.transfer.calls({
+      amount: 5n,
+      fallbackRecipient: tempoRefundRecipient,
+      memo: keccak256('0x01'),
+      recipient: accounts[1].address,
+      token: 0n,
+      zoneId: Zone.b.id,
+    })
+
+    expect(approve.args).toEqual([Addresses.zoneOutbox, 5n])
+    expect(withdrawal.data).toBe(
+      encodeFunctionData({
+        abi: Abis.zoneOutbox,
+        functionName: 'requestWithdrawal',
+        args: [
+          parentToken,
+          '0xf9b794e0dca9bc12ac90067df792d7aad33436e4',
+          5n,
+          zeroHash,
+          2_000_000n,
+          tempoRefundRecipient,
+          encodeAbiParameters(
+            parseAbiParameters(
+              'bool, address, address, address, bytes32, uint128',
+            ),
+            [
+              false,
+              parentToken,
+              '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
+              accounts[1].address,
+              keccak256('0x01'),
+              0n,
+            ],
+          ),
+          '0x',
+        ],
+      }),
+    )
+  })
+
+  test('error: target Zone without the router', () => {
+    expect(() =>
+      zoneActions.transfer.calls({
+        amount: 1n,
+        fallbackRecipient: account.address,
+        recipient: account.address,
+        token: parentToken,
+        zoneId: 3,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`Addresses.zoneRouter\` deposits into Zone A and Zone B only, not Zone 3.]`,
+    )
+  })
+
+  test('error: no account', async () => {
+    const noAccountClient = createClient({ chain: Zone.a, transport: http() })
+
+    await expect(
+      // @ts-expect-error
+      zoneActions.transfer(noAccountClient, {
+        amount: 1n,
+        token: parentToken,
+        zoneId: Zone.b.id,
+      }),
+    ).rejects.toThrow('`account` is required.')
   })
 })
 

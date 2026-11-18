@@ -1,0 +1,90 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `zone.transfer`
+
+Transfers tokens from one zone to another through the zone router (`Addresses.zoneRouter`). The action requests a withdrawal from the zone the client is connected to, and the router deposits the withdrawal into the target zone.
+
+The router serves the moderato Zone A and Zone B. If its deposit fails, the withdrawal bounces back to `fallbackRecipient` on the source zone.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, Zone } from 'viem/tempo'
+import { client } from './zones.config'
+
+const hash = await client.zone.transfer({
+  amount: parseUnits('1', 6),
+  token: Addresses.pathUsd,
+  zoneId: Zone.b.id,
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+console.log('Transaction hash:', receipt.transactionHash)
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+A successful receipt confirms the withdrawal on the source zone only. Read the recipient's balance on the target zone to confirm the deposit.
+
+## Return Value
+
+`Hash`
+
+The transaction hash of the withdrawal on the source zone.
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint`
+
+Amount of tokens to transfer.
+
+### callbackGas (optional)
+
+- **Type:** `bigint`
+- **Default:** `2_000_000n`
+
+Gas limit reserved for the router's deposit on the parent chain.
+
+### fallbackRecipient (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+Address on the source zone that receives the tokens if the transfer bounces.
+
+### memo (optional)
+
+- **Type:** `Hex`
+- **Default:** `0x00...00`
+
+Deposit memo in the target zone.
+
+### recipient (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+Recipient address in the target zone.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token address or ID to transfer.
+
+### zoneId
+
+- **Type:** `number`
+
+Target zone ID or chain ID (e.g. `7` or `Zone.b.id`).
+
+<WriteParameters />

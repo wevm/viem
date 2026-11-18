@@ -2338,11 +2338,11 @@ describe('watchCreate', () => {
 
   test('behavior: filter by token', async () => {
     const salt = Hex.random(32)
-    const tokenId = TokenId.compute({
+    const tokenId = TokenIds.compute({
       salt,
       sender: client.account.address,
     })
-    const token = TokenId.toAddress(tokenId)
+    const token = TokenIds.toAddress(tokenId)
 
     const receivedTokens: Array<{
       args: actions.token.watchCreate.Args

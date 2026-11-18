@@ -9070,6 +9070,17 @@ export const zoneInbox = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
 ] as const
 
+// `Addresses.zoneRouter` callback data parameters for `encodeAbiParameters`, for
+// unencrypted deposits into the target Zone.
+export const zoneRouterCallbackData = [
+  { name: 'isEncrypted', type: 'bool' },
+  { name: 'tokenOut', type: 'address' },
+  { name: 'targetPortal', type: 'address' },
+  { name: 'recipient', type: 'address' },
+  { name: 'memo', type: 'bytes32' },
+  { name: 'minAmountOut', type: 'uint128' },
+] as const
+
 // Source: tempoxyz/propAMM@bff7c1fa50cf72e2896a078abae4e164c36caa93
 
 export const directPropAmm = [

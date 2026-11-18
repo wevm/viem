@@ -6122,6 +6122,34 @@ type DecoratorBase<
     signAuthorizationToken: (
       parameters?: zoneActions.signAuthorizationToken.Parameters<account>,
     ) => Promise<zoneActions.signAuthorizationToken.ReturnType>
+    /**
+     * Transfers tokens from one Zone to another through `Addresses.zoneRouter`.
+     *
+     * @example
+     * ```ts
+     * import { createClient } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { Addresses, http, tempoActions, Zone } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: Zone.a,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.zone.transfer({
+     *   amount: 1_000_000n,
+     *   token: Addresses.pathUsd,
+     *   zoneId: Zone.b.id,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    transfer: (
+      parameters: zoneActions.transfer.Parameters<chain, account>,
+    ) => Promise<zoneActions.transfer.ReturnValue>
   }
 }
 
@@ -6571,6 +6599,7 @@ export function decorator() {
         'requestVerifiableWithdrawal',
         'requestVerifiableWithdrawalSync',
         'signAuthorizationToken',
+        'transfer',
         'waitForTempoBlock',
       ]),
     } as Decorator<chain, account>

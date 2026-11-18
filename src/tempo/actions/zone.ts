@@ -42,6 +42,7 @@ import type {
   MaybeRequired,
   UnionOmit,
 } from '../../types/utils.js'
+import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
@@ -1989,6 +1990,7 @@ export async function signAuthorizationToken<
     account = client.account,
     issuedAt = Math.floor(Date.now() / 1000),
     expiresAt = issuedAt + 86_400,
+    reuse,
     store = Store.defaultStore(),
   } = parameters
 
@@ -2002,6 +2004,23 @@ export async function signAuthorizationToken<
     throw new Error('`account` with `sign` is required.')
 
   const storeKey = `auth:${account_.address.toLowerCase()}:${chain.id}`
+
+  if (reuse) {
+    const { refreshBefore = 300 } = reuse
+    const stored = await store.getItem(storeKey)
+    if (stored) {
+      const { signature: _, ...authentication } =
+        ZoneRpcAuthentication.deserialize(stored as Hex.Hex)
+      const now = Math.floor(Date.now() / 1000)
+      if (
+        authentication.zoneId === zoneId &&
+        authentication.expiresAt - refreshBefore > now
+      ) {
+        await store.setItem(`auth:token:${chain.id}`, stored)
+        return { authentication, token: stored as Hex.Hex }
+      }
+    }
+  }
 
   const authentication = ZoneRpcAuthentication.from({
     chainId: chain.id,
@@ -2037,6 +2056,16 @@ export namespace signAuthorizationToken {
     expiresAt?: number | undefined
     /** Token issue time as a unix timestamp (seconds). @default `Date.now() / 1000`. */
     issuedAt?: number | undefined
+    /**
+     * Returns the token stored for this account, chain, and Zone ID instead of
+     * signing a new one, until it is within `refreshBefore` seconds of expiry.
+     */
+    reuse?:
+      | {
+          /** Seconds before expiry at which a new token is signed. @default `300` */
+          refreshBefore?: number | undefined
+        }
+      | undefined
     /** Store used to persist the token. @default sessionStorage (web) or memory (server). */
     store?: Store.Store | undefined
     /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
@@ -2049,6 +2078,136 @@ export namespace signAuthorizationToken {
   }
 
   export type ErrorType = BaseErrorType
+}
+
+/**
+ * Transfers tokens from one Zone to another through `Addresses.zoneRouter`.
+ *
+ * Withdraws from the Zone the client is connected to, and the router deposits
+ * the withdrawal into the target Zone. If the router's deposit fails, the
+ * withdrawal bounces back to `fallbackRecipient` on the source Zone. The router
+ * serves the moderato Zones A and B.
+ *
+ * @example
+ * ```ts
+ * import { createClient } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Actions, Addresses, http, Zone } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: Zone.a,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.zone.transfer(client, {
+ *   amount: 1_000_000n,
+ *   token: Addresses.pathUsd,
+ *   zoneId: Zone.b.id,
+ * })
+ * ```
+ *
+ * @param client - Wallet client connected to the source Zone.
+ * @param parameters - Transfer parameters.
+ * @returns The transaction hash.
+ */
+export async function transfer<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: transfer.Parameters<chain, account>,
+): Promise<transfer.ReturnValue> {
+  const { account = client.account } = parameters
+
+  const account_ = account ? parseAccount(account) : undefined
+  if (!account_) throw new Error('`account` is required.')
+
+  const args = {
+    ...parameters,
+    fallbackRecipient: parameters.fallbackRecipient ?? account_.address,
+    recipient: parameters.recipient ?? account_.address,
+  }
+  return withExecutionError(sendTransaction)(client, {
+    ...pickWriteParameters(parameters as never),
+    calls: transfer.calls(args),
+    gas: parameters.gas ?? defaultWithdrawalGas,
+  } as never) as never
+}
+
+export namespace transfer {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> &
+    Omit<Args, 'fallbackRecipient' | 'recipient'> & {
+      /** Source Zone address that receives the tokens if the transfer bounces. @default `account.address` */
+      fallbackRecipient?: Address | undefined
+      /** Recipient address in the target Zone. @default `account.address` */
+      recipient?: Address | undefined
+    }
+
+  export type Args = {
+    /** Amount of tokens to transfer. */
+    amount: bigint
+    /** Gas limit reserved for the router's deposit on the parent chain. @default `2_000_000n` */
+    callbackGas?: bigint | undefined
+    /** Source Zone address that receives the tokens if the transfer bounces. */
+    fallbackRecipient: Address
+    /** Deposit memo in the target Zone. @default `0x00...00` */
+    memo?: Hex.Hex | undefined
+    /** Recipient address in the target Zone. */
+    recipient: Address
+    /** Token address or ID to transfer. */
+    token: TokenId.TokenIdOrAddress
+    /** Target Zone ID or chain ID (e.g. `7` or `Zone.b.id`). */
+    zoneId: number
+  }
+
+  export type ReturnValue = SendTransactionReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
+
+  /**
+   * Defines the calls to approve and request a Zone withdrawal that the router
+   * deposits into the target Zone.
+   *
+   * @param args - Arguments.
+   * @returns The calls.
+   */
+  export function calls(args: Args) {
+    const {
+      amount,
+      callbackGas = 2_000_000n,
+      fallbackRecipient,
+      memo = zeroHash,
+      recipient,
+      token,
+      zoneId,
+    } = args
+    const portalAddress = Addresses.zonePortal(zoneId)
+    if (!internal.isLegacyPortal(portalAddress))
+      throw new Error(
+        `\`Addresses.zoneRouter\` deposits into Zone A and Zone B only, not Zone ${zoneId}.`,
+      )
+    const tokenAddress = TokenId.toAddress(token)
+    return requestWithdrawal.calls({
+      amount,
+      callbackGas,
+      data: encodeAbiParameters(Abis.zoneRouterCallbackData, [
+        false,
+        tokenAddress,
+        portalAddress,
+        recipient,
+        memo,
+        0n,
+      ]),
+      fallbackRecipient,
+      to: Addresses.zoneRouter,
+      token: tokenAddress,
+    })
+  }
 }
 
 /**
