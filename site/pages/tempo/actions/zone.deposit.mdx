@@ -10,6 +10,9 @@ accepts encrypted deposit payloads. Use [`zone.encryptedDeposit`](/tempo/actions
 for the current protocol.
 :::
 
+On the moderato Zone A and Zone B portals, which predate refund recipients, this action sends their
+`deposit(address,address,uint128,bytes32)` signature and does not send `tempoRefundRecipient`.
+
 A transaction receipt does not confirm that the zone credited the deposit. See
 [Read Deposit Outcomes](/tempo/guides/zones/deposit#read-deposit-outcomes) to check the ZoneInbox
 processing result.

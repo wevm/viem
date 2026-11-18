@@ -10,6 +10,7 @@ import {
   type Hash,
   isAddressEqual,
   keccak256,
+  parseAbi,
   parseEventLogs,
   zeroHash,
 } from 'viem'
@@ -23,7 +24,7 @@ import {
   writeContractSync,
 } from 'viem/actions'
 import { tempoModerato } from 'viem/chains'
-import { Abis, Actions, Addresses } from 'viem/tempo'
+import { Abis, Actions, Addresses, Zone } from 'viem/tempo'
 import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
@@ -330,6 +331,23 @@ describe('signAuthorizationToken', () => {
   })
 })
 
+describe('signAuthorizationToken (offline)', () => {
+  const zoneAClient = createClient({
+    account,
+    chain: Zone.a,
+    transport: http(),
+  })
+
+  test('behavior: derives the Zone ID from a legacy Zone chain ID', async () => {
+    const { authentication } = await zoneActions.signAuthorizationToken(
+      zoneAClient,
+      { store: Store.memory() },
+    )
+
+    expect(authentication.zoneId).toBe(6)
+  })
+})
+
 describe('getZoneInfo', () => {
   test('behavior: returns zone metadata', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
@@ -600,9 +618,20 @@ describe('encryptedDeposit', () => {
       ...registryParameters,
       chainId: tempoModerato.id,
       recipient: account.address,
-      zoneId: 7,
+      zoneId: 3,
     })
-    expect(registryCalls[1].address).toBe(Addresses.zonePortal(7))
+    expect(registryCalls[1].address).toBe(Addresses.zonePortal(3))
+
+    expect(() =>
+      zoneActions.encryptedDeposit.calls({
+        ...registryParameters,
+        chainId: tempoModerato.id,
+        recipient: account.address,
+        zoneId: Zone.b.id,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Encrypted deposits are not supported by the legacy Zone A and Zone B portals. Use \`zone.deposit\` instead.]`,
+    )
 
     await expect(
       zoneActions.encryptedDeposit(mainnetClient, {
@@ -750,6 +779,27 @@ describe('deposit', () => {
       zoneId: 7,
     })
     expect(registryCalls[1].address).toBe(Addresses.zonePortal(7))
+  })
+
+  test('behavior: encodes the legacy deposit for the Zone A and Zone B portals', () => {
+    const [approve, deposit] = zoneActions.deposit.calls({
+      amount: 1n,
+      recipient: account.address,
+      tempoRefundRecipient,
+      token: parentToken,
+      zoneId: Zone.a.id,
+    })
+
+    expect(approve.args[0]).toBe('0x7069DeC4E64Fd07334A0933eDe836C17259c9B23')
+    expect(deposit.address).toBe('0x7069DeC4E64Fd07334A0933eDe836C17259c9B23')
+    expect(deposit.data).toBe(
+      encodeFunctionData({
+        abi: parseAbi([
+          'function deposit(address token, address to, uint128 amount, bytes32 memo)',
+        ]),
+        args: [parentToken, account.address, 1n, zeroHash],
+      }),
+    )
   })
 
   test.runIf(legacyZoneCallback)(

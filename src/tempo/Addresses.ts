@@ -1,11 +1,5 @@
 import * as Hex from 'ox/Hex'
-import { ZoneId } from 'ox/tempo'
-
-const legacyZoneChainIdBase = 4_217_000_000
-const legacyZoneChainIdLimit = 4_218_000_000
-const mainnetZoneChainIdBase = ZoneId.toChainId(0)
-const testnetZoneChainIdBase = ZoneId.toChainId(0, 42_431)
-const zoneChainIdLimit = 2 ** 31
+import * as internal from './internal/zone.js'
 
 export const accountImplementation =
   '0x7702c00000000000000000000000000000000000'
@@ -43,21 +37,10 @@ export const zoneVerifier = '0x5a56000000000000000000000000000000000000'
  * @returns The Zone portal address.
  */
 export function zonePortal(id: number): `0x${string}` {
-  const zoneId = normalizeZoneId(id)
+  const zoneId = internal.normalizeId(id)
 
   // TODO: Remove legacy Zone portal address compatibility.
-  if (zoneId === 6) return '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23'
-  if (zoneId === 7) return '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac'
+  if (zoneId === 6 || zoneId === 7) return internal.legacyPortals[zoneId]
   const suffix = Hex.fromNumber(zoneId, { size: 8 }).slice(2)
   return `0x5ad000000000000000000000${suffix}`
-}
-
-function normalizeZoneId(id: number) {
-  if (id >= legacyZoneChainIdBase && id < legacyZoneChainIdLimit)
-    return id - legacyZoneChainIdBase
-  if (id >= testnetZoneChainIdBase && id < zoneChainIdLimit)
-    return ZoneId.fromChainId(id, 42_431)
-  if (id >= mainnetZoneChainIdBase && id < testnetZoneChainIdBase)
-    return ZoneId.fromChainId(id)
-  return id
 }

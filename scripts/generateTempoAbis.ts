@@ -579,6 +579,8 @@ function zonesAdapter(): SourceAdapter {
     ]),
     ZonePortal: Abi.from([
       'function deposit(address _token, address to, uint128 amount, bytes32 memo, address tempoRefundRecipient) returns (bytes32)',
+      // TODO: Remove the legacy Zone A and Zone B deposit overload.
+      'function deposit(address _token, address to, uint128 amount, bytes32 memo) returns (bytes32)',
       'function sequencerEncryptionKey() view returns (bytes32 x, uint8 yParity, address pubkey)',
     ]),
   }

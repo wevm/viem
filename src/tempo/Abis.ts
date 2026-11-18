@@ -4540,6 +4540,18 @@ export const zonePortal = [
     ],
     outputs: [{ type: 'bytes32' }],
   },
+  {
+    name: 'deposit',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: '_token' },
+      { type: 'address', name: 'to' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bytes32', name: 'memo' },
+    ],
+    outputs: [{ type: 'bytes32' }],
+  },
 ] as const
 
 export const zoneVerifier = [

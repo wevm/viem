@@ -336,6 +336,7 @@ export const zonePortal = {
   currentDepositQueueHash: '0x45c5d2fb',
   deliverWithdrawal: '0x005d97ef',
   deposit: {
+    'deposit(address,address,uint128,bytes32)': '0x1e77625f',
     'deposit(address,address,uint128,bytes32,address)': '0x09a0a234',
     'deposit(address,uint128,uint256,(bytes32,uint8,bytes,bytes12,bytes16),address)':
       '0x03dd6f34',

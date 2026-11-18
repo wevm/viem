@@ -3,7 +3,7 @@ import * as Bytes from 'ox/Bytes'
 import * as Hex from 'ox/Hex'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { TokenId, ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
+import { TokenId, ZoneRpcAuthentication } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import {
@@ -68,6 +68,7 @@ import {
   pickWriteSyncParameters,
 } from '../internal/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
+import * as internal from '../internal/zone.js'
 import * as Store from '../Store.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
@@ -208,7 +209,7 @@ export namespace deposit {
     portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
-    /** Refund recipient on the parent chain if the deposit bounces. */
+    /** Refund recipient on the parent chain if the deposit bounces. Ignored by the legacy Zone A and Zone B portals. */
     tempoRefundRecipient: Address
     /** Token address or ID to deposit. */
     token: TokenId.TokenIdOrAddress
@@ -244,12 +245,20 @@ export namespace deposit {
       functionName: 'approve',
       args: [portalAddress, amount],
     })
-    const depositCall = defineCall({
-      address: portalAddress,
-      abi: Abis.zonePortal,
-      functionName: 'deposit',
-      args: [tokenAddress, recipient, amount, memo, tempoRefundRecipient],
-    })
+    // TODO: Remove the legacy Zone A and Zone B deposit, which has no refund recipient.
+    const depositCall = internal.isLegacyPortal(portalAddress)
+      ? defineCall({
+          address: portalAddress,
+          abi: Abis.zonePortal,
+          functionName: 'deposit',
+          args: [tokenAddress, recipient, amount, memo],
+        })
+      : defineCall({
+          address: portalAddress,
+          abi: Abis.zonePortal,
+          functionName: 'deposit',
+          args: [tokenAddress, recipient, amount, memo, tempoRefundRecipient],
+        })
     return [approveCall, depositCall]
   }
 }
@@ -930,6 +939,11 @@ export namespace encryptedDeposit {
     const { amount, encrypted, keyIndex, tempoRefundRecipient, token, zoneId } =
       args
     const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
+    // TODO: Remove once the legacy Zone A and Zone B portals are retired.
+    if (internal.isLegacyPortal(portalAddress))
+      throw new Error(
+        'Encrypted deposits are not supported by the legacy Zone A and Zone B portals. Use `zone.deposit` instead.',
+      )
     const tokenAddress = TokenId.toAddress(token)
     const encryptedPayload = {
       ephemeralPubkeyX: encrypted.ephemeralPubkeyX,
@@ -1939,7 +1953,7 @@ export namespace requestVerifiableWithdrawalSync {
 /**
  * Signs a zone authorization token and stores it for the zone HTTP transport.
  *
- * The `zoneId` is derived from `ZoneId.fromChainId(chain.id)` and can be overridden.
+ * The `zoneId` is derived from `chain.id` and can be overridden.
  *
  * @example
  * ```ts
@@ -1981,7 +1995,7 @@ export async function signAuthorizationToken<
   const chain = parameters.chain ?? client.chain
   if (!chain) throw new Error('`signAuthorizationToken` requires a chain.')
 
-  const zoneId = parameters.zoneId ?? ZoneId.fromChainId(chain.id)
+  const zoneId = parameters.zoneId ?? internal.normalizeId(chain.id)
 
   const account_ = account ? parseAccount(account) : undefined
   if (!account_ || !account_.sign)
