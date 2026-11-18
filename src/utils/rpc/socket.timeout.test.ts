@@ -141,6 +141,22 @@ test('keeps successfully established subscriptions after request cleanup', async
   }
 })
 
+test('rejects pending requests when the peer sends invalid JSON', async () => {
+  const connection = await createConnection()
+  try {
+    const response = connection.client.requestAsync({
+      body: { id: 1, method: 'eth_chainId' },
+      timeout: 5_000,
+    })
+    connection.peer.write('{"jsonrpc":"2.0","id":1,"result":}')
+
+    await expect(response).rejects.toBeInstanceOf(SyntaxError)
+    expect(connection.client.requests.size).toBe(0)
+  } finally {
+    await connection.close()
+  }
+})
+
 test('rejects pending requests when the peer closes the connection', async () => {
   const connection = await createConnection()
   try {
