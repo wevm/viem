@@ -236,3 +236,82 @@ test('throws on bogus subscription', async () => {
   ).rejects.toThrowError()
   expect(errors.length).toBeGreaterThan(0)
 })
+
+test('behavior: socket closure rejects a pending subscription', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'viem-ipc-'))
+  const path = join(directory, 'rpc.ipc')
+  // Closes the connection before answering `eth_subscribe`.
+  const server = createServer((socket) =>
+    socket.on('data', () => socket.destroy()),
+  )
+  await new Promise<void>((resolve) => server.listen(path, resolve))
+
+  const transport = ipc(path, { reconnect: false })({})
+  if (!transport.value) return
+  const errors: Error[] = []
+  await expect(
+    transport.value.subscribe({
+      params: ['newHeads'],
+      onData() {},
+      onError: (error) => errors.push(error),
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
+    Version: viem@x.y.z]
+  `)
+  expect(errors).toMatchInlineSnapshot(`
+    [
+      [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
+    Version: viem@x.y.z],
+    ]
+  `)
+
+  await new Promise((resolve) => server.close(resolve))
+  await rm(directory, { recursive: true, force: true })
+})
+
+test('behavior: socket closure calls onError for a subscription', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'viem-ipc-'))
+  const path = join(directory, 'rpc.ipc')
+  const server = createServer((socket) =>
+    socket.on(
+      'data',
+      createMessageExtractor((message) => {
+        const { id } = JSON.parse(message.toString())
+        socket.write(JSON.stringify({ id, jsonrpc: '2.0', result: '0x1' }))
+      }),
+    ),
+  )
+  await new Promise<void>((resolve) => server.listen(path, resolve))
+
+  const transport = ipc(path, { reconnect: false })({})
+  if (!transport.value) return
+  const errors: Error[] = []
+  await transport.value.subscribe({
+    params: ['newHeads'],
+    onData() {},
+    onError: (error) => errors.push(error),
+  })
+  const { socket } = await transport.value.getRpcClient()
+  socket.destroy()
+  await wait(100)
+
+  expect(errors).toMatchInlineSnapshot(`
+    [
+      [SocketClosedError: The socket has been closed.
+
+    URL: http://localhost
+
+    Version: viem@x.y.z],
+    ]
+  `)
+
+  await new Promise((resolve) => server.close(resolve))
+  await rm(directory, { recursive: true, force: true })
+})
