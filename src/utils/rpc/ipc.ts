@@ -43,6 +43,11 @@ export function createMessageExtractor(onMessage: (message: Buffer) => void) {
         inString = true
         continue
       }
+      if (byte === closingBrace && level === 0) {
+        chunks = []
+        cursor = i + 1
+        continue
+      }
       if (byte === openingBrace) level++
       if (byte === closingBrace) level--
       if (level === 0) {
