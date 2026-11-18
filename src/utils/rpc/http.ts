@@ -233,7 +233,13 @@ export function getHttpRpcClient(
           })
         }
 
-        if (!Array.isArray(body) || !body.length) return data
+        if (!Array.isArray(body) || !body.length) {
+          if (!isRpcResponse(data))
+            throw new Error(
+              'Invalid JSON-RPC response: expected an object with a result or error.',
+            )
+          return data
+        }
         if (Array.isArray(data) && data.length >= body.length) return data
         if (!isRpcError(error))
           throw new Error(`Expected ${body.length} responses to batch request.`)
@@ -260,6 +266,14 @@ function isRpcError(data: any) {
   return (
     typeof data?.error?.code === 'number' &&
     typeof data?.error?.message === 'string'
+  )
+}
+
+function isRpcResponse(data: any) {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    ('result' in data || 'error' in data)
   )
 }
 

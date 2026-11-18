@@ -1403,6 +1403,36 @@ describe('request', () => {
 
     await server.close()
   })
+
+  test('errors: empty response body', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200)
+      res.end()
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      retryCount: 0,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({
+        method: 'eth_sendRawTransaction',
+        params: ['0x02c0'],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [HttpRequestError: HTTP request failed.
+
+      URL: http://localhost
+      Request body: {"method":"eth_sendRawTransaction","params":["0x02c0"]}
+
+      Details: Invalid JSON-RPC response: expected an object with a result or error.
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
 })
 
 test('no url', () => {
