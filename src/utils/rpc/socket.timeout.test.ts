@@ -141,6 +141,64 @@ test('keeps successfully established subscriptions after request cleanup', async
   }
 })
 
+test('rejects pending requests when the peer sends invalid JSON', async () => {
+  const connection = await createConnection()
+  try {
+    const response = connection.client.requestAsync({
+      body: { id: 1, method: 'eth_chainId' },
+      timeout: 5_000,
+    })
+    connection.peer.write('{"jsonrpc":"2.0","id":1,"result":}')
+
+    await expect(response).rejects.toBeInstanceOf(SyntaxError)
+    expect(connection.client.requests.size).toBe(0)
+    expect(connection.client.socket.destroyed).toBe(true)
+  } finally {
+    await connection.close()
+  }
+})
+
+test('an error thrown by a response callback does not reject other requests', async () => {
+  const connection = await createConnection()
+  // Swap the runner's handlers so the escaped callback error is observed here.
+  const listeners = process.listeners('uncaughtException')
+  process.removeAllListeners('uncaughtException')
+  try {
+    const thrown = new Promise<Error>((resolve) =>
+      process.once('uncaughtException', resolve),
+    )
+    connection.client.request({
+      body: { id: 1, method: 'eth_blockNumber' },
+      onResponse() {
+        throw new Error('callback failed')
+      },
+    })
+    const other = connection.client.requestAsync({
+      body: { id: 2, method: 'eth_blockNumber' },
+      timeout: 5_000,
+    })
+
+    connection.peer.write('{"jsonrpc":"2.0","id":1,"result":"0x1"}')
+    await expect(Promise.race([thrown, other])).resolves.toMatchInlineSnapshot(
+      `[Error: callback failed]`,
+    )
+    connection.peer.write('{"jsonrpc":"2.0","id":2,"result":"0x2"}')
+
+    await expect(other).resolves.toMatchInlineSnapshot(`
+      {
+        "id": 2,
+        "jsonrpc": "2.0",
+        "result": "0x2",
+      }
+    `)
+    expect(connection.client.socket.destroyed).toBe(false)
+  } finally {
+    process.removeAllListeners('uncaughtException')
+    for (const listener of listeners) process.on('uncaughtException', listener)
+    await connection.close()
+  }
+})
+
 test('rejects pending requests when the peer closes the connection', async () => {
   const connection = await createConnection()
   try {
