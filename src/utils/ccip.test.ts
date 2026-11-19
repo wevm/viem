@@ -424,6 +424,31 @@ describe('ccipRequest', async () => {
     await server3.close()
   })
 
+  test('error: gateway error message', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(404, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ message: 'Gateway address not supported.' }))
+    })
+
+    await expect(() =>
+      ccipRequest({
+        data: '0xdeadbeef',
+        sender: accounts[0].address,
+        urls: [`${server.url}/{sender}/{data}`],
+      }),
+    ).rejects.toMatchInlineSnapshot(`
+      [HttpRequestError: HTTP request failed.
+
+      Status: 404
+      URL: http://localhost
+
+      Details: Gateway address not supported.
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
   test('error: non-http scheme', async () => {
     await expect(() =>
       ccipRequest({
