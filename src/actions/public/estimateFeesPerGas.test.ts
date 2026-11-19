@@ -284,6 +284,70 @@ test('client: chain `baseFeeMultiplier` override', async () => {
   expect(maxPriorityFeePerGas).toBeDefined()
 })
 
+describe('behavior: chain fee hooks receive the latest block', () => {
+  async function createUrl() {
+    return createRpcProxy(anvilMainnet.rpcUrl.http, ({ method }) => {
+      if (method === 'eth_getBlockByNumber')
+        return {
+          result: {
+            baseFeePerGas: '0x64',
+            number: '0x2a',
+            timestamp: '0x1',
+            transactions: [],
+          },
+        }
+      if (method === 'eth_maxPriorityFeePerGas') return { result: '0x1' }
+      return undefined
+    })
+  }
+
+  test('estimateFeesPerGas', async () => {
+    const url = await createUrl()
+    const client = createPublicClient({
+      chain: defineChain({
+        ...anvilMainnet.chain,
+        fees: {
+          async estimateFeesPerGas({ block }) {
+            return { maxFeePerGas: block.number!, maxPriorityFeePerGas: 0n }
+          },
+        },
+      }),
+      transport: http(url),
+    })
+
+    const fees = await estimateFeesPerGas(client)
+
+    expect(fees).toMatchInlineSnapshot(`
+      {
+        "maxFeePerGas": 42n,
+        "maxPriorityFeePerGas": 0n,
+      }
+    `)
+  })
+
+  test('baseFeeMultiplier', async () => {
+    const url = await createUrl()
+    const client = createPublicClient({
+      chain: defineChain({
+        ...anvilMainnet.chain,
+        fees: {
+          baseFeeMultiplier: ({ block }) => (block.number === 42n ? 2 : 1),
+        },
+      }),
+      transport: http(url),
+    })
+
+    const fees = await estimateFeesPerGas(client)
+
+    expect(fees).toMatchInlineSnapshot(`
+      {
+        "maxFeePerGas": 201n,
+        "maxPriorityFeePerGas": 1n,
+      }
+    `)
+  })
+})
+
 test('chain does not support eip1559', async () => {
   vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
     baseFeePerGas: undefined,
