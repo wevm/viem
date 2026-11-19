@@ -19,7 +19,6 @@ import {
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
-import { normalize } from '../../ens/index.js'
 
 export type GetEnsNameParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
@@ -74,7 +73,7 @@ export type GetEnsNameErrorType =
  *
  * @param client - Client to use
  * @param parameters - {@link GetEnsNameParameters}
- * @returns Name or `null` if not found. {@link GetEnsNameReturnType}
+ * @returns Name or `null` if not found or not normalized. {@link GetEnsNameReturnType}
  *
  * @example
  * import { createPublicClient, http } from 'viem'
@@ -131,21 +130,23 @@ export async function getEnsName<chain extends Chain | undefined>(
     const readContractAction = getAction(client, readContract, 'readContract')
 
     const [name] = await readContractAction(readContractParameters)
+    if (!name) return null
 
-    if (!isNormalized(name)) return null
+    // ENSIP-23: an unnormalized primary name is invalid.
+    const { normalize } = await import('../../utils/ens/normalize.js')
+    const normalized = (() => {
+      try {
+        return normalize(name)
+      } catch {
+        return undefined
+      }
+    })()
+    if (name !== normalized) return null
 
-    return name || null
+    return name
   } catch (err) {
     if (strict) throw err
     if (isNullUniversalResolverError(err)) return null
     throw err
-  }
-}
-
-function isNormalized(name: string) {
-  try {
-    return name === normalize(name)
-  } catch {
-    return
   }
 }

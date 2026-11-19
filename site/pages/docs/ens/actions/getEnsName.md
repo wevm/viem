@@ -63,7 +63,7 @@ const ensName = await publicClient.getEnsName({
 
 The primary ENS name for the address.
 
-Returns `null` if address does not have primary name assigned.
+Returns `null` if address does not have primary name assigned or the primary name is not [normalized](/docs/ens/utilities/normalize).
 
 ## Parameters
 
