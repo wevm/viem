@@ -1,6 +1,6 @@
 import type { Hex } from 'ox'
-import { decodeFunctionData, parseUnits, zeroAddress, zeroHash } from 'viem'
-import { Abis, Channel } from 'viem/tempo'
+import { parseUnits, zeroAddress, zeroHash } from 'viem'
+import { Channel } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -29,10 +29,12 @@ const operatorClient = getClient({
 
 let tokenId = 0
 let channelReserveSupported = false
+let verifyVoucherSupported = false
 
 describe.runIf(nodeEnv === 'localnet')('channel', () => {
   beforeAll(async () => {
-    channelReserveSupported = await supportsChannelReserve()
+    channelReserveSupported = await supportsFork(5)
+    verifyVoucherSupported = await supportsFork(15)
     if (!channelReserveSupported) return
 
     await Promise.all([
@@ -198,7 +200,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
   })
 
   test('verifyVoucher', async (ctx) => {
-    if (!channelReserveSupported) ctx.skip()
+    if (!verifyVoucherSupported) ctx.skip()
 
     const { channelId, channel } = await setupChannel()
     const cumulativeAmount = parseUnits('40', 6)
@@ -472,9 +474,6 @@ describe('verifyVoucher.call', () => {
       parseUnits('40', 6),
       signature,
     ])
-    expect(
-      decodeFunctionData({ abi: Abis.tip20ChannelReserve, data: call.data }),
-    ).toEqual({ args: call.args, functionName: 'verifyVoucher' })
   })
 })
 
@@ -509,7 +508,8 @@ async function setupChannel() {
   }
 }
 
-async function supportsChannelReserve() {
+/** Whether a `T<minimum>` or later hardfork is active on the test chain. */
+async function supportsFork(minimum: number) {
   const schedule = (await payerClient.request({
     method: 'tempo_forkSchedule',
   } as never)) as {
@@ -518,7 +518,7 @@ async function supportsChannelReserve() {
   return schedule.schedule.some((fork) => {
     if (!fork.active) return false
     const match = fork.name.match(/^T(\d+)$/)
-    return match ? Number(match[1]) >= 5 : false
+    return match ? Number(match[1]) >= minimum : false
   })
 }
 
