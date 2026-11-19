@@ -10,19 +10,16 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
-import type { Hex, LogTopic } from '../../types/misc.js'
+import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
-import {
-  type EncodeEventTopicsErrorType,
-  type EncodeEventTopicsParameters,
-  encodeEventTopics,
-} from '../../utils/abi/encodeEventTopics.js'
+import type { EncodeEventTopicsErrorType } from '../../utils/abi/encodeEventTopics.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
   numberToHex,
 } from '../../utils/encoding/toHex.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
+import { encodeEventFilterTopics } from './internal/encodeEventFilterTopics.js'
 
 export type CreateEventFilterParameters<
   abiEvent extends AbiEvent | undefined = undefined,
@@ -188,19 +185,7 @@ export async function createEventFilter<
     method: 'eth_newFilter',
   })
 
-  let topics: LogTopic[] = []
-  if (events) {
-    const encoded = (events as AbiEvent[]).flatMap((event) =>
-      encodeEventTopics({
-        abi: [event],
-        eventName: (event as AbiEvent).name,
-        args,
-      } as EncodeEventTopicsParameters),
-    )
-    // TODO: Clean up type casting
-    topics = [encoded as LogTopic]
-    if (event) topics = topics[0] as LogTopic[]
-  }
+  const topics = encodeEventFilterTopics({ args, event, events: events_ })
 
   const id: Hex = await client.request({
     method: 'eth_newFilter',

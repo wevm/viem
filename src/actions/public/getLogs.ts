@@ -10,14 +10,10 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
-import type { Hash, LogTopic } from '../../types/misc.js'
+import type { Hash } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
 import type { DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
-import {
-  type EncodeEventTopicsErrorType,
-  type EncodeEventTopicsParameters,
-  encodeEventTopics,
-} from '../../utils/abi/encodeEventTopics.js'
+import type { EncodeEventTopicsErrorType } from '../../utils/abi/encodeEventTopics.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
@@ -29,6 +25,7 @@ import {
   formatLog,
 } from '../../utils/formatters/log.js'
 import type { GetBlockErrorType } from './getBlock.js'
+import { encodeEventFilterTopics } from './internal/encodeEventFilterTopics.js'
 import { type IterateLogsParameters, iterateLogs } from './iterateLogs.js'
 
 export type GetLogsParameters<
@@ -203,19 +200,11 @@ export async function getLogs<
   const strict = strict_ ?? false
   const events = events_ ?? (event ? [event] : undefined)
 
-  let topics: LogTopic[] = []
-  if (events) {
-    const encoded = (events as AbiEvent[]).flatMap((event) =>
-      encodeEventTopics({
-        abi: [event],
-        eventName: (event as AbiEvent).name,
-        args: events_ ? undefined : args,
-      } as EncodeEventTopicsParameters),
-    )
-    // TODO: Clean up type casting
-    topics = [encoded as LogTopic]
-    if (event) topics = topics[0] as LogTopic[]
-  }
+  const topics = encodeEventFilterTopics({
+    args: events_ ? undefined : args,
+    event,
+    events: events_,
+  })
 
   let logs: RpcLog[]
   if (blockHash) {
