@@ -276,9 +276,9 @@ function decodeAddress(cursor: Cursor) {
   const value = cursor.readBytes(32)
   // An address occupies the low 20 bytes of the word; the high 12 bytes
   // must be zero padding.
-  for (let i = 0; i < 12; i++)
-    if (value[i] !== 0)
-      throw new InvalidAddressError({ address: bytesToHex(value) })
+  let dirty = 0
+  for (let i = 0; i < 12; i++) dirty |= value[i]!
+  if (dirty) throw new InvalidAddressError({ address: bytesToHex(value) })
   return checksumAddress(bytesToHex(value.subarray(12)))
 }
 
@@ -425,17 +425,18 @@ function decodeNumber(cursor: Cursor, param: CompiledParam) {
   // sign extension (signed); otherwise the word does not fit the type.
   const bytes = size / 8
   const pad = signed && value[32 - bytes]! >= 0x80 ? 0xff : 0
-  for (let i = 0; i < 32 - bytes; i++)
-    if (value[i] !== pad) {
-      const max = 2n ** BigInt(signed ? size - 1 : size) - 1n
-      throw new IntegerOutOfRangeError({
-        max: max.toString(),
-        min: (signed ? -max - 1n : 0n).toString(),
-        signed,
-        size: bytes,
-        value: bytesToBigInt(value, { signed }).toString(),
-      })
-    }
+  let dirty = 0
+  for (let i = 0; i < 32 - bytes; i++) dirty |= value[i]! ^ pad
+  if (dirty) {
+    const max = 2n ** BigInt(signed ? size - 1 : size) - 1n
+    throw new IntegerOutOfRangeError({
+      max: max.toString(),
+      min: (signed ? -max - 1n : 0n).toString(),
+      signed,
+      size: bytes,
+      value: bytesToBigInt(value, { signed }).toString(),
+    })
+  }
   const view = cursor.dataView
   if (!(size > 48)) {
     // Read the low 48 bits, which hold the value and its sign extension.
