@@ -1,5 +1,15 @@
 # viem
 
+## 2.58.2
+
+### Patch Changes
+
+- [#5601](https://github.com/wevm/viem/pull/5601) [`bc5f35549f5e01fc6ea87571dd257cb7ad57a525`](https://github.com/wevm/viem/commit/bc5f35549f5e01fc6ea87571dd257cb7ad57a525) Thanks [@jxom](https://github.com/jxom)! - Stripped a trailing slash from a custom Arweave gateway when `getEnsAvatar` rewrites `https://arweave.net` avatar URLs.
+
+- [#5609](https://github.com/wevm/viem/pull/5609) [`c1f59aff0923c65cc23aa9bcdaeb7efb591761ff`](https://github.com/wevm/viem/commit/c1f59aff0923c65cc23aa9bcdaeb7efb591761ff) Thanks [@jxom](https://github.com/jxom)! - Rejected CR, LF, U+2028, and U+2029 in SIWE statements in `parseSiweMessage` and `createSiweMessage`, and anchored the parsed suffix to a line start so long inputs no longer take quadratic time.
+
+- [#5606](https://github.com/wevm/viem/pull/5606) [`b5df58607b511825e47a99faaf4f6d3318ea67e7`](https://github.com/wevm/viem/commit/b5df58607b511825e47a99faaf4f6d3318ea67e7) Thanks [@legion2002](https://github.com/legion2002)! - `viem/tempo`: Renamed the `SignerSnapshotCached` event on `Abis.tip20ChannelReserve` to `OpeningCommitmentRecorded` to match the TIP-1166 precompile, which no longer emits the old event, and added `verifyVoucher` to the ABI with a `channel.verifyVoucher` action.
+
 ## 2.58.1
 
 ### Patch Changes
