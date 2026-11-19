@@ -523,12 +523,12 @@ describe('request', () => {
         res.appendHeader('Content-Type', 'application/json')
         res.end(
           JSON.stringify([
+            { jsonrpc: '2.0', id: String(c?.id), result: 'eth_c' },
             {
               jsonrpc: '2.0',
               id: null,
               error: { code: -32600, message: 'Invalid Request' },
             },
-            { jsonrpc: '2.0', id: c?.id, result: 'eth_c' },
             { jsonrpc: '2.0', id: a?.id, result: 'eth_a' },
             { jsonrpc: '2.0', id: a?.id, result: 'eth_a' },
           ]),

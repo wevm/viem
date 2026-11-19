@@ -120,13 +120,15 @@ export function validateTypedData<
       if (Object.hasOwn(types, type))
         validateData(types[type]!, value as Record<string, unknown>)
 
-      if (type.endsWith(']')) validateArray(type, value as readonly unknown[])
+      if (type.endsWith(']')) validateArray(type, value)
     }
   }
 
   // Validate fixed array lengths in every dimension, and the structs inside
   // arrays.
-  const validateArray = (type: string, value: readonly unknown[]) => {
+  const validateArray = (type: string, value: unknown) => {
+    // A missing or non-array value is left to the encoder.
+    if (!Array.isArray(value)) return
     const inner = type.slice(0, type.lastIndexOf('['))
     const length = type.slice(type.lastIndexOf('[') + 1, -1)
     if (length && value.length !== Number.parseInt(length, 10))
@@ -136,8 +138,8 @@ export function validateTypedData<
         type,
       })
     for (const item of value)
-      if (inner.endsWith(']')) validateArray(inner, item as readonly unknown[])
-      else if (Object.hasOwn(types, inner))
+      if (inner.endsWith(']')) validateArray(inner, item)
+      else if (Object.hasOwn(types, inner) && item)
         validateData(types[inner]!, item as Record<string, unknown>)
   }
 
