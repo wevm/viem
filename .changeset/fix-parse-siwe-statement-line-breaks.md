@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Reject CR, LF, U+2028, and U+2029 inside the SIWE statement when parsing EIP-4361 messages so parsed fields cannot disagree with the signed text.
+Rejected CR, LF, U+2028, and U+2029 in SIWE statements in `parseSiweMessage` and `createSiweMessage`, so parsed fields can no longer omit part of the signed statement.

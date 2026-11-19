@@ -1,6 +1,7 @@
 import { expect, test, vi } from 'vitest'
 
 import { mainnet } from '../../chains/definitions/mainnet.js'
+import { SiweInvalidMessageFieldError } from '../../errors/siwe.js'
 import { createSiweMessage } from './createSiweMessage.js'
 import type { SiweMessage } from './types.js'
 
@@ -412,13 +413,18 @@ test('behavior: invalid statement', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "statement".
 
-    - Statement must not include '\\n'.
+    - Statement must not include a line break.
 
     Provided value: foo
     bar
 
     Version: viem@x.y.z]
   `)
+
+  for (const statement of ['foo\rbar', 'foo\u2028bar', 'foo\u2029bar'])
+    expect(() => createSiweMessage({ ...message, statement })).toThrow(
+      SiweInvalidMessageFieldError,
+    )
 })
 
 test('behavior: invalid requestId', () => {
