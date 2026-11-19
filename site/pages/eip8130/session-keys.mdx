@@ -236,7 +236,7 @@ The permission → policy mapping is:
 | `erc20-token-transfer` + `token-allowance` | ERC-20 `tokenLimit` **and** a `callScope` for `transfer`/`transferFrom` on the token |
 | `contract-call` `{ address, calls }` | a `callScope` restricting the key to those selectors on the target |
 | `rate-limit` `interval` (on a transfer) | the cap's reset `period` (a recurring allowance) |
-| `gas-limit` | ignored — gas is settled by the payer / [ERC-8168](/eip8168) layer |
+| `gas-limit` | ignored — gas is settled by the payer / [ERC-8168](/eip8130/payer-services) layer |
 
 A transfer permission without a `token-allowance` throws (an unbounded spend can't be safely granted), as do `custom` permissions/policies — build the `SessionPolicyConfig` explicitly for those. Use `toSessionPolicyConfig` (the pure mapping) or `toSessionPolicy` (mapping + binding) directly if you only need the lowered config or the bound policy without the `authorizeActor` change.
 
