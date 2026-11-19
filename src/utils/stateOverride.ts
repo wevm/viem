@@ -90,11 +90,13 @@ export function serializeStateOverride(
 ): RpcStateOverride | undefined {
   if (!parameters) return undefined
   const rpcStateOverride: RpcStateOverride = {}
+  const addresses = new Set<string>()
   for (const { address, ...accountState } of parameters) {
     if (!isAddress(address, { strict: false }))
       throw new InvalidAddressError({ address })
-    if (rpcStateOverride[address])
-      throw new AccountStateConflictError({ address: address })
+    const key = address.toLowerCase()
+    if (addresses.has(key)) throw new AccountStateConflictError({ address })
+    addresses.add(key)
     rpcStateOverride[address] = serializeAccountStateOverride(accountState)
   }
   return rpcStateOverride

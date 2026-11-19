@@ -195,6 +195,25 @@ describe('serializeStateOverride', () => {
     `)
   })
 
+  test('error: address conflict with different casing', () => {
+    expect(() =>
+      serializeStateOverride([
+        {
+          address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+          balance: 1n,
+        },
+        {
+          address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+          balance: 2n,
+        },
+      ]),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AccountStateConflictError: State for account "0xd8da6bf26964af9d7eed9e03e53415d37aa96045" is set multiple times.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('error: invalid address', () => {
     expect(() =>
       serializeStateOverride([
