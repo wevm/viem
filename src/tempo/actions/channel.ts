@@ -1224,6 +1224,98 @@ export namespace topUpSync {
 }
 
 /**
+ * Verifies a TIP-20 channel reserve voucher signature.
+ *
+ * Returns whether `signature` is a valid voucher for `cumulativeAmount` from the
+ * channel's voucher signer (`authorizedSigner` if set, else the payer). It does
+ * not check `cumulativeAmount` against the channel's deposit or settled amount.
+ * Throws `ChannelNotFoundError` when the channel does not exist.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http, parseUnits } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const valid = await Actions.channel.verifyVoucher(client, {
+ *   channel,
+ *   cumulativeAmount: parseUnits('40', 6),
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Whether the voucher signature is valid.
+ */
+export async function verifyVoucher<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: verifyVoucher.Parameters,
+): Promise<verifyVoucher.ReturnValue> {
+  const { channel, cumulativeAmount, signature, ...rest } = parameters
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...verifyVoucher.call({ channel, cumulativeAmount, signature }),
+  } as never) as never
+}
+
+export namespace verifyVoucher {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** TIP-20 channel. */
+    channel: ox_Channel.from.Value
+    /** Total voucher amount signed for the channel. */
+    cumulativeAmount: bigint
+    /** Voucher signature. */
+    signature: Hex.Hex
+  }
+
+  export type ReturnValue = boolean
+
+  // TODO: exhaustive error type
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
+
+  /**
+   * Defines a call to the `verifyVoucher` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { parseUnits } from 'viem'
+   * import { Actions } from 'viem/tempo'
+   *
+   * const call = Actions.channel.verifyVoucher.call({
+   *   channel,
+   *   cumulativeAmount: parseUnits('40', 6),
+   *   signature: '0x...',
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { channel, cumulativeAmount, signature } = args
+    return defineCall({
+      address: ox_Channel.address,
+      abi: Abis.tip20ChannelReserve,
+      functionName: 'verifyVoucher',
+      args: [ox_Channel.from(channel), cumulativeAmount, signature],
+    })
+  }
+}
+
+/**
  * Withdraws payer funds after the close grace period elapses.
  *
  * @example

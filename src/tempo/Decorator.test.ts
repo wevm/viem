@@ -54,6 +54,7 @@ describe('decorator', () => {
     expect(typeof client2.dex.buy.call).toBe('function')
     expect(typeof client2.amm.getPool.calls).toBe('function')
     expect(typeof client2.accounts.getConfigCommitment.call).toBe('function')
+    expect(typeof client2.channel.verifyVoucher.call).toBe('function')
     expect(typeof client2.accounts.updateConfig.call).toBe('function')
     expect(typeof client2.accounts.updateConfig.extractEvent).toBe('function')
     expect(typeof client2.accounts.upgrade.call).toBe('function')

@@ -1691,6 +1691,29 @@ export const tip20ChannelReserve = [
     outputs: [{ type: 'bytes32' }],
   },
   {
+    name: 'verifyVoucher',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      {
+        type: 'tuple',
+        name: 'descriptor',
+        components: [
+          { type: 'address', name: 'payer' },
+          { type: 'address', name: 'payee' },
+          { type: 'address', name: 'operator' },
+          { type: 'address', name: 'token' },
+          { type: 'bytes32', name: 'salt' },
+          { type: 'address', name: 'authorizedSigner' },
+          { type: 'bytes32', name: 'expiringNonceHash' },
+        ],
+      },
+      { type: 'uint96', name: 'cumulativeAmount' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool', name: 'valid' }],
+  },
+  {
     name: 'domainSeparator',
     type: 'function',
     stateMutability: 'view',
@@ -1764,7 +1787,7 @@ export const tip20ChannelReserve = [
     ],
   },
   {
-    name: 'SignerSnapshotCached',
+    name: 'OpeningCommitmentRecorded',
     type: 'event',
     inputs: [
       { type: 'bytes32', name: 'channelId', indexed: true },

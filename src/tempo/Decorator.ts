@@ -1209,6 +1209,31 @@ type DecoratorBase<
       parameters: channelActions.topUpSync.Parameters<chain, account>,
     ) => Promise<channelActions.topUpSync.ReturnValue>
     /**
+     * Verifies a TIP-20 channel reserve voucher signature.
+     *
+     * Returns whether `signature` is a valid voucher for `cumulativeAmount` from the
+     * channel's voucher signer (`authorizedSigner` if set, else the payer). It does
+     * not check `cumulativeAmount` against the channel's deposit or settled amount.
+     * Throws `ChannelNotFoundError` when the channel does not exist.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const valid = await client.channel.verifyVoucher({
+     *   channel,
+     *   cumulativeAmount: parseUnits('40', 6),
+     *   signature: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the voucher signature is valid.
+     */
+    verifyVoucher: (
+      parameters: channelActions.verifyVoucher.Parameters,
+    ) => Promise<channelActions.verifyVoucher.ReturnValue>
+    /**
      * Withdraws payer funds after the close grace period elapses.
      *
      * @example
@@ -6348,6 +6373,7 @@ export function decorator() {
         'signVoucher',
         'topUp',
         'topUpSync',
+        'verifyVoucher',
         'withdraw',
         'withdrawSync',
       ]),

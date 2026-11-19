@@ -1,6 +1,6 @@
 import type { Hex } from 'ox'
-import { parseUnits, zeroAddress, zeroHash } from 'viem'
-import { Channel } from 'viem/tempo'
+import { decodeFunctionData, parseUnits, zeroAddress, zeroHash } from 'viem'
+import { Abis, Channel } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -197,6 +197,69 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     )
   })
 
+  test('verifyVoucher', async (ctx) => {
+    if (!channelReserveSupported) ctx.skip()
+
+    const { channelId, channel } = await setupChannel()
+    const cumulativeAmount = parseUnits('40', 6)
+    const signature = await signVoucher({
+      channel: channelId,
+      cumulativeAmount,
+    })
+
+    expect(
+      await actions.channel.verifyVoucher(payerClient, {
+        channel,
+        cumulativeAmount,
+        signature,
+      }),
+    ).toBe(true)
+
+    // Not checked against the deposit.
+    const overDeposit = parseUnits('1000', 6)
+    expect(
+      await actions.channel.verifyVoucher(payerClient, {
+        channel,
+        cumulativeAmount: overDeposit,
+        signature: await signVoucher({
+          channel: channelId,
+          cumulativeAmount: overDeposit,
+        }),
+      }),
+    ).toBe(true)
+
+    expect(
+      await actions.channel.verifyVoucher(payerClient, {
+        channel,
+        cumulativeAmount: parseUnits('41', 6),
+        signature,
+      }),
+    ).toBe(false)
+
+    const otherSignature = await payee.signVoucher({
+      chainId: chain.id,
+      channel: channelId,
+      cumulativeAmount,
+    })
+    expect(
+      await actions.channel.verifyVoucher(payerClient, {
+        channel,
+        cumulativeAmount,
+        signature: otherSignature,
+      }),
+    ).toBe(false)
+
+    await expect(
+      actions.channel.verifyVoucher(payerClient, {
+        channel: { ...channel, salt: `0x${'11'.repeat(32)}` },
+        cumulativeAmount,
+        signature,
+      }),
+    ).rejects.toMatchObject({
+      name: 'ChannelNotFoundError',
+    })
+  })
+
   test('topUp', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
@@ -373,6 +436,45 @@ describe('open.call', () => {
 
     expect(salt).toMatch(/^0x[0-9a-f]{64}$/)
     expect(explicit).toBe(zeroHash)
+  })
+})
+
+describe('verifyVoucher.call', () => {
+  test('behavior: encodes the channel descriptor', () => {
+    const channel = Channel.from({
+      expiringNonceHash: zeroHash,
+      payee: payee.address,
+      payer: payer.address,
+      salt: zeroHash,
+      token: '0x20C0000000000000000000000000000000000001',
+    })
+    const signature = `0x${'ab'.repeat(65)}` as const
+
+    const call = actions.channel.verifyVoucher.call({
+      channel,
+      cumulativeAmount: parseUnits('40', 6),
+      signature,
+    })
+
+    expect(call.to).toBe(Channel.address)
+    expect(call.functionName).toBe('verifyVoucher')
+    expect(call.data.slice(0, 10)).toBe('0xcabd6d5a')
+    expect(call.args).toEqual([
+      {
+        authorizedSigner: zeroAddress,
+        expiringNonceHash: zeroHash,
+        operator: zeroAddress,
+        payee: payee.address,
+        payer: payer.address,
+        salt: zeroHash,
+        token: '0x20C0000000000000000000000000000000000001',
+      },
+      parseUnits('40', 6),
+      signature,
+    ])
+    expect(
+      decodeFunctionData({ abi: Abis.tip20ChannelReserve, data: call.data }),
+    ).toEqual({ args: call.args, functionName: 'verifyVoucher' })
   })
 })
 
