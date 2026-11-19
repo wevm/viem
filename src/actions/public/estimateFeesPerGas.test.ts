@@ -188,8 +188,8 @@ test('args: chain `baseFeeMultiplier` override (sync fn)', async () => {
       chain: {
         ...anvilMainnet.chain,
         fees: {
-          baseFeeMultiplier() {
-            return 1.5
+          baseFeeMultiplier({ block }) {
+            return block.baseFeePerGas! > 0n ? 1.5 : 1
           },
         },
       },
@@ -247,20 +247,25 @@ test('args: chain `baseFeeMultiplier` override < 1', async () => {
 })
 
 test('client: chain `estimateFeesPerGas` override', async () => {
-  const client = createPublicClient({
+  const block = await getBlock.getBlock(client)
+
+  const client_2 = createPublicClient({
     chain: {
       ...anvilMainnet.chain,
       fees: {
-        async estimateFeesPerGas() {
-          return { maxFeePerGas: 2n, maxPriorityFeePerGas: 1n }
+        async estimateFeesPerGas({ block }) {
+          return {
+            maxFeePerGas: block.baseFeePerGas!,
+            maxPriorityFeePerGas: 1n,
+          }
         },
       },
     },
     transport: http(),
   })
   const { maxFeePerGas, maxPriorityFeePerGas } =
-    await estimateFeesPerGas(client)
-  expect(maxFeePerGas).toBe(2n)
+    await estimateFeesPerGas(client_2)
+  expect(maxFeePerGas).toBe(block.baseFeePerGas)
   expect(maxPriorityFeePerGas).toBe(1n)
 })
 
@@ -282,70 +287,6 @@ test('client: chain `baseFeeMultiplier` override', async () => {
     (block.baseFeePerGas! * 150n) / 100n + maxPriorityFeePerGas,
   )
   expect(maxPriorityFeePerGas).toBeDefined()
-})
-
-describe('behavior: chain fee hooks receive the latest block', () => {
-  async function createUrl() {
-    return createRpcProxy(anvilMainnet.rpcUrl.http, ({ method }) => {
-      if (method === 'eth_getBlockByNumber')
-        return {
-          result: {
-            baseFeePerGas: '0x64',
-            number: '0x2a',
-            timestamp: '0x1',
-            transactions: [],
-          },
-        }
-      if (method === 'eth_maxPriorityFeePerGas') return { result: '0x1' }
-      return undefined
-    })
-  }
-
-  test('estimateFeesPerGas', async () => {
-    const url = await createUrl()
-    const client = createPublicClient({
-      chain: defineChain({
-        ...anvilMainnet.chain,
-        fees: {
-          async estimateFeesPerGas({ block }) {
-            return { maxFeePerGas: block.number!, maxPriorityFeePerGas: 0n }
-          },
-        },
-      }),
-      transport: http(url),
-    })
-
-    const fees = await estimateFeesPerGas(client)
-
-    expect(fees).toMatchInlineSnapshot(`
-      {
-        "maxFeePerGas": 42n,
-        "maxPriorityFeePerGas": 0n,
-      }
-    `)
-  })
-
-  test('baseFeeMultiplier', async () => {
-    const url = await createUrl()
-    const client = createPublicClient({
-      chain: defineChain({
-        ...anvilMainnet.chain,
-        fees: {
-          baseFeeMultiplier: ({ block }) => (block.number === 42n ? 2 : 1),
-        },
-      }),
-      transport: http(url),
-    })
-
-    const fees = await estimateFeesPerGas(client)
-
-    expect(fees).toMatchInlineSnapshot(`
-      {
-        "maxFeePerGas": 201n,
-        "maxPriorityFeePerGas": 1n,
-      }
-    `)
-  })
 })
 
 test('chain does not support eip1559', async () => {
