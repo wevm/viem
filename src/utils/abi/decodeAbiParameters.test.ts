@@ -35,6 +35,17 @@ describe('static', () => {
     )
     assertType<readonly [number]>(result)
     expect(result).toEqual([32])
+
+    expect(() =>
+      decodeAbiParameters(
+        parseAbiParameters('uint8'),
+        '0x0000000000000000000000000000000000000000000000000000000000000100',
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+
+      Version: viem@x.y.z]
+    `)
   })
 
   test('uint32', () => {
@@ -84,6 +95,19 @@ describe('static', () => {
       assertType<readonly [number]>(result)
       expect(result).toEqual([-128])
     })
+
+    test('error: missing sign extension', () => {
+      expect(() =>
+        decodeAbiParameters(
+          parseAbiParameters('int8'),
+          '0x0000000000000000000000000000000000000000000000000000000000000080',
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [IntegerOutOfRangeError: Number "128" is not in safe 8-bit signed integer range (-128 to 127)
+
+        Version: viem@x.y.z]
+      `)
+    })
   })
 
   describe('int32', () => {
@@ -119,6 +143,22 @@ describe('static', () => {
           '0x00000000000000000000000014dc79964da2c08b23698b3d3cc7ca32193d9955',
         ),
       ).toEqual(['0x14dC79964da2C08b23698B3D3cc7Ca32193d9955'])
+    })
+
+    test('error: dirty padding', () => {
+      expect(() =>
+        decodeAbiParameters(
+          parseAbiParameters('address'),
+          '0x00000000000000000000000114dc79964da2c08b23698b3d3cc7ca32193d9955',
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [InvalidAddressError: Address "0x00000000000000000000000114dc79964da2c08b23698b3d3cc7ca32193d9955" is invalid.
+
+        - Address must be a hex value of 20 bytes (40 hex characters).
+        - Address must match its checksum counterpart.
+
+        Version: viem@x.y.z]
+      `)
     })
   })
 
@@ -2035,190 +2075,42 @@ test.each(['string', 'bytes'] as const)(
   },
 )
 
-describe('integer range', () => {
-  test('uint8: max', () => {
-    expect(
-      decodeAbiParameters(
-        [{ type: 'uint8' }],
-        '0x00000000000000000000000000000000000000000000000000000000000000ff',
-      ),
-    ).toEqual([255])
-  })
+test('integer bounds for every size', () => {
+  for (let bits = 8; bits <= 256; bits += 8) {
+    for (const signed of [false, true]) {
+      const type = `${signed ? 'int' : 'uint'}${bits}`
+      const max = 2n ** BigInt(signed ? bits - 1 : bits) - 1n
+      const min = signed ? -max - 1n : 0n
+      const toValue = (value: bigint) => (bits > 48 ? value : Number(value))
 
-  test('uint8: above max', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'uint8' }],
-        '0x0000000000000000000000000000000000000000000000000000000000000100',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+      expect(
+        decodeAbiParameters(
+          [{ type }],
+          encodeAbiParameters([{ type }], [toValue(max)]),
+        ),
+      ).toEqual([toValue(max)])
+      expect(
+        decodeAbiParameters(
+          [{ type }],
+          encodeAbiParameters([{ type }], [toValue(min)]),
+        ),
+      ).toEqual([toValue(min)])
 
-      Version: viem@x.y.z]
-    `)
-  })
+      if (bits === 256) continue
 
-  test('int8: -1', () => {
-    expect(
-      decodeAbiParameters(
-        [{ type: 'int8' }],
-        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-      ),
-    ).toEqual([-1])
-  })
-
-  test('int8: missing sign extension', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'int8' }],
-        '0x0000000000000000000000000000000000000000000000000000000000000080',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [IntegerOutOfRangeError: Number "128" is not in safe 8-bit signed integer range (-128 to 127)
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('int8: below min', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'int8' }],
-        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [IntegerOutOfRangeError: Number "-129" is not in safe 8-bit signed integer range (-128 to 127)
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('uint8[]: element above max', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'uint8[]' }],
-        '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000100',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('uint16: above safe integer range', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'uint16' }],
-        '0x0000000000000000000000000000000000000000000000010000000000000000',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [IntegerOutOfRangeError: Number "18446744073709551616" is not in safe 16-bit unsigned integer range (0 to 65535)
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('tuple: nested element above max', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'tuple', components: [{ type: 'bool' }, { type: 'uint8' }] }],
-        '0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000100',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('every size accepts its bounds and rejects one past them', () => {
-    for (let bits = 8; bits <= 256; bits += 8) {
-      for (const signed of [false, true]) {
-        const type = `${signed ? 'int' : 'uint'}${bits}`
-        const max = 2n ** BigInt(signed ? bits - 1 : bits) - 1n
-        const min = signed ? -max - 1n : 0n
-        const toValue = (value: bigint) => (bits > 48 ? value : Number(value))
-
-        expect(
-          decodeAbiParameters(
-            [{ type }],
-            encodeAbiParameters([{ type }], [toValue(max)]),
-          ),
-        ).toEqual([toValue(max)])
-        expect(
-          decodeAbiParameters(
-            [{ type }],
-            encodeAbiParameters([{ type }], [toValue(min)]),
-          ),
-        ).toEqual([toValue(min)])
-
-        if (bits === 256) continue
-
+      expect(() =>
+        decodeAbiParameters(
+          [{ type }],
+          numberToHex(max + 1n, { signed: true, size: 32 }),
+        ),
+      ).toThrowError('is not in safe')
+      if (signed)
         expect(() =>
           decodeAbiParameters(
             [{ type }],
-            numberToHex(max + 1n, { signed: true, size: 32 }),
+            numberToHex(min - 1n, { signed: true, size: 32 }),
           ),
         ).toThrowError('is not in safe')
-        if (signed)
-          expect(() =>
-            decodeAbiParameters(
-              [{ type }],
-              numberToHex(min - 1n, { signed: true, size: 32 }),
-            ),
-          ).toThrowError('is not in safe')
-      }
     }
-  })
-})
-
-describe('address padding', () => {
-  test('dirty high bytes', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'address' }],
-        '0x00000000000000000000000114dc79964da2c08b23698b3d3cc7ca32193d9955',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidAddressError: Address "0x00000000000000000000000114dc79964da2c08b23698b3d3cc7ca32193d9955" is invalid.
-
-      - Address must be a hex value of 20 bytes (40 hex characters).
-      - Address must match its checksum counterpart.
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('dirty first byte', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'address' }],
-        '0xff00000000000000000000000000000000000000000000000000000000000000',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidAddressError: Address "0xff00000000000000000000000000000000000000000000000000000000000000" is invalid.
-
-      - Address must be a hex value of 20 bytes (40 hex characters).
-      - Address must match its checksum counterpart.
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('address[2]: dirty element', () => {
-    expect(() =>
-      decodeAbiParameters(
-        [{ type: 'address[2]' }],
-        '0x00000000000000000000000014dc79964da2c08b23698b3d3cc7ca32193d9955ffffffffffffffffffffffff14dc79964da2c08b23698b3d3cc7ca32193d9955',
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [InvalidAddressError: Address "0xffffffffffffffffffffffff14dc79964da2c08b23698b3d3cc7ca32193d9955" is invalid.
-
-      - Address must be a hex value of 20 bytes (40 hex characters).
-      - Address must match its checksum counterpart.
-
-      Version: viem@x.y.z]
-    `)
-  })
+  }
 })
