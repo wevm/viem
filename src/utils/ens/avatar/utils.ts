@@ -129,7 +129,7 @@ export function resolveAvatarUri({
   if (uri.startsWith('http') && !isIPNS && !isIPFS) {
     let replacedUri = uri
     if (gatewayUrls?.arweave)
-      replacedUri = uri.replace(/https:\/\/arweave.net/g, gatewayUrls?.arweave)
+      replacedUri = uri.replace(/https:\/\/arweave.net/g, arweaveGateway)
     return { uri: replacedUri, isOnChain: false, isEncoded: false }
   }
 

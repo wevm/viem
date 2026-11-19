@@ -293,6 +293,21 @@ describe('resolveAvatarUri()', () => {
     })
   })
 
+  test('arweave replace default with trailing slash gateway', () => {
+    expect(
+      resolveAvatarUri({
+        uri: 'https://arweave.net/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
+        gatewayUrls: { arweave: 'https://example.com/' },
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "isEncoded": false,
+        "isOnChain": false,
+        "uri": "https://example.com/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI",
+      }
+    `)
+  })
+
   test.each([
     {
       uri: 'https://i.imgur.com/yed5Zfk.gif',
