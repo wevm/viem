@@ -58,17 +58,78 @@ Whether the signature is a valid voucher for the channel and amount.
 
 Channel descriptor. The precompile computes the channel ID from it, so a channel ID alone is not enough.
 
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account, Channel, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+const channel = Channel.from({ // [!code focus]
+  expiringNonceHash: '0x...', // [!code focus]
+  payee: '0x...', // [!code focus]
+  payer: client.account.address, // [!code focus]
+  salt: '0x...', // [!code focus]
+  token: '0x...', // [!code focus]
+}) // [!code focus]
+
+await client.channel.verifyVoucher({
+  channel, // [!code focus]
+  cumulativeAmount: parseUnits('40', 6),
+  signature: '0x...',
+})
+```
+
 ### cumulativeAmount
 
 - **Type:** `bigint`
 
 Total voucher amount signed for the channel.
 
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account, Channel, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+const channel = Channel.from({
+  expiringNonceHash: '0x...',
+  payee: '0x...',
+  payer: client.account.address,
+  salt: '0x...',
+  token: '0x...',
+})
+// ---cut---
+await client.channel.verifyVoucher({
+  channel,
+  cumulativeAmount: parseUnits('40', 6), // [!code focus]
+  signature: '0x...',
+})
+```
+
 ### signature
 
 - **Type:** `Hex`
 
 Voucher signature, from [`channel.signVoucher`](/tempo/actions/channel.signVoucher).
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account, Channel, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+const channel = Channel.from({
+  expiringNonceHash: '0x...',
+  payee: '0x...',
+  payer: client.account.address,
+  salt: '0x...',
+  token: '0x...',
+})
+// ---cut---
+await client.channel.verifyVoucher({
+  channel,
+  cumulativeAmount: parseUnits('40', 6),
+  signature: '0x...', // [!code focus]
+})
+```
 
 <ReadParameters />
 
