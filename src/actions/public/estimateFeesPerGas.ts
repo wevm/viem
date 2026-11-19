@@ -118,23 +118,6 @@ export async function internal_estimateFeesPerGas<
     type = 'eip1559',
   } = args || {}
 
-  const baseFeeMultiplier = await (async () => {
-    if (typeof chain?.fees?.baseFeeMultiplier === 'function')
-      return chain.fees.baseFeeMultiplier({
-        block: block_ as Block,
-        client,
-        request,
-      } as ChainFeesFnParameters)
-    return chain?.fees?.baseFeeMultiplier ?? 1.2
-  })()
-  if (baseFeeMultiplier < 1) throw new BaseFeeScalarError()
-
-  const decimals = baseFeeMultiplier.toString().split('.')[1]?.length ?? 0
-  const denominator = 10 ** decimals
-  const multiply = (base: bigint) =>
-    (base * BigInt(Math.round(baseFeeMultiplier * denominator))) /
-    BigInt(denominator)
-
   // Chain fee hooks receive the block and the request, so the requests they
   // depend on are made in sequence.
   const hasFeeHooks = Object.values(chain?.fees ?? {}).some(
@@ -178,9 +161,26 @@ export async function internal_estimateFeesPerGas<
       typeof block?.baseFeePerGas === 'bigint',
     )
 
+  const baseFeeMultiplier = await (async () => {
+    if (typeof chain?.fees?.baseFeeMultiplier === 'function')
+      return chain.fees.baseFeeMultiplier({
+        block: block as Block,
+        client,
+        request,
+      } as ChainFeesFnParameters)
+    return chain?.fees?.baseFeeMultiplier ?? 1.2
+  })()
+  if (baseFeeMultiplier < 1) throw new BaseFeeScalarError()
+
+  const decimals = baseFeeMultiplier.toString().split('.')[1]?.length ?? 0
+  const denominator = 10 ** decimals
+  const multiply = (base: bigint) =>
+    (base * BigInt(Math.round(baseFeeMultiplier * denominator))) /
+    BigInt(denominator)
+
   if (typeof chain?.fees?.estimateFeesPerGas === 'function') {
     const fees = (await chain.fees.estimateFeesPerGas({
-      block: block_ as Block,
+      block: block as Block,
       client,
       multiply,
       request,
