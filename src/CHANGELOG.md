@@ -1,5 +1,51 @@
 # viem
 
+## 2.58.1
+
+### Patch Changes
+
+- [#5588](https://github.com/wevm/viem/pull/5588) [`bdf936497e28d307be7a139e34727a3fbcac39fa`](https://github.com/wevm/viem/commit/bdf936497e28d307be7a139e34727a3fbcac39fa) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Added `ChainNotConfiguredErrorType` and `TransportNotConfiguredErrorType` so `createClientResolver.ErrorType` narrows on the namespaced error names.
+
+- [#5519](https://github.com/wevm/viem/pull/5519) [`cf1071fb3fa469c7bcc61a29f3908f54ec9fb397`](https://github.com/wevm/viem/commit/cf1071fb3fa469c7bcc61a29f3908f54ec9fb397) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Updated unavailable default RPC URLs for Klaytn, Klaytn Baobab, Metis, Shibarium, Puppynet Shibarium, TAC, TAC SPB Testnet, Mezo and Areon Network, and deprecated `areonNetwork` in favor of `areum`.
+
+- [#5579](https://github.com/wevm/viem/pull/5579) [`ffdd25af4acd334b7f7f5c940d4c9195a36c69cd`](https://github.com/wevm/viem/commit/ffdd25af4acd334b7f7f5c940d4c9195a36c69cd) Thanks [@jxom](https://github.com/jxom)! - Updated `base` and `baseSepolia` `blockTime` to 200 ms to match Base's 200 ms blocks, which lowers their default `pollingInterval` to 500 ms.
+
+- [#5578](https://github.com/wevm/viem/pull/5578) [`be73ffa779e69817ef9aea1a4db03f25ab6ad654`](https://github.com/wevm/viem/commit/be73ffa779e69817ef9aea1a4db03f25ab6ad654) Thanks [@tydavid5](https://github.com/tydavid5)! - Fixed the HTTP transport resolving with `undefined` when the server replied to a request with an empty body, it now throws an `HttpRequestError` instead.
+
+- [#5572](https://github.com/wevm/viem/pull/5572) [`cb14298d7ecaca45a359b6a2fa68c1c35cfdc5ca`](https://github.com/wevm/viem/commit/cb14298d7ecaca45a359b6a2fa68c1c35cfdc5ca) Thanks [@yinbowen-dc](https://github.com/yinbowen-dc)! - Fixed truncated ABI parameter heads being decoded from a stale position after a dynamic read.
+
+- [#5558](https://github.com/wevm/viem/pull/5558) [`90e59ebbd05f331bc64047617e398f464dfa2b63`](https://github.com/wevm/viem/commit/90e59ebbd05f331bc64047617e398f464dfa2b63) Thanks [@jxom](https://github.com/jxom)! - Fixed `EIP1193ProviderRpcError` to set its documented `name` of `'ProviderRpcError'` (was `'Error'`).
+
+- [#5595](https://github.com/wevm/viem/pull/5595) [`0f738319d08625218dfa52b26fc9537d375b14ed`](https://github.com/wevm/viem/commit/0f738319d08625218dfa52b26fc9537d375b14ed) Thanks [@jxom](https://github.com/jxom)! - Fixed `fallback` ranking so that a failing Transport no longer stays first when every sampled latency is 0 ms.
+
+- [#5586](https://github.com/wevm/viem/pull/5586) [`d8cac52afda6574e276d1b99c6607448baab4d33`](https://github.com/wevm/viem/commit/d8cac52afda6574e276d1b99c6607448baab4d33) Thanks [@jxom](https://github.com/jxom)! - Fixed malformed JSON from the `ipc` transport escaping the socket data listener instead of rejecting pending requests.
+
+- [#5573](https://github.com/wevm/viem/pull/5573) [`a44ad6cf1bf555ca3f13ef8f8e4045e3c9519de2`](https://github.com/wevm/viem/commit/a44ad6cf1bf555ca3f13ef8f8e4045e3c9519de2) Thanks [@yinbowen-dc](https://github.com/yinbowen-dc)! - Fixed IPC framing being permanently desynchronized by stray closing braces between messages.
+
+- [#5582](https://github.com/wevm/viem/pull/5582) [`591c7b91cbf3890f373f8f71befac60f4a9f6344`](https://github.com/wevm/viem/commit/591c7b91cbf3890f373f8f71befac60f4a9f6344) Thanks [@jxom](https://github.com/jxom)! - Fixed `ipc` transport subscriptions hanging and skipping `onError` when the socket closed or errored.
+
+- [#5581](https://github.com/wevm/viem/pull/5581) [`612cea0e633236149fcf64d51860f28af6fb88e2`](https://github.com/wevm/viem/commit/612cea0e633236149fcf64d51860f28af6fb88e2) Thanks [@jxom](https://github.com/jxom)! - Fixed Multicall3 `blockCreated` for Core Dao (`6988931`), BOB (`0`), Shape (`0`), Shape Sepolia (`0`), Soneium (`0`), Soneium Minato (`0`), Celo Sepolia (`0`), and XDC Apothem (`84333000`).
+
+- [#5571](https://github.com/wevm/viem/pull/5571) [`515d5a5fe6c0acc90fe82eede8593b6531a3cd60`](https://github.com/wevm/viem/commit/515d5a5fe6c0acc90fe82eede8593b6531a3cd60) Thanks [@yinbowen-dc](https://github.com/yinbowen-dc)! - Fixed right-side hex trimming to remove whole zero bytes without shifting nonzero nibbles.
+
+- [#5597](https://github.com/wevm/viem/pull/5597) [`6c3e120f9b2132c1518995dd41650ff5e33d5eaa`](https://github.com/wevm/viem/commit/6c3e120f9b2132c1518995dd41650ff5e33d5eaa) Thanks [@jxom](https://github.com/jxom)! - Fixed socket clients so that dropping a client that will not reconnect closes its socket, and a failed request is no longer reported again on later disconnects.
+
+- [#5584](https://github.com/wevm/viem/pull/5584) [`c8b2a59799dcb908e11691dc78c646f4311b098b`](https://github.com/wevm/viem/commit/c8b2a59799dcb908e11691dc78c646f4311b098b) Thanks [@jxom](https://github.com/jxom)! - Fixed WebSocket and IPC unsubscribe requests hanging on socket failures or missing responses, without raising unhandled rejections when the result is not awaited.
+
+- [#5594](https://github.com/wevm/viem/pull/5594) [`9d4822539a2029b0e024e73f0bf2521870b75944`](https://github.com/wevm/viem/commit/9d4822539a2029b0e024e73f0bf2521870b75944) Thanks [@jxom](https://github.com/jxom)! - Fixed `http` transport batches to match replies to requests by id (also when the server echoes a numeric id as a string), so a reply with `id: null` no longer gives other requests the wrong results.
+
+- [#5520](https://github.com/wevm/viem/pull/5520) [`43f4b879c2fa78bb1f00301f8bcd827707ba6051`](https://github.com/wevm/viem/commit/43f4b879c2fa78bb1f00301f8bcd827707ba6051) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Updated HPP Sepolia and Orderly Sepolia default RPC URLs and the Orderly Sepolia block explorer URL, and removed unusable HPP default WebSocket URLs.
+
+- [#5580](https://github.com/wevm/viem/pull/5580) [`8a2bf7bf6d3059c383737b8d50b171149bfe33de`](https://github.com/wevm/viem/commit/8a2bf7bf6d3059c383737b8d50b171149bfe33de) Thanks [@jxom](https://github.com/jxom)! - Fixed `createSiweMessage` accepting a `requestId` with a line break, which let it append fields such as `Resources` to the signed message; it now throws `SiweInvalidMessageFieldError`.
+
+- [#5583](https://github.com/wevm/viem/pull/5583) [`53184e3c4164b7cb89f5dd7da30f2a8ec2056a56`](https://github.com/wevm/viem/commit/53184e3c4164b7cb89f5dd7da30f2a8ec2056a56) Thanks [@jxom](https://github.com/jxom)! - Fixed `wrapTypedDataSignature` and the ERC-7739 `signTypedData` action producing signatures that ERC-7739 accounts rejected when a nested type sorted before the primary type.
+
+- [#5590](https://github.com/wevm/viem/pull/5590) [`66b6f1f458ae1e8dde977984a5a1258836352d48`](https://github.com/wevm/viem/commit/66b6f1f458ae1e8dde977984a5a1258836352d48) Thanks [@jxom](https://github.com/jxom)! - Fixed `decodeAbiParameters`, `hexToString`, and `bytesToString` dropping a leading U+FEFF (byte order mark) from decoded strings.
+
+- [#5556](https://github.com/wevm/viem/pull/5556) [`4febd2254b53b9ebd692b1c7ed38e42558d3489c`](https://github.com/wevm/viem/commit/4febd2254b53b9ebd692b1c7ed38e42558d3489c) Thanks [@jxom](https://github.com/jxom)! - Fixed `validateTypedData` (and so `hashTypedData`, `signTypedData`, `verifyTypedData` and `recoverTypedDataAddress`) accepting a fixed-length array field such as `uint256[2]` whose value has a different number of elements, in any dimension or inside a struct array; it now throws `AbiEncodingArrayLengthMismatchError`.
+
+- [#5587](https://github.com/wevm/viem/pull/5587) [`26e438a2b7f64f38e559d1625a41a30ff35010b2`](https://github.com/wevm/viem/commit/26e438a2b7f64f38e559d1625a41a30ff35010b2) Thanks [@jxom](https://github.com/jxom)! - Added the error types of the actions and helpers called internally to `GetL1TokenBalanceErrorType` and `IsWithdrawalFinalizedErrorType`, so propagated contract and RPC failures are described by those unions.
+
 ## 2.58.0
 
 ### Minor Changes
