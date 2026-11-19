@@ -135,11 +135,12 @@ export async function prepareTransactionRequest(
     // Read the next sequence via `eth_getTransactionCount` (with the 2D
     // `nonce_key` extension). The Nonce Manager precompile is not callable via
     // `eth_call`, so this RPC path is the correct nonce source.
-    nonceSequence = await getAction(
-      client,
-      getTransactionCount,
-      'getTransactionCount',
-    )({ address: account.address, nonceKey })
+    // Called directly: a public client's core `getTransactionCount` would
+    // ignore `nonceKey` and read the protocol nonce instead.
+    nonceSequence = await getTransactionCount(client, {
+      address: account.address,
+      nonceKey,
+    })
   }
 
   return {
