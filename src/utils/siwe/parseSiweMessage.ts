@@ -28,8 +28,17 @@ function parseSiweDateTime(value: string): Date {
 export function parseSiweMessage(
   message: string,
 ): Prettify<ExactPartial<SiweMessage>> {
-  const { scheme, statement, ...prefix } = (message.match(prefixRegex)
-    ?.groups ?? {}) as {
+  const prefixMatch = message.match(prefixRegex)
+  const suffixMatch = message.match(suffixRegex)
+  // A statement with a line break skips the optional `statement` group, so
+  // check the text between the blank line after the address and the suffix.
+  if (prefixMatch && suffixMatch) {
+    const section = message
+      .slice(message.indexOf('\n\n') + 2, suffixMatch.index)
+      .replace(/\n\n?$/, '')
+    if (/[\r\n\u2028\u2029]/.test(section)) return {}
+  }
+  const { scheme, statement, ...prefix } = (prefixMatch?.groups ?? {}) as {
     address: Address
     domain: string
     scheme?: string
@@ -43,7 +52,7 @@ export function parseSiweMessage(
     requestId,
     resources: resources_,
     ...suffix
-  } = (message.match(suffixRegex)?.groups ?? {}) as {
+  } = (suffixMatch?.groups ?? {}) as {
     chainId: string
     expirationTime?: string
     issuedAt?: string
@@ -77,4 +86,4 @@ const prefixRegex =
 
 // https://regexr.com/80gf9
 const suffixRegex =
-  /(?:URI: (?<uri>.+))\n(?:Version: (?<version>.+))\n(?:Chain ID: (?<chainId>\d+))\n(?:Nonce: (?<nonce>[a-zA-Z0-9]+))\n(?:Issued At: (?<issuedAt>.+))(?:\nExpiration Time: (?<expirationTime>.+))?(?:\nNot Before: (?<notBefore>.+))?(?:\nRequest ID: (?<requestId>.*))?(?:\nResources:(?<resources>(?:\n- .+)*))?/
+  /^(?:URI: (?<uri>.+))\n(?:Version: (?<version>.+))\n(?:Chain ID: (?<chainId>\d+))\n(?:Nonce: (?<nonce>[a-zA-Z0-9]+))\n(?:Issued At: (?<issuedAt>.+))(?:\nExpiration Time: (?<expirationTime>.+))?(?:\nNot Before: (?<notBefore>.+))?(?:\nRequest ID: (?<requestId>.*))?(?:\nResources:(?<resources>(?:\n- .+)*))?/m

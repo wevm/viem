@@ -102,6 +102,45 @@ Issued At: 2023-02-01T00:00:00.000Z`
   )
 })
 
+test('behavior: statement with a line break', () => {
+  // The statement must be one line, or the parsed fields omit text the user
+  // signed. The last two cases end the statement with one line break instead
+  // of a blank line.
+  const statements = [
+    'foo\nURI: https://evil.example\n',
+    'foo\rURI: https://evil.example\n',
+    'foo\u2028URI: https://evil.example\n',
+    'foo\u2029URI: https://evil.example\n',
+    'foo\n\nbar\n',
+    'foo\u2028URI: https://evil.example',
+    'foo\rURI: https://evil.example',
+  ]
+
+  const parsed = statements.map((statement) =>
+    parseSiweMessage(`example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+${statement}
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`),
+  )
+
+  expect(parsed).toMatchInlineSnapshot(`
+    [
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+    ]
+  `)
+})
+
 test('behavior: with expirationTime', () => {
   const message = `https://example.com wants you to sign in with your Ethereum account:
 0xA0Cf798816D4b9b9866b5330EEa46a18382f251e

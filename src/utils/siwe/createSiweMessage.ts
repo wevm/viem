@@ -119,11 +119,11 @@ export function createSiweMessage(
         ],
       })
     const statement = parameters.statement
-    if (statement?.includes('\n'))
+    if (statement && /[\r\n\u2028\u2029]/.test(statement))
       throw new SiweInvalidMessageFieldError({
         field: 'statement',
         metaMessages: [
-          "- Statement must not include '\\n'.",
+          '- Statement must not include a line break.',
           '',
           `Provided value: ${statement}`,
         ],

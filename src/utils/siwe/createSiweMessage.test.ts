@@ -412,13 +412,18 @@ test('behavior: invalid statement', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "statement".
 
-    - Statement must not include '\\n'.
+    - Statement must not include a line break.
 
     Provided value: foo
     bar
 
     Version: viem@x.y.z]
   `)
+
+  for (const statement of ['foo\rbar', 'foo\u2028bar', 'foo\u2029bar'])
+    expect(() => createSiweMessage({ ...message, statement })).toThrow(
+      'Statement must not include a line break.',
+    )
 })
 
 test('behavior: invalid requestId', () => {
