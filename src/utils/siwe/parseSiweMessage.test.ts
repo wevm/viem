@@ -102,6 +102,30 @@ Issued At: 2023-02-01T00:00:00.000Z`
   )
 })
 
+test('behavior: statement must not include a line break', () => {
+  const address = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+  const suffix = `URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`
+  const cases = [
+    'foo\nURI: https://evil.example',
+    'foo\rURI: https://evil.example',
+    'foo\u2028URI: https://evil.example',
+    'foo\u2029URI: https://evil.example',
+  ] as const
+  for (const statement of cases) {
+    const message = `example.com wants you to sign in with your Ethereum account:
+${address}
+
+${statement}
+
+${suffix}`
+    expect(parseSiweMessage(message)).toEqual({})
+  }
+})
+
 test('behavior: with expirationTime', () => {
   const message = `https://example.com wants you to sign in with your Ethereum account:
 0xA0Cf798816D4b9b9866b5330EEa46a18382f251e

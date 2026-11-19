@@ -3,6 +3,8 @@ import type { Address } from 'abitype'
 import type { ExactPartial, Prettify } from '../../types/utils.js'
 import type { SiweMessage } from './types.js'
 
+const statementLineBreakRegex = /[\r\n\u2028\u2029]/
+
 const siweDateTimeRegex =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 
@@ -28,12 +30,29 @@ function parseSiweDateTime(value: string): Date {
 export function parseSiweMessage(
   message: string,
 ): Prettify<ExactPartial<SiweMessage>> {
-  const { scheme, statement, ...prefix } = (message.match(prefixRegex)
-    ?.groups ?? {}) as {
+  const prefixMatch = message.match(prefixRegex)
+  const { scheme, statement, ...prefix } = (prefixMatch?.groups ?? {}) as {
     address: Address
     domain: string
     scheme?: string
     statement?: string
+  }
+  const { address } = prefix
+  if (address) {
+    const statementAnchor = `${address}\n\n`
+    const anchorIndex = message.indexOf(statementAnchor)
+    if (anchorIndex !== -1) {
+      const afterStatement = message.slice(anchorIndex + statementAnchor.length)
+      const suffixStart = afterStatement.indexOf('\n\nURI: ')
+      if (suffixStart !== -1) {
+        const statementSection = afterStatement.slice(0, suffixStart)
+        if (
+          statementSection.length > 0 &&
+          statementLineBreakRegex.test(statementSection)
+        )
+          return {}
+      }
+    }
   }
   const {
     chainId,
