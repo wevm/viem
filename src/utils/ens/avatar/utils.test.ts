@@ -298,6 +298,26 @@ describe('resolveAvatarUri()', () => {
     },
   )
 
+  test('arweave replace default only matches the arweave.net host', () => {
+    const gatewayUrls = { arweave: 'https://example.com' }
+
+    const results = [
+      'https://arweave-net.com/avatar.png',
+      'https://arweave.network/avatar.png',
+      'https://arweave.net.example.org/avatar.png',
+      'https://example.org/avatar.png?source=https://arweave.net/abc',
+    ].map((uri) => resolveAvatarUri({ uri, gatewayUrls }).uri)
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "https://arweave-net.com/avatar.png",
+        "https://arweave.network/avatar.png",
+        "https://arweave.net.example.org/avatar.png",
+        "https://example.org/avatar.png?source=https://arweave.net/abc",
+      ]
+    `)
+  })
+
   test.each([
     {
       uri: 'https://i.imgur.com/yed5Zfk.gif',
