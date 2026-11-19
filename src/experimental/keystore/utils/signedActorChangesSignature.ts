@@ -90,7 +90,7 @@ export type EncodeSignedActorChangesSignatureErrorType =
  *   changes: [authorizeActor(key.p256({ x, y }), { scope: actorScope.operator })],
  * })
  * // opAuth: authenticator-prefixed signature over the userOpHash by any authorized actor
- * const opAuth = concatHex([ecrecoverAuthenticator, await owner.sign({ hash: userOpHash })])
+ * const opAuth = concatHex([k1Authenticator, await owner.sign({ hash: userOpHash })])
  * const signature = encodeSignedActorChangesSignature([set], opAuth)
  * ```
  */

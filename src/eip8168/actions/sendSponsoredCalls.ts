@@ -152,7 +152,7 @@ export type SendSponsoredCallsParameters = {
 }
 
 /** Return of a `"sign"`-mode {@link sendSponsoredCalls}. */
-export type SendSponsoredCallsSignReturnType = {
+type SendSponsoredCallsSignReturnType = {
   /** The payer's `payer_auth`, as returned by `payer_signTransaction`. */
   payerAuth: Hex
   /** The fully signed transaction, ready for `eth_sendRawTransaction`. */

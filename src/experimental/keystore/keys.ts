@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { ecrecoverAuthenticator } from '../../eip8130/constants.js'
+import { k1Authenticator } from '../../eip8130/constants.js'
 import type {
   AaActor,
   AaAuthorizeActor,
@@ -29,7 +29,7 @@ export const key = {
   k1(address: Address): AaActor {
     return {
       actorId: actorIdFromAddress(address),
-      authenticator: ecrecoverAuthenticator,
+      authenticator: k1Authenticator,
     }
   },
   /** P-256 actor for a public key (`{ x, y }` or 64-byte `x || y`). */

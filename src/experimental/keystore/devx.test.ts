@@ -4,7 +4,7 @@ import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { sendTransaction } from '../../eip8130/actions/sendTransaction.js'
-import { ecrecoverAuthenticator } from '../../eip8130/constants.js'
+import { k1Authenticator } from '../../eip8130/constants.js'
 import { parseTransaction } from '../../eip8130/utils/parseTransaction.js'
 import type { Hex } from '../../types/misc.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
@@ -387,7 +387,7 @@ describe('toDelegateSigner (sub-account via key.delegate)', () => {
     expect((blob.length - 2) / 2).toBe(105)
     expect(blob.slice(0, 42).toLowerCase()).toBe(parent.toLowerCase())
     expect(blob.slice(42, 82).toLowerCase()).toBe(
-      ecrecoverAuthenticator.slice(2).toLowerCase(),
+      k1Authenticator.slice(2).toLowerCase(),
     )
   })
 

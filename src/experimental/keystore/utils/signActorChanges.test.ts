@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { ecrecoverAuthenticator } from '../../../eip8130/constants.js'
+import { k1Authenticator } from '../../../eip8130/constants.js'
 import type { AaChange } from '../../../eip8130/types/transaction.js'
 import { sliceHex } from '../../../utils/data/slice.js'
 import { recoverAddress } from '../../../utils/signature/recoverAddress.js'
@@ -86,7 +86,7 @@ describe('signAccountChanges (EIP-8130)', () => {
     expect(entry.type).toBe('config')
     expect(entry.channel).toBe('multichain')
     expect(entry.sequence).toBe(1n)
-    expect(sliceHex(entry.signature, 0, 20)).toBe(ecrecoverAuthenticator)
+    expect(sliceHex(entry.signature, 0, 20)).toBe(k1Authenticator)
 
     // 'multichain' binds chainId 0 in the digest.
     const digest = hashAccountChanges({

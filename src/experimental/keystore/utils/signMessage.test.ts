@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { ecrecoverAuthenticator } from '../../../eip8130/constants.js'
+import { k1Authenticator } from '../../../eip8130/constants.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
 import { size } from '../../../utils/data/size.js'
 import { slice } from '../../../utils/data/slice.js'
@@ -97,7 +97,7 @@ describe('wrap / parse signature envelope', () => {
     const signature = `0x${'ab'.repeat(65)}` as const
     const envelope = wrapSignatureEnvelope({
       sigType: 'local',
-      authenticator: ecrecoverAuthenticator,
+      authenticator: k1Authenticator,
       signature,
     })
     // 1 (sigType) + 20 (authenticator) + 65 (sig) = 86 bytes
@@ -105,7 +105,7 @@ describe('wrap / parse signature envelope', () => {
     expect(slice(envelope, 0, 1)).toBe('0x01')
     expect(parseSignatureEnvelope(envelope)).toEqual({
       sigType: 'local',
-      authenticator: ecrecoverAuthenticator,
+      authenticator: k1Authenticator,
       signature,
     })
   })
@@ -113,7 +113,7 @@ describe('wrap / parse signature envelope', () => {
   test('multichain leading byte is 0x02', () => {
     const envelope = wrapSignatureEnvelope({
       sigType: 'multichain',
-      authenticator: ecrecoverAuthenticator,
+      authenticator: k1Authenticator,
       signature: `0x${'cd'.repeat(65)}`,
     })
     expect(slice(envelope, 0, 1)).toBe('0x02')
@@ -137,7 +137,7 @@ describe('signMessageEnvelope', () => {
     const { sigType, authenticator, signature } =
       parseSignatureEnvelope(envelope)
     expect(sigType).toBe('multichain')
-    expect(authenticator).toBe(ecrecoverAuthenticator)
+    expect(authenticator).toBe(k1Authenticator)
 
     // The k1 authenticator data is a raw 65-byte ECDSA signature over the
     // account/chain-scoped digest — recoverable back to the owner.
@@ -224,9 +224,7 @@ describe('signTypedDataEnvelope', () => {
       ...typedData,
     })
     expect(parseSignatureEnvelope(envelope).sigType).toBe('multichain')
-    expect(parseSignatureEnvelope(envelope).authenticator).toBe(
-      ecrecoverAuthenticator,
-    )
+    expect(parseSignatureEnvelope(envelope).authenticator).toBe(k1Authenticator)
     expect(signatureType.multichain).toBe(0x02)
   })
 })

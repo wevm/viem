@@ -60,7 +60,6 @@ export {
   accountChangeType,
   changeType,
   delegationCost,
-  ecrecoverAuthenticator,
   k1AuthCost,
   k1AuthDataLength,
   k1Authenticator,

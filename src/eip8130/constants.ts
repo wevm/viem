@@ -134,9 +134,6 @@ export const nonceKeyMax = 2n ** 256n - 1n
 export const k1Authenticator =
   '0x0000000000000000000000000000000000000001' satisfies Hex
 
-/** Alias of {@link k1Authenticator} (`ECRECOVER_AUTHENTICATOR`). */
-export const ecrecoverAuthenticator = k1Authenticator
-
 /** Byte length of a secp256k1 authentication payload (`r || s || v`). */
 export const k1AuthDataLength = 65
 

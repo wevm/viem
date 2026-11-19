@@ -1,5 +1,5 @@
 import type { Address, TypedData } from 'abitype'
-import { ecrecoverAuthenticator } from '../../../eip8130/constants.js'
+import { k1Authenticator } from '../../../eip8130/constants.js'
 import type { AaActor } from '../../../eip8130/types/transaction.js'
 import type { Signer } from '../../../eip8130/utils/signTransaction.js'
 import type { ErrorType } from '../../../errors/utils.js'
@@ -268,7 +268,7 @@ export async function signMessageEnvelope(
   if (!signer.sign)
     throw new Error('`signer` does not support raw signing (`sign`).')
   const authenticator =
-    parameters.authenticator ?? signer.authenticator ?? ecrecoverAuthenticator
+    parameters.authenticator ?? signer.authenticator ?? k1Authenticator
   const hash = hash_ ?? hashMessage(message!)
   const digest = getSignatureEnvelopeHash({ account, hash, sigType, chainId })
   const signature = await signer.sign({ hash: digest })
@@ -311,7 +311,7 @@ export async function signTypedDataEnvelope<
     ...typedData
   } = parameters as SignTypedDataEnvelopeParameters
   const authenticator =
-    parameters.authenticator ?? signer.authenticator ?? ecrecoverAuthenticator
+    parameters.authenticator ?? signer.authenticator ?? k1Authenticator
   const hash = hashTypedData(typedData as never)
   return signMessageEnvelope({
     signer,

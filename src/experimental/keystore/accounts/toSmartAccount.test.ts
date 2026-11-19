@@ -3,7 +3,7 @@ import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
-import { ecrecoverAuthenticator } from '../../../eip8130/constants.js'
+import { k1Authenticator } from '../../../eip8130/constants.js'
 import type { AaActor } from '../../../eip8130/types/transaction.js'
 import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { slice } from '../../../utils/data/slice.js'
@@ -38,7 +38,7 @@ const owner = privateKeyToAccount(
 const implementation = '0x00000000000000000000000000000000000000Ec' as const
 const actor: AaActor = {
   actorId: '0x0000000000000000000000000000000000000000000000000000000000000001',
-  authenticator: ecrecoverAuthenticator,
+  authenticator: k1Authenticator,
 }
 const base = {
   client,
@@ -103,9 +103,7 @@ describe('toSmartAccount', () => {
   test('getStubSignature is authenticator-prefixed', async () => {
     const account = await toSmartAccount(base)
     const stub = await account.getStubSignature()
-    expect(slice(stub, 0, 20).toLowerCase()).toBe(
-      ecrecoverAuthenticator.toLowerCase(),
-    )
+    expect(slice(stub, 0, 20).toLowerCase()).toBe(k1Authenticator.toLowerCase())
   })
 
   test('signMessage = SignedMessageEnvelope (sigType || authenticator || sig)', async () => {
@@ -118,9 +116,7 @@ describe('toSmartAccount', () => {
 
     // multichain sigType byte, then the authenticator.
     expect(slice(sig, 0, 1)).toBe('0x02')
-    expect(slice(sig, 1, 21).toLowerCase()).toBe(
-      ecrecoverAuthenticator.toLowerCase(),
-    )
+    expect(slice(sig, 1, 21).toLowerCase()).toBe(k1Authenticator.toLowerCase())
 
     // The ECDSA `data` signs the account/chain-scoped replay-safe digest
     // (multichain => chainId 0), not the raw message hash.

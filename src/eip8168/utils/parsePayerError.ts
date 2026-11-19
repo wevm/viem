@@ -57,6 +57,3 @@ export function parsePayerError(error: unknown): PayerRejectedData | undefined {
 
   return undefined
 }
-
-/** The numeric envelope every payer rejection rides on. Re-exported for routing. */
-export { payerRejectedCode }

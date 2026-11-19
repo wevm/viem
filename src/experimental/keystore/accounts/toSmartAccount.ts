@@ -9,7 +9,7 @@ import { entryPoint07Address } from '../../../account-abstraction/constants/addr
 import type { EntryPointVersion } from '../../../account-abstraction/types/entryPointVersion.js'
 import { getUserOperationHash } from '../../../account-abstraction/utils/userOperation/getUserOperationHash.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import { ecrecoverAuthenticator } from '../../../eip8130/constants.js'
+import { k1Authenticator } from '../../../eip8130/constants.js'
 import type { AaActor } from '../../../eip8130/types/transaction.js'
 import { BaseError } from '../../../errors/base.js'
 import type { Account } from '../../../types/account.js'
@@ -137,7 +137,7 @@ export async function toSmartAccount<
       version: '0.7',
     },
     getNonce,
-    authenticator = ecrecoverAuthenticator,
+    authenticator = k1Authenticator,
   } = parameters
 
   const entryPoint = {

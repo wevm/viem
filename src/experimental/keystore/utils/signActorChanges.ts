@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { ecrecoverAuthenticator } from '../../../eip8130/constants.js'
+import { k1Authenticator } from '../../../eip8130/constants.js'
 import type {
   AaAccountChangeConfig,
   AaChange,
@@ -64,7 +64,7 @@ export async function signAccountChanges(
   const { signer, chainId, sequence, changes } = parameters
   const channel = parameters.channel ?? 'local'
   const authenticator =
-    parameters.authenticator ?? signer.authenticator ?? ecrecoverAuthenticator
+    parameters.authenticator ?? signer.authenticator ?? k1Authenticator
   const account = parameters.account ?? signer.address
 
   if (!signer.sign)

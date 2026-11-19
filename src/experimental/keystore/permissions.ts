@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroAddress } from '../../constants/address.js'
-import { ecrecoverAuthenticator } from '../../eip8130/constants.js'
+import { k1Authenticator } from '../../eip8130/constants.js'
 import type {
   AaActor,
   AaAuthorizeActor,
@@ -438,7 +438,7 @@ export async function fulfillGrantPermissions<
       actorId: managerActor.actorId,
     })
     const registered =
-      authenticator.toLowerCase() === ecrecoverAuthenticator.toLowerCase()
+      authenticator.toLowerCase() === k1Authenticator.toLowerCase()
     if (!registered)
       managerChange = authorizeActor(managerActor, {
         scope: actorScope.operator,

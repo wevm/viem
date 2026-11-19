@@ -4,7 +4,7 @@ import {
   toEoaAccount as toEoaAccount_core,
 } from '../../../eip8130/accounts/toEoaAccount.js'
 import type { AaAccount } from '../../../eip8130/accounts/types.js'
-import { ecrecoverAuthenticator } from '../../../eip8130/constants.js'
+import { k1Authenticator } from '../../../eip8130/constants.js'
 import type {
   AaAccountChangeConfig,
   AaAccountChangeCreate,
@@ -195,7 +195,7 @@ export type ToAccountReturnType = AaAccount & {
 export function toAccount(
   parameters: ToAccountParameters,
 ): ToAccountReturnType {
-  const { signer, authenticator = ecrecoverAuthenticator, scope } = parameters
+  const { signer, authenticator = k1Authenticator, scope } = parameters
 
   // Address-only mode (delegated EOA): address is fixed, no CREATE2 derivation.
   const isAddressOnly = parameters.userSalt === undefined
@@ -218,7 +218,7 @@ export function toAccount(
   // K1 / ecrecover signers: actorId is a pure function of the signer address.
   // Non-K1 authenticators must pass `actorId` explicitly for on-chain scope reads.
   const isK1Authenticator =
-    authenticator === ecrecoverAuthenticator ||
+    authenticator === k1Authenticator ||
     authenticator === canonicalAuthenticators.k1
   const actorId =
     parameters.actorId ??
@@ -628,7 +628,7 @@ export function toEoaAccount(
         chainId: options.chainId ?? 0,
         sequence: options.sequence ?? 0n,
         changes,
-        authenticator: ecrecoverAuthenticator,
+        authenticator: k1Authenticator,
       })
     },
   }
@@ -694,7 +694,7 @@ export function toDelegateSigner(
   const {
     delegateAccount,
     nestedSigner,
-    nestedAuthenticator = ecrecoverAuthenticator,
+    nestedAuthenticator = k1Authenticator,
     authenticator = canonicalAuthenticators.delegate,
   } = parameters
   if (!nestedSigner.sign)
