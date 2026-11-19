@@ -75,7 +75,7 @@ const all = [
 ] as const satisfies Tokens
 
 /** Tokens flagged as popular. */
-const popular = [ousd, usdc] as const satisfies Tokens
+const popular = [ousd, usdc, usdt] as const satisfies Tokens
 
 /** All tokens available on Tempo chains. */
 const tempo = [

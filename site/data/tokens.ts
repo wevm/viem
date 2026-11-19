@@ -180,6 +180,31 @@ export const tokenLookupData = [
   {
     chains: [
       {
+        address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        id: 1,
+        name: 'Ethereum',
+      },
+      {
+        address: '0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e',
+        id: 42220,
+        name: 'Celo',
+      },
+      {
+        address: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+        id: 43114,
+        name: 'Avalanche',
+      },
+    ],
+    currency: 'USD',
+    decimals: 6,
+    importName: 'usdt',
+    name: 'Tether USD',
+    popular: true,
+    symbol: 'USDT',
+  },
+  {
+    chains: [
+      {
         address: '0x20c000000000000000000000f047dd7018e50367',
         id: 4217,
         name: 'Tempo Mainnet',
