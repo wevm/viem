@@ -458,22 +458,28 @@ describe('verifyVoucher.call', () => {
       signature,
     })
 
-    expect(call.to).toBe(Channel.address)
-    expect(call.functionName).toBe('verifyVoucher')
-    expect(call.data.slice(0, 10)).toBe('0xcabd6d5a')
-    expect(call.args).toEqual([
+    const { abi: _, ...rest } = call
+    expect(rest).toMatchInlineSnapshot(`
       {
-        authorizedSigner: zeroAddress,
-        expiringNonceHash: zeroHash,
-        operator: zeroAddress,
-        payee: payee.address,
-        payer: payer.address,
-        salt: zeroHash,
-        token: '0x20C0000000000000000000000000000000000001',
-      },
-      parseUnits('40', 6),
-      signature,
-    ])
+        "address": "0x4d50500000000000000000000000000000000000",
+        "args": [
+          {
+            "authorizedSigner": "0x0000000000000000000000000000000000000000",
+            "expiringNonceHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "operator": "0x0000000000000000000000000000000000000000",
+            "payee": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+            "payer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "token": "0x20C0000000000000000000000000000000000001",
+          },
+          40000000n,
+          "0xababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab",
+        ],
+        "data": "0xcabd6d5a000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000008c8d35429f74ec245f8ef2f4fd1e551cff97d650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002625a0000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000041ababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab00000000000000000000000000000000000000000000000000000000000000",
+        "functionName": "verifyVoucher",
+        "to": "0x4d50500000000000000000000000000000000000",
+      }
+    `)
   })
 })
 
