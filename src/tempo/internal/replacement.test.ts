@@ -103,6 +103,15 @@ describe('getKey', () => {
       key,
     )
     expect(getKey({ ...transaction, from: sponsor.address })).not.toBe(key)
+
+    // Unsponsored senders sign the fee token, so it is part of the payload.
+    const unsponsored = { ...transaction, feePayerSignature: undefined }
+    expect(
+      getKey({
+        ...unsponsored,
+        feeToken: '0x20c0000000000000000000000000000000000001',
+      }),
+    ).not.toBe(getKey(unsponsored))
   })
 })
 
