@@ -565,8 +565,7 @@ export async function waitForTransactionReceipt<
               )
 
               // If we couldn't find a replacement transaction, continue polling.
-              if (!replacementTransaction || !replacementTransaction.hash)
-                return
+              if (!replacementTransaction) return
 
               // If we found a replacement transaction, return it's receipt.
               receipt = await getAction(
