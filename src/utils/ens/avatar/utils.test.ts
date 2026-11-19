@@ -280,18 +280,23 @@ describe('resolveAvatarUri()', () => {
     })
   })
 
-  test('arweave replace default', () => {
-    expect(
-      resolveAvatarUri({
-        uri: 'https://arweave.net/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
-        gatewayUrls: { arweave: 'https://example.com' },
-      }),
-    ).toStrictEqual({
-      uri: 'https://example.com/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
-      isOnChain: false,
-      isEncoded: false,
-    })
-  })
+  test.each(['https://example.com', 'https://example.com/'])(
+    'arweave replace default with gateway %s',
+    (arweave) => {
+      expect(
+        resolveAvatarUri({
+          uri: 'https://arweave.net/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
+          gatewayUrls: { arweave },
+        }),
+      ).toMatchInlineSnapshot(`
+      {
+        "isEncoded": false,
+        "isOnChain": false,
+        "uri": "https://example.com/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI",
+      }
+    `)
+    },
+  )
 
   test.each([
     {
