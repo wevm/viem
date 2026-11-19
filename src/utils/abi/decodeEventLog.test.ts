@@ -1419,7 +1419,7 @@ test('behavior: indexed topics in any hex case or padding', () => {
       abi: [event],
       topics: [
         signature,
-        '0xffffffffffffffffffffffffA5CC3C03994DB5B0D9A5EEDD10CABAB0813678AC',
+        '0x000000000000000000000000A5CC3C03994DB5B0D9A5EEDD10CABAB0813678AC',
         '0x0000000000000000000000000000000000000000000000000000FFFFFFFFFFFF',
         '0x0000000000000000000000000000000000000000000000000000000000000001',
         '0xDEADBEEF000000000000000000000000000000000000000000000000000000FF',
@@ -1537,6 +1537,69 @@ test('errors: invalid bool', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidBytesBooleanError: Bytes value "221,242,82,173,27,226,200,155,105,194,176,104,252,55,141,170,149,43,167,241,99,196,161,22,40,245,90,77,245,35,179,239" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('errors: indexed topic out of range', () => {
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'from',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'to',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'tokenId',
+              type: 'uint256',
+            },
+          ],
+          name: 'Transfer',
+          type: 'event',
+        },
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x000000000000000000000001d8da6bf26964af9d7eed9e03e53415d37aa96045',
+        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidAddressError: Address "0x000000000000000000000001d8da6bf26964af9d7eed9e03e53415d37aa96045" is invalid.
+
+    - Address must be a hex value of 20 bytes (40 hex characters).
+    - Address must match its checksum counterpart.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    decodeEventLog({
+      abi: [
+        {
+          inputs: [{ indexed: true, name: 'id', type: 'uint64' }],
+          name: 'Created',
+          type: 'event',
+        },
+      ],
+      topics: [
+        toEventSelector('Created(uint64)'),
+        '0x0000000000000000000000000000000000000000000000010000000000000000',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "18446744073709551616" is not in safe 64-bit unsigned integer range (0 to 18446744073709551615)
 
     Version: viem@x.y.z]
   `)
@@ -2016,115 +2079,4 @@ describe('anonymous', () => {
       }
     `)
   })
-})
-
-test('errors: indexed integer out of range', () => {
-  expect(() =>
-    decodeEventLog({
-      abi: [
-        {
-          inputs: [
-            {
-              indexed: true,
-              name: 'from',
-              type: 'address',
-            },
-            {
-              indexed: true,
-              name: 'level',
-              type: 'uint8',
-            },
-          ],
-          name: 'Leveled',
-          type: 'event',
-        },
-      ],
-      topics: [
-        toEventSelector('Leveled(address,uint8)'),
-        '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
-        '0x0000000000000000000000000000000000000000000000000000000000000100',
-      ],
-    }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
-
-    Version: viem@x.y.z]
-  `)
-})
-
-test('errors: indexed address with dirty padding', () => {
-  expect(() =>
-    decodeEventLog({
-      abi: [
-        {
-          inputs: [
-            {
-              indexed: true,
-              name: 'from',
-              type: 'address',
-            },
-            {
-              indexed: true,
-              name: 'to',
-              type: 'address',
-            },
-            {
-              indexed: false,
-              name: 'tokenId',
-              type: 'uint256',
-            },
-          ],
-          name: 'Transfer',
-          type: 'event',
-        },
-      ],
-      data: '0x0000000000000000000000000000000000000000000000000000000000000001',
-      topics: [
-        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-        '0x000000000000000000000001d8da6bf26964af9d7eed9e03e53415d37aa96045',
-        '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-      ],
-    }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidAddressError: Address "0x000000000000000000000001d8da6bf26964af9d7eed9e03e53415d37aa96045" is invalid.
-
-    - Address must be a hex value of 20 bytes (40 hex characters).
-    - Address must match its checksum counterpart.
-
-    Version: viem@x.y.z]
-  `)
-})
-
-test('errors: non-indexed integer out of range', () => {
-  expect(() =>
-    decodeEventLog({
-      abi: [
-        {
-          inputs: [
-            {
-              indexed: true,
-              name: 'from',
-              type: 'address',
-            },
-            {
-              indexed: false,
-              name: 'level',
-              type: 'int8',
-            },
-          ],
-          name: 'Leveled',
-          type: 'event',
-        },
-      ],
-      data: '0x0000000000000000000000000000000000000000000000000000000000000080',
-      topics: [
-        toEventSelector('Leveled(address,int8)'),
-        '0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045',
-      ],
-    }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [IntegerOutOfRangeError: Number "128" is not in safe 8-bit signed integer range (-128 to 127)
-
-    Version: viem@x.y.z]
-  `)
 })

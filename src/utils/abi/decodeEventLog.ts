@@ -172,7 +172,7 @@ export type EventPlan = {
 
 /**
  * How an indexed topic decodes: as is (hashed types), read directly
- * (`address`, wide `uint`, `bytesN`), or through `decodeAbiParameters`.
+ * (`address`, `uint256`, `bytesN`), or through `decodeAbiParameters`.
  */
 type TopicKind = 'address' | 'bytes' | 'decode' | 'hashed' | 'uint'
 
@@ -373,21 +373,24 @@ function topicKind(param: AbiParameter): TopicKind {
     return 'hashed'
   if (type === 'address') return 'address'
   if (bytesRegex.test(type)) return 'bytes'
-  // Integers wider than 48 bits decode to a `bigint` of the whole word.
+  // `uint256` decodes to a `bigint` of the whole word.
   const integer = integerRegex.exec(type)
-  if (integer?.[1] === 'uint' && Number(integer[2] ?? 256) > 48) return 'uint'
+  if (integer?.[1] === 'uint' && Number(integer[2] ?? 256) === 256)
+    return 'uint'
   return 'decode'
 }
 
 const topicRegex = /^0x[0-9a-fA-F]{64}$/
 
 function decodeTopic(param: AbiParameter, kind: TopicKind, value: Hex) {
-  // A well-formed topic decodes to the same value read directly.
+  // A well-formed topic decodes to the same value read directly. An address
+  // with non-zero padding falls through so `decodeAbiParameters` rejects it.
   if (kind !== 'decode' && kind !== 'hashed' && topicRegex.test(value)) {
-    if (kind === 'address')
-      return checksumAddress(`0x${value.slice(26).toLowerCase()}`)
     if (kind === 'uint') return BigInt(value)
-    return value.slice(0, 2 + Number(param.type.slice(5)) * 2).toLowerCase()
+    if (kind === 'bytes')
+      return value.slice(0, 2 + Number(param.type.slice(5)) * 2).toLowerCase()
+    if (value.startsWith('0x000000000000000000000000'))
+      return checksumAddress(`0x${value.slice(26).toLowerCase()}`)
   }
   // Dynamic types are indexed by their hash.
   if (
