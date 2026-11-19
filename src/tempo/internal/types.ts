@@ -70,10 +70,11 @@ export type WriteParameters<
 > &
   UnionPick<
     TransactionRequestTempo,
-    | 'keyAuthorization'
-    | 'feeToken'
     | 'feePayer'
+    | 'feeToken'
+    | 'keyAuthorization'
     | 'nonceKey'
+    | 'owner'
     | 'validAfter'
     | 'validBefore'
   >

@@ -21,6 +21,7 @@ const ipfsContentTypes = {
 } as const
 
 let ipfsGateway: Awaited<ReturnType<typeof createHttpServer>>
+let metadataServer: Awaited<ReturnType<typeof createHttpServer>>
 
 beforeAll(async () => {
   ipfsGateway = await createHttpServer((req, res) => {
@@ -32,6 +33,14 @@ beforeAll(async () => {
     })
     res.end()
   })
+  metadataServer = await createHttpServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(
+      JSON.stringify({
+        image: 'ipfs://QmbUCe7JMPsG39FRaLaJ9VwSKrE74PzEb1s4DKuEkARepS',
+      }),
+    )
+  })
 
   await impersonateAccount(client, {
     address: address.vitalik,
@@ -42,7 +51,7 @@ beforeAll(async () => {
   })
 })
 
-afterAll(() => ipfsGateway.close())
+afterAll(() => Promise.all([ipfsGateway.close(), metadataServer.close()]))
 
 test.each([
   {
@@ -171,7 +180,9 @@ describe('eip155:1 string (erc721)', () => {
   ])('$tokenId -> $expected', async ({ tokenId, expected }) => {
     const expected_ =
       expected?.replace('https://ipfs.io', ipfsGateway.url) ?? expected
-    const { contractAddress } = await deployEnsAvatarTokenUri()
+    const { contractAddress } = await deployEnsAvatarTokenUri({
+      metadataUri: `${metadataServer.url}/`,
+    })
     await setEnsAvatar(`eip155:1/erc721:${contractAddress}/${tokenId}`)
     await expect(
       getEnsAvatar(client, {

@@ -1,0 +1,92 @@
+# `accessKey.saveAuthorization`
+
+Saves a signed key authorization to a relay running the [Key Authorization plugin](/tempo/relay/plugins/key-authorization).
+The relay attaches it to the access key's next transaction until the key is active onchain.
+
+[`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) already saves authorizations it signs
+through a relay. Use this action for authorizations signed elsewhere, such as on another device or with
+`Account.signKeyAuthorization`.
+
+## Usage
+
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, Actions, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+  chainId: BigInt(client.chain.id),
+  expiry: Math.floor(Date.now() / 1000) + 86_400,
+})
+
+await Actions.accessKey.saveAuthorization(client, { keyAuthorization }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { http } from 'viem'
+import { tempo } from 'viem/chains'
+import { createClient, Relay, Store, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), {
+    plugins: [Relay.keyAuthorization({ store: Store.memory() })],
+  }),
+})
+```
+
+:::
+
+:::info
+For a remote relay, pass `keyAuthorization: true` to [`withRelay`](/tempo/transports/withRelay#parameterskeyauthorization)
+so `accessKey.signAuthorization` also saves automatically. This action works either way.
+:::
+
+## Return Value
+
+`void`
+
+Resolves once the relay has stored the authorization, or has skipped it because the key is already active onchain.
+
+## Parameters
+
+### keyAuthorization
+
+- **Type:** `KeyAuthorization.Signed`
+
+The signed key authorization to save. It must be signed by the account itself (a root key or an owner
+quorum), unexpired, and for the relay's chain. A pending authorization for the same key is only
+replaced when the new one expires later.
+
+```ts twoslash
+import { http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Actions, createClient, Relay, withRelay } from 'viem/tempo'
+import type { KeyAuthorization } from 'ox/tempo'
+
+declare const keyAuthorization: KeyAuthorization.Signed
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), { plugins: [Relay.keyAuthorization()] }),
+})
+// ---cut---
+await Actions.accessKey.saveAuthorization(client, {
+  keyAuthorization, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `MethodNotFoundRpcError` | The relay does not run the Key Authorization plugin. |
+| `InvalidParamsRpcError` | The authorization is unsigned, expired, signed by another account, below quorum, for another chain, burned, or older than the pending authorization. |

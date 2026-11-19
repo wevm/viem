@@ -1,6 +1,7 @@
 import { Hex } from 'ox'
 import { encodeDeployData, getAddress, isAddressEqual, zeroAddress } from 'viem'
 import {
+  getTransactionCount,
   readContract,
   sendTransactionSync,
   writeContractSync,
@@ -255,6 +256,16 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
 
   test('deploys, resumes, binds, and reruns idempotently', async () => {
     const { factories, venue } = await setup()
+    const inferredClient = getClient({
+      account,
+      chain: {
+        ...client.chain,
+        contracts: {
+          earnFactory: { address: factories.earn },
+          erc4626EngineFactory: { address: factories.erc4626Engine },
+        },
+      },
+    })
     const deploymentId = Hex.fromNumber(2, { size: 32 })
     const predicted = await Actions.earn.createErc4626Engine.predict(client, {
       deploymentId,
@@ -269,15 +280,16 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     })
     expect(isAddressEqual(engine.engine, predicted)).toBe(true)
 
-    const deployed = await Actions.earn.deployErc4626StackSync(client, {
+    const deployed = await Actions.earn.deployErc4626StackSync(inferredClient, {
       deploymentId,
-      factories,
       resume: { deploymentId, engine: predicted },
       venue,
     })
     expect(deployed.receipts.engine).toBeUndefined()
     expect(deployed.receipts.stack?.status).toBe('success')
     expect(deployed.receipts.binding?.status).toBe('success')
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     const [boundVault, guardian, janitor, migrationMode] = await Promise.all([
       readContract(client, {
@@ -310,9 +322,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     })
     expect(feeState.feesActive).toBe(false)
 
-    const rerun = await Actions.earn.deployErc4626StackSync(client, {
+    const rerun = await Actions.earn.deployErc4626StackSync(inferredClient, {
       deploymentId,
-      factories,
       fromBlock: deployed.receipts.stack
         ? deployed.receipts.stack.blockNumber + 1n
         : undefined,
@@ -326,6 +337,50 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       fees: deployed.fees,
       vault: deployed.vault,
     })
+  })
+
+  test('requires explicit factories when chain metadata is unavailable', async () => {
+    const { venue } = await setup()
+    const clientWithoutFactories = getClient({
+      account,
+      chain: { ...client.chain, contracts: {} },
+    })
+
+    await expect(
+      Actions.earn.deployErc4626StackSync(clientWithoutFactories, {
+        deploymentId: Hex.fromNumber(13, { size: 32 }),
+        venue,
+      }),
+    ).rejects.toThrow('does not support contract "earnFactory"')
+  })
+
+  test('rejects a null account without falling back to the client account', async () => {
+    const { factories, venue } = await setup()
+    const nonce = await getTransactionCount(client, {
+      address: account.address,
+      blockTag: 'pending',
+    })
+
+    await expect(
+      Actions.earn.deployErc4626StackSync(client, {
+        account: null as never,
+        deploymentId: Hex.fromNumber(14, { size: 32 }),
+        factories,
+        venue,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [AccountNotFoundError: Could not find an Account to execute with this Action.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
+
+      Version: viem@x.y.z]
+    `)
+
+    expect(
+      await getTransactionCount(client, {
+        address: account.address,
+        blockTag: 'pending',
+      }),
+    ).toBe(nonce)
   })
 
   test('uses a separate final owner for binding', async () => {
@@ -343,6 +398,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       owner,
       venue,
     })
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     const engineOwner = await readContract(client, {
       abi: Abis.erc4626Engine,
@@ -512,6 +569,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       factories,
       venue,
     })
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     await expect(
       Actions.earn.deployErc4626StackSync(client, {
@@ -546,6 +605,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       engine: engine.engine,
       factory: factories.earn,
     })
+    if (stack.receipt.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
     await writeContractSync(client, {
       abi: Abis.erc4626Engine,
       address: engine.engine,

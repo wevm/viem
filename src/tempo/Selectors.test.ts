@@ -19,16 +19,20 @@ const selectorDefinitions = {
     abi: Abis.addressRegistry,
     selectors: Selectors.addressRegistry,
   },
+  configurableAccount: {
+    abi: Abis.configurableAccount,
+    selectors: Selectors.configurableAccount,
+  },
+  configurableAccountShim: {
+    abi: Abis.configurableAccountShim,
+    selectors: Selectors.configurableAccountShim,
+  },
   currentCommittee: {
     abi: Abis.currentCommittee,
     selectors: Selectors.currentCommittee,
   },
   feeAmm: { abi: Abis.feeAmm, selectors: Selectors.feeAmm },
   feeManager: { abi: Abis.feeManager, selectors: Selectors.feeManager },
-  nativeMultisig: {
-    abi: Abis.nativeMultisig,
-    selectors: Selectors.nativeMultisig,
-  },
   nonce: { abi: Abis.nonce, selectors: Selectors.nonce },
   receivePolicyGuard: {
     abi: Abis.receivePolicyGuard,
@@ -71,6 +75,10 @@ const selectorDefinitions = {
     abi: Abis.zoneFactory,
     selectors: Selectors.zoneFactory,
   },
+  zoneInbox: {
+    abi: Abis.zoneInbox,
+    selectors: Selectors.zoneInbox,
+  },
   zoneMessenger: {
     abi: Abis.zoneMessenger,
     selectors: Selectors.zoneMessenger,
@@ -82,6 +90,10 @@ const selectorDefinitions = {
   zonePortal: {
     abi: Abis.zonePortal,
     selectors: Selectors.zonePortal,
+  },
+  zonePortalPreT13Retired: {
+    abi: Abis.zonePortalPreT13Retired,
+    selectors: Selectors.zonePortalPreT13Retired,
   },
   zoneVerifier: {
     abi: Abis.zoneVerifier,

@@ -4,15 +4,16 @@ import { bindActionDecorators, type Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import * as accessKeyActions from './actions/accessKey.js'
+import * as accountsActions from './actions/accounts.js'
 import * as ammActions from './actions/amm.js'
 import * as channelActions from './actions/channel.js'
 import * as dexActions from './actions/dex.js'
 import * as earnActions from './actions/earn.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
-import * as multisigActions from './actions/multisig.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
+import * as propAmmActions from './actions/propAmm.js'
 import * as receivePolicyActions from './actions/receivePolicy.js'
 import * as rewardActions from './actions/reward.js'
 import * as simulateActions from './actions/simulate.js'
@@ -201,32 +202,6 @@ type DecoratorBase<
       parameters: accessKeyActions.getRemainingLimit.Parameters<account>,
     ) => Promise<accessKeyActions.getRemainingLimit.ReturnValue>
     /**
-     * Checks whether an access key is an admin key for an account.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const isAdmin = await client.accessKey.isAdmin({
-     *   account: '0x...',
-     *   accessKey: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns Whether the access key is an admin key.
-     */
-    isAdmin: (
-      parameters: accessKeyActions.isAdmin.Parameters<account>,
-    ) => Promise<accessKeyActions.isAdmin.ReturnValue>
-    /**
      * Checks whether a key-authorization witness has been burned for an account.
      *
      * @example
@@ -307,6 +282,61 @@ type DecoratorBase<
       parameters: accessKeyActions.revokeSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.revokeSync.ReturnValue>
     /**
+     * Saves a signed key authorization to a relay with key authorization storage.
+     *
+     * The relay attaches the authorization to the access key's next transaction
+     * until the key is active onchain. Requires a relay running the
+     * `Relay.keyAuthorization` plugin.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions, withRelay } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: withRelay(http(), http('https://relay.example.com'), {
+     *     keyAuthorization: true,
+     *   }),
+     * }).extend(tempoActions())
+     *
+     * await client.accessKey.saveAuthorization({ keyAuthorization })
+     * ```
+     *
+     * @param parameters - Parameters.
+     */
+    saveAuthorization: (
+      parameters: accessKeyActions.saveAuthorization.Parameters,
+    ) => Promise<accessKeyActions.saveAuthorization.ReturnValue>
+    /**
+     * Signs a key authorization or adds one coordinated owner approval.
+     *
+     * @example
+     * ```ts
+     * const pending = await client.accessKey.signAuthorization({
+     *   accessKey,
+     *   account: configurable,
+     *   owner: owner_1,
+     * })
+     * const success = await client.accessKey.signAuthorization({
+     *   hash: pending.hash,
+     *   owner: owner_2,
+     * })
+     * ```
+     *
+     * @param parameters - Authorization fields, or a stored operation hash.
+     * @returns A signed key authorization with account operation metadata when coordinated.
+     */
+    signAuthorization: {
+      (
+        parameters: accessKeyActions.signAuthorization.CoordinatedParameters,
+      ): Promise<accessKeyActions.signAuthorization.CoordinatedReturnValue>
+      (
+        parameters: accessKeyActions.signAuthorization.LocalParameters<account>,
+      ): Promise<accessKeyActions.signAuthorization.ReturnValue>
+    }
+    /**
      * Updates the spending limit for a specific token on an authorized access key.
      *
      * @example
@@ -365,33 +395,6 @@ type DecoratorBase<
       parameters: accessKeyActions.updateLimitSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.updateLimitSync.ReturnValue>
     /**
-     * Watches for admin key authorization events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.accessKey.watchAdminAuthorized({
-     *   onAuthorized: (args, log) => {
-     *     console.log('Admin key authorized:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchAdminAuthorized: (
-      parameters: accessKeyActions.watchAdminAuthorized.Parameters,
-    ) => ReturnType<typeof accessKeyActions.watchAdminAuthorized>
-    /**
      * Watches for key-authorization witness events.
      *
      * @example
@@ -445,6 +448,160 @@ type DecoratorBase<
     watchWitnessBurned: (
       parameters: accessKeyActions.watchWitnessBurned.Parameters,
     ) => ReturnType<typeof accessKeyActions.watchWitnessBurned>
+  }
+  accounts: {
+    /**
+     * Derives a configurable account address from an initial config with the
+     * configurable account precompile.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: Account.fromSecp256k1('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const address = await client.accounts.deriveAccount({
+     *   owners: [{ owner: '0x...', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param parameters - Owners, threshold, and optional salt.
+     * @returns The configurable account address.
+     */
+    deriveAccount: (
+      parameters: accountsActions.deriveAccount.Parameters,
+    ) => Promise<accountsActions.deriveAccount.ReturnValue>
+    /**
+     * Gets the current cached config for a configurable account.
+     *
+     * @param parameters - Parameters.
+     * @returns The config, or `null` when it is unknown.
+     */
+    getConfig: (
+      parameters: accountsActions.getConfig.Parameters,
+    ) => Promise<accountsActions.getConfig.ReturnValue>
+    /** Gets the current configuration commitment for a configurable account. */
+    getConfigCommitment: (
+      parameters: accountsActions.getConfigCommitment.Parameters,
+    ) => Promise<accountsActions.getConfigCommitment.ReturnValue>
+    /**
+     * Gets a coordinated account operation by its hash.
+     *
+     * @param parameters - Parameters.
+     * @returns The operation, or `null` when it is unknown.
+     */
+    getOperation: (
+      parameters: accountsActions.getOperation.Parameters,
+    ) => Promise<accountsActions.getOperation.ReturnValue>
+    /**
+     * Replaces the current configuration for a configurable account.
+     *
+     * @param parameters - New configuration and transaction parameters.
+     * @returns The transaction hash.
+     */
+    updateConfig: (
+      parameters: accountsActions.updateConfig.Parameters<chain, account>,
+    ) => Promise<accountsActions.updateConfig.ReturnValue>
+    /**
+     * Replaces a configurable account configuration and waits for confirmation.
+     *
+     * @param parameters - New configuration and transaction parameters.
+     * @returns The update event and transaction receipt.
+     */
+    updateConfigSync: (
+      parameters: accountsActions.updateConfigSync.Parameters<chain, account>,
+    ) => Promise<accountsActions.updateConfigSync.ReturnValue>
+    /**
+     * Upgrades an existing account to a configurable account in place.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: Account.fromSecp256k1('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.accounts.upgrade({
+     *   owners: [{ owner: '0x...', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param parameters - Owners, threshold, and transaction parameters.
+     * @returns The transaction hash.
+     */
+    upgrade: (
+      parameters: accountsActions.upgrade.Parameters<chain, account>,
+    ) => Promise<accountsActions.upgrade.ReturnValue>
+    /**
+     * Upgrades an existing account to a configurable account in place and
+     * waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: Account.fromSecp256k1('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { config } = await client.accounts.upgradeSync({
+     *   owners: [{ owner: '0x...', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param parameters - Owners, threshold, and transaction parameters.
+     * @returns The installed configuration, its commitment, and the transaction receipt.
+     */
+    upgradeSync: (
+      parameters: accountsActions.upgradeSync.Parameters<chain, account>,
+    ) => Promise<accountsActions.upgradeSync.ReturnValue>
+    /**
+     * Verifies a configurable account signature against the account's
+     * current configuration.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: Account.fromSecp256k1('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const valid = await client.accounts.verifyHash({
+     *   account: '0x...',
+     *   hash: '0x...',
+     *   signature: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Account, hash, and signature.
+     * @returns Whether the signature is valid for the account.
+     */
+    verifyHash: (
+      parameters: accountsActions.verifyHash.Parameters,
+    ) => Promise<accountsActions.verifyHash.ReturnValue>
   }
   amm: {
     /**
@@ -806,6 +963,38 @@ type DecoratorBase<
       parameters: channelActions.closeSync.Parameters<chain, account>,
     ) => Promise<channelActions.closeSync.ReturnValue>
     /**
+     * Gets the salt to open a TIP-20 channel reserve channel with for a voucher
+     * signer.
+     *
+     * From T15 (TIP-1166), a channel whose voucher signer is a configurable account
+     * (TIP-1107) with a nonzero configuration commitment must use that commitment as
+     * its salt. This returns the signer's commitment when it is nonzero, else a
+     * random 32-byte salt. Pass the result as `salt` to `client.channel.open` or
+     * `Actions.channel.open.call`.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const salt = await client.channel.getOpenSalt({
+     *   signer: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The signer's nonzero configuration commitment, else a random 32-byte salt.
+     */
+    getOpenSalt: (
+      parameters: channelActions.getOpenSalt.Parameters,
+    ) => Promise<channelActions.getOpenSalt.ReturnValue>
+    /**
      * Gets TIP-20 channel reserve state for a channel ID or channel.
      *
      * @example
@@ -837,6 +1026,18 @@ type DecoratorBase<
     /**
      * Opens and funds a TIP-20 channel reserve channel.
      *
+     * When `salt` is omitted and the voucher signer (`authorizedSigner`, else the
+     * account) is a configurable account (TIP-1107), or an access key of one, with
+     * a nonzero configuration commitment, the salt defaults to that commitment, as
+     * the channel reserve requires from T15 (TIP-1166). Otherwise it defaults to a
+     * random salt. Pass `salt` from `client.channel.getOpenSalt` when the signer is
+     * a configurable account known only by address.
+     *
+     * An unregistered configurable account that sends the open and signs its own
+     * vouchers registers (TIP-1107) in the same transaction, before the channel
+     * reserve runs, so the salt then defaults to the commitment of its local
+     * version-zero config instead.
+     *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
@@ -856,6 +1057,10 @@ type DecoratorBase<
     ) => Promise<channelActions.open.ReturnValue>
     /**
      * Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt.
+     *
+     * `salt` defaults as in `client.channel.open`: to the voucher signer's nonzero
+     * configuration commitment (TIP-1166) when the signer is a configurable
+     * account or an access key of one, else to a random salt.
      *
      * @example
      * ```ts
@@ -1003,6 +1208,31 @@ type DecoratorBase<
     topUpSync: (
       parameters: channelActions.topUpSync.Parameters<chain, account>,
     ) => Promise<channelActions.topUpSync.ReturnValue>
+    /**
+     * Verifies a TIP-20 channel reserve voucher signature.
+     *
+     * Returns whether `signature` is a valid voucher for `cumulativeAmount` from the
+     * channel's voucher signer (`authorizedSigner` if set, else the payer). It does
+     * not check `cumulativeAmount` against the channel's deposit or settled amount.
+     * Throws `ChannelNotFoundError` when the channel does not exist.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const valid = await client.channel.verifyVoucher({
+     *   channel,
+     *   cumulativeAmount: parseUnits('40', 6),
+     *   signature: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the voucher signature is valid.
+     */
+    verifyVoucher: (
+      parameters: channelActions.verifyVoucher.Parameters,
+    ) => Promise<channelActions.verifyVoucher.ReturnValue>
     /**
      * Withdraws payer funds after the close grace period elapses.
      *
@@ -2364,44 +2594,6 @@ type DecoratorBase<
       parameters: faucetActions.fundSync.Parameters,
     ) => Promise<faucetActions.fundSync.ReturnValue>
   }
-  multisig: {
-    /**
-     * Gets the current configuration for an initialized multisig account.
-     *
-     * @param parameters - Parameters.
-     * @returns The current version, threshold, and owners.
-     */
-    getConfig: (
-      parameters: multisigActions.getConfig.Parameters,
-    ) => Promise<multisigActions.getConfig.ReturnValue>
-    /**
-     * Checks whether an address is an initialized native multisig account.
-     *
-     * @param parameters - Parameters.
-     * @returns Whether the account is initialized.
-     */
-    isInitialized: (
-      parameters: multisigActions.isInitialized.Parameters,
-    ) => Promise<multisigActions.isInitialized.ReturnValue>
-    /**
-     * Replaces the current configuration for a native multisig account.
-     *
-     * @param parameters - New configuration and transaction parameters.
-     * @returns The transaction hash.
-     */
-    updateConfig: (
-      parameters: multisigActions.updateConfig.Parameters<chain, account>,
-    ) => Promise<multisigActions.updateConfig.ReturnValue>
-    /**
-     * Replaces a native multisig configuration and waits for confirmation.
-     *
-     * @param parameters - New configuration and transaction parameters.
-     * @returns The update event and transaction receipt.
-     */
-    updateConfigSync: (
-      parameters: multisigActions.updateConfigSync.Parameters<chain, account>,
-    ) => Promise<multisigActions.updateConfigSync.ReturnValue>
-  }
   nonce: {
     /**
      * Gets the nonce for an account and nonce key.
@@ -2983,6 +3175,228 @@ type DecoratorBase<
     watchBlacklistUpdated: (
       parameters: policyActions.watchBlacklistUpdated.Parameters,
     ) => () => void
+  }
+  propAmm: {
+    /**
+     * Reads the base token of a propAMM pool.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
+     * const base = await client.propAmm.baseToken({ pool: '0x...' })
+     * ```
+     *
+     * @param parameters - Pool and read options.
+     * @returns The base token address.
+     */
+    baseToken: (
+      parameters: propAmmActions.baseToken.Parameters,
+    ) => Promise<propAmmActions.baseToken.ReturnValue>
+    /**
+     * Quotes an exact input or output for a caller, recipient, and customer route.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
+     * const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
+     *   amountIn: 1_000_000n,
+     *   mode: 'exactInput',
+     *   pool: '0x...',
+     *   recipient: '0x...',
+     *   taker: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Route, swap mode, amount, and read options.
+     * @returns Quoted amount, oracle observation, rounding credit, and swap request.
+     */
+    getSwapQuote: <
+      const parameters extends propAmmActions.getSwapQuote.Parameters,
+    >(
+      parameters: parameters,
+    ) => Promise<propAmmActions.getSwapQuote.ReturnValue<parameters>>
+    /**
+     * Reads whether a propAMM pool is paused.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
+     * const paused = await client.propAmm.paused({ pool: '0x...' })
+     * ```
+     *
+     * @param parameters - Pool and read options.
+     * @returns Whether swaps are paused.
+     */
+    paused: (
+      parameters: propAmmActions.paused.Parameters,
+    ) => Promise<propAmmActions.paused.ReturnValue>
+    /**
+     * Reads whether a resolved address may receive swap output.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
+     * const allowed = await client.propAmm.recipientAllowed({
+     *   pool: '0x...',
+     *   recipient: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Pool, resolved recipient, and read options.
+     * @returns Whether the recipient is allowed.
+     */
+    recipientAllowed: (
+      parameters: propAmmActions.recipientAllowed.Parameters,
+    ) => Promise<propAmmActions.recipientAllowed.ReturnValue>
+    /**
+     * Resolves a Tempo recipient to the address checked by the pool's allowlist.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
+     * const resolved = await client.propAmm.resolveRecipient({
+     *   pool: '0x...',
+     *   recipient: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Pool, recipient, and read options.
+     * @returns The resolved recipient address.
+     */
+    resolveRecipient: (
+      parameters: propAmmActions.resolveRecipient.Parameters,
+    ) => Promise<propAmmActions.resolveRecipient.ReturnValue>
+    /**
+     * Reads the quote token of a propAMM pool.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
+     * const quote = await client.propAmm.quoteToken({ pool: '0x...' })
+     * ```
+     *
+     * @param parameters - Pool and read options.
+     * @returns The quote token address.
+     */
+    quoteToken: (
+      parameters: propAmmActions.quoteToken.Parameters,
+    ) => Promise<propAmmActions.quoteToken.ReturnValue>
+    /**
+     * Approves the input token and swaps an exact input or output in one transaction.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     * const hash = await client.propAmm.swap({
+     *   amountIn: 1_000_000n,
+     *   expectedOraclePrice: 1_000_000_000_000_000_000n,
+     *   minAmountOut: 1_000_000n,
+     *   minimumOracleUpdatedAt: 1_799_999_000n,
+     *   mode: 'exactInput',
+     *   pool: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Swap and transaction options.
+     * @returns The transaction hash.
+     */
+    swap: (
+      parameters: propAmmActions.swap.Parameters<chain, account>,
+    ) => Promise<propAmmActions.swap.ReturnValue>
+    /**
+     * Approves the input token, swaps, and returns the confirmed trade and receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     * const trade = await client.propAmm.swapSync({
+     *   amountOut: 1_000_000n,
+     *   baseToQuote: false,
+     *   expectedOraclePrice: 1_000_000_000_000_000_000n,
+     *   maxAmountIn: 1_010_000n,
+     *   minimumOracleUpdatedAt: 1_799_999_000n,
+     *   mode: 'exactOutput',
+     *   pool: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Swap and transaction options.
+     * @returns Confirmed trade data and receipt.
+     */
+    swapSync: (
+      parameters: propAmmActions.swapSync.Parameters<chain, account>,
+    ) => Promise<propAmmActions.swapSync.ReturnValue>
+    /**
+     * Reads whether an address may call swaps on a propAMM pool.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
+     * const allowed = await client.propAmm.takerAllowed({
+     *   pool: '0x...',
+     *   taker: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Pool, taker, and read options.
+     * @returns Whether the taker is allowed.
+     */
+    takerAllowed: (
+      parameters: propAmmActions.takerAllowed.Parameters,
+    ) => Promise<propAmmActions.takerAllowed.ReturnValue>
   }
   receivePolicy: {
     /**
@@ -5743,9 +6157,7 @@ type BoundHelper<helper> = helper extends (
     ? (args: args) => returnType
     : parameters extends [Client<any, any, any>]
       ? () => returnType
-      : parameters extends [infer args, ...unknown[]]
-        ? (args: args) => returnType
-        : () => returnType
+      : helper
   : never
 
 type BoundActionHelpers<action> = (action extends { call: infer helper }
@@ -5797,9 +6209,11 @@ type DecorateNamespace<namespace, actions> = {
     ? namespace[key] & BoundActionHelpers<actions[key]>
     : namespace[key]
 } & {
-  [key in Exclude<keyof actions, keyof namespace> as actions[key] extends (
-    ...parameters: any
-  ) => any
+  // Error classes and resolvers are not actions; skipping them by name avoids evaluating their types.
+  [key in Exclude<
+    keyof actions,
+    keyof namespace | `${string}Error` | 'errorResolvers'
+  > as actions[key] extends (...parameters: any) => any
     ? key
     : never]: BoundAction<actions[key]>
 }
@@ -5811,6 +6225,10 @@ export type Decorator<
   accessKey: DecorateNamespace<
     DecoratorBase<chain, account>['accessKey'],
     typeof accessKeyActions
+  >
+  accounts: DecorateNamespace<
+    DecoratorBase<chain, account>['accounts'],
+    typeof accountsActions
   >
   amm: DecorateNamespace<
     DecoratorBase<chain, account>['amm'],
@@ -5832,10 +6250,6 @@ export type Decorator<
     DecoratorBase<chain, account>['faucet'],
     typeof faucetActions
   >
-  multisig: DecorateNamespace<
-    DecoratorBase<chain, account>['multisig'],
-    typeof multisigActions
-  >
   nonce: DecorateNamespace<
     DecoratorBase<chain, account>['nonce'],
     typeof nonceActions
@@ -5847,6 +6261,10 @@ export type Decorator<
   policy: DecorateNamespace<
     DecoratorBase<chain, account>['policy'],
     typeof policyActions
+  >
+  propAmm: DecorateNamespace<
+    DecoratorBase<chain, account>['propAmm'],
+    typeof propAmmActions
   >
   receivePolicy: DecorateNamespace<
     DecoratorBase<chain, account>['receivePolicy'],
@@ -5905,18 +6323,28 @@ export function decorator() {
         'burnWitnessSync',
         'getMetadata',
         'getRemainingLimit',
-        'isAdmin',
         'isWitnessBurned',
         'prepareAuthorization',
         'revoke',
         'revokeSync',
+        'saveAuthorization',
         'signAuthorization',
         'updateLimit',
         'updateLimitSync',
         'verifyHash',
-        'watchAdminAuthorized',
         'watchWitness',
         'watchWitnessBurned',
+      ]),
+      accounts: bindActions(client, accountsActions, [
+        'deriveAccount',
+        'getConfig',
+        'getConfigCommitment',
+        'getOperation',
+        'updateConfig',
+        'updateConfigSync',
+        'upgrade',
+        'upgradeSync',
+        'verifyHash',
       ]),
       amm: bindActions(client, ammActions, [
         'getPool',
@@ -5934,6 +6362,7 @@ export function decorator() {
       channel: bindActions(client, channelActions, [
         'close',
         'closeSync',
+        'getOpenSalt',
         'getStates',
         'open',
         'openSync',
@@ -5944,6 +6373,7 @@ export function decorator() {
         'signVoucher',
         'topUp',
         'topUpSync',
+        'verifyVoucher',
         'withdraw',
         'withdrawSync',
       ]),
@@ -6006,12 +6436,6 @@ export function decorator() {
         'withdrawExactSync',
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
-      multisig: bindActions(client, multisigActions, [
-        'getConfig',
-        'isInitialized',
-        'updateConfig',
-        'updateConfigSync',
-      ]),
       nonce: bindActions(client, nonceActions, [
         'getNonce',
         'watchNonceIncremented',
@@ -6042,6 +6466,17 @@ export function decorator() {
         'watchAdminUpdated',
         'watchWhitelistUpdated',
         'watchBlacklistUpdated',
+      ]),
+      propAmm: bindActions(client, propAmmActions, [
+        'baseToken',
+        'paused',
+        'getSwapQuote',
+        'quoteToken',
+        'recipientAllowed',
+        'resolveRecipient',
+        'swap',
+        'swapSync',
+        'takerAllowed',
       ]),
       receivePolicy: bindActions(client, receivePolicyActions, [
         'burn',

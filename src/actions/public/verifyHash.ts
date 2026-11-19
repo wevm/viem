@@ -9,20 +9,19 @@ import {
   erc6492SignatureValidatorAbi,
   multicall3Abi,
 } from '../../constants/abis.js'
+import { zeroAddress } from '../../constants/address.js'
 import {
   erc6492SignatureValidatorByteCode,
   multicall3Bytecode,
 } from '../../constants/contracts.js'
-import {
-  CallExecutionError,
-  ContractFunctionExecutionError,
-} from '../../errors/contract.js'
+import { CallExecutionError } from '../../errors/contract.js'
 import type { InvalidHexBooleanError } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hash, Hex, Signature } from '../../types/misc.js'
 import type { OneOf } from '../../types/utils.js'
+import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import {
   type EncodeDeployDataErrorType,
   encodeDeployData,
@@ -49,7 +48,6 @@ import {
   type NumberToHexErrorType,
   numberToHex,
 } from '../../utils/encoding/toHex.js'
-import { getAction } from '../../utils/getAction.js'
 import {
   type RecoverAddressErrorType,
   recoverAddress,
@@ -60,7 +58,7 @@ import {
 } from '../../utils/signature/serializeSignature.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 import { type GetCodeErrorType, getCode } from './getCode.js'
-import { type ReadContractErrorType, readContract } from './readContract.js'
+import type { ReadContractErrorType } from './readContract.js'
 
 export type BlockParameters = OneOf<
   | {
@@ -70,6 +68,7 @@ export type BlockParameters = OneOf<
   | {
       /**
        * The block tag to check if the contract was already deployed.
+       * Pre-delegated ERC-8010 signatures are verified against `'pending'` when no block is selected.
        * @default 'latest'
        */
       blockTag?: BlockTag | undefined
@@ -137,11 +136,25 @@ export async function verifyHash<chain extends Chain | undefined>(
     hash,
     erc6492VerifierAddress:
       verifierAddress = parameters.universalSignatureVerifierAddress ??
-      chain?.contracts?.erc6492Verifier?.address,
+      (() => {
+        const { blockNumber } = parameters
+        const verifier = chain?.contracts?.erc6492Verifier
+        // Use the deployless validator for blocks before the verifier was created.
+        if (
+          blockNumber !== undefined &&
+          verifier?.blockCreated &&
+          verifier.blockCreated > blockNumber
+        )
+          return undefined
+        return verifier?.address
+      })(),
     multicallAddress = parameters.multicallAddress ??
       chain?.contracts?.multicall3?.address,
     mode = 'auto',
   } = parameters
+
+  // No signature is valid for the zero address.
+  if (address === zeroAddress) return false
 
   if (chain?.verifyHash) return await chain.verifyHash(client, parameters)
 
@@ -251,48 +264,51 @@ export async function verifyErc8010(
   if (!valid) throw new VerificationError()
 
   // Deployless verification.
-  const results = await getAction(
-    client,
-    readContract,
-    'readContract',
-  )({
+  const { data: aggregate3Data } = await call({ ...client, ccipRead: false }, {
     ...(multicallAddress
-      ? { address: multicallAddress }
+      ? { to: multicallAddress }
       : { code: multicall3Bytecode }),
     authorizationList: [authorization],
-    abi: multicall3Abi,
     blockHash,
     blockNumber,
-    blockTag: 'pending',
-    functionName: 'aggregate3',
-    requireCanonical,
-    args: [
-      [
-        ...(initData
-          ? ([
-              {
-                allowFailure: true,
-                target: to ?? address,
-                callData: initData,
-              },
-            ] as const)
-          : []),
-        {
-          allowFailure: true,
-          target: address,
-          callData: encodeFunctionData({
-            abi: erc1271Abi,
-            functionName: 'isValidSignature',
-            args: [hash, signature],
-          }),
-        },
+    blockTag: blockTag ?? 'pending',
+    data: encodeFunctionData({
+      abi: multicall3Abi,
+      functionName: 'aggregate3',
+      args: [
+        [
+          ...(initData
+            ? ([
+                {
+                  allowFailure: true,
+                  target: to ?? address,
+                  callData: initData,
+                },
+              ] as const)
+            : []),
+          {
+            allowFailure: true,
+            target: address,
+            callData: encodeFunctionData({
+              abi: erc1271Abi,
+              functionName: 'isValidSignature',
+              args: [hash, signature],
+            }),
+          },
+        ],
       ],
-    ],
+    }),
+    requireCanonical,
+  } as CallParameters)
+  const results = decodeFunctionResult({
+    abi: multicall3Abi,
+    functionName: 'aggregate3',
+    data: aggregate3Data ?? '0x',
   })
 
-  const data = results[results.length - 1]?.returnData
+  const result = results[results.length - 1]
 
-  if (data?.startsWith('0x1626ba7e')) return true
+  if (result?.success && result.returnData.startsWith('0x1626ba7e')) return true
   throw new VerificationError()
 }
 
@@ -344,6 +360,7 @@ async function verifyErc6492(
 
   const args = verifierAddress
     ? ({
+        batch: false,
         to: verifierAddress,
         data: encodeFunctionData({
           abi: erc6492SignatureValidatorAbi,
@@ -361,14 +378,14 @@ async function verifyErc6492(
         ...rest,
       } as unknown as CallParameters)
 
-  const { data } = await getAction(
-    client,
-    call,
-    'call',
-  )(args).catch((error) => {
-    if (error instanceof CallExecutionError) throw new VerificationError()
-    throw error
-  })
+  // Verification calls run without CCIP-Read. They use `call` directly
+  // because a client's own `call` action keeps its CCIP-Read setting.
+  const { data } = await call({ ...client, ccipRead: false }, args).catch(
+    (error) => {
+      if (error instanceof CallExecutionError) throw new VerificationError()
+      throw error
+    },
+  )
 
   if (hexToBool(data ?? '0x0')) return true
   throw new VerificationError()
@@ -402,24 +419,34 @@ export async function verifyErc1271(
     signature,
   } = parameters
 
-  const result = await getAction(
-    client,
-    readContract,
-    'readContract',
-  )({
-    address,
-    abi: erc1271Abi,
-    args: [hash, signature],
+  const { data } = await call({ ...client, ccipRead: false }, {
+    batch: false,
     blockHash,
     blockNumber,
     blockTag,
-    functionName: 'isValidSignature',
+    data: encodeFunctionData({
+      abi: erc1271Abi,
+      functionName: 'isValidSignature',
+      args: [hash, signature],
+    }),
     requireCanonical,
-  }).catch((error) => {
-    if (error instanceof ContractFunctionExecutionError)
-      throw new VerificationError()
+    to: address,
+  } as CallParameters).catch((error) => {
+    if (error instanceof CallExecutionError) throw new VerificationError()
     throw error
   })
+
+  const result = (() => {
+    try {
+      return decodeFunctionResult({
+        abi: erc1271Abi,
+        functionName: 'isValidSignature',
+        data: data ?? '0x',
+      })
+    } catch {
+      throw new VerificationError()
+    }
+  })()
 
   if (result.startsWith('0x1626ba7e')) return true
   throw new VerificationError()

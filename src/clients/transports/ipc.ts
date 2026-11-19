@@ -129,46 +129,61 @@ export function ipc(
       },
       {
         getRpcClient() {
-          return getIpcRpcClient(path)
+          return getIpcRpcClient(path, { reconnect })
         },
         async subscribe({ params, onData, onError }: any) {
-          const rpcClient = await getIpcRpcClient(path)
-          const { result: subscriptionId } = await new Promise<any>(
-            (resolve, reject) =>
-              rpcClient.request({
-                body: {
-                  method: 'eth_subscribe',
-                  params,
-                },
-                onResponse(response) {
-                  if (response.error) {
-                    reject(response.error)
-                    onError?.(response.error)
-                    return
-                  }
+          const rpcClient = await getIpcRpcClient(path, { reconnect })
+          // Updated when the subscription is re-established after a reconnect.
+          let subscriptionId: Hash
+          let unsubscribed = false
+          function unsubscribe() {
+            unsubscribed = true
+            const promise = rpcClient.requestAsync({
+              body: {
+                method: 'eth_unsubscribe',
+                params: [subscriptionId],
+              },
+              timeout,
+            })
+            // The listener is already removed, and callers such as `watchBlocks`
+            // do not await, so a failure must not become an unhandled rejection.
+            promise.catch(() => {})
+            return promise
+          }
+          await new Promise<any>((resolve, reject) =>
+            rpcClient.request({
+              body: {
+                method: 'eth_subscribe',
+                params,
+              },
+              onError(error) {
+                reject(error)
+                onError?.(error)
+              },
+              onResponse(response) {
+                if (response.error) {
+                  reject(response.error)
+                  onError?.(response.error)
+                  return
+                }
 
-                  if (typeof response.id === 'number') {
-                    resolve(response)
-                    return
-                  }
-                  if (response.method !== 'eth_subscription') return
-                  onData(response.params)
-                },
-              }),
+                if (typeof response.id === 'number') {
+                  subscriptionId = response.result
+                  // Re-subscribed while an unsubscribe was in flight.
+                  if (unsubscribed) unsubscribe()
+                  resolve(response)
+                  return
+                }
+                if (response.method !== 'eth_subscription') return
+                onData(response.params)
+              },
+            }),
           )
           return {
-            subscriptionId,
-            async unsubscribe() {
-              return new Promise<any>((resolve) =>
-                rpcClient.request({
-                  body: {
-                    method: 'eth_unsubscribe',
-                    params: [subscriptionId],
-                  },
-                  onResponse: resolve,
-                }),
-              )
+            get subscriptionId() {
+              return subscriptionId
             },
+            unsubscribe,
           }
         },
       },

@@ -51,7 +51,17 @@ test('FeeCapTooLowError', () => {
 
   error = new FeeCapTooLowError({ cause: new BaseError('foo') })
   expect(error).toMatchInlineSnapshot(`
-    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` gwei) cannot be lower than the block base fee.
+    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\`) cannot be lower than the block base fee.
+
+    Version: viem@x.y.z]
+  `)
+
+  error = new FeeCapTooLowError({
+    cause: new BaseError('foo'),
+    maxFeePerGas: 0n,
+  })
+  expect(error).toMatchInlineSnapshot(`
+    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` = 0 gwei) cannot be lower than the block base fee.
 
     Version: viem@x.y.z]
   `)
@@ -230,6 +240,28 @@ test('TipAboveFeeCapError', () => {
   })
   expect(error).toMatchInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\`) cannot be higher than the fee cap (\`maxFeePerGas\` = 70 gwei).
+
+    Version: viem@x.y.z]
+  `)
+
+  error = new TipAboveFeeCapError({
+    cause: new BaseError('foo'),
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+  expect(error).toMatchInlineSnapshot(`
+    [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+    Version: viem@x.y.z]
+  `)
+
+  error = new TipAboveFeeCapError({
+    cause: new BaseError('foo'),
+    maxFeePerGas: null as never,
+    maxPriorityFeePerGas: parseGwei('70'),
+  })
+  expect(error).toMatchInlineSnapshot(`
+    [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 70 gwei) cannot be higher than the fee cap (\`maxFeePerGas\`).
 
     Version: viem@x.y.z]
   `)

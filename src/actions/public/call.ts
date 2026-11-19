@@ -1,4 +1,4 @@
-import { type Address, parseAbi } from 'abitype'
+import type { Address } from 'abitype'
 import * as BlockOverrides from 'ox/BlockOverrides'
 
 import type { Account } from '../../accounts/types.js'
@@ -353,7 +353,15 @@ export async function call<chain extends Chain | undefined>(
       to
     )
       return {
-        data: await offchainLookup(client, { data, requestOptions, to }),
+        data: await offchainLookup(client, {
+          blockHash,
+          blockNumber,
+          blockTag,
+          data,
+          requestOptions,
+          requireCanonical,
+          to,
+        }),
       }
 
     // Check for counterfactual deployment error.
@@ -462,10 +470,8 @@ async function scheduleMulticall<chain extends Chain | undefined>(
   const { schedule } = createBatchScheduler({
     id: `${client.uid}.${blockId}.${getRequestOptionsId(requestOptions)}${stateOverrideKey}`,
     wait,
-    shouldSplitBatch(args) {
-      const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
-      return size > batchSize * 2
-    },
+    getSize: ({ data }: { data: Hex }) => data.length - 2,
+    shouldSplitBatch: (size) => size > batchSize * 2,
     fn: async (
       requests: {
         data: Hex
@@ -504,12 +510,17 @@ async function scheduleMulticall<chain extends Chain | undefined>(
         requestOptions,
       )
 
-      return decodeFunctionResult({
+      const results = decodeFunctionResult({
         abi: multicall3Abi,
         args: [calls],
         functionName: 'aggregate3',
         data: data || '0x',
       })
+      if (results.length !== requests.length)
+        throw new BaseError(
+          `Multicall returned ${results.length} results for ${requests.length} calls.`,
+        )
+      return results
     },
   })
 
@@ -555,7 +566,13 @@ type ToDeploylessCallViaBytecodeDataErrorType =
 function toDeploylessCallViaBytecodeData(parameters: { code: Hex; data: Hex }) {
   const { code, data } = parameters
   return encodeDeployData({
-    abi: parseAbi(['constructor(bytes, bytes)']),
+    abi: [
+      {
+        type: 'constructor',
+        stateMutability: 'nonpayable',
+        inputs: [{ type: 'bytes' }, { type: 'bytes' }],
+      },
+    ] as const,
     bytecode: deploylessCallViaBytecodeBytecode,
     args: [code, data],
   })
@@ -573,7 +590,18 @@ function toDeploylessCallViaFactoryData(parameters: {
 }) {
   const { data, factory, factoryData, to } = parameters
   return encodeDeployData({
-    abi: parseAbi(['constructor(address, bytes, address, bytes)']),
+    abi: [
+      {
+        type: 'constructor',
+        stateMutability: 'nonpayable',
+        inputs: [
+          { type: 'address' },
+          { type: 'bytes' },
+          { type: 'address' },
+          { type: 'bytes' },
+        ],
+      },
+    ] as const,
     bytecode: deploylessCallViaFactoryBytecode,
     args: [to, data, factory, factoryData],
   })

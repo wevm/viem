@@ -24,12 +24,15 @@ describe('ccipTunnel', () => {
       tunnel.request({
         data: '0xcafebabe',
         sender,
+        timeout: 50,
         urls: [localBatchGatewayUrl],
       }),
     ).resolves.toBe('0xdeadbeef')
     expect(request).toStrictEqual({
       data: '0xcafebabe',
+      requestOptions: undefined,
       sender,
+      timeout: 50,
       urls: batchGateways,
     })
   })
@@ -41,6 +44,7 @@ describe('ccipTunnel', () => {
       batchGateways,
       ccipRequest: async (args) => {
         expect(args.sender).toBe(sender)
+        expect(args.timeout).toBe(50)
         expect(args.urls).toStrictEqual(batchGateways)
 
         const {
@@ -60,6 +64,7 @@ describe('ccipTunnel', () => {
       tunnel.request({
         data: '0xcafebabe',
         sender,
+        timeout: 50,
         urls,
       }),
     ).resolves.toBe('0xdeadbeef')

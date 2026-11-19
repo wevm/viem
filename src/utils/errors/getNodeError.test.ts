@@ -165,6 +165,38 @@ test('InsufficientFundsError', () => {
   `)
 })
 
+test('InsufficientFundsError (OutOfFunds)', () => {
+  const error = new TransactionRejectedRpcError(
+    new RpcRequestError({
+      body: {},
+      error: { code: -32003, message: 'EVM error: OutOfFunds' },
+      url: '',
+    }),
+  )
+
+  const result = getNodeError(error, {
+    account: address.vitalik,
+    nonce: 1,
+    value: parseEther('10'),
+  })
+
+  expect(result).toMatchInlineSnapshot(`
+    [InsufficientFundsError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+    This error could arise when the account does not have enough funds to:
+     - pay for the total gas fee,
+     - pay for the value to send.
+     
+    The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+     - \`gas\` is the amount of gas needed for transaction to execute,
+     - \`gas fee\` is the gas fee,
+     - \`value\` is the amount of ether to send to the recipient.
+
+    Details: EVM error: OutOfFunds
+    Version: viem@x.y.z]
+  `)
+})
+
 test('IntrinsicGasTooHigh', () => {
   const error = new TransactionRejectedRpcError(
     new RpcRequestError({
@@ -243,6 +275,32 @@ test('TipAboveFeeCap', () => {
   })
   expect(result).toMatchInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
+
+    Details: max priority fee per gas higher than max fee per gas
+    Version: viem@x.y.z]
+  `)
+})
+
+test('TipAboveFeeCap (zero fee cap)', () => {
+  const error = new TransactionRejectedRpcError(
+    new RpcRequestError({
+      body: {},
+      error: {
+        code: -32003,
+        message: 'max priority fee per gas higher than max fee per gas',
+      },
+      url: '',
+    }),
+  )
+
+  const result = getNodeError(error, {
+    account: address.vitalik,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: parseGwei('1'),
+  })
+
+  expect(result).toMatchInlineSnapshot(`
+    [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
 
     Details: max priority fee per gas higher than max fee per gas
     Version: viem@x.y.z]

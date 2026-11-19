@@ -38,6 +38,16 @@ const result = await client.simulateBlocks({
     }],
   }]
 })
+// @log: [
+// @log:   {
+// @log:     calls: [
+// @log:       { data: '0x', gasUsed: 21000n, logs: [], status: 'success', ... },
+// @log:       { data: '0x', gasUsed: 21000n, logs: [], status: 'success', ... },
+// @log:     ],
+// @log:     number: 69420n,
+// @log:     ...
+// @log:   },
+// @log: ]
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
@@ -121,6 +131,12 @@ export const client = createPublicClient({
 `SimulateBlocksReturnType`
 
 Simulation results.
+
+Each call result includes `gasUsed` (gas charged to the call), and `maxUsedGas`
+when the node reports it. `maxUsedGas` is the node's measurement of the gas used
+by the call before gas refunds are applied – it is not a guaranteed minimum
+sufficient gas limit for the call. It is `undefined` against nodes that do not
+report it.
 
 ## Parameters
 

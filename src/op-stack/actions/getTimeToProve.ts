@@ -1,3 +1,7 @@
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
@@ -9,6 +13,13 @@ import type {
 } from '../../types/chain.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
+import { portal2Abi } from '../abis.js'
+import {
+  L2TimestampRequiredError,
+  type L2TimestampRequiredErrorType,
+} from '../errors/withdrawal.js'
+import { isSuperGameType } from '../gameTypes.js'
+import type { TargetChain } from '../types/chain.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
   type GetPortalVersionErrorType,
@@ -62,6 +73,8 @@ export type GetTimeToProveErrorType =
   | GetPortalVersionErrorType
   | GetTimeToNextGameErrorType
   | GetTimeToNextL2OutputErrorType
+  | L2TimestampRequiredErrorType
+  | ReadContractErrorType
   | ErrorType
 
 /**
@@ -102,7 +115,14 @@ export async function getTimeToProve<
   client: Client<Transport, chain, account>,
   parameters: GetTimeToProveParameters<chain, chainOverride>,
 ): Promise<GetTimeToProveReturnType> {
-  const { l2Timestamp, receipt } = parameters
+  const {
+    chain = client.chain,
+    l2Timestamp,
+    receipt,
+    targetChain: targetChain_,
+  } = parameters
+
+  const targetChain = targetChain_ as unknown as TargetChain
 
   const portalVersion = await getPortalVersion(
     client,
@@ -116,8 +136,29 @@ export async function getTimeToProve<
       l2BlockNumber: l2Timestamp ?? receipt.blockNumber,
     } as GetTimeToNextL2OutputParameters)
 
+  const portalAddress = (() => {
+    if (parameters.portalAddress) return parameters.portalAddress
+    if (chain) return targetChain.contracts.portal[chain.id].address
+    return Object.values(targetChain.contracts.portal)[0].address
+  })()
+
+  // Super-root games anchor on L2 timestamps instead of L2 block numbers.
+  const l2BlockNumber = await (async () => {
+    if (typeof l2Timestamp === 'bigint') return l2Timestamp
+    const gameType = await readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'respectedGameType',
+    })
+    if (!isSuperGameType(gameType)) return receipt.blockNumber
+    const timestamp = receipt.logs[0]?.blockTimestamp
+    if (typeof timestamp !== 'bigint')
+      throw new L2TimestampRequiredError({ gameType })
+    return timestamp
+  })()
+
   return getTimeToNextGame(client, {
     ...parameters,
-    l2BlockNumber: l2Timestamp ?? receipt.blockNumber,
+    l2BlockNumber,
   } as GetTimeToNextGameParameters)
 }

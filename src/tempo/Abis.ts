@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@d656ef5581505b59f1611b358e611f5a602d399e
+// Source: tempoxyz/tempo@e539a1dac2921670585a08215e516d8b98aa527a
 
 export const accountKeychain = [
   {
@@ -444,7 +444,7 @@ export const addressRegistry = [
   { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
 ] as const
 
-export const nativeMultisig = [
+export const configurableAccount = [
   {
     name: 'deriveAccount',
     type: 'function',
@@ -464,21 +464,22 @@ export const nativeMultisig = [
     outputs: [{ type: 'address', name: 'account' }],
   },
   {
-    name: 'isMultisigAccount',
+    name: 'getConfigCommitment',
     type: 'function',
     stateMutability: 'view',
     inputs: [{ type: 'address', name: 'account' }],
-    outputs: [{ type: 'bool' }],
+    outputs: [{ type: 'bytes32', name: 'commitment' }],
   },
   {
-    name: 'getConfig',
+    name: 'updateConfig',
     type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'account' }],
-    outputs: [
+    stateMutability: 'nonpayable',
+    inputs: [
       {
         type: 'tuple',
+        name: 'current',
         components: [
+          { type: 'bytes32', name: 'salt' },
           { type: 'uint64', name: 'version' },
           { type: 'uint8', name: 'threshold' },
           {
@@ -491,13 +492,6 @@ export const nativeMultisig = [
           },
         ],
       },
-    ],
-  },
-  {
-    name: 'updateConfig',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
       { type: 'uint8', name: 'threshold' },
       {
         type: 'tuple[]',
@@ -511,15 +505,29 @@ export const nativeMultisig = [
     outputs: [],
   },
   {
-    name: 'MultisigInitialized',
-    type: 'event',
-    inputs: [{ type: 'address', name: 'account', indexed: true }],
+    name: 'upgradeAccount',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint8', name: 'threshold' },
+      {
+        type: 'tuple[]',
+        name: 'owners',
+        components: [
+          { type: 'address', name: 'owner' },
+          { type: 'uint8', name: 'weight' },
+        ],
+      },
+    ],
+    outputs: [{ type: 'bytes32', name: 'commitment' }],
   },
   {
-    name: 'MultisigConfigUpdated',
+    name: 'ConfigurableAccountConfigUpdated',
     type: 'event',
     inputs: [
       { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'salt' },
+      { type: 'uint64', name: 'version' },
       { type: 'uint8', name: 'threshold' },
       {
         type: 'tuple[]',
@@ -531,18 +539,62 @@ export const nativeMultisig = [
       },
     ],
   },
-  { name: 'NotMultisigAccount', type: 'error', inputs: [] },
+  {
+    name: 'AccountUpgraded',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'commitment', indexed: true },
+      { type: 'bytes32', name: 'salt' },
+      { type: 'uint8', name: 'threshold' },
+      {
+        type: 'tuple[]',
+        name: 'owners',
+        components: [
+          { type: 'address', name: 'owner' },
+          { type: 'uint8', name: 'weight' },
+        ],
+      },
+    ],
+  },
   { name: 'InvalidAccount', type: 'error', inputs: [] },
   { name: 'InvalidConfig', type: 'error', inputs: [] },
   { name: 'InvalidThreshold', type: 'error', inputs: [] },
-  { name: 'InvalidOwner', type: 'error', inputs: [] },
+  { name: 'InvalidConfigurableAccountOwner', type: 'error', inputs: [] },
   { name: 'InvalidWeight', type: 'error', inputs: [] },
   { name: 'TooManyOwners', type: 'error', inputs: [] },
   { name: 'DuplicateOwner', type: 'error', inputs: [] },
   { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
-  { name: 'AccountAlreadyInitialized', type: 'error', inputs: [] },
-  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
-  { name: 'SameTransactionUpdateNotAllowed', type: 'error', inputs: [] },
+  { name: 'UnauthorizedConfigurableAccountCaller', type: 'error', inputs: [] },
+  { name: 'PrimitiveRootRequired', type: 'error', inputs: [] },
+  { name: 'UpgradeMustBeDirectCall', type: 'error', inputs: [] },
+  { name: 'AccountAlreadyConfigurable', type: 'error', inputs: [] },
+  { name: 'AccountHasCode', type: 'error', inputs: [] },
+] as const
+
+export const configurableAccountShim = [
+  {
+    name: 'isValidSignature',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bytes4' }],
+  },
+  {
+    name: 'onERC721Received',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'operator' },
+      { type: 'address', name: 'from' },
+      { type: 'uint256', name: 'tokenId' },
+      { type: 'bytes', name: 'data' },
+    ],
+    outputs: [{ type: 'bytes4' }],
+  },
 ] as const
 
 export const currentCommittee = [
@@ -708,6 +760,17 @@ export const signatureVerifier = [
   },
   {
     name: 'verifyKeychainAdmin',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'verifyConfigurableAccount',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -1628,6 +1691,29 @@ export const tip20ChannelReserve = [
     outputs: [{ type: 'bytes32' }],
   },
   {
+    name: 'verifyVoucher',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      {
+        type: 'tuple',
+        name: 'descriptor',
+        components: [
+          { type: 'address', name: 'payer' },
+          { type: 'address', name: 'payee' },
+          { type: 'address', name: 'operator' },
+          { type: 'address', name: 'token' },
+          { type: 'bytes32', name: 'salt' },
+          { type: 'address', name: 'authorizedSigner' },
+          { type: 'bytes32', name: 'expiringNonceHash' },
+        ],
+      },
+      { type: 'uint96', name: 'cumulativeAmount' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool', name: 'valid' }],
+  },
+  {
     name: 'domainSeparator',
     type: 'function',
     stateMutability: 'view',
@@ -1701,6 +1787,15 @@ export const tip20ChannelReserve = [
     ],
   },
   {
+    name: 'OpeningCommitmentRecorded',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'channelId', indexed: true },
+      { type: 'address', name: 'signer', indexed: true },
+      { type: 'bytes32', name: 'commitment' },
+    ],
+  },
+  {
     name: 'CloseRequestCancelled',
     type: 'event',
     inputs: [
@@ -1722,6 +1817,24 @@ export const tip20ChannelReserve = [
   { name: 'CaptureAmountInvalid', type: 'error', inputs: [] },
   { name: 'CloseNotReady', type: 'error', inputs: [] },
   { name: 'DepositOverflow', type: 'error', inputs: [] },
+  {
+    name: 'RootKeyRetired',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'account' }],
+  },
+  {
+    name: 'SignerConfigChanged',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'signer' }],
+  },
+  {
+    name: 'SaltNotSignerCommitment',
+    type: 'error',
+    inputs: [
+      { type: 'address', name: 'signer' },
+      { type: 'bytes32', name: 'commitment' },
+    ],
+  },
 ] as const
 
 export const tip20Factory = [
@@ -1955,6 +2068,16 @@ export const tip20 = [
     outputs: [],
   },
   {
+    name: 'burnAt',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'from' },
+      { type: 'uint256', name: 'amount' },
+    ],
+    outputs: [],
+  },
+  {
     name: 'mintWithMemo',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -2063,6 +2186,13 @@ export const tip20 = [
   },
   {
     name: 'BURN_BLOCKED_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'BURN_AT_ROLE',
     type: 'function',
     stateMutability: 'view',
     inputs: [],
@@ -2198,6 +2328,15 @@ export const tip20 = [
     ],
   },
   {
+    name: 'BurnAt',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'burner', indexed: true },
+      { type: 'address', name: 'from', indexed: true },
+      { type: 'uint256', name: 'amount', indexed: true },
+    ],
+  },
+  {
     name: 'TransferWithMemo',
     type: 'event',
     inputs: [
@@ -2300,6 +2439,11 @@ export const tip20 = [
   { name: 'InvalidSignature', type: 'error', inputs: [] },
   { name: 'LogoURITooLong', type: 'error', inputs: [] },
   { name: 'InvalidLogoURI', type: 'error', inputs: [] },
+  {
+    name: 'RootKeyRetired',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'account' }],
+  },
   {
     name: 'hasRole',
     type: 'function',
@@ -3708,6 +3852,20 @@ export const zonePortal = [
     outputs: [{ type: 'uint64' }],
   },
   {
+    name: 'MAX_UNPROCESSED_DEPOSITS',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'MAX_UNPROCESSED_TOKEN_ENABLEMENTS',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
     name: 'MAX_WITHDRAWAL_GAS_LIMIT',
     type: 'function',
     stateMutability: 'view',
@@ -3803,6 +3961,47 @@ export const zonePortal = [
           { type: 'bytes32', name: 'nextProcessedHash' },
           { type: 'uint64', name: 'prevDepositNumber' },
           { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'bytes', name: 'verifierConfig' },
+      { type: 'bytes', name: 'proof' },
+      { type: 'uint256', name: 'nextZoneHeight' },
+      { type: 'bytes[]', name: 'signatures' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'submitBatch',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'tempoBlockNumber' },
+      { type: 'uint64', name: 'recentTempoBlockNumber' },
+      {
+        type: 'tuple',
+        name: 'blockTransition',
+        components: [
+          { type: 'bytes32', name: 'prevBlockHash' },
+          { type: 'bytes32', name: 'nextBlockHash' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'depositQueueTransition',
+        components: [
+          { type: 'bytes32', name: 'prevProcessedHash' },
+          { type: 'bytes32', name: 'nextProcessedHash' },
+          { type: 'uint64', name: 'prevDepositNumber' },
+          { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'tokenEnablementTransition',
+        components: [
+          { type: 'uint64', name: 'prevProcessedTokenCount' },
+          { type: 'uint64', name: 'nextProcessedTokenCount' },
         ],
       },
       { type: 'bytes32', name: 'withdrawalQueueHash' },
@@ -3955,6 +4154,20 @@ export const zonePortal = [
     stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'lastProcessedEnabledTokenCount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'tokenEnablementCursorInitialized',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bool' }],
   },
   {
     name: 'enabledTokenAt',
@@ -4147,6 +4360,19 @@ export const zonePortal = [
     ],
   },
   {
+    name: 'BatchSubmitted',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'withdrawalBatchIndex', indexed: true },
+      { type: 'uint256', name: 'withdrawalQueueIndex', indexed: true },
+      { type: 'bytes32', name: 'nextProcessedDepositQueueHash' },
+      { type: 'bytes32', name: 'nextBlockHash' },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'uint64', name: 'lastProcessedDepositNumber' },
+      { type: 'uint64', name: 'lastProcessedEnabledTokenCount' },
+    ],
+  },
+  {
     name: 'WithdrawalProcessed',
     type: 'event',
     inputs: [
@@ -4293,7 +4519,9 @@ export const zonePortal = [
   { name: 'DepositsNotActive', type: 'error', inputs: [] },
   { name: 'TokenAlreadyEnabled', type: 'error', inputs: [] },
   { name: 'TokenTransferPolicyNotSet', type: 'error', inputs: [] },
+  { name: 'TokenEnablementCursorNotInitialized', type: 'error', inputs: [] },
   { name: 'InvalidDepositTransition', type: 'error', inputs: [] },
+  { name: 'InvalidTokenEnablementTransition', type: 'error', inputs: [] },
   { name: 'InvalidSequencerSet', type: 'error', inputs: [] },
   { name: 'SequencerConfigurationUnchanged', type: 'error', inputs: [] },
   { name: 'InvalidQuorumCertificate', type: 'error', inputs: [] },
@@ -4337,7 +4565,53 @@ export const zonePortal = [
   },
 ] as const
 
-// Source: tempoxyz/earn@e8c4c47216b61e727524e5283daf2c7b76f516f7
+export const zoneVerifier = [
+  {
+    name: 'verify',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint32', name: 'zoneId' },
+      { type: 'uint64', name: 'tempoBlockNumber' },
+      { type: 'uint64', name: 'anchorBlockNumber' },
+      { type: 'bytes32', name: 'anchorBlockHash' },
+      { type: 'uint64', name: 'expectedWithdrawalBatchIndex' },
+      { type: 'uint256', name: 'nextZoneHeight' },
+      {
+        type: 'tuple',
+        name: 'blockTransition',
+        components: [
+          { type: 'bytes32', name: 'prevBlockHash' },
+          { type: 'bytes32', name: 'nextBlockHash' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'depositQueueTransition',
+        components: [
+          { type: 'bytes32', name: 'prevProcessedHash' },
+          { type: 'bytes32', name: 'nextProcessedHash' },
+          { type: 'uint64', name: 'prevDepositNumber' },
+          { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'tokenEnablementTransition',
+        components: [
+          { type: 'uint64', name: 'prevProcessedTokenCount' },
+          { type: 'uint64', name: 'nextProcessedTokenCount' },
+        ],
+      },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'bytes', name: 'verifierConfig' },
+      { type: 'bytes', name: 'proof' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+] as const
+
+// Source: tempoxyz/earn@d6373e4939ec2bbf5dcccffd5f2519ff4a62d6b1
 
 export const earnContributionController = [
   {
@@ -4396,6 +4670,17 @@ export const earnContributionController = [
       { name: 'maxEarnShareSupply', type: 'uint256' },
     ],
     outputs: [{ name: 'fundedAssets', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'fundBatchExact',
+    inputs: [
+      { name: 'funders', type: 'address[]' },
+      { name: 'requestedAssets', type: 'uint256[]' },
+      { name: 'maxEarnShareSupply', type: 'uint256' },
+    ],
+    outputs: [{ name: 'totalFundedAssets', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -4476,6 +4761,7 @@ export const earnContributionController = [
     ],
   },
   { type: 'error', name: 'Inactive', inputs: [] },
+  { type: 'error', name: 'InvalidArrayLengths', inputs: [] },
   { type: 'error', name: 'NotSelf', inputs: [] },
   {
     type: 'error',
@@ -4491,6 +4777,7 @@ export const earnContributionController = [
   { type: 'error', name: 'TokenCallFailed', inputs: [] },
   { type: 'error', name: 'TokenCallFalse', inputs: [] },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
+  { type: 'error', name: 'ZeroAmount', inputs: [] },
 ] as const
 
 export const earnEngine = [
@@ -5530,6 +5817,13 @@ export const earnMerkleRewardDistributor = [
   },
   {
     type: 'function',
+    name: 'consumedSettlements',
+    inputs: [{ name: 'settlementId', type: 'bytes32' }],
+    outputs: [{ name: 'consumed', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'cumulativePaid',
     inputs: [{ name: 'recipient', type: 'address' }],
     outputs: [{ name: 'cumulativeAmount', type: 'uint256' }],
@@ -5551,13 +5845,21 @@ export const earnMerkleRewardDistributor = [
   },
   {
     type: 'function',
-    name: 'fundWithAssets',
+    name: 'fundAndPublishRoot',
     inputs: [
+      { name: 'settlementId', type: 'bytes32' },
+      { name: 'expectedRootVersion', type: 'uint64' },
       { name: 'funder', type: 'address' },
       { name: 'assets', type: 'uint256' },
       { name: 'minEarnShares', type: 'uint256' },
+      { name: 'root', type: 'bytes32' },
+      { name: 'totalEntitlement', type: 'uint256' },
+      { name: 'statementHash_', type: 'bytes32' },
     ],
-    outputs: [{ name: 'earnShares', type: 'uint256' }],
+    outputs: [
+      { name: 'earnShares', type: 'uint256' },
+      { name: 'version', type: 'uint64' },
+    ],
     stateMutability: 'nonpayable',
   },
   {
@@ -5602,6 +5904,7 @@ export const earnMerkleRewardDistributor = [
     type: 'function',
     name: 'publishRoot',
     inputs: [
+      { name: 'expectedRootVersion', type: 'uint64' },
       { name: 'root', type: 'bytes32' },
       { name: 'totalEntitlement', type: 'uint256' },
       { name: 'statementHash_', type: 'bytes32' },
@@ -5824,6 +6127,11 @@ export const earnMerkleRewardDistributor = [
   },
   {
     type: 'error',
+    name: 'SettlementAlreadyConsumed',
+    inputs: [{ name: 'settlementId', type: 'bytes32' }],
+  },
+  {
+    type: 'error',
     name: 'StaleRootVersion',
     inputs: [
       { name: 'expected', type: 'uint64' },
@@ -5854,7 +6162,94 @@ export const earnMerkleRewardDistributor = [
   { type: 'error', name: 'ZeroDeadline', inputs: [] },
   { type: 'error', name: 'ZeroMinimumEarnShares', inputs: [] },
   { type: 'error', name: 'ZeroRoot', inputs: [] },
+  { type: 'error', name: 'ZeroSettlementId', inputs: [] },
   { type: 'error', name: 'ZeroStatementHash', inputs: [] },
+] as const
+
+export const earnRewardsFactory = [
+  {
+    type: 'function',
+    name: 'campaignId',
+    inputs: [{ name: 'earnVault', type: 'address' }],
+    outputs: [{ name: '', type: 'bytes32' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    name: 'install',
+    inputs: [
+      { name: 'earnVault', type: 'address' },
+      { name: 'owner', type: 'address' },
+      { name: 'treasury', type: 'address' },
+      { name: 'claimDeadline', type: 'uint40' },
+      { name: 'targetYield', type: 'bool' },
+      { name: 'boostRewards', type: 'bool' },
+    ],
+    outputs: [
+      {
+        name: 'result',
+        type: 'tuple',
+        components: [
+          { name: 'contributionController', type: 'address' },
+          { name: 'merkleDistributor', type: 'address' },
+        ],
+      },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'predictContributionController',
+    inputs: [
+      { name: 'earnVault', type: 'address' },
+      { name: 'owner', type: 'address' },
+    ],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'predictMerkleDistributor',
+    inputs: [
+      { name: 'earnVault', type: 'address' },
+      { name: 'owner', type: 'address' },
+      { name: 'treasury', type: 'address' },
+      { name: 'claimDeadline', type: 'uint40' },
+    ],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'event',
+    name: 'ContributionControllerInstalled',
+    inputs: [
+      { name: 'earnVault', type: 'address', indexed: true },
+      { name: 'owner', type: 'address', indexed: true },
+      { name: 'contributionController', type: 'address', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'MerkleDistributorInstalled',
+    inputs: [
+      { name: 'earnVault', type: 'address', indexed: true },
+      { name: 'owner', type: 'address', indexed: true },
+      { name: 'treasury', type: 'address', indexed: true },
+      { name: 'merkleDistributor', type: 'address', indexed: false },
+      { name: 'campaignId', type: 'bytes32', indexed: false },
+      { name: 'claimDeadline', type: 'uint40', indexed: false },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'EmptyInstallation', inputs: [] },
+  {
+    type: 'error',
+    name: 'InvalidExistingDeployment',
+    inputs: [{ name: 'component', type: 'address' }],
+  },
+  { type: 'error', name: 'InvalidRewardConfiguration', inputs: [] },
+  { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
 export const earnRouter = [
@@ -6020,6 +6415,13 @@ export const earnVault = [
   },
   {
     type: 'function',
+    name: 'acceptOperator',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     name: 'accrueFees',
     inputs: [],
     outputs: [
@@ -6066,6 +6468,13 @@ export const earnVault = [
   {
     type: 'function',
     name: 'cancelDistributorTransfer',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'cancelOperatorTransfer',
     inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
@@ -6331,6 +6740,13 @@ export const earnVault = [
   },
   {
     type: 'function',
+    name: 'pendingOperator',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'pendingRedeem',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
     outputs: [
@@ -6502,6 +6918,13 @@ export const earnVault = [
   },
   {
     type: 'function',
+    name: 'transferOperator',
+    inputs: [{ name: 'newOperator', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     name: 'withdrawExact',
     inputs: [
       { name: 'assets', type: 'uint256' },
@@ -6599,6 +7022,25 @@ export const earnVault = [
   },
   {
     type: 'event',
+    name: 'EarnVaultInitialized',
+    inputs: [
+      { name: 'engine', type: 'address', indexed: true },
+      { name: 'earnShare', type: 'address', indexed: true },
+      { name: 'earnFees', type: 'address', indexed: true },
+      { name: 'operator', type: 'address', indexed: false },
+      { name: 'emergencyGuardian', type: 'address', indexed: false },
+      { name: 'asyncJanitor', type: 'address', indexed: false },
+      { name: 'maxManagedAssets', type: 'uint256', indexed: false },
+      { name: 'migrationMode', type: 'uint8', indexed: false },
+      { name: 'distributor', type: 'address', indexed: false },
+      { name: 'distributorUpdateDelay', type: 'uint40', indexed: false },
+      { name: 'distributorFeeRecipient', type: 'address', indexed: false },
+      { name: 'distributorFeeRateBps', type: 'uint16', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'EmergencyRolesChanged',
     inputs: [
       { name: 'emergencyGuardian', type: 'address', indexed: true },
@@ -6623,6 +7065,18 @@ export const earnVault = [
   },
   {
     type: 'event',
+    name: 'EngineShareShortfallReconciled',
+    inputs: [
+      { name: 'engine', type: 'address', indexed: true },
+      { name: 'previousManagedEngineShares', type: 'uint256', indexed: false },
+      { name: 'observedRawEngineShares', type: 'uint256', indexed: false },
+      { name: 'shortfallEngineShares', type: 'uint256', indexed: false },
+      { name: 'totalEarnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'EngineShareSurplusAbsorbed',
     inputs: [
       { name: 'caller', type: 'address', indexed: true },
@@ -6638,6 +7092,33 @@ export const earnVault = [
     inputs: [
       { name: 'previousMaxManagedAssets', type: 'uint256', indexed: false },
       { name: 'newMaxManagedAssets', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OperatorTransferCancelled',
+    inputs: [
+      { name: 'operator', type: 'address', indexed: true },
+      { name: 'pendingOperator', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OperatorTransferStarted',
+    inputs: [
+      { name: 'operator', type: 'address', indexed: true },
+      { name: 'pendingOperator', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OperatorTransferred',
+    inputs: [
+      { name: 'previousOperator', type: 'address', indexed: true },
+      { name: 'newOperator', type: 'address', indexed: true },
     ],
     anonymous: false,
   },
@@ -6807,8 +7288,10 @@ export const earnVault = [
   { type: 'error', name: 'NotEngine', inputs: [] },
   { type: 'error', name: 'NotOperator', inputs: [] },
   { type: 'error', name: 'NotPendingDistributor', inputs: [] },
+  { type: 'error', name: 'NotPendingOperator', inputs: [] },
   { type: 'error', name: 'NotRequesterOrJanitor', inputs: [] },
   { type: 'error', name: 'OperatorMigrationDisabled', inputs: [] },
+  { type: 'error', name: 'OperatorTransferNotPending', inputs: [] },
   { type: 'error', name: 'PendingRedeemsOpen', inputs: [] },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
   {
@@ -7753,6 +8236,18 @@ export const vedaEngine = [
   },
   {
     type: 'event',
+    name: 'VedaEngineInitialized',
+    inputs: [
+      { name: 'teller', type: 'address', indexed: true },
+      { name: 'queue', type: 'address', indexed: true },
+      { name: 'accountant', type: 'address', indexed: true },
+      { name: 'peripheryVersion', type: 'uint64', indexed: false },
+      { name: 'maxRateAge', type: 'uint64', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'VedaPeripheryUpdated',
     inputs: [
       { name: 'registryVersion', type: 'uint64', indexed: true },
@@ -7905,6 +8400,14 @@ export const vedaEngine = [
   { type: 'error', name: 'QueueUnavailable', inputs: [] },
   {
     type: 'error',
+    name: 'QueuedAssetsBelowMinimum',
+    inputs: [
+      { name: 'minimumAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
     name: 'RateChangedWithinTransaction',
     inputs: [
       { name: 'expected', type: 'uint256' },
@@ -7987,6 +8490,7 @@ export const vedaEngine = [
     ],
   },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
+  { type: 'error', name: 'ZeroMinimumQueuedAssets', inputs: [] },
 ] as const
 
 // `SingleZoneEarnRouter.CallbackData` parameter for `encodeAbiParameters`.
@@ -8023,7 +8527,69 @@ export const earnRouterCallbackData = [
   },
 ] as const
 
-// Source: tempoxyz/zones@7e38642cdd5a1500784fd15cf30eda5366f3350a
+// Source: tempoxyz/zones@22318d90a098149fecd0c56ae4e20e55fea24bdd
+
+export const zonePortalPreT13Retired = [
+  {
+    name: 'MAX_DEPOSITS_PER_TEMPO_BLOCK',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'MAX_TOKENS_ENABLED_PER_TEMPO_BLOCK',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'submitBatch',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'tempoBlockNumber' },
+      { type: 'uint64', name: 'recentTempoBlockNumber' },
+      {
+        type: 'tuple',
+        name: 'blockTransition',
+        components: [
+          { type: 'bytes32', name: 'prevBlockHash' },
+          { type: 'bytes32', name: 'nextBlockHash' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'depositQueueTransition',
+        components: [
+          { type: 'bytes32', name: 'prevProcessedHash' },
+          { type: 'bytes32', name: 'nextProcessedHash' },
+          { type: 'uint64', name: 'prevDepositNumber' },
+          { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'bytes', name: 'verifierConfig' },
+      { type: 'bytes', name: 'proof' },
+      { type: 'uint256', name: 'nextZoneHeight' },
+      { type: 'bytes[]', name: 'signatures' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'BatchSubmitted',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'withdrawalBatchIndex', indexed: true },
+      { type: 'uint256', name: 'withdrawalQueueIndex', indexed: true },
+      { type: 'bytes32', name: 'nextProcessedDepositQueueHash' },
+      { type: 'bytes32', name: 'nextBlockHash' },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'uint64', name: 'lastProcessedDepositNumber' },
+    ],
+  },
+] as const
 
 export const zoneOutbox = [
   {
@@ -8299,80 +8865,1500 @@ export const zoneMessenger = [
   },
 ] as const
 
-export const zoneVerifier = [
+// ZoneInbox ABI from tempoxyz/zones.
+export const zoneInbox = [
   {
-    name: 'verify',
+    name: 'processedDepositQueueHash',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'processedDepositNumber',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'processedTokenEnablementHash',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'processedEnabledTokenCount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'tempoPortal',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'tempoState',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'refunds',
     type: 'function',
     stateMutability: 'view',
     inputs: [
-      { type: 'uint32', name: 'zoneId' },
-      { type: 'uint64', name: 'tempoBlockNumber' },
-      { type: 'uint64', name: 'anchorBlockNumber' },
-      { type: 'bytes32', name: 'anchorBlockHash' },
-      { type: 'uint64', name: 'expectedWithdrawalBatchIndex' },
-      {
-        type: 'tuple',
-        name: 'blockTransition',
-        components: [
-          { type: 'bytes32', name: 'prevBlockHash' },
-          { type: 'bytes32', name: 'nextBlockHash' },
-        ],
-      },
-      {
-        type: 'tuple',
-        name: 'depositQueueTransition',
-        components: [
-          { type: 'bytes32', name: 'prevProcessedHash' },
-          { type: 'bytes32', name: 'nextProcessedHash' },
-          { type: 'uint64', name: 'prevDepositNumber' },
-          { type: 'uint64', name: 'nextDepositNumber' },
-        ],
-      },
-      { type: 'bytes32', name: 'withdrawalQueueHash' },
-      { type: 'bytes', name: 'verifierConfig' },
-      { type: 'bytes', name: 'proof' },
+      { type: 'address', name: 'token' },
+      { type: 'address', name: 'owner' },
     ],
-    outputs: [{ type: 'bool' }],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'claimRefund',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [{ type: 'uint128', name: 'amount' }],
+  },
+  {
+    name: 'advanceTempo',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'bytes', name: 'header' },
+      {
+        type: 'tuple[]',
+        name: 'deposits',
+        components: [
+          { type: 'uint8', name: 'depositType' },
+          { type: 'bytes', name: 'depositData' },
+          { type: 'bool', name: 'rejected' },
+        ],
+      },
+      {
+        type: 'tuple[]',
+        name: 'decryptions',
+        components: [
+          { type: 'bytes32', name: 'sharedSecret' },
+          { type: 'uint8', name: 'sharedSecretYParity' },
+          {
+            type: 'tuple',
+            name: 'cpProof',
+            components: [
+              { type: 'bytes32', name: 's' },
+              { type: 'bytes32', name: 'c' },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'tuple[]',
+        name: 'enabledTokens',
+        components: [
+          { type: 'address', name: 'token' },
+          { type: 'string', name: 'name' },
+          { type: 'string', name: 'symbol' },
+          { type: 'string', name: 'currency' },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'advanceTempoHeaders',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'bytes[]', name: 'headers' }],
+    outputs: [],
+  },
+  {
+    name: 'TempoAdvanced',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'tempoBlockHash', indexed: true },
+      { type: 'uint64', name: 'tempoBlockNumber', indexed: true },
+      { type: 'uint256', name: 'depositsProcessed' },
+      { type: 'bytes32', name: 'newProcessedDepositQueueHash' },
+      { type: 'uint64', name: 'lastProcessedDepositNumber' },
+    ],
+  },
+  {
+    name: 'TempoAdvanced',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'tempoBlockHash', indexed: true },
+      { type: 'uint64', name: 'tempoBlockNumber', indexed: true },
+      { type: 'uint256', name: 'depositsProcessed' },
+      { type: 'bytes32', name: 'newProcessedDepositQueueHash' },
+      { type: 'uint64', name: 'lastProcessedDepositNumber' },
+      { type: 'uint64', name: 'lastProcessedEnabledTokenCount' },
+    ],
+  },
+  {
+    name: 'DepositProcessed',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'depositHash', indexed: true },
+      { type: 'address', name: 'sender', indexed: true },
+      { type: 'address', name: 'to', indexed: true },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bytes32', name: 'memo' },
+    ],
+  },
+  {
+    name: 'DepositFailed',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'depositHash', indexed: true },
+      { type: 'address', name: 'sender', indexed: true },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+    ],
+  },
+  {
+    name: 'DepositRejected',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'depositHash', indexed: true },
+      { type: 'address', name: 'sender', indexed: true },
+      { type: 'uint8', name: 'depositType' },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'address', name: 'tempoRefundRecipient' },
+    ],
+  },
+  {
+    name: 'WithdrawalBounceBackProcessed',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'zoneFallbackRecipient', indexed: true },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+    ],
+  },
+  {
+    name: 'WithdrawalBounceBackPending',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'zoneFallbackRecipient', indexed: true },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+    ],
+  },
+  {
+    name: 'RefundClaimed',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'recipient', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint128', name: 'amount' },
+    ],
+  },
+  {
+    name: 'TokenEnabled',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'string', name: 'name' },
+      { type: 'string', name: 'symbol' },
+      { type: 'string', name: 'currency' },
+    ],
+  },
+  { name: 'OnlySequencer', type: 'error', inputs: [] },
+  { name: 'InvalidDepositQueueHash', type: 'error', inputs: [] },
+  { name: 'InvalidWithdrawalBounceBack', type: 'error', inputs: [] },
+  { name: 'InvalidTokenEnablementHash', type: 'error', inputs: [] },
+  { name: 'MissingDecryptionData', type: 'error', inputs: [] },
+  { name: 'ExtraDecryptionData', type: 'error', inputs: [] },
+  { name: 'InvalidSharedSecretProof', type: 'error', inputs: [] },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+] as const
+
+// Source: tempoxyz/propAMM@bff7c1fa50cf72e2896a078abae4e164c36caa93
+
+export const directPropAmm = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: 'baseToken_', type: 'address', internalType: 'contract ITIP20' },
+      { name: 'quoteToken_', type: 'address', internalType: 'contract ITIP20' },
+      {
+        name: 'oracle_',
+        type: 'address',
+        internalType: 'contract IPriceOracle',
+      },
+      {
+        name: 'addressRegistry_',
+        type: 'address',
+        internalType: 'contract IAddressRegistry',
+      },
+      { name: 'owner_', type: 'address', internalType: 'address' },
+      { name: 'guardian_', type: 'address', internalType: 'address' },
+      { name: 'maxOracleAge_', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'maxPriceDeviationBps_',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'BPS',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'acceptOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'addressRegistry',
+    inputs: [],
+    outputs: [
+      { name: '', type: 'address', internalType: 'contract IAddressRegistry' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseDecimals',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8', internalType: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseToQuotePriceAnchor',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'contract ITIP20' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'fund',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'memo', type: 'bytes32', internalType: 'bytes32' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'guardian',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'maxOracleAge',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint80', internalType: 'uint80' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'maxPriceDeviationBps',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint16', internalType: 'uint16' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'oracle',
+    inputs: [],
+    outputs: [
+      { name: '', type: 'address', internalType: 'contract IPriceOracle' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'oracleDecimals',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8', internalType: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'owner',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'pause',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'paused',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'pendingOwner',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'priceAnchor',
+    inputs: [{ name: 'baseToQuote', type: 'bool', internalType: 'bool' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'priceScale',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteDecimals',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8', internalType: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteExactInput',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteExactInputFor',
+    inputs: [
+      { name: 'taker', type: 'address', internalType: 'address' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'creditAfter', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteExactOutput',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteExactOutputFor',
+    inputs: [
+      { name: 'taker', type: 'address', internalType: 'address' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'creditAfter', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteToBasePriceAnchor',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'contract ITIP20' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'recipientAllowed',
+    inputs: [{ name: 'recipient', type: 'address', internalType: 'address' }],
+    outputs: [{ name: 'allowed', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'resetPriceAnchor',
+    inputs: [{ name: 'baseToQuote', type: 'bool', internalType: 'bool' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'resolveRecipient',
+    inputs: [{ name: 'recipient', type: 'address', internalType: 'address' }],
+    outputs: [{ name: 'resolved', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'roundingCredit',
+    inputs: [{ name: 'routeKey', type: 'bytes32', internalType: 'bytes32' }],
+    outputs: [{ name: 'credit', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'roundingRouteKey',
+    inputs: [
+      { name: 'taker', type: 'address', internalType: 'address' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+    ],
+    outputs: [{ name: '', type: 'bytes32', internalType: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'setGuardian',
+    inputs: [{ name: 'newGuardian', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setMaxOracleAge',
+    inputs: [
+      { name: 'newMaxOracleAge', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setMaxPriceDeviationBps',
+    inputs: [
+      {
+        name: 'newMaxPriceDeviationBps',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setOracle',
+    inputs: [
+      {
+        name: 'newOracle',
+        type: 'address',
+        internalType: 'contract IPriceOracle',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setRecipientAllowed',
+    inputs: [
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'allowed', type: 'bool', internalType: 'bool' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setTakerAllowed',
+    inputs: [
+      { name: 'taker', type: 'address', internalType: 'address' },
+      { name: 'allowed', type: 'bool', internalType: 'bool' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'swapExactInput',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+      { name: 'minAmountOut', type: 'uint256', internalType: 'uint256' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'tradeId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'deadline', type: 'uint256', internalType: 'uint256' },
+      { name: 'expectedOraclePrice', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'oraclePriceToleranceBps',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'minimumOracleUpdatedAt',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [{ name: 'amountOut', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'swapExactOutput',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+      { name: 'maxAmountIn', type: 'uint256', internalType: 'uint256' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'tradeId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'deadline', type: 'uint256', internalType: 'uint256' },
+      { name: 'expectedOraclePrice', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'oraclePriceToleranceBps',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'minimumOracleUpdatedAt',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [{ name: 'amountIn', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'takerAllowed',
+    inputs: [{ name: 'taker', type: 'address', internalType: 'address' }],
+    outputs: [{ name: 'allowed', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'transferOwnership',
+    inputs: [{ name: 'newOwner', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'unpause',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'withdraw',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'memo', type: 'bytes32', internalType: 'bytes32' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'Funded',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      { name: 'memo', type: 'bytes32', indexed: true, internalType: 'bytes32' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'GuardianUpdated',
+    inputs: [
+      {
+        name: 'oldGuardian',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newGuardian',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'MaxOracleAgeUpdated',
+    inputs: [
+      {
+        name: 'oldMaxAge',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newMaxAge',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'MaxPriceDeviationBpsUpdated',
+    inputs: [
+      {
+        name: 'oldMaxPriceDeviationBps',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newMaxPriceDeviationBps',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OracleUpdated',
+    inputs: [
+      {
+        name: 'oldOracle',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOracle',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'decimals',
+        type: 'uint8',
+        indexed: false,
+        internalType: 'uint8',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferStarted',
+    inputs: [
+      {
+        name: 'oldOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'pendingOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferred',
+    inputs: [
+      {
+        name: 'oldOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PausedStateChanged',
+    inputs: [
+      { name: 'paused', type: 'bool', indexed: false, internalType: 'bool' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PriceAnchorUpdated',
+    inputs: [
+      {
+        name: 'baseToQuote',
+        type: 'bool',
+        indexed: true,
+        internalType: 'bool',
+      },
+      {
+        name: 'oldAnchor',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newAnchor',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RecipientPermissionUpdated',
+    inputs: [
+      {
+        name: 'recipient',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      { name: 'allowed', type: 'bool', indexed: false, internalType: 'bool' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RoundingCreditUpdated',
+    inputs: [
+      {
+        name: 'routeKey',
+        type: 'bytes32',
+        indexed: true,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'previousCredit',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newCredit',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'TakerPermissionUpdated',
+    inputs: [
+      {
+        name: 'taker',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      { name: 'allowed', type: 'bool', indexed: false, internalType: 'bool' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'TradeExecuted',
+    inputs: [
+      {
+        name: 'taker',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'recipient',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'customerId',
+        type: 'bytes32',
+        indexed: true,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'tradeId',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'tokenIn',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'tokenOut',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'amountIn',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'amountOut',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'oraclePrice',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'oracleUpdatedAt',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Withdrawn',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'recipient',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'memo',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'AmountIsZero', inputs: [] },
+  { type: 'error', name: 'CustomerIdIsZero', inputs: [] },
+  {
+    type: 'error',
+    name: 'DeadlineExpired',
+    inputs: [
+      { name: 'deadline', type: 'uint256', internalType: 'uint256' },
+      { name: 'currentTimestamp', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'ExactBalanceDeltaFailed',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'expected', type: 'uint256', internalType: 'uint256' },
+      { name: 'actual', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'FutureOracleTimestamp',
+    inputs: [
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'currentTime', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InsufficientInventory',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'available', type: 'uint256', internalType: 'uint256' },
+      { name: 'required', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InvalidAddress', inputs: [] },
+  { type: 'error', name: 'InvalidMaxOracleAge', inputs: [] },
+  {
+    type: 'error',
+    name: 'InvalidMaxPriceDeviationBps',
+    inputs: [
+      { name: 'supplied', type: 'uint256', internalType: 'uint256' },
+      { name: 'maximum', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InvalidOraclePriceToleranceBps',
+    inputs: [
+      { name: 'supplied', type: 'uint256', internalType: 'uint256' },
+      { name: 'maximum', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InvalidPrice', inputs: [] },
+  { type: 'error', name: 'NotGuardianOrOwner', inputs: [] },
+  { type: 'error', name: 'NotOwner', inputs: [] },
+  { type: 'error', name: 'NotPaused', inputs: [] },
+  { type: 'error', name: 'NotPendingOwner', inputs: [] },
+  {
+    type: 'error',
+    name: 'OracleDecimalsChanged',
+    inputs: [
+      { name: 'currentDecimals', type: 'uint8', internalType: 'uint8' },
+      { name: 'proposedDecimals', type: 'uint8', internalType: 'uint8' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'OraclePriceToleranceExceeded',
+    inputs: [
+      { name: 'expectedPrice', type: 'uint256', internalType: 'uint256' },
+      { name: 'actualPrice', type: 'uint256', internalType: 'uint256' },
+      { name: 'toleranceBps', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'OracleTimestampTooOld',
+    inputs: [
+      { name: 'minimumUpdatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'actualUpdatedAt', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'Paused', inputs: [] },
+  {
+    type: 'error',
+    name: 'PriceAnchorNotInitialized',
+    inputs: [{ name: 'baseToQuote', type: 'bool', internalType: 'bool' }],
+  },
+  {
+    type: 'error',
+    name: 'PriceDeviationExceeded',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'anchor', type: 'uint256', internalType: 'uint256' },
+      { name: 'maxDeviationBps', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'RecipientNotAllowed',
+    inputs: [{ name: 'recipient', type: 'address', internalType: 'address' }],
+  },
+  { type: 'error', name: 'ReentrancyGuardReentrantCall', inputs: [] },
+  { type: 'error', name: 'SameToken', inputs: [] },
+  {
+    type: 'error',
+    name: 'SlippageExceeded',
+    inputs: [
+      { name: 'limit', type: 'uint256', internalType: 'uint256' },
+      { name: 'actual', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'StaleOraclePrice',
+    inputs: [
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'maxAge', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'TakerNotAllowed',
+    inputs: [{ name: 'taker', type: 'address', internalType: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'TokenTransferFailed',
+    inputs: [{ name: 'token', type: 'address', internalType: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'UnsupportedDecimals',
+    inputs: [
+      { name: 'baseDecimals', type: 'uint8', internalType: 'uint8' },
+      { name: 'quoteDecimals', type: 'uint8', internalType: 'uint8' },
+      { name: 'oracleDecimals', type: 'uint8', internalType: 'uint8' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'UnsupportedToken',
+    inputs: [{ name: 'token', type: 'address', internalType: 'address' }],
   },
 ] as const
 
-export const core = [
-  ...accountKeychain,
-  ...addressRegistry,
-  ...currentCommittee,
-  ...feeAmm,
-  ...feeManager,
-  ...nativeMultisig,
-  ...nonce,
-  ...receivePolicyGuard,
-  ...signatureVerifier,
-  ...stablecoinDex,
-  ...storageCredits,
-  ...tip20,
-  ...tip20ChannelReserve,
-  ...tip20Factory,
-  ...tip403Registry,
-  ...validatorConfig,
-  ...validatorConfigV2,
-  ...zoneFactory,
-  ...zonePortal,
+export const core = /* @__PURE__ */ (() =>
+  [
+    ...accountKeychain,
+    ...addressRegistry,
+    ...configurableAccount,
+    ...configurableAccountShim,
+    ...currentCommittee,
+    ...feeAmm,
+    ...feeManager,
+    ...nonce,
+    ...receivePolicyGuard,
+    ...signatureVerifier,
+    ...stablecoinDex,
+    ...storageCredits,
+    ...tip20,
+    ...tip20ChannelReserve,
+    ...tip20Factory,
+    ...tip403Registry,
+    ...validatorConfig,
+    ...validatorConfigV2,
+    ...zoneFactory,
+    ...zonePortal,
+    ...zoneVerifier,
+  ] as const)()
+
+export const earn = /* @__PURE__ */ (() =>
+  [
+    ...earnContributionController,
+    ...earnEngine,
+    ...earnEngineAsyncRedeem,
+    ...earnEngineInKindDeposit,
+    ...earnFactory,
+    ...earnFees,
+    ...earnMerkleRewardDistributor,
+    ...earnRewardsFactory,
+    ...earnRouter,
+    ...earnVault,
+    ...erc4626Engine,
+    ...erc4626EngineFactory,
+    ...vedaEngine,
+  ] as const)()
+
+export const zone = /* @__PURE__ */ (() =>
+  [
+    ...zoneInbox,
+    ...zoneMessenger,
+    ...zoneOutbox,
+    ...zonePortalPreT13Retired,
+  ] as const)()
+
+export const propAmm = /* @__PURE__ */ (() => [...directPropAmm] as const)()
+
+export const all = /* @__PURE__ */ (() =>
+  [...core, ...earn, ...zone, ...propAmm] as const)()
+
+/** Deduplicated errors of `core`, for decoding reverts that bubble up across precompiles. */
+export const coreErrors = [
+  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyExists', type: 'error', inputs: [] },
+  { name: 'KeyNotFound', type: 'error', inputs: [] },
+  { name: 'KeyExpired', type: 'error', inputs: [] },
+  { name: 'SpendingLimitExceeded', type: 'error', inputs: [] },
+  { name: 'InvalidSpendingLimit', type: 'error', inputs: [] },
+  { name: 'InvalidSignatureType', type: 'error', inputs: [] },
+  { name: 'ZeroPublicKey', type: 'error', inputs: [] },
+  { name: 'ExpiryInPast', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyRevoked', type: 'error', inputs: [] },
+  {
+    name: 'SignatureTypeMismatch',
+    type: 'error',
+    inputs: [
+      { type: 'uint8', name: 'expected' },
+      { type: 'uint8', name: 'actual' },
+    ],
+  },
+  { name: 'CallNotAllowed', type: 'error', inputs: [] },
+  { name: 'InvalidCallScope', type: 'error', inputs: [] },
+  { name: 'InvalidKeyId', type: 'error', inputs: [] },
+  { name: 'InvalidKeyAuthorizationWitness', type: 'error', inputs: [] },
+  { name: 'KeyAuthorizationWitnessAlreadyBurned', type: 'error', inputs: [] },
+  {
+    name: 'LegacyAuthorizeKeySelectorChanged',
+    type: 'error',
+    inputs: [{ type: 'bytes4', name: 'newSelector' }],
+  },
+  {
+    name: 'MasterIdCollision',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'master' }],
+  },
+  { name: 'InvalidMasterAddress', type: 'error', inputs: [] },
+  { name: 'ProofOfWorkFailed', type: 'error', inputs: [] },
+  { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
+  { name: 'InvalidAccount', type: 'error', inputs: [] },
+  { name: 'InvalidConfig', type: 'error', inputs: [] },
+  { name: 'InvalidThreshold', type: 'error', inputs: [] },
+  { name: 'InvalidConfigurableAccountOwner', type: 'error', inputs: [] },
+  { name: 'InvalidWeight', type: 'error', inputs: [] },
+  { name: 'TooManyOwners', type: 'error', inputs: [] },
+  { name: 'DuplicateOwner', type: 'error', inputs: [] },
+  { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
+  { name: 'UnauthorizedConfigurableAccountCaller', type: 'error', inputs: [] },
+  { name: 'PrimitiveRootRequired', type: 'error', inputs: [] },
+  { name: 'UpgradeMustBeDirectCall', type: 'error', inputs: [] },
+  { name: 'AccountAlreadyConfigurable', type: 'error', inputs: [] },
+  { name: 'AccountHasCode', type: 'error', inputs: [] },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'IdenticalAddresses', type: 'error', inputs: [] },
+  { name: 'InvalidToken', type: 'error', inputs: [] },
+  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
+  { name: 'InsufficientReserves', type: 'error', inputs: [] },
+  { name: 'InvalidAmount', type: 'error', inputs: [] },
+  { name: 'DivisionByZero', type: 'error', inputs: [] },
+  { name: 'InvalidSwapCalculation', type: 'error', inputs: [] },
+  { name: 'InsufficientFeeTokenBalance', type: 'error', inputs: [] },
+  { name: 'CannotChangeWithinBlock', type: 'error', inputs: [] },
+  { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
+  { name: 'InvalidNonceKey', type: 'error', inputs: [] },
+  { name: 'NonceOverflow', type: 'error', inputs: [] },
+  { name: 'ExpiringNonceReplay', type: 'error', inputs: [] },
+  { name: 'ExpiringNonceSetFull', type: 'error', inputs: [] },
+  { name: 'InvalidExpiringNonceExpiry', type: 'error', inputs: [] },
+  { name: 'InvalidReceipt', type: 'error', inputs: [] },
+  { name: 'InvalidClaimAddress', type: 'error', inputs: [] },
+  { name: 'UnauthorizedClaimer', type: 'error', inputs: [] },
+  { name: 'AddressReserved', type: 'error', inputs: [] },
+  { name: 'InvalidFormat', type: 'error', inputs: [] },
+  { name: 'InvalidSignature', type: 'error', inputs: [] },
+  { name: 'PairDoesNotExist', type: 'error', inputs: [] },
+  { name: 'PairAlreadyExists', type: 'error', inputs: [] },
+  { name: 'OrderDoesNotExist', type: 'error', inputs: [] },
+  { name: 'IdenticalTokens', type: 'error', inputs: [] },
+  {
+    name: 'TickOutOfBounds',
+    type: 'error',
+    inputs: [{ type: 'int16', name: 'tick' }],
+  },
+  { name: 'InvalidTick', type: 'error', inputs: [] },
+  { name: 'InvalidFlipTick', type: 'error', inputs: [] },
+  { name: 'InsufficientBalance', type: 'error', inputs: [] },
+  { name: 'InsufficientOutput', type: 'error', inputs: [] },
+  { name: 'MaxInputExceeded', type: 'error', inputs: [] },
+  {
+    name: 'BelowMinimumOrderSize',
+    type: 'error',
+    inputs: [{ type: 'uint128', name: 'amount' }],
+  },
+  { name: 'InvalidBaseToken', type: 'error', inputs: [] },
+  { name: 'OrderNotStale', type: 'error', inputs: [] },
+  { name: 'IndexAlreadySet', type: 'error', inputs: [] },
+  { name: 'InvalidMode', type: 'error', inputs: [] },
+  { name: 'OnlyDirectCall', type: 'error', inputs: [] },
+  {
+    name: 'InsufficientBalance',
+    type: 'error',
+    inputs: [
+      { type: 'uint256', name: 'available' },
+      { type: 'uint256', name: 'required' },
+      { type: 'address', name: 'token' },
+    ],
+  },
+  { name: 'InsufficientAllowance', type: 'error', inputs: [] },
+  { name: 'SupplyCapExceeded', type: 'error', inputs: [] },
+  { name: 'InvalidSupplyCap', type: 'error', inputs: [] },
+  { name: 'InvalidPayload', type: 'error', inputs: [] },
+  { name: 'PolicyForbids', type: 'error', inputs: [] },
+  { name: 'InvalidRecipient', type: 'error', inputs: [] },
+  { name: 'ContractPaused', type: 'error', inputs: [] },
+  { name: 'InvalidCurrency', type: 'error', inputs: [] },
+  { name: 'InvalidQuoteToken', type: 'error', inputs: [] },
+  { name: 'NoOptedInSupply', type: 'error', inputs: [] },
+  { name: 'ProtectedAddress', type: 'error', inputs: [] },
+  { name: 'Uninitialized', type: 'error', inputs: [] },
+  { name: 'InvalidTransferPolicyId', type: 'error', inputs: [] },
+  { name: 'PermitExpired', type: 'error', inputs: [] },
+  { name: 'LogoURITooLong', type: 'error', inputs: [] },
+  { name: 'InvalidLogoURI', type: 'error', inputs: [] },
+  {
+    name: 'RootKeyRetired',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'account' }],
+  },
+  { name: 'ChannelAlreadyExists', type: 'error', inputs: [] },
+  { name: 'ChannelNotFound', type: 'error', inputs: [] },
+  { name: 'NotPayer', type: 'error', inputs: [] },
+  { name: 'NotPayeeOrOperator', type: 'error', inputs: [] },
+  { name: 'InvalidPayee', type: 'error', inputs: [] },
+  { name: 'ZeroDeposit', type: 'error', inputs: [] },
+  { name: 'ExpiringNonceHashNotSet', type: 'error', inputs: [] },
+  { name: 'AmountExceedsDeposit', type: 'error', inputs: [] },
+  { name: 'AmountNotIncreasing', type: 'error', inputs: [] },
+  { name: 'CaptureAmountInvalid', type: 'error', inputs: [] },
+  { name: 'CloseNotReady', type: 'error', inputs: [] },
+  { name: 'DepositOverflow', type: 'error', inputs: [] },
+  {
+    name: 'SignerConfigChanged',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'signer' }],
+  },
+  {
+    name: 'SaltNotSignerCommitment',
+    type: 'error',
+    inputs: [
+      { type: 'address', name: 'signer' },
+      { type: 'bytes32', name: 'commitment' },
+    ],
+  },
+  { name: 'AddressNotReserved', type: 'error', inputs: [] },
+  {
+    name: 'TokenAlreadyExists',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'token' }],
+  },
+  { name: 'PolicyNotFound', type: 'error', inputs: [] },
+  { name: 'PolicyNotSimple', type: 'error', inputs: [] },
+  { name: 'InvalidPolicyType', type: 'error', inputs: [] },
+  { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
+  { name: 'VirtualAddressNotAllowed', type: 'error', inputs: [] },
+  { name: 'InvalidReceivePolicyType', type: 'error', inputs: [] },
+  { name: 'InvalidRecoveryAuthority', type: 'error', inputs: [] },
+  { name: 'ValidatorAlreadyExists', type: 'error', inputs: [] },
+  { name: 'ValidatorNotFound', type: 'error', inputs: [] },
+  { name: 'InvalidPublicKey', type: 'error', inputs: [] },
+  {
+    name: 'NotHostPort',
+    type: 'error',
+    inputs: [
+      { type: 'string', name: 'field' },
+      { type: 'string', name: 'input' },
+      { type: 'string', name: 'backtrace' },
+    ],
+  },
+  {
+    name: 'NotIpPort',
+    type: 'error',
+    inputs: [
+      { type: 'string', name: 'field' },
+      { type: 'string', name: 'input' },
+      { type: 'string', name: 'backtrace' },
+    ],
+  },
+  { name: 'AlreadyInitialized', type: 'error', inputs: [] },
+  {
+    name: 'IngressAlreadyExists',
+    type: 'error',
+    inputs: [{ type: 'string', name: 'ingress' }],
+  },
+  { name: 'EmptyV1ValidatorSet', type: 'error', inputs: [] },
+  { name: 'InvalidMigrationIndex', type: 'error', inputs: [] },
+  { name: 'InvalidOwner', type: 'error', inputs: [] },
+  { name: 'InvalidSignatureFormat', type: 'error', inputs: [] },
+  { name: 'InvalidValidatorAddress', type: 'error', inputs: [] },
+  { name: 'MigrationNotComplete', type: 'error', inputs: [] },
+  { name: 'NotInitialized', type: 'error', inputs: [] },
+  {
+    name: 'NotIp',
+    type: 'error',
+    inputs: [
+      { type: 'string', name: 'input' },
+      { type: 'string', name: 'backtrace' },
+    ],
+  },
+  {
+    name: 'NotIpPort',
+    type: 'error',
+    inputs: [
+      { type: 'string', name: 'input' },
+      { type: 'string', name: 'backtrace' },
+    ],
+  },
+  { name: 'PublicKeyAlreadyExists', type: 'error', inputs: [] },
+  { name: 'AddressAlreadyHasValidator', type: 'error', inputs: [] },
+  { name: 'ValidatorAlreadyDeactivated', type: 'error', inputs: [] },
+  { name: 'TokenTransferPolicyNotSet', type: 'error', inputs: [] },
+  { name: 'InvalidClosedLoopConfig', type: 'error', inputs: [] },
+  { name: 'NotOwner', type: 'error', inputs: [] },
+  { name: 'InvalidAdmin', type: 'error', inputs: [] },
+  { name: 'InvalidSequencerSet', type: 'error', inputs: [] },
+  { name: 'TokenMetadataTooLong', type: 'error', inputs: [] },
+  { name: 'DuplicateAllowedAccount', type: 'error', inputs: [] },
+  { name: 'DuplicateZoneGateway', type: 'error', inputs: [] },
+  { name: 'NotSequencer', type: 'error', inputs: [] },
+  { name: 'NotAdmin', type: 'error', inputs: [] },
+  { name: 'NotPauseAuthority', type: 'error', inputs: [] },
+  {
+    name: 'CapabilityAbdicated',
+    type: 'error',
+    inputs: [{ type: 'uint8', name: 'capability' }],
+  },
+  {
+    name: 'AbdicationAlreadyScheduled',
+    type: 'error',
+    inputs: [{ type: 'uint8', name: 'capability' }],
+  },
+  { name: 'PortalIsPaused', type: 'error', inputs: [] },
+  { name: 'NotPendingAdmin', type: 'error', inputs: [] },
+  { name: 'InvalidProof', type: 'error', inputs: [] },
+  { name: 'InvalidTempoBlockNumber', type: 'error', inputs: [] },
+  { name: 'NotFactory', type: 'error', inputs: [] },
+  { name: 'NotSelf', type: 'error', inputs: [] },
+  { name: 'MustDelegateCall', type: 'error', inputs: [] },
+  { name: 'CallbackRejected', type: 'error', inputs: [] },
+  { name: 'TransferFailed', type: 'error', inputs: [] },
+  { name: 'ReentrantWithdrawal', type: 'error', inputs: [] },
+  {
+    name: 'EncryptionKeyExpired',
+    type: 'error',
+    inputs: [
+      { type: 'uint256', name: 'keyIndex' },
+      { type: 'uint64', name: 'activationBlock' },
+      { type: 'uint64', name: 'supersededAtBlock' },
+    ],
+  },
+  {
+    name: 'InvalidEncryptionKeyIndex',
+    type: 'error',
+    inputs: [{ type: 'uint256', name: 'keyIndex' }],
+  },
+  { name: 'NoEncryptionKeySet', type: 'error', inputs: [] },
+  {
+    name: 'NoEncryptionKeyAtBlock',
+    type: 'error',
+    inputs: [{ type: 'uint64', name: 'blockNumber' }],
+  },
+  { name: 'InvalidEphemeralPubkey', type: 'error', inputs: [] },
+  {
+    name: 'InvalidCiphertextLength',
+    type: 'error',
+    inputs: [
+      { type: 'uint256', name: 'actual' },
+      { type: 'uint256', name: 'expected' },
+    ],
+  },
+  { name: 'InvalidProofOfPossession', type: 'error', inputs: [] },
+  { name: 'DepositTooSmall', type: 'error', inputs: [] },
+  {
+    name: 'TokenEnablementBlockCapacityExceeded',
+    type: 'error',
+    inputs: [{ type: 'uint64', name: 'maximum' }],
+  },
+  { name: 'GasFeeRateTooHigh', type: 'error', inputs: [] },
+  { name: 'DepositsNotActive', type: 'error', inputs: [] },
+  { name: 'TokenAlreadyEnabled', type: 'error', inputs: [] },
+  { name: 'TokenEnablementCursorNotInitialized', type: 'error', inputs: [] },
+  { name: 'InvalidDepositTransition', type: 'error', inputs: [] },
+  { name: 'InvalidTokenEnablementTransition', type: 'error', inputs: [] },
+  { name: 'SequencerConfigurationUnchanged', type: 'error', inputs: [] },
+  { name: 'InvalidQuorumCertificate', type: 'error', inputs: [] },
+  { name: 'CallbackDidNotReturnToZone', type: 'error', inputs: [] },
+  { name: 'InvalidBouncebackRecipient', type: 'error', inputs: [] },
+  { name: 'TokenNotEnabled', type: 'error', inputs: [] },
+  {
+    name: 'DepositBlockCapacityExceeded',
+    type: 'error',
+    inputs: [{ type: 'uint64', name: 'maximum' }],
+  },
+  { name: 'InvalidCallbackTarget', type: 'error', inputs: [] },
+  {
+    name: 'AccountNotAllowed',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'account' }],
+  },
+  { name: 'InvalidLeader', type: 'error', inputs: [] },
+  { name: 'ActiveLeaderRemoved', type: 'error', inputs: [] },
+  { name: 'LeaderAlreadyUpdatedThisBlock', type: 'error', inputs: [] },
+  {
+    name: 'StaleLeadershipEpoch',
+    type: 'error',
+    inputs: [
+      { type: 'uint64', name: 'expected' },
+      { type: 'uint64', name: 'actual' },
+    ],
+  },
 ] as const
-
-export const earn = [
-  ...earnContributionController,
-  ...earnEngine,
-  ...earnEngineAsyncRedeem,
-  ...earnEngineInKindDeposit,
-  ...earnFactory,
-  ...earnFees,
-  ...earnMerkleRewardDistributor,
-  ...earnRouter,
-  ...earnVault,
-  ...erc4626Engine,
-  ...erc4626EngineFactory,
-  ...vedaEngine,
-] as const
-
-export const zone = [...zoneMessenger, ...zoneOutbox, ...zoneVerifier] as const
-
-export const all = [...core, ...earn, ...zone] as const

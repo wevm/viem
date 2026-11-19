@@ -18,6 +18,9 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
+import { type Resolvers, withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -87,7 +90,7 @@ export namespace create {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -112,7 +115,7 @@ export namespace create {
     const admin = parseAccount(account).address!
 
     const call = create.call({ admin, type, addresses })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -233,6 +236,8 @@ export async function createSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = create.extractEvent(receipt.logs)
   return {
     ...args,
@@ -259,7 +264,7 @@ export namespace createSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -314,7 +319,7 @@ export namespace setAdmin {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -328,7 +333,7 @@ export namespace setAdmin {
   ): Promise<ReturnType<action>> {
     const { policyId, admin, ...rest } = parameters
     const call = setAdmin.call({ policyId, admin })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -436,6 +441,8 @@ export async function setAdminSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setAdmin.extractEvent(receipt.logs)
   return {
     ...args,
@@ -462,7 +469,7 @@ export namespace setAdminSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -520,7 +527,7 @@ export namespace modifyWhitelist {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -538,7 +545,7 @@ export namespace modifyWhitelist {
       allowed,
       policyId,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -649,6 +656,8 @@ export async function modifyWhitelistSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = modifyWhitelist.extractEvent(receipt.logs)
   return {
     ...args,
@@ -675,7 +684,7 @@ export namespace modifyWhitelistSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -733,7 +742,7 @@ export namespace modifyBlacklist {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -751,7 +760,7 @@ export namespace modifyBlacklist {
       policyId,
       restricted,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -862,6 +871,8 @@ export async function modifyBlacklistSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = modifyBlacklist.extractEvent(receipt.logs)
   return {
     ...args,
@@ -888,7 +899,7 @@ export namespace modifyBlacklistSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -919,7 +930,7 @@ export async function getData<chain extends Chain | undefined>(
   parameters: getData.Parameters,
 ): Promise<getData.ReturnValue> {
   const { policyId, ...rest } = parameters
-  const result = await readContract(client, {
+  const result = await withExecutionError(readContract)(client, {
     ...rest,
     ...getData.call({ policyId }),
   })
@@ -959,6 +970,8 @@ export namespace getData {
       functionName: 'policyData',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -990,7 +1003,7 @@ export async function isAuthorized<chain extends Chain | undefined>(
   parameters: isAuthorized.Parameters,
 ): Promise<isAuthorized.ReturnValue> {
   const { policyId, user, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...isAuthorized.call({ policyId, user }),
   })
@@ -1027,6 +1040,8 @@ export namespace isAuthorized {
       functionName: 'isAuthorized',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1326,4 +1341,49 @@ export declare namespace watchBlacklistUpdated {
     /** Callback to invoke when a blacklist is updated. */
     onBlacklistUpdated: (args: Args, log: Log) => void
   }
+}
+
+// Errors
+
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
+export type ExecutionErrorType = PolicyNotFoundErrorType
+
+/** `PolicyNotFoundError` with a literal `name`, for narrowing. */
+export type PolicyNotFoundErrorType = PolicyNotFoundError & {
+  name: 'PolicyNotFoundError'
+}
+
+/** Thrown when a transfer policy does not exist. */
+export class PolicyNotFoundError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'PolicyNotFound'>
+> {
+  /** Policy ID, when known. */
+  policyId: bigint | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      policyId?: bigint | undefined
+    },
+  ) {
+    const { policyId } = parameters
+    super(parameters, {
+      details: { policy: policyId },
+      name: 'PolicyNotFoundError',
+      shortMessage:
+        policyId === undefined
+          ? undefined
+          : `Transfer policy ${policyId} does not exist.`,
+    })
+    this.policyId = policyId
+  }
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'PolicyNotFound()': ({ base, call }) =>
+    new PolicyNotFoundError({
+      ...base,
+      policyId:
+        call?.arg<bigint>('policyId') ?? call?.arg<bigint>('newPolicyId'),
+    }),
 }

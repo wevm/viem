@@ -25,6 +25,7 @@ test('creates', () => {
       "name": "Bundler Client",
       "pollingInterval": 4000,
       "request": [Function],
+      "scope": [Function],
       "type": "PaymasterClient",
     }
   `)

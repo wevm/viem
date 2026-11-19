@@ -1,9 +1,30 @@
-import type { Chain } from '../types/chain.js'
-import { defineChain } from '../utils/chain/defineChain.js'
-import { chainConfig } from './chainConfig.js'
+import type { Chain, ChainFormatters } from '../types/chain.js'
+import type { Assign } from '../types/utils.js'
+import {
+  type DefineChainReturnType,
+  defineChain,
+} from '../utils/chain/defineChain.js'
+import { type ChainConfig, chainConfig } from './chainConfig.js'
+
+type Defaults = {
+  nativeCurrency: {
+    decimals: number
+    name: string
+    symbol: string
+  }
+  rpcUrls: { default: { http: string[] } }
+  supportsTransactionReplacementDetection: boolean
+}
+
+type ZoneChain = Chain<ChainFormatters, ChainConfig['extendSchema']> & {
+  formatters: ChainConfig['formatters']
+}
 
 /** Defines a Tempo Zone chain. */
-export function from<const config extends from.Parameters>(config: config) {
+export function from<const config extends from.Parameters>(
+  config: config,
+): from.ReturnValue<config>
+export function from(config: from.Parameters) {
   const chain = {
     ...chainConfig,
     nativeCurrency: {
@@ -23,6 +44,11 @@ export declare namespace from {
     Partial<Omit<Chain, 'id' | 'name' | 'sourceId'>> & {
       sourceId: number
     }
+
+  type ReturnValue<config extends Parameters = Parameters> = Assign<
+    Assign<DefineChainReturnType<ZoneChain>, Defaults>,
+    config
+  >
 }
 
 export const a = /*#__PURE__*/ from({

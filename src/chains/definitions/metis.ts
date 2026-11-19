@@ -11,14 +11,11 @@ export const metis = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: [
-        'https://metis.rpc.hypersync.xyz',
+        'https://andromeda.metis.io/?owner=1088',
         'https://metis-pokt.nodies.app',
-        'https://api.blockeden.xyz/metis/67nCBdZQSH9z3YqDDjdm',
         'https://metis-andromeda.rpc.thirdweb.com',
         'https://metis-andromeda.gateway.tenderly.co',
         'https://metis.api.onfinality.io/public',
-        'https://andromeda.metis.io/?owner=1088',
-        'https://metis-mainnet.public.blastapi.io',
       ],
       webSocket: ['wss://metis-rpc.publicnode.com', 'wss://metis.drpc.org'],
     },

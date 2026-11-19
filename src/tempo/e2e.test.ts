@@ -5,7 +5,9 @@ import { Hex, RpcRequest, RpcResponse, Value, WebCryptoP256 } from 'ox'
 import { Period } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
+  fillTransaction,
   getTransaction,
+  getTransactionCount,
   prepareTransactionRequest,
   sendRawTransaction,
   sendTransaction,
@@ -183,14 +185,11 @@ describe('sendTransaction', () => {
         ],
         "data": undefined,
         "feePayerSignature": undefined,
-        "maxFeePerBlobGas": undefined,
-        "to": null,
+        "operation": undefined,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "validAfter": null,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -258,14 +257,11 @@ describe('sendTransaction', () => {
         ],
         "data": undefined,
         "feePayerSignature": undefined,
-        "maxFeePerBlobGas": undefined,
-        "to": null,
+        "operation": undefined,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "validAfter": null,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -324,21 +320,18 @@ describe('sendTransaction', () => {
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeNull()
     expect(transaction).toMatchInlineSnapshot(`
-        {
-          "accessList": [],
-          "authorizationList": [],
-          "data": undefined,
-          "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
-          "type": "tempo",
-          "typeHex": "0x76",
-          "v": undefined,
-          "validAfter": null,
-          "value": 0n,
-          "yParity": undefined,
-        }
-      `)
+      {
+        "accessList": [],
+        "authorizationList": [],
+        "data": undefined,
+        "feePayerSignature": undefined,
+        "operation": undefined,
+        "type": "tempo",
+        "typeHex": "0x76",
+        "validAfter": null,
+        "value": 0n,
+      }
+    `)
   })
 
   test('behavior: with `feePayer`', async () => {
@@ -389,7 +382,7 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(validAfter).toBeTypeOf('number')
+    expect(validAfter).toBeNull()
     expect(validBefore).toBeTypeOf('number')
     expect(transaction).toMatchInlineSnapshot(`
       {
@@ -403,13 +396,10 @@ describe('sendTransaction', () => {
           },
         ],
         "data": undefined,
-        "maxFeePerBlobGas": undefined,
-        "to": null,
+        "operation": undefined,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -538,14 +528,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -616,14 +603,11 @@ describe('sendTransaction', () => {
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -679,7 +663,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validAfter).toBeTypeOf('number')
+      expect(validAfter).toBeNull()
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
@@ -693,13 +677,10 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -831,14 +812,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1037,14 +1015,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1119,14 +1094,11 @@ describe('sendTransaction', () => {
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1186,7 +1158,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validAfter).toBeTypeOf('number')
+      expect(validAfter).toBeNull()
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
@@ -1200,13 +1172,10 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1400,7 +1369,7 @@ describe('signTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(validAfter).toBeTypeOf('number')
+    expect(validAfter).toBeNull()
     expect(validBefore).toBeTypeOf('number')
     expect(transaction2).toMatchInlineSnapshot(`
       {
@@ -1414,15 +1383,32 @@ describe('signTransaction', () => {
           },
         ],
         "data": undefined,
-        "maxFeePerBlobGas": undefined,
-        "to": null,
+        "operation": undefined,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
+  })
+})
+
+describe('fillTransaction', () => {
+  test('behavior: requested nonce stays a bigint', async () => {
+    const account = accounts[0]
+    const nonce = await getTransactionCount(client, {
+      address: account.address,
+      blockTag: 'pending',
+    })
+
+    const { transaction } = await fillTransaction(client, {
+      account: account.address,
+      calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+      nonce,
+    })
+
+    expect(transaction.type).toBe('tempo')
+    expect(transaction.feePayerSignature).toBeUndefined()
+    expect(transaction.nonce).toBe(BigInt(nonce))
   })
 })
 
@@ -1577,20 +1563,17 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validAfter).toBeTypeOf('number')
+      expect(validAfter).toBeNull()
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1726,20 +1709,17 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validAfter).toBeTypeOf('number')
+      expect(validAfter).toBeNull()
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1823,20 +1803,17 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validAfter).toBeTypeOf('number')
+      expect(validAfter).toBeNull()
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
+          "operation": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })

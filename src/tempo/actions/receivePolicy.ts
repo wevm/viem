@@ -22,12 +22,14 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/index.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
   WriteParameters,
 } from '../internal/types.js'
-import { defineCall } from '../internal/utils.js'
+import { defineCall, isTip20 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 /** TIP-403 policy type. */
@@ -56,9 +58,6 @@ export type BlockedReason = ReceivePolicyReceipt.BlockedReason
 
 /** @internal */
 const blockedReasons = ['none', 'tokenFilter', 'receivePolicy'] as const
-
-/** @internal 12-byte prefix shared by TIP-20 token addresses. */
-const tip20Prefix = '0x20c000000000000000000000'
 
 /** @internal */
 const systemPrecompiles = [
@@ -138,7 +137,7 @@ export namespace burn {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -160,7 +159,7 @@ export namespace burn {
     if (!account) throw new Error('`account` is required')
 
     const call = burn.call({ receipt })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -239,6 +238,8 @@ export async function burnSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
@@ -265,7 +266,7 @@ export namespace burnSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -320,7 +321,7 @@ export namespace claim {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -343,7 +344,7 @@ export namespace claim {
     if (!account) throw new Error('`account` is required')
 
     const call = claim.call({ to, receipt })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -423,6 +424,8 @@ export async function claimSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = claim.extractEvent(receipt.logs)
   return {
     ...args,
@@ -449,7 +452,7 @@ export namespace claimSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -492,7 +495,7 @@ export async function get<
     tokenPolicyId,
     tokenPolicyType,
     recoveryAuthority,
-  ] = await readContract(client, {
+  ] = await withExecutionError(readContract)(client, {
     ...rest,
     account: null as never,
     ...get.call({ account: account.address }),
@@ -550,6 +553,8 @@ export namespace get {
       args: [account],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -580,7 +585,7 @@ export async function getBlockedBalance<chain extends Chain | undefined>(
   parameters: getBlockedBalance.Parameters,
 ): Promise<getBlockedBalance.ReturnValue> {
   const { receipt, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getBlockedBalance.call({ receipt }),
   })
@@ -615,6 +620,8 @@ export namespace getBlockedBalance {
       args: [receipt],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -686,7 +693,7 @@ export namespace set {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -717,7 +724,7 @@ export namespace set {
       tokenFilterId: resolvePolicyRef(tokenPolicyId),
       recoveryAuthority,
     })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -805,6 +812,8 @@ export async function setSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { tokenFilterId, ...args } = set.extractEvent(receipt.logs).args
   return {
     ...args,
@@ -843,7 +852,7 @@ export namespace setSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -880,10 +889,13 @@ export async function validate<chain extends Chain | undefined>(
   parameters: validate.Parameters,
 ): Promise<validate.ReturnValue> {
   const { token, sender, receiver, ...rest } = parameters
-  const [authorized, blockedReason] = await readContract(client, {
-    ...rest,
-    ...validate.call({ token, sender, receiver }),
-  })
+  const [authorized, blockedReason] = await withExecutionError(readContract)(
+    client,
+    {
+      ...rest,
+      ...validate.call({ token, sender, receiver }),
+    },
+  )
   return {
     authorized,
     blockedReason: blockedReasons[blockedReason] ?? 'none',
@@ -924,6 +936,8 @@ export namespace validate {
       args: [token, sender, receiver],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1283,7 +1297,7 @@ function assertValidRecoveryAuthority(recoveryAuthority: Address) {
   if (isAddressEqual(recoveryAuthority, zeroAddress)) return
   if (VirtualAddress.isVirtual(recoveryAuthority))
     throw new Error('Recovery authority cannot be a TIP-1022 virtual address.')
-  if (recoveryAuthority.toLowerCase().startsWith(tip20Prefix))
+  if (isTip20(recoveryAuthority))
     throw new Error('Recovery authority cannot be a TIP-20 token address.')
   if (
     systemPrecompiles.some((address) =>

@@ -248,6 +248,11 @@ export type {
   GetStorageAtReturnType,
 } from './actions/public/getStorageAt.js'
 export type {
+  GetStorageValuesErrorType,
+  GetStorageValuesParameters,
+  GetStorageValuesReturnType,
+} from './actions/public/getStorageValues.js'
+export type {
   GetTransactionErrorType,
   GetTransactionParameters,
   GetTransactionReturnType,
@@ -267,6 +272,11 @@ export type {
   GetTransactionReceiptParameters,
   GetTransactionReceiptReturnType,
 } from './actions/public/getTransactionReceipt.js'
+export type {
+  IterateLogsErrorType,
+  IterateLogsParameters,
+  IterateLogsReturnType,
+} from './actions/public/iterateLogs.js'
 export type {
   MulticallErrorType,
   MulticallParameters,
@@ -604,6 +614,14 @@ export {
   type MulticallBatchOptions,
   rpcSchema,
 } from './clients/createClient.js'
+/** Lazily resolves and caches typed Clients across configured chains. */
+export {
+  ChainNotConfiguredError,
+  type ChainNotConfiguredErrorType,
+  createClientResolver,
+  TransportNotConfiguredError,
+  type TransportNotConfiguredErrorType,
+} from './clients/createClientResolver.js'
 export {
   type CreatePublicClientErrorType,
   createPublicClient,
@@ -895,6 +913,8 @@ export {
   type RlpDepthLimitExceededErrorType,
   RlpListBoundaryExceededError,
   type RlpListBoundaryExceededErrorType,
+  RlpNonCanonicalError,
+  type RlpNonCanonicalErrorType,
   RlpTrailingBytesError,
   type RlpTrailingBytesErrorType,
   SizeOverflowError,
@@ -1322,6 +1342,8 @@ export type {
 } from './types/utils.js'
 export type { Withdrawal } from './types/withdrawal.js'
 export {
+  AbiDecodingSizeLimitExceededError,
+  type AbiDecodingSizeLimitExceededErrorType,
   type DecodeAbiParametersErrorType,
   type DecodeAbiParametersReturnType,
   decodeAbiParameters,
@@ -1339,6 +1361,8 @@ export {
   decodeErrorResult,
 } from './utils/abi/decodeErrorResult.js'
 export {
+  AbiEventAmbiguityError,
+  type AbiEventAmbiguityErrorType,
   type DecodeEventLogErrorType,
   type DecodeEventLogParameters,
   type DecodeEventLogReturnType,

@@ -1,7 +1,11 @@
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { getBalance, getTransaction, mine, sendCalls } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { createRpcProxy } from '~test/utils.js'
 import { type Chain, mainnet } from '../../chains/index.js'
 import { type Client, createClient } from '../../clients/createClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -18,7 +22,6 @@ import { uid } from '../../utils/uid.js'
 import {
   fallbackMagicIdentifier,
   fallbackTransactionErrorMagicIdentifier,
-  sendCalls,
 } from './sendCalls.js'
 
 type Uid = string
@@ -446,6 +449,92 @@ test('behavior: capability: paymasterService', async () => {
 describe('behavior: eth_sendTransaction fallback', () => {
   const client = anvilMainnet.getClient()
 
+  function createRpcServer(error: { code: number; message: string }) {
+    return createRpcProxy(anvilMainnet.rpcUrl.http, ({ method }) =>
+      method === 'wallet_sendCalls' ? { error } : undefined,
+    )
+  }
+
+  test.each([
+    ['json-rpc', accounts[0].address],
+    ['local', privateKeyToAccount(accounts[0].privateKey)],
+  ] as const)('behavior: Base RPC with %s account', async (_, account) => {
+    const url = await createRpcServer({
+      code: -32604,
+      message: 'this request method is not supported',
+    })
+    const wallet = createWalletClient({
+      account,
+      chain: mainnet,
+      transport: http(url),
+    })
+    await mine(client, { blocks: 1 })
+    const balance = await getBalance(client, { address: accounts[1].address })
+
+    const response = await sendCalls(wallet, {
+      calls: [{ to: accounts[1].address, value: 1n }],
+      experimental_fallback: true,
+      experimental_fallbackDelay: 0,
+    })
+    await mine(client, { blocks: 1 })
+
+    expectFallbackId(response.id, 1)
+    expect(
+      (await getBalance(client, { address: accounts[1].address })) - balance,
+    ).toMatchInlineSnapshot('1n')
+  })
+
+  test.each([undefined, false])(
+    'behavior: Base RPC with experimental_fallback=%s',
+    async (experimental_fallback) => {
+      const url = await createRpcServer({
+        code: -32604,
+        message: 'this request method is not supported',
+      })
+      const wallet = createWalletClient({
+        account: accounts[0].address,
+        chain: mainnet,
+        transport: http(url),
+      })
+
+      await expect(
+        sendCalls(wallet, {
+          calls: [{ to: accounts[1].address, value: 1n }],
+          experimental_fallback,
+        }),
+      ).rejects.toMatchObject({
+        name: 'TransactionExecutionError',
+        details: 'this request method is not supported',
+        cause: { name: 'RpcRequestError', code: -32604 },
+      })
+    },
+  )
+
+  test.each([
+    { code: -32604, message: 'request rate limit exceeded' },
+    { code: -32603, message: 'internal server error' },
+    { code: 4001, message: 'user rejected the request' },
+  ])('error: $message', async (error) => {
+    const url = await createRpcServer(error)
+    const wallet = createWalletClient({
+      account: accounts[0].address,
+      chain: mainnet,
+      transport: http(url),
+    })
+
+    await expect(
+      sendCalls(wallet, {
+        calls: [{ to: accounts[1].address, value: 1n }],
+        experimental_fallback: true,
+        experimental_fallbackDelay: 0,
+      }),
+    ).rejects.toMatchObject({
+      name: 'TransactionExecutionError',
+      details: error.message,
+      cause: { code: error.code },
+    })
+  })
+
   test('default', async () => {
     const response = await sendCalls(client, {
       account: accounts[0].address,
@@ -656,6 +745,26 @@ describe('behavior: eth_sendTransaction fallback', () => {
     const hashes = expectFallbackId(response.id, 3)
     expect(hashes).toContain(fallbackTransactionErrorMagicIdentifier)
   })
+
+  test('behavior: dataSuffix (no data)', async () => {
+    const response = await sendCalls(client, {
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+          dataSuffix: '0x12345678',
+        },
+      ],
+      experimental_fallback: true,
+      experimental_fallbackDelay: 0,
+    })
+
+    const [hash] = expectFallbackId(response.id, 1)
+    const { input } = await getTransaction(client, { hash: hash! })
+    expect(input).toMatchInlineSnapshot(`"0x12345678"`)
+  })
 })
 
 test('error: insufficient funds', async () => {
@@ -742,6 +851,51 @@ test('args: dataSuffix', async () => {
               "data": "0x1249c58b12345678",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
+          "version": "2.0.0",
+        },
+      ],
+    ]
+  `)
+})
+
+test('args: dataSuffix (no data)', async () => {
+  const requests: unknown[] = []
+
+  const client = getClient({
+    onRequest({ params }) {
+      requests.push(params)
+    },
+  })
+
+  const response = await sendCalls(client, {
+    account: accounts[0].address,
+    chain: mainnet,
+    calls: [
+      {
+        to: accounts[1].address,
+        value: parseEther('1'),
+        dataSuffix: '0x12345678',
+      },
+    ],
+  })
+
+  expect(response.id).toBeDefined()
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
+        {
+          "atomicRequired": false,
+          "calls": [
+            {
+              "data": "0x12345678",
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "value": "0xde0b6b3a7640000",
             },
           ],
           "capabilities": undefined,

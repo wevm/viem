@@ -1,6 +1,6 @@
 import { http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { createClient } from 'viem/tempo'
+import { createClient, Relay, Store, withRelay } from 'viem/tempo'
 import { tokens } from 'viem/tokens'
 import { describe, expect, test } from 'vitest'
 
@@ -72,5 +72,33 @@ describe('createClient', () => {
     expect((client.chain as { feeToken?: string }).feeToken).toBe(
       '0x20c0000000000000000000000000000000000001',
     )
+  })
+
+  test('behavior: account coordination preserves the transport', () => {
+    const client = createClient({
+      transport: withRelay(http('http://localhost'), {
+        plugins: [Relay.accounts({ store: Store.memory() })],
+      }),
+    })
+
+    expect(client.transport.type).toBe('http')
+  })
+
+  test('behavior: account coordination forwards request options', async () => {
+    const client = createClient({
+      transport: withRelay(http('http://localhost'), {
+        plugins: [Relay.accounts({ store: Store.memory() })],
+      }),
+    })
+
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      client.request(
+        { method: 'web3_clientVersion' },
+        { retryCount: 0, signal: controller.signal },
+      ),
+    ).rejects.toThrow()
   })
 })

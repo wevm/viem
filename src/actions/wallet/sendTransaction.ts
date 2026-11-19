@@ -191,7 +191,9 @@ export async function sendTransaction<
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
   const account = account_ ? parseAccount(account_) : null
-  let nonceManagerParameters: { address: Address; chainId: number } | undefined
+  let nonceManagerParameters:
+    | { address: Address; chainId: number; nonce?: number | undefined }
+    | undefined
 
   try {
     assertRequest(parameters as AssertRequestParameters)
@@ -316,12 +318,16 @@ export async function sendTransaction<
           return account.nonceManager
         const nonceManager = account.nonceManager
         return {
-          consume(parameters) {
+          async consume(parameters) {
             nonceManagerParameters = {
               address: parameters.address,
               chainId: parameters.chainId,
             }
-            return nonceManager.consume(parameters)
+            const nonce = await nonceManager.consume(parameters)
+            // Pass the consumed nonce to `reset` so the manager can tell
+            // which `consume` a failed send follows.
+            nonceManagerParameters = { ...nonceManagerParameters, nonce }
+            return nonce
           },
           get(parameters) {
             return nonceManager.get(parameters)
@@ -362,12 +368,20 @@ export async function sendTransaction<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(
+      const signedTransaction = (await account.signTransaction(
         request as never,
         {
           serializer,
         },
       )) as Hash
+      const transactionEnvelope = (chain ?? client.chain)?.serializers
+        ?.transactionEnvelope
+      const serializedTransaction = transactionEnvelope
+        ? await transactionEnvelope({
+            serializedTransaction: signedTransaction,
+            transaction: request as never,
+          })
+        : signedTransaction
       return await getAction(
         client,
         sendRawTransaction,

@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import { Mnemonic } from 'ox'
 import { generateMnemonic } from '../../../src/accounts/generateMnemonic.js'
 import { english } from '../../../src/accounts/wordlists.js'
@@ -24,11 +25,27 @@ import {
   http as viem_http,
 } from '../../../src/index.js'
 import * as Actions from '../../../src/tempo/actions/index.js'
-import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
+import { Account, Addresses, Hardfork, Tick } from '../../../src/tempo/index.js'
 import { defineToken } from '../../../src/tokens/index.js'
 import { rpcUrl } from './prool.js'
 
 export const nodeEnv = import.meta.env.VITE_TEMPO_ENV || 'localnet'
+
+/** Whether the test chain supports configurable accounts (T14). */
+export const configurableAccounts =
+  nodeEnv === 'localnet' &&
+  !Hardfork.lt(
+    (import.meta.env.VITE_TEMPO_HARDFORK ?? 'Tnext').toLowerCase(),
+    't14',
+  )
+
+/** Whether the test chain serves the ValidatorConfig V1 precompile (removed in T15). */
+export const validatorConfigV1 =
+  nodeEnv !== 'localnet' ||
+  Hardfork.lt(
+    (import.meta.env.VITE_TEMPO_HARDFORK ?? 'Tnext').toLowerCase(),
+    't15',
+  )
 
 const accountsMnemonic = (() => {
   if (nodeEnv === 'localnet')
@@ -108,11 +125,22 @@ export const feeToken = (() => {
   return addresses.pathUsd
 })()
 
-export const http = (url = rpcUrl) =>
-  viem_http(url, {
-    ...debugOptions({
-      rpcUrl: url,
-    }),
+let nextRequestAt = 0
+
+export const http = (url = rpcUrl) => {
+  const debug = debugOptions({ rpcUrl: url })
+  return viem_http(url, {
+    ...debug,
+    async onFetchRequest(request, init) {
+      // Deployed RPCs rate-limit bursts, including non-retried transaction submissions.
+      if (nodeEnv !== 'localnet' && url === rpcUrl) {
+        const now = Date.now()
+        const delay = Math.max(0, nextRequestAt - now)
+        nextRequestAt = now + delay + 250
+        await setTimeout(delay)
+      }
+      return debug?.onFetchRequest?.(request, init)
+    },
     ...(import.meta.env.VITE_TEMPO_CREDENTIALS
       ? {
           fetchOptions: {
@@ -123,6 +151,7 @@ export const http = (url = rpcUrl) =>
         }
       : {}),
   })
+}
 
 export function getClient<
   chain_ extends Chain | undefined = typeof tempoLocalnet,
@@ -142,7 +171,7 @@ export function getClient<
     : accountOrAddress
 > {
   return createClient({
-    pollingInterval: 100,
+    pollingInterval: nodeEnv === 'localnet' ? 100 : 1_000,
     chain,
     tokens,
     transport: http(rpcUrl),

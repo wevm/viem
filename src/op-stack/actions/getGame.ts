@@ -93,7 +93,9 @@ export async function getGame<
 
   const latestGames = await getGames(client, parameters)
 
-  const games = latestGames.filter((game) => game.l2BlockNumber > l2BlockNumber)
+  const games = latestGames.filter(
+    (game) => game.l2BlockNumber >= l2BlockNumber,
+  )
 
   const game = (() => {
     if (strategy === 'random')

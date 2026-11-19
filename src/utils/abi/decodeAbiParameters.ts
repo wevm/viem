@@ -9,6 +9,7 @@ import {
   InvalidAbiDecodingTypeError,
   type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import {
@@ -21,16 +22,13 @@ import {
   createCursor,
 } from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
-import { type SliceBytesErrorType, sliceBytes } from '../data/slice.js'
 import {
   type BytesToBigIntErrorType,
   type BytesToBoolErrorType,
   type BytesToNumberErrorType,
   type BytesToStringErrorType,
-  bytesToBigInt,
   bytesToBool,
   bytesToNumber,
-  bytesToString,
 } from '../encoding/fromBytes.js'
 import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
 import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
@@ -50,6 +48,7 @@ export type DecodeAbiParametersErrorType =
   | DecodeParameterErrorType
   | SizeErrorType
   | CreateCursorErrorType
+  | AbiDecodingSizeLimitExceededErrorType
   | ErrorType
 
 export function decodeAbiParameters<
@@ -70,21 +69,119 @@ export function decodeAbiParameters<
       size: size(data),
     })
 
+  // Bound the total size of decoded `bytes` and `string` values, so offsets
+  // that share or overlap tails cannot decode to far more data than the input.
+  const budget = { limit: bytes.length * 32, used: 0 }
+
   let consumed = 0
   const values = []
   for (let i = 0; i < params.length; ++i) {
-    const param = params[i]
-    // Zero-width types (e.g. `uint256[0]`, empty tuples) at the end of the
-    // data consume no bytes, so the cursor may already be exhausted.
-    if (consumed < bytes.length) cursor.setPosition(consumed)
-    const [data, consumed_] = decodeParameter(cursor, param, {
-      staticPosition: 0,
-    })
-    consumed += consumed_
-    values.push(data)
+    const param = compile(params[i]!)
+    // Always restore the head position after a dynamic read. Zero-width
+    // types may start at the end; nonempty reads validate their own bounds.
+    cursor.position = consumed
+    values.push(decodeParameter(cursor, param, budget, 0))
+    consumed += lastSize
   }
   return values as never
 }
+
+/** A parameter parsed once per call. */
+type CompiledParam = {
+  /** Whether the value is encoded in a tail (has a dynamic child). */
+  dynamic: boolean
+  kind:
+    | 'address'
+    | 'array'
+    | 'bool'
+    | 'bytes'
+    | 'fixedBytes'
+    | 'invalid'
+    | 'number'
+    | 'string'
+    | 'tuple'
+  param: AbiParameter
+  /** Element type of an array. */
+  child: CompiledParam | undefined
+  /** Length of a fixed array, or `null` for a dynamic array. */
+  length: number | null
+  /** Components of a tuple (`undefined` when the tuple has none). */
+  components: readonly CompiledParam[] | undefined
+  /** Whether a tuple decodes to an array rather than an object. */
+  unnamed: boolean
+  /** Size of a `bytesN` in bytes, or of an integer in bits. */
+  size: number
+  signed: boolean
+}
+
+function compile(param: AbiParameter): CompiledParam {
+  const compiled: CompiledParam = {
+    dynamic: false,
+    kind: 'invalid',
+    param,
+    child: undefined,
+    length: null,
+    components: undefined,
+    unnamed: false,
+    size: 0,
+    signed: false,
+  }
+  // Malformed parameters throw once they are decoded.
+  if (typeof param !== 'object' || param === null) return compiled
+  const { type } = param
+  if (typeof type !== 'string') return compiled
+
+  const arrayComponents = getArrayComponents(type)
+  if (arrayComponents) {
+    const [length, innerType] = arrayComponents
+    compiled.kind = 'array'
+    compiled.length = length
+    compiled.child = compile({ ...param, type: innerType })
+    compiled.dynamic = length === null || compiled.child.dynamic
+    return compiled
+  }
+  if (type === 'tuple') {
+    compiled.kind = 'tuple'
+    const { components } = param as Partial<TupleAbiParameter>
+    // A tuple without components array throws once it is decoded.
+    if (
+      !Array.isArray(components) ||
+      !components.every((component) => typeof component === 'object')
+    )
+      return compiled
+    compiled.components = components.map(compile)
+    compiled.unnamed =
+      components.length === 0 || components.some(({ name }) => !name)
+    compiled.dynamic = compiled.components.some(({ dynamic }) => dynamic)
+    return compiled
+  }
+  if (type === 'address') compiled.kind = 'address'
+  else if (type === 'bool') compiled.kind = 'bool'
+  else if (type.startsWith('bytes')) {
+    const [_, size] = type.split('bytes')
+    if (size) {
+      compiled.kind = 'fixedBytes'
+      compiled.size = Number.parseInt(size, 10)
+    } else {
+      compiled.kind = 'bytes'
+      compiled.dynamic = type === 'bytes'
+    }
+  } else if (type.startsWith('uint') || type.startsWith('int')) {
+    compiled.kind = 'number'
+    compiled.signed = type.startsWith('int')
+    compiled.size = Number.parseInt(type.split('int')[1] || '256', 10)
+  } else if (type === 'string') {
+    compiled.kind = 'string'
+    compiled.dynamic = true
+  }
+  return compiled
+}
+
+/**
+ * Bytes consumed in the static part by the last `decodeParameter` call.
+ * Decoding runs no caller code, so the slot cannot be overwritten in between.
+ */
+let lastSize = 0
 
 type DecodeParameterErrorType =
   | DecodeArrayErrorType
@@ -98,25 +195,33 @@ type DecodeParameterErrorType =
 
 function decodeParameter(
   cursor: Cursor,
-  param: AbiParameter,
-  { staticPosition }: { staticPosition: number },
-) {
-  const arrayComponents = getArrayComponents(param.type)
-  if (arrayComponents) {
-    const [length, type] = arrayComponents
-    return decodeArray(cursor, { ...param, type }, { length, staticPosition })
+  param: CompiledParam,
+  budget: Budget,
+  staticPosition: number,
+): unknown {
+  lastSize = 32
+  switch (param.kind) {
+    case 'address':
+      return decodeAddress(cursor)
+    case 'array':
+      return decodeArray(cursor, param, budget, staticPosition)
+    case 'bool':
+      return decodeBool(cursor)
+    case 'bytes':
+      return decodeBytes(cursor, budget, staticPosition)
+    case 'fixedBytes':
+      return bytesToHex(cursor.readBytes(param.size, 32))
+    case 'number':
+      return decodeNumber(cursor, param)
+    case 'string':
+      return decodeString(cursor, budget, staticPosition)
+    case 'tuple':
+      return decodeTuple(cursor, param, budget, staticPosition)
   }
-  if (param.type === 'tuple')
-    return decodeTuple(cursor, param as TupleAbiParameter, { staticPosition })
-
-  if (param.type === 'address') return decodeAddress(cursor)
-  if (param.type === 'bool') return decodeBool(cursor)
-  if (param.type.startsWith('bytes'))
-    return decodeBytes(cursor, param, { staticPosition })
-  if (param.type.startsWith('uint') || param.type.startsWith('int'))
-    return decodeNumber(cursor, param)
-  if (param.type === 'string') return decodeString(cursor, { staticPosition })
-  throw new InvalidAbiDecodingTypeError(param.type, {
+  // Throws the same `TypeError` as reading a malformed parameter's type.
+  const type = param.param.type
+  getArrayComponents(type)
+  throw new InvalidAbiDecodingTypeError(type, {
     docsPath: '/docs/contract/decodeAbiParameters',
   })
 }
@@ -124,59 +229,79 @@ function decodeParameter(
 ////////////////////////////////////////////////////////////////////
 // Type Decoders
 
-const sizeOfLength = 32
-const sizeOfOffset = 32
+type Budget = { limit: number; used: number }
+
+// Created on first use, so importing this module needs no `TextDecoder`.
+let decoder: TextDecoder | undefined
+
+/**
+ * Reads an offset or length word. Words below 2^53 are read directly; others
+ * go through `bytesToNumber`, which throws for unsafe integers.
+ */
+function readNumber(cursor: Cursor): number {
+  return wordToNumber(cursor.readBytes(32))
+}
+
+function wordToNumber(word: ByteArray, signed?: boolean | undefined): number {
+  let high = 0
+  for (let i = 0; i < 25; i++) high |= word[i]!
+  if (high === 0 && word[25]! < 0x20)
+    return (
+      ((word[25]! << 16) | (word[26]! << 8) | word[27]!) * 0x1_0000_0000 +
+      (((word[28]! << 24) |
+        (word[29]! << 16) |
+        (word[30]! << 8) |
+        word[31]!) >>>
+        0)
+    )
+  return bytesToNumber(word, { signed })
+}
 
 type DecodeAddressErrorType =
   | ChecksumAddressErrorType
   | BytesToHexErrorType
-  | SliceBytesErrorType
   | ErrorType
 
 function decodeAddress(cursor: Cursor) {
   const value = cursor.readBytes(32)
-  return [checksumAddress(bytesToHex(sliceBytes(value, -20))), 32]
+  return checksumAddress(bytesToHex(value.subarray(12)))
 }
 
 type DecodeArrayErrorType = BytesToNumberErrorType | ErrorType
 
 function decodeArray(
   cursor: Cursor,
-  param: AbiParameter,
-  { length, staticPosition }: { length: number | null; staticPosition: number },
+  param: CompiledParam,
+  budget: Budget,
+  staticPosition: number,
 ) {
+  const child = param.child!
   // If the length of the array is not known in advance (dynamic array),
   // this means we will need to wonder off to the pointer and decode.
   // Note: zero-length fixed arrays (`T[0]`) are not dynamic.
-  if (length === null) {
+  if (param.length === null) {
     // Dealing with a dynamic type, so get the offset of the array data.
-    const offset = bytesToNumber(cursor.readBytes(sizeOfOffset))
+    const offset = readNumber(cursor)
 
     // Start is the static position of current slot + offset.
     const start = staticPosition + offset
-    const startOfData = start + sizeOfLength
+    const startOfData = start + 32
 
     // Get the length of the array from the offset.
     cursor.setPosition(start)
-    const length = bytesToNumber(cursor.readBytes(sizeOfLength))
-
-    // Check if the array has any dynamic children.
-    const dynamicChild = hasDynamicChild(param)
+    const length = readNumber(cursor)
 
     let consumed = 0
     const value: unknown[] = []
     for (let i = 0; i < length; ++i) {
       // If any of the children is dynamic, then all elements will be offset pointer, thus size of one slot (32 bytes).
       // Otherwise, elements will be the size of their encoding (consumed bytes).
-      cursor.setPosition(startOfData + (dynamicChild ? i * 32 : consumed))
-      const [data, consumed_] = decodeParameter(cursor, param, {
-        staticPosition: startOfData,
-      })
-      consumed += consumed_
-      value.push(data)
+      cursor.setPosition(startOfData + (child.dynamic ? i * 32 : consumed))
+      value.push(decodeParameter(cursor, child, budget, startOfData))
+      consumed += lastSize
       // Charge zero-width elements against the read limit to bound work
       // on huge lengths of zero-width types (e.g. `uint256[0][]`).
-      if (consumed_ === 0) {
+      if (lastSize === 0) {
         cursor.assertReadLimit()
         cursor._touch()
       }
@@ -184,58 +309,61 @@ function decodeArray(
 
     // As we have gone wondering, restore to the original position + next slot.
     cursor.setPosition(staticPosition + 32)
-    return [value, 32]
+    lastSize = 32
+    return value
   }
 
   // If the length of the array is known in advance,
   // and the length of an element deeply nested in the array is not known,
   // we need to decode the offset of the array data.
-  if (hasDynamicChild(param)) {
+  if (child.dynamic) {
     // Dealing with dynamic types, so get the offset of the array data.
-    const offset = bytesToNumber(cursor.readBytes(sizeOfOffset))
+    const offset = readNumber(cursor)
 
     // Start is the static position of current slot + offset.
     const start = staticPosition + offset
 
     const value: unknown[] = []
-    for (let i = 0; i < length; ++i) {
+    for (let i = 0; i < param.length; ++i) {
       // Move cursor along to the next slot (next offset pointer).
       cursor.setPosition(start + i * 32)
-      const [data] = decodeParameter(cursor, param, {
-        staticPosition: start,
-      })
-      value.push(data)
+      value.push(decodeParameter(cursor, child, budget, start))
     }
 
     // As we have gone wondering, restore to the original position + next slot.
     cursor.setPosition(staticPosition + 32)
-    return [value, 32]
+    lastSize = 32
+    return value
   }
 
   // If the length of the array is known in advance and the array is deeply static,
   // then we can just decode each element in sequence.
   let consumed = 0
   const value: unknown[] = []
-  for (let i = 0; i < length; ++i) {
-    const [data, consumed_] = decodeParameter(cursor, param, {
-      staticPosition: staticPosition + consumed,
-    })
-    consumed += consumed_
-    value.push(data)
+  for (let i = 0; i < param.length; ++i) {
+    value.push(
+      decodeParameter(cursor, child, budget, staticPosition + consumed),
+    )
+    consumed += lastSize
     // Charge zero-width elements against the read limit to bound work
     // on huge lengths of zero-width types (e.g. `uint256[0][4294967295]`).
-    if (consumed_ === 0) {
+    if (lastSize === 0) {
       cursor.assertReadLimit()
       cursor._touch()
     }
   }
-  return [value, consumed]
+  lastSize = consumed
+  return value
 }
 
 type DecodeBoolErrorType = BytesToBoolErrorType | ErrorType
 
 function decodeBool(cursor: Cursor) {
-  return [bytesToBool(cursor.readBytes(32), { size: 32 }), 32]
+  const value = cursor.readBytes(32)
+  let high = 0
+  for (let i = 0; i < 31; i++) high |= value[i]!
+  if (high === 0 && value[31]! <= 1) return value[31] === 1
+  return bytesToBool(value, { size: 32 })
 }
 
 type DecodeBytesErrorType =
@@ -243,37 +371,30 @@ type DecodeBytesErrorType =
   | BytesToHexErrorType
   | ErrorType
 
-function decodeBytes(
-  cursor: Cursor,
-  param: AbiParameter,
-  { staticPosition }: { staticPosition: number },
-) {
-  const [_, size] = param.type.split('bytes')
-  if (!size) {
-    // Dealing with dynamic types, so get the offset of the bytes data.
-    const offset = bytesToNumber(cursor.readBytes(32))
+function decodeBytes(cursor: Cursor, budget: Budget, staticPosition: number) {
+  // Dealing with dynamic types, so get the offset of the bytes data.
+  const offset = readNumber(cursor)
 
-    // Set position of the cursor to start of bytes data.
-    cursor.setPosition(staticPosition + offset)
+  // Set position of the cursor to start of bytes data.
+  cursor.setPosition(staticPosition + offset)
 
-    const length = bytesToNumber(cursor.readBytes(32))
+  const length = readNumber(cursor)
 
-    // If there is no length, we have zero data.
-    if (length === 0) {
-      // As we have gone wondering, restore to the original position + next slot.
-      cursor.setPosition(staticPosition + 32)
-      return ['0x', 32]
-    }
-
-    const data = cursor.readBytes(length)
-
+  // If there is no length, we have zero data.
+  if (length === 0) {
     // As we have gone wondering, restore to the original position + next slot.
     cursor.setPosition(staticPosition + 32)
-    return [bytesToHex(data), 32]
+    return '0x'
   }
 
-  const value = bytesToHex(cursor.readBytes(Number.parseInt(size, 10), 32))
-  return [value, 32]
+  const data = cursor.readBytes(length)
+  budget.used += length
+  if (budget.used > budget.limit)
+    throw new AbiDecodingSizeLimitExceededError({ limit: budget.limit })
+
+  // As we have gone wondering, restore to the original position + next slot.
+  cursor.setPosition(staticPosition + 32)
+  return bytesToHex(data)
 }
 
 type DecodeNumberErrorType =
@@ -281,16 +402,20 @@ type DecodeNumberErrorType =
   | BytesToBigIntErrorType
   | ErrorType
 
-function decodeNumber(cursor: Cursor, param: AbiParameter) {
-  const signed = param.type.startsWith('int')
-  const size = Number.parseInt(param.type.split('int')[1] || '256', 10)
+function decodeNumber(cursor: Cursor, param: CompiledParam) {
+  const { signed, size } = param
+  const position = cursor.position
   const value = cursor.readBytes(32)
-  return [
-    size > 48
-      ? bytesToBigInt(value, { signed })
-      : bytesToNumber(value, { signed }),
-    32,
-  ]
+  if (!(size > 48)) return wordToNumber(value, signed)
+  // Read the word as four big-endian 64-bit limbs.
+  const view = cursor.dataView
+  const result =
+    (view.getBigUint64(position) << 192n) |
+    (view.getBigUint64(position + 8) << 128n) |
+    (view.getBigUint64(position + 16) << 64n) |
+    view.getBigUint64(position + 24)
+  if (signed && value[0]! >= 0x80) return result - (1n << 256n)
+  return result
 }
 
 type TupleAbiParameter = AbiParameter & { components: readonly AbiParameter[] }
@@ -299,56 +424,66 @@ type DecodeTupleErrorType = BytesToNumberErrorType | ErrorType
 
 function decodeTuple(
   cursor: Cursor,
-  param: TupleAbiParameter,
-  { staticPosition }: { staticPosition: number },
+  param: CompiledParam,
+  budget: Budget,
+  staticPosition: number,
 ) {
+  const { components, unnamed } = param
+  // Throws the same `TypeError` as reading a malformed tuple's components.
+  if (!components) {
+    readComponents(param.param as TupleAbiParameter)
+    throw new InvalidAbiDecodingTypeError(param.param.type, {
+      docsPath: '/docs/contract/decodeAbiParameters',
+    })
+  }
+
   // Tuples can have unnamed components (i.e. they are arrays), so we must
   // determine whether the tuple is named or unnamed. In the case of a named
   // tuple, the value will be an object where each property is the name of the
   // component. In the case of an unnamed tuple, the value will be an array.
-  const hasUnnamedChild =
-    param.components.length === 0 || param.components.some(({ name }) => !name)
-
-  // Initialize the value to an object or an array, depending on whether the
-  // tuple is named or unnamed.
-  const value: any = hasUnnamedChild ? [] : {}
+  const value: any = unnamed ? [] : {}
   let consumed = 0
 
   // If the tuple has a dynamic child, we must first decode the offset to the
   // tuple data.
-  if (hasDynamicChild(param)) {
+  if (param.dynamic) {
     // Dealing with dynamic types, so get the offset of the tuple data.
-    const offset = bytesToNumber(cursor.readBytes(sizeOfOffset))
+    const offset = readNumber(cursor)
 
     // Start is the static position of referencing slot + offset.
     const start = staticPosition + offset
 
-    for (let i = 0; i < param.components.length; ++i) {
-      const component = param.components[i]
+    for (let i = 0; i < components.length; ++i) {
+      const component = components[i]!
       cursor.setPosition(start + consumed)
-      const [data, consumed_] = decodeParameter(cursor, component, {
-        staticPosition: start,
-      })
-      consumed += consumed_
-      value[hasUnnamedChild ? i : component?.name!] = data
+      const data = decodeParameter(cursor, component, budget, start)
+      consumed += lastSize
+      value[unnamed ? i : component.param.name!] = data
     }
 
     // As we have gone wondering, restore to the original position + next slot.
     cursor.setPosition(staticPosition + 32)
-    return [value, 32]
+    lastSize = 32
+    return value
   }
 
   // If the tuple has static children, we can just decode each component
   // in sequence.
-  for (let i = 0; i < param.components.length; ++i) {
-    const component = param.components[i]
-    const [data, consumed_] = decodeParameter(cursor, component, {
-      staticPosition,
-    })
-    value[hasUnnamedChild ? i : component?.name!] = data
-    consumed += consumed_
+  for (let i = 0; i < components.length; ++i) {
+    const component = components[i]!
+    const data = decodeParameter(cursor, component, budget, staticPosition)
+    value[unnamed ? i : component.param.name!] = data
+    consumed += lastSize
   }
-  return [value, consumed]
+  lastSize = consumed
+  return value
+}
+
+/** Reads a tuple's components the way decoding does, throwing for malformed ones. */
+function readComponents(param: TupleAbiParameter) {
+  return (
+    param.components.length === 0 || param.components.some(({ name }) => !name)
+  )
 }
 
 type DecodeStringErrorType =
@@ -356,48 +491,51 @@ type DecodeStringErrorType =
   | BytesToStringErrorType
   | ErrorType
 
-function decodeString(
-  cursor: Cursor,
-  { staticPosition }: { staticPosition: number },
-) {
+function decodeString(cursor: Cursor, budget: Budget, staticPosition: number) {
   // Get offset to start of string data.
-  const offset = bytesToNumber(cursor.readBytes(32))
+  const offset = readNumber(cursor)
 
   // Start is the static position of current slot + offset.
   const start = staticPosition + offset
   cursor.setPosition(start)
 
-  const length = bytesToNumber(cursor.readBytes(32))
+  const length = readNumber(cursor)
 
   // If there is no length, we have zero data (empty string).
   if (length === 0) {
     cursor.setPosition(staticPosition + 32)
-    return ['', 32]
+    return ''
   }
 
   const data = cursor.readBytes(length, 32)
-  const value = bytesToString(data)
+  budget.used += length
+  if (budget.used > budget.limit)
+    throw new AbiDecodingSizeLimitExceededError({ limit: budget.limit })
+  const value = (decoder ??= new TextDecoder('utf-8', {
+    ignoreBOM: true,
+  })).decode(data)
 
   // As we have gone wondering, restore to the original position + next slot.
   cursor.setPosition(staticPosition + 32)
 
-  return [value, 32]
+  return value
 }
 
-function hasDynamicChild(param: AbiParameter) {
-  const { type } = param
-  if (type === 'string') return true
-  if (type === 'bytes') return true
-  if (type.endsWith('[]')) return true
+/** Type of {@link AbiDecodingSizeLimitExceededError}. */
+export type AbiDecodingSizeLimitExceededErrorType =
+  AbiDecodingSizeLimitExceededError & {
+    name: 'AbiDecodingSizeLimitExceededError'
+  }
 
-  if (type === 'tuple') return (param as any).components?.some(hasDynamicChild)
-
-  const arrayComponents = getArrayComponents(param.type)
-  if (
-    arrayComponents &&
-    hasDynamicChild({ ...param, type: arrayComponents[1] } as AbiParameter)
-  )
-    return true
-
-  return false
+/**
+ * Thrown by `decodeAbiParameters` when the decoded `bytes` and `string` values
+ * of one decode add up to more than 32 times the size of the input data.
+ */
+export class AbiDecodingSizeLimitExceededError extends BaseError {
+  constructor({ limit }: { limit: number }) {
+    super(
+      `Decoded \`bytes\` and \`string\` values exceed the size limit of ${limit} bytes.`,
+      { name: 'AbiDecodingSizeLimitExceededError' },
+    )
+  }
 }

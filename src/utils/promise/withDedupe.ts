@@ -14,7 +14,8 @@ export function withDedupe<data>(
   { enabled = true, id }: WithDedupeOptions,
 ): Promise<data> {
   if (!enabled || !id) return fn()
-  if (promiseCache.get(id)) return promiseCache.get(id)!
+  const cached = promiseCache.get(id)
+  if (cached) return cached
   const promise = fn().finally(() => promiseCache.delete(id))
   promiseCache.set(id, promise)
   return promise

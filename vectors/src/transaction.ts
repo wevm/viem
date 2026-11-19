@@ -1,5 +1,6 @@
 /// <reference types="@types/bun" />
 
+import { randomBytes, randomInt } from 'node:crypto'
 import { join } from 'node:path'
 
 import { generatePrivateKey } from '../../src/accounts/generatePrivateKey.js'
@@ -16,9 +17,7 @@ import { stringify } from '../../src/utils/stringify.js'
 import { serializeTransaction } from '../../src/utils/transaction/serializeTransaction.js'
 
 const generateBytes = (length: number) => {
-  const bytes = new Uint8Array(length)
-  for (let i = 0; i < length; i++) bytes[i] = Math.floor(Math.random() * 255)
-  return bytes
+  return randomBytes(length)
 }
 
 const generateList = (length: number) => {
@@ -58,9 +57,7 @@ export async function generateTransactionVectors() {
     }
     if (i > 0) {
       if (Math.random() > 0.5)
-        transaction.data = bytesToHex(
-          generateBytes(Math.floor(Math.random() * 2048)),
-        )
+        transaction.data = bytesToHex(generateBytes(randomInt(2048)))
       if (Math.random() > 0.5) transaction.gas = randomBigInt()
       if (Math.random() > 0.5) transaction.maxFeePerGas = randomBigInt()
       if (Math.random() > 0.5) transaction.maxFeePerBlobGas = randomBigInt()
@@ -115,9 +112,7 @@ export async function generateTransactionVectors() {
     }
     if (i > 0) {
       if (Math.random() > 0.5)
-        transaction.data = bytesToHex(
-          generateBytes(Math.floor(Math.random() * 2048)),
-        )
+        transaction.data = bytesToHex(generateBytes(randomInt(2048)))
       if (Math.random() > 0.5) transaction.gas = randomBigInt()
       if (Math.random() > 0.5) transaction.maxFeePerGas = randomBigInt()
       if (Math.random() > 0.5 && transaction.maxFeePerGas)
@@ -173,9 +168,7 @@ export async function generateTransactionVectors() {
     }
     if (i > 0) {
       if (Math.random() > 0.5)
-        transaction.data = bytesToHex(
-          generateBytes(Math.floor(Math.random() * 2048)),
-        )
+        transaction.data = bytesToHex(generateBytes(randomInt(2048)))
       if (Math.random() > 0.5) transaction.gas = randomBigInt()
       if (Math.random() > 0.5) transaction.gasPrice = randomBigInt()
       if (Math.random() > 0.5)
@@ -225,9 +218,7 @@ export async function generateTransactionVectors() {
     }
     if (i > 0) {
       if (Math.random() > 0.5)
-        transaction.data = bytesToHex(
-          generateBytes(Math.floor(Math.random() * 2048)),
-        )
+        transaction.data = bytesToHex(generateBytes(randomInt(2048)))
       if (Math.random() > 0.5) transaction.gas = randomBigInt()
       if (Math.random() > 0.5) transaction.gasPrice = randomBigInt()
       if (Math.random() > 0.5)

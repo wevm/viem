@@ -1,5 +1,14 @@
 import { describe, expect, test } from 'vitest'
+import { encodeAbiParameters } from '../utils/abi/encodeAbiParameters.js'
+import { isAddress } from '../utils/address/isAddress.js'
 import * as Addresses from './Addresses.js'
+
+test('current committee address', () => {
+  expect(isAddress(Addresses.currentCommittee)).toBe(true)
+  expect(
+    encodeAbiParameters([{ type: 'address' }], [Addresses.currentCommittee]),
+  ).toBe('0x000000000000000000000000c077e00000000000000000000000000000000000')
+})
 
 test('validator addresses', () => {
   expect(Addresses.validator).toBe('0xcccccccc00000000000000000000000000000000')

@@ -1,7 +1,12 @@
 import { parseUnits } from 'viem'
 import { Actions, Tick } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient, setupTokenPair } from '~test/tempo/config.js'
+import {
+  accounts,
+  getClient,
+  setupToken,
+  setupTokenPair,
+} from '~test/tempo/config.js'
 
 const client = getClient({
   account: accounts[0],
@@ -63,7 +68,11 @@ describe('buy', () => {
         amountOut: parseUnits('100', 6),
         maxAmountIn: parseUnits('100', 6), // Way too low for 1% premium
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountOut" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexMaxInputExceededError',
+      errorName: 'MaxInputExceeded',
+      quote: expect.any(BigInt),
+    })
   })
 
   test('behavior: fails with insufficient liquidity', async () => {
@@ -79,7 +88,10 @@ describe('buy', () => {
         amountOut: parseUnits('100', 6),
         maxAmountIn: parseUnits('150', 6),
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountOut" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexInsufficientLiquidityError',
+      errorName: 'InsufficientLiquidity',
+    })
   })
 })
 
@@ -160,7 +172,10 @@ describe('cancel', () => {
       Actions.dex.cancelSync(client, {
         orderId: 999n,
       }),
-    ).rejects.toThrow('The contract function "cancel" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexOrderNotFoundError',
+      errorName: 'OrderDoesNotExist',
+    })
   })
 })
 
@@ -221,7 +236,10 @@ describe('cancelStale', () => {
       Actions.dex.cancelStaleSync(client, {
         orderId,
       }),
-    ).rejects.toThrow('The contract function "cancelStaleOrder" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexOrderNotStaleError',
+      errorName: 'OrderNotStale',
+    })
   })
 })
 
@@ -356,9 +374,12 @@ describe('getBuyQuote', () => {
         tokenOut: base,
         amountOut: parseUnits('100', 6),
       }),
-    ).rejects.toThrow(
-      'The contract function "quoteSwapExactAmountOut" reverted',
-    )
+    ).rejects.toMatchObject({
+      name: 'DexInsufficientLiquidityError',
+      amountOut: parseUnits('100', 6),
+      tokenIn: quote,
+      tokenOut: base,
+    })
   })
 })
 
@@ -422,7 +443,10 @@ describe('getOrder', () => {
       Actions.dex.getOrder(client, {
         orderId: 999n,
       }),
-    ).rejects.toThrow('The contract function "getOrder" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexOrderNotFoundError',
+      orderId: 999n,
+    })
   })
 
   test('behavior: reflects order state after partial fill', async () => {
@@ -925,7 +949,12 @@ describe('getSellQuote', () => {
         tokenOut: quote,
         amountIn: parseUnits('100', 6),
       }),
-    ).rejects.toThrow('The contract function "quoteSwapExactAmountIn" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexInsufficientLiquidityError',
+      amountIn: parseUnits('100', 6),
+      tokenIn: base,
+      tokenOut: quote,
+    })
   })
 })
 
@@ -1028,7 +1057,10 @@ describe('place', () => {
         type: 'buy',
         tick: Tick.maxTick + 1,
       }),
-    ).rejects.toThrow('The contract function "place" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexTickOutOfBoundsError',
+      errorName: 'TickOutOfBounds',
+    })
 
     // Test tick below min tick should fail
     await expect(
@@ -1038,7 +1070,10 @@ describe('place', () => {
         type: 'sell',
         tick: Tick.minTick - 1,
       }),
-    ).rejects.toThrow('The contract function "place" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexTickOutOfBoundsError',
+      errorName: 'TickOutOfBounds',
+    })
   })
 
   test('behavior: transfers from wallet', async () => {
@@ -1171,7 +1206,10 @@ describe('placeFlip', () => {
         tick: Tick.fromPrice('1.001'),
         flipTick: Tick.fromPrice('1.0005'), // Less than
       }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexInvalidFlipTickError',
+      errorName: 'InvalidFlipTick',
+    })
   })
 
   test('behavior: flip ask requires flipTick <= tick', async () => {
@@ -1206,7 +1244,10 @@ describe('placeFlip', () => {
         tick: Tick.fromPrice('1.0005'),
         flipTick: Tick.fromPrice('1.001'), // Greater than
       }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexInvalidFlipTickError',
+      errorName: 'InvalidFlipTick',
+    })
   })
 
   test('behavior: flip ticks at boundaries', async () => {
@@ -1267,7 +1308,11 @@ describe('sell', () => {
         amountIn: parseUnits('100', 6),
         minAmountOut: parseUnits('150', 6), // Way too high
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountIn" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexInsufficientOutputError',
+      errorName: 'InsufficientOutput',
+      quote: expect.any(BigInt),
+    })
   })
 
   test('behavior: fails with insufficient liquidity', async () => {
@@ -1283,7 +1328,10 @@ describe('sell', () => {
         amountIn: parseUnits('100', 6),
         minAmountOut: parseUnits('100', 6),
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountIn" reverted')
+    ).rejects.toMatchObject({
+      name: 'DexInsufficientLiquidityError',
+      errorName: 'InsufficientLiquidity',
+    })
   })
 })
 
@@ -1557,5 +1605,48 @@ describe('withdraw', () => {
     expect(walletBalanceAfter.amount).toBeGreaterThan(
       walletBalanceBefore.amount,
     )
+  })
+})
+
+describe('errors', () => {
+  test('behavior: below minimum order size', async () => {
+    const { base } = await setupTokenPair(client)
+    const error = await Actions.dex
+      .placeSync(client, { amount: 1n, tick: 0, token: base, type: 'buy' })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(Actions.dex.DexBelowMinimumOrderSizeError)
+    expect(error.amount).toBe(1n)
+    expect(error.minimum).toBeGreaterThan(1n)
+  })
+
+  test('behavior: withdraw more than the exchange balance', async () => {
+    const { base } = await setupTokenPair(client)
+    const error = await Actions.dex
+      .withdrawSync(client, { amount: parseUnits('1', 6), token: base })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(Actions.dex.DexInsufficientBalanceError)
+    expect(error).toMatchObject({
+      amount: parseUnits('1', 6),
+      balance: 0n,
+      token: base,
+    })
+  })
+
+  test('behavior: pair does not exist', async () => {
+    const { token: tokenIn } = await setupToken(client)
+    const { token: tokenOut } = await setupToken(client)
+    const error = await Actions.dex
+      .sellSync(client, {
+        amountIn: parseUnits('1', 6),
+        minAmountOut: 0n,
+        tokenIn,
+        tokenOut,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(Actions.dex.DexPairNotFoundError)
+    expect(error.tokens).toEqual([tokenIn, tokenOut])
   })
 })

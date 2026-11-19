@@ -21,6 +21,7 @@ import { concat } from '../../utils/data/concat.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
+import { getAction } from '../../utils/getAction.js'
 import { sendTransaction } from './sendTransaction.js'
 
 export const fallbackMagicIdentifier =
@@ -137,7 +138,7 @@ export async function sendCalls<
       : call.data
 
     return {
-      data: call.dataSuffix && data ? concat([data, call.dataSuffix]) : data,
+      data: call.dataSuffix ? concat([data ?? '0x', call.dataSuffix]) : data,
       to: call.to,
       value: call.value ? numberToHex(call.value) : undefined,
     }
@@ -173,6 +174,8 @@ export async function sendCalls<
       (error.name === 'MethodNotFoundRpcError' ||
         error.name === 'MethodNotSupportedRpcError' ||
         error.name === 'UnknownRpcError' ||
+        error.details.toLowerCase() ===
+          'this request method is not supported' ||
         error.details
           .toLowerCase()
           .includes('does not exist / is not available') ||
@@ -223,7 +226,11 @@ export async function sendCalls<
       const results: PromiseSettledResult<Hex>[] = []
       for (const call of calls) {
         try {
-          const value = await sendTransaction(client, {
+          const value = await getAction(
+            client,
+            sendTransaction,
+            'sendTransaction',
+          )({
             account,
             chain,
             data: call.data,

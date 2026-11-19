@@ -12,3 +12,13 @@ describe('Format Unit', () => {
     formatUnitsV6(40000000000000000000n, 18)
   })
 })
+
+describe('Format Unit (fractional)', () => {
+  bench('viem: `formatUnits`', () => {
+    formatUnits(1_230_000_000_000_000_000n, 18)
+  })
+
+  bench('ethers: `formatUnits`', () => {
+    formatUnitsV6(1_230_000_000_000_000_000n, 18)
+  })
+})

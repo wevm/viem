@@ -1,6 +1,9 @@
 import type { TypedData, TypedDataDomain, TypedDataParameter } from 'abitype'
 
-import { BytesSizeMismatchError } from '../errors/abi.js'
+import {
+  AbiEncodingArrayLengthMismatchError,
+  BytesSizeMismatchError,
+} from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
 import {
   InvalidDomainError,
@@ -87,10 +90,6 @@ export function validateTypedData<
       const { name, type } = param
       const value = data[name]
 
-      const baseType = type.replace(/(\[[0-9]*\])+$/, '')
-      if (baseType === 'int' || baseType === 'uint')
-        throw new InvalidTypedDataTypeError({ type })
-
       const integerMatch = type.match(integerRegex)
       if (
         integerMatch &&
@@ -118,13 +117,37 @@ export function validateTypedData<
           })
       }
 
-      const struct = types[type]
-      if (struct) {
-        validateReference(type)
-        validateData(struct, value as Record<string, unknown>)
-      }
+      if (Object.hasOwn(types, type))
+        validateData(types[type]!, value as Record<string, unknown>)
+
+      if (type.endsWith(']')) validateArray(type, value)
     }
   }
+
+  // Validate fixed array lengths in every dimension, and the structs inside
+  // arrays.
+  const validateArray = (type: string, value: unknown) => {
+    // A missing or non-array value is left to the encoder.
+    if (!Array.isArray(value)) return
+    const inner = type.slice(0, type.lastIndexOf('['))
+    const length = type.slice(type.lastIndexOf('[') + 1, -1)
+    if (length && value.length !== Number.parseInt(length, 10))
+      throw new AbiEncodingArrayLengthMismatchError({
+        expectedLength: Number.parseInt(length, 10),
+        givenLength: value.length,
+        type,
+      })
+    for (const item of value)
+      if (inner.endsWith(']')) validateArray(inner, item)
+      else if (Object.hasOwn(types, inner) && item)
+        validateData(types[inner]!, item as Record<string, unknown>)
+  }
+
+  // Validate struct types and their field types, including structs that are
+  // only referenced as array elements.
+  for (const type of Object.keys(types)) validateReference(type)
+  for (const struct of Object.values(types))
+    for (const field of struct ?? []) validateField(field.type, types)
 
   // Validate domain types.
   if (types.EIP712Domain && domain) {
@@ -146,19 +169,17 @@ export function getTypesForEIP712Domain({
 }: {
   domain?: TypedDataDomain | undefined
 }): TypedDataParameter[] {
+  // A field is part of the schema when it is present on the domain (not
+  // `undefined` or `null`).
   return [
-    typeof domain?.name === 'string' && { name: 'name', type: 'string' },
-    domain?.version && { name: 'version', type: 'string' },
-    (typeof domain?.chainId === 'number' ||
-      typeof domain?.chainId === 'bigint') && {
-      name: 'chainId',
-      type: 'uint256',
-    },
-    domain?.verifyingContract && {
+    domain?.name != null && { name: 'name', type: 'string' },
+    domain?.version != null && { name: 'version', type: 'string' },
+    domain?.chainId != null && { name: 'chainId', type: 'uint256' },
+    domain?.verifyingContract != null && {
       name: 'verifyingContract',
       type: 'address',
     },
-    domain?.salt && { name: 'salt', type: 'bytes32' },
+    domain?.salt != null && { name: 'salt', type: 'bytes32' },
   ].filter(Boolean) as TypedDataParameter[]
 }
 
@@ -177,15 +198,43 @@ export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
 }
 
 /** @internal */
-function validateReference(type: string) {
-  // Struct type must not be a Solidity type.
-  if (
+function validateField(
+  type: string,
+  types: Record<string, readonly TypedDataParameter[]>,
+) {
+  const baseType = type.replace(/(\[[0-9]*\])+$/, '')
+  if (baseType === 'int' || baseType === 'uint')
+    throw new InvalidTypedDataTypeError({ type })
+  // A field type must be a struct defined in `types` or an EIP-712 atomic or
+  // dynamic type, so a type such as `uint7` or `bytes0` is not hashed.
+  if (!Object.hasOwn(types, baseType) && !isSolidityType(baseType))
+    throw new InvalidTypedDataTypeError({ type })
+}
+
+/** @internal */
+function isSolidityType(type: string) {
+  return (
     type === 'address' ||
     type === 'bool' ||
     type === 'string' ||
-    type.startsWith('bytes') ||
-    type.startsWith('uint') ||
-    type.startsWith('int')
+    bytesRegex.test(type) ||
+    integerRegex.test(type)
+  )
+}
+
+/** @internal */
+function validateReference(type: string) {
+  // Struct type must contain only letters, digits, `_`, `$` and `:`, and must
+  // not be a Solidity type, so it cannot shadow a Solidity type or an array of
+  // one. A struct such as `intent` or `bytesInfo` is valid, while `uint7` or
+  // `bytes33` is rejected, since other implementations parse it as a Solidity
+  // type.
+  if (
+    !/^[A-Za-z0-9_$:]+$/.test(type) ||
+    type === 'address' ||
+    type === 'bool' ||
+    type === 'string' ||
+    /^(u?int|bytes)[0-9]*$/.test(type)
   )
     throw new InvalidStructTypeError({ type })
 }

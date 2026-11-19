@@ -89,10 +89,24 @@ export function wrapTypedDataSignature(
     types: types as any,
     primaryType,
   })
-  const encodedType = encodeType({
-    primaryType,
-    types: types as any,
-  })
+  // The verifier appends `contentsType` to the `TypedDataSign` type, so it must
+  // list the contents type and its dependencies in the order EIP-712 sorts
+  // them in the `TypedDataSign` type encoding.
+  const typedDataSignHeader = `TypedDataSign(${primaryType} contents)`
+  const contentsType = encodeType({
+    primaryType: 'TypedDataSign',
+    types: {
+      ...(types as any),
+      TypedDataSign: [{ name: 'contents', type: primaryType }],
+    },
+  }).slice(typedDataSignHeader.length)
+  // Use explicit mode (`contentsType ‖ contentsName`) when a dependency sorts
+  // before the contents type.
+  const contentsDescription = stringToHex(
+    contentsType.startsWith(`${primaryType}(`)
+      ? contentsType
+      : `${contentsType}${primaryType}`,
+  )
 
   // Construct wrapped signature.
   return encodePacked(
@@ -101,8 +115,8 @@ export function wrapTypedDataSignature(
       signatureHex,
       hashedDomain,
       hashedContents,
-      stringToHex(encodedType),
-      size(stringToHex(encodedType)),
+      contentsDescription,
+      size(contentsDescription),
     ],
   )
 }

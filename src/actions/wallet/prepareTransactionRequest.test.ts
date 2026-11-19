@@ -1,8 +1,12 @@
+import { createNonceManager } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { kzg } from '~test/kzg.js'
+import { createRpcProxy } from '~test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { eip1559NetworkCache } from '../../actions/public/estimateFeesPerGas.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
 import { setBalance } from '../../actions/test/setBalance.js'
@@ -17,12 +21,13 @@ import {
   toBlobs,
 } from '../../index.js'
 import { defineChain, nonceManager } from '../../utils/index.js'
+import { jsonRpc } from '../../utils/nonceManager.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { wait } from '../../utils/wait.js'
 import * as fillTransaction from '../public/fillTransaction.js'
 import {
   defaultParameters,
-  eip1559NetworkCache,
   prepareTransactionRequest,
   supportsFillTransaction,
 } from './prepareTransactionRequest.js'
@@ -45,6 +50,28 @@ async function setup() {
     baseFeePerGas: parseGwei('10'),
   })
   await mine(client, { blocks: 1 })
+}
+
+// Records, for each request, the requests that were pending when it was sent.
+function createRecordingClient(chain = anvilMainnet.chain) {
+  const pending = new Map<number, string>()
+  const requests: Record<string, string[]> = {}
+  const recordingClient = createClient({
+    chain,
+    transport: http(anvilMainnet.rpcUrl.http, {
+      onFetchRequest(_, init) {
+        const { id, method } = JSON.parse(init.body as string)
+        requests[method] = [...pending.values()].sort()
+        pending.set(id, method)
+      },
+      async onFetchResponse(response) {
+        const { id } = await response.clone().json()
+        pending.delete(id)
+      },
+    }),
+  })
+  supportsFillTransaction.set(recordingClient.uid, false)
+  return { client: recordingClient, requests }
 }
 
 describe('without `eth_fillTransaction`', () => {
@@ -397,6 +424,23 @@ describe('without `eth_fillTransaction`', () => {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: parseGwei('0.1'),
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [MaxFeePerGasTooLowError: \`maxFeePerGas\` cannot be less than the \`maxPriorityFeePerGas\` (1 gwei).
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('args: maxFeePerGas (zero, under default tip)', async () => {
+    await setup()
+
+    await expect(() =>
+      prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        maxFeePerGas: 0n,
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -1291,6 +1335,389 @@ describe('without `eth_fillTransaction`', () => {
     expect(request_4.nonce).toBe(956)
     expect(request_5.nonce).toBe(957)
   })
+
+  test('behavior: consumes the nonce manager nonce concurrently with the other parameters', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+    const args = {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      nonceManager: createNonceManager({ source: jsonRpc() }),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    } as const
+
+    const { account: _, ...request } = await prepareTransactionRequest(
+      recordingClient,
+      args,
+    )
+
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "nonceManager": {
+          "consume": [Function],
+          "get": [Function],
+          "increment": [Function],
+          "reset": [Function],
+        },
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+
+    const nonces = await Promise.all(
+      [0, 1, 2].map(async () => {
+        const { nonce } = await prepareTransactionRequest(recordingClient, args)
+        return nonce
+      }),
+    )
+
+    expect(nonces).toMatchInlineSnapshot(`
+      [
+        954,
+        955,
+        956,
+      ]
+    `)
+  })
+
+  test('behavior: nonce manager error takes precedence over concurrent errors', async () => {
+    await setup()
+
+    const url = await createRpcProxy(
+      anvilMainnet.rpcUrl.http,
+      async ({ method }) => {
+        if (method === 'eth_getTransactionCount') {
+          await wait(100)
+          return { error: { code: -32000, message: 'nonce unavailable' } }
+        }
+        if (method === 'eth_getBlockByNumber')
+          return { error: { code: -32000, message: 'block unavailable' } }
+        return undefined
+      },
+    )
+    const proxyClient = createClient({
+      chain: anvilMainnet.chain,
+      transport: http(url, { retryCount: 0 }),
+    })
+    supportsFillTransaction.set(proxyClient.uid, false)
+
+    const error = await prepareTransactionRequest(proxyClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      nonceManager: createNonceManager({ source: jsonRpc() }),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    }).catch((error) => error)
+
+    expect(error.details).toMatchInlineSnapshot(`"nonce unavailable"`)
+  })
+
+  test('behavior: fetches nonce, block, and priority fee concurrently', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+
+    const request = await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    })
+
+    const { account: _, ...rest } = request
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+  })
+
+  test('behavior: fetches nonce, block, and priority fee in sequence with chain fee hooks', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient(
+      defineChain({
+        ...anvilMainnet.chain,
+        fees: { baseFeeMultiplier: () => 1.2 },
+      }),
+    )
+
+    await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [],
+      }
+    `)
+  })
+
+  test('behavior: skips the block for legacy fees', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+
+    const request = await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'legacy',
+      value: parseEther('1'),
+    })
+
+    const { account: _, ...rest } = request
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "gasPrice": 11700000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "legacy",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_gasPrice": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+      }
+    `)
+  })
+
+  test('behavior: fetches the block for legacy fees with chain fee hooks', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient(
+      defineChain({
+        ...anvilMainnet.chain,
+        fees: { baseFeeMultiplier: () => 1.2 },
+      }),
+    )
+
+    await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'legacy',
+      value: parseEther('1'),
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_gasPrice": [],
+        "eth_getBlockByNumber": [],
+        "eth_getTransactionCount": [],
+      }
+    `)
+  })
+
+  test('behavior: nonce error takes precedence over concurrent errors', async () => {
+    await setup()
+
+    const url = await createRpcProxy(
+      anvilMainnet.rpcUrl.http,
+      async ({ method }) => {
+        if (method === 'eth_getTransactionCount') {
+          await wait(100)
+          return { error: { code: -32000, message: 'nonce unavailable' } }
+        }
+        if (method === 'eth_getBlockByNumber')
+          return { error: { code: -32000, message: 'block unavailable' } }
+        return undefined
+      },
+    )
+    const proxyClient = createClient({
+      chain: anvilMainnet.chain,
+      transport: http(url, { retryCount: 0 }),
+    })
+    supportsFillTransaction.set(proxyClient.uid, false)
+
+    const error = await prepareTransactionRequest(proxyClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      type: 'eip1559',
+      value: parseEther('1'),
+    }).catch((error) => error)
+
+    expect(error.details).toMatchInlineSnapshot(`"nonce unavailable"`)
+  })
+  test('behavior: estimates the priority fee with the type detection block', async () => {
+    await setup()
+
+    // A new client has not detected the network's transaction type yet.
+    const { client: recordingClient, requests } = createRecordingClient()
+
+    const request = await prepareTransactionRequest(recordingClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    const { account: _, ...rest } = request
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 13000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [
+          "eth_getTransactionCount",
+        ],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [
+          "eth_getBlockByNumber",
+          "eth_getTransactionCount",
+        ],
+      }
+    `)
+  })
+
+  test('behavior: estimates the priority fee after the type detection block with chain fee hooks', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient(
+      defineChain({
+        ...anvilMainnet.chain,
+        fees: { baseFeeMultiplier: () => 1.5 },
+      }),
+    )
+
+    const { account: _, ...request } = await prepareTransactionRequest(
+      recordingClient,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 16000000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_estimateGas": [],
+        "eth_getBlockByNumber": [],
+        "eth_getTransactionCount": [],
+        "eth_maxPriorityFeePerGas": [],
+      }
+    `)
+  })
+
+  test('behavior: discards the concurrent priority fee on legacy networks', async () => {
+    await setup()
+
+    const url = await createRpcProxy(
+      anvilMainnet.rpcUrl.http,
+      async ({ method }) => {
+        if (method !== 'eth_getBlockByNumber') return undefined
+        const block = await client.request({
+          method,
+          params: ['latest', false],
+        })
+        return { result: { ...block, baseFeePerGas: undefined } }
+      },
+    )
+    const proxyClient = createClient({
+      chain: anvilMainnet.chain,
+      transport: http(url),
+    })
+    supportsFillTransaction.set(proxyClient.uid, false)
+
+    const request = await prepareTransactionRequest(proxyClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    const { account: _, ...rest } = request
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "gasPrice": 11700000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "legacy",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
 })
 
 describe('with `eth_fillTransaction`', () => {
@@ -1312,7 +1739,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1349,7 +1775,47 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+  })
+
+  test('args: account (null)', async () => {
+    await setup()
+
+    const client = anvilMainnet.getClient({
+      account: privateKeyToAccount(generatePrivateKey()),
+    })
+    const args = {
+      account: null,
+      parameters: ['gas'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    } as const
+
+    const transaction = await prepareTransactionRequest(client, args)
+
+    expect(args).toMatchInlineSnapshot(`
+      {
+        "account": null,
+        "parameters": [
+          "gas",
+        ],
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(transaction).toMatchInlineSnapshot(`
+      {
+        "account": null,
+        "chainId": 1,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gas": 21000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1386,7 +1852,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1424,7 +1889,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 5,
@@ -1534,7 +1998,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 120000000000n,
         "maxFeePerGas": 100000000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1558,6 +2021,24 @@ describe('with `eth_fillTransaction`', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0.1 gwei).
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('args: maxFeePerGas (zero, under default tip)', async () => {
+    await setup()
+
+    await expect(() =>
+      prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: defaultParameters,
+        to: targetAccount.address,
+        maxFeePerGas: 0n,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
 
       Version: viem@x.y.z]
     `)
@@ -1590,8 +2071,7 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
-        "maxFeePerGas": 11700000000n,
+        "maxFeePerGas": 17000000000n,
         "maxPriorityFeePerGas": 5000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
@@ -1627,7 +2107,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 0n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1665,7 +2144,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12000000000n,
         "maxFeePerGas": 10000000000n,
         "maxPriorityFeePerGas": 5000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1723,12 +2201,73 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
+      }
+    `)
+  })
+
+  test('args: type (legacy, eip2930)', async () => {
+    await setup()
+
+    // A known legacy estimate, so the result shows where `gasPrice` came from.
+    const client_ = createClient({
+      chain: {
+        ...anvilMainnet.chain,
+        fees: {
+          async estimateFeesPerGas({ type }) {
+            if (type !== 'legacy') return null
+            return { gasPrice: parseGwei('42') } as never
+          },
+        },
+      },
+      transport: http(),
+    })
+
+    const { nonce: _legacyNonce, ...legacy } = await prepareTransactionRequest(
+      client_,
+      {
+        account: sourceAccount.address,
+        parameters: defaultParameters,
+        to: targetAccount.address,
+        type: 'legacy',
+        value: parseEther('1'),
+      },
+    )
+    const { nonce: _eip2930Nonce, ...eip2930 } =
+      await prepareTransactionRequest(client_, {
+        account: sourceAccount.address,
+        parameters: defaultParameters,
+        to: targetAccount.address,
+        type: 'eip2930',
+        value: parseEther('1'),
+      })
+
+    expect({ legacy, eip2930 }).toMatchInlineSnapshot(`
+      {
+        "eip2930": {
+          "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "chainId": 1,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gas": 21000n,
+          "gasPrice": 42000000000n,
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "type": "eip2930",
+          "value": 1000000000000000000n,
+        },
+        "legacy": {
+          "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "chainId": 1,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gas": 21000n,
+          "gasPrice": 42000000000n,
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "type": "legacy",
+          "value": 1000000000000000000n,
+        },
       }
     `)
   })
@@ -1759,7 +2298,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1792,7 +2330,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1825,7 +2362,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -1858,7 +2394,6 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
         "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
@@ -2143,6 +2678,83 @@ describe('with `eth_fillTransaction`', () => {
     expect(request.chainId).toEqual(1)
   })
 
+  describe('behavior: filled chainId', () => {
+    async function createClientWithFilledChainId(
+      chain: typeof anvilMainnet.chain | undefined,
+    ) {
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        async ({ method, params }) => {
+          if (method !== 'eth_fillTransaction') return undefined
+          const response = await fetch(anvilMainnet.rpcUrl.http, {
+            body: JSON.stringify({ id: 0, jsonrpc: '2.0', method, params }),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+          })
+          const { result } = await response.json()
+          return { result: { ...result, tx: { ...result.tx, chainId: '0x2' } } }
+        },
+      )
+      return createClient({ chain, transport: http(url) })
+    }
+
+    test('rejects a value that differs from the chain', async () => {
+      await setup()
+      const client = await createClientWithFilledChainId(anvilMainnet.chain)
+
+      await expect(
+        prepareTransactionRequest(client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [ChainMismatchError: The current chain of the wallet (id: 2) does not match the target chain for the transaction (id: 1 – Ethereum (Local)).
+
+        Current Chain ID:  2
+        Expected Chain ID: 1 – Ethereum (Local)
+
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('rejects a value that differs from the chainId argument', async () => {
+      await setup()
+      const client = await createClientWithFilledChainId(undefined)
+
+      await expect(
+        prepareTransactionRequest(client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          chain: null,
+          chainId: 1,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [ChainMismatchError: The current chain of the wallet (id: 2) does not match the target chain for the transaction (id: 1 – Unknown).
+
+        Current Chain ID:  2
+        Expected Chain ID: 1 – Unknown
+
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('uses the value without a chain or chainId argument', async () => {
+      await setup()
+      const client = await createClientWithFilledChainId(undefined)
+
+      const request = await prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: null,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      })
+
+      expect(request.chainId).toMatchInlineSnapshot(`2`)
+    })
+  })
+
   test('behavior: nonce manager', async () => {
     await setup()
 
@@ -2173,6 +2785,49 @@ describe('with `eth_fillTransaction`', () => {
     expect(request_3.nonce).toBe(960)
     expect(request_4.nonce).toBe(961)
     expect(request_5.nonce).toBe(962)
+  })
+
+  test('behavior: awaits the nonce manager nonce before `eth_fillTransaction`', async () => {
+    await setup()
+
+    const { client: recordingClient, requests } = createRecordingClient()
+    supportsFillTransaction.delete(recordingClient.uid)
+
+    const { account: _, ...request } = await prepareTransactionRequest(
+      recordingClient,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        nonceManager: createNonceManager({ source: jsonRpc() }),
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "gas": 21000n,
+        "maxFeePerGas": 11700000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
+        "nonceManager": {
+          "consume": [Function],
+          "get": [Function],
+          "increment": [Function],
+          "reset": [Function],
+        },
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
+    expect(requests).toMatchInlineSnapshot(`
+      {
+        "eth_fillTransaction": [],
+        "eth_getTransactionCount": [],
+      }
+    `)
   })
 })
 
@@ -2493,7 +3148,7 @@ describe('behavior: attemptFill', () => {
     expect(fillTransactionSpy).toHaveBeenCalled()
   })
 
-  test('behavior: ignores relay transaction `calls` and exposes autoSwap calls in capabilities', async () => {
+  test('behavior: ignores relay transaction `calls` and preserves custom capabilities', async () => {
     const userCalls = [{ to: targetAccount.address, data: '0xdeadbeef' }]
     const relayCalls = [
       {
@@ -2501,7 +3156,7 @@ describe('behavior: attemptFill', () => {
         data: '0xbadc0de',
       },
     ] as const
-    const autoSwapCalls = [
+    const customCalls = [
       {
         to: '0x20c000000000000000000000b9537d11c60e8b50',
         data: '0x095ea7b3',
@@ -2528,8 +3183,8 @@ describe('behavior: attemptFill', () => {
         feePayerSignature: { r: '0x1', s: '0x1', yParity: '0x0' },
       },
       capabilities: {
-        autoSwap: {
-          calls: autoSwapCalls,
+        custom: {
+          calls: customCalls,
         },
       },
     } as never)
@@ -2548,9 +3203,9 @@ describe('behavior: attemptFill', () => {
     expect(
       (
         request._capabilities as {
-          autoSwap?: { calls?: typeof autoSwapCalls }
+          custom?: { calls?: typeof customCalls }
         }
-      ).autoSwap?.calls,
-    ).toEqual(autoSwapCalls)
+      ).custom?.calls,
+    ).toEqual(customCalls)
   })
 })

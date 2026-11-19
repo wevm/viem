@@ -62,6 +62,18 @@ describe('getDelegation', () => {
     expect(result).toBe(getAddress(delegation))
   })
 
+  test('behavior: client getCode override', async () => {
+    const client_ = client.extend(() => ({
+      getCode: async () => `0xef0100${delegation.slice(2)}` as const,
+    }))
+
+    const result = await getDelegation(client_, {
+      address: localAccount.address,
+    })
+
+    expect(result).toBe(getAddress(delegation))
+  })
+
   test('with blockNumber', async () => {
     const account = privateKeyToAccount(generatePrivateKey())
 

@@ -9,10 +9,12 @@ import {
   UserRejectedRequestError,
   WalletConnectSessionSettlementError,
 } from '../../errors/rpc.js'
+import { getHttpRpcClient } from '../../utils/rpc/http.js'
 import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
 import type { Transport } from './createTransport.js'
+import { custom } from './custom.js'
 import {
   type FallbackTransport,
   fallback,
@@ -98,6 +100,43 @@ describe('request', () => {
     const transport = fallback([local])({ chain: localhost })
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
+  })
+
+  test('signal', async () => {
+    // Each response reports the size of the batch that carried it.
+    const server = await createHttpServer(async (req, res) => {
+      const chunks: Uint8Array[] = []
+      for await (const chunk of req) chunks.push(chunk)
+      const body = JSON.parse(Buffer.concat(chunks).toString())
+      res.end(
+        JSON.stringify(
+          body.map(({ id }: { id: number }) => ({
+            id,
+            jsonrpc: '2.0',
+            result: `0x${body.length.toString(16)}`,
+          })),
+        ),
+      )
+    })
+
+    const transport = fallback([http(server.url, { batch: true })])({
+      chain: localhost,
+    })
+    const { signal } = new AbortController()
+    const results = await Promise.all([
+      transport.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }, { signal }),
+      transport.request({ method: 'eth_chainId' }, { signal }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "0x1",
+        "0x2",
+        "0x2",
+      ]
+    `)
+    await server.close()
   })
 
   test('error', async () => {
@@ -544,6 +583,129 @@ describe('request', () => {
     expect(count).toBe(1)
   })
 
+  test('error (rpc - eth_sendRawTransactionSync timeout)', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 4,
+            data: '0xd75b1cdc25d0b1ad1e2a0d03b4a9b1f2a2f7a5fbd6e2ca3c40b8ce8a04f8e5c8',
+            message: 'Transaction confirmation timeout',
+          },
+        }),
+      )
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: { code: -32003, message: 'nonce too low' },
+        }),
+      )
+    })
+
+    const transport = fallback([http(server1.url), http(server2.url)])({
+      chain: localhost,
+    })
+    await expect(() =>
+      transport.request({
+        method: 'eth_sendRawTransactionSync',
+        params: ['0x02'],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [RpcRequestError: RPC Request failed.
+
+      URL: http://localhost
+      Request body: {"method":"eth_sendRawTransactionSync","params":["0x02"]}
+
+      Details: Transaction confirmation timeout
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error (rpc - eth_sendRawTransactionSync timeout, custom provider)', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 4,
+            data: '0xd75b1cdc25d0b1ad1e2a0d03b4a9b1f2a2f7a5fbd6e2ca3c40b8ce8a04f8e5c8',
+            message: 'Transaction confirmation timeout',
+          },
+        }),
+      )
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: { code: -32003, message: 'nonce too low' },
+        }),
+      )
+    })
+    const rpcClient = getHttpRpcClient(server1.url)
+
+    const transport = fallback([
+      // An EIP-1193 provider throws the plain JSON-RPC error.
+      custom({
+        async request({ method, params }) {
+          const { error, result } = await rpcClient.request({
+            body: { method, params },
+          })
+          if (error) throw error
+          return result
+        },
+      }),
+      http(server2.url),
+    ])({
+      chain: localhost,
+    })
+    await expect(() =>
+      transport.request({
+        method: 'eth_sendRawTransactionSync',
+        params: ['0x02'],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [UnknownRpcError: An unknown RPC error occurred.
+
+      Details: Transaction confirmation timeout
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error (rpc - code 4 on other methods)', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ error: { code: 4, message: 'error' } }))
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = fallback([http(server1.url), http(server2.url)])({
+      chain: localhost,
+    })
+
+    expect(
+      await transport.request({ method: 'eth_blockNumber' }),
+    ).toMatchInlineSnapshot(`"0x1"`)
+  })
+
   test('all error', async () => {
     let count = 0
     const server1 = await createHttpServer((_req, res) => {
@@ -695,6 +857,7 @@ describe('client', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "fallback",
@@ -1020,6 +1183,69 @@ describe('rankTransports', () => {
           "2",
           "1",
           "3",
+        ],
+      ]
+    `)
+  })
+
+  test('behavior: zero latency', async () => {
+    const down = custom(
+      {
+        async request() {
+          throw new Error('node down')
+        },
+      },
+      { key: 'down' },
+    )
+    const up = custom(
+      {
+        async request() {
+          return true
+        },
+      },
+      { key: 'up' },
+    )
+
+    // After the first round, each in-process ping measures 0 ms.
+    const rankedTransports = await new Promise<(readonly Transport[])[]>(
+      (resolve) => {
+        const rankedTransports: (readonly Transport[])[] = []
+        rankTransports({
+          interval: 10,
+          sampleCount: 1,
+          transports: [down, up],
+          onTransports(transports) {
+            rankedTransports.push(transports)
+            if (rankedTransports.length === 5) resolve(rankedTransports)
+          },
+        })
+      },
+    )
+
+    const rankedKeys = rankedTransports.map((transports) =>
+      transports.map((transport) => transport({ chain: undefined }).config.key),
+    )
+    expect(rankedKeys).toMatchInlineSnapshot(`
+      [
+        [
+          "up",
+          "down",
+        ],
+        [
+          "up",
+          "down",
+        ],
+        [
+          "up",
+          "down",
+        ],
+        [
+          "up",
+          "down",
+        ],
+        [
+          "up",
+          "down",
         ],
       ]
     `)

@@ -23,6 +23,9 @@ console.log('Imported Tempo block:', info.tempoBlockNumber)
 :::
 
 The action polls [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) and resolves when the zone's `tempoBlockNumber` reaches the requested block.
+This confirms block import, not the outcome of an individual deposit. See
+[Read Deposit Outcomes](/tempo/guides/zones/deposit#read-deposit-outcomes) to check the ZoneInbox
+events.
 
 ## Return Type
 

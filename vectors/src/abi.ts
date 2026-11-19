@@ -1,5 +1,6 @@
 /// <reference types="@types/bun" />
 
+import { randomBytes, randomInt } from 'node:crypto'
 import { join } from 'node:path'
 import { type AbiParameter, checksumAddress, stringify } from '../../src'
 import { encodeAbiParameters } from '../../src/utils/abi/encodeAbiParameters'
@@ -38,9 +39,7 @@ function generateAddress() {
 }
 
 function generateBytes(length: number) {
-  const bytes = new Uint8Array(length)
-  for (let i = 0; i < length; i++) bytes[i] = Math.floor(Math.random() * 255)
-  return bytes
+  return randomBytes(length)
 }
 
 function generateBigInt(max: bigint) {
@@ -86,7 +85,7 @@ function generateValues(parameters: AbiParameter[]) {
       continue
     }
     if (parameter.type === 'bool') {
-      const value = Math.random() > 0.5
+      const value = randomInt(2) === 1
       values.push(value)
       continue
     }
@@ -103,7 +102,7 @@ function generateValues(parameters: AbiParameter[]) {
       continue
     }
     if (parameter.type === 'string') {
-      const value = Math.random().toString(36).slice(2)
+      const value = randomBytes(8).toString('hex')
       values.push(value)
       continue
     }

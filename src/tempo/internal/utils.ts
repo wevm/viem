@@ -126,16 +126,8 @@ function resolveTokenForChain(
   token: Token,
   chainId: number,
 ): ResolvedToken | undefined {
-  const address = (token.addresses as Record<number, Address>)[chainId]
-  if (!address) return undefined
-  return {
-    address,
-    currency: token.currency,
-    decimals: token.decimals,
-    name: token.name,
-    popular: token.popular,
-    symbol: token.symbol,
-  }
+  if (!(token.addresses as Record<number, Address>)[chainId]) return undefined
+  return token(chainId as never)
 }
 
 /**
@@ -197,6 +189,7 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
     maxPriorityFeePerGas,
     nonce,
     nonceKey,
+    owner,
     validAfter,
     validBefore,
   } = parameters
@@ -211,6 +204,7 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
     maxPriorityFeePerGas,
     nonce,
     nonceKey,
+    owner,
     validAfter,
     validBefore,
   }
@@ -277,6 +271,8 @@ export function defineCall<
 } {
   return {
     ...(call as any),
+    // Precompile errors bubble up across contracts (e.g. `AccountKeychain` errors from a TIP-20 `transfer`).
+    abi: [...call.abi, ...Abis.coreErrors],
     data: encodeFunctionData(call as never),
     to: call.address,
   } as const
@@ -302,4 +298,12 @@ export function normalizeValue<type>(value: type): type {
   const normalized: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(value)) normalized[k] = normalizeValue(v)
   return normalized as never
+}
+
+/** 12-byte prefix shared by TIP-20 token addresses; shorter prefixes are cheap to grind with CREATE2. */
+const tip20Prefix = '0x20c000000000000000000000'
+
+/** Whether `address` carries the TIP-20 token address prefix. */
+export function isTip20(address: string | undefined): address is Address {
+  return !!address?.toLowerCase().startsWith(tip20Prefix)
 }

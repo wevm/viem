@@ -1,21 +1,35 @@
-import { describe, expect, test, vi } from 'vitest'
+import { Instance, Pool } from 'prool'
+import {
+  createPublicClient,
+  createTestClient,
+  createWalletClient,
+  http,
+} from 'viem'
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { kzg } from '~test/kzg.js'
 import { deploy } from '~test/utils.js'
 import { Delegation } from '../../../contracts/generated.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { foundry } from '../../chains/index.js'
 import { maxUint256 } from '../../constants/number.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { mine } from '../test/mine.js'
 import { reset } from '../test/reset.js'
+import { setCode } from '../test/setCode.js'
 import * as prepareTransactionRequestModule from '../wallet/prepareTransactionRequest.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
+import { getBlockNumber } from './getBlockNumber.js'
+import { getCode } from './getCode.js'
+import { getTransactionReceipt } from './getTransactionReceipt.js'
 
 const wethContractAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
@@ -143,14 +157,29 @@ test('args: maxFeePerGas', async () => {
 })
 
 test('args: maxPriorityFeePerGas', async () => {
-  expect(
-    await estimateGas(client, {
+  await expect(() =>
+    estimateGas(client, {
       account: accounts[0].address,
       to: accounts[1].address,
       maxPriorityFeePerGas: parseGwei('2'),
       value: parseEther('1'),
     }),
-  ).toMatchInlineSnapshot('21000n')
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [EstimateGasExecutionError: Invalid parameters were provided to the RPC method.
+    Double check you have provided the correct parameters.
+
+    URL: http://localhost
+    Request body: {"method":"eth_estimateGas","params":[{"from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","maxPriorityFeePerGas":"0x77359400","to":"0x70997970c51812dc3a010c7d01b50e0d17dc79c8","value":"0xde0b6b3a7640000"}]}
+     
+    Estimate Gas Arguments:
+      from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:                    0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+      value:                 1 ETH
+      maxPriorityFeePerGas:  2 gwei
+
+    Details: Invalid input: \`max_priority_fee_per_gas\` greater than \`max_fee_per_gas\`
+    Version: viem@x.y.z]
+  `)
 })
 
 test('args: gas', async () => {
@@ -362,6 +391,292 @@ describe('errors', () => {
 
       Version: viem@x.y.z]
     `,
+    )
+  })
+})
+
+describe('local account block and state context', () => {
+  const pool = Pool.define({ instance: Instance.anvil() })
+  const local = privateKeyToAccount(accounts[0].privateKey)
+  const target = '0x1000000000000000000000000000000000000001' as const
+  const sstore = '0x600160005500' as const
+  const creation = '0x6006600c60003960066000f3600160005500' as const
+  const createClient = (url: string) =>
+    createTestClient({
+      chain: foundry,
+      mode: 'anvil',
+      transport: http(url),
+    })
+  let url = ''
+  let client: ReturnType<typeof createClient>
+
+  beforeAll(async () => {
+    url = (await pool.start(1)).url
+    client = createClient(url)
+  })
+
+  afterAll(async () => {
+    await pool.destroyAll()
+  })
+
+  test('state override', async () => {
+    const stateOverride = [{ address: target, code: sstore }]
+
+    const baseline = await estimateGas(client, {
+      account: local.address,
+      to: target,
+    })
+    const addressGas = await estimateGas(client, {
+      account: local.address,
+      to: target,
+      stateOverride,
+    })
+
+    expect(addressGas).not.toBe(baseline)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: target,
+        stateOverride,
+      }),
+    ).toBe(addressGas)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: target,
+        stateOverride,
+        prepare: false,
+      }),
+    ).toBe(addressGas)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: target,
+        stateOverride,
+        prepare: ['nonce'],
+      }),
+    ).toBe(addressGas)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: target,
+        stateOverride,
+        prepare: ['fees', 'gas', 'nonce'],
+      }),
+    ).toBe(addressGas)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: target,
+        blockTag: 'latest',
+        stateOverride,
+      }),
+    ).toBe(addressGas)
+    expect(
+      await estimateGas(
+        createWalletClient({
+          account: local,
+          chain: foundry,
+          transport: http(url),
+        }),
+        {
+          to: target,
+          stateOverride,
+        },
+      ),
+    ).toBe(addressGas)
+  })
+
+  test('blockNumber zero', async () => {
+    const stateOverride = [{ address: target, code: sstore }]
+
+    const baseline = await estimateGas(client, {
+      account: local.address,
+      to: target,
+      blockNumber: 0n,
+    })
+    const addressGas = await estimateGas(client, {
+      account: local.address,
+      to: target,
+      blockNumber: 0n,
+      stateOverride,
+    })
+
+    expect(addressGas).not.toBe(baseline)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: target,
+        blockNumber: 0n,
+        stateOverride,
+      }),
+    ).toBe(addressGas)
+  })
+
+  test('historical block', async () => {
+    await mine(client, { blocks: 1 })
+    const historical = await getBlockNumber(client)
+
+    const hash = await sendTransaction(client, {
+      account: local,
+      data: creation,
+    })
+    await mine(client, { blocks: 1 })
+    const { contractAddress } = await getTransactionReceipt(client, { hash })
+    if (!contractAddress) throw new Error('missing contract')
+
+    expect(
+      await getCode(client, {
+        address: contractAddress,
+        blockNumber: historical,
+      }),
+    ).toBeUndefined()
+    expect(await getCode(client, { address: contractAddress })).toBe(sstore)
+
+    const atHistorical = await estimateGas(client, {
+      account: local.address,
+      to: contractAddress,
+      blockNumber: historical,
+    })
+    const atLatest = await estimateGas(client, {
+      account: local.address,
+      to: contractAddress,
+    })
+    const atEarliest = await estimateGas(client, {
+      account: local.address,
+      to: contractAddress,
+      blockTag: 'earliest',
+    })
+
+    expect(atHistorical).not.toBe(atLatest)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: contractAddress,
+        blockNumber: historical,
+      }),
+    ).toBe(atHistorical)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: contractAddress,
+        blockNumber: historical,
+        prepare: false,
+      }),
+    ).toBe(atHistorical)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: contractAddress,
+        blockNumber: historical,
+        prepare: ['gas'],
+      }),
+    ).toBe(atHistorical)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: contractAddress,
+        blockTag: 'earliest',
+      }),
+    ).toBe(atEarliest)
+  })
+
+  test('state override replaces reverting code', async () => {
+    const revertTarget = '0x2000000000000000000000000000000000000002' as const
+    await setCode(client, {
+      address: revertTarget,
+      bytecode: '0x60006000fd',
+    })
+    const stateOverride = [{ address: revertTarget, code: '0x00' as const }]
+
+    const addressGas = await estimateGas(client, {
+      account: local.address,
+      to: revertTarget,
+      stateOverride,
+    })
+
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: revertTarget,
+        stateOverride,
+      }),
+    ).toBe(addressGas)
+  })
+
+  test('chain preparation hook still runs', async () => {
+    const stateOverride = [{ address: target, code: sstore }]
+    const hooked = createPublicClient({
+      chain: {
+        ...foundry,
+        async prepareTransactionRequest(request) {
+          return { ...request, data: '0xff' }
+        },
+      },
+      transport: http(url),
+    })
+
+    const withoutData = await estimateGas(client, {
+      account: local.address,
+      to: target,
+      stateOverride,
+    })
+    const withData = await estimateGas(client, {
+      account: local.address,
+      data: '0xff',
+      to: target,
+      stateOverride,
+    })
+
+    expect(withData).not.toBe(withoutData)
+    expect(
+      await estimateGas(hooked, {
+        account: local,
+        to: target,
+        stateOverride,
+      }),
+    ).toBe(withData)
+  })
+
+  test('blob versioned hashes with state override', async () => {
+    const stateOverride = [{ address: target, code: '0x00' as const }]
+    const request = {
+      blobs: toBlobs({ data: '0x1234' }),
+      kzg,
+      maxFeePerBlobGas: parseGwei('20'),
+      stateOverride,
+      to: target,
+    }
+
+    expect(
+      await estimateGas(client, {
+        ...request,
+        account: local,
+      }),
+    ).toBe(
+      await estimateGas(client, {
+        ...request,
+        account: local.address,
+      }),
+    )
+  })
+
+  test('transfer', async () => {
+    const request = {
+      to: accounts[1].address,
+      value: 1n,
+    }
+
+    expect(
+      await estimateGas(client, {
+        ...request,
+        account: local,
+      }),
+    ).toBe(
+      await estimateGas(client, {
+        ...request,
+        account: local.address,
+      }),
     )
   })
 })

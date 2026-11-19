@@ -778,10 +778,10 @@ test('non-existent block: throws if block hash does not exist', async () => {
   await expect(
     getBlock(client, {
       blockHash:
-        '0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722',
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
     }),
   ).rejects.toMatchInlineSnapshot(`
-    [BlockNotFoundError: Block at hash "0xd4a8cf1bf4d05f44480ae4a513d09cddb273880ed249168bf2c523ee9e5c7722" could not be found.
+    [BlockNotFoundError: Block at hash "0x0000000000000000000000000000000000000000000000000000000000000000" could not be found.
 
     Version: viem@x.y.z]
   `)

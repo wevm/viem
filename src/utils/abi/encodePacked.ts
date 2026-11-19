@@ -100,7 +100,11 @@ function encode<const packedAbiType extends PackedAbiType | unknown>(
     }) as Address
   }
   if (type === 'string') return stringToHex(value as string)
-  if (type === 'bytes') return value as Hex
+  if (type === 'bytes') {
+    const hex = value as Hex
+    // Odd-length hex is left-padded to whole bytes, matching `hexToBytes`.
+    return hex.length % 2 ? `0x0${hex.slice(2)}` : hex
+  }
   if (type === 'bool')
     return pad(boolToHex(value as boolean), { size: isArray ? 32 : 1 })
 

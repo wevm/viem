@@ -1,5 +1,6 @@
 import { WebSocket } from 'isows'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
+import { WebSocketServer } from 'ws'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
@@ -207,17 +208,17 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
   () => {
     test('valid request', async () => {
       const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-      const { id, ...version } = await new Promise<any>((resolve) =>
+      const { id, ...response } = await new Promise<any>((resolve) =>
         socketClient.request({
-          body: { method: 'web3_clientVersion' },
+          body: { method: 'eth_chainId' },
           onResponse: resolve,
         }),
       )
       expect(id).toBeDefined()
-      expect(version).toMatchInlineSnapshot(`
+      expect(response).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.7.1",
+        "result": "0x1",
       }
     `)
       expect(socketClient.requests.size).toBe(0)
@@ -724,14 +725,14 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
   () => {
     test('valid request', async () => {
       const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-      const { id, ...version } = await client.requestAsync({
-        body: { method: 'web3_clientVersion' },
+      const { id, ...response } = await client.requestAsync({
+        body: { method: 'eth_chainId' },
       })
       expect(id).toBeDefined()
-      expect(version).toMatchInlineSnapshot(`
+      expect(response).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.7.1",
+        "result": "0x1",
       }
     `)
       expect(client.requests.size).toBe(0)
@@ -1094,3 +1095,177 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
     })
   },
 )
+
+// A real WebSocket node that answers every request, and can go down and come
+// back on the same port.
+async function createNode(port = 0) {
+  const server = new WebSocketServer({ host: '127.0.0.1', port })
+  let connections = 0
+  server.on('connection', (socket) => {
+    // Each connection answers with its own number, so a response shows which
+    // connection served it.
+    const result = `0x${(++connections).toString(16)}`
+    socket.on('message', (data) => {
+      const { id, method } = JSON.parse(String(data))
+      // Answers `bad_frame` with a frame that is not JSON.
+      if (method === 'bad_frame') socket.send('not json')
+      else socket.send(JSON.stringify({ id, jsonrpc: '2.0', result }))
+    })
+  })
+  await new Promise((resolve) => server.once('listening', resolve))
+  const node = {
+    /** Drops every connection and keeps listening. */
+    disconnect() {
+      for (const socket of server.clients) socket.terminate()
+    },
+    /** The number of connections the node has open. */
+    get openConnections() {
+      return server.clients.size
+    },
+    port: (server.address() as { port: number }).port,
+    /** Drops every connection and stops listening. */
+    async stop() {
+      node.disconnect()
+      await new Promise((resolve) => server.close(resolve))
+    },
+  }
+  onTestFinished(() => node.stop())
+  return node
+}
+
+describe('reconnect', () => {
+  test('reconnects the cached client when the last attempt succeeds', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: { attempts: 1, delay: 20 } }
+    const socketClient = await getWebSocketRpcClient(url, options)
+
+    node.disconnect()
+    await wait(200)
+    const nextClient = await getWebSocketRpcClient(url, options)
+    const { result } = await nextClient.requestAsync({
+      body: { method: 'eth_blockNumber' },
+    })
+
+    expect(nextClient).toBe(socketClient)
+    // Served by the reconnected socket, the node's second connection.
+    expect(result).toMatchInlineSnapshot(`"0x2"`)
+
+    socketClient.close()
+  })
+
+  test('drops the client once attempts run out, so the next client reaches the recovered node', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: { attempts: 3, delay: 20 } }
+    const socketClient = await getWebSocketRpcClient(url, options)
+
+    await node.stop()
+    // Let all three attempts fail.
+    await wait(500)
+    await createNode(node.port)
+    const nextClient = await getWebSocketRpcClient(url, options)
+    const { result } = await nextClient.requestAsync({
+      body: { method: 'eth_blockNumber' },
+    })
+
+    expect(nextClient).not.toBe(socketClient)
+    // Served by the recovered node's first connection.
+    expect(result).toMatchInlineSnapshot(`"0x1"`)
+
+    nextClient.close()
+  })
+
+  test('does not reconnect when the first connection fails', async () => {
+    const down = await createNode()
+    await down.stop()
+    const url = `ws://127.0.0.1:${down.port}`
+    const options = { reconnect: { attempts: 5, delay: 50 } }
+
+    await expect(getWebSocketRpcClient(url, options)).rejects.toThrowError()
+    // The node comes back while attempts would still be left.
+    await createNode(down.port)
+    await wait(400)
+    const socketClient = await getWebSocketRpcClient(url, options)
+    const { result } = await socketClient.requestAsync({
+      body: { method: 'eth_blockNumber' },
+    })
+
+    // Served by the node's first connection, so nothing reconnected before.
+    expect(result).toMatchInlineSnapshot(`"0x1"`)
+
+    socketClient.close()
+  })
+
+  test('closing an evicted client keeps its replacement cached', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: false }
+    const socketClient = await getWebSocketRpcClient(url, options)
+
+    node.disconnect()
+    await wait(100)
+    const nextClient = await getWebSocketRpcClient(url, options)
+    socketClient.close()
+
+    const cachedClient = await getWebSocketRpcClient(url, options)
+    const { result } = await cachedClient.requestAsync({
+      body: { method: 'eth_blockNumber' },
+    })
+
+    expect(cachedClient).toBe(nextClient)
+    // Served by the replacement's socket, the node's second connection.
+    expect(result).toMatchInlineSnapshot(`"0x2"`)
+
+    nextClient.close()
+  })
+
+  test('closes the dropped socket after a frame that is not JSON', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: false }
+    const socketClient = await getWebSocketRpcClient(url, options)
+
+    await expect(
+      socketClient.requestAsync({ body: { method: 'bad_frame' } }),
+    ).rejects.toThrowError(SyntaxError)
+    const nextClient = await getWebSocketRpcClient(url, options)
+    const { result } = await nextClient.requestAsync({
+      body: { method: 'eth_blockNumber' },
+    })
+    await wait(100)
+
+    expect(nextClient).not.toBe(socketClient)
+    // Served by the replacement's socket, the node's second connection.
+    expect(result).toMatchInlineSnapshot(`"0x2"`)
+    expect(node.openConnections).toMatchInlineSnapshot(`1`)
+    expect(socketClient.socket.readyState).toBe(WebSocket.CLOSED)
+
+    nextClient.close()
+  })
+
+  test('reports a failed request once, not again on later disconnects', async () => {
+    const node = await createNode()
+    const url = `ws://127.0.0.1:${node.port}`
+    const options = { reconnect: { attempts: 5, delay: 20 } }
+    const socketClient = await getWebSocketRpcClient(url, options)
+    const errors: string[] = []
+
+    socketClient.request({
+      body: { method: 'bad_frame' },
+      onError: (error) => errors.push((error as Error).name),
+      onResponse: () => {},
+    })
+    await wait(200)
+    node.disconnect()
+    await wait(200)
+
+    expect(errors).toMatchInlineSnapshot(`
+      [
+        "SyntaxError",
+      ]
+    `)
+
+    socketClient.close()
+  })
+})

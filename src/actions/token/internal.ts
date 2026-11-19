@@ -247,16 +247,8 @@ function resolveTokenForChain(
   token: Token,
   chainId: number,
 ): ResolvedToken | undefined {
-  const address = (token.addresses as Record<number, Address>)[chainId]
-  if (!address) return undefined
-  return {
-    address,
-    currency: token.currency,
-    decimals: token.decimals,
-    name: token.name,
-    popular: token.popular,
-    symbol: token.symbol,
-  }
+  if (!(token.addresses as Record<number, Address>)[chainId]) return undefined
+  return token(chainId as never)
 }
 
 /** Finds a {@link Token} by symbol (case-insensitively) on a `tokens` array. @internal */

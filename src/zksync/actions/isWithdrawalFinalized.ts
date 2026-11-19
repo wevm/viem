@@ -1,5 +1,9 @@
 import type { Account } from '../../accounts/types.js'
-import { readContract } from '../../actions/public/readContract.js'
+import type { GetTransactionReceiptErrorType } from '../../actions/public/getTransactionReceipt.js'
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
@@ -8,6 +12,8 @@ import {
 } from '../../errors/chain.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
+import type { IsAddressEqualErrorType } from '../../utils/address/isAddressEqual.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { l1SharedBridgeAbi } from '../constants/abis.js'
 import {
   WithdrawalLogNotFoundError,
@@ -37,6 +43,10 @@ export type IsWithdrawalFinalizedReturnType = boolean
 export type IsWithdrawalFinalizedErrorType =
   | WithdrawalLogNotFoundErrorType
   | ChainNotFoundErrorType
+  | GetTransactionReceiptErrorType
+  | IsAddressEqualErrorType
+  | ReadContractErrorType
+  | RequestErrorType
 
 /**
  * Returns whether the withdrawal transaction is finalized on the L1 network.
@@ -78,11 +88,11 @@ export async function isWithdrawalFinalized<
 
   if (!l2Client.chain) throw new ChainNotFoundError()
 
-  const { log } = await getWithdrawalLog(l2Client, { hash, index })
-  const { l2ToL1LogIndex } = await getWithdrawalL2ToL1Log(l2Client, {
-    hash,
-    index,
-  })
+  // Both read the same receipt, which concurrent requests fetch once.
+  const [{ log }, { l2ToL1LogIndex }] = await Promise.all([
+    getWithdrawalLog(l2Client, { hash, index }),
+    getWithdrawalL2ToL1Log(l2Client, { hash, index }),
+  ])
 
   // `getLogProof` is called not to get proof but
   // to get the index of the corresponding L2->L1 log,

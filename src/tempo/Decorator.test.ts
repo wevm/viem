@@ -27,16 +27,18 @@ describe('decorator', () => {
         "type",
         "uid",
         "extend",
+        "scope",
         "accessKey",
+        "accounts",
         "amm",
         "channel",
         "dex",
         "earn",
         "faucet",
-        "multisig",
         "nonce",
         "fee",
         "policy",
+        "propAmm",
         "receivePolicy",
         "reward",
         "simulate",
@@ -51,9 +53,14 @@ describe('decorator', () => {
   test('binds action helpers', () => {
     expect(typeof client2.dex.buy.call).toBe('function')
     expect(typeof client2.amm.getPool.calls).toBe('function')
-    expect(typeof client2.multisig.isInitialized.call).toBe('function')
-    expect(typeof client2.multisig.updateConfig.call).toBe('function')
-    expect(typeof client2.multisig.updateConfig.extractEvent).toBe('function')
+    expect(typeof client2.accounts.getConfigCommitment.call).toBe('function')
+    expect(typeof client2.channel.verifyVoucher.call).toBe('function')
+    expect(typeof client2.accounts.updateConfig.call).toBe('function')
+    expect(typeof client2.accounts.updateConfig.extractEvent).toBe('function')
+    expect(typeof client2.accounts.upgrade.call).toBe('function')
+    expect(typeof client2.accounts.upgrade.extractEvent).toBe('function')
+    expect(typeof client2.accounts.deriveAccount.call).toBe('function')
+    expect(typeof client2.accounts.verifyHash.call).toBe('function')
     expect(typeof client2.accessKey.getRemainingLimit.callWithPeriod).toBe(
       'function',
     )
@@ -85,6 +92,8 @@ describe('decorator', () => {
     expect(typeof client2.token.watchUpdateQuoteToken).toBe('function')
     expect(typeof client2.accessKey.verifyHash).toBe('function')
     expect(typeof client2.accessKey.prepareAuthorization).toBe('function')
+    expect(typeof client2.accessKey.saveAuthorization).toBe('function')
+    expect(typeof client2.accessKey.signAuthorization).toBe('function')
     expect(typeof client2.zone.getEncryptionKey).toBe('function')
     expect(typeof client2.zone.waitForTempoBlock).toBe('function')
     expect(typeof client2.earn.waitForPrivateDeposit).toBe('function')

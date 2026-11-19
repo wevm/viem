@@ -1,8 +1,11 @@
 import type { Address } from 'abitype'
+import type * as RpcSchema from 'ox/RpcSchema'
 import {
-  type KeyAuthorization,
-  MultisigConfig,
-  type SignatureEnvelope,
+  AccountConfig,
+  AccountOperation,
+  KeyAuthorization,
+  type RpcSchemaTempo,
+  SignatureEnvelope,
 } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
@@ -18,42 +21,58 @@ import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
+import {
+  MethodNotFoundRpcError,
+  MethodNotSupportedRpcError,
+} from '../../errors/rpc.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
-import type { Compute, UnionOmit } from '../../types/utils.js'
+import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
+import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import type {
   AccessKeyAccount,
-  MultisigAccount,
-  resolveAccessKey,
+  ConfigurableAccount,
+  RootAccount,
 } from '../Account.js'
 import {
+  fromConfig,
   getKeyAuthorizationSignPayload,
+  resolveAccessKey,
   signKeyAuthorization,
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
+import { parseApproval } from '../accounts/Signature.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 import * as Hardfork from '../Hardfork.js'
 import {
-  createMultisigStateResolver,
-  getMultisigOwnerStates,
-} from '../internal/multisig.js'
+  type Context,
+  formatAmount,
+  formatTime,
+  getFeeToken,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
   WriteParameters,
 } from '../internal/types.js'
-import { defineCall } from '../internal/utils.js'
+import { defineCall, isTip20 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import * as multisig from './multisig.js'
+import { getConfig } from './accounts.js'
 
 /** @internal */
 const signatureTypes = {
   0: 'secp256k1',
   1: 'p256',
   2: 'webAuthn',
+  3: 'configurable',
 } as const satisfies Record<number, string>
 
 /** @internal */
@@ -112,14 +131,6 @@ export namespace authorize {
   export type Args = {
     /** The access key to authorize. */
     accessKey: resolveAccessKey.Parameters
-    /**
-     * Whether to authorize the key as an admin key. Admin keys are unrestricted
-     * and can manage the account's other access keys; `expiry`, `limits`, and
-     * `scopes` are ignored. Requires the T6 hardfork.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     */
-    admin?: boolean | undefined
     /** The chain ID. */
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
@@ -146,7 +157,7 @@ export namespace authorize {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -160,7 +171,6 @@ export namespace authorize {
   ): Promise<ReturnType<action>> {
     const {
       accessKey,
-      admin,
       chainId = client.chain?.id,
       expiry,
       limits,
@@ -168,20 +178,25 @@ export namespace authorize {
       witness,
       ...rest
     } = parameters
-    const account_ = rest.account ?? client.account
+    const { account: account_ = client.account } = rest
     if (!account_) throw new Error('account is required.')
     if (!chainId) throw new Error('chainId is required.')
-    const keyAuthorization = await signAuthorization(client, {
+    const keyAuthorization = await signLocal(client, {
       account: account_,
       accessKey,
       chainId,
-      admin,
       expiry,
       limits,
       scopes,
       witness,
     })
-    return (await action(client, {
+    return (await withExecutionError(action, {
+      hints: {
+        KeyAlreadyExists: [
+          'This access key is already authorized. Update its spending limits instead.',
+        ],
+      },
+    })(client, {
       ...rest,
       keyAuthorization,
     } as never)) as never
@@ -242,6 +257,8 @@ export async function authorizeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = authorize.extractEvent(receipt.logs)
   return {
     ...args,
@@ -268,7 +285,7 @@ export namespace authorizeSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -327,7 +344,7 @@ export namespace burnWitness {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -341,7 +358,7 @@ export namespace burnWitness {
   ): Promise<ReturnType<action>> {
     const { witness, ...rest } = parameters
     const call = burnWitness.call({ witness })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -436,6 +453,8 @@ export async function burnWitnessSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burnWitness.extractEvent(receipt.logs)
   return {
     ...args,
@@ -462,7 +481,7 @@ export namespace burnWitnessSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -499,7 +518,7 @@ export async function getMetadata<
   const { account: account_ = client.account, accessKey, ...rest } = parameters
   if (!account_) throw new Error('account is required.')
   const account = parseAccount(account_)
-  const result = await readContract(client, {
+  const result = await withExecutionError(readContract)(client, {
     ...rest,
     account: null as never,
     ...getMetadata.call({ account: account.address, accessKey }),
@@ -530,8 +549,8 @@ export namespace getMetadata {
   export type ReturnValue = {
     /** The access key address. */
     address: Address
-    /** The key type. */
-    keyType: 'secp256k1' | 'p256' | 'webAuthn'
+    /** The key type. `configurable` for a configurable account access key. */
+    keyType: 'secp256k1' | 'p256' | 'webAuthn' | 'configurable'
     /** The expiry timestamp. */
     expiry: bigint
     /** The spending policy. */
@@ -555,6 +574,8 @@ export namespace getMetadata {
       args: [account, resolveAccessKeyAddress(accessKey)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -603,21 +624,24 @@ export async function getRemainingLimit<
   // TODO: remove pre-t3 branch once mainnet is on t3.
   const hardfork = (client.chain as { hardfork?: string } | undefined)?.hardfork
   if (hardfork && Hardfork.lt(hardfork, 't3')) {
-    const remaining = await readContract(client, {
+    const remaining = await withExecutionError(readContract)(client, {
       ...rest,
       ...getRemainingLimit.call({ account: account.address, accessKey, token }),
     })
     return { remaining, periodEnd: undefined }
   }
 
-  const [remaining, periodEnd] = await readContract(client, {
-    ...rest,
-    ...getRemainingLimit.callWithPeriod({
-      account: account.address,
-      accessKey,
-      token,
-    }),
-  })
+  const [remaining, periodEnd] = await withExecutionError(readContract)(
+    client,
+    {
+      ...rest,
+      ...getRemainingLimit.callWithPeriod({
+        account: account.address,
+        accessKey,
+        token,
+      }),
+    },
+  )
   return { remaining, periodEnd }
 }
 
@@ -673,87 +697,8 @@ export namespace getRemainingLimit {
       args: [account, resolveAccessKeyAddress(accessKey), token],
     })
   }
-}
 
-/**
- * Checks whether an access key is an admin key for an account.
- *
- * Returns `true` for the account's root key or for an active admin access key
- * (see {@link authorize} with `admin: true`).
- *
- * [TIP-1049](https://tips.sh/1049)
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const isAdmin = await Actions.accessKey.isAdmin(client, {
- *   account: '0x...',
- *   accessKey: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns Whether the access key is an admin key.
- */
-export async function isAdmin<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: isAdmin.Parameters<account>,
-): Promise<isAdmin.ReturnValue> {
-  const { account: account_ = client.account, accessKey, ...rest } = parameters
-  if (!account_) throw new Error('account is required.')
-  const account = parseAccount(account_)
-  return readContract(client, {
-    ...rest,
-    account: null as never,
-    ...isAdmin.call({ account: account.address, accessKey }),
-  })
-}
-
-export namespace isAdmin {
-  export type Parameters<
-    account extends Account | undefined = Account | undefined,
-  > = ReadParameters & GetAccountParameter<account> & Pick<Args, 'accessKey'>
-
-  export type Args = {
-    /** Account address. */
-    account: Address
-    /** The access key. */
-    accessKey: Address | AccessKeyAccount
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.accountKeychain,
-    'isAdminKey',
-    never
-  >
-
-  /**
-   * Defines a call to the `isAdminKey` function.
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { account, accessKey } = args
-    return defineCall({
-      address: Addresses.accountKeychain,
-      abi: Abis.accountKeychain,
-      functionName: 'isAdminKey',
-      args: [account, resolveAccessKeyAddress(accessKey)],
-    })
-  }
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -790,7 +735,7 @@ export async function isWitnessBurned<
   const { account: account_ = client.account, witness, ...rest } = parameters
   if (!account_) throw new Error('account is required.')
   const account = parseAccount(account_)
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     account: null as never,
     ...isWitnessBurned.call({ account: account.address, witness }),
@@ -830,6 +775,8 @@ export namespace isWitnessBurned {
       args: [account, witness],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -881,7 +828,7 @@ export namespace revoke {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -895,7 +842,7 @@ export namespace revoke {
   ): Promise<ReturnType<action>> {
     const { accessKey, ...rest } = parameters
     const call = revoke.call({ accessKey })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -989,6 +936,8 @@ export async function revokeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = revoke.extractEvent(receipt.logs)
   return {
     ...args,
@@ -1015,7 +964,7 @@ export namespace revokeSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1049,16 +998,15 @@ export async function prepareAuthorization<
   if (!account_) throw new Error('account is required.')
   if (!chainId) throw new Error('chainId is required.')
   const parsed = parseAccount(account_)
-  const multisigState = await (async () => {
-    if ('multisig' in parameters) return parameters.multisig
-    if (parsed.source !== 'multisig') return undefined
-    const account = parsed as MultisigAccount
-    const getState = createMultisigStateResolver((account) =>
-      multisig.getConfig(client, { account }),
-    )
-    const states = await getMultisigOwnerStates(account, getState)
-    const state = states[0]!
-    return { init: !state.initialized, states, version: state.version }
+  const configurableState = await (async () => {
+    if ('configurable' in parameters) return parameters.configurable
+    if (parsed.source !== 'configurable') return undefined
+    const account = parsed as ConfigurableAccount
+    if (!account.config)
+      throw new Error(
+        'An account config is required to prepare a key authorization.',
+      )
+    return { config: account.config }
   })()
   const authorizationSignPayload = getKeyAuthorizationSignPayload(
     parsed as never,
@@ -1069,18 +1017,18 @@ export async function prepareAuthorization<
     },
   )
   const signPayload =
-    parsed.source === 'multisig' && multisigState
-      ? MultisigConfig.getSignPayload({
+    parsed.source === 'configurable' && configurableState
+      ? AccountConfig.getSignPayload({
           account: parsed.address,
+          config: configurableState.config,
           payload: authorizationSignPayload,
-          version: multisigState.version,
         })
       : authorizationSignPayload
   return {
     ...parameters,
     account: parsed,
     chainId,
-    multisig: multisigState,
+    configurable: configurableState,
     signPayload,
   } as never
 }
@@ -1091,14 +1039,6 @@ export namespace prepareAuthorization {
   > = GetAccountParameter<account> & {
     /** The access key to authorize. */
     accessKey: resolveAccessKey.Parameters
-    /**
-     * Whether to authorize the key as an admin key. Admin keys are unrestricted
-     * and can manage the account's other access keys; `expiry`, `limits`, and
-     * `scopes` are ignored. Requires the T6 hardfork.
-     *
-     * [TIP-1049](https://tips.sh/1049)
-     */
-    admin?: boolean | undefined
     /** The chain ID. */
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
@@ -1107,8 +1047,8 @@ export namespace prepareAuthorization {
     limits?:
       | { token: Address; limit: bigint; period?: number | undefined }[]
       | undefined
-    /** @internal Prepared multisig state. */
-    multisig?: signKeyAuthorization.Parameters['multisig']
+    /** @internal Prepared configurable account state. */
+    configurable?: signKeyAuthorization.Parameters['configurable']
     /** Call scopes restricting which contracts/selectors this key can call. */
     scopes?: KeyAuthorization.Scope[] | undefined
     /**
@@ -1128,11 +1068,66 @@ export namespace prepareAuthorization {
     Omit<Parameters<Account | undefined>, 'account' | 'chainId'> & {
       account: Account
       chainId: number
-      multisig: signKeyAuthorization.Parameters['multisig']
-      /** Payload that the authorizing account or multisig owners sign. */
+      configurable: signKeyAuthorization.Parameters['configurable']
+      /** Payload that the authorizing account or owners sign. */
       signPayload: Hex
     }
   >
+}
+
+/**
+ * Saves a signed key authorization to a relay with key authorization storage.
+ *
+ * The relay attaches the authorization to the access key's next transaction until
+ * the key is active onchain. Use this for authorizations signed outside
+ * {@link signAuthorization}, such as on another device. Requires a relay running the
+ * `Relay.keyAuthorization` plugin.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions, withRelay } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: withRelay(http(), http('https://relay.example.com'), {
+ *     keyAuthorization: true,
+ *   }),
+ * })
+ *
+ * await Actions.accessKey.saveAuthorization(client, {
+ *   keyAuthorization,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ */
+export async function saveAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: saveAuthorization.Parameters,
+): Promise<saveAuthorization.ReturnValue> {
+  const { keyAuthorization } = parameters
+  await client.request<relay_saveKeyAuthorization>({
+    method: 'relay_saveKeyAuthorization',
+    params: [KeyAuthorization.toRpc(keyAuthorization)],
+  })
+}
+
+export namespace saveAuthorization {
+  export type Parameters = {
+    /** Signed key authorization to save. */
+    keyAuthorization: KeyAuthorization.Signed
+  }
+
+  export type ReturnValue = void
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -1141,19 +1136,238 @@ export namespace prepareAuthorization {
  * Use {@link prepareAuthorization} before this action when signing requires
  * transient user activation.
  *
+ * When the client transport is a relay with the `Relay.keyAuthorization` plugin,
+ * an authorization signed by the account is saved to the relay, which attaches it
+ * to the access key's next transaction.
+ *
  * @param client - Client.
- * @param parameters - Parameters or the prepared result.
- * @returns The signed key authorization.
+ * @param parameters - Authorization fields, or a stored operation hash.
+ * @returns A signed key authorization with account operation metadata when coordinated.
  */
+export function signAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.CoordinatedParameters,
+): Promise<signAuthorization.CoordinatedReturnValue>
+export function signAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.LocalParameters<account>,
+): Promise<signAuthorization.ReturnValue>
 export async function signAuthorization<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
   parameters: signAuthorization.Parameters<account>,
+): Promise<
+  signAuthorization.CoordinatedReturnValue | signAuthorization.ReturnValue
+> {
+  const coordinated =
+    ('hash' in parameters && parameters.hash) ||
+    ('owner' in parameters && parameters.owner)
+
+  if (coordinated) {
+    const parameters_ = parameters as signAuthorization.CoordinatedParameters
+    const owner_ = parameters_.owner
+    if (!owner_ || typeof owner_ === 'string')
+      throw new Error(
+        'A local owner account is required to approve a configurable account key authorization.',
+      )
+    const owner = parseAccount(owner_)
+    const sign = owner.sign
+    if (!sign)
+      throw new Error(
+        'A local owner account is required to approve a configurable account key authorization.',
+      )
+
+    const request = await (async () => {
+      if ('hash' in parameters_ && parameters_.hash) {
+        const signature = SignatureEnvelope.serialize(
+          SignatureEnvelope.from(await sign({ hash: parameters_.hash })),
+        )
+        return { hash: parameters_.hash, signature }
+      }
+
+      const {
+        account: account_,
+        owner: _,
+        ...authorization
+      } = parameters_ as signAuthorization.CoordinatedInitialParameters
+      const address = typeof account_ === 'string' ? account_ : account_.address
+      const config = await (async () => {
+        if (typeof account_ !== 'string' && account_.config)
+          return account_.config
+        const config = await getConfig(client, { address })
+        if (config) return config
+        throw new Error(
+          `No current account config is cached for account ${address}. Provide the current config.`,
+        )
+      })()
+      const account = (() => {
+        if (config.version !== 0n) return fromConfig({ address, ...config })
+        const { version: _, ...initialConfig } = config
+        return fromConfig({ address: 'infer', ...initialConfig })
+      })()
+      if (!isAddressEqual(account.address, address))
+        throw new Error('Initial account config does not match the account.')
+      const prepared = await prepareAuthorization(client, {
+        ...authorization,
+        account,
+      } as never)
+      const signature = SignatureEnvelope.serialize(
+        SignatureEnvelope.from(await sign({ hash: prepared.signPayload })),
+      )
+      const { accessKey, chainId, expiry, limits, scopes, witness } = prepared
+      const { accessKeyAddress, keyType: type } = resolveAccessKey(accessKey)
+      const keyAuthorization = KeyAuthorization.from({
+        account: account.address,
+        address: accessKeyAddress,
+        chainId: BigInt(chainId),
+        signature: SignatureEnvelope.from({
+          account: account.address,
+          config,
+          signatures: [parseApproval(signature)],
+        }),
+        type,
+        ...(witness ? { witness } : {}),
+        expiry,
+        limits,
+        scopes,
+      } as never)
+      return { keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }
+    })()
+
+    type account_approveKeyAuthorization = Extract<
+      RpcSchema.ToViem<RpcSchemaTempo.Account>[number],
+      { Method: 'account_approveKeyAuthorization' }
+    >
+    const operation = await client.request<account_approveKeyAuthorization>({
+      method: 'account_approveKeyAuthorization',
+      params: [request],
+    })
+    const operation_ = AccountOperation.fromRpc(operation)
+    const keyAuthorization = KeyAuthorization.deserialize(
+      await (async () => {
+        if (operation_.status === 'success') return operation_.keyAuthorization
+        const approvals = await AccountOperation.selectApprovals({
+          account: operation_.account,
+          approvals: operation_.approvals,
+          config: operation_.config,
+          hash: operation_.hash,
+        })
+        return AccountOperation.serializeKeyAuthorization(
+          operation_.keyAuthorization,
+          {
+            account: operation_.account,
+            approvals:
+              approvals.selectedApprovals.length > 0
+                ? approvals.selectedApprovals
+                : approvals.approvals.slice(0, 1),
+            config: operation_.config,
+          },
+        )
+      })(),
+    )
+    if (!keyAuthorization.signature)
+      throw new Error(
+        'Expected a signed configurable account key authorization.',
+      )
+    return {
+      ...keyAuthorization,
+      hash: operation_.hash,
+      operation: operation_,
+      status: operation_.status,
+    } as never
+  }
+
+  const keyAuthorization = await signLocal(
+    client,
+    parameters as signAuthorization.LocalParameters<account>,
+  )
+  // Relays with key authorization storage attach it to the access key's next transaction.
+  if ((client.transport as { keyAuthorization?: boolean }).keyAuthorization)
+    await saveAuthorization(client, { keyAuthorization }).catch((error) => {
+      // Remote relays without key authorization storage do not expose this method.
+      if (
+        error instanceof MethodNotFoundRpcError ||
+        error instanceof MethodNotSupportedRpcError
+      )
+        return
+      throw error
+    })
+  return keyAuthorization
+}
+
+export namespace signAuthorization {
+  /** Initial coordinated key authorization parameters. */
+  export type CoordinatedInitialParameters = Omit<
+    prepareAuthorization.Parameters<Account>,
+    'account' | 'configurable'
+  > & {
+    /** Configurable account being authorized. */
+    account: Address | ConfigurableAccount
+    /** Local owner that approves the authorization. */
+    owner: RootAccount
+  }
+
+  /** Coordinated key authorization parameters. */
+  export type CoordinatedParameters = OneOf<
+    | CoordinatedInitialParameters
+    | {
+        /** Stored account operation hash. */
+        hash: Hex
+        /** Local owner that approves the authorization. */
+        owner: RootAccount
+      }
+  >
+
+  /** Locally signed key authorization parameters. */
+  export type LocalParameters<
+    account extends Account | undefined = Account | undefined,
+  > = prepareAuthorization.Parameters<account> & {
+    /** Serialized approvals from external owners. */
+    signatures?: readonly SignatureEnvelope.Serialized[] | undefined
+  }
+
+  /** Parameters for {@link signAuthorization}. */
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = CoordinatedParameters | LocalParameters<account>
+
+  /** Local return value for {@link signAuthorization}. */
+  export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
+
+  /** Coordinated return value for {@link signAuthorization}. */
+  export type CoordinatedReturnValue = Compute<
+    ReturnValue & {
+      /** Deterministic account operation hash. */
+      hash: Hex
+      /** Current account operation. */
+      operation: AccountOperation.KeyAuthorizationOperation
+      /** Current account operation status. */
+      status: AccountOperation.KeyAuthorizationOperation['status']
+    }
+  >
+
+  /** Error type for {@link signAuthorization}. */
+  export type ErrorType = BaseErrorType
+}
+
+/** Signs a key authorization locally without saving it to a relay. */
+async function signLocal<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.LocalParameters<account>,
 ): Promise<signAuthorization.ReturnValue> {
   const prepared = (
-    'multisig' in parameters
+    'signPayload' in parameters
       ? parameters
       : await prepareAuthorization(client, parameters)
   ) as prepareAuthorization.ReturnValue
@@ -1161,27 +1375,22 @@ export async function signAuthorization<
     accessKey,
     account: account_,
     chainId,
-    multisig: multisigState,
+    configurable: configurableState,
     signPayload: _,
     ...rest
   } = prepared
   return signKeyAuthorization(account_ as never, {
     chainId: BigInt(chainId),
     key: accessKey,
-    multisig: multisigState,
+    configurable: configurableState,
     ...rest,
   })
 }
 
-export namespace signAuthorization {
-  export type Parameters<
-    account extends Account | undefined = Account | undefined,
-  > = prepareAuthorization.Parameters<account> & {
-    /** Serialized approvals from external multisig owners. */
-    signatures?: readonly SignatureEnvelope.Serialized[] | undefined
-  }
-
-  export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
+type relay_saveKeyAuthorization = {
+  Method: 'relay_saveKeyAuthorization'
+  Parameters: [KeyAuthorization.Rpc]
+  ReturnType: null
 }
 
 /**
@@ -1239,7 +1448,7 @@ export namespace updateLimit {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1253,7 +1462,7 @@ export namespace updateLimit {
   ): Promise<ReturnType<action>> {
     const { accessKey, token, limit, ...rest } = parameters
     const call = updateLimit.call({ accessKey, token, limit })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -1353,6 +1562,8 @@ export async function updateLimitSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = updateLimit.extractEvent(receipt.logs)
   return {
     account: args.account,
@@ -1385,87 +1596,7 @@ export namespace updateLimitSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-}
-
-/**
- * Watches for admin key authorization events.
- *
- * Emitted when an admin key is authorized (see {@link authorize} with
- * `admin: true`).
- *
- * [TIP-1049](https://tips.sh/1049)
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const unwatch = Actions.accessKey.watchAdminAuthorized(client, {
- *   onAuthorized: (args, log) => {
- *     console.log('Admin key authorized:', args)
- *   },
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns A function to unsubscribe from the event.
- */
-export function watchAdminAuthorized<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: watchAdminAuthorized.Parameters,
-) {
-  const { onAuthorized, ...rest } = parameters
-  return watchContractEvent(client, {
-    ...rest,
-    address: Addresses.accountKeychain,
-    abi: Abis.accountKeychain,
-    eventName: 'AdminKeyAuthorized',
-    onLogs: (logs) => {
-      for (const log of logs) onAuthorized(log.args, log)
-    },
-    strict: true,
-  })
-}
-
-export declare namespace watchAdminAuthorized {
-  export type Args = Compute<
-    GetEventArgs<
-      typeof Abis.accountKeychain,
-      'AdminKeyAuthorized',
-      { IndexedOnly: false; Required: true }
-    >
-  >
-
-  export type Log = viem_Log<
-    bigint,
-    number,
-    false,
-    ExtractAbiItem<typeof Abis.accountKeychain, 'AdminKeyAuthorized'>,
-    true
-  >
-
-  export type Parameters = UnionOmit<
-    WatchContractEventParameters<
-      typeof Abis.accountKeychain,
-      'AdminKeyAuthorized',
-      true
-    >,
-    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
-  > & {
-    /** Callback to invoke when an admin key is authorized. */
-    onAuthorized: (args: Args, log: Log) => void
-  }
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1630,11 +1761,16 @@ export declare namespace watchWitnessBurned {
  * for the expected account.
  *
  * By default (`admin: true`), returns `true` only if the signature was
- * produced by the account's root key or an active admin access key. Set
- * `admin: false` to accept any active access key.
+ * produced by the account's root key. Set `admin: false` to accept any active
+ * access key.
  *
  * Returns `false` for account mismatches, unknown, revoked, or expired
  * access keys. [TIP-1049](https://tips.sh/1049)
+ *
+ * The key of an account with a config commitment (a configurable or upgraded
+ * account) passes neither mode, and an inner signature type other than the stored key
+ * type returns `false`. Configurable access keys (TIP-1111) revert as an
+ * invalid format; verify them with `verifyHash` from `viem/actions` instead.
  *
  * @example
  * ```ts
@@ -1666,7 +1802,7 @@ export async function verifyHash<
   parameters: verifyHash.Parameters,
 ): Promise<verifyHash.ReturnValue> {
   const { account, admin, hash, signature, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...verifyHash.call({ account, admin, hash, signature }),
   })
@@ -1679,9 +1815,9 @@ export namespace verifyHash {
     /** Account address the signature is expected to belong to. */
     account: Address
     /**
-     * Whether to require the signer to be the account's root key or an
-     * active admin access key. Defaults to `true`. Set to `false` to accept
-     * any active access key.
+     * Whether to require the signer to be the account's root key, which an
+     * account with a config commitment does not have. Defaults to `true`. Set
+     * to `false` to accept any active access key.
      */
     admin?: boolean | undefined
     /** Original message hash that was signed. */
@@ -1712,6 +1848,8 @@ export namespace verifyHash {
       args: [account, hash, signature],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /** @internal */
@@ -1720,4 +1858,444 @@ function resolveAccessKeyAddress(
 ): Address {
   if (typeof accessKey === 'string') return accessKey
   return accessKey.accessKeyAddress
+}
+
+// Errors
+
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
+export type ExecutionErrorType =
+  | AccessKeyAlreadyExistsErrorType
+  | AccessKeyCallNotAllowedErrorType
+  | AccessKeyErrorType
+  | AccessKeyExpiredErrorType
+  | AccessKeyExpiryInPastErrorType
+  | AccessKeySignatureTypeMismatchErrorType
+  | AccessKeySpendingLimitExceededErrorType
+
+/** `AccessKeyError` with a literal `name`, for narrowing. */
+export type AccessKeyErrorType = AccessKeyError & { name: 'AccessKeyError' }
+
+/** Thrown when an access key fails an `AccountKeychain` check. */
+export class AccessKeyError<
+  decoded extends
+    Errors.TempoExecutionError.Decoded = Errors.TempoExecutionError.Decoded,
+> extends TempoExecutionError<decoded> {
+  /** Root account that owns the access key. */
+  account: Address
+  /** Access key address. */
+  accessKey: Address
+
+  constructor(
+    parameters: AccessKeyError.Parameters,
+    options: Errors.TempoExecutionError.Options = {},
+  ) {
+    const { account, accessKey } = parameters
+    super(parameters, {
+      shortMessage: `Access key "${accessKey}" failed: ${parameters.error.message}`,
+      ...options,
+      details: { account, 'access key': accessKey, ...options.details },
+      docsPath: '/tempo/guides/access-keys/manage',
+      name: options.name ?? 'AccessKeyError',
+    })
+    this.account = account
+    this.accessKey = accessKey
+  }
+}
+
+export declare namespace AccessKeyError {
+  /** Constructor parameters. */
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Root account that owns the access key. */
+    account: Address
+    /** Access key address. */
+    accessKey: Address
+  }
+}
+
+/** `AccessKeySpendingLimitExceededError` with a literal `name`, for narrowing. */
+export type AccessKeySpendingLimitExceededErrorType =
+  AccessKeySpendingLimitExceededError & {
+    name: 'AccessKeySpendingLimitExceededError'
+  }
+
+/** Thrown when a transfer, approval, or fee payment exceeds an access key's spending limit. */
+export class AccessKeySpendingLimitExceededError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'SpendingLimitExceeded'>
+> {
+  /** Amount the call tried to spend, when known. */
+  amount: bigint | undefined
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Whether the fee payment, rather than the call, exceeded the limit. */
+  fee: boolean
+  /** End of the current period (Unix seconds) for periodic limits, when known. */
+  periodEnd: bigint | undefined
+  /** Remaining limit for `token`, when known. */
+  remaining: bigint | undefined
+  /** Token the limit applies to, when known. */
+  token: Address | undefined
+
+  constructor(parameters: AccessKeySpendingLimitExceededError.Parameters) {
+    const { amount, decimals, fee, periodEnd, remaining, token } = parameters
+    super(parameters, {
+      details: {
+        token,
+        amount: formatAmount(amount, decimals),
+        remaining: formatAmount(remaining, decimals),
+        'exceeded by':
+          amount !== undefined && remaining !== undefined
+            ? formatAmount(amount - remaining, decimals)
+            : undefined,
+        'resets at': formatTime(periodEnd),
+      },
+      name: 'AccessKeySpendingLimitExceededError',
+      shortMessage: `Access key "${parameters.accessKey}" exceeded its spending limit${token ? ` for token "${token}"` : ''}${fee ? ' while paying fees' : ''}.`,
+    })
+    this.amount = amount
+    this.decimals = decimals
+    this.fee = fee
+    this.periodEnd = periodEnd
+    this.remaining = remaining
+    this.token = token
+  }
+}
+
+export declare namespace AccessKeySpendingLimitExceededError {
+  /** Constructor parameters. */
+  type Parameters = AccessKeyError.Parameters & {
+    /** Amount the call tried to spend, when known. */
+    amount?: bigint | undefined
+    /** Token decimals, when known. */
+    decimals?: number | undefined
+    /** Whether the fee payment, rather than the call, exceeded the limit. */
+    fee: boolean
+    /** End of the current period (Unix seconds) for periodic limits, when known. */
+    periodEnd?: bigint | undefined
+    /** Remaining limit for `token`, when known. */
+    remaining?: bigint | undefined
+    /** Token the limit applies to, when known. */
+    token?: Address | undefined
+  }
+}
+
+/** `AccessKeyExpiredError` with a literal `name`, for narrowing. */
+export type AccessKeyExpiredErrorType = AccessKeyExpiredError & {
+  name: 'AccessKeyExpiredError'
+}
+
+/** Thrown when a transaction is signed with an expired access key. */
+export class AccessKeyExpiredError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'KeyExpired'>
+> {
+  /** Expiry (Unix seconds), when known. */
+  expiry: bigint | undefined
+
+  constructor(
+    parameters: AccessKeyError.Parameters & { expiry?: bigint | undefined },
+  ) {
+    super(parameters, {
+      details: { 'expired at': formatTime(parameters.expiry) },
+      name: 'AccessKeyExpiredError',
+      shortMessage: `Access key "${parameters.accessKey}" has expired.`,
+    })
+    this.expiry = parameters.expiry
+  }
+}
+
+/** `AccessKeyCallNotAllowedError` with a literal `name`, for narrowing. */
+export type AccessKeyCallNotAllowedErrorType = AccessKeyCallNotAllowedError & {
+  name: 'AccessKeyCallNotAllowedError'
+}
+
+/** Thrown when an access key's scopes do not allow a call. */
+export class AccessKeyCallNotAllowedError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'CallNotAllowed'>
+> {
+  /** Function selector of the rejected call, when known. */
+  selector: Hex | undefined
+  /** Target of the rejected call, when known. */
+  target: Address | undefined
+
+  constructor(
+    parameters: AccessKeyError.Parameters & {
+      selector?: Hex | undefined
+      target?: Address | undefined
+    },
+  ) {
+    const { selector, target } = parameters
+    super(parameters, {
+      details: { target, selector },
+      name: 'AccessKeyCallNotAllowedError',
+      shortMessage: `Access key "${parameters.accessKey}" is not allowed to make this call.`,
+    })
+    this.selector = selector
+    this.target = target
+  }
+}
+
+/** `AccessKeyAlreadyExistsError` with a literal `name`, for narrowing. */
+export type AccessKeyAlreadyExistsErrorType = AccessKeyAlreadyExistsError & {
+  name: 'AccessKeyAlreadyExistsError'
+}
+
+/** Thrown when authorizing an access key that is already authorized. */
+export class AccessKeyAlreadyExistsError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'KeyAlreadyExists'>
+> {
+  /** Expiry (Unix seconds) of the existing key, when known. */
+  expiry: bigint | undefined
+  /** Whether the existing key enforces spending limits, when known. */
+  limited: boolean | undefined
+
+  constructor(
+    parameters: AccessKeyError.Parameters & {
+      expiry?: bigint | undefined
+      limited?: boolean | undefined
+    },
+  ) {
+    const { expiry, limited } = parameters
+    super(parameters, {
+      details: {
+        expires: formatTime(expiry),
+        'spending limits':
+          limited === undefined ? undefined : limited ? 'enforced' : 'none',
+      },
+      name: 'AccessKeyAlreadyExistsError',
+      shortMessage: `Access key "${parameters.accessKey}" is already authorized on account "${parameters.account}".`,
+    })
+    this.expiry = expiry
+    this.limited = limited
+  }
+}
+
+/** `AccessKeySignatureTypeMismatchError` with a literal `name`, for narrowing. */
+export type AccessKeySignatureTypeMismatchErrorType =
+  AccessKeySignatureTypeMismatchError & {
+    name: 'AccessKeySignatureTypeMismatchError'
+  }
+
+/** Thrown when an access key signs with a different key type than it was authorized with. */
+export class AccessKeySignatureTypeMismatchError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'SignatureTypeMismatch'>
+> {
+  /** Key type the access key was authorized with. */
+  expected: KeyType | undefined
+  /** Key type of the signature. */
+  actual: KeyType | undefined
+
+  constructor(parameters: AccessKeyError.Parameters) {
+    const [expected, actual] = (parameters.error.args ?? []).map(
+      (type) => signatureTypes[Number(type) as keyof typeof signatureTypes],
+    )
+    super(parameters, {
+      details: { expected, actual },
+      name: 'AccessKeySignatureTypeMismatchError',
+      shortMessage: `Access key "${parameters.accessKey}" signed with a ${actual ?? 'different'} key, but was authorized as a ${expected ?? 'different'} key.`,
+    })
+    this.expected = expected
+    this.actual = actual
+  }
+}
+
+/** `AccessKeyExpiryInPastError` with a literal `name`, for narrowing. */
+export type AccessKeyExpiryInPastErrorType = AccessKeyExpiryInPastError & {
+  name: 'AccessKeyExpiryInPastError'
+}
+
+/** Thrown when authorizing an access key with an expiry that has passed or is too soon. */
+export class AccessKeyExpiryInPastError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'ExpiryInPast'>
+> {
+  /** Requested expiry (Unix seconds), when known. */
+  expiry: bigint | undefined
+  /** Earliest allowed expiry (Unix seconds), when known. */
+  minimum: bigint | undefined
+
+  constructor(
+    parameters: AccessKeyError.Parameters & {
+      expiry?: bigint | undefined
+      minimum?: bigint | undefined
+    },
+  ) {
+    const { expiry, minimum } = parameters
+    super(parameters, {
+      details: { expiry: formatTime(expiry), minimum: formatTime(minimum) },
+      name: 'AccessKeyExpiryInPastError',
+      shortMessage: `Access key "${parameters.accessKey}" expiry must be later${minimum ? ` than ${formatTime(minimum)}` : ''}.`,
+    })
+    this.expiry = expiry
+    this.minimum = minimum
+  }
+}
+
+type KeyType = (typeof signatureTypes)[keyof typeof signatureTypes]
+
+const keychain = {
+  address: Addresses.accountKeychain,
+  abi: Abis.accountKeychain,
+} as const
+
+/** Signer and key for errors raised while validating the signing access key. */
+function getSigner(context: Context) {
+  const { call, parameters, signer } = context
+  if (!signer?.accessKey) return undefined
+  // Key management calls and authorizations of another key fail about that key, not the signer.
+  if (call && isAddressEqual(call.address, Addresses.accountKeychain))
+    return undefined
+  const authorized = parameters.keyAuthorization?.address as Address | undefined
+  if (authorized && !isAddressEqual(authorized, signer.accessKey))
+    return undefined
+  return {
+    ...context.base,
+    account: signer.address,
+    accessKey: signer.accessKey,
+  }
+}
+
+/** Fee payer and key for fee payment errors. External fee payers cannot be resolved. */
+function getFeePayer(context: Context) {
+  const { feePayer } = context.parameters
+  if (typeof feePayer !== 'object') return undefined
+  const account = parseAccount(feePayer)
+  if (account.source !== 'accessKey' || !('accessKeyAddress' in account))
+    return undefined
+  return {
+    ...context.base,
+    account: account.address,
+    accessKey: account.accessKeyAddress as Address,
+  }
+}
+
+/** Account and key for errors raised while authorizing a key. */
+function getAuthorization(context: Context) {
+  const { call, parameters, signer } = context
+  const accessKey =
+    (parameters.keyAuthorization?.address as Address | undefined) ??
+    call?.arg<Address>('keyId')
+  if (!signer || !accessKey) return undefined
+  return { ...context.base, account: signer.address, accessKey }
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  // Fallback for `AccountKeychain` errors without a specific resolver below.
+  ...Object.fromEntries(
+    Abis.accountKeychain.flatMap((item) =>
+      item.type === 'error'
+        ? [
+            [
+              formatAbiItem(item),
+              (context: Context) => {
+                const parameters = getSigner(context)
+                return parameters && new AccessKeyError(parameters)
+              },
+            ],
+          ]
+        : [],
+    ),
+  ),
+  'CallNotAllowed()': (context) => {
+    const parameters = getSigner(context)
+    if (!parameters) return undefined
+    return new AccessKeyCallNotAllowedError({
+      ...parameters,
+      selector: (context.parameters.data as Hex | undefined)?.slice(
+        0,
+        10,
+      ) as Hex,
+      target: context.call?.address ?? context.parameters.to,
+    })
+  },
+  'ExpiryInPast()': (context) => {
+    const parameters = getAuthorization(context)
+    if (!parameters) return undefined
+    const [, expiry, minimum] =
+      /expiry (\d+) <= min allowed (\d+)/.exec(context.details) ?? []
+    const requested =
+      context.parameters.keyAuthorization?.expiry ??
+      context.call?.arg<bigint>('expiry') ??
+      context.call?.arg<{ expiry: bigint }>('config')?.expiry
+    return new AccessKeyExpiryInPastError({
+      ...parameters,
+      expiry: expiry
+        ? BigInt(expiry)
+        : requested === undefined || requested === null
+          ? undefined
+          : BigInt(requested),
+      minimum: minimum ? BigInt(minimum) : undefined,
+    })
+  },
+  'KeyAlreadyExists()': async (context) => {
+    const parameters = getAuthorization(context)
+    if (!parameters) return undefined
+    const [key] = await context.read([
+      {
+        ...keychain,
+        functionName: 'getKey',
+        args: [parameters.account, parameters.accessKey],
+      },
+    ])
+    return new AccessKeyAlreadyExistsError({
+      ...parameters,
+      expiry: key?.result?.expiry,
+      limited: key?.result?.enforceLimits,
+    })
+  },
+  'KeyExpired()': async (context) => {
+    const parameters = getSigner(context)
+    if (!parameters) return undefined
+    const [key] = await context.read([
+      {
+        ...keychain,
+        functionName: 'getKey',
+        args: [parameters.account, parameters.accessKey],
+      },
+    ])
+    return new AccessKeyExpiredError({
+      ...parameters,
+      expiry: key?.result?.expiry,
+    })
+  },
+  'SignatureTypeMismatch(uint8,uint8)': (context) => {
+    const parameters = getSigner(context) ?? getAuthorization(context)
+    return parameters && new AccessKeySignatureTypeMismatchError(parameters)
+  },
+  'SpendingLimitExceeded()': async (context) => {
+    // Without revert data, the fee payment exceeded the limit.
+    const fee = context.validation
+    const parameters =
+      fee && context.parameters.feePayer
+        ? getFeePayer(context)
+        : getSigner(context)
+    if (!parameters) return undefined
+    const token = fee
+      ? getFeeToken(context)
+      : isTip20(context.call?.address)
+        ? context.call.address
+        : undefined
+    if (!token)
+      return new AccessKeySpendingLimitExceededError({
+        ...parameters,
+        fee,
+        hints: fee
+          ? [...parameters.hints, 'Pay fees with another token.']
+          : parameters.hints,
+      })
+    const args = [parameters.account, parameters.accessKey, token] as const
+    const [withPeriod, legacy, decimals] = await context.read([
+      // `getRemainingLimitWithPeriod` is T3+; `getRemainingLimit` covers earlier hardforks.
+      { ...keychain, functionName: 'getRemainingLimitWithPeriod', args },
+      { ...keychain, functionName: 'getRemainingLimit', args },
+      { address: token, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new AccessKeySpendingLimitExceededError({
+      ...parameters,
+      amount: fee ? undefined : context.call?.arg<bigint>('amount'),
+      decimals: decimals?.result,
+      fee,
+      periodEnd: withPeriod?.result?.[1] || undefined,
+      remaining: withPeriod?.result?.[0] ?? legacy?.result,
+      token,
+    })
+  },
 }

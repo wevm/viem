@@ -6,6 +6,7 @@ import {
 } from '../../accounts/utils/parseAccount.js'
 import {
   type EstimateFeesPerGasErrorType,
+  eip1559NetworkCache,
   internal_estimateFeesPerGas,
 } from '../../actions/public/estimateFeesPerGas.js'
 import {
@@ -13,6 +14,7 @@ import {
   type EstimateGasParameters,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
+import { internal_estimateMaxPriorityFeePerGas } from '../../actions/public/estimateMaxPriorityFeePerGas.js'
 import {
   type GetBlockErrorType,
   getBlock as getBlock_,
@@ -26,10 +28,15 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { AccountNotFoundErrorType } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import {
+  ChainMismatchError,
+  type ChainMismatchErrorType,
+} from '../../errors/chain.js'
+import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -85,9 +92,6 @@ export const defaultParameters = [
   'nonce',
   'type',
 ] as const
-
-/** @internal */
-export const eip1559NetworkCache = /*#__PURE__*/ new Map<string, boolean>()
 
 /** @internal */
 export const supportsFillTransaction = /*#__PURE__*/ new LruMap<boolean>(128)
@@ -232,11 +236,13 @@ export type PrepareTransactionRequestReturnType<
 export type PrepareTransactionRequestErrorType =
   | AccountNotFoundErrorType
   | AssertRequestErrorType
+  | ChainMismatchErrorType
   | ParseAccountErrorType
   | GetBlockErrorType
   | GetTransactionCountErrorType
   | EstimateGasErrorType
   | EstimateFeesPerGasErrorType
+  | ErrorType
 
 /**
  * Prepares a transaction request for signing.
@@ -302,9 +308,9 @@ export async function prepareTransactionRequest<
     request
   >
 > {
-  let request = args as PrepareTransactionRequestParameters
+  let request = { ...args } as PrepareTransactionRequestParameters
 
-  request.account ??= client.account
+  if (typeof request.account === 'undefined') request.account = client.account
   request.parameters ??= defaultParameters
 
   const {
@@ -345,18 +351,22 @@ export async function prepareTransactionRequest<
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('beforeFillTransaction')
   ) {
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        client,
-        phase: 'beforeFillTransaction',
-      },
-    )
+    request =
+      (await prepareTransactionRequest.fn(
+        { ...request, chain },
+        {
+          client,
+          phase: 'beforeFillTransaction',
+        },
+      )) ?? request
     nonce ??= request.nonce
     const sender = request.account ?? (request as TransactionRequest).from
     account = sender ? parseAccount(sender) : undefined
   }
 
+  // The nonce manager hands out nonces in call order, so the nonce is consumed
+  // here, but awaited with the other parameters.
+  let consumedNonce: Promise<number> | undefined
   if (
     parameters.includes('nonce') &&
     typeof nonce === 'undefined' &&
@@ -364,11 +374,13 @@ export async function prepareTransactionRequest<
     nonceManager
   ) {
     const chainId = await getChainId()
-    nonce = await nonceManager.consume({
+    consumedNonce = nonceManager.consume({
       address: account.address,
       chainId,
       client,
     })
+    // A rejection is thrown when the nonce is awaited.
+    consumedNonce.catch(() => {})
   }
 
   const attemptFill = (() => {
@@ -420,7 +432,12 @@ export async function prepareTransactionRequest<
     // Check if `eth_fillTransaction` needs to be called.
     if (parameters.includes('chainId') && typeof request.chainId !== 'number')
       return true
-    if (parameters.includes('nonce') && typeof nonce !== 'number') return true
+    if (
+      parameters.includes('nonce') &&
+      typeof nonce !== 'number' &&
+      !consumedNonce
+    )
+      return true
     if (
       parameters.includes('fees') &&
       typeof request.gasPrice !== 'bigint' &&
@@ -433,106 +450,140 @@ export async function prepareTransactionRequest<
     return false
   })()
 
+  // `eth_fillTransaction` and chain hooks read the nonce from the request.
+  if (consumedNonce && (attemptFill || prepareTransactionRequest))
+    nonce = await consumedNonce
+
+  let filledChainId: number | undefined
+  const fill = (request: PrepareTransactionRequestParameters) =>
+    getAction(
+      client,
+      fillTransaction,
+      'fillTransaction',
+    )({ ...request, nonce } as FillTransactionParameters).then((result) => {
+      const {
+        chainId,
+        from,
+        gas,
+        gasPrice,
+        nonce,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        type,
+        ...rest
+      } = result.transaction
+      const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
+      const hasFilledFeePayerSignature =
+        'feePayerSignature' in rest &&
+        rest.feePayerSignature !== null &&
+        typeof rest.feePayerSignature !== 'undefined'
+      const shouldUseFilledFeeToken =
+        typeof feeToken !== 'undefined' &&
+        feeToken !== null &&
+        (!('feeToken' in request) || hasFilledFeePayerSignature)
+      supportsFillTransaction.set(client.uid, true)
+      filledChainId = chainId
+      // The fee payer signs over the filled fee token, so a requested one must not replace or outlive it.
+      type WithFeeToken = { feeToken?: unknown }
+      const { feeToken: _feeToken, ...unsponsored } = request as WithFeeToken
+      return {
+        ...(hasFilledFeePayerSignature ? unsponsored : request),
+        ...(from ? { from } : {}),
+        ...(type && !request.type ? { type } : {}),
+        ...(typeof gas !== 'undefined' ? { gas } : {}),
+        ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
+        ...(typeof nonce !== 'undefined' ? { nonce } : {}),
+        ...(typeof maxFeePerBlobGas !== 'undefined' &&
+        request.type !== 'legacy' &&
+        request.type !== 'eip2930'
+          ? { maxFeePerBlobGas }
+          : {}),
+        ...(typeof maxFeePerGas !== 'undefined' &&
+        request.type !== 'legacy' &&
+        request.type !== 'eip2930'
+          ? { maxFeePerGas }
+          : {}),
+        ...(typeof maxPriorityFeePerGas !== 'undefined' &&
+        request.type !== 'legacy' &&
+        request.type !== 'eip2930'
+          ? { maxPriorityFeePerGas }
+          : {}),
+        ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
+          ? { nonceKey: rest.nonceKey }
+          : {}),
+        // Validity bounds are part of the fee-payer signing payload.
+        ...('validBefore' in rest &&
+        rest.validBefore !== null &&
+        typeof rest.validBefore !== 'undefined'
+          ? { validBefore: rest.validBefore }
+          : {}),
+        ...('validAfter' in rest &&
+        rest.validAfter !== null &&
+        typeof rest.validAfter !== 'undefined'
+          ? { validAfter: rest.validAfter }
+          : {}),
+        ...('keyAuthorization' in rest &&
+        typeof rest.keyAuthorization !== 'undefined' &&
+        rest.keyAuthorization !== null &&
+        !('keyAuthorization' in request)
+          ? { keyAuthorization: rest.keyAuthorization }
+          : {}),
+        ...('feePayerSignature' in rest &&
+        typeof rest.feePayerSignature !== 'undefined' &&
+        rest.feePayerSignature !== null
+          ? { feePayerSignature: rest.feePayerSignature }
+          : {}),
+        ...(shouldUseFilledFeeToken ? { feeToken } : {}),
+        ...(result.capabilities ? { _capabilities: result.capabilities } : {}),
+      }
+    })
+
+  const recover = (
+    e: unknown,
+    request: PrepareTransactionRequestParameters,
+  ) => {
+    const error = e as FillTransactionErrorType
+
+    if (error.name !== 'TransactionExecutionError') return request
+
+    const nonceMismatch = error.walk?.(
+      (error) => error instanceof FeePayerNonceMismatchError,
+    )
+    if (nonceMismatch) throw e
+
+    const executionReverted = error.walk?.((e) => {
+      const error = e as BaseError
+      return error.name === 'ExecutionRevertedError'
+    })
+    if (executionReverted) throw e
+
+    const unsupported = error.walk?.((e) => {
+      const error = e as BaseError
+      return (
+        error.name === 'MethodNotFoundRpcError' ||
+        error.name === 'MethodNotSupportedRpcError' ||
+        error.message?.includes('eth_fillTransaction is not available')
+      )
+    })
+    if (unsupported) supportsFillTransaction.set(client.uid, false)
+
+    return request
+  }
+
   const fillResult = attemptFill
-    ? await getAction(
-        client,
-        fillTransaction,
-        'fillTransaction',
-      )({ ...request, nonce } as FillTransactionParameters)
-        .then((result) => {
-          const {
-            chainId,
-            from,
-            gas,
-            gasPrice,
-            nonce,
-            maxFeePerBlobGas,
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-            type,
-            ...rest
-          } = result.transaction
-          const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
-          const hasFilledFeePayerSignature =
-            'feePayerSignature' in rest &&
-            rest.feePayerSignature !== null &&
-            typeof rest.feePayerSignature !== 'undefined'
-          const shouldUseFilledFeeToken =
-            typeof feeToken !== 'undefined' &&
-            feeToken !== null &&
-            (!('feeToken' in request) || hasFilledFeePayerSignature)
-          supportsFillTransaction.set(client.uid, true)
-          return {
-            ...request,
-            ...(from ? { from } : {}),
-            ...(type && !request.type ? { type } : {}),
-            ...(typeof chainId !== 'undefined' ? { chainId } : {}),
-            ...(typeof gas !== 'undefined' ? { gas } : {}),
-            ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
-            ...(typeof nonce !== 'undefined' ? { nonce } : {}),
-            ...(typeof maxFeePerBlobGas !== 'undefined' &&
-            request.type !== 'legacy' &&
-            request.type !== 'eip2930'
-              ? { maxFeePerBlobGas }
-              : {}),
-            ...(typeof maxFeePerGas !== 'undefined' &&
-            request.type !== 'legacy' &&
-            request.type !== 'eip2930'
-              ? { maxFeePerGas }
-              : {}),
-            ...(typeof maxPriorityFeePerGas !== 'undefined' &&
-            request.type !== 'legacy' &&
-            request.type !== 'eip2930'
-              ? { maxPriorityFeePerGas }
-              : {}),
-            ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
-              ? { nonceKey: rest.nonceKey }
-              : {}),
-            ...('keyAuthorization' in rest &&
-            typeof rest.keyAuthorization !== 'undefined' &&
-            rest.keyAuthorization !== null &&
-            !('keyAuthorization' in request)
-              ? { keyAuthorization: rest.keyAuthorization }
-              : {}),
-            ...('feePayerSignature' in rest &&
-            typeof rest.feePayerSignature !== 'undefined' &&
-            rest.feePayerSignature !== null
-              ? { feePayerSignature: rest.feePayerSignature }
-              : {}),
-            ...(shouldUseFilledFeeToken ? { feeToken } : {}),
-            ...(result.capabilities
-              ? { _capabilities: result.capabilities }
-              : {}),
-          }
-        })
-        .catch((e) => {
-          const error = e as FillTransactionErrorType
-
-          if (error.name !== 'TransactionExecutionError') return request
-
-          const nonceMismatch = error.walk?.(
-            (error) => error instanceof FeePayerNonceMismatchError,
-          )
-          if (nonceMismatch) throw e
-
-          const executionReverted = error.walk?.((e) => {
-            const error = e as BaseError
-            return error.name === 'ExecutionRevertedError'
-          })
-          if (executionReverted) throw e
-
-          const unsupported = error.walk?.((e) => {
-            const error = e as BaseError
-            return (
-              error.name === 'MethodNotFoundRpcError' ||
-              error.name === 'MethodNotSupportedRpcError' ||
-              error.message?.includes('eth_fillTransaction is not available')
-            )
-          })
-          if (unsupported) supportsFillTransaction.set(client.uid, false)
-
-          return request
-        })
+    ? await fill(request).catch(async (error) => {
+        const retry =
+          prepareTransactionRequest?.fn &&
+          prepareTransactionRequest.runAt?.includes('afterFillTransactionError')
+            ? await prepareTransactionRequest.fn(
+                { ...request, chain },
+                { client, error, phase: 'afterFillTransactionError' },
+              )
+            : undefined
+        if (!retry) return recover(error, request)
+        return fill(retry).catch((error) => recover(error, retry))
+      })
     : request
 
   nonce ??= fillResult.nonce
@@ -542,147 +593,207 @@ export async function prepareTransactionRequest<
     ...(account ? { from: account?.address } : {}),
     ...(typeof nonce !== 'undefined' ? { nonce } : {}),
   }
+
+  // The filled chain id only applies when neither the request nor the chain provides one.
+  if (typeof filledChainId !== 'undefined') {
+    request.chainId ??= chain?.id ?? filledChainId
+    if (request.chainId !== filledChainId)
+      throw new ChainMismatchError({
+        chain:
+          chain?.id === request.chainId
+            ? chain
+            : ({ id: request.chainId, name: 'Unknown' } as Chain),
+        currentChainId: filledChainId,
+      })
+  }
+
   const { blobs, gas, kzg, type } = request
 
   if (
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('beforeFillParameters')
   ) {
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        client,
-        phase: 'beforeFillParameters',
-      },
-    )
+    request =
+      (await prepareTransactionRequest.fn(
+        { ...request, chain },
+        {
+          client,
+          phase: 'beforeFillParameters',
+        },
+      )) ?? request
   }
 
-  let block: Block | undefined
-  async function getBlock(): Promise<Block> {
-    if (block) return block
-    block = await getAction(
-      client,
-      getBlock_,
-      'getBlock',
-    )({ blockTag: 'latest' })
+  let block: Promise<Block> | undefined
+  function getBlock(): Promise<Block> {
+    block ??= getAction(client, getBlock_, 'getBlock')({ blockTag: 'latest' })
     return block
   }
 
-  if (
-    parameters.includes('nonce') &&
-    typeof nonce === 'undefined' &&
-    account &&
-    !nonceManager
+  // Chain fee hooks receive the block and the request, so the requests they
+  // depend on are made in sequence.
+  const hasFeeHooks = Object.values(chain?.fees ?? {}).some(
+    (fee) => typeof fee === 'function',
   )
-    request.nonce = await getAction(
-      client,
-      getTransactionCount,
-      'getTransactionCount',
-    )({
-      address: account.address,
-      blockTag: 'pending',
-    })
 
-  if (
-    (parameters.includes('blobVersionedHashes') ||
-      parameters.includes('sidecars')) &&
-    blobs &&
-    kzg
-  ) {
-    const commitments = blobsToCommitments({ blobs, kzg })
-
-    if (parameters.includes('blobVersionedHashes')) {
-      const versionedHashes = commitmentsToVersionedHashes({
-        commitments,
-        to: 'hex',
-      })
-      request.blobVersionedHashes = versionedHashes
-    }
-    if (parameters.includes('sidecars')) {
-      const proofs = blobsToProofs({ blobs, commitments, kzg })
-      const sidecars = toBlobSidecars({
-        blobs,
-        commitments,
-        proofs,
-        to: 'hex',
-      })
-      request.sidecars = sidecars
-    }
-  }
-
-  if (parameters.includes('chainId')) request.chainId = await getChainId()
-
-  if (
-    (parameters.includes('fees') || parameters.includes('type')) &&
-    typeof type === 'undefined'
-  ) {
-    try {
-      request.type = getTransactionType(
-        request as TransactionSerializable,
-      ) as any
-    } catch {
-      let isEip1559Network = eip1559NetworkCache.get(client.uid)
-      if (typeof isEip1559Network === 'undefined') {
-        const block = await getBlock()
-        isEip1559Network = typeof block?.baseFeePerGas === 'bigint'
-        eip1559NetworkCache.set(client.uid, isEip1559Network)
-      }
-      request.type = isEip1559Network ? 'eip1559' : 'legacy'
-    }
-  }
-
-  if (parameters.includes('fees')) {
-    // TODO(4844): derive blob base fees once https://github.com/ethereum/execution-apis/pull/486 is merged.
-
-    if (request.type !== 'legacy' && request.type !== 'eip2930') {
-      // EIP-1559 fees
-      if (
-        typeof request.maxFeePerGas === 'undefined' ||
-        typeof request.maxPriorityFeePerGas === 'undefined'
-      ) {
-        const block = await getBlock()
-        const { maxFeePerGas, maxPriorityFeePerGas } =
-          await internal_estimateFeesPerGas(client, {
-            block: block as Block,
-            chain,
-            request: request as PrepareTransactionRequestParameters,
+  // The nonce does not depend on the type or the fees, so it is fetched
+  // concurrently with them.
+  const noncePromise =
+    typeof nonce === 'undefined' && consumedNonce
+      ? consumedNonce
+      : parameters.includes('nonce') &&
+          typeof nonce === 'undefined' &&
+          account &&
+          !nonceManager
+        ? getAction(
+            client,
+            getTransactionCount,
+            'getTransactionCount',
+          )({
+            address: account.address,
+            blockTag: 'pending',
           })
+        : undefined
+  // A rejection is thrown when the nonce is awaited.
+  noncePromise?.catch(() => {})
+  if (noncePromise && hasFeeHooks) request.nonce = await noncePromise
 
+  try {
+    if (
+      (parameters.includes('blobVersionedHashes') ||
+        parameters.includes('sidecars')) &&
+      blobs &&
+      kzg
+    ) {
+      const commitments = blobsToCommitments({ blobs, kzg })
+
+      if (parameters.includes('blobVersionedHashes')) {
+        const versionedHashes = commitmentsToVersionedHashes({
+          commitments,
+          to: 'hex',
+        })
+        request.blobVersionedHashes = versionedHashes
+      }
+      if (parameters.includes('sidecars')) {
+        const proofs = blobsToProofs({ blobs, commitments, kzg })
+        const sidecars = toBlobSidecars({
+          blobs,
+          commitments,
+          proofs,
+          to: 'hex',
+        })
+        request.sidecars = sidecars
+      }
+    }
+
+    if (parameters.includes('chainId')) request.chainId = await getChainId()
+
+    let priorityFeePromise: Promise<bigint> | undefined
+
+    if (
+      (parameters.includes('fees') || parameters.includes('type')) &&
+      typeof type === 'undefined'
+    ) {
+      try {
+        request.type = getTransactionType(
+          request as TransactionSerializable,
+        ) as any
+      } catch {
+        let isEip1559Network = eip1559NetworkCache.get(client.uid)
+        if (typeof isEip1559Network === 'undefined') {
+          // EIP-1559 fees will most likely be needed, so without chain fee
+          // hooks the priority fee is estimated concurrently with the block
+          // that decides the type. On legacy networks, it goes unused.
+          if (parameters.includes('fees') && !hasFeeHooks) {
+            priorityFeePromise = internal_estimateMaxPriorityFeePerGas(client, {
+              block: getBlock(),
+              chain,
+              request: request as PrepareTransactionRequestParameters,
+            })
+            // A rejection is thrown when the priority fee is awaited.
+            priorityFeePromise.catch(() => {})
+          }
+          const block = await getBlock()
+          isEip1559Network = typeof block?.baseFeePerGas === 'bigint'
+          eip1559NetworkCache.set(client.uid, isEip1559Network)
+        }
+        request.type = isEip1559Network ? 'eip1559' : 'legacy'
+      }
+    }
+
+    if (parameters.includes('fees')) {
+      // TODO(4844): derive blob base fees once https://github.com/ethereum/execution-apis/pull/486 is merged.
+
+      if (request.type !== 'legacy' && request.type !== 'eip2930') {
+        // EIP-1559 fees
         if (
-          typeof request.maxPriorityFeePerGas === 'undefined' &&
-          request.maxFeePerGas &&
-          request.maxFeePerGas < maxPriorityFeePerGas
-        )
-          throw new MaxFeePerGasTooLowError({
-            maxPriorityFeePerGas,
-          })
+          typeof request.maxFeePerGas === 'undefined' ||
+          typeof request.maxPriorityFeePerGas === 'undefined'
+        ) {
+          // Without chain fee hooks, the priority fee does not depend on the
+          // block, so it is estimated concurrently with the block request.
+          const [block, priorityFee] = await Promise.all([
+            getBlock(),
+            hasFeeHooks || typeof request.maxPriorityFeePerGas === 'bigint'
+              ? undefined
+              : (priorityFeePromise ??
+                internal_estimateMaxPriorityFeePerGas(client, {
+                  block: getBlock(),
+                  chain,
+                  request: request as PrepareTransactionRequestParameters,
+                })),
+          ])
+          const { maxFeePerGas, maxPriorityFeePerGas } =
+            await internal_estimateFeesPerGas(client, {
+              block,
+              chain,
+              request: (typeof priorityFee === 'bigint'
+                ? { ...request, maxPriorityFeePerGas: priorityFee }
+                : request) as PrepareTransactionRequestParameters,
+            })
 
-        request.maxPriorityFeePerGas = maxPriorityFeePerGas
-        request.maxFeePerGas = maxFeePerGas
-      }
-    } else {
-      // Legacy fees
-      if (
-        typeof request.maxFeePerGas !== 'undefined' ||
-        typeof request.maxPriorityFeePerGas !== 'undefined'
-      )
-        throw new Eip1559FeesNotSupportedError()
+          if (
+            typeof request.maxPriorityFeePerGas === 'undefined' &&
+            typeof request.maxFeePerGas === 'bigint' &&
+            request.maxFeePerGas < maxPriorityFeePerGas
+          )
+            throw new MaxFeePerGasTooLowError({
+              maxPriorityFeePerGas,
+            })
 
-      if (typeof request.gasPrice === 'undefined') {
-        const block = await getBlock()
-        const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
-          client,
-          {
-            block: block as Block,
-            chain,
-            request: request as PrepareTransactionRequestParameters,
-            type: 'legacy',
-          },
+          request.maxPriorityFeePerGas = maxPriorityFeePerGas
+          request.maxFeePerGas = maxFeePerGas
+        }
+      } else {
+        // Legacy fees
+        if (
+          typeof request.maxFeePerGas !== 'undefined' ||
+          typeof request.maxPriorityFeePerGas !== 'undefined'
         )
-        request.gasPrice = gasPrice_
+          throw new Eip1559FeesNotSupportedError()
+
+        if (typeof request.gasPrice === 'undefined') {
+          const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
+            client,
+            {
+              // Only chain fee hooks read the block for legacy fees.
+              block: hasFeeHooks ? await getBlock() : undefined,
+              chain,
+              request: request as PrepareTransactionRequestParameters,
+              type: 'legacy',
+            },
+          )
+          request.gasPrice = gasPrice_
+        }
       }
     }
+  } catch (error) {
+    // A failed nonce request takes precedence over errors from the other
+    // parameters.
+    await noncePromise
+    throw error
   }
+
+  if (noncePromise) request.nonce = await noncePromise
 
   if (parameters.includes('gas') && typeof gas === 'undefined')
     request.gas = await getAction(
@@ -699,13 +810,14 @@ export async function prepareTransactionRequest<
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('afterFillParameters')
   )
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        client,
-        phase: 'afterFillParameters',
-      },
-    )
+    request =
+      (await prepareTransactionRequest.fn(
+        { ...request, chain },
+        {
+          client,
+          phase: 'afterFillParameters',
+        },
+      )) ?? request
 
   assertRequest(request as AssertRequestParameters)
 

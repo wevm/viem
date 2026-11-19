@@ -247,6 +247,129 @@ describe('block', () => {
     `)
   })
 
+  test('formatter: cip64 and deposit transactions', () => {
+    const { block, transaction } = celo.formatters!
+
+    const transactions = [
+      {
+        type: '0x7e',
+        sourceHash:
+          '0xdfaaf997184dd9adae5478b83703d8e38bc1528ba5f0be929bc2c53a1b440b4c',
+        from: '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001',
+        to: '0x4200000000000000000000000000000000000015',
+        mint: '0x0',
+        value: '0x0',
+        gas: '0xf4240',
+        input: '0x3db6be2b',
+        hash: '0x5868a16a908690c6335033294fa5ac41717c78c7eca79f1fa15541861eac2c15',
+        r: '0x0',
+        s: '0x0',
+        yParity: '0x0',
+        v: '0x0',
+        blockHash:
+          '0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f',
+        blockNumber: '0x4f1e433',
+        transactionIndex: '0x0',
+        gasPrice: '0x0',
+        nonce: '0x31801c0',
+      },
+      {
+        type: '0x7b',
+        chainId: '0xa4ec',
+        nonce: '0x2dc',
+        gas: '0x3ed5d',
+        maxFeePerGas: '0x2dc3ed3dd',
+        maxPriorityFeePerGas: '0x105f6',
+        to: '0xbedaccbd65230ea441e7955c0f5344acfc2a45e5',
+        value: '0x0',
+        accessList: [],
+        feeCurrency: '0x0e2a3e05bc9a16f5292a6170456a710cb89c6f72',
+        input: '0xb5b27b7e',
+        r: '0xed141b3bbfc9f7e9fa58c6f185e9436f95e0278010e4253a8d23b84fbf6063b6',
+        s: '0x22f2dfd8612f76dbe24769f17133cb9a0a226f36242fe3fe93aa046d9cf10ed3',
+        yParity: '0x0',
+        v: '0x0',
+        hash: '0xa0d6cc6dfda680bf5354d5b3bdf3d579b0e28db9c3bf83d712e0803d568b36ed',
+        blockHash:
+          '0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f',
+        blockNumber: '0x4f1e433',
+        transactionIndex: '0x1',
+        from: '0x0756abb4662a05140afa075d3cc3a2cbed763ff0',
+        gasPrice: '0x2d6c7eca6',
+      },
+    ] as const
+
+    const formatted = block.format({
+      hash: '0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f',
+      number: '0x4f1e433',
+      transactions,
+    } as any)
+
+    expect(formatted.transactions).toMatchInlineSnapshot(`
+      [
+        {
+          "blockHash": "0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f",
+          "blockNumber": 82961459n,
+          "chainId": undefined,
+          "from": "0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001",
+          "gas": 1000000n,
+          "gasPrice": 0n,
+          "hash": "0x5868a16a908690c6335033294fa5ac41717c78c7eca79f1fa15541861eac2c15",
+          "input": "0x3db6be2b",
+          "isSystemTx": undefined,
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+          "mint": 0n,
+          "nonce": 51904960,
+          "r": "0x0",
+          "s": "0x0",
+          "sourceHash": "0xdfaaf997184dd9adae5478b83703d8e38bc1528ba5f0be929bc2c53a1b440b4c",
+          "to": "0x4200000000000000000000000000000000000015",
+          "transactionIndex": 0,
+          "type": "deposit",
+          "typeHex": "0x7e",
+          "v": 0n,
+          "value": 0n,
+          "yParity": 0,
+        },
+        {
+          "accessList": [],
+          "blockHash": "0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f",
+          "blockNumber": 82961459n,
+          "chainId": 42220,
+          "feeCurrency": "0x0e2a3e05bc9a16f5292a6170456a710cb89c6f72",
+          "from": "0x0756abb4662a05140afa075d3cc3a2cbed763ff0",
+          "gas": 257373n,
+          "gasPrice": 12193361062n,
+          "hash": "0xa0d6cc6dfda680bf5354d5b3bdf3d579b0e28db9c3bf83d712e0803d568b36ed",
+          "input": "0xb5b27b7e",
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": 12285039581n,
+          "maxPriorityFeePerGas": 67062n,
+          "nonce": 732,
+          "r": "0xed141b3bbfc9f7e9fa58c6f185e9436f95e0278010e4253a8d23b84fbf6063b6",
+          "s": "0x22f2dfd8612f76dbe24769f17133cb9a0a226f36242fe3fe93aa046d9cf10ed3",
+          "to": "0xbedaccbd65230ea441e7955c0f5344acfc2a45e5",
+          "transactionIndex": 1,
+          "type": "cip64",
+          "typeHex": "0x7b",
+          "v": 0n,
+          "value": 0n,
+          "yParity": 0,
+        },
+      ]
+    `)
+    expect(
+      formatted.transactions.map((x: any) => [x.type, x.mint]),
+    ).toStrictEqual(
+      transactions.map((x) => {
+        const { type, mint } = transaction.format(x as any) as any
+        return [type, mint]
+      }),
+    )
+  })
+
   test('action', async () => {
     const client = createPublicClient({
       chain: celo,

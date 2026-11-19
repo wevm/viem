@@ -106,7 +106,8 @@ export type CreateClientErrorType = ErrorType
  * Defaults to the `tempo` mainnet chain and `http` transport, so a minimal
  * client can be created with `createClient()`. Pass `testnet` to use the
  * Tempo testnet, or `chain` to override the chain entirely. Pass `feeToken`
- * to set a default fee token for every transaction.
+ * to set a default fee token for every transaction. Use `withRelay` with a
+ * `Relay.accounts` plugin to coordinate owner approvals.
  *
  * @example
  * ```ts
@@ -135,6 +136,18 @@ export type CreateClientErrorType = ErrorType
  * // Client with a default fee token.
  * const client = createClient({
  *   feeToken: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * import { createClient, http, Relay, Store, withRelay } from 'viem/tempo'
+ *
+ * // Account coordination with a client-local in-memory store.
+ * const client = createClient({
+ *   transport: withRelay(http(), {
+ *     plugins: [Relay.accounts({ store: Store.memory() })],
+ *   }),
  * })
  * ```
  *

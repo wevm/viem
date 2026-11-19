@@ -21,7 +21,11 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
-import { type ToBytesErrorType, toBytes } from '../encoding/toBytes.js'
+import {
+  stringToBytes,
+  type ToBytesErrorType,
+  toBytes,
+} from '../encoding/toBytes.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
 import {
   type ToEventSelectorErrorType,
@@ -157,8 +161,8 @@ function encodeArg({
   param: AbiParameter
   value: AbiParameterToPrimitiveType<AbiParameter>
 }) {
-  if (param.type === 'string' || param.type === 'bytes')
-    return keccak256(toBytes(value as string))
+  if (param.type === 'string') return keccak256(stringToBytes(value as string))
+  if (param.type === 'bytes') return keccak256(toBytes(value as string))
   if (param.type === 'tuple' || param.type.match(/^(.*)\[(\d+)?\]$/))
     throw new FilterTypeNotSupportedError(param.type)
   return encodeAbiParameters([param], [value])

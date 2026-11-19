@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { pad, toHex } from './index.js'
 import {
   domainSeparator,
+  getTypesForEIP712Domain,
   serializeTypedData,
   validateTypedData,
 } from './typedData.js'
@@ -188,6 +189,150 @@ describe('validateTypedData', () => {
     ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
   })
 
+  test.each([
+    'bytes0',
+    'bytes33',
+    'int0',
+    'int7',
+    'uint08',
+    'uint7',
+    'uint7[]',
+    'uint264',
+    'uint264[2]',
+  ])('invalid type: %s', (type) => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Message: [{ name: 'amount', type }],
+        },
+        primaryType: 'Message',
+        message: {
+          amount: type.includes('[')
+            ? [1n, 2n]
+            : type.startsWith('bytes')
+              ? '0x'
+              : 1n,
+        },
+      } as any),
+    ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+  })
+
+  test('invalid type: undefined struct', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Mail: [{ name: 'from', type: 'Person' }],
+        },
+        primaryType: 'Mail',
+        message: { from: { name: 'Cow' } },
+      } as any),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidTypedDataTypeError: Type "Person" is not a valid EIP-712 type.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test.each(['bytes0', 'Foo', 'uint', 'uint7', 'uint7[]'])(
+    'invalid type in array element struct: %s',
+    (type) => {
+      for (const to of ['Person[]', 'Person[][]', 'Person[2]'])
+        expect(() =>
+          validateTypedData({
+            types: {
+              Mail: [{ name: 'to', type: to }],
+              Person: [{ name: 'x', type }],
+            },
+            primaryType: 'Mail',
+            message: { to: [] },
+          } as any),
+        ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+    },
+  )
+
+  test.each(['__proto__', 'constructor', 'hasOwnProperty', 'toString'])(
+    'invalid type: %s',
+    (type) => {
+      expect(() =>
+        validateTypedData({
+          types: {
+            Message: [{ name: 'value', type }],
+          },
+          primaryType: 'Message',
+          message: { value: {} },
+        } as any),
+      ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+    },
+  )
+
+  test.each([
+    '1Order',
+    '_Order',
+    'bytesInfo',
+    'Foo$Bar',
+    'intent',
+    'interval',
+    'uintPair',
+  ])('struct type: %s', (type) => {
+    validateTypedData({
+      types: {
+        Order: [{ name: 'inner', type }],
+        [type]: [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Order',
+      message: { inner: { amount: 1n } },
+    } as any)
+  })
+
+  test.each([
+    'address',
+    'bool',
+    'bytes',
+    'bytes32',
+    'bytes32[]',
+    'bytes33',
+    'Foo.Bar',
+    'int',
+    'int8',
+    'int8[2]',
+    'string',
+    'uint',
+    'uint256',
+    'uint256 ',
+    'uint256[]',
+    'uint7',
+  ])('invalid struct type: %s', (type) => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Order: [{ name: 'inner', type }],
+          [type]: [{ name: 'amount', type: 'uint256' }],
+        },
+        primaryType: 'Order',
+        message: { inner: { amount: 1n } },
+      } as any),
+    ).toThrowError(`Struct type "${type}" is invalid.`)
+  })
+
+  test('invalid struct type: array element', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Message: [{ name: 'contents', type: 'bytes32[]' }],
+          bytes32: [],
+        },
+        primaryType: 'Message',
+        message: { contents: [pad('0x11', { size: 32 })] },
+      } as any),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidStructTypeError: Struct type "bytes32" is invalid.
+
+      Struct type must contain only letters, digits, "_", "$" and ":", and must not be a Solidity type.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('negative uint', () => {
     expect(() =>
       validateTypedData({
@@ -356,6 +501,27 @@ describe('validateTypedData', () => {
     `)
   })
 
+  test('bytes size: odd length', () => {
+    const validate = (hash: `0x${string}`) =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Mail: [{ name: 'hash', type: 'bytes32' }],
+        },
+        primaryType: 'Mail',
+        message: { hash },
+      })
+
+    expect(validate(`0x1${'f'.repeat(62)}`)).toBeUndefined()
+    expect(() =>
+      validate(`0x1${'f'.repeat(64)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [BytesSizeMismatchError: Expected bytes32, got bytes33.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('domain: invalid chainId', () => {
     expect(() =>
       validateTypedData({
@@ -486,13 +652,50 @@ describe('validateTypedData', () => {
         },
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [BaseError: Invalid primary type \`Cheese\` must be one of \`["EIP712Domain","Mail","Person"]\`.
+      [InvalidPrimaryTypeError: Invalid primary type \`Cheese\` must be one of \`["EIP712Domain","Mail","Person"]\`.
 
       Check that the primary type is a key in \`types\`.
 
       Docs: https://viem.sh/api/glossary/Errors#typeddatainvalidprimarytypeerror
       Version: viem@x.y.z]
     `)
+  })
+
+  test('fixed-length array in a struct array: wrong number of elements', () => {
+    expect(() =>
+      validateTypedData({
+        primaryType: 'Mail',
+        types: {
+          Mail: [{ name: 'to', type: 'Person[]' }],
+          Person: [{ name: 'ids', type: 'uint256[2]' }],
+        },
+        // @ts-expect-error
+        message: { to: [{ ids: [1n, 2n] }, { ids: [1n, 2n, 3n] }] },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+      Expected length: 2
+      Given length: 3
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('missing array and null struct array element: left to the encoder', () => {
+    expect(
+      validateTypedData({
+        primaryType: 'Mail',
+        types: {
+          Mail: [
+            { name: 'ids', type: 'uint256[2]' },
+            { name: 'to', type: 'Person[]' },
+          ],
+          Person: [{ name: 'ids', type: 'uint256[2]' }],
+        },
+        // @ts-expect-error
+        message: { to: [null] },
+      }),
+    ).toMatchInlineSnapshot('undefined')
   })
 
   test('EIP712Domain as primaryType', () => {
@@ -554,5 +757,76 @@ describe('domainSeparator', () => {
     expect(domainSeparator({ domain: {} })).toMatchInlineSnapshot(
       '"0x6192106f129ce05c9075d319c1fa6ea9b3ae37cbd0c1ef92e2be7137bb07baa1"',
     )
+  })
+
+  test('string chainId', () => {
+    const domain = {
+      name: 'Ether Mail',
+      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    } as const
+    expect(
+      domainSeparator({ domain: { ...domain, chainId: 1 } }),
+    ).toMatchInlineSnapshot(
+      `"0xcbea6135f3930521627c49608c80b1e98ac5e9966ebf71d0d52f39fa5acc7a58"`,
+    )
+    expect(
+      domainSeparator({ domain: { ...domain, chainId: '1' } as never }),
+    ).toMatchInlineSnapshot(
+      `"0xcbea6135f3930521627c49608c80b1e98ac5e9966ebf71d0d52f39fa5acc7a58"`,
+    )
+  })
+})
+
+describe('getTypesForEIP712Domain', () => {
+  test('string chainId', () => {
+    expect(
+      getTypesForEIP712Domain({
+        domain: { name: 'Ether Mail', chainId: '1' } as never,
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "name": "name",
+          "type": "string",
+        },
+        {
+          "name": "chainId",
+          "type": "uint256",
+        },
+      ]
+    `)
+  })
+
+  test('empty verifyingContract and salt', () => {
+    expect(
+      getTypesForEIP712Domain({
+        domain: { salt: '', verifyingContract: '' } as never,
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "name": "verifyingContract",
+          "type": "address",
+        },
+        {
+          "name": "salt",
+          "type": "bytes32",
+        },
+      ]
+    `)
+  })
+
+  test('null and undefined fields are omitted', () => {
+    expect(
+      getTypesForEIP712Domain({
+        domain: {
+          chainId: undefined,
+          name: null,
+          salt: undefined,
+          verifyingContract: null,
+          version: undefined,
+        } as never,
+      }),
+    ).toMatchInlineSnapshot(`[]`)
   })
 })

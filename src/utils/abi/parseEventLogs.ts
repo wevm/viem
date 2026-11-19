@@ -4,15 +4,19 @@ import type { Abi, AbiEvent, AbiEventParameter, Address } from 'abitype'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ContractEventName, GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
+import type { Hex } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'
-import { toBytes } from '../encoding/toBytes.js'
+import { stringToBytes, toBytes } from '../encoding/toBytes.js'
 import { formatLog } from '../formatters/log.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
+import { bytesRegex, integerRegex } from '../regex.js'
 import {
   type DecodeEventLogErrorType,
-  decodeEventLog,
+  decodeEventLogWithPlan,
+  type EventPlan,
+  toEventPlan,
 } from './decodeEventLog.js'
 
 export type ParseEventLogsParameters<
@@ -109,112 +113,191 @@ export function parseEventLogs<
     return [parameters.eventName as string]
   })()
 
-  const abiTopics = (abi as Abi)
-    .filter((abiItem) => abiItem.type === 'event')
-    .map((abiItem) => ({
-      abi: abiItem,
-      selector: toEventSelector(abiItem),
-    }))
+  // Selectors map to events in ABI order, so overloads keep their precedence.
+  const plans: Plan[] = []
+  const bySelector = new Map<Hex, Plan[]>()
+  for (const abiItem of abi as Abi) {
+    if (abiItem.type !== 'event') continue
+    const topic = toEventSelector(abiItem)
+    const plan: Plan = { ...toEventPlan(abiItem), topic }
+    plans.push(plan)
+    if (abiItem.anonymous) continue
+    const list = bySelector.get(plan.topic)
+    if (list) list.push(plan)
+    else bySelector.set(plan.topic, [plan])
+  }
 
-  return logs
-    .map((log) => {
-      // Normalize RpcLog (hex-encoded quantities) to Log (bigint/number).
-      // When logs come directly from an RPC response (e.g. eth_getLogs),
-      // fields like blockNumber are hex strings instead of bigints.
-      const formattedLog =
-        typeof log.blockNumber === 'string' ? formatLog(log as RpcLog) : log
-
-      // Find all matching ABI items with the same selector.
-      // Multiple events can share the same selector but differ in indexed parameters
-      // (e.g., ERC20 vs ERC721 Transfer events).
-      const abiItems = abiTopics.filter(
-        (abiTopic) => formattedLog.topics[0] === abiTopic.selector,
+  // Nothing in a log identifies an anonymous event, so any log with the same
+  // topic count fits it. Anonymous events are only considered when requested:
+  // `eventName` names one, or every event in the ABI is anonymous. Otherwise a
+  // log from another contract in the same receipt is decoded as the anonymous
+  // event.
+  const anonymousPlans = (() => {
+    if (eventName)
+      return plans.filter(
+        (item) =>
+          item.abiItem.anonymous && eventName.includes(item.abiItem.name),
       )
-      if (abiItems.length === 0) return null
+    if (plans.every((item) => item.abiItem.anonymous)) return plans
+    return []
+  })()
 
-      // Try each matching ABI item until one successfully decodes.
-      let event: { eventName: string; args: unknown } | undefined
-      let abiItem: { abi: AbiEvent; selector: Address } | undefined
+  const result: unknown[] = []
+  for (const log of logs) {
+    // Normalize RpcLog (hex-encoded quantities) to Log (bigint/number).
+    // When logs come directly from an RPC response (e.g. eth_getLogs),
+    // fields like blockNumber are hex strings instead of bigints.
+    const formattedLog =
+      typeof log.blockNumber === 'string' ? formatLog(log as RpcLog) : log
+    const { topics } = formattedLog
 
-      for (const item of abiItems) {
-        try {
-          event = decodeEventLog({
-            ...formattedLog,
-            abi: [item.abi],
-            strict: true,
-          })
-          abiItem = item
-          break
-        } catch {
-          // Try next ABI item
-        }
+    // Non-anonymous events share a signature topic. Several events can share
+    // that selector and differ in indexed parameters (ERC-20 vs ERC-721
+    // `Transfer`). Check that against the whole ABI before `eventName`, so
+    // an anonymous event never claims a log whose signature is known.
+    const plansBySelector = bySelector.get(topics[0]!)
+    const candidates = (() => {
+      if (plansBySelector) {
+        if (!eventName) return plansBySelector
+        return plansBySelector.filter((item) =>
+          eventName.includes(item.abiItem.name),
+        )
       }
+      // A dynamic ABI value can decode as a static type without throwing, so
+      // several anonymous events of the same arity are not guessed.
+      const anonymous = anonymousPlans.filter(
+        (item) => item.indexedInputs.length === topics.length,
+      )
+      if (anonymous.length === 1) return anonymous
+      return []
+    })()
+    if (candidates.length === 0) continue
 
-      // If strict decoding failed for all, and we're in non-strict mode,
-      // fall back to the first matching ABI item.
-      if (!event && !strict) {
-        abiItem = abiItems[0]
-        try {
-          event = decodeEventLog({
-            data: formattedLog.data,
-            topics: formattedLog.topics,
-            abi: [abiItem.abi],
-            strict: false,
-          })
-        } catch {
-          // If decoding still fails, return partial log in non-strict mode.
-          const isUnnamed = abiItem.abi.inputs?.some(
-            (x) => !('name' in x && x.name),
-          )
-          return {
-            ...formattedLog,
-            args: isUnnamed ? [] : {},
-            eventName: abiItem.abi.name,
-          }
-        }
-      }
+    let event: { eventName: string; args: unknown } | undefined
+    let plan: Plan | undefined
 
-      // If no event was found, return null.
-      if (!event || !abiItem) return null
-
-      // Check that the decoded event name matches the provided event name.
-      if (eventName && !eventName.includes(event.eventName)) return null
-
-      // Check that the decoded event args match the provided args.
+    // Try each matching event until one decodes successfully.
+    for (const item of candidates) {
+      // Strict decoding throws without enough topics, or without data for
+      // non-indexed inputs (an ERC-721 `Transfer` against ERC-20's), so skip
+      // building that error.
       if (
-        !includesArgs({
-          args: event.args,
-          inputs: abiItem.abi.inputs,
-          matchArgs: args,
-        })
+        topics.length - (item.abiItem.anonymous ? 0 : 1) <
+          item.indexedInputs.length ||
+        (item.nonIndexedInputs.length > 0 &&
+          (!formattedLog.data || formattedLog.data === '0x'))
       )
-        return null
+        continue
+      try {
+        event = decodeEventLogWithPlan(item, {
+          data: formattedLog.data,
+          // A log's own `eventName` narrows anonymous events, as before.
+          eventName: (formattedLog as { eventName?: string | undefined })
+            .eventName,
+          strict: true,
+          topics,
+        })
+        plan = item
+        break
+      } catch {
+        // Try the next matching event.
+      }
+    }
 
-      return { ...event, ...formattedLog }
-    })
-    .filter(Boolean) as unknown as ParseEventLogsReturnType<
-    abi,
-    eventName,
-    strict
-  >
+    // In non-strict mode, fall back to the first selector match. Anonymous
+    // events have no selector to prove the log came from them.
+    if (!event && !strict) {
+      const fallback = candidates[0]
+      if (!fallback || fallback.abiItem.anonymous) continue
+      plan = fallback
+      try {
+        event = decodeEventLogWithPlan(plan, {
+          data: formattedLog.data,
+          eventName: undefined,
+          strict: false,
+          topics,
+        })
+      } catch {
+        // If the log cannot be decoded at all, keep its event name with empty args.
+        event = { eventName: plan.abiItem.name, args: plan.isUnnamed ? [] : {} }
+      }
+    }
+
+    if (!event || !plan) continue
+
+    // Check that the decoded event name matches the provided event name.
+    if (eventName && !eventName.includes(event.eventName)) continue
+
+    // Check that the decoded event args match the provided args.
+    if (
+      !includesArgs({
+        anonymous: plan.abiItem.anonymous,
+        args: event.args,
+        inputs: plan.abiItem.inputs,
+        matchArgs: args,
+        topics,
+      })
+    )
+      continue
+
+    result.push({ ...event, ...formattedLog })
+  }
+  return result as unknown as ParseEventLogsReturnType<abi, eventName, strict>
 }
 
+/** An event plan plus its selector as `parseEventLogs` matches it. */
+type Plan = EventPlan & { topic: Hex }
+
 function includesArgs(parameters: {
+  anonymous?: boolean | undefined
   args: unknown
   inputs: AbiEvent['inputs']
   matchArgs: unknown
+  topics: Log['topics']
 }) {
-  const { args, inputs, matchArgs } = parameters
+  const { anonymous, args, inputs, matchArgs, topics } = parameters
 
   if (!matchArgs) return true
   if (!args) return false
+
+  // Topics hold the signature, then indexed inputs in order. Anonymous events
+  // have no signature topic. Non-strict decoding reads indexed inputs without
+  // a topic from data.
+  const topicInputs = inputs
+    .filter((input) => input.indexed)
+    .slice(0, anonymous ? topics.length : topics.length - 1)
 
   function isEqual(input: AbiEventParameter, value: unknown, arg: unknown) {
     try {
       if (input.type === 'address')
         return isAddressEqual(value as Address, arg as Address)
-      if (input.type === 'string' || input.type === 'bytes')
-        return keccak256(toBytes(value as string)) === arg
+      // `string` and `bytes` topics hold the keccak256 of their contents.
+      // Other values are ABI-decoded.
+      if (
+        topicInputs.includes(input) &&
+        (input.type === 'string' || input.type === 'bytes')
+      ) {
+        const bytes =
+          input.type === 'string'
+            ? stringToBytes(value as string)
+            : toBytes(value as string)
+        return keccak256(bytes) === arg
+      }
+      // Decoded `bytes` and `bytesN` are lowercase hex. Match either case,
+      // same as the indexed `bytes` hash path.
+      if (
+        typeof value === 'string' &&
+        typeof arg === 'string' &&
+        bytesRegex.test(input.type)
+      )
+        return value.toLowerCase() === arg.toLowerCase()
+      // Normalize number and bigint filters for ABI integer comparison.
+      if (
+        integerRegex.test(input.type) &&
+        (typeof value === 'number' || typeof value === 'bigint') &&
+        (typeof arg === 'number' || typeof arg === 'bigint')
+      )
+        return BigInt(value) === BigInt(arg)
       return value === arg
     } catch {
       return false

@@ -12,6 +12,12 @@ export const tempoDevnet = /*#__PURE__*/ defineChain({
       url: 'https://explore.devnet.tempo.xyz',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 0,
+    },
+  },
   nativeCurrency: {
     name: 'USD',
     symbol: 'USD',

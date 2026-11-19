@@ -94,6 +94,12 @@ export const socketClientCache = /*#__PURE__*/ new Map<
   SocketRpcClient<Socket<{}>>
 >()
 
+/**
+ * Rejection of a request that timed out. Replaced by a `TimeoutError`, which
+ * serializes the request body, only once a request actually times out.
+ */
+const timedOut = /*#__PURE__*/ new Error('timed out')
+
 export async function getSocketRpcClient<socket extends {}>(
   parameters: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
@@ -152,15 +158,33 @@ export async function getSocketRpcClient<socket extends {}>(
               reconnectInProgress = false
               return
             }
-            // biome-ignore lint/suspicious/noConsole: _
-            await setup().catch(console.error)
-            reconnectInProgress = false
+            try {
+              await setup()
+              reconnectInProgress = false
+            } catch (error) {
+              // biome-ignore lint/suspicious/noConsole: _
+              console.error(error)
+              // The failed socket's error and close events arrived while this
+              // attempt was in progress, so schedule the next attempt here.
+              reconnectInProgress = false
+              attemptReconnect()
+            }
           }, delay)
         }
-        // Otherwise, clear all requests and subscriptions.
+        // The last attempt is still running. If it fails, it calls this again.
+        else if (reconnectInProgress && !intentionallyClosed) return
+        // Otherwise, clear all requests and subscriptions, and drop the client
+        // and close its socket so the next request for this url opens a new one.
         else {
           requests.clear()
           subscriptions.clear()
+          keepAliveTimer && clearInterval(keepAliveTimer)
+          if (socketClientCache.get(id) === socketClient)
+            socketClientCache.delete(id)
+          // Closing calls this again, so mark the client closed first.
+          if (intentionallyClosed) return
+          intentionallyClosed = true
+          socket?.close()
         }
       }
 
@@ -171,6 +195,7 @@ export async function getSocketRpcClient<socket extends {}>(
             // Notify all requests and subscriptions of the closure error.
             for (const request of requests.values())
               request.onError?.(new SocketClosedError({ url }))
+            requests.clear()
             for (const subscription of subscriptions.values())
               subscription.onError?.(new SocketClosedError({ url }))
 
@@ -181,6 +206,7 @@ export async function getSocketRpcClient<socket extends {}>(
 
             // Notify all requests and subscriptions of the error.
             for (const request of requests.values()) request.onError?.(error)
+            requests.clear()
             for (const subscription of subscriptions.values())
               subscription.onError?.(error)
 
@@ -227,7 +253,15 @@ export async function getSocketRpcClient<socket extends {}>(
 
         return result
       }
-      await setup()
+      try {
+        await setup()
+      } catch (error) {
+        // The caller receives this error and no client is cached, so stop the
+        // reconnects that the failed socket's error and close events schedule.
+        intentionallyClosed = true
+        clearTimeout(reconnectTimer)
+        throw error
+      }
       error = undefined
 
       // Create a new socket instance.
@@ -241,7 +275,9 @@ export async function getSocketRpcClient<socket extends {}>(
             reconnectInProgress = false
           }
           socket.close()
-          socketClientCache.delete(id)
+          // An evicted client must not evict the client that replaced it.
+          if (socketClientCache.get(id) === socketClient)
+            socketClientCache.delete(id)
         },
         get socket() {
           return socket
@@ -260,8 +296,10 @@ export async function getSocketRpcClient<socket extends {}>(
               body.method === 'eth_subscribe' &&
               typeof response.result === 'string'
             )
+              // Store `onResponse` rather than `callback` (which filters by this request's
+              // id) so the re-subscribe on reconnect delivers the new id to the subscriber.
               subscriptions.set(response.result, {
-                onResponse: callback,
+                onResponse,
                 onError,
                 body,
               })
@@ -287,21 +325,29 @@ export async function getSocketRpcClient<socket extends {}>(
             onError?.(error as Error)
           }
         },
-        requestAsync({ body, timeout = 10_000 }) {
-          return withTimeout(
-            () =>
-              new Promise<RpcResponse>((onResponse, onError) =>
-                this.request({
-                  body,
-                  onError,
-                  onResponse,
-                }),
-              ),
-            {
-              errorInstance: new TimeoutError({ body, url }),
-              timeout,
-            },
-          )
+        async requestAsync({ body, timeout = 10_000 }) {
+          const id = body.id ?? idCache.take()
+          try {
+            return await withTimeout(
+              () =>
+                new Promise<RpcResponse>((onResponse, onError) =>
+                  this.request({
+                    body: { ...body, id },
+                    onError,
+                    onResponse,
+                  }),
+                ),
+              {
+                errorInstance: timedOut,
+                timeout,
+              },
+            )
+          } catch (error) {
+            if (error === timedOut) throw new TimeoutError({ body, url })
+            throw error
+          } finally {
+            requests.delete(id)
+          }
         },
         requests,
         subscriptions,

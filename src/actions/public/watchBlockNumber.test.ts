@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { localhost } from '../../chains/index.js'
@@ -27,22 +27,30 @@ const webSocketClient = createClient({
 
 describe('poll', () => {
   test('watches for new block numbers', async () => {
+    const blockNumber = await getBlockNumber.getBlockNumber(client, {
+      cacheTime: 0,
+    })
     const blockNumbers: OnBlockNumberParameter[] = []
     const unwatch = watchBlockNumber(client, {
       onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
       poll: true,
       pollingInterval: 100,
     })
-    await mine(client, { blocks: 1 })
-    await wait(200)
-    await mine(client, { blocks: 1 })
-    await wait(200)
-    await mine(client, { blocks: 1 })
-    await wait(200)
-    await mine(client, { blocks: 1 })
-    await wait(200)
+    onTestFinished(unwatch)
+
+    await expect.poll(() => blockNumbers).toEqual([blockNumber])
+    for (let i = 1; i <= 4; i++) {
+      await mine(client, { blocks: 1 })
+      await expect.poll(() => blockNumbers.length).toBe(i + 1)
+    }
     unwatch()
-    expect(blockNumbers.length).toBe(4)
+    expect(blockNumbers).toEqual([
+      blockNumber,
+      blockNumber + 1n,
+      blockNumber + 2n,
+      blockNumber + 3n,
+      blockNumber + 4n,
+    ])
   })
 
   describe('emitMissed', () => {
@@ -54,12 +62,61 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(1)
       await mine(client, { blocks: 5 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(6)
       unwatch()
       expect(blockNumbers.length).toBe(6)
+    })
+
+    test('defaults to true when polling less than twice per block', async () => {
+      const fastClient = createClient({
+        ...anvilMainnet.clientConfig,
+        chain: { ...anvilMainnet.chain, blockTime: 4_000 },
+      })
+      const blockNumbers: OnBlockNumberParameter[] = []
+      const unwatch = watchBlockNumber(fastClient, {
+        emitOnBegin: true,
+        onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      const start = blockNumbers[0]!
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 5 })
+      await expect.poll(() => blockNumbers.length, { timeout: 10_000 }).toBe(6)
+
+      expect(
+        blockNumbers.map((blockNumber) => Number(blockNumber - start)),
+      ).toEqual([0, 1, 2, 3, 4, 5])
+    })
+
+    test('defaults to false when polling at least twice per block', async () => {
+      const blockNumbers: OnBlockNumberParameter[] = []
+      const unwatch = watchBlockNumber(client, {
+        emitOnBegin: true,
+        onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      const start = blockNumbers[0]!
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 5 })
+      await expect
+        .poll(() => blockNumbers.at(-1), { timeout: 10_000 })
+        .toBe(start + 5n)
+
+      expect(blockNumbers.length).toBeLessThan(6)
     })
   })
 
@@ -72,15 +129,16 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
-      await wait(200)
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(2)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(3)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(4)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(5)
       unwatch()
       expect(blockNumbers.length).toBe(5)
     })
@@ -99,10 +157,13 @@ describe('poll', () => {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(2)
       unwatch()
       expect(blockNumbers.length).toBe(2)
     })
@@ -115,14 +176,17 @@ describe('poll', () => {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(2)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(3)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(4)
       unwatch()
       expect(blockNumbers.length).toBe(4)
     })
@@ -140,14 +204,17 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(2)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(3)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(4)
       unwatch()
       expect(blockNumbers.length).toBe(4)
     })
@@ -161,10 +228,14 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(2)
+      await wait(300)
       unwatch()
       expect(blockNumbers.length).toBe(2)
     })
@@ -176,10 +247,13 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(2)
       unwatch()
       expect(blockNumbers.length).toBe(2)
 
@@ -189,8 +263,11 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blockNumbers.length).toBe(1)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(1)
       unwatch()
       expect(blockNumbers.length).toBe(1)
     })
@@ -203,20 +280,25 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch1)
       let unwatch2 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch2)
       let unwatch3 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch3)
+      await expect.poll(() => blockNumbers.length).toBe(3)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(3)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(6)
       unwatch1()
       unwatch2()
       unwatch3()
@@ -229,20 +311,25 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch1)
       unwatch2 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch2)
       unwatch3 = watchBlockNumber(client, {
         onBlockNumber: (blockNumber) => blockNumbers.push(blockNumber),
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch3)
+      await expect.poll(() => blockNumbers.length).toBe(3)
+      blockNumbers.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(3)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blockNumbers.length).toBe(6)
       unwatch1()
       unwatch2()
       unwatch3()

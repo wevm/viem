@@ -402,6 +402,27 @@ describe('static', () => {
     })
   })
 
+  test('bytesN: odd length', () => {
+    expect([
+      encodeAbiParameters([{ type: 'bytes2' }], ['0xabc']),
+      encodeAbiParameters([{ type: 'bytes32' }], [`0x1${'f'.repeat(61)}2`]),
+      encodeAbiParameters([{ type: 'bytes32' }], [`0x12${'f'.repeat(60)}34`]),
+    ]).toMatchInlineSnapshot(`
+      [
+        "0x0abc000000000000000000000000000000000000000000000000000000000000",
+        "0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff2",
+        "0x12ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff34",
+      ]
+    `)
+    expect(() =>
+      encodeAbiParameters([{ type: 'bytes32' }], [`0x1${'f'.repeat(63)}2`]),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiEncodingBytesSizeMismatchError: Size of bytes "0x1fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff2" (bytes33) does not match expected size (bytes32).
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   describe('uint[3]', () => {
     test('default', () => {
       expect(
@@ -721,7 +742,7 @@ describe('static', () => {
           [[69, ['0x123', '0x456']]],
         ),
       ).toMatchInlineSnapshot(
-        '"0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000002123000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000024560000000000000000000000000000000000000000000000000000000000000"',
+        '"0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000002012300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020456000000000000000000000000000000000000000000000000000000000000"',
       )
     })
 
@@ -999,6 +1020,22 @@ describe('dynamic', () => {
       ).toMatchInlineSnapshot(
         '"0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"',
       )
+    })
+
+    test('odd length', () => {
+      expect([
+        encodeAbiParameters([{ type: 'bytes' }], ['0xabc']),
+        encodeAbiParameters([{ type: 'bytes' }], [`0x1${'f'.repeat(61)}2`]),
+        encodeAbiParameters([{ type: 'bytes' }], [`0x12${'f'.repeat(60)}34`]),
+        encodeAbiParameters([{ type: 'bytes' }], [`0x1${'f'.repeat(63)}2`]),
+      ]).toMatchInlineSnapshot(`
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000020abc000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff2",
+          "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002012ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff34",
+          "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002101fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff200000000000000000000000000000000000000000000000000000000000000",
+        ]
+      `)
     })
   })
 
@@ -1699,7 +1736,7 @@ test('invalid type', () => {
   expect(() =>
     encodeAbiParameters([{ name: 'x', type: 'lol' }], [69]),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
+    [InvalidAbiEncodingTypeError: Type "lol" is not a valid encoding type.
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/encodeAbiParameters
@@ -2021,5 +2058,43 @@ describe('zero-width types', () => {
     ).toBe(
       '0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000003',
     )
+  })
+})
+
+describe('values outside the fast path', () => {
+  test('numbers encode like bigints', () => {
+    const params = [
+      { type: 'uint256' },
+      { type: 'int24' },
+      { type: 'uint256' },
+    ] as const
+
+    const encoded = encodeAbiParameters(params, [420, -1, 2 ** 53 + 2] as never)
+
+    expect(encoded).toBe(
+      encodeAbiParameters(params, [420n, -1n, 2n ** 53n + 2n] as never),
+    )
+    expect(encoded).toMatchInlineSnapshot(
+      `"0x00000000000000000000000000000000000000000000000000000000000001a4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000020000000000002"`,
+    )
+  })
+
+  test('odd-length bytes are left-padded', () => {
+    expect(encodeAbiParameters([{ type: 'bytes' }], ['0xabc'])).toBe(
+      encodeAbiParameters([{ type: 'bytes' }], ['0x0abc']),
+    )
+  })
+
+  test('first invalid value throws', () => {
+    expect(() =>
+      encodeAbiParameters(
+        [{ type: 'uint8' }, { type: 'address' }, { type: 'foo' }],
+        [256, '0xinvalid', 1] as never,
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+
+      Version: viem@x.y.z]
+    `)
   })
 })

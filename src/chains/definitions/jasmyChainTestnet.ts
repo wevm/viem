@@ -7,8 +7,15 @@ export const jasmyChainTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'JasmyCoin', symbol: 'JASMY', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc_testnet.jasmychain.io'],
-      webSocket: ['wss://rpc_testnet.jasmychain.io'],
+      http: ['https://jasmy-chain-testnet.alt.technology'],
+      webSocket: ['wss://jasmy-chain-testnet.alt.technology/ws'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Jasmy Chain Testnet Explorer',
+      url: 'https://jasmy-chain-testnet-explorer.alt.technology',
+      apiUrl: 'https://jasmy-chain-testnet-explorer.alt.technology/api',
     },
   },
   testnet: true,

@@ -50,8 +50,42 @@ export function formatTransaction(
   transaction: ExactPartial<RpcTransaction>,
   _?: string | undefined,
 ) {
+  const type = transaction.type
+    ? (transactionType as any)[transaction.type]
+    : undefined
+  // Fields a transaction type does not have are left out of the copy, since
+  // `delete` would turn the result into a slow dictionary-mode object.
+  const rest = (() => {
+    const value = transaction as Record<string, unknown>
+    if (type === 'legacy') {
+      const {
+        accessList: _accessList,
+        maxFeePerBlobGas: _maxFeePerBlobGas,
+        maxFeePerGas: _maxFeePerGas,
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        yParity: _yParity,
+        ...rest
+      } = value
+      return rest as typeof transaction
+    }
+    if (type === 'eip2930') {
+      const {
+        maxFeePerBlobGas: _maxFeePerBlobGas,
+        maxFeePerGas: _maxFeePerGas,
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        ...rest
+      } = value
+      return rest as typeof transaction
+    }
+    if (type === 'eip1559') {
+      const { maxFeePerBlobGas: _maxFeePerBlobGas, ...rest } = value
+      return rest as typeof transaction
+    }
+    return transaction
+  })()
+
   const transaction_ = {
-    ...transaction,
+    ...rest,
     blockHash: transaction.blockHash ? transaction.blockHash : null,
     blockNumber: transaction.blockNumber
       ? BigInt(transaction.blockNumber)
@@ -62,23 +96,27 @@ export function formatTransaction(
     chainId: transaction.chainId ? hexToNumber(transaction.chainId) : undefined,
     gas: transaction.gas ? BigInt(transaction.gas) : undefined,
     gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
-    maxFeePerBlobGas: transaction.maxFeePerBlobGas
-      ? BigInt(transaction.maxFeePerBlobGas)
-      : undefined,
-    maxFeePerGas: transaction.maxFeePerGas
-      ? BigInt(transaction.maxFeePerGas)
-      : undefined,
-    maxPriorityFeePerGas: transaction.maxPriorityFeePerGas
-      ? BigInt(transaction.maxPriorityFeePerGas)
-      : undefined,
+    ...(() => {
+      // Parsed for every type, since parsing can throw.
+      const maxFeePerBlobGas = transaction.maxFeePerBlobGas
+        ? BigInt(transaction.maxFeePerBlobGas)
+        : undefined
+      const maxFeePerGas = transaction.maxFeePerGas
+        ? BigInt(transaction.maxFeePerGas)
+        : undefined
+      const maxPriorityFeePerGas = transaction.maxPriorityFeePerGas
+        ? BigInt(transaction.maxPriorityFeePerGas)
+        : undefined
+      if (type === 'legacy' || type === 'eip2930') return {}
+      if (type === 'eip1559') return { maxFeePerGas, maxPriorityFeePerGas }
+      return { maxFeePerBlobGas, maxFeePerGas, maxPriorityFeePerGas }
+    })(),
     nonce: transaction.nonce ? hexToNumber(transaction.nonce) : undefined,
     to: transaction.to ? transaction.to : null,
     transactionIndex: transaction.transactionIndex
       ? Number(transaction.transactionIndex)
       : null,
-    type: transaction.type
-      ? (transactionType as any)[transaction.type]
-      : undefined,
+    type,
     typeHex: transaction.type ? transaction.type : undefined,
     value: transaction.value ? BigInt(transaction.value) : undefined,
     v: transaction.v ? BigInt(transaction.v) : undefined,
@@ -89,7 +127,7 @@ export function formatTransaction(
       transaction.authorizationList,
     )
 
-  transaction_.yParity = (() => {
+  const yParity = (() => {
     // If `yParity` is provided, we will use it.
     if (transaction.yParity) return Number(transaction.yParity)
 
@@ -102,20 +140,7 @@ export function formatTransaction(
 
     return undefined
   })()
-
-  if (transaction_.type === 'legacy') {
-    delete transaction_.accessList
-    delete transaction_.maxFeePerBlobGas
-    delete transaction_.maxFeePerGas
-    delete transaction_.maxPriorityFeePerGas
-    delete transaction_.yParity
-  }
-  if (transaction_.type === 'eip2930') {
-    delete transaction_.maxFeePerBlobGas
-    delete transaction_.maxFeePerGas
-    delete transaction_.maxPriorityFeePerGas
-  }
-  if (transaction_.type === 'eip1559') delete transaction_.maxFeePerBlobGas
+  if (type !== 'legacy') transaction_.yParity = yParity
 
   return transaction_
 }

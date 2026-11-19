@@ -17,6 +17,7 @@ import {
 } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type PrepareAuthorizationErrorType,
   type PrepareAuthorizationParameters,
@@ -103,6 +104,10 @@ export async function signAuthorization<
       type: account.type,
     })
 
-  const authorization = await prepareAuthorization(client, parameters)
+  const authorization = await getAction(
+    client,
+    prepareAuthorization,
+    'prepareAuthorization',
+  )(parameters)
   return account.signAuthorization(authorization)
 }

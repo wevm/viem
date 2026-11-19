@@ -14,28 +14,57 @@ export type GetIpcRpcClientOptions = Pick<
 
 const openingBrace = '{'.charCodeAt(0)
 const closingBrace = '}'.charCodeAt(0)
+const quote = '"'.charCodeAt(0)
+const backslash = '\\'.charCodeAt(0)
 
-/** @internal */
-export function extractMessages(buffer: Buffer): [Buffer[], Buffer] {
-  const messages: Buffer[] = []
-
-  let cursor = 0
+/**
+ * Splits a stream of concatenated JSON-RPC messages into complete messages.
+ * Scanner state and the pending message's chunks carry over between calls,
+ * so each byte is scanned once and each message is concatenated once.
+ *
+ * @internal
+ */
+export function createMessageExtractor(onMessage: (message: Buffer) => void) {
+  let chunks: Buffer[] = []
   let level = 0
-  for (let i = 0; i < buffer.length; i++) {
-    if (buffer[i] === openingBrace) level++
-    if (buffer[i] === closingBrace) level--
-    if (level === 0) {
-      const message = buffer.subarray(cursor, i + 1)
-      if (
-        message[0] === openingBrace &&
-        message[message.length - 1] === closingBrace
-      )
-        messages.push(message)
-      cursor = i + 1
+  let inString = false
+  let escaped = false
+  return (buffer: Buffer) => {
+    let cursor = 0
+    for (let i = 0; i < buffer.length; i++) {
+      const byte = buffer[i]
+      if (inString) {
+        if (escaped) escaped = false
+        else if (byte === backslash) escaped = true
+        else if (byte === quote) inString = false
+        continue
+      }
+      if (byte === quote) {
+        inString = true
+        continue
+      }
+      if (byte === closingBrace && level === 0) {
+        chunks = []
+        cursor = i + 1
+        continue
+      }
+      if (byte === openingBrace) level++
+      if (byte === closingBrace) level--
+      if (level === 0) {
+        const end = buffer.subarray(cursor, i + 1)
+        const message =
+          chunks.length > 0 ? Buffer.concat([...chunks, end]) : end
+        chunks = []
+        cursor = i + 1
+        if (
+          message[0] === openingBrace &&
+          message[message.length - 1] === closingBrace
+        )
+          onMessage(message)
+      }
     }
+    if (cursor < buffer.length) chunks.push(buffer.subarray(cursor))
   }
-
-  return [messages, buffer.subarray(cursor)]
 }
 
 export type IpcRpcClient = SocketRpcClient<NetSocket>
@@ -47,32 +76,31 @@ export async function getIpcRpcClient(
   const { reconnect } = options
 
   return getSocketRpcClient({
-    async getSocket({ onError, onOpen, onResponse }) {
+    async getSocket({ onClose, onError, onOpen, onResponse }) {
       const socket = connect(path)
 
-      function onClose() {
-        socket.off('close', onClose)
-        socket.off('message', onData)
+      function onClose_() {
+        socket.off('close', onClose_)
+        socket.off('data', onData)
         socket.off('error', onError)
         socket.off('connect', onOpen)
+        onClose()
       }
 
-      let lastRemaining = Buffer.alloc(0) as Buffer
-      function onData(buffer: Buffer) {
-        const [messages, remaining] = extractMessages(
-          Buffer.concat([
-            Uint8Array.from(lastRemaining),
-            Uint8Array.from(buffer),
-          ]),
-        )
-        for (const message of messages) {
-          const response = JSON.parse(Buffer.from(message).toString())
-          onResponse(response)
-        }
-        lastRemaining = remaining
-      }
+      const onData = createMessageExtractor((message) => {
+        const response = (() => {
+          try {
+            return JSON.parse(message.toString())
+          } catch (error) {
+            // The `error` event rejects pending requests, and destroying the
+            // socket closes it even when it will not reconnect.
+            socket.destroy(error as Error)
+          }
+        })()
+        if (response) onResponse(response)
+      })
 
-      socket.on('close', onClose)
+      socket.on('close', onClose_)
       socket.on('data', onData)
       socket.on('error', onError)
       socket.on('connect', onOpen)

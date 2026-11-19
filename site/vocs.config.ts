@@ -91,6 +91,8 @@ export default defineConfig({
     // Strip legacy `.html` suffix from old bookmarked URLs.
     { source: '/:path*.html', destination: '/:path', status: 308 },
 
+    { source: '/tokens/tokens', destination: '/tokens/list', status: 308 },
+
     // Tempo Zones page moved into the Guides section.
     {
       source: '/tempo/zones',
@@ -99,7 +101,34 @@ export default defineConfig({
     },
     {
       source: '/tempo/guides/multisig-transactions',
-      destination: '/tempo/guides/multisig',
+      destination: '/tempo/guides/configurable-accounts',
+      status: 308,
+    },
+
+    // Tempo multisig pages moved to configurable accounts.
+    {
+      source: '/tempo/guides/multisig',
+      destination: '/tempo/guides/configurable-accounts',
+      status: 308,
+    },
+    {
+      source: '/tempo/guides/multisig/:path*',
+      destination: '/tempo/guides/configurable-accounts/:path*',
+      status: 308,
+    },
+    {
+      source: '/tempo/accounts/account.fromMultisig',
+      destination: '/tempo/accounts/account.fromConfig',
+      status: 308,
+    },
+    {
+      source: '/tempo/actions/multisig.:action',
+      destination: '/tempo/actions/accounts.:action',
+      status: 308,
+    },
+    {
+      source: '/tempo/relay/plugins/multisig',
+      destination: '/tempo/relay/plugins/accounts',
       status: 308,
     },
 
@@ -268,6 +297,7 @@ export default defineConfig({
           { text: 'Wallet Client', link: '/docs/clients/wallet' },
           { text: 'Test Client', link: '/docs/clients/test' },
           { text: 'Build your own Client', link: '/docs/clients/custom' },
+          { text: 'Resolving Clients', link: '/docs/clients/resolve' },
           {
             text: 'Transports',
             items: [
@@ -438,6 +468,10 @@ export default defineConfig({
                 link: '/docs/actions/public/getLogs',
               },
               {
+                text: 'iterateLogs',
+                link: '/docs/actions/public/iterateLogs',
+              },
+              {
                 text: 'watchEvent',
                 link: '/docs/actions/public/watchEvent',
               },
@@ -451,6 +485,10 @@ export default defineConfig({
             text: 'Proof',
             items: [
               {
+                text: 'getStorageValues',
+                link: '/docs/actions/public/getStorageValues',
+              },
+              {
                 text: 'getProof',
                 link: '/docs/actions/public/getProof',
               },
@@ -459,6 +497,10 @@ export default defineConfig({
           {
             text: 'Signature',
             items: [
+              {
+                text: 'verifyHash',
+                link: '/docs/actions/public/verifyHash',
+              },
               {
                 text: 'verifyMessage',
                 link: '/docs/actions/public/verifyMessage',
@@ -2124,7 +2166,8 @@ export default defineConfig({
           text: 'Introduction',
           items: [
             { text: 'Getting Started', link: '/tokens' },
-            { text: 'Tokens', link: '/tokens/tokens' },
+            { text: 'Tokens', link: '/tokens/list' },
+            { text: 'Open USD (OUSD)', link: '/tokens/ousd' },
           ],
         },
         {
@@ -2314,52 +2357,6 @@ export default defineConfig({
               ],
             },
             {
-              text: 'Multisig',
-              collapsed: true,
-              items: [
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Overview',
-                  link: '/tempo/guides/multisig',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Send Transactions',
-                  link: '/tempo/guides/multisig/send',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Weighted Owners',
-                  link: '/tempo/guides/multisig/weighted-owners',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Passkeys & Other Keys',
-                  link: '/tempo/guides/multisig/key-types',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Nested Accounts',
-                  link: '/tempo/guides/multisig/nested-accounts',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Authorize Access Keys',
-                  link: '/tempo/guides/multisig/access-keys',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Sponsor Fees',
-                  link: '/tempo/guides/multisig/sponsor-fees',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Rotate Owners',
-                  link: '/tempo/guides/multisig/rotate-owners',
-                },
-              ],
-            },
-            {
               text: 'Tokens',
               collapsed: true,
               items: [
@@ -2408,10 +2405,6 @@ export default defineConfig({
                 {
                   text: 'Manage Access Keys',
                   link: '/tempo/guides/access-keys/manage',
-                },
-                {
-                  text: 'Admin Access Keys',
-                  link: '/tempo/guides/access-keys/admin',
                 },
                 {
                   text: 'Witnesses',
@@ -2568,6 +2561,101 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              text: 'Relay',
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/guides/relay' },
+                {
+                  text: 'Connect to a Relay',
+                  link: '/tempo/guides/relay/connect',
+                },
+                { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
+              ],
+            },
+            {
+              text: 'Gateway',
+              badge: { text: 'EXP', variant: 'warning' },
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/guides/gateway' },
+                {
+                  text: 'Connect & Pay',
+                  link: '/tempo/guides/gateway/connect',
+                },
+                {
+                  text: 'Use with Tempo Wallet',
+                  link: '/tempo/guides/gateway/tempo-wallet',
+                },
+                { text: 'Run Inference', link: '/tempo/guides/gateway/ai' },
+                {
+                  text: 'Store Objects & State',
+                  link: '/tempo/guides/gateway/storage',
+                },
+                {
+                  text: 'Run Sandboxes',
+                  link: '/tempo/guides/gateway/compute',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'PropAMM',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Overview',
+                  link: '/tempo/guides/propamm',
+                },
+                {
+                  text: 'Swap with a PropAMM Pool',
+                  link: '/tempo/guides/propamm/swap',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'Configurable Accounts',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Overview',
+                  link: '/tempo/guides/configurable-accounts',
+                },
+                {
+                  text: 'Send Transactions',
+                  link: '/tempo/guides/configurable-accounts/send',
+                },
+                {
+                  text: 'Weighted Owners',
+                  link: '/tempo/guides/configurable-accounts/weighted-owners',
+                },
+                {
+                  text: 'Passkeys & Other Keys',
+                  link: '/tempo/guides/configurable-accounts/key-types',
+                },
+                {
+                  text: 'Authorize Access Keys',
+                  link: '/tempo/guides/configurable-accounts/access-keys',
+                },
+                {
+                  text: 'Sponsor Fees',
+                  link: '/tempo/guides/configurable-accounts/sponsor-fees',
+                },
+                {
+                  text: 'Rotate Owners',
+                  link: '/tempo/guides/configurable-accounts/rotate-owners',
+                },
+                {
+                  text: 'Upgrade an Account',
+                  link: '/tempo/guides/configurable-accounts/upgrade',
+                },
+                {
+                  text: 'Migrate an Account',
+                  link: '/tempo/guides/configurable-accounts/migrate',
+                },
+              ],
+            },
           ],
         },
         {
@@ -2595,8 +2683,8 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
-              text: 'Multisig',
-              link: '/tempo/accounts/account.fromMultisig',
+              text: 'Configurable',
+              link: '/tempo/accounts/account.fromConfig',
             },
           ],
         },
@@ -2628,16 +2716,16 @@ export default defineConfig({
                   link: '/tempo/actions/accessKey.getRemainingLimit',
                 },
                 {
-                  text: 'isAdmin',
-                  link: '/tempo/actions/accessKey.isAdmin',
-                },
-                {
                   text: 'isWitnessBurned',
                   link: '/tempo/actions/accessKey.isWitnessBurned',
                 },
                 {
                   text: 'revoke',
                   link: '/tempo/actions/accessKey.revoke',
+                },
+                {
+                  text: 'saveAuthorization',
+                  link: '/tempo/actions/accessKey.saveAuthorization',
                 },
                 {
                   text: 'signAuthorization',
@@ -2652,16 +2740,63 @@ export default defineConfig({
                   link: '/tempo/actions/accessKey.verifyHash',
                 },
                 {
-                  text: 'watchAdminAuthorized',
-                  link: '/tempo/actions/accessKey.watchAdminAuthorized',
-                },
-                {
                   text: 'watchWitness',
                   link: '/tempo/actions/accessKey.watchWitness',
                 },
                 {
                   text: 'watchWitnessBurned',
                   link: '/tempo/actions/accessKey.watchWitnessBurned',
+                },
+              ],
+            },
+            {
+              text: 'Accounts',
+              collapsed: true,
+              items: [
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'deriveAccount',
+                  link: '/tempo/actions/accounts.deriveAccount',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getConfig',
+                  link: '/tempo/actions/accounts.getConfig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getConfigCommitment',
+                  link: '/tempo/actions/accounts.getConfigCommitment',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getOperation',
+                  link: '/tempo/actions/accounts.getOperation',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'updateConfig',
+                  link: '/tempo/actions/accounts.updateConfig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'updateConfigSync',
+                  link: '/tempo/actions/accounts.updateConfigSync',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'upgrade',
+                  link: '/tempo/actions/accounts.upgrade',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'upgradeSync',
+                  link: '/tempo/actions/accounts.upgradeSync',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'verifyHash',
+                  link: '/tempo/actions/accounts.verifyHash',
                 },
               ],
             },
@@ -2712,6 +2847,10 @@ export default defineConfig({
                   link: '/tempo/actions/channel.close',
                 },
                 {
+                  text: 'getOpenSalt',
+                  link: '/tempo/actions/channel.getOpenSalt',
+                },
+                {
                   text: 'getStates',
                   link: '/tempo/actions/channel.getStates',
                 },
@@ -2734,6 +2873,10 @@ export default defineConfig({
                 {
                   text: 'topUp',
                   link: '/tempo/actions/channel.topUp',
+                },
+                {
+                  text: 'verifyVoucher',
+                  link: '/tempo/actions/channel.verifyVoucher',
                 },
                 {
                   text: 'withdraw',
@@ -2865,28 +3008,32 @@ export default defineConfig({
               ],
             },
             {
-              text: 'Multisig',
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'PropAMM',
               collapsed: true,
               items: [
+                { text: 'baseToken', link: '/tempo/actions/propAmm.baseToken' },
                 {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getConfig',
-                  link: '/tempo/actions/multisig.getConfig',
+                  text: 'getSwapQuote',
+                  link: '/tempo/actions/propAmm.getSwapQuote',
+                },
+                { text: 'paused', link: '/tempo/actions/propAmm.paused' },
+                {
+                  text: 'quoteToken',
+                  link: '/tempo/actions/propAmm.quoteToken',
                 },
                 {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'isInitialized',
-                  link: '/tempo/actions/multisig.isInitialized',
+                  text: 'recipientAllowed',
+                  link: '/tempo/actions/propAmm.recipientAllowed',
                 },
                 {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'updateConfig',
-                  link: '/tempo/actions/multisig.updateConfig',
+                  text: 'resolveRecipient',
+                  link: '/tempo/actions/propAmm.resolveRecipient',
                 },
+                { text: 'swap', link: '/tempo/actions/propAmm.swap' },
                 {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'updateConfigSync',
-                  link: '/tempo/actions/multisig.updateConfigSync',
+                  text: 'takerAllowed',
+                  link: '/tempo/actions/propAmm.takerAllowed',
                 },
               ],
             },
@@ -3390,8 +3537,84 @@ export default defineConfig({
           ],
         },
         {
+          text: 'Relay',
+          items: [
+            { text: 'Overview', link: '/tempo/relay' },
+            {
+              text: 'Plugins',
+              items: [
+                {
+                  text: 'Auto Swap',
+                  link: '/tempo/relay/plugins/auto-swap',
+                },
+                {
+                  text: 'Fee Payer',
+                  link: '/tempo/relay/plugins/fee-payer',
+                },
+                { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
+                {
+                  text: 'Key Authorization',
+                  link: '/tempo/relay/plugins/key-authorization',
+                },
+                { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Accounts',
+                  link: '/tempo/relay/plugins/accounts',
+                },
+                {
+                  badge: { text: '🚧', variant: 'warning' },
+                  disabled: true,
+                  text: 'Funding',
+                },
+              ],
+            },
+          ],
+        },
+        {
           text: 'Utilities',
           items: [
+            {
+              text: 'ExecutionError',
+              link: '/tempo/utilities/ExecutionError',
+            },
+            {
+              text: 'Relay',
+              collapsed: true,
+              items: [
+                { text: 'create', link: '/tempo/utilities/Relay.create' },
+                {
+                  text: 'handleRequest',
+                  link: '/tempo/utilities/Relay.handleRequest',
+                },
+              ],
+            },
+            {
+              text: 'Store',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Overview',
+                  link: '/tempo/utilities/Store',
+                },
+                {
+                  text: 'defaultStore',
+                  link: '/tempo/utilities/Store.defaultStore',
+                },
+                {
+                  text: 'from',
+                  link: '/tempo/utilities/Store.from',
+                },
+                {
+                  text: 'memory',
+                  link: '/tempo/utilities/Store.memory',
+                },
+                {
+                  text: 'session',
+                  link: '/tempo/utilities/Store.session',
+                },
+              ],
+            },
             {
               text: 'TempoAddress',
               collapsed: true,
@@ -3412,6 +3635,11 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
+              text: 'Gateway',
+              link: '/tempo/utilities/Gateway',
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'Scopes',
               link: '/tempo/utilities/Scopes',
             },
@@ -3419,28 +3647,6 @@ export default defineConfig({
               badge: { text: 'EXP', variant: 'warning' },
               text: 'Selectors',
               link: '/tempo/utilities/Selectors',
-            },
-            {
-              text: 'Storage',
-              collapsed: true,
-              items: [
-                {
-                  text: 'defaultStorage',
-                  link: '/tempo/utilities/Storage.defaultStorage',
-                },
-                {
-                  text: 'from',
-                  link: '/tempo/utilities/Storage.from',
-                },
-                {
-                  text: 'memory',
-                  link: '/tempo/utilities/Storage.memory',
-                },
-                {
-                  text: 'session',
-                  link: '/tempo/utilities/Storage.session',
-                },
-              ],
             },
           ],
         },

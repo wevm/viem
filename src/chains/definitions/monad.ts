@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const monad = /*#__PURE__*/ defineChain({
   id: 143,
   name: 'Monad',
-  blockTime: 400,
+  blockTime: 300,
   nativeCurrency: {
     name: 'Monad',
     symbol: 'MON',

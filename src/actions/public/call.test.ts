@@ -1,3 +1,4 @@
+import { mine, setCode } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
@@ -17,6 +18,7 @@ import { createCcipServer } from '~test/ccip.js'
 import { accounts } from '~test/constants.js'
 import { blobData, kzg } from '~test/kzg.js'
 import {
+  createRpcProxy,
   deploy,
   deployOffchainLookupExample,
   deploySoladyAccount_07,
@@ -34,6 +36,7 @@ import {
   encodeFunctionResult,
   type Hex,
   http,
+  InsufficientFundsError,
   maxUint256,
   multicall3Abi,
   pad,
@@ -95,6 +98,45 @@ describe('ccip', () => {
     })
 
     expect(trim(data!)).toEqual(accounts[0].address)
+
+    await server.close()
+  })
+
+  test('block parameters', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
+    })
+    const { hash: blockHash, number: blockNumber } = await getBlock(client)
+    await mine(client, { blocks: 1 })
+    await setCode(client, { address: contractAddress!, bytecode: '0x' })
+    await mine(client, { blocks: 1 })
+
+    const calldata = encodeFunctionData({
+      abi: OffchainLookupExample.abi,
+      functionName: 'getAddress',
+      args: ['jxom.viem'],
+    })
+    const results = await Promise.all([
+      call(client, { blockNumber, data: calldata, to: contractAddress! }),
+      call(client, { blockHash, data: calldata, to: contractAddress! }),
+      call(client, {
+        blockHash,
+        data: calldata,
+        requireCanonical: true,
+        to: contractAddress!,
+      }),
+    ])
+
+    expect(
+      results.map(({ data }) => data && trim(data)),
+    ).toMatchInlineSnapshot(`
+      [
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      ]
+    `)
 
     await server.close()
   })
@@ -497,7 +539,10 @@ describe('errors', () => {
         to: accounts[0].address,
         value: parseEther('100000'),
       }),
-    ).rejects.toThrowError('insufficient funds for gas * price + value')
+    ).rejects.toMatchObject({
+      cause: expect.any(InsufficientFundsError),
+      name: 'CallExecutionError',
+    })
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
@@ -518,6 +563,29 @@ describe('errors', () => {
         data:                  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
         maxFeePerGas:          20 gwei
         maxPriorityFeePerGas:  22 gwei
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('maxFeePerGas zero and less than maxPriorityFeePerGas', async () => {
+    await expect(
+      call(client, {
+        data: `${mintWithParams4bytes}${fourTwenty}`,
+        account: sourceAccount.address,
+        to: wagmiContractAddress,
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: parseGwei('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [CallExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Raw Call Arguments:
+        from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:                    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:                  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
+        maxFeePerGas:          0 gwei
+        maxPriorityFeePerGas:  1 gwei
 
       Version: viem@x.y.z]
     `)
@@ -1205,6 +1273,57 @@ describe.each([{ deployless: true }, { deployless: false }])(
         expect(results).toMatchSnapshot()
       },
     )
+
+    test('behavior: results length mismatch', async () => {
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method }) => {
+          if (method !== 'eth_call') return
+          return {
+            result: encodeFunctionResult({
+              abi: multicall3Abi,
+              functionName: 'aggregate3',
+              result: [{ success: true, returnData: '0x01' }],
+            }),
+          }
+        },
+      )
+      const client_2 = createClient({
+        batch: { multicall: { deployless } },
+        chain: anvilMainnet.chain,
+        transport: http(url),
+      })
+
+      const results = await Promise.allSettled([
+        call(client_2, { data: name4bytes, to: wagmiContractAddress }),
+        call(client_2, { data: name4bytes, to: usdcContractConfig.address }),
+      ])
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "reason": [CallExecutionError: Multicall returned 1 results for 2 calls.
+
+        Raw Call Arguments:
+          to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+          data:  0x06fdde03
+
+        Version: viem@x.y.z],
+            "status": "rejected",
+          },
+          {
+            "reason": [CallExecutionError: Multicall returned 1 results for 2 calls.
+
+        Raw Call Arguments:
+          to:    0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+          data:  0x06fdde03
+
+        Version: viem@x.y.z],
+            "status": "rejected",
+          },
+        ]
+      `)
+    })
   },
 )
 

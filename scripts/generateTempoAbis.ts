@@ -5,12 +5,13 @@ import * as Path from 'node:path'
 import * as Abi from 'ox/Abi'
 import * as AbiFunction from 'ox/AbiFunction'
 import * as AbiItem from 'ox/AbiItem'
+import * as Abis from '../src/tempo/Abis.js'
 
 type GeneratedFile = { content: string; path: string }
 type AdapterContext = { read: (path: string) => string }
 type SourceAdapter = {
   generate: (context: AdapterContext) => Promise<readonly GeneratedFile[]>
-  name: 'earn' | 'tempo' | 'zones'
+  name: 'earn' | 'propAmm' | 'tempo' | 'zones'
 }
 type InterfaceDefinition = { items: string[]; name: string }
 
@@ -18,7 +19,156 @@ const adapters: readonly SourceAdapter[] = [
   tempoAdapter(),
   earnAdapter(),
   zonesAdapter(),
+  propAmmAdapter(),
 ]
+
+function propAmmAdapter(): SourceAdapter {
+  const commit = 'bff7c1fa50cf72e2896a078abae4e164c36caa93'
+  const repository = 'https://github.com/tempoxyz/propAMM.git'
+  const output = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+  const contractsOutput = Path.resolve(
+    import.meta.dirname,
+    '../test/src/tempo/propAmmContracts.ts',
+  )
+
+  return {
+    name: 'propAmm',
+    async generate(context) {
+      const checkout = prepareCheckout()
+      execFileSync('forge', ['build', '--quiet'], {
+        cwd: checkout,
+      })
+      function readArtifact(path: string) {
+        return JSON.parse(
+          Fs.readFileSync(Path.join(checkout, 'out', path), 'utf8'),
+        ) as {
+          abi: readonly AbiItem.AbiItem[]
+          bytecode: { object: string }
+        }
+      }
+      const artifact = readArtifact('DirectPropAMM.sol/DirectPropAMM.json')
+      const oracle = readArtifact('MockOracle.sol/MockOracle.json')
+      if (
+        !artifact.abi.some(
+          (item) => item.type === 'function' && item.name === 'swapExactInput',
+        )
+      )
+        throw new Error('The propAMM artifact has no swapExactInput function.')
+      const current = context.read(output)
+      const groupIndex = current.indexOf('\nexport const core = ')
+      if (groupIndex === -1) throw new Error('Could not find Tempo ABI groups.')
+      const markerIndex = current.indexOf('// Source: tempoxyz/propAMM@')
+      const base = current
+        .slice(0, markerIndex === -1 ? groupIndex : markerIndex)
+        .trimEnd()
+      const earnIndex = base.indexOf('// Source: tempoxyz/earn@')
+      const zoneIndex = base.indexOf('// Source: tempoxyz/zones@')
+      if (earnIndex === -1 || zoneIndex === -1)
+        throw new Error('Could not find Earn and Zone ABI sections.')
+      const groups = [
+        [
+          'core',
+          getAbiExportNames(base.slice(0, earnIndex)).sort(compareStrings),
+        ],
+        [
+          'earn',
+          getAbiExportNames(base.slice(earnIndex, zoneIndex)).sort(
+            compareStrings,
+          ),
+        ],
+        ['zone', getAbiExportNames(base.slice(zoneIndex)).sort(compareStrings)],
+        ['propAmm', ['directPropAmm']],
+      ] as const
+      const grouped = groups
+        .map(
+          ([name, names]) =>
+            `export const ${name} = /* @__PURE__ */ (() =>\n  [\n${names.map((item) => `  ...${item},`).join('\n')}\n] as const)()`,
+        )
+        .join('\n\n')
+      console.log(`  DirectPropAMM ABI at ${commit.slice(0, 7)}`)
+      return [
+        {
+          content: `${base}\n\n// Source: tempoxyz/propAMM@${commit}\n\nexport const directPropAmm = ${JSON.stringify(artifact.abi)} as const\n\n${grouped}\n\nexport const all = /* @__PURE__ */ (() =>\n  [\n${groups.map(([name]) => `  ...${name},`).join('\n')}\n] as const)()\n`,
+          path: output,
+        },
+        {
+          content: `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: tempoxyz/propAMM@${commit}\n\nexport const directPropAmm = ${JSON.stringify({ abi: artifact.abi, bytecode: artifact.bytecode.object })} as const\n\nexport const mockOracle = ${JSON.stringify({ abi: oracle.abi, bytecode: oracle.bytecode.object })} as const\n`,
+          path: contractsOutput,
+        },
+      ]
+    },
+  }
+
+  function prepareCheckout() {
+    const configured = process.env.PROPAMM_CONTRACTS_PATH
+    if (configured) {
+      validateCheckout(configured)
+      return configured
+    }
+    const cache = Path.join(Os.tmpdir(), 'viem-tempo-abis', 'propAmm')
+    const path = Path.join(cache, commit)
+    if (Fs.existsSync(path)) {
+      validateCheckout(path)
+      return path
+    }
+    Fs.mkdirSync(cache, { recursive: true })
+    const temporaryPath = Fs.mkdtempSync(Path.join(cache, `${commit}.`))
+    try {
+      execFileSync('git', ['init', '--quiet'], { cwd: temporaryPath })
+      execFileSync('git', ['remote', 'add', 'origin', repository], {
+        cwd: temporaryPath,
+      })
+      execFileSync('git', ['fetch', '--depth', '1', 'origin', commit], {
+        cwd: temporaryPath,
+        stdio: 'inherit',
+      })
+      execFileSync('git', ['checkout', '--detach', '--quiet', 'FETCH_HEAD'], {
+        cwd: temporaryPath,
+      })
+      execFileSync(
+        'git',
+        ['submodule', 'update', '--init', '--depth', '1', '--quiet'],
+        {
+          cwd: temporaryPath,
+        },
+      )
+      validateCheckout(temporaryPath)
+      Fs.renameSync(temporaryPath, path)
+      return path
+    } catch (error) {
+      Fs.rmSync(temporaryPath, { force: true, recursive: true })
+      throw error
+    }
+  }
+
+  function validateCheckout(checkout: string) {
+    const status = execFileSync('git', ['status', '--porcelain'], {
+      cwd: checkout,
+      encoding: 'utf8',
+    }).trim()
+    if (status) throw new Error('The propAMM checkout must be clean.')
+    const head = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: checkout,
+      encoding: 'utf8',
+    }).trim()
+    if (head !== commit)
+      throw new Error(
+        `The propAMM checkout must be at ${commit}, received ${head}.`,
+      )
+    const uninitialized = execFileSync(
+      'git',
+      ['submodule', 'status', '--recursive'],
+      {
+        cwd: checkout,
+        encoding: 'utf8',
+      },
+    )
+      .split('\n')
+      .some((line) => line.startsWith('-'))
+    if (uninitialized)
+      throw new Error('The propAMM checkout has uninitialized submodules.')
+  }
+}
 
 function tempoAdapter(): SourceAdapter {
   type GitHubContent = {
@@ -27,35 +177,6 @@ function tempoAdapter(): SourceAdapter {
     type: string
   }
 
-  const compatibilityInterfaces: Record<
-    string,
-    { after: string; items: string[] }
-  > = {
-    // TODO: Remove after https://github.com/wevm/viem/pull/5029 replaces the legacy multisig implementation.
-    INativeMultisig: {
-      after: 'IAddressRegistry',
-      items: [
-        'function deriveAccount(bytes32 salt, uint8 threshold, (address owner, uint8 weight)[] owners) pure returns (address account)',
-        'function isMultisigAccount(address account) view returns (bool)',
-        'function getConfig(address account) view returns ((uint64 version, uint8 threshold, (address owner, uint8 weight)[] owners))',
-        'function updateConfig(uint8 threshold, (address owner, uint8 weight)[] owners)',
-        'event MultisigInitialized(address indexed account)',
-        'event MultisigConfigUpdated(address indexed account, uint8 threshold, (address owner, uint8 weight)[] owners)',
-        'error NotMultisigAccount()',
-        'error InvalidAccount()',
-        'error InvalidConfig()',
-        'error InvalidThreshold()',
-        'error InvalidOwner()',
-        'error InvalidWeight()',
-        'error TooManyOwners()',
-        'error DuplicateOwner()',
-        'error InvalidOwnerOrder()',
-        'error AccountAlreadyInitialized()',
-        'error UnauthorizedCaller()',
-        'error SameTransactionUpdateNotAllowed()',
-      ],
-    },
-  }
   const extensions: Record<string, string[]> = {
     ITIP20: ['IRolesAuth'],
   }
@@ -68,24 +189,13 @@ function tempoAdapter(): SourceAdapter {
   return {
     name: 'tempo',
     async generate() {
-      const commit = await getLatestCommit(repository)
+      // `TEMPO_REF` pins a branch or commit ahead of Tempo main.
+      const commit = await getLatestCommit(
+        repository,
+        process.env.TEMPO_REF ?? 'HEAD',
+      )
       const { content, files } = await getPrecompileSources(commit)
       const interfaces = parseSolInterfaces(content)
-      for (const [name, { after, items }] of Object.entries(
-        compatibilityInterfaces,
-      )) {
-        if (interfaces.has(name)) continue
-        if (!interfaces.has(after)) {
-          interfaces.set(name, { name, items })
-          continue
-        }
-        const entries = [...interfaces]
-        interfaces.clear()
-        for (const [interfaceName, definition] of entries) {
-          interfaces.set(interfaceName, definition)
-          if (interfaceName === after) interfaces.set(name, { name, items })
-        }
-      }
 
       const processed: {
         abi: ReturnType<typeof Abi.from>
@@ -481,6 +591,7 @@ function zonesAdapter(): SourceAdapter {
   const sources = [
     'crates/contracts/src/precompiles/zone_factory.rs',
     'crates/contracts/src/precompiles/zone_portal.rs',
+    'crates/contracts/src/precompiles/zone_inbox.rs',
     'crates/contracts/src/precompiles/outbox.rs',
   ] as const
   const interfaceSource = 'crates/contracts/src/runtime/interfaces/IZone.sol'
@@ -526,10 +637,15 @@ function zonesAdapter(): SourceAdapter {
       })
 
       let abis = context.read(outputs.abis)
+      const groupIndex = abis.indexOf('\nexport const core = ')
+      if (groupIndex === -1) throw new Error('Could not find Tempo ABI groups.')
+      abis = abis.slice(0, groupIndex).trimEnd()
       const appended: string[] = []
       let selectors = context.read(outputs.selectors)
       for (const generatedAbi of generated) {
-        const current = readAbiExport(abis, generatedAbi.exportName)
+        const current = Object.entries(Abis).find(
+          ([name]) => name === generatedAbi.exportName,
+        )?.[1] as readonly AbiItem.AbiItem[] | undefined
         let abi = generatedAbi.abi
         if (!current) {
           appended.push(
@@ -553,9 +669,19 @@ function zonesAdapter(): SourceAdapter {
         )
       }
       const sourceHeader = `// Source: tempoxyz/zones@${commit}`
-      abis = `${abis.trimEnd()}\n\n${sourceHeader}\n\n${appended.join('\n\n')}\n`
+      const previousHeader = abis.indexOf('// Source: tempoxyz/zones@')
+      const previousHeaderEnd = abis.indexOf('\n', previousHeader)
+      const propAmmIndex = abis.indexOf('// Source: tempoxyz/propAMM@')
+      if (
+        previousHeader === -1 ||
+        previousHeaderEnd === -1 ||
+        propAmmIndex === -1
+      )
+        throw new Error('Could not find Zone and propAMM ABI sections.')
+      abis = `${abis.slice(0, previousHeader)}${sourceHeader}${abis.slice(previousHeaderEnd, propAmmIndex).trimEnd()}\n\n${appended.join('\n\n')}\n\n${abis.slice(propAmmIndex)}`
       const earnSourceIndex = abis.indexOf('// Source: tempoxyz/earn@')
       const zoneSourceIndex = abis.indexOf(sourceHeader)
+      const propAmmSourceIndex = abis.indexOf('// Source: tempoxyz/propAMM@')
       if (earnSourceIndex === -1 || zoneSourceIndex === -1)
         throw new Error('Could not find generated ABI source sections.')
       const groups = [
@@ -573,17 +699,25 @@ function zonesAdapter(): SourceAdapter {
         ],
         [
           'zone',
-          getAbiExportNames(abis.slice(zoneSourceIndex)).sort(compareStrings),
+          getAbiExportNames(
+            abis.slice(zoneSourceIndex, propAmmSourceIndex),
+          ).sort(compareStrings),
+        ],
+        [
+          'propAmm',
+          getAbiExportNames(abis.slice(propAmmSourceIndex)).sort(
+            compareStrings,
+          ),
         ],
       ] as const
       abis += `\n${groups
         .map(
           ([group, names]) =>
-            `export const ${group} = [\n${names.map((name) => `  ...${name},`).join('\n')}\n] as const`,
+            `export const ${group} = /* @__PURE__ */ (() =>\n  [\n${names.map((name) => `  ...${name},`).join('\n')}\n] as const)()`,
         )
         .join(
           '\n\n',
-        )}\n\nexport const all = [\n${groups.map(([group]) => `  ...${group},`).join('\n')}\n] as const\n`
+        )}\n\nexport const all = /* @__PURE__ */ (() =>\n  [\n${groups.map(([group]) => `  ...${group},`).join('\n')}\n] as const)()\n`
       console.log(
         `  ${definitions.size} ABIs from ${sourceFiles.length + 1} contract files at ${commit.slice(0, 7)}`,
       )
@@ -757,17 +891,6 @@ function camelCase(name: string) {
     .join('')
 }
 
-function readAbiExport(content: string, name: string) {
-  const prefix = `export const ${name} = `
-  const start = content.indexOf(prefix)
-  if (start === -1) return undefined
-  const valueStart = start + prefix.length
-  const valueEnd = content.indexOf(' as const', valueStart)
-  if (valueEnd === -1)
-    throw new Error(`Could not parse generated ABI export ${name}.`)
-  return JSON.parse(content.slice(valueStart, valueEnd)) as AbiItem.AbiItem[]
-}
-
 function getAbiExportNames(content: string) {
   return [...content.matchAll(/^export const (\w+) = \[/gm)]
     .map((match) => match[1]!)
@@ -875,8 +998,10 @@ async function getJson<result>(url: string) {
   return response.json() as Promise<result>
 }
 
-async function getLatestCommit(repository: string) {
-  const { sha } = await getJson<{ sha: string }>(`${repository}/commits/HEAD`)
+async function getLatestCommit(repository: string, ref = 'HEAD') {
+  const { sha } = await getJson<{ sha: string }>(
+    `${repository}/commits/${encodeURIComponent(ref)}`,
+  )
   if (!/^[0-9a-f]{40}$/.test(sha))
     throw new Error(`Invalid latest commit for ${repository}: ${sha}.`)
   return sha
@@ -916,9 +1041,40 @@ const context: AdapterContext = {
     return generated.get(path) ?? Fs.readFileSync(path, 'utf8')
   },
 }
-for (const adapter of adapters) {
+const source = process.argv[2]
+// `errors` only regenerates `coreErrors` from the current ABIs.
+if (
+  source &&
+  source !== 'errors' &&
+  !adapters.some((adapter) => adapter.name === source)
+)
+  throw new Error(`Unknown ABI source: ${source}.`)
+for (const adapter of adapters.filter(
+  (adapter) => !source || adapter.name === source,
+)) {
   const files = await adapter.generate(context)
   for (const file of files) generated.set(file.path, file.content)
   console.log(`✓ Generated ${adapter.name} artifacts`)
+}
+{
+  const path = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+  const abis = context
+    .read(path)
+    .replace(/\n+\/\*\* Deduplicated errors of `core`[\s\S]*$/, '\n')
+  const temporaryPath = Path.join(
+    Os.tmpdir(),
+    `viem-tempo-abis-${process.pid}.ts`,
+  )
+  Fs.writeFileSync(temporaryPath, abis)
+  const { core } = (await import(temporaryPath)) as typeof Abis
+  Fs.unlinkSync(temporaryPath)
+  const errors = new Map<string, AbiItem.AbiItem>()
+  for (const item of core)
+    if (item.type === 'error') errors.set(AbiItem.getSignature(item), item)
+  generated.set(
+    path,
+    `${abis}\n/** Deduplicated errors of \`core\`, for decoding reverts that bubble up across precompiles. */\nexport const coreErrors = ${JSON.stringify([...errors.values()])} as const\n`,
+  )
+  console.log(`✓ Generated ${errors.size} core errors`)
 }
 for (const [path, content] of generated) writeAtomic(path, content)

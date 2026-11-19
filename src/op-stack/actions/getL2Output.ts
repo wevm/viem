@@ -46,7 +46,13 @@ export type GetL2OutputReturnType = {
   outputIndex: bigint
   outputRoot: Hex
   timestamp: bigint
+  /**
+   * L2 block number of the output. For super-root dispute games, this value is
+   * the L2 timestamp instead. Check `usesSuperRoots` to distinguish the unit.
+   */
   l2BlockNumber: bigint
+  /** Whether the output comes from a super-root dispute game. */
+  usesSuperRoots?: boolean | undefined
 }
 export type GetL2OutputErrorType = ReadContractErrorType | ErrorType
 
@@ -84,18 +90,25 @@ export async function getL2Output<
 ): Promise<GetL2OutputReturnType> {
   const { chain = client.chain, l2BlockNumber, targetChain } = parameters
 
-  const version = await getPortalVersion(
-    client,
-    parameters as GetPortalVersionParameters,
-  )
+  // Without a portal, read the L2OutputOracle directly.
+  if (
+    parameters.portalAddress ||
+    (targetChain as unknown as TargetChain | undefined)?.contracts.portal
+  ) {
+    const version = await getPortalVersion(
+      client,
+      parameters as GetPortalVersionParameters,
+    )
 
-  if (version.major >= 3) {
-    const game = await getGame(client, parameters as GetGameParameters)
-    return {
-      l2BlockNumber: game.l2BlockNumber,
-      outputIndex: game.index,
-      outputRoot: game.rootClaim,
-      timestamp: game.timestamp,
+    if (version.major >= 3) {
+      const game = await getGame(client, parameters as GetGameParameters)
+      return {
+        l2BlockNumber: game.l2BlockNumber,
+        outputIndex: game.index,
+        outputRoot: game.rootClaim,
+        timestamp: game.timestamp,
+        usesSuperRoots: game.usesSuperRoots,
+      }
     }
   }
 

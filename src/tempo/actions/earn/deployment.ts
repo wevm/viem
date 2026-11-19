@@ -17,6 +17,7 @@ import { zeroAddress } from '../../../constants/address.js'
 import { maxUint64, maxUint256 } from '../../../constants/number.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import { BaseError, type BaseErrorType } from '../../../errors/base.js'
+import { ChainNotFoundError } from '../../../errors/chain.js'
 import { TransactionReceiptRevertedError } from '../../../errors/transaction.js'
 import type { Chain } from '../../../types/chain.js'
 import type { GetEventArgs } from '../../../types/contract.js'
@@ -25,8 +26,11 @@ import type { Compute } from '../../../types/utils.js'
 import { getAbiItem } from '../../../utils/abi/getAbiItem.js'
 import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
+import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
+import type * as Errors from '../../errors.js'
+import { withExecutionError } from '../../internal/errors.js'
 import type {
   WriteParameters,
   WriteSyncParameters,
@@ -184,7 +188,7 @@ export namespace createErc4626Engine {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> &
+  > = Omit<WriteParameters<chain, account>, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final engine owner. @default `account.address` */
       owner?: Account | Address | undefined
@@ -193,7 +197,7 @@ export namespace createErc4626Engine {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -219,7 +223,7 @@ export namespace createErc4626Engine {
     if (!account) throw new AccountNotFoundError()
     if (!owner_) throw new Error('`owner` is required.')
     const owner = parseAccount(owner_).address
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -366,6 +370,8 @@ export async function createErc4626EngineSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createErc4626Engine.extractEvent(receipt.logs, { factory })
   return { ...args, receipt }
 }
@@ -385,7 +391,7 @@ export namespace createErc4626EngineSync {
     > & { receipt: TransactionReceipt }
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -449,7 +455,7 @@ export namespace createStack {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> &
+  > = Omit<WriteParameters<chain, account>, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final stack owner and operator. @default `account.address` */
       owner?: Account | Address | undefined
@@ -458,7 +464,7 @@ export namespace createStack {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -485,7 +491,7 @@ export namespace createStack {
     } = parameters
     if (!account) throw new AccountNotFoundError()
     if (!owner_) throw new Error('`owner` is required.')
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -632,6 +638,8 @@ export async function createStackSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createStack.extractEvent(receipt.logs, { factory })
   return { ...args, receipt }
 }
@@ -651,7 +659,7 @@ export namespace createStackSync {
     > & { receipt: TransactionReceipt }
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -707,7 +715,7 @@ export namespace bindEngine {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -720,7 +728,7 @@ export namespace bindEngine {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { engine, finalOwner, vault, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...bindEngine.call({ engine, finalOwner, vault }),
     } as never)) as never
@@ -832,6 +840,8 @@ export async function bindEngineSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = bindEngine.extractEvent(receipt.logs, { engine })
   return { engine, vault: args.earnVault, receipt }
 }
@@ -852,7 +862,7 @@ export namespace bindEngineSync {
     vault: Address
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 export type DeployErc4626StackErrorType = DeployErc4626StackError & {
@@ -907,7 +917,6 @@ export class DeployErc4626StackError extends BaseError {
  * })
  * const result = await Actions.earn.deployErc4626StackSync(client, {
  *   deploymentId: '0x...',
- *   factories: { earn: '0x...', erc4626Engine: '0x...' },
  *   venue: '0x...',
  * })
  * ```
@@ -923,7 +932,8 @@ export async function deployErc4626StackSync<
   client: Client<Transport, chain, account>,
   parameters: deployErc4626StackSync.Parameters<chain, account>,
 ): Promise<deployErc4626StackSync.ReturnValue> {
-  const deployer = parameters.account ?? client.account
+  const deployer =
+    parameters.account === undefined ? client.account : parameters.account
   if (!deployer) throw new AccountNotFoundError()
   const owner_ = parameters.owner ?? deployer
   const owner = parseAccount(owner_).address
@@ -940,6 +950,20 @@ export async function deployErc4626StackSync<
   )
     throw new Error('`bindingAccount` must match `owner`.')
 
+  const factories = (() => {
+    if (parameters.factories) return parameters.factories
+    if (!client.chain) throw new ChainNotFoundError()
+    return {
+      earn: getChainContractAddress({
+        chain: client.chain,
+        contract: 'earnFactory',
+      }),
+      erc4626Engine: getChainContractAddress({
+        chain: client.chain,
+        contract: 'erc4626EngineFactory',
+      }),
+    }
+  })()
   validateDeploymentId(parameters.deploymentId)
   if (
     parameters.resume &&
@@ -948,7 +972,7 @@ export async function deployErc4626StackSync<
   )
     throw new Error('The resumed deployment ID does not match `deploymentId`.')
   await validateContracts(client, {
-    factories: parameters.factories,
+    factories,
     venue: parameters.venue,
   })
 
@@ -956,6 +980,7 @@ export async function deployErc4626StackSync<
     gas: _,
     keyAuthorization: __,
     nonce: ___,
+    owner: ____,
     ...sharedWriteParameters
   } = pickWriteParameters(parameters as never)
   const writeParameters = {
@@ -966,7 +991,7 @@ export async function deployErc4626StackSync<
   }
   const engineArgs = {
     deploymentId: parameters.deploymentId,
-    factory: parameters.factories.erc4626Engine,
+    factory: factories.erc4626Engine,
     name: parameters.name,
     owner,
     symbol: parameters.symbol,
@@ -1018,8 +1043,10 @@ export async function deployErc4626StackSync<
         } as never,
       )
       receipts.engine = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       createErc4626Engine.extractEvent(receipt.logs, {
-        factory: parameters.factories.erc4626Engine,
+        factory: factories.erc4626Engine,
       })
     }
     await verifyEngine(client, engineArgs, predictedEngine)
@@ -1032,7 +1059,7 @@ export async function deployErc4626StackSync<
     deploymentId: parameters.deploymentId,
     distributor: parameters.distributor,
     engine: predictedEngine,
-    factory: parameters.factories.earn,
+    factory: factories.earn,
     fees: parameters.fees,
     owner,
     transferPolicyId: parameters.transferPolicyId,
@@ -1072,8 +1099,10 @@ export async function deployErc4626StackSync<
         ...stackArgs,
       } as never)
       receipts.stack = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       const { args } = createStack.extractEvent(receipt.logs, {
-        factory: parameters.factories.earn,
+        factory: factories.earn,
       })
       state.vault = args.earnVault
       if (
@@ -1092,7 +1121,7 @@ export async function deployErc4626StackSync<
       if (!state.vault) {
         const event = await findStackDeployment(client, {
           earnShare: predicted.earnShare,
-          factory: parameters.factories.earn,
+          factory: factories.earn,
           fromBlock: parameters.fromBlock,
         })
         state.vault = event.args.earnVault
@@ -1148,6 +1177,8 @@ export async function deployErc4626StackSync<
         bindingParameters as never,
       )
       receipts.binding = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       bindEngine.extractEvent(receipt.logs, { engine: predictedEngine })
     } else if (!isAddressEqual(boundVault, vault)) {
       throw new Error(`Engine is already bound to ${boundVault}.`)
@@ -1179,7 +1210,7 @@ export namespace deployErc4626StackSync {
     account extends Account | undefined = Account | undefined,
   > = Omit<
     WriteParameters<chain, account>,
-    'gas' | 'keyAuthorization' | 'nonce' | 'throwOnReceiptRevert'
+    'gas' | 'keyAuthorization' | 'nonce' | 'owner' | 'throwOnReceiptRevert'
   > &
     WriteSyncParameters<chain, account> & {
       /** Account used only for the final owner binding. */
@@ -1190,8 +1221,8 @@ export namespace deployErc4626StackSync {
       deploymentId: Hex.Hex
       /** Optional protected fee distributor. */
       distributor?: EarnDistributorConfiguration | undefined
-      /** Reviewed factory pair from one Earn release. */
-      factories: EarnFactoryAddresses
+      /** Reviewed factory pair from one Earn release. @default `client.chain.contracts` */
+      factories?: EarnFactoryAddresses | undefined
       /** Initial fee configuration. Omit for fee-free deployment. */
       fees?: EarnFeeConfiguration | undefined
       /** First block to search for a prior factory deployment event. */

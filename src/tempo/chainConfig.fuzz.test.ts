@@ -10,7 +10,11 @@ const nonceMode = fc.oneof(
   fc.constant({ kind: 'automatic' } as const),
   fc.constant({ kind: 'expiring' } as const),
   fc
-    .oneof(fc.bigInt({ min: 0n, max: 1_000n }), fc.constant(maxUint256))
+    .oneof(
+      fc.constant(0n),
+      fc.bigInt({ min: 1n, max: 1_000n }),
+      fc.constant(maxUint256),
+    )
     .map((value) => ({ kind: 'explicit' as const, value })),
 )
 
@@ -105,20 +109,23 @@ describe('prepareTransactionRequest: fuzz', () => {
 
             if (isExpiring) {
               expect(output.nonceKey).toBe(maxUint256)
-              expect(output.nonce).toBe(0)
-              if (typeof input.validAfter === 'number')
-                expect(output.validAfter).toBe(input.validAfter)
+              if (typeof input.nonce === 'number')
+                expect(output.nonce).toBe(input.nonce)
               else {
-                expect(output.validAfter).toBeGreaterThanOrEqual(0)
-                expect(output.validAfter).toBeLessThan(now - 60)
+                expect(output.nonce).toBeGreaterThanOrEqual(0)
+                expect(output.nonce).toBeLessThan(2 ** 48)
               }
-              expect(output.validBefore).toBe(input.validBefore ?? now + 25)
+              expect(output.validAfter).toBe(input.validAfter)
+              expect(output.validBefore).toBe(input.validBefore ?? now + 270)
               continue
             }
 
             if (input.nonceMode.kind === 'explicit') {
               expect(output.nonceKey).toBe(input.nonceMode.value)
-              expect(output.nonce).toBe(input.nonce ?? 0)
+              // Nonce key 0 is the protocol nonce, which core fills later.
+              if (input.nonceMode.value === 0n)
+                expect(output.nonce).toBe(input.nonce)
+              else expect(output.nonce).toBe(input.nonce ?? 0)
             } else {
               expect(output.nonceKey).toBeUndefined()
               expect(output.nonce).toBe(input.nonce)

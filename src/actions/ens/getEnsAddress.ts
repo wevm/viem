@@ -25,6 +25,7 @@ import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
+import { type PadErrorType, pad } from '../../utils/data/pad.js'
 import { type SizeErrorType, size } from '../../utils/data/size.js'
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
@@ -85,6 +86,7 @@ export type GetEnsAddressErrorType =
   | NamehashErrorType
   | ToHexErrorType
   | PacketToBytesErrorType
+  | PadErrorType
   | DecodeFunctionResultErrorType
   | SizeErrorType
   | TrimErrorType
@@ -205,8 +207,20 @@ function decodeAddress({
   } catch (err) {
     if (coinType == null) throw err
 
+    const addressSize = 20
+    const abiWordSize = 32
     const address = trim(data)
-    if (size(address) === 20) return getAddress(address)
+    const addressLength = size(address)
+    const dataSize = size(data)
+    // Ethereum (ENSIP-9) and EVM chain (ENSIP-11) coin types use 20-byte addresses.
+    if (
+      (coinType === 60n ||
+        (coinType >= 0x80000000n && coinType <= 0xffffffffn)) &&
+      (dataSize === addressSize || dataSize === abiWordSize) &&
+      addressLength < addressSize
+    )
+      return getAddress(pad(address, { size: addressSize }))
+    if (addressLength === addressSize) return getAddress(address)
 
     throw err
   }

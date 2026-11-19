@@ -17,11 +17,13 @@ export function ccipReadTunnel({
   ccipRequest = ccipRequest_,
 }: CcipReadTunnelParameters): { request: typeof ccipRequest_ } {
   return {
-    async request({ data, sender, urls }) {
+    async request({ data, requestOptions, sender, timeout, urls }) {
       if (urls.includes(localBatchGatewayUrl)) {
         return ccipRequest({
           data,
+          requestOptions,
           sender,
+          timeout,
           urls: batchGateways,
         })
       } else {
@@ -34,7 +36,9 @@ export function ccipReadTunnel({
               functionName: 'query',
               args: [[{ sender, data, urls }]],
             }),
+            requestOptions,
             sender,
+            timeout,
             urls: batchGateways,
           }),
         })

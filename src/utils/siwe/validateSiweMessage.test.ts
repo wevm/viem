@@ -1,5 +1,6 @@
 import { expect, test, vi } from 'vitest'
 
+import { parseSiweMessage } from './parseSiweMessage.js'
 import type { SiweMessage } from './types.js'
 import { validateSiweMessage } from './validateSiweMessage.js'
 
@@ -75,6 +76,34 @@ test('behavior: nonce mismatch', () => {
       message,
     }),
   ).toBeFalsy()
+})
+
+test('behavior: nonce shorter than 8 characters', () => {
+  const parsed =
+    parseSiweMessage(`example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobar
+Issued At: 2023-02-01T00:00:00.000Z`)
+
+  expect(validateSiweMessage({ message: parsed })).toBeFalsy()
+})
+
+test('behavior: version other than 1', () => {
+  const parsed =
+    parseSiweMessage(`example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+URI: https://example.com/path
+Version: 2
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`)
+
+  expect(validateSiweMessage({ message: parsed })).toBeFalsy()
 })
 
 test('behavior: scheme mismatch', () => {

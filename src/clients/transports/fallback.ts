@@ -1,3 +1,4 @@
+import { BaseError } from '../../errors/base.js'
 import { ExecutionRevertedError } from '../../errors/node.js'
 import {
   TransactionRejectedRpcError,
@@ -125,7 +126,7 @@ export function fallback<const transports extends readonly Transport[]>(
       {
         key,
         name,
-        async request({ method, params }) {
+        async request({ method, params }, options) {
           let includes: boolean | undefined
 
           const fetch = async (i = 0): Promise<any> => {
@@ -136,10 +137,13 @@ export function fallback<const transports extends readonly Transport[]>(
               timeout,
             })
             try {
-              const response = await transport.request({
-                method,
-                params,
-              } as any)
+              const response = await transport.request(
+                {
+                  method,
+                  params,
+                } as any,
+                options,
+              )
 
               onResponse({
                 method,
@@ -160,6 +164,16 @@ export function fallback<const transports extends readonly Transport[]>(
               })
 
               if (shouldThrow_(err as Error)) throw err
+
+              // The node accepted the transaction but stopped waiting for its
+              // receipt (EIP-7966), so do not send it to the next one. Custom
+              // transports wrap the provider's error, so check the causes too.
+              if (
+                method === 'eth_sendRawTransactionSync' &&
+                err instanceof BaseError &&
+                err.walk((e) => (e as { code?: unknown } | null)?.code === 4)
+              )
+                throw err
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err
@@ -291,7 +305,8 @@ export function rankTransports({
         const meanLatency =
           latencies.reduce((acc, latency) => acc + latency, 0) /
           latencies.length
-        const latencyScore = 1 - meanLatency / maxLatency
+        // When every sampled latency is 0 ms, each Transport is equally fast.
+        const latencyScore = maxLatency === 0 ? 1 : 1 - meanLatency / maxLatency
 
         const successes = samples.map((sample) => sample[i].success)
         const stabilityScore =

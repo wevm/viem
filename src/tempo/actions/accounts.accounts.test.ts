@@ -1,0 +1,274 @@
+import { AccountConfig } from 'ox/tempo'
+import { custom, toHex } from 'viem'
+import { waitForTransactionReceipt } from 'viem/actions'
+import { beforeAll, describe, expect, test } from 'vitest'
+import { accounts, chain, feeToken, getClient } from '~test/tempo/config.js'
+import * as Account from '../Account.js'
+import * as actions from './index.js'
+
+const client = getClient()
+const account = Account.fromConfig({
+  address: 'infer',
+  owners: [accounts[17], accounts[18]],
+  salt: toHex(0x502200, { size: 32 }),
+  threshold: 2,
+})
+
+beforeAll(async () => {
+  await actions.token.transferSync(client, {
+    account: accounts[0],
+    amount: { formatted: '10000' },
+    to: account.address,
+    token: feeToken,
+  })
+})
+
+describe('getConfigCommitment', () => {
+  test('behavior: initial account', async () => {
+    await expect(
+      actions.accounts.getConfigCommitment(client, {
+        account: account.address,
+      }),
+    ).resolves.toMatchInlineSnapshot(
+      `"0x0000000000000000000000000000000000000000000000000000000000000000"`,
+    )
+  })
+})
+
+describe('updateConfig', () => {
+  test('behavior: preserves a JSON-RPC account override', async () => {
+    const hash = `0x${'01'.repeat(32)}` as const
+    const requests: unknown[] = []
+    const client = getClient({
+      account: accounts[0].address,
+      transport: custom({
+        async request(request) {
+          requests.push(request)
+          if (request.method === 'eth_chainId') return toHex(chain.id)
+          if (request.method === 'eth_sendTransaction') return hash
+          throw new Error(`Unexpected request: ${request.method}`)
+        },
+      }),
+    })
+
+    const result = await actions.accounts.updateConfig(client, {
+      account: { address: account.address, type: 'json-rpc' },
+      currentConfig: account.config,
+      nextConfig: {
+        owners: account.config.owners,
+        threshold: account.config.threshold,
+      },
+    })
+
+    expect({ requests, result }).toMatchInlineSnapshot(
+      {
+        requests: [{}, { params: [{ data: expect.any(String) }] }],
+      },
+      `
+      {
+        "requests": [
+          {
+            "method": "eth_chainId",
+          },
+          {
+            "method": "eth_sendTransaction",
+            "params": [
+              {
+                "data": Any<String>,
+                "from": "0xAE12465Eb9301b14296d15788730393e5d8DA1a2",
+                "to": "0xAACC000000000000000000000000000000000000",
+              },
+            ],
+          },
+        ],
+        "result": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      }
+    `,
+    )
+  })
+
+  test('behavior: preserves a null account override', async () => {
+    const client = getClient({ account })
+
+    const error = await actions.accounts
+      .updateConfig(client, {
+        account: null,
+        currentConfig: account.config,
+        nextConfig: {
+          owners: account.config.owners,
+          threshold: account.config.threshold,
+        },
+      })
+      .catch((error) => error)
+    const commitment = await actions.accounts.getConfigCommitment(client, {
+      account: account.address,
+    })
+
+    expect({
+      commitment,
+      details: error.details,
+      name: error.name,
+      sender: error.sender,
+    }).toMatchInlineSnapshot(`
+      {
+        "commitment": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "details": "unknown account",
+        "name": "ContractFunctionExecutionError",
+        "sender": undefined,
+      }
+    `)
+  })
+
+  test('behavior: commits the first current config', async () => {
+    const hash = await actions.accounts.updateConfig(client, {
+      account,
+      currentConfig: account.config,
+      nextConfig: {
+        owners: account.config.owners,
+        threshold: account.config.threshold,
+      },
+    })
+    const receipt = await waitForTransactionReceipt(client, { hash })
+    const config = AccountConfig.from({ ...account.config, version: 1n })
+    const commitment = await actions.accounts.getConfigCommitment(client, {
+      account: account.address,
+    })
+
+    expect({
+      commitment,
+      expectedCommitment: AccountConfig.getCommitment(config),
+      status: receipt.status,
+    }).toMatchInlineSnapshot(`
+      {
+        "commitment": "0x154196a1517765db82d3909507ff65d62e72c024b7de29e2927430886c7aa1ee",
+        "expectedCommitment": "0x154196a1517765db82d3909507ff65d62e72c024b7de29e2927430886c7aa1ee",
+        "status": "success",
+      }
+    `)
+  })
+})
+
+describe('upgrade', () => {
+  test('behavior: null account ignores the client account', async () => {
+    const client = getClient({ account })
+
+    const error = await actions.accounts
+      .upgrade(client, {
+        account: null,
+        owners: [{ owner: accounts[2].address, weight: 1 }],
+        threshold: 1,
+      })
+      .catch((error) => error)
+
+    const { details, name, shortMessage } = error
+    expect({ details, name, shortMessage }).toMatchInlineSnapshot(`
+      {
+        "details": "unknown account",
+        "name": "ContractFunctionExecutionError",
+        "shortMessage": "Invalid parameters were provided to the RPC method.
+      Double check you have provided the correct parameters.",
+      }
+    `)
+  })
+})
+
+describe('updateConfigSync', () => {
+  test('behavior: returns the committed config', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[17], accounts[18]],
+      salt: toHex(0x502201, { size: 32 }),
+      threshold: 2,
+    })
+    await actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: feeToken,
+    })
+
+    const result = await actions.accounts.updateConfigSync(client, {
+      account,
+      currentConfig: account.config,
+      nextConfig: {
+        owners: account.config.owners,
+        threshold: account.config.threshold,
+      },
+    })
+
+    expect(result).toMatchInlineSnapshot(
+      {
+        receipt: {
+          blockHash: expect.any(String),
+          blockNumber: expect.any(BigInt),
+          cumulativeGasUsed: expect.any(BigInt),
+          effectiveGasPrice: expect.any(BigInt),
+          gasUsed: expect.any(BigInt),
+          logs: expect.any(Array),
+          logsBloom: expect.any(String),
+          transactionHash: expect.any(String),
+          transactionIndex: expect.any(Number),
+        },
+      },
+      `
+      {
+        "account": "0xaD1d68952B2F49864F58D9939B97aF0b8582cA92",
+        "config": {
+          "owners": [
+            {
+              "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+              "weight": 1,
+            },
+            {
+              "owner": "0x2d6776fd5eA3C530b990268078Ac39aC2AE1E6A8",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000502201",
+          "threshold": 2,
+          "version": 1n,
+        },
+        "receipt": {
+          "blockHash": Any<String>,
+          "blockNumber": Any<BigInt>,
+          "contractAddress": null,
+          "cumulativeGasUsed": Any<BigInt>,
+          "effectiveGasPrice": Any<BigInt>,
+          "feePayer": "0xad1d68952b2f49864f58d9939b97af0b8582ca92",
+          "feeToken": "0x20c0000000000000000000000000000000000000",
+          "from": "0xad1d68952b2f49864f58d9939b97af0b8582ca92",
+          "gasUsed": Any<BigInt>,
+          "logs": Any<Array>,
+          "logsBloom": Any<String>,
+          "operation": undefined,
+          "status": "success",
+          "to": "0xaacc000000000000000000000000000000000000",
+          "transactionHash": Any<String>,
+          "transactionIndex": Any<Number>,
+          "type": "0x76",
+        },
+      }
+    `,
+    )
+    await expect(
+      actions.accounts.getConfigCommitment(client, {
+        account: account.address,
+      }),
+    ).resolves.toBe(AccountConfig.getCommitment(result.config))
+
+    const rotated = await actions.accounts.updateConfigSync(client, {
+      account,
+      currentConfig: result.config,
+      nextConfig: {
+        owners: result.config.owners,
+        threshold: result.config.threshold,
+      },
+    })
+    expect(rotated.config.version).toMatchInlineSnapshot(`2n`)
+    await expect(
+      actions.accounts.getConfigCommitment(client, {
+        account: account.address,
+      }),
+    ).resolves.toBe(AccountConfig.getCommitment(rotated.config))
+  })
+})

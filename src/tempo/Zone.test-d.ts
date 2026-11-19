@@ -21,9 +21,14 @@ test('exposes Zone definitions', () => {
   >()
   expectTypeOf(Zone.internalTestnet.sourceId).toEqualTypeOf<42431>()
   expectTypeOf(Addresses.zonePortal(Zone.a.id)).toEqualTypeOf<`0x${string}`>()
-  expectTypeOf(
-    Zone.from({ id: 123, name: 'Custom Zone', sourceId: 1 }),
-  ).toHaveProperty('id')
+  const zone = Zone.from({ id: 123, name: 'Custom Zone', sourceId: 1 })
+  expectTypeOf(zone.id).toEqualTypeOf<123>()
+  expectTypeOf(zone.name).toEqualTypeOf<'Custom Zone'>()
+  expectTypeOf(zone.rpcUrls.default.http).toEqualTypeOf<string[]>()
+  expectTypeOf(zone.sourceId).toEqualTypeOf<1>()
+
+  const annotated: ReturnType<typeof Zone.from> = zone
+  expectTypeOf(annotated.id).toEqualTypeOf<number>()
 })
 
 test('exposes Zone protocol addresses', () => {

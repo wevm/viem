@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.56.0",
+  "version": "2.58.2",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -240,9 +240,13 @@
     }
   },
   "peerDependencies": {
+    "mppx": ">=0.17.0",
     "typescript": ">=5.0.4"
   },
   "peerDependenciesMeta": {
+    "mppx": {
+      "optional": true
+    },
     "typescript": {
       "optional": true
     }
@@ -254,7 +258,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "0.14.34",
+    "ox": "0.14.67",
     "ws": "8.21.0"
   },
   "license": "MIT",

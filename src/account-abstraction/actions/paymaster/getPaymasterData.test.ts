@@ -8,6 +8,7 @@ import {
 } from '~test/account-abstraction.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { bundlerMainnet } from '~test/bundler.js'
+import { createHttpServer } from '~test/utils.js'
 import { mine, signAuthorization } from '../../../actions/index.js'
 import { http } from '../../../clients/transports/http.js'
 import { parseEther } from '../../../utils/index.js'
@@ -186,4 +187,47 @@ describe('entryPointVersion: 0.7', async () => {
     const receipt = await getUserOperationReceipt(bundlerClient, { hash })
     expect(receipt.success).toBeTruthy()
   })
+})
+
+test('behavior: returns paymaster fields only', async () => {
+  const server = await createHttpServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(
+      JSON.stringify({
+        result: {
+          paymaster: '0x0000000000000000000000000000000000000001',
+          paymasterData: '0xdeadbeef',
+          paymasterPostOpGasLimit: '0x1',
+          paymasterVerificationGasLimit: '0x2',
+          callData: '0xcafebabe',
+          maxFeePerGas: '0x3',
+          maxPriorityFeePerGas: '0x4',
+          nonce: '0x5',
+          sender: '0x0000000000000000000000000000000000000002',
+        },
+      }),
+    )
+  })
+  const paymasterClient = createPaymasterClient({
+    transport: http(server.url),
+  })
+
+  const result = await getPaymasterData(paymasterClient, {
+    callData: '0x',
+    chainId: 1,
+    entryPointAddress: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+    nonce: 0n,
+    sender: '0x0000000000000000000000000000000000000003',
+  })
+
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "paymaster": "0x0000000000000000000000000000000000000001",
+      "paymasterData": "0xdeadbeef",
+      "paymasterPostOpGasLimit": 1n,
+      "paymasterVerificationGasLimit": 2n,
+    }
+  `)
+
+  await server.close()
 })

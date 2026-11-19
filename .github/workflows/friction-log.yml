@@ -27,12 +27,12 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           ref: ${{ github.sha }}
 
       - name: Report and reconcile frictions
-        uses: wevm/frog/action@v1
+        uses: wevm/frog/action@702c4eadefe175a208290a99c36e7f4ac1390e53 # v1
         with:
           issue-author: github-actions[bot]

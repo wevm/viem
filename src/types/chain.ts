@@ -5,6 +5,7 @@ import type {
   VerifyHashParameters,
   VerifyHashReturnType,
 } from '../actions/public/verifyHash.js'
+import type { ReplacementReason } from '../actions/public/waitForTransactionReceipt.js'
 import type { PrepareTransactionRequestParameters } from '../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
@@ -79,13 +80,19 @@ export type Chain<
 
 type PrepareTransactionRequestPhase =
   | 'beforeFillTransaction'
+  | 'afterFillTransactionError'
   | 'beforeFillParameters'
   | 'afterFillParameters'
 
 type PrepareTransactionRequestFn = (
   args: PrepareTransactionRequestParameters,
-  options: { client: Client; phase: PrepareTransactionRequestPhase },
-) => Promise<PrepareTransactionRequestParameters>
+  options: {
+    client: Client
+    /** Error from `eth_fillTransaction`. Set in the `afterFillTransactionError` phase. */
+    error?: unknown
+    phase: PrepareTransactionRequestPhase
+  },
+) => Promise<PrepareTransactionRequestParameters | undefined>
 
 type ChainVerifyHashFn = (
   client: Client,
@@ -116,6 +123,7 @@ export type ChainConfig<
            * Phases to run the function at.
            *
            * - `beforeFillTransaction`: Before the transaction is attempted to be filled via `eth_fillTransaction`.
+           * - `afterFillTransactionError`: After `eth_fillTransaction` fails. Return a request to retry the fill once with it, or `undefined` to continue without it.
            * - `beforeFillParameters`: Before missing parameters are filled.
            * - `afterFillParameters`: After missing parameters are filled.
            */
@@ -125,8 +133,50 @@ export type ChainConfig<
     | undefined
   /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
+  /**
+   * Chain-specific transaction replacement semantics, used by
+   * `waitForTransactionReceipt`.
+   */
+  transactionReplacement?: ChainTransactionReplacement | undefined
   /** Chain-specific signature verification. */
   verifyHash?: ChainVerifyHashFn | undefined
+}
+
+/////////////////////////////////////////////////////////////////////
+// Transaction replacement
+/////////////////////////////////////////////////////////////////////
+
+/** A formatted transaction, as seen by transaction replacement hooks. */
+type ReplacementTransaction = {
+  from: Address
+  hash: `0x${string}`
+  nonce: number
+}
+
+/**
+ * Chain-specific transaction replacement semantics. `waitForTransactionReceipt`
+ * uses it to find which mined transaction replaced a pending one, and why.
+ */
+export type ChainTransactionReplacement = {
+  /**
+   * Returns the key of the sender's nonce slot that a transaction consumes. A
+   * mined transaction from the same sender with the same key replaces a
+   * pending one.
+   *
+   * @default `String(transaction.nonce)`
+   */
+  getKey?: ((transaction: ReplacementTransaction) => string) | undefined
+  /**
+   * Classifies a replacement.
+   *
+   * @default Compares `to`, `value`, and `input`.
+   */
+  getReason?:
+    | ((parameters: {
+        replaced: ReplacementTransaction
+        replacement: ReplacementTransaction
+      }) => ReplacementReason)
+    | undefined
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -250,7 +300,21 @@ export type ChainSerializers<
   transaction?:
     | SerializeTransactionFn<transaction, TransactionSerializedGeneric>
     | undefined
+  /** Modifies how signed Transactions are serialized into an envelope. */
+  transactionEnvelope?: ChainTransactionEnvelopeFn<transaction> | undefined
 }
+
+// Method extraction preserves assignability between generic Chain variants.
+type ChainTransactionEnvelopeFn<
+  transaction extends TransactionSerializableGeneric,
+> = {
+  fn(parameters: {
+    /** Serialized signed transaction. */
+    serializedTransaction: TransactionSerializedGeneric
+    /** Transaction before envelope serialization. */
+    transaction: transaction
+  }): TransactionSerializedGeneric | Promise<TransactionSerializedGeneric>
+}['fn']
 
 /////////////////////////////////////////////////////////////////////
 // Utils

@@ -18,6 +18,7 @@ test('exports utils', () => {
       "toAccount",
       "parseAccount",
       "privateKeyToAddress",
+      "InvalidPublicKeyError",
       "publicKeyToAddress",
       "setSignEntropy",
       "sign",

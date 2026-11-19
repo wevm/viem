@@ -123,7 +123,7 @@ test('args: shouldSplitBatch', async () => {
     id: uid(),
     // biome-ignore lint/complexity/noCommaOperator: _
     fn: async (args: number[]) => (fn(), args),
-    shouldSplitBatch: (args) => args.length > 3,
+    shouldSplitBatch: (size) => size > 3,
   })
 
   const p = []
@@ -195,8 +195,8 @@ describe('behavior', () => {
       wait: 16,
       // biome-ignore lint/complexity/noCommaOperator: _
       fn: async (args: string[]) => (fn(), args),
-      shouldSplitBatch: (args) =>
-        args.reduce((acc, x) => acc + x.length, 0) > 20,
+      getSize: (x) => x.length,
+      shouldSplitBatch: (size) => size > 20,
     })
 
     const p = []
@@ -244,5 +244,68 @@ describe('behavior', () => {
     await expect(() =>
       Promise.all([schedule(1), schedule(2), schedule(3), schedule(4)]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: [1,2,3,4]]')
+  })
+
+  test('throws error synchronously', async () => {
+    const { schedule } = createBatchScheduler({
+      id: uid(),
+      fn: (args) => {
+        throw new Error(JSON.stringify(args))
+      },
+    })
+
+    await expect(() =>
+      Promise.all([schedule(1), schedule(2), schedule(3), schedule(4)]),
+    ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: [1,2,3,4]]')
+  })
+
+  test('split flush cancels the pending wait timer', async () => {
+    const { schedule } = createBatchScheduler({
+      id: uid(),
+      wait: 30,
+      fn: async (args: number[]) => args,
+      shouldSplitBatch: (size) => size > 2,
+    })
+
+    const p = [schedule(1), schedule(2)]
+    await wait(10)
+    // Splits off [1, 2]; the batch for 3 waits 30ms from here.
+    p.push(schedule(3))
+    // Past the timer armed for [1, 2], before the one armed for 3.
+    await wait(25)
+    p.push(schedule(4))
+
+    expect(await Promise.all(p)).toMatchInlineSnapshot(`
+      [
+        [
+          1,
+          [
+            1,
+            2,
+          ],
+        ],
+        [
+          2,
+          [
+            1,
+            2,
+          ],
+        ],
+        [
+          3,
+          [
+            3,
+            4,
+          ],
+        ],
+        [
+          4,
+          [
+            3,
+            4,
+          ],
+        ],
+      ]
+    `)
   })
 })

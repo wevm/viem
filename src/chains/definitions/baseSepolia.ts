@@ -8,6 +8,7 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
   id: 84532,
   network: 'base-sepolia',
   name: 'Base Sepolia',
+  blockTime: 200,
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {

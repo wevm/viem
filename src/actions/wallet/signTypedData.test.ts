@@ -454,6 +454,26 @@ describe('args: domain: salt', () => {
   })
 })
 
+test('fixed-length array: wrong number of elements', async () => {
+  await expect(() =>
+    signTypedData(client, {
+      account: jsonRpcAccount,
+      types: {
+        Message: [{ name: 'values', type: 'uint256[2]' }],
+      },
+      primaryType: 'Message',
+      // @ts-expect-error
+      message: { values: [1n, 2n, 3n] },
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+    Expected length: 2
+    Given length: 3
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('no account', async () => {
   await expect(() =>
     // @ts-expect-error

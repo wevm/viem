@@ -114,6 +114,111 @@ describe('converts bytes to bigint', () => {
   })
 })
 
+test('bytesToNumber and bytesToBigInt edge cases', () => {
+  const run = (fn: () => unknown) => {
+    try {
+      return fn()
+    } catch (error) {
+      return `${(error as Error).name}: ${(error as Error).message.split('\n')[0]}`
+    }
+  }
+  const bytes = [
+    [],
+    [0],
+    [0, 0, 0, 0, 0, 0, 0, 0x20],
+    [0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+    [0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+    [0x1f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+    [0x20, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0x80],
+    [0xff, 0xfe],
+  ].map((value) => new Uint8Array(value))
+
+  expect(
+    bytes.map((value) => [
+      bytesToHex(value),
+      run(() => bytesToNumber(value)),
+      run(() => bytesToBigInt(value)),
+      run(() => bytesToNumber(value, { signed: true })),
+      run(() => bytesToBigInt(value, { size: 7 })),
+    ]),
+  ).toMatchInlineSnapshot(`
+    [
+      [
+        "0x",
+        "SyntaxError: Cannot convert 0x to a BigInt",
+        "SyntaxError: Cannot convert 0x to a BigInt",
+        "SyntaxError: Cannot convert 0x to a BigInt",
+        "SyntaxError: Cannot convert 0x to a BigInt",
+      ],
+      [
+        "0x00",
+        0,
+        0n,
+        0,
+        0n,
+      ],
+      [
+        "0x0000000000000020",
+        32,
+        32n,
+        32,
+        "SizeOverflowError: Size cannot exceed 7 bytes. Given size: 8 bytes.",
+      ],
+      [
+        "0xffffffffffff",
+        281474976710655,
+        281474976710655n,
+        -1,
+        281474976710655n,
+      ],
+      [
+        "0x00ffffffffffff",
+        281474976710655,
+        281474976710655n,
+        281474976710655,
+        281474976710655n,
+      ],
+      [
+        "0x1fffffffffffff",
+        9007199254740991,
+        9007199254740991n,
+        9007199254740991,
+        9007199254740991n,
+      ],
+      [
+        "0x20000000000000",
+        "IntegerOutOfRangeError: Number "9007199254740992n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        9007199254740992n,
+        "IntegerOutOfRangeError: Number "9007199254740992n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        9007199254740992n,
+      ],
+      [
+        "0x010000000000000000",
+        "IntegerOutOfRangeError: Number "18446744073709551616n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        18446744073709551616n,
+        "IntegerOutOfRangeError: Number "18446744073709551616n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        "SizeOverflowError: Size cannot exceed 7 bytes. Given size: 9 bytes.",
+      ],
+      [
+        "0x80",
+        128,
+        128n,
+        -128,
+        128n,
+      ],
+      [
+        "0xfffe",
+        65534,
+        65534n,
+        -2,
+        65534n,
+      ],
+    ]
+  `)
+})
+
 describe('converts bytes to boolean', () => {
   test('default', () => {
     expect(fromBytes(new Uint8Array([0]), 'boolean')).toMatchInlineSnapshot(
@@ -196,6 +301,10 @@ describe('converts bytes to string', () => {
         ]),
       ),
     ).toMatchInlineSnapshot(`"Hello World!"`)
+    // A snapshot would render U+FEFF invisibly.
+    expect(bytesToString(new Uint8Array([0xef, 0xbb, 0xbf, 104, 105]))).toBe(
+      '\uFEFFhi',
+    )
   })
 
   test('args: size', () => {
@@ -220,6 +329,11 @@ describe('converts bytes to string', () => {
 
       Version: viem@x.y.z]
     `)
+  })
+
+  test('behavior: an incomplete sequence does not affect the next call', () => {
+    expect(bytesToString(new Uint8Array([0xe2, 0x82]))).toBe('\ufffd')
+    expect(bytesToString(new Uint8Array([0xac, 0x41]))).toBe('\ufffdA')
   })
 })
 

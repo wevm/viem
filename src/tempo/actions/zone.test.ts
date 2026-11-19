@@ -20,6 +20,7 @@ import {
   readContract,
   waitForTransactionReceipt,
   writeContract,
+  writeContractSync,
 } from 'viem/actions'
 import { tempoModerato } from 'viem/chains'
 import { Abis, Actions, Addresses } from 'viem/tempo'
@@ -30,6 +31,7 @@ import { addresses, chain, http, nodeEnv } from '~test/tempo/config.js'
 import { deployEarnGateway, deployEarnStack } from '~test/tempo/earn.js'
 import { defineZone, zoneAdminKey } from '~test/tempo/prool.js'
 import {
+  expectedSequencers,
   factoryAddress,
   getClient as getZoneClient,
   unredactedRpcUrl,
@@ -38,7 +40,7 @@ import {
 } from '~test/tempo/zones.js'
 import { createHttpServer } from '~test/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
-import * as Storage from '../Storage.js'
+import * as Store from '../Store.js'
 import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
@@ -217,7 +219,19 @@ describe('zone instance', () => {
     async () => {
       if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-      const secondary = defineZone({ factoryAddress })
+      const secondaryAccount = privateKeyToAccount(accounts[1].privateKey)
+      const secondary = defineZone({
+        factoryAddress,
+        key: accounts[1].privateKey,
+      })
+
+      // Concurrent sequencers need distinct accounts because they use the same L1 nonce keys.
+      await writeContractSync(portalAdminClient, {
+        abi: Abis.zoneFactory,
+        address: factoryAddress,
+        args: [secondaryAccount.address],
+        functionName: 'transferOwnership',
+      })
 
       try {
         const [zone_, sameZone] = await Promise.all([
@@ -249,6 +263,13 @@ describe('zone instance', () => {
         expect(info.zoneId).toBe(zoneId)
       } finally {
         await secondary.stop()
+        await writeContractSync(portalAdminClient, {
+          abi: Abis.zoneFactory,
+          account: secondaryAccount,
+          address: factoryAddress,
+          args: [portalAdmin.address],
+          functionName: 'transferOwnership',
+        })
       }
     },
     150_000,
@@ -270,22 +291,22 @@ describe('signAuthorizationToken', () => {
     expect(BigInt(blockNumber)).toBeGreaterThanOrEqual(0n)
   })
 
-  test('behavior: custom issuedAt/expiresAt/storage', async () => {
-    const storage = Storage.memory()
+  test('behavior: custom issuedAt/expiresAt/store', async () => {
+    const store = Store.memory()
     const issuedAt = Math.floor(Date.now() / 1000) - 100
     const expiresAt = issuedAt + 300
 
     const result = await zoneActions.signAuthorizationToken(zoneClient, {
       issuedAt,
       expiresAt,
-      storage,
+      store,
       zoneId,
     })
 
     expect(result.authentication).toBeDefined()
     expect(result.token).toBeDefined()
 
-    const stored = await storage.getItem(`auth:token:${zoneClient.chain.id}`)
+    const stored = await store.getItem(`auth:token:${zoneClient.chain.id}`)
     expect(stored).toBe(result.token)
   })
 
@@ -317,8 +338,19 @@ describe('getZoneInfo', () => {
 
     expect(info.zoneId).toBe(zoneId)
     expect(info.chainId).toBe(zoneClient.chain.id)
-    expect(info.sequencers).toHaveLength(1)
-    expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
+    if (expectedSequencers) {
+      expect(info.sequencers).toHaveLength(expectedSequencers.length)
+      expect(
+        expectedSequencers.every((expected) =>
+          info.sequencers.some((actual) => isAddressEqual(actual, expected)),
+        ),
+      ).toBe(true)
+    } else {
+      expect(info.sequencers).toHaveLength(1)
+      expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(
+        true,
+      )
+    }
     expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
   })
@@ -1173,6 +1205,8 @@ describe('earn', () => {
           zoneId,
         },
       )
+      if (assetDeposit.receipt.status === 'pending')
+        throw new Error('Expected submitted deposit receipt.')
       await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: assetDeposit.receipt.blockNumber,

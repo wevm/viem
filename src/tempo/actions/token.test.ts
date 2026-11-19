@@ -5,6 +5,7 @@ import {
   type EIP1193Parameters,
   type EIP1193RequestOptions,
   formatUnits,
+  http,
   type PublicRpcSchema,
   parseUnits,
 } from 'viem'
@@ -17,7 +18,9 @@ import {
   chain,
   feeToken,
   getClient,
+  setupToken,
 } from '~test/tempo/config.js'
+import { rpcUrl } from '~test/tempo/prool.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -725,6 +728,30 @@ describe('getMetadata', () => {
 })
 
 describe('mint', () => {
+  test('behavior: unauthorized minter', async () => {
+    const error = await actions.token
+      .mint(getClient({ account: account3 }), {
+        amount: 1n,
+        to: account3.address,
+        token: addresses.alphaUsd,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenUnauthorizedError)
+    expect(error).toMatchObject({
+      account: account3.address,
+      errorName: 'Unauthorized',
+      role: 'issuer',
+      token: addresses.alphaUsd,
+    })
+    expect(error.hints).toMatchInlineSnapshot(`
+      [
+        "Minting requires the issuer role. Grant it to this account first.",
+        "The account lacks the permission this call requires.",
+      ]
+    `)
+  })
+
   test('amount: supports formatted amounts', () => {
     const amount = parseUnits('1.25', 6)
 
@@ -742,6 +769,17 @@ describe('mint', () => {
         token: addresses.alphaUsd,
       }).args,
     ).toEqual([amount])
+
+    expect(
+      actions.token.burn.call(client, {
+        amount: { formatted: '1.25' },
+        from: account2.address,
+        token: addresses.alphaUsd,
+      }),
+    ).toMatchObject({
+      args: [account2.address, amount],
+      functionName: 'burnAt',
+    })
 
     expect(
       actions.token.burnBlocked.call(client, {
@@ -1094,6 +1132,38 @@ describe('transfer', () => {
       token: addresses.alphaUsd,
     })
     expect(allowance.amount).toBe(parseUnits('25', 6))
+  })
+
+  test.each([
+    ['transfer', actions.token.transfer],
+    ['transferSync', actions.token.transferSync],
+  ] as const)('behavior: %s with a json-rpc account', async (_, action) => {
+    const senders: unknown[] = []
+    const jsonRpcClient = getClient({
+      account: account2.address,
+      transport: http(rpcUrl, {
+        onFetchRequest(_request, init) {
+          const { method, params } = JSON.parse(init.body as string)
+          if (method === 'eth_sendTransaction') senders.push(params[0].from)
+        },
+      }),
+    })
+
+    for (const parameters of [{}, { feeToken }])
+      await action(jsonRpcClient, {
+        ...parameters,
+        amount: 1n,
+        from: account3.address,
+        to: account.address,
+        token: addresses.alphaUsd,
+      }).catch(() => {})
+
+    expect(senders).toMatchInlineSnapshot(`
+      [
+        "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+        "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+      ]
+    `)
   })
 })
 
@@ -2895,6 +2965,8 @@ describe('watchRole', () => {
       name: 'Role Watch Token',
       symbol: 'ROLE',
     })
+    if (receipt.status === 'pending')
+      throw new Error('Expected submitted token receipt.')
 
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args
@@ -3285,5 +3357,164 @@ describe('watchUpdateQuoteToken', () => {
     } finally {
       if (unwatch) unwatch()
     }
+  })
+})
+
+describe('errors', () => {
+  test('behavior: insufficient balance', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(client, {
+        amount: parseUnits('20000', 6),
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientBalanceError)
+    expect(error).toMatchObject({
+      available: parseUnits('10000', 6),
+      decimals: 6,
+      required: parseUnits('20000', 6),
+    })
+    expect(error.token.toLowerCase()).toBe(token.toLowerCase())
+    expect(error.message).toContain('shortfall:  10000 (10000000000)')
+  })
+
+  test('behavior: insufficient balance resolves without reads', async () => {
+    const { token } = await setupToken(client)
+    const methods: string[] = []
+    const recordingClient = getClient({
+      account,
+      chain: chainWithFeeToken,
+      transport: http(rpcUrl, {
+        onFetchRequest(_request, init) {
+          methods.push(JSON.parse(init.body as string).method)
+        },
+      }),
+    })
+
+    const error = await actions.token
+      .transferSync(recordingClient, {
+        amount: parseUnits('20000', 6),
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientBalanceError)
+    expect(error.decimals).toBe(6)
+    expect(methods).toMatchInlineSnapshot(`
+      [
+        "eth_fillTransaction",
+      ]
+    `)
+  })
+
+  test('behavior: decodes a reverted receipt by replaying the call', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(client, {
+        amount: parseUnits('20000', 6),
+        gas: 200_000n,
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientBalanceError)
+    expect(error.required).toBe(parseUnits('20000', 6))
+    expect(
+      error.walk(
+        (error: Error) => error.name === 'TransactionReceiptRevertedError',
+      ),
+    ).toBeTruthy()
+  })
+
+  test('behavior: insufficient allowance', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(getClient({ account: account2 }), {
+        amount: parseUnits('1', 6),
+        from: account.address,
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientAllowanceError)
+    expect(error).toMatchObject({
+      allowance: 0n,
+      amount: parseUnits('1', 6),
+      owner: account.address,
+      spender: account2.address,
+      token,
+    })
+  })
+
+  test('behavior: supply cap exceeded', async () => {
+    const { token } = await setupToken(client)
+    await actions.token.setSupplyCapSync(client, {
+      supplyCap: parseUnits('10001', 6),
+      token,
+    })
+    const error = await actions.token
+      .mintSync(client, {
+        amount: parseUnits('5', 6),
+        to: account.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenSupplyCapExceededError)
+    expect(error).toMatchObject({
+      amount: parseUnits('5', 6),
+      supplyCap: parseUnits('10001', 6),
+      token,
+      totalSupply: parseUnits('10000', 6),
+    })
+    expect(error.message).toContain('mintable amount:  1 (1000000)')
+  })
+
+  test('behavior: paused', async () => {
+    const { token } = await setupToken(client)
+    await actions.token.grantRolesSync(client, {
+      roles: ['pause'],
+      to: account.address,
+      token,
+    })
+    await actions.token.pauseSync(client, { token })
+    const error = await actions.token
+      .transferSync(client, { amount: 1n, to: account2.address, token })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenPausedError)
+    expect(error.token).toBe(token)
+  })
+
+  test('behavior: transfer policy forbids recipient', async () => {
+    const { token } = await setupToken(client)
+    const { policyId } = await actions.policy.createSync(client, {
+      addresses: [account2.address],
+      admin: account.address,
+      type: 'blacklist',
+    })
+    await actions.token.changeTransferPolicySync(client, { policyId, token })
+    const error = await actions.token
+      .transferSync(client, { amount: 1n, to: account2.address, token })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenPolicyForbidsError)
+    expect(error).toMatchObject({
+      from: account.address,
+      policyId,
+      recipientAuthorized: false,
+      senderAuthorized: true,
+      to: account2.address,
+      token,
+    })
+    expect(error.shortMessage).toContain(
+      `forbids recipient "${account2.address}"`,
+    )
   })
 })

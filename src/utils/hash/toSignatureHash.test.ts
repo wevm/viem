@@ -2,6 +2,31 @@ import { expect, test } from 'vitest'
 
 import { toSignatureHash } from './toSignatureHash.js'
 
+test('hashes repeated definitions', () => {
+  const hashes = [
+    toSignatureHash('function transfer(address to, uint256 amount)'),
+    toSignatureHash('function transfer(address to, uint256 amount)'),
+    toSignatureHash({
+      name: 'transfer',
+      type: 'function',
+      inputs: [
+        { name: 'to', type: 'address' },
+        { name: 'amount', type: 'uint256' },
+      ],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }),
+  ]
+
+  expect(hashes).toMatchInlineSnapshot(`
+    [
+      "0xa9059cbb2ab09eb219583f4a59a5d0623ade346d962bcd4e46b11da047c9049b",
+      "0xa9059cbb2ab09eb219583f4a59a5d0623ade346d962bcd4e46b11da047c9049b",
+      "0xa9059cbb2ab09eb219583f4a59a5d0623ade346d962bcd4e46b11da047c9049b",
+    ]
+  `)
+})
+
 test('hashes functions', () => {
   expect(toSignatureHash('function ownerOf(uint256)')).toEqual(
     '0x6352211e6566aa027e75ac9dbf2423197fbd9b82b9d981a3ab367d355866aa1c',

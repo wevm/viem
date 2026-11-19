@@ -2,13 +2,16 @@ import { RLP } from '@ethereumjs/rlp'
 import { encodeRlp } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import { bytesToRlp } from './toRlp.js'
+import { bytesToRlp, toRlp } from './toRlp.js'
 
 const generateBytes = (length: number) => {
   const bytes = new Uint8Array(length)
   for (let i = 0; i < length; i++) bytes[i] = i
   return bytes
 }
+
+const hex = (size: number, seed = 0) =>
+  `0x${Array.from({ length: size }, (_, i) => ((i * 31 + seed) & 0xff).toString(16).padStart(2, '0')).join('')}` as const
 
 const generateList = (length: number) => {
   const bytes = []
@@ -129,5 +132,21 @@ describe.skip('rlp: tx (2048kB - prefix: 0xfa)', () => {
 
   bench('@ethereumjs/rlp: `RLP.encode`', () => {
     RLP.encode(list as any)
+  })
+})
+
+describe('rlp (hex): 200 × bytes32 list', () => {
+  const list = Array.from({ length: 200 }, (_, i) => hex(32, i))
+
+  bench('viem: `toRlp`', () => {
+    toRlp(list)
+  })
+})
+
+describe('rlp (hex): 128 KiB blob', () => {
+  const blob = hex(131_072)
+
+  bench('viem: `toRlp`', () => {
+    toRlp(blob)
   })
 })

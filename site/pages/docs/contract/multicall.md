@@ -81,6 +81,10 @@ export const publicClient = createPublicClient({
 
 :::
 
+:::warning
+By default, `multicall` uses the `multicall3` address defined on the target chain. If the chain does not define one, provide [`multicallAddress`](#multicalladdress-optional) or set [`deployless`](#deployless-optional) to `true`. When using an address to read a historical block, the Multicall3 contract must have been deployed at that block.
+:::
+
 ## Return Value
 
 `({ data: <inferred>, status: 'success' } | { error: string, status: 'reverted' })[]`

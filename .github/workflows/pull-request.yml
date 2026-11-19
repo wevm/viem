@@ -17,40 +17,17 @@ jobs:
     permissions:
       contents: read
 
-  publish:
-    name: Publish Prerelease
-    if: ${{ !github.event.pull_request.draft }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Publish Prerelease
-        run: |
-          pnpm clean
-          pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'
-
   size:
     name: Size
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -58,7 +35,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Report bundle size
-        uses: andresz1/size-limit-action@master
+        uses: wevm/actions/vendor/andresz1/size-limit-action/v1.8.0@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           package_manager: pnpm

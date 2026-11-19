@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 
-import { getWithdrawals, optimism } from '../../op-stack/index.js'
+import { base, getWithdrawals, optimism } from '../../op-stack/index.js'
 import { getTimeToFinalize } from './getTimeToFinalize.js'
 
 const client = anvilMainnet.getClient()
@@ -109,6 +109,37 @@ describe('legacy (portal v2)', () => {
         "period": 604800,
         "seconds": 0,
         "timestamp": 1702994990587,
+      }
+    `)
+  })
+})
+
+describe('dispute game resolves after the proof matures', () => {
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 26271000n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+  })
+
+  test('default', async () => {
+    // Base: the proof maturity delay is 1 day, but the proof's dispute game
+    // (proven 2026-10-24) only resolves 5 days after it was created.
+    vi.setSystemTime(new Date(1792947035000))
+
+    const time = await getTimeToFinalize(client, {
+      withdrawalHash:
+        '0x15ef63192f15159af29381874e734c448834d21373aeec3f0f348a2d393cdf86',
+      targetChain: base,
+    })
+
+    vi.useRealTimers()
+
+    expect(time).toMatchInlineSnapshot(`
+      {
+        "period": 86400,
+        "seconds": 317170,
+        "timestamp": 1793264205000,
       }
     `)
   })

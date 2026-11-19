@@ -26,9 +26,14 @@ export const bob = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x96123dbFC3253185B594c6a7472EE5A21E9B1079',
+      },
+    },
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 23131,
+      blockCreated: 0,
     },
     l2OutputOracle: {
       [sourceId]: {

@@ -24,7 +24,8 @@ export async function estimateFee<
   parameters: EstimateFeeParameters<chain, account>,
 ): Promise<EstimateFeeReturnType> {
   const { account: account_, ...request } = parameters
-  const account = account_ ? parseAccount(account_) : client.account
+  const account =
+    account_ === undefined ? client.account : account_ && parseAccount(account_)
 
   const formatters = client.chain?.formatters
   const formatted = formatters?.transactionRequest?.format(

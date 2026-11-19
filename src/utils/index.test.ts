@@ -10,6 +10,7 @@ test('exports utils', () => {
       "parseAbiParameter",
       "parseAbiParameters",
       "parseAccount",
+      "InvalidPublicKeyError",
       "publicKeyToAddress",
       "decodeAbiParameters",
       "decodeErrorResult",

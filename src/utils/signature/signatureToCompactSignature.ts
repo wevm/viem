@@ -1,11 +1,13 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { CompactSignature, Signature } from '../../types/misc.js'
+import { type PadErrorType, pad } from '../data/pad.js'
 import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
 import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
 export type SignatureToCompactSignatureErrorType =
   | HexToBytesErrorType
   | BytesToHexErrorType
+  | PadErrorType
   | ErrorType
 
 /**
@@ -29,12 +31,15 @@ export function signatureToCompactSignature(
   signature: Signature,
 ): CompactSignature {
   const { r, s, v, yParity } = signature
-  const yParity_ = Number(yParity ?? v! - 27n)
-  let yParityAndS = s
-  if (yParity_ === 1) {
-    const bytes = hexToBytes(s)
-    bytes[0] |= 0x80
-    yParityAndS = bytesToHex(bytes)
-  }
-  return { r, yParityAndS }
+  const yParity_ = (() => {
+    if (yParity === 0 || yParity === 1) return yParity
+    if (v === 0n || v === 1n) return Number(v)
+    if (v && (v === 27n || v === 28n || v >= 35n)) return v % 2n === 0n ? 1 : 0
+    throw new Error('Invalid `v` or `yParity` value')
+  })()
+  const bytes = hexToBytes(pad(s))
+  // EIP-2098 stores yParity in the top bit, which is always clear for a low `s`.
+  if (bytes[0] & 0x80) throw new Error('Invalid `s` value')
+  if (yParity_ === 1) bytes[0] |= 0x80
+  return { r: pad(r), yParityAndS: bytesToHex(bytes) }
 }

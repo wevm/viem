@@ -50,10 +50,12 @@ import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { stringify } from '../../utils/stringify.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
 import {
   WaitForTempoBlockTimeoutError,
   type WaitForTempoBlockTimeoutErrorType,
 } from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -66,7 +68,7 @@ import {
   pickWriteSyncParameters,
 } from '../internal/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
-import * as Storage from '../Storage.js'
+import * as Store from '../Store.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 const defaultWithdrawalGas = 10_000_000n
@@ -178,7 +180,7 @@ export async function deposit<
     recipient,
     tempoRefundRecipient,
   }
-  return sendTransaction(client, {
+  return withExecutionError(sendTransaction)(client, {
     ...rest,
     account,
     calls: deposit.calls(args),
@@ -217,7 +219,7 @@ export namespace deposit {
   export type ReturnValue = SendTransactionReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines the calls to approve and deposit tokens into a zone.
@@ -304,7 +306,7 @@ export async function depositSync<
     recipient,
     tempoRefundRecipient,
   }
-  const receipt = await sendTransactionSync(client, {
+  const receipt = await withExecutionError(sendTransactionSync)(client, {
     ...rest,
     account,
     throwOnReceiptRevert,
@@ -327,7 +329,7 @@ export namespace depositSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -617,7 +619,7 @@ export async function encryptedDeposit<
         'Prepared encrypted deposit chain ID does not match client chain.',
       )
     }
-    return sendTransaction(client, {
+    return withExecutionError(sendTransaction)(client, {
       ...pickWriteParameters(parameters as never),
       calls: encryptedDeposit.calls({
         ...parameters,
@@ -638,7 +640,7 @@ export async function encryptedDeposit<
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
-  return sendTransaction(client, {
+  return withExecutionError(sendTransaction)(client, {
     ...rest,
     account,
     calls: encryptedDeposit.calls(prepared),
@@ -693,7 +695,7 @@ export namespace encryptedDeposit {
   export type ReturnValue = SendTransactionReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Prepares an encrypted deposit instruction without broadcasting it.
@@ -1014,7 +1016,7 @@ export async function encryptedDepositSync<
         'Prepared encrypted deposit chain ID does not match client chain.',
       )
     }
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await withExecutionError(sendTransactionSync)(client, {
       ...pickWriteParameters(parameters as never),
       ...pickWriteSyncParameters(parameters as never),
       throwOnReceiptRevert,
@@ -1038,7 +1040,7 @@ export async function encryptedDepositSync<
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
-  const receipt = await sendTransactionSync(client, {
+  const receipt = await withExecutionError(sendTransactionSync)(client, {
     ...rest,
     account,
     throwOnReceiptRevert,
@@ -1062,7 +1064,7 @@ export namespace encryptedDepositSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1150,7 +1152,7 @@ export async function getWithdrawalFee<
   parameters: getWithdrawalFee.Parameters = {},
 ): Promise<getWithdrawalFee.ReturnType> {
   const { callbackGas = 0n, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     address: Addresses.zoneOutbox,
     abi: Abis.zoneOutbox,
@@ -1167,7 +1169,10 @@ export namespace getWithdrawalFee {
 
   export type ReturnType = bigint
 
-  export type ErrorType = RequestErrorType | BaseErrorType
+  export type ErrorType =
+    | Errors.ExecutionErrorType
+    | RequestErrorType
+    | BaseErrorType
 }
 
 /**
@@ -1403,7 +1408,7 @@ export async function requestWithdrawal<
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
-  return sendTransaction(client, {
+  return withExecutionError(sendTransaction)(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
     gas: parameters.gas ?? defaultWithdrawalGas,
@@ -1440,7 +1445,7 @@ export namespace requestWithdrawal {
   export type ReturnValue = SendTransactionReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines the calls to approve and request a withdrawal from a zone.
@@ -1700,13 +1705,15 @@ export async function requestWithdrawalSync<
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
-  const receipt = await sendTransactionSync(client, {
+  const receipt = await withExecutionError(sendTransactionSync)(client, {
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
     gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const [event] = parseEventLogs({
     abi: Abis.zoneOutbox,
     logs: receipt.logs,
@@ -1739,7 +1746,7 @@ export namespace requestWithdrawalSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1788,7 +1795,7 @@ export async function requestVerifiableWithdrawal<
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
-  return sendTransaction(client, {
+  return withExecutionError(sendTransaction)(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
     gas: parameters.gas ?? defaultWithdrawalGas,
@@ -1813,7 +1820,7 @@ export namespace requestVerifiableWithdrawal {
   export type ReturnValue = SendTransactionReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines the calls to approve and request a verifiable withdrawal from a zone.
@@ -1901,7 +1908,7 @@ export async function requestVerifiableWithdrawalSync<
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
-  const receipt = await sendTransactionSync(client, {
+  const receipt = await withExecutionError(sendTransactionSync)(client, {
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
@@ -1926,7 +1933,7 @@ export namespace requestVerifiableWithdrawalSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1950,7 +1957,7 @@ export namespace requestVerifiableWithdrawalSync {
  * ```
  *
  * @param client - Zone wallet client.
- * @param parameters - Options including optional storage override.
+ * @param parameters - Options including optional store override.
  * @returns The authentication object and serialized token.
  */
 export async function signAuthorizationToken<
@@ -1968,7 +1975,7 @@ export async function signAuthorizationToken<
     account = client.account,
     issuedAt = Math.floor(Date.now() / 1000),
     expiresAt = issuedAt + 86_400,
-    storage = Storage.defaultStorage(),
+    store = Store.defaultStore(),
   } = parameters
 
   const chain = parameters.chain ?? client.chain
@@ -1980,7 +1987,7 @@ export async function signAuthorizationToken<
   if (!account_ || !account_.sign)
     throw new Error('`account` with `sign` is required.')
 
-  const storageKey = `auth:${account_.address.toLowerCase()}:${chain.id}`
+  const storeKey = `auth:${account_.address.toLowerCase()}:${chain.id}`
 
   const authentication = ZoneRpcAuthentication.from({
     chainId: chain.id,
@@ -1996,8 +2003,8 @@ export async function signAuthorizationToken<
     signature,
   })
 
-  await storage.setItem(storageKey, token)
-  await storage.setItem(`auth:token:${chain.id}`, token)
+  await store.setItem(storeKey, token)
+  await store.setItem(`auth:token:${chain.id}`, token)
 
   return { authentication, token }
 }
@@ -2016,8 +2023,8 @@ export namespace signAuthorizationToken {
     expiresAt?: number | undefined
     /** Token issue time as a unix timestamp (seconds). @default `Date.now() / 1000`. */
     issuedAt?: number | undefined
-    /** Storage to persist the token. @default sessionStorage (web) or memory (server). */
-    storage?: Storage.Storage | undefined
+    /** Store used to persist the token. @default sessionStorage (web) or memory (server). */
+    store?: Store.Store | undefined
     /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
     zoneId?: number | undefined
   }

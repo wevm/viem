@@ -63,6 +63,7 @@ test('default', async () => {
         "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
         "gasUsed": 31414n,
         "logs": [],
+        "maxUsedGas": 31414n,
         "result": "USD Coin",
         "status": "success",
       },
@@ -70,6 +71,7 @@ test('default', async () => {
         "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000045553444300000000000000000000000000000000000000000000000000000000",
         "gasUsed": 31434n,
         "logs": [],
+        "maxUsedGas": 31434n,
         "result": "USDC",
         "status": "success",
       },
@@ -77,6 +79,7 @@ test('default', async () => {
         "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
         "gasUsed": 24292n,
         "logs": [],
+        "maxUsedGas": 24292n,
         "result": "BoredApeYachtClub",
         "status": "success",
       },
@@ -118,6 +121,7 @@ test('behavior: with mutation calls', async () => {
         "data": "0x",
         "gasUsed": 21000n,
         "logs": null,
+        "maxUsedGas": 21000n,
         "result": null,
         "status": "success",
       },
@@ -125,6 +129,7 @@ test('behavior: with mutation calls', async () => {
         "data": "0x",
         "gasUsed": 21000n,
         "logs": null,
+        "maxUsedGas": 21000n,
         "result": null,
         "status": "success",
       },
@@ -132,6 +137,7 @@ test('behavior: with mutation calls', async () => {
         "data": "0x",
         "gasUsed": 78394n,
         "logs": null,
+        "maxUsedGas": 78394n,
         "result": null,
         "status": "success",
       },
@@ -139,13 +145,7 @@ test('behavior: with mutation calls', async () => {
   `)
 })
 
-// Every `traceAssetChanges` test below is skipped on the pinned Anvil. Tracing reads the
-// account's ETH balance with a deployless call, which has no `to`, and Anvil rejects
-// those in `eth_simulateV1` – `eip1559 transaction can't be built due to missing keys:
-// ["to"]` – up to and including v1.7.1, the version CI pins. Fixed upstream by
-// foundry-rs/foundry#15784, unreleased at the time of writing.
-// TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
-test.skip('behavior: with mutation calls + asset changes', async () => {
+test('behavior: with mutation calls + asset changes', async () => {
   const account = '0xdead000000000000000042069420694206942069' as const
   const { assetChanges, results } = await simulateCalls(client, {
     account,
@@ -226,6 +226,7 @@ test.skip('behavior: with mutation calls + asset changes', async () => {
         "data": "0x",
         "gasUsed": 21000n,
         "logs": null,
+        "maxUsedGas": 21000n,
         "result": null,
         "status": "success",
       },
@@ -233,6 +234,7 @@ test.skip('behavior: with mutation calls + asset changes', async () => {
         "data": "0x",
         "gasUsed": 21000n,
         "logs": null,
+        "maxUsedGas": 21000n,
         "result": null,
         "status": "success",
       },
@@ -240,6 +242,7 @@ test.skip('behavior: with mutation calls + asset changes', async () => {
         "data": "0x",
         "gasUsed": 78394n,
         "logs": null,
+        "maxUsedGas": 78394n,
         "result": null,
         "status": "success",
       },
@@ -247,6 +250,7 @@ test.skip('behavior: with mutation calls + asset changes', async () => {
         "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
         "gasUsed": 51859n,
         "logs": null,
+        "maxUsedGas": 51859n,
         "result": true,
         "status": "success",
       },
@@ -314,6 +318,7 @@ test('behavior: contract function does not exist', async () => {
     Version: viem@x.y.z],
         "gasUsed": 28585n,
         "logs": [],
+        "maxUsedGas": 28585n,
         "status": "failure",
       },
     ]
@@ -354,6 +359,7 @@ test('behavior: contract function does not exist', async () => {
     Version: viem@x.y.z],
         "gasUsed": 21277n,
         "logs": [],
+        "maxUsedGas": 21277n,
         "status": "failure",
       },
     ]
@@ -394,6 +400,7 @@ test('behavior: contract revert', async () => {
     Version: viem@x.y.z],
         "gasUsed": 23813n,
         "logs": [],
+        "maxUsedGas": 23813n,
         "status": "failure",
       },
     ]
@@ -650,6 +657,41 @@ test('behavior: traceAssetChanges isolates invalid opcode balance reads', async 
   ])
 })
 
+test('behavior: traceAssetChanges isolates gas-exhausting candidate reads', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const target = '0x7000000000000000000000000000000000000007'
+  const token = '0x8000000000000000000000000000000000000008'
+
+  const { assetChanges, results } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [
+      { data: '0x1234', to: target },
+      { data: '0x1234', to: token },
+    ],
+    stateOverrides: [
+      {
+        address: target,
+        // Accept the two-byte simulated call, but loop forever on balance and metadata reads.
+        code: '0x36600214600b575b6007565b00',
+      },
+      {
+        address: token,
+        // Return one for balance and decimals reads.
+        code: '0x60015f5260205ff3',
+      },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(results.map((result) => result.status)).toEqual(['success', 'success'])
+  expect(assetChanges.map((change) => change.token.address)).toEqual([
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    token,
+  ])
+  expect(assetChanges[1]?.value).toEqual({ pre: 1n, post: 1n, diff: 0n })
+})
+
 test('behavior: traceAssetChanges omits assets without a pre-balance', async () => {
   const client_ = createClient({ chain: mainnet, transport: http() })
   const target = '0x8000000000000000000000000000000000000008'
@@ -893,8 +935,7 @@ test('behavior: traceAssetChanges traces ERC721 metadata', async () => {
   })
 })
 
-// TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
-test.skip('behavior: traceAssetChanges with a call that reverts in isolation', async () => {
+test('behavior: traceAssetChanges with a call that reverts in isolation', async () => {
   // `accounts[0]` holds no USDC, so this transfer reverts. Asset discovery must not
   // abort the whole action over it — the revert belongs in `results`.
   const { assetChanges, results } = await simulateCalls(client, {
@@ -941,8 +982,7 @@ test.skip('behavior: traceAssetChanges with a call that reverts in isolation', a
   `)
 })
 
-// TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
-test.skip('behavior: traceAssetChanges with a call that depends on an earlier call', async () => {
+test('behavior: traceAssetChanges with a call that depends on an earlier call', async () => {
   // The transfer only succeeds because the deposit ran first. Discovering assets by
   // replaying each call against pre-state independently cannot see that.
   const { assetChanges, results } = await simulateCalls(client, {
@@ -987,8 +1027,7 @@ test.skip('behavior: traceAssetChanges with a call that depends on an earlier ca
   `)
 })
 
-// TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
-test.skip('behavior: traceAssetChanges discovers a token not named by any call', async () => {
+test('behavior: traceAssetChanges discovers a token not named by any call', async () => {
   // Swapping ETH for USDC through the Uniswap V2 router: the only `to` is the router,
   // and USDC is reachable only from the logs of the simulated batch.
   const { assetChanges } = await simulateCalls(client, {
@@ -1017,8 +1056,7 @@ test.skip('behavior: traceAssetChanges discovers a token not named by any call',
   expect(usdc?.value.diff).toBeGreaterThan(0n)
 })
 
-// TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
-test.skip('behavior: traceAssetChanges asset discovery uses the requested block', async () => {
+test('behavior: traceAssetChanges asset discovery uses the requested block', async () => {
   const requests: { method: string; params?: any }[] = []
   const spyClient = createClient({
     chain: client.chain,
@@ -1059,8 +1097,7 @@ test.skip('behavior: traceAssetChanges asset discovery uses the requested block'
   ])
 })
 
-// TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
-test.skip('behavior: traceAssetChanges pins the base block when none is requested', async () => {
+test('behavior: traceAssetChanges pins the base block when none is requested', async () => {
   const base = anvilMainnet.forkBlockNumber
   // This test mines, so restore the fork head for the tests that follow – including on
   // failure, so a mined block cannot leak into them.

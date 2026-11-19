@@ -139,7 +139,113 @@ describe('eip7702', () => {
     })
   })
 
+  test('zero fees', () => {
+    const serialized = `0x04${toRlp([
+      toHex(1), // chainId
+      toHex(0), // nonce
+      '0x', // maxPriorityFeePerGas
+      '0x', // maxFeePerGas
+      toHex(1), // gas
+      '0x0000000000000000000000000000000000000000', // to
+      '0x', // value
+      '0x', // data
+      [], // accessList
+      [], // authorizationList
+    ]).slice(2)}` as const
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "gas": 1n,
+        "nonce": 0,
+        "to": "0x0000000000000000000000000000000000000000",
+        "type": "eip7702",
+      }
+    `)
+  })
+
+  test('behavior: authorization yParity above 1', () => {
+    // Mainnet transaction 0xaec8420968abd74e70ef5b3099d6ba7baa3f069c4f718d7c4d729d591cffcb09,
+    // whose authorization holds a `y_parity` of 28.
+    const serialized =
+      '0x04f8c90102843b9aca0084408206be830186a094db35624115a810cf541988294a57766cd02acc828080c0f85cf85a8094c498cea4bfedbb8de856491bdd9967e677775f4f061ca044754b7f217808e21f1935cfa450380e17a3ab8f2c6996c0190d678f0c14a512a027a6b869798cbbbd8d538dbc95b9bb28783bf08f8ef88ad6bb82552d0b47b19180a0287d894b2ebb8a178a55810b242af186c73de663382358363d58b42628bbded3a0678f589cd41571248f24df7e60912d05f14c76471b859f4abd956c612bf175ee'
+    const transaction = parseTransaction(serialized)
+    expect(transaction.authorizationList).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0xc498cea4bfedbb8de856491bdd9967e677775f4f",
+          "chainId": 0,
+          "nonce": 6,
+          "r": "0x44754b7f217808e21f1935cfa450380e17a3ab8f2c6996c0190d678f0c14a512",
+          "s": "0x27a6b869798cbbbd8d538dbc95b9bb28783bf08f8ef88ad6bb82552d0b47b191",
+          "yParity": 28,
+        },
+      ]
+    `)
+    expect(serializeTransaction(transaction)).toBe(serialized)
+  })
+
+  test('behavior: authorization yParity of 255', () => {
+    const serialized = `0x04${toRlp([
+      toHex(1), // chainId
+      '0x', // nonce
+      '0x', // maxPriorityFeePerGas
+      '0x', // maxFeePerGas
+      '0x', // gas
+      '0x0000000000000000000000000000000000000000', // to
+      '0x', // value
+      '0x', // data
+      [], // accessList
+      [
+        [
+          toHex(1), // chainId
+          '0x0000000000000000000000000000000000000000', // address
+          '0x', // nonce
+          toHex(255), // yParity
+          toHex(69), // r
+          toHex(420), // s
+        ],
+      ], // authorizationList
+    ]).slice(2)}` as const
+    const transaction = parseTransaction(serialized)
+    expect(transaction.authorizationList).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "chainId": 1,
+          "nonce": 0,
+          "r": "0x0000000000000000000000000000000000000000000000000000000000000045",
+          "s": "0x00000000000000000000000000000000000000000000000000000000000001a4",
+          "yParity": 255,
+        },
+      ]
+    `)
+    expect(serializeTransaction(transaction)).toBe(serialized)
+  })
+
   describe('errors', () => {
+    test('tip above zero fee cap', () => {
+      expect(() =>
+        parseTransaction(
+          `0x04${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            '0x', // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            '0x', // value
+            '0x', // data
+            [], // accessList
+            [], // authorizationList
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('invalid access list (invalid address)', () => {
       expect(() =>
         parseTransaction(
@@ -215,7 +321,7 @@ describe('eip7702', () => {
                 toHex(1), // chainId
                 '0x0000000000000000000000000000000000000000', // address
                 toHex(0), // nonce
-                toHex(2), // yParity
+                toHex(256), // yParity
                 toHex(69), // r
                 toHex(420), // s
               ],
@@ -223,7 +329,7 @@ describe('eip7702', () => {
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        [InvalidYParityError: Invalid \`yParity\` value "2". Expected 0 or 1.
+        [InvalidYParityError: Invalid \`yParity\` value "256". Expected 0 or 1.
 
         Version: viem@x.y.z]
       `)
@@ -427,7 +533,59 @@ describe('eip4844', () => {
     })
   })
 
+  test('zero fees', () => {
+    const serialized = `0x03${toRlp([
+      toHex(1), // chainId
+      toHex(0), // nonce
+      '0x', // maxPriorityFeePerGas
+      '0x', // maxFeePerGas
+      toHex(1), // gas
+      '0x0000000000000000000000000000000000000000', // to
+      '0x', // value
+      '0x', // data
+      [], // accessList
+      '0x', // maxFeePerBlobGas
+      baseEip4844.blobVersionedHashes, // blobVersionedHashes
+    ]).slice(2)}` as const
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+      {
+        "blobVersionedHashes": [
+          "0x01adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        ],
+        "chainId": 1,
+        "gas": 1n,
+        "nonce": 0,
+        "to": "0x0000000000000000000000000000000000000000",
+        "type": "eip4844",
+      }
+    `)
+  })
+
   describe('errors', () => {
+    test('tip above zero fee cap', () => {
+      expect(() =>
+        parseTransaction(
+          `0x03${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            '0x', // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            '0x', // value
+            '0x', // data
+            [], // accessList
+            '0x', // maxFeePerBlobGas
+            baseEip4844.blobVersionedHashes, // blobVersionedHashes
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('invalid access list (invalid address)', () => {
       expect(() =>
         parseTransaction(
@@ -644,6 +802,53 @@ describe('eip1559', () => {
       `)
     })
 
+    test('zero fees', () => {
+      const serialized = `0x02${toRlp([
+        toHex(1), // chainId
+        toHex(0), // nonce
+        '0x', // maxPriorityFeePerGas
+        '0x', // maxFeePerGas
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        '0x', // value
+        '0x', // data
+        [], // accessList
+      ]).slice(2)}` as const
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 1,
+          "gas": 1n,
+          "nonce": 0,
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "eip1559",
+        }
+      `)
+    })
+
+    test('zero fee cap with zero tip', () => {
+      const serialized = `0x02${toRlp([
+        toHex(1), // chainId
+        toHex(0), // nonce
+        '0x00', // maxPriorityFeePerGas
+        '0x', // maxFeePerGas
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        '0x', // value
+        '0x', // data
+        [], // accessList
+      ]).slice(2)}` as const
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 1,
+          "gas": 1n,
+          "maxPriorityFeePerGas": 0n,
+          "nonce": 0,
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "eip1559",
+        }
+      `)
+    })
+
     test('empty sig', () => {
       const serialized = `0x02${toRlp([
         toHex(1), // chainId
@@ -712,6 +917,28 @@ describe('eip1559', () => {
   })
 
   describe('errors', () => {
+    test('tip above zero fee cap', () => {
+      expect(() =>
+        parseTransaction(
+          `0x02${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            '0x', // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            '0x', // value
+            '0x', // data
+            [], // accessList
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('invalid access list (invalid address)', () => {
       expect(() =>
         parseTransaction(
@@ -1224,7 +1451,7 @@ describe('errors', () => {
   test('invalid transaction', () => {
     expect(() => parseTransaction('0x')).toThrowErrorMatchingInlineSnapshot(
       `
-      [InvalidSerializedTransactionType: Serialized transaction type "0x" is invalid.
+      [InvalidSerializedTransactionTypeError: Serialized transaction type "0x" is invalid.
 
       Version: viem@x.y.z]
     `,
@@ -1234,11 +1461,35 @@ describe('errors', () => {
   test('invalid transaction', () => {
     expect(() => parseTransaction('0x69')).toThrowErrorMatchingInlineSnapshot(
       `
-      [InvalidSerializedTransactionType: Serialized transaction type "0x69" is invalid.
+      [InvalidSerializedTransactionTypeError: Serialized transaction type "0x69" is invalid.
 
       Version: viem@x.y.z]
     `,
     )
+  })
+
+  test('non-canonical rlp', async () => {
+    const signature = await sign({
+      hash: keccak256(
+        serializeTransaction({ ...base, chainId: 1, maxFeePerGas: 2n }),
+      ),
+      privateKey: accounts[0].privateKey,
+    })
+    const serialized = serializeTransaction(
+      { ...base, chainId: 1, maxFeePerGas: 2n },
+      signature,
+    )
+    // Same list payload, with the `0xf8` length prefix widened to `0xf900`.
+    expect(serialized.slice(0, 6)).toBe('0x02f8')
+    const malleated = `0x02f900${serialized.slice(6)}` as const
+
+    expect(() =>
+      parseTransaction(malleated),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RlpNonCanonicalError: RLP payload is not canonically encoded: length \`106\` does not use the shortest length prefix.
+
+      Version: viem@x.y.z]
+    `)
   })
 })
 

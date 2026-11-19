@@ -35,7 +35,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ### Deterministic Salt
 
-By default, `channel.open` uses `Hex.random(32)` for `salt`. Pass an explicit salt when you need the channel ID to be deterministic for the same channel values.
+By default, `channel.open` uses `Hex.random(32)` for `salt`, or the voucher signer's configuration commitment when the signer is a configurable account (see [Configurable Account Signers](#configurable-account-signers)). Pass an explicit salt when you need the channel ID to be deterministic for the same channel values.
 
 ```ts twoslash
 // @twoslash-cache: {"v":2,"hash":"caf453c8d41c53905721d7613d25da596d1ac6183ec909cab47709bcb2a14ffe","data":"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"}
@@ -50,6 +50,31 @@ const { channelId } = await client.channel.openSync({
   token: '0x20c0000000000000000000000000000000000001',
 })
 ```
+
+### Configurable Account Signers
+
+From T15 ([TIP-1166](https://github.com/tempoxyz/tempo/pull/9133)), a channel whose voucher signer (`authorizedSigner`, else the payer) has a nonzero configuration commitment must use that commitment as its `salt`. When `salt` is omitted, `channel.open` reads the commitment of a configurable account, or of an access key's parent account, and uses it.
+
+An unregistered configurable account that opens the channel as its own signer registers in the same transaction, so its salt defaults to the commitment of its local config. Other accounts keep a random salt, with no extra RPC request.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const signer = Account.fromConfig(
+  '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+)
+
+const { salt } = await client.channel.openSync({
+  authorizedSigner: signer,
+  deposit: parseUnits('100', 6),
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+When the signer is known only by address, or when you build the call with `Actions.channel.open.call` (which makes no RPC request), pass `salt` from [`channel.getOpenSalt`](/tempo/actions/channel.getOpenSalt).
 
 ### Asynchronous Usage
 
@@ -105,10 +130,10 @@ type ReturnType = {
 
 ### authorizedSigner (optional)
 
-- **Type:** `Address`
+- **Type:** `Account | Address`
 - **Default:** `zeroAddress`
 
-Optional signer for vouchers. When set to zero address, the payer signs vouchers.
+Optional signer for vouchers. When set to zero address, the payer signs vouchers. Pass a configurable account to default `salt` to its configuration commitment.
 
 ### deposit
 
@@ -132,7 +157,7 @@ Account that receives settled voucher payments.
 ### salt (optional)
 
 - **Type:** `Hex`
-- **Default:** `Hex.random(32)`
+- **Default:** The voucher signer's configuration commitment when the signer is a configurable account, or an access key of one, with a nonzero commitment (or, for an unregistered configurable account that sends the open as its own signer, the commitment of its local config), else `Hex.random(32)`
 
 User-supplied salt to distinguish otherwise identical channels.
 

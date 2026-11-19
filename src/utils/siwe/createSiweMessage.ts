@@ -119,13 +119,22 @@ export function createSiweMessage(
         ],
       })
     const statement = parameters.statement
-    if (statement?.includes('\n'))
+    if (statement && /[\r\n\u2028\u2029]/.test(statement))
       throw new SiweInvalidMessageFieldError({
         field: 'statement',
         metaMessages: [
-          "- Statement must not include '\\n'.",
+          '- Statement must not include a line break.',
           '',
           `Provided value: ${statement}`,
+        ],
+      })
+    if (requestId && /[\r\n]/.test(requestId))
+      throw new SiweInvalidMessageFieldError({
+        field: 'requestId',
+        metaMessages: [
+          '- Request ID must not include a line break.',
+          '',
+          `Provided value: ${requestId}`,
         ],
       })
   }
@@ -170,9 +179,9 @@ export function createSiweMessage(
 }
 
 const domainRegex =
-  /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(:[0-9]{1,5})?$/
+  /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+([a-zA-Z]{2,63}|[xX][nN]--[a-zA-Z0-9-]{0,58}[a-zA-Z0-9])(:[0-9]{1,5})?$/
 const ipRegex =
   /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/
 const localhostRegex = /^localhost(:[0-9]{1,5})?$/
 const nonceRegex = /^[a-zA-Z0-9]{8,}$/
-const schemeRegex = /^([a-zA-Z][a-zA-Z0-9+-.]*)$/
+const schemeRegex = /^([a-zA-Z][a-zA-Z0-9+\-.]*)$/

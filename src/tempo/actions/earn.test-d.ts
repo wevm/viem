@@ -151,7 +151,6 @@ test('deployment actions preserve account requirements and result types', async 
     throwOnReceiptRevert: false,
   })
 
-  // @ts-expect-error factories are explicit while Earn is experimental
   await decoratedClient.earn.deployErc4626StackSync({
     deploymentId: hash,
     venue: address,

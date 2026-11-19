@@ -27,6 +27,10 @@ test('event Bar()', () => {
   expect(normalizeSignature('event Bar()')).toBe('Bar()')
 })
 
+test('error Foo(uint256 a)', () => {
+  expect(normalizeSignature('error Foo(uint256 a)')).toBe('Foo(uint256)')
+})
+
 test('function bar(uint foo)', () => {
   expect(normalizeSignature('function bar(uint foo)')).toBe('bar(uint)')
 })
@@ -120,6 +124,24 @@ test('trim spaces', () => {
     ),
   ).toBe(
     'createEdition(string,string,uint64,uint16,address,address,(uint104,uint32,uint64,uint64,uint64,uint64,bytes32),string,string,string)',
+  )
+})
+
+test('leading space after opening parenthesis', () => {
+  expect(normalizeSignature('function foo( uint256 a )')).toBe('foo(uint256)')
+  expect(normalizeSignature('foo( uint256 a, address b)')).toBe(
+    'foo(uint256,address)',
+  )
+  expect(
+    normalizeSignature(
+      'event Transfer( address indexed from, address indexed to, uint256 value)',
+    ),
+  ).toBe('Transfer(address,address,uint256)')
+  expect(normalizeSignature('function foo(( uint256 a, bool b) c)')).toBe(
+    'foo((uint256,bool))',
+  )
+  expect(normalizeSignature('function foo( ( uint256 a, bool b)[] c)')).toBe(
+    'foo((uint256,bool)[])',
   )
 })
 

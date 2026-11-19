@@ -403,9 +403,10 @@ export async function prepareUserOperation<
       getPaymasterData: undefined,
     }
   })()
-  const paymasterContext = parameters.paymasterContext
-    ? parameters.paymasterContext
-    : bundlerClient?.paymasterContext
+  const paymasterContext =
+    parameters.paymasterContext !== undefined
+      ? parameters.paymasterContext
+      : bundlerClient?.paymasterContext
 
   ////////////////////////////////////////////////////////////////////////////////
   // Set up the User Operation request.

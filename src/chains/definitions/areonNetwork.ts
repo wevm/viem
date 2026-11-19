@@ -1,13 +1,14 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
+/** @deprecated Use `areum` instead. */
 export const areonNetwork = /*#__PURE__*/ defineChain({
   id: 463,
   name: 'Areon Network',
   nativeCurrency: { decimals: 18, name: 'AREA', symbol: 'AREA' },
   rpcUrls: {
     default: {
-      http: ['https://mainnet-rpc.areon.network'],
-      webSocket: ['wss://mainnet-ws.areon.network'],
+      http: ['https://mainnet-rpc.areum.network'],
+      webSocket: ['wss://mainnet-ws.areum.network'],
     },
   },
   blockExplorers: {

@@ -171,6 +171,11 @@ import {
   getStorageAt,
 } from '../../actions/public/getStorageAt.js'
 import {
+  type GetStorageValuesParameters,
+  type GetStorageValuesReturnType,
+  getStorageValues,
+} from '../../actions/public/getStorageValues.js'
+import {
   type GetTransactionParameters,
   type GetTransactionReturnType,
   getTransaction,
@@ -190,6 +195,11 @@ import {
   type GetTransactionReceiptReturnType,
   getTransactionReceipt,
 } from '../../actions/public/getTransactionReceipt.js'
+import {
+  type IterateLogsParameters,
+  type IterateLogsReturnType,
+  iterateLogs,
+} from '../../actions/public/iterateLogs.js'
 import {
   type MulticallParameters,
   type MulticallReturnType,
@@ -1414,6 +1424,18 @@ export type PublicActions<
     args: GetStorageAtParameters,
   ) => Promise<GetStorageAtReturnType>
   /**
+   * Returns values from multiple storage slots at a given address and block.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getStorageValues
+   * - JSON-RPC Methods: [`eth_getStorageValues`](https://github.com/ethereum/execution-apis/issues/752)
+   *
+   * @param args - {@link GetStorageValuesParameters}
+   * @returns The values of the requested storage slots. {@link GetStorageValuesReturnType}
+   */
+  getStorageValues: (
+    args: GetStorageValuesParameters,
+  ) => Promise<GetStorageValuesReturnType>
+  /**
    * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransaction
@@ -1512,6 +1534,47 @@ export type PublicActions<
   getTransactionReceipt: (
     args: GetTransactionReceiptParameters,
   ) => Promise<GetTransactionReceiptReturnType<chain>>
+  /**
+   * Iterates over the event logs in a block range, one page of blocks at a time.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/iterateLogs
+   * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
+   *
+   * Pages are contiguous and are yielded even when they contain no logs, so a consumer that
+   * stores each page's `toBlock` can resume from `toBlock + 1n`. A page is only requested
+   * once the consumer asks for it. If a request fails with an error that a smaller block
+   * range may avoid (such as an RPC Provider's block range or response size limit), the page
+   * is halved and requested again.
+   *
+   * @param args - {@link IterateLogsParameters}
+   * @returns An async iterator of log pages. {@link IterateLogsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseAbiItem } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * for await (const page of client.iterateLogs({
+   *   event: parseAbiItem('event Transfer(address indexed, address indexed, uint256)'),
+   *   fromBlock: 16330000n,
+   *   toBlock: 16340000n,
+   * })) {
+   *   console.log(page.toBlock, page.logs)
+   * }
+   */
+  iterateLogs: <
+    const abiEvent extends AbiEvent | undefined = undefined,
+    const abiEvents extends
+      | readonly AbiEvent[]
+      | readonly unknown[]
+      | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+    strict extends boolean | undefined = undefined,
+  >(
+    args: IterateLogsParameters<abiEvent, abiEvents, strict>,
+  ) => IterateLogsReturnType<abiEvent, abiEvents, strict>
   /**
    * Similar to [`readContract`](https://viem.sh/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
    *
@@ -1937,6 +2000,9 @@ export type PublicActions<
    *     - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) and extracts the transactions
    *     - Checks if one of the Transactions is a replacement
    *     - If so, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
+   *   - If the Transaction is not found and `replacement` is provided:
+   *     - Calls `eth_getTransactionBySenderAndNonce` to find the Transaction in its nonce slot
+   *     - If it is a replacement, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
    *
    * @remarks
    * The `waitForTransactionReceipt` action additionally supports Replacement detection (e.g. sped up Transactions).
@@ -2063,7 +2129,7 @@ export type PublicActions<
    * @remarks
    * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent#onLogs).
    *
-   * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+   * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead. If `getLogs` fails for a block range, `watchContractEvent` will retry with smaller block ranges and may call `onLogs` more than once per polling interval.
    *
    * @param args - {@link WatchContractEventParameters}
    * @returns A function that can be invoked to stop watching for new event logs. {@link WatchContractEventReturnType}
@@ -2105,7 +2171,7 @@ export type PublicActions<
    * @remarks
    * This Action will batch up all the Event Logs found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchEvent#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/actions/public/watchEvent#onLogs).
    *
-   * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+   * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead. If `getLogs` fails for a block range, `watchEvent` will retry with smaller block ranges and may call `onLogs` more than once per polling interval.
    *
    * @param args - {@link WatchEventParameters}
    * @returns A function that can be invoked to stop watching for new Event Logs. {@link WatchEventReturnType}
@@ -2347,11 +2413,13 @@ export function publicActions<
     fillTransaction: (args) => fillTransaction(client, args),
     getRawTransaction: (args) => getRawTransaction(client, args),
     getStorageAt: (args) => getStorageAt(client, args),
+    getStorageValues: (args) => getStorageValues(client, args),
     getTransaction: (args) => getTransaction(client, args),
     getTransactionConfirmations: (args) =>
       getTransactionConfirmations(client, args),
     getTransactionCount: (args) => getTransactionCount(client, args),
     getTransactionReceipt: (args) => getTransactionReceipt(client, args),
+    iterateLogs: (args) => iterateLogs(client, args as any),
     multicall: (args) => multicall(client, args),
     prepareTransactionRequest: (args) =>
       prepareTransactionRequest(client as any, args as any) as any,

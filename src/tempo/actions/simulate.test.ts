@@ -90,7 +90,8 @@ describe('simulateBlocks', () => {
     expect({
       ...callWithoutDynamic,
       logs: callWithoutDynamic.logs?.map(
-        ({ blockHash, blockNumber, blockTimestamp, ...l }) => l,
+        ({ blockHash, blockNumber, blockTimestamp, transactionHash, ...l }) =>
+          l,
       ),
     }).toMatchInlineSnapshot(`
       {
@@ -105,7 +106,6 @@ describe('simulateBlocks', () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000008c8d35429f74ec245f8ef2f4fd1e551cff97d650",
             ],
-            "transactionHash": "0x9f28dc5a4f517fd897be777b9d825503afc02f0d778e934c9560e4143d47ff2e",
             "transactionIndex": 0,
           },
         ],
@@ -116,6 +116,7 @@ describe('simulateBlocks', () => {
 
     expect(gasUsed).toBeTypeOf('bigint')
     expect(gasUsed).toBeGreaterThan(0n)
+    expect(log.transactionHash).toMatch(/^0x[\da-f]{64}$/)
     expect(log.blockHash).toBeDefined()
     expect(log.blockNumber).toBeTypeOf('bigint')
     expect(log.blockTimestamp).toBeTypeOf('bigint')

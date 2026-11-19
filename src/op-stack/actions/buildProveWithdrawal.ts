@@ -124,10 +124,10 @@ export async function buildProveWithdrawal<
   const { account, chain = client.chain, game, output, withdrawal } = args
 
   const { withdrawalHash } = withdrawal
-  const { l2BlockNumber } = game ?? output
-  const blockNumber = game?.usesSuperRoots
+  const { l2BlockNumber, usesSuperRoots } = game ?? output
+  const blockNumber = usesSuperRoots
     ? await getL2BlockNumberAtTimestamp(client, {
-        timestamp: game.l2BlockNumber,
+        timestamp: l2BlockNumber,
       })
     : l2BlockNumber
 
@@ -143,9 +143,9 @@ export async function buildProveWithdrawal<
     }),
   ])
 
-  if (game?.usesSuperRoots && block.timestamp !== game.l2BlockNumber)
+  if (usesSuperRoots && block.timestamp !== l2BlockNumber)
     throw new Error(
-      `L2 block timestamp ${block.timestamp} does not match dispute game timestamp ${game.l2BlockNumber}.`,
+      `L2 block timestamp ${block.timestamp} does not match dispute game timestamp ${l2BlockNumber}.`,
     )
 
   return {

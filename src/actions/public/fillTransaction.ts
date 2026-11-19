@@ -191,6 +191,8 @@ export async function fillTransaction<
     delete transaction.transactionIndex
     delete transaction.v
     delete transaction.yParity
+    if (typeof transaction.maxFeePerGas !== 'undefined')
+      delete transaction.gasPrice
 
     // Rewrite fields.
     transaction.data = transaction.input
@@ -202,7 +204,8 @@ export async function fillTransaction<
     if (
       hasFeePayerSignature &&
       typeof nonce !== 'undefined' &&
-      transaction.nonce !== nonce
+      // Tempo formats nonces as bigints (TIP-1106 discriminators exceed 2^53).
+      BigInt(transaction.nonce) !== BigInt(nonce)
     )
       throw new FeePayerNonceMismatchError({
         filledNonce: transaction.nonce,
@@ -226,8 +229,16 @@ export async function fillTransaction<
       if (transaction.maxPriorityFeePerGas)
         transaction.maxPriorityFeePerGas =
           parameters.maxPriorityFeePerGas ?? transaction.maxPriorityFeePerGas
-      if (typeof transaction.nonce !== 'undefined')
-        transaction.nonce = parameters.nonce ?? transaction.nonce
+      if (
+        typeof transaction.nonce !== 'undefined' &&
+        typeof parameters.nonce !== 'undefined'
+      )
+        // Keep the formatter's representation (Tempo formats nonces as bigints).
+        transaction.nonce = (
+          typeof transaction.nonce === 'bigint'
+            ? BigInt(parameters.nonce)
+            : parameters.nonce
+        ) as typeof transaction.nonce
 
       // Build fee multiplier function.
       const feeMultiplier = await (async () => {

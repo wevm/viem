@@ -1,9 +1,19 @@
 import { join } from 'node:path'
 import { defineConfig, type TestProjectConfiguration } from 'vitest/config'
 
+const nodeEnv = process.env.VITE_TEMPO_ENV || 'localnet'
+const hardfork = process.env.VITE_TEMPO_HARDFORK
+// Configurable accounts need a localnet with T14 active.
+const configurableAccounts =
+  nodeEnv === 'localnet' &&
+  (!hardfork || hardfork === 'Tnext' || Number(hardfork.slice(1)) >= 14)
+// T15 removed the ValidatorConfig V1 precompile.
+const validatorConfigV1 =
+  nodeEnv !== 'localnet' ||
+  (!!hardfork && hardfork !== 'Tnext' && Number(hardfork.slice(1)) < 15)
+
 const zoneNodeConfigured =
-  (process.env.VITE_TEMPO_ENV || 'localnet') !== 'localnet' ||
-  process.env.VITE_TEMPO_ZONES === 'true'
+  nodeEnv !== 'localnet' || process.env.VITE_TEMPO_ZONES === 'true'
 
 export default defineConfig({
   test: {
@@ -11,6 +21,10 @@ export default defineConfig({
       { find: '~contracts', replacement: join(__dirname, '../contracts') },
       { find: '~test', replacement: join(__dirname, './src') },
       { find: /^viem$/, replacement: join(__dirname, '../src/index.ts') },
+      {
+        find: /^viem\/tempo$/,
+        replacement: join(__dirname, '../src/tempo/index.ts'),
+      },
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
     ],
     benchmark: {
@@ -79,8 +93,9 @@ export default defineConfig({
         test: {
           name: 'tempo',
           exclude: [
-            '**/*.multisig.test.ts',
+            configurableAccounts ? '' : '**/*.accounts.test.ts',
             zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
+            validatorConfigV1 ? '' : 'src/tempo/actions/validator.test.ts',
             'src/tempo/**/*.fuzz.test.ts',
             'src/tempo/**/*.node-fuzz.test.ts',
           ],
@@ -92,23 +107,6 @@ export default defineConfig({
           testTimeout: 10_000,
         },
       },
-      ...((process.env.VITE_TEMPO_MULTISIG === 'true'
-        ? [
-            {
-              extends: true,
-              test: {
-                name: 'tempo-multisig',
-                include: ['src/tempo/**/*.multisig.test.ts'],
-                setupFiles: [join(__dirname, './src/tempo/setup.ts')],
-                globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
-                retry: 0,
-                sequence: { groupOrder: 1 },
-                hookTimeout: 180_000,
-                testTimeout: 120_000,
-              },
-            },
-          ]
-        : []) satisfies TestProjectConfiguration[]),
       ...((process.env.TEST_TEMPO_FUZZ === 'true'
         ? [
             {

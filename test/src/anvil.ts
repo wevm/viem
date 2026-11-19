@@ -52,13 +52,12 @@ export const anvilOptimism = defineAnvil({
   port: 8645,
 })
 
+// Anvil cannot fork zkSync Era (EraVM), so zkSync tests run against a local
+// chain with the zkSync chain id.
 export const anvilZksync = defineAnvil({
   chain: zksync,
-  forkUrl: getEnv(
-    'VITE_ANVIL_FORK_URL_ZKSYNC',
-    'https://mainnet.era.zksync.io',
-  ),
-  forkBlockNumber: 25734n,
+  forkUrl: undefined,
+  forkBlockNumber: undefined,
   port: 8745,
 })
 
@@ -99,21 +98,23 @@ function getEnv(key: string, fallback: string): string {
 type DefineAnvilParameters<
   chain extends Chain,
   forkBlockNumber extends bigint | undefined = bigint,
+  forkUrl extends string | undefined = string,
 > = Omit<Instance.anvil.Parameters, 'forkBlockNumber' | 'forkUrl'> & {
   chain: chain
   forkBlockNumber: forkBlockNumber
-  forkUrl: string
+  forkUrl: forkUrl
   port: number
 }
 
 type DefineAnvilReturnType<
   chain extends Chain,
   forkBlockNumber extends bigint | undefined = bigint,
+  forkUrl extends string | undefined = string,
 > = {
   chain: chain
   clientConfig: ClientConfig<Transport, chain, undefined>
   forkBlockNumber: forkBlockNumber
-  forkUrl: string
+  forkUrl: forkUrl
   getClient<
     config extends ExactPartial<
       Omit<ClientConfig, 'account' | 'chain'> & {
@@ -150,9 +151,10 @@ type DefineAnvilReturnType<
 function defineAnvil<
   const chain extends Chain,
   const forkBlockNumber extends bigint | undefined,
+  const forkUrl extends string | undefined,
 >(
-  parameters: DefineAnvilParameters<chain, forkBlockNumber>,
-): DefineAnvilReturnType<chain, forkBlockNumber> {
+  parameters: DefineAnvilParameters<chain, forkBlockNumber, forkUrl>,
+): DefineAnvilReturnType<chain, forkBlockNumber, forkUrl> {
   const {
     chain: chain_,
     forkUrl,
@@ -322,9 +324,13 @@ function defineAnvil<
       return await Server.create({
         instance: Instance.anvil({
           chainId: chain.id,
-          forkUrl,
-          forkBlockNumber:
-            forkBlockNumber ?? (await getRecentBlockNumber(forkUrl)),
+          ...(forkUrl
+            ? {
+                forkUrl,
+                forkBlockNumber:
+                  forkBlockNumber ?? (await getRecentBlockNumber(forkUrl)),
+              }
+            : {}),
           hardfork: 'Prague',
           ...options,
         }),

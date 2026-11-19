@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import { InvalidYParityError } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import {
@@ -39,11 +40,15 @@ export async function verifyAuthorization({
   authorization,
   signature,
 }: VerifyAuthorizationParameters): Promise<VerifyAuthorizationReturnType> {
-  return isAddressEqual(
-    getAddress(address),
-    await recoverAuthorizationAddress({
-      authorization,
-      signature,
-    }),
-  )
+  const recovered = await (async () => {
+    try {
+      return await recoverAuthorizationAddress({ authorization, signature })
+    } catch (error) {
+      // A `yParity` other than 0 or 1 has no authority under EIP-7702.
+      if (error instanceof InvalidYParityError) return undefined
+      throw error
+    }
+  })()
+  if (!recovered) return false
+  return isAddressEqual(getAddress(address), recovered)
 }

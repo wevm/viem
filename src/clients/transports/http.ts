@@ -5,12 +5,14 @@ import {
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
-import type { RpcRequest } from '../../types/rpc.js'
+import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
   getHttpRpcClient,
   type HttpRpcClientOptions,
 } from '../../utils/rpc/http.js'
+import { idCache } from '../../utils/rpc/id.js'
+import { uid } from '../../utils/uid.js'
 
 import {
   type CreateTransportErrorType,
@@ -24,7 +26,7 @@ export type HttpTransportConfig<
   raw extends boolean = false,
 > = {
   /**
-   * Whether to enable Batch JSON-RPC.
+   * Whether to enable Batch JSON-RPC. Requests are batched per `http()` instance.
    * @link https://www.jsonrpc.org/specification#batch
    */
   batch?:
@@ -118,6 +120,7 @@ export function http<
     retryDelay,
     raw,
   } = config
+  const batchId = uid()
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
     const { batchSize = 1000, wait = 0 } =
       typeof batch === 'object' ? batch : {}
@@ -147,17 +150,44 @@ export function http<
             : undefined
 
           const { schedule } = createBatchScheduler({
-            id: `${url_}.${getSignalId(options?.signal)}`,
+            id: `${batchId}.${url_}.${getSignalId(options?.signal)}`,
             wait,
-            shouldSplitBatch(requests) {
-              return requests.length > batchSize
+            shouldSplitBatch: (size) => size > batchSize,
+            // Give every request its id before the batch goes out. A reply
+            // that carries the id of a request goes only to that request.
+            // Replies that carry no requested id, such as `id: null` when the
+            // server could not read a request, fill the requests left without
+            // a reply in order. A request still without a reply gets an error.
+            fn: async (requests: RpcRequest[]) => {
+              const body = requests.map((request) => ({
+                ...request,
+                id: idCache.take(),
+              }))
+              const replies = await rpcClient.request({ body, fetchOptions })
+              // Ids are compared as strings, since some servers echo a numeric
+              // id back as a string.
+              const byId = new Map<string, RpcResponse | undefined>(
+                body.map(({ id }) => [String(id), undefined]),
+              )
+              const unattributed: RpcResponse[] = []
+              for (const reply of replies) {
+                const id = String(reply.id)
+                if (byId.has(id)) byId.set(id, reply)
+                else unattributed.push(reply)
+              }
+              return body.map(
+                ({ id }): RpcResponse =>
+                  byId.get(String(id)) ??
+                  unattributed.shift() ?? {
+                    jsonrpc: '2.0',
+                    id,
+                    error: {
+                      code: -32603,
+                      message: 'Missing response for request.',
+                    },
+                  },
+              )
             },
-            fn: (body: RpcRequest[]) =>
-              rpcClient.request({
-                body,
-                fetchOptions,
-              }),
-            sort: (a, b) => a.id - b.id,
           })
 
           const fn = async (body: RpcRequest) =>
@@ -170,7 +200,12 @@ export function http<
                   }),
                 ]
 
-          const [{ error, result }] = await fn(body)
+          const [{ error, result }] = await fn(body).catch((err) => {
+            // Raw transports also return JSON-RPC errors from non-2xx responses.
+            if (raw && err instanceof RpcRequestError)
+              return [{ error: err.cause, result: undefined }]
+            throw err
+          })
 
           if (raw) return { error, result }
           if (error)

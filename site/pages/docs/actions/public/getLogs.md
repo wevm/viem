@@ -231,6 +231,28 @@ const logs = await publicClient.getLogs({
 })
 ```
 
+### Paged Block Ranges
+
+RPC Providers limit how many blocks one `eth_getLogs` request can cover. Set `blockRange` to request the range in consecutive pages of at most that many blocks. A page the RPC Provider rejects is halved and requested again.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseAbiItem } from 'viem'
+
+const logs = await publicClient.getLogs({
+  address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+  blockRange: 1_000n, // [!code focus]
+  fromBlock: 16330000n, // [!code focus]
+  toBlock: 16340000n // [!code focus]
+})
+```
+
+:::tip
+The logs are returned once every page has been requested. To store logs page by page and resume after a failure, use [`iterateLogs`](/docs/actions/public/iterateLogs).
+:::
+
 ### Multiple Events
 
 Logs can be scoped to **multiple events**:
@@ -406,6 +428,22 @@ Block hash to include logs from. Mutually exclusive with `fromBlock`/`toBlock`.
 // ---cut---
 const logs = await publicClient.getLogs({
   blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
+})
+```
+
+### blockRange
+
+- **Type:** `bigint`
+
+Most blocks to request in one `eth_getLogs` call. When set, `fromBlock` is required and must be a block number, and a `toBlock` tag is resolved to a block number once. Must be at least `1n`.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const logs = await publicClient.getLogs({
+  blockRange: 1_000n, // [!code focus]
+  fromBlock: 16330000n,
+  toBlock: 16340000n,
 })
 ```
 

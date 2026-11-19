@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -87,7 +87,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -124,7 +124,7 @@ jobs:
         total-shards: [3]
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -136,7 +136,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local
-        uses: nick-fields/retry@v3
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -146,13 +146,12 @@ jobs:
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM }}
           VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA }}
-          VITE_ANVIL_FORK_URL_ZKSYNC: ${{ secrets.VITE_ANVIL_FORK_URL_ZKSYNC }}
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: wevm/actions/vendor/codecov/codecov-action/v4.6.0@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -166,7 +165,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'recursive'
 
@@ -197,7 +196,7 @@ jobs:
           # - mainnet
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'recursive'
 
@@ -205,7 +204,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Run tests
-        uses: nick-fields/retry@v3
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -214,38 +213,6 @@ jobs:
           CI: true
           VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
-
-  test-tempo-multisig:
-    name: Test Local Tempo Multisig
-    if: ${{ inputs.full }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Build contracts
-        run: pnpm contracts:build
-
-      - name: Run tests
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          command: pnpm test --run --bail=1 --project tempo-multisig
-        env:
-          CI: true
-          VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_MULTISIG: 'true'
-          VITE_TEMPO_TAG: sha-7825976
 
   test-tempo:
     name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
@@ -258,21 +225,13 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        hardfork: [T10, Tnext]
+        hardfork: [T13, Tnext]
         shard: [1, 2, 3]
         total-shards: [3]
-        include:
-          - hardfork: T10
-            # Tempo de760926 and sender-bound Zones 196f47b7.
-            tempo-tag: sha256:af7a8955370adc4868a3237352ceded3bd917702a14758796eab86b338b75e49
-            zone-tag: sha256:45b4e66b0a7d5f8d9486eeb05e0842c7a223b53e9ef910ef73cd9558f4a79118
-          - hardfork: Tnext
-            tempo-tag: latest
-            zone-tag: sha256:2c6e58767e75f5b9dc012361daa89cb8baaad7d70f8c4151aa8a506b3d92f44b
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: 'recursive'
 
@@ -283,7 +242,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local Tempo
-        uses: nick-fields/retry@v3
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -292,19 +251,19 @@ jobs:
           CI: true
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_HARDFORK: ${{ matrix.hardfork }}
-          VITE_TEMPO_TAG: ${{ matrix.tempo-tag }}
+          VITE_TEMPO_TAG: latest
           VITE_TEMPO_ZONES: 'true'
-          VITE_TEMPO_ZONE_TAG: ${{ matrix.zone-tag }}
+          VITE_TEMPO_ZONE_TAG: sha256:2da5ca1eba6600a687987e9c991a9c30565ddf6a97360ce7f48bb6bc07a7e9e6
 
   test-envs:
     name: Test Environments
     if: ${{ inputs.full }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     strategy:
       matrix:
-        type: ['bun', 'node-22', 'node-latest', 'next', 'tsc', 'vite']
+        type: ['bun', 'node-22', 'node-latest', 'next', 'ses', 'tsc', 'vite']
         include:
           - type: bun
             runtime: bun
@@ -316,6 +275,8 @@ jobs:
             runtime: node
           - type: next
             runtime: next
+          - type: ses
+            runtime: ses
           - type: tsc
             node-version: 22
             runtime: tsc
@@ -324,27 +285,27 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
       - name: Set up foundry
-        uses: foundry-rs/foundry-toolchain@v1
+        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
-          version: v1.7.1
+          version: v1.8.7
 
       - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@main
+        uses: wevm/actions/.github/actions/pnpm@b518cf981b50a4c745a8b7335fc693f34b108a75
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
-        uses: oven-sh/setup-bun@v2
+        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
-          bun-version: 1.0.30
+          bun-version: 1.4.4
 
       - name: Set up Node
         if: ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -370,7 +331,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 
@@ -396,7 +357,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: 
           submodules: 'recursive'
 

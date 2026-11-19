@@ -20,6 +20,13 @@ test('creates event signature', () => {
   ).toEqual(
     '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
   )
+  expect(
+    toEventSelector(
+      'event Transfer( address indexed from, address indexed to, uint256 amount)',
+    ),
+  ).toEqual(
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+  )
   expect(toEventSelector('drawNumber()')).toEqual(
     '0xd80ffb20d597d029eb14b9def3d14da7e6d862943d830906185b1b0b576d8f26',
   )

@@ -34,6 +34,7 @@ test('creates', () => {
       "pollingInterval": 4000,
       "prepareUserOperation": [Function],
       "request": [Function],
+      "scope": [Function],
       "sendUserOperation": [Function],
       "type": "bundlerClient",
       "userOperation": undefined,

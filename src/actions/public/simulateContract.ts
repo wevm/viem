@@ -265,9 +265,10 @@ export async function simulateContract<
     ...callRequest
   } = parameters as SimulateContractParameters
 
-  const account = callRequest.account
-    ? parseAccount(callRequest.account)
-    : client.account
+  const account =
+    callRequest.account === undefined
+      ? client.account
+      : callRequest.account && parseAccount(callRequest.account)
   const calldata = encodeFunctionData({ abi, args, functionName })
 
   try {
@@ -280,7 +281,8 @@ export async function simulateContract<
       data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
-      account,
+      // `call` omits the sender for `null` at runtime, but its parameter type excludes `null`.
+      account: account as Account | undefined,
     })
     const result = decodeFunctionResult({
       abi,

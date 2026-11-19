@@ -11,21 +11,24 @@ export const arcTestnet = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: [
-        'https://rpc.testnet.arc.network',
-        'https://rpc.quicknode.testnet.arc.network',
-        'https://rpc.blockdaemon.testnet.arc.network',
+        'https://rpc.testnet.arc.io',
+        'https://rpc.blockdaemon.testnet.arc.io',
+        'https://rpc.drpc.testnet.arc.io',
+        'https://rpc.quicknode.testnet.arc.io',
       ],
       webSocket: [
-        'wss://rpc.testnet.arc.network',
-        'wss://rpc.quicknode.testnet.arc.network',
+        'wss://rpc.testnet.arc.io',
+        'wss://rpc.blockdaemon.testnet.arc.io:443/websocket',
+        'wss://rpc.drpc.testnet.arc.io',
+        'wss://rpc.quicknode.testnet.arc.io',
       ],
     },
   },
   blockExplorers: {
     default: {
-      name: 'ArcScan',
-      url: 'https://testnet.arcscan.app',
-      apiUrl: 'https://testnet.arcscan.app/api',
+      name: 'Arc Explorer',
+      url: 'https://explorer.testnet.arc.io',
+      apiUrl: 'https://explorer.testnet.arc.io/api',
     },
   },
   contracts: {

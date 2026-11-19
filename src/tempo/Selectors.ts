@@ -49,12 +49,17 @@ export const addressRegistry = {
   resolveVirtualAddress: '0xe2fc56ef',
 } as const satisfies FunctionSelectors<typeof Abis.addressRegistry>
 
-export const nativeMultisig = {
+export const configurableAccount = {
   deriveAccount: '0xce8e071c',
-  getConfig: '0xe48a5f7b',
-  isMultisigAccount: '0x9fbf029a',
-  updateConfig: '0xe175d479',
-} as const satisfies FunctionSelectors<typeof Abis.nativeMultisig>
+  getConfigCommitment: '0x5bd93359',
+  updateConfig: '0x64203645',
+  upgradeAccount: '0x5f5fdc31',
+} as const satisfies FunctionSelectors<typeof Abis.configurableAccount>
+
+export const configurableAccountShim = {
+  isValidSignature: '0x1626ba7e',
+  onERC721Received: '0x150b7a02',
+} as const satisfies FunctionSelectors<typeof Abis.configurableAccountShim>
 
 export const currentCommittee = {
   getCommitteeMembers: '0xb2a275f9',
@@ -74,6 +79,7 @@ export const receivePolicyGuard = {
 export const signatureVerifier = {
   recover: '0x19045a25',
   verify: '0x1a86b550',
+  verifyConfigurableAccount: '0x8a4c1645',
   verifyKeychain: '0x6c0c731e',
   verifyKeychainAdmin: '0x5f6fc5b7',
 } as const satisfies FunctionSelectors<typeof Abis.signatureVerifier>
@@ -157,6 +163,7 @@ export const tip20ChannelReserve = {
   settle: '0x97fb5104',
   storageCredits: '0x4d65338b',
   topUp: '0xdc48471e',
+  verifyVoucher: '0xcabd6d5a',
   withdraw: '0x41e2c664',
 } as const satisfies FunctionSelectors<typeof Abis.tip20ChannelReserve>
 
@@ -175,6 +182,7 @@ export const tip20Factory = {
   OverloadedFunctionSelectors<'createToken'>
 
 export const tip20 = {
+  BURN_AT_ROLE: '0xc6990381',
   BURN_BLOCKED_ROLE: '0x32ad9be8',
   DOMAIN_SEPARATOR: '0x3644e515',
   ISSUER_ROLE: '0x82aefa24',
@@ -184,6 +192,7 @@ export const tip20 = {
   approve: '0x095ea7b3',
   balanceOf: '0x70a08231',
   burn: '0x42966c68',
+  burnAt: '0x9803f216',
   burnBlocked: '0xec0cf3dc',
   burnWithMemo: '0x38f23b0b',
   changeTransferPolicyId: '0xfd5e9420',
@@ -302,12 +311,18 @@ export const zoneFactory = {
 } as const satisfies FunctionSelectors<typeof Abis.zoneFactory, 'createZone'> &
   OverloadedFunctionSelectors<'createZone'>
 
+export const zoneVerifier = {
+  verify: '0xebb2ddc9',
+} as const satisfies FunctionSelectors<typeof Abis.zoneVerifier>
+
 export const zonePortal = {
   FIXED_DEPOSIT_GAS: '0xf706cfbf',
   MAX_DEPOSITS_PER_TEMPO_BLOCK: '0x1bf00ca8',
   MAX_GAS_FEE_RATE: '0xf490ca96',
   MAX_TOKENS_ENABLED_PER_TEMPO_BLOCK: '0x3fcf7df4',
   MAX_TOKEN_METADATA_BYTES: '0x996329a2',
+  MAX_UNPROCESSED_DEPOSITS: '0x5e53dcd3',
+  MAX_UNPROCESSED_TOKEN_ENABLEMENTS: '0x3b667e74',
   MAX_WITHDRAWAL_GAS_LIMIT: '0x86f47e55',
   abdicate: '0xbf4c5411',
   abdicationEffectiveAt: '0x04a3b098',
@@ -342,6 +357,7 @@ export const zonePortal = {
   isSequencer: '0x6d46e987',
   isTokenEnabled: '0x748538d9',
   lastProcessedDepositNumber: '0xe84abe69',
+  lastProcessedEnabledTokenCount: '0xccd537ca',
   lastSyncedTempoBlockNumber: '0xbe2a63ee',
   leader: '0x40eedabb',
   leaderActivationTempoBlock: '0xb83c755f',
@@ -375,8 +391,14 @@ export const zonePortal = {
   setSequencerEncryptionKey: '0xef10b187',
   setSequencerSet: '0x86012b45',
   setZoneGasRate: '0x0e86bbdc',
-  submitBatch: '0x78fb159b',
+  submitBatch: {
+    'submitBatch(uint64,uint64,(bytes32,bytes32),(bytes32,bytes32,uint64,uint64),(uint64,uint64),bytes32,bytes,bytes,uint256,bytes[])':
+      '0x4cd6c7c7',
+    'submitBatch(uint64,uint64,(bytes32,bytes32),(bytes32,bytes32,uint64,uint64),bytes32,bytes,bytes,uint256,bytes[])':
+      '0x78fb159b',
+  },
   tokenConfig: '0xfe136c4e',
+  tokenEnablementCursorInitialized: '0x370ddf99',
   tokenEnablementHash: '0xb456c0dd',
   transferAdmin: '0x75829def',
   verifier: '0x2b7ac3f3',
@@ -387,8 +409,17 @@ export const zonePortal = {
   zoneGasRate: '0xecf79a4e',
   zoneHeight: '0x430f8b4f',
   zoneId: '0xd179978a',
-} as const satisfies FunctionSelectors<typeof Abis.zonePortal, 'deposit'> &
-  OverloadedFunctionSelectors<'deposit'>
+} as const satisfies FunctionSelectors<
+  typeof Abis.zonePortal,
+  'deposit' | 'submitBatch'
+> &
+  OverloadedFunctionSelectors<'deposit' | 'submitBatch'>
+
+export const zonePortalPreT13Retired = {
+  MAX_DEPOSITS_PER_TEMPO_BLOCK: '0x1bf00ca8',
+  MAX_TOKENS_ENABLED_PER_TEMPO_BLOCK: '0x3fcf7df4',
+  submitBatch: '0x78fb159b',
+} as const satisfies FunctionSelectors<typeof Abis.zonePortalPreT13Retired>
 
 export const zoneOutbox = {
   AUTHENTICATED_WITHDRAWAL_CIPHERTEXT_LENGTH: '0x43c3cb83',
@@ -417,6 +448,15 @@ export const zoneMessenger = {
   relayMessage: '0x11da5261',
 } as const satisfies FunctionSelectors<typeof Abis.zoneMessenger>
 
-export const zoneVerifier = {
-  verify: '0x7106a43e',
-} as const satisfies FunctionSelectors<typeof Abis.zoneVerifier>
+export const zoneInbox = {
+  advanceTempo: '0x86516ec0',
+  advanceTempoHeaders: '0xae58328d',
+  claimRefund: '0xbffa55d5',
+  processedDepositNumber: '0x2d488482',
+  processedDepositQueueHash: '0x82648c3b',
+  processedEnabledTokenCount: '0x1b366d74',
+  processedTokenEnablementHash: '0x8f2e461a',
+  refunds: '0x857e85f8',
+  tempoPortal: '0xa21de6d9',
+  tempoState: '0x1fbb25ad',
+} as const satisfies FunctionSelectors<typeof Abis.zoneInbox>

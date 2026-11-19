@@ -8,6 +8,7 @@ import { observe } from '../../utils/observe.js'
 import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 
 import type { GetBlockReturnType } from './getBlock.js'
+import { getSubscriptionTransport } from './internal/watchTransport.js'
 
 const blockFields = [
   'size',
@@ -88,18 +89,7 @@ export function watchBlockHeaders<
     let unsubscribe = () => (active = false)
     ;(async () => {
       try {
-        const transport = (() => {
-          if (client.transport.type === 'fallback') {
-            const transport = client.transport.transports.find(
-              (transport: ReturnType<Transport>) =>
-                transport.config.type === 'webSocket' ||
-                transport.config.type === 'ipc',
-            )
-            if (!transport) return client.transport
-            return transport.value
-          }
-          return client.transport
-        })()
+        const transport = getSubscriptionTransport(client)
 
         const { unsubscribe: unsubscribe_ } = await transport.subscribe({
           params: ['newHeads'],

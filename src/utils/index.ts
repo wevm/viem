@@ -14,6 +14,8 @@ export {
   parseAccount,
 } from '../accounts/utils/parseAccount.js'
 export {
+  InvalidPublicKeyError,
+  type InvalidPublicKeyErrorType,
   type PublicKeyToAddressErrorType,
   publicKeyToAddress,
 } from '../accounts/utils/publicKeyToAddress.js'

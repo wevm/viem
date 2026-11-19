@@ -272,3 +272,15 @@ test('signal: aborted with custom reason', async () => {
   ).rejects.toBe(reason)
   expect(retryTimes).toBe(0)
 })
+
+test('signal: aborted during a pending attempt', async () => {
+  const controller = new AbortController()
+
+  setTimeout(() => controller.abort(), 50)
+
+  await expect(
+    withRetry(() => new Promise(() => {}), { signal: controller.signal }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[AbortError: This operation was aborted]`,
+  )
+})

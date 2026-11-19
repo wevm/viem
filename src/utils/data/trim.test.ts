@@ -1,5 +1,5 @@
+import { bytesToHex, type Hex, hexToBytes } from 'viem'
 import { describe, expect, test } from 'vitest'
-
 import { trim } from './trim.js'
 
 test('default', () => {
@@ -90,7 +90,7 @@ describe('hex', () => {
         '0x1a4e12a450000000000000000000000000000000000000000000000000000000',
         { dir: 'right' },
       ),
-    ).toMatchInlineSnapshot('"0x01a4e12a45"')
+    ).toMatchInlineSnapshot('"0x1a4e12a450"')
   })
 })
 
@@ -186,4 +186,125 @@ describe('bytes', () => {
     `,
     )
   })
+})
+
+test('edge cases', () => {
+  const values = [
+    '0x',
+    '0x0',
+    '0x00',
+    '0x0001',
+    '0x00100',
+    '0x1000',
+    '0x10',
+    '000100' as Hex,
+    new Uint8Array([]),
+    new Uint8Array([0]),
+    new Uint8Array([0, 0, 1, 0, 0]),
+    new Uint8Array([1, 0, 0]),
+  ] as const
+
+  expect(
+    values.map((value) => [trim(value), trim(value, { dir: 'right' })]),
+  ).toMatchInlineSnapshot(`
+    [
+      [
+        "0x",
+        "0x",
+      ],
+      [
+        "0x00",
+        "0x00",
+      ],
+      [
+        "0x00",
+        "0x00",
+      ],
+      [
+        "0x01",
+        "0x0001",
+      ],
+      [
+        "0x0100",
+        "0x0001",
+      ],
+      [
+        "0x1000",
+        "0x10",
+      ],
+      [
+        "0x10",
+        "0x10",
+      ],
+      [
+        "0x0100",
+        "0x0001",
+      ],
+      [
+        Uint8Array [],
+        Uint8Array [],
+      ],
+      [
+        Uint8Array [
+          0,
+        ],
+        Uint8Array [
+          0,
+        ],
+      ],
+      [
+        Uint8Array [
+          1,
+          0,
+          0,
+        ],
+        Uint8Array [
+          0,
+          0,
+          1,
+        ],
+      ],
+      [
+        Uint8Array [
+          1,
+          0,
+          0,
+        ],
+        Uint8Array [
+          1,
+        ],
+      ],
+    ]
+  `)
+})
+
+test('right trimming preserves a nonzero byte with a zero low nibble', () => {
+  const values = [
+    '0x1020',
+    '0x1230',
+    '0x10200000',
+    '0x00',
+    '0x0000',
+    '0x10',
+    '0x',
+  ] as const
+
+  const result = values.map((value) => trim(value, { dir: 'right' }))
+
+  expect(result).toMatchInlineSnapshot(`
+    [
+      "0x1020",
+      "0x1230",
+      "0x1020",
+      "0x00",
+      "0x00",
+      "0x10",
+      "0x",
+    ]
+  `)
+  expect(result).toEqual(
+    values.map((value) =>
+      bytesToHex(trim(hexToBytes(value), { dir: 'right' })),
+    ),
+  )
 })

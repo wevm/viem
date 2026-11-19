@@ -213,6 +213,12 @@ export {
   getStorageAt,
 } from './public/getStorageAt.js'
 export {
+  type GetStorageValuesErrorType,
+  type GetStorageValuesParameters,
+  type GetStorageValuesReturnType,
+  getStorageValues,
+} from './public/getStorageValues.js'
+export {
   type GetTransactionErrorType,
   type GetTransactionParameters,
   type GetTransactionReturnType,
@@ -236,6 +242,12 @@ export {
   type GetTransactionReceiptReturnType,
   getTransactionReceipt,
 } from './public/getTransactionReceipt.js'
+export {
+  type IterateLogsErrorType,
+  type IterateLogsParameters,
+  type IterateLogsReturnType,
+  iterateLogs,
+} from './public/iterateLogs.js'
 export {
   type MulticallErrorType,
   type MulticallParameters,

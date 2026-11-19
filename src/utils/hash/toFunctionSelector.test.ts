@@ -21,6 +21,17 @@ test('creates function signature', () => {
   )
   expect(toFunctionSelector('claimed()')).toEqual('0xe834a834')
   expect(toFunctionSelector('function claimed()')).toEqual('0xe834a834')
+  expect(toFunctionSelector('function ownerOf( uint256 tokenId )')).toEqual(
+    '0x6352211e',
+  )
+})
+
+test('creates error selector', () => {
+  expect(toFunctionSelector('error Unauthorized(address)')).toEqual(
+    '0x8e4a23d6',
+  )
+  expect(toFunctionSelector('error Error(string)')).toEqual('0x08c379a0')
+  expect(toFunctionSelector('error Panic(uint256 code)')).toEqual('0x4e487b71')
 })
 
 test('creates function signature from `AbiFunction`', () => {

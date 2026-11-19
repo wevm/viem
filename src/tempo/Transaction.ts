@@ -4,9 +4,11 @@ import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import {
+  AccountConfig,
+  type AccountOperation,
+  type AccountSimulation,
   type AuthorizationTempo,
   type KeyAuthorization,
-  type MultisigConfig,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
   type TempoAddress,
@@ -40,6 +42,8 @@ import {
   parseTransaction as viem_parseTransaction,
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
+import type { RootAccount } from './Account.js'
+import { parseApproval } from './accounts/Signature.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -57,6 +61,7 @@ export type TransactionRpc<pending extends boolean = false> = OneOf<
     > & {
       authorizationList?: AuthorizationTempo.ListRpc | undefined
       keyAuthorization?: KeyAuthorization.Rpc | null | undefined
+      operation?: AccountOperation.TransactionRpc | undefined
       signature: SignatureEnvelope.SignatureEnvelopeRpc
     })
 >
@@ -67,7 +72,10 @@ export type TransactionTempo<
   isPending extends boolean = boolean,
   type = 'tempo',
 > = PartialBy<
-  Omit<TransactionBase<quantity, index, isPending>, 'input' | 'value' | 'to'>,
+  Omit<
+    TransactionBase<quantity, index, isPending>,
+    'input' | 'nonce' | 'value' | 'to'
+  >,
   'r' | 's' | 'v' | 'yParity'
 > & {
   accessList: AccessList
@@ -77,12 +85,18 @@ export type TransactionTempo<
   feeToken?: Address | undefined
   feePayerSignature?: viem_Signature | undefined
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
+  operation?: AccountOperation.TransactionOperation | undefined
+  /** Sequence number, or for expiring nonce transactions (TIP-1106) an opaque `uint64` discriminator, often above `Number.MAX_SAFE_INTEGER`. */
+  nonce: quantity
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
   validBefore?: index | undefined
   validAfter?: index | undefined
-} & FeeValuesEIP1559<quantity>
+} & Omit<FeeValuesEIP1559<quantity>, 'gasPrice'> & {
+    /** Effective gas price the transaction paid, once included. */
+    gasPrice?: quantity | undefined
+  }
 
 export type TransactionRequest<
   bigintType = bigint,
@@ -92,33 +106,37 @@ export type TransactionRequest<
   | TransactionRequestTempo<bigintType, numberType>
 >
 export type TransactionRequestRpc = OneOf<
-  viem_RpcTransactionRequest | TransactionRequestTempo<Hex.Hex, Hex.Hex, '0x76'>
+  | viem_RpcTransactionRequest
+  | (Omit<
+      TransactionRequestTempo<Hex.Hex, Hex.Hex, '0x76'>,
+      'accountSimulation' | 'keyAuthorizationSimulation'
+    > & {
+      /** Account simulation spec, named `configurableAccountSimulation` by the node. */
+      configurableAccountSimulation?: AccountSimulation.Rpc | undefined
+      /** Owner quorum simulation spec of the account signing `keyAuthorization`. */
+      keyAuthorizationSimulation?: AccountSimulation.Rpc | undefined
+    })
 >
 
 export type TransactionReceipt<
   quantity = bigint,
   index = number,
-  status = 'success' | 'reverted',
+  status = 'success' | 'reverted' | 'pending',
   type = TransactionType,
+  operation = AccountOperation.TransactionOperation,
 > = viem_TransactionReceipt<quantity, index, status, type> & {
   feePayer?: Address | undefined
   feeToken?: Address | undefined
+  operation?: operation | undefined
 }
 
 export type TransactionReceiptRpc = TransactionReceipt<
   Hex.Hex,
   Hex.Hex,
-  ox_TransactionReceipt.RpcStatus,
-  ox_TransactionReceipt.RpcType
+  ox_TransactionReceipt.RpcStatus | 'pending',
+  ox_TransactionReceipt.RpcType,
+  AccountOperation.TransactionRpc
 >
-
-/** @internal */
-export type MultisigOwnerState = {
-  account: Address
-  config?: Pick<MultisigConfig.Config, 'owners' | 'threshold'> | undefined
-  initialized: boolean
-  version: bigint
-}
 
 export type TransactionRequestTempo<
   quantity = bigint,
@@ -127,27 +145,23 @@ export type TransactionRequestTempo<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
+    accountSimulation?: AccountSimulation.Spec | undefined
     calls?: readonly TxTempo.Call<quantity, TempoAddress.Address>[] | undefined
     capabilities?: ExtractCapabilities<'fillTransaction', 'Request'> | undefined
-    feePayer?: Account | true | undefined
+    /** Fee-payer account, external relay URL, or sponsorship preference. */
+    feePayer?: Account | boolean | string | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
+    hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisig?: Address | MultisigConfig.Config<index> | undefined
-    /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Attached automatically when `multisig` is present; the node ignores it for registered senders. */
-    multisigInit?:
-      | {
-          salt: Hex.Hex
-          threshold: number
-          owners: readonly { owner: Address; weight: number }[]
-        }
-      | undefined
-    /** @internal Local signing state for nested multisig owner accounts. */
-    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
-    /** Modeled owner approval count for node-side gas modeling (TIP-1061). */
-    multisigSignatureCount?: number | undefined
-    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
-    multisigVersion?: bigint | undefined
+    /**
+     * Owner quorum to model, for gas estimation, in place of the signature of
+     * `keyAuthorization` while its configurable account signer (TIP-1111) has
+     * not reached its threshold. `signer` is the account that signs it.
+     */
+    keyAuthorizationSimulation?: AccountSimulation.Spec | undefined
+    /** Nonce lane, or `'expiring'` for time-bounded transactions. `nonce` can distinguish otherwise identical expiring transactions. */
     nonceKey?: 'expiring' | quantity | undefined
+    owner?: RootAccount | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
@@ -167,20 +181,31 @@ export type TransactionSerializableTempo<
     chainId: number
     feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | null | undefined
-    from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisig?: Address | MultisigConfig.Config<index> | undefined
-    /** @internal Local signing state for nested multisig owner accounts. */
-    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
-    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
-    multisigVersion?: bigint | undefined
+    keyAuthorizationSimulation?: AccountSimulation.Spec | undefined
     nonceKey?: quantity | undefined
+    owner?: RootAccount | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
-    signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
     type?: 'tempo' | undefined
-  }
+  } & (
+    | {
+        from: Address
+        accountSimulation?: AccountSimulation.Spec | undefined
+        signatures?: readonly SignatureEnvelope.Serialized[] | undefined
+      }
+    | {
+        from?: Address | undefined
+        accountSimulation?: undefined
+        signatures?: readonly SignatureEnvelope.Serialized[] | undefined
+      }
+    | {
+        from?: Address | undefined
+        accountSimulation?: AccountSimulation.Spec | undefined
+        signatures?: undefined
+      }
+  )
 
 export type TransactionSerialized<
   type extends TransactionType = TransactionType,
@@ -191,6 +216,9 @@ export type TransactionSerializedFeePayer = `0x78${string}`
 
 export type TransactionType = viem_TransactionType | 'tempo'
 
+/** Longest distance, in seconds, between now and an expiring nonce transaction's `validBefore`. */
+export const expiringNonceMaxExpiry = 300
+
 export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {
@@ -200,15 +228,16 @@ export function getType(
   if (
     (account?.keyType && account.keyType !== 'secp256k1') ||
     account?.source === 'accessKey' ||
-    account?.source === 'multisig' ||
+    account?.source === 'configurable' ||
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feePayerSignature !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
     typeof transaction.keyAuthorization !== 'undefined' ||
-    typeof transaction.multisig !== 'undefined' ||
-    typeof transaction.multisigVersion !== 'undefined' ||
+    typeof transaction.accountSimulation !== 'undefined' ||
+    typeof transaction.keyAuthorizationSimulation !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
+    typeof transaction.owner !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
     typeof transaction.signatures !== 'undefined' ||
     typeof transaction.validBefore !== 'undefined' ||
@@ -313,7 +342,7 @@ async function serializeTempo(
   },
   sig?: OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature> | undefined,
 ) {
-  // Track caller signatures separately from synthesized multisig approvals.
+  // Track caller signatures separately from synthesized owner approvals.
   const signature_provided = (() => {
     if (transaction.signature) return transaction.signature
     if (sig && 'type' in sig) return sig as SignatureEnvelope.SignatureEnvelope
@@ -326,7 +355,15 @@ async function serializeTempo(
     return undefined
   })()
 
-  const { chainId, feePayer, nonce, ...rest } = transaction
+  const {
+    chainId,
+    feePayer,
+    accountSimulation,
+    keyAuthorizationSimulation: _keyAuthorizationSimulation,
+    nonce,
+    owner: _owner,
+    ...rest
+  } = transaction
 
   const feePayerSignature = (() => {
     const feePayerSignature = transaction.feePayerSignature
@@ -344,7 +381,7 @@ async function serializeTempo(
     transaction.feePayerSignature !== null
   const hasSenderSignature =
     typeof signature_provided !== 'undefined' ||
-    Boolean(transaction.multisig && transaction.signatures)
+    Boolean(accountSimulation && transaction.signatures)
   // Sponsorship sender signatures omit `feeToken`.
   const shouldStripFeeTokenForSponsorship =
     // Relay fills a partial sender envelope first.
@@ -385,41 +422,39 @@ async function serializeTempo(
   // Combine owner approvals before fee-payer handling.
   const signature = (() => {
     if (signature_provided) return signature_provided
-    if (!transaction.multisig || !transaction.signatures) return undefined
+    if (!accountSimulation || !transaction.signatures) return undefined
 
-    const payload = TxTempo.getSignPayload(TxTempo.from(transaction_sender_ox))
     const signatures = transaction.signatures.map((approval) =>
-      SignatureEnvelope.from(approval),
+      parseApproval(approval),
     )
-    const sorted =
-      typeof transaction.multisig === 'string'
-        ? SignatureEnvelope.sortMultisigApprovals({
-            account: transaction.multisig,
-            payload,
-            signatures,
-            version: transaction.multisigVersion,
-          })
-        : SignatureEnvelope.sortMultisigApprovals({
-            initialConfig: transaction.multisig,
-            payload,
-            signatures,
-            version: transaction.multisigVersion,
-          })
-    const keyAuthorizationSignature = transaction.keyAuthorization?.signature
-    const keyAuthorizationInitializes =
-      keyAuthorizationSignature?.type === 'multisig' &&
-      typeof keyAuthorizationSignature.init !== 'undefined'
-    if (typeof transaction.multisig === 'string')
-      return SignatureEnvelope.from({
-        account: transaction.multisig,
-        signatures: sorted,
-      })
-    return SignatureEnvelope.from({
-      initialConfig: transaction.multisig,
+    const config = AccountConfig.from(accountSimulation.config)
+    const account = transaction.from
+    if (!account)
+      throw new Error('A configurable account sender is required for signing.')
+    const { signer = account } = accountSimulation
+    // A configurable access key (TIP-1111) approves the keychain digest bound to the sender.
+    const delegated = signer.toLowerCase() !== account.toLowerCase()
+    const payload = TxTempo.getSignPayload(
+      TxTempo.from(transaction_sender_ox),
+      delegated ? { from: account } : {},
+    )
+    const sorted = SignatureEnvelope.sortApprovals({
+      account: signer,
+      config,
+      payload,
+      signatures,
+    })
+    const inner = SignatureEnvelope.from({
+      account: signer,
+      config,
       signatures: sorted,
-      ...(nonce || transaction.nonceKey || keyAuthorizationInitializes
-        ? {}
-        : { init: true }),
+    })
+    if (!delegated) return inner
+    return SignatureEnvelope.from({
+      inner,
+      type: 'keychain',
+      userAddress: account,
+      version: 'v2',
     })
   })()
 

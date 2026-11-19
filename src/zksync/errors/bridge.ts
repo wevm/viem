@@ -18,7 +18,7 @@ export class BaseFeeHigherThanValueError extends BaseError {
   }
 }
 
-export type TxHashNotFoundInLogsErrorType = BaseFeeHigherThanValueError & {
+export type TxHashNotFoundInLogsErrorType = TxHashNotFoundInLogsError & {
   name: 'TxHashNotFoundInLogsError'
 }
 export class TxHashNotFoundInLogsError extends BaseError {

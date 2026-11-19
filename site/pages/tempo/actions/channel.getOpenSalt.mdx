@@ -1,0 +1,66 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `channel.getOpenSalt`
+
+Gets the salt to open a TIP-20 channel reserve channel with for a voucher signer.
+
+From T15 ([TIP-1166](https://github.com/tempoxyz/tempo/pull/9133)), a channel whose voucher signer is a [configurable account](/tempo/accounts/account.fromConfig) with a nonzero configuration commitment must use that commitment as its salt. This action returns the signer's commitment when it is nonzero, else a random 32-byte salt.
+
+[`channel.open`](/tempo/actions/channel.open) does this for you when the voucher signer is a configurable account object or an access key. Use `channel.getOpenSalt` when you know the signer only by address, or when you build the call with `Actions.channel.open.call`, which makes no RPC request.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const authorizedSigner = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+
+const salt = await client.channel.getOpenSalt({
+  signer: authorizedSigner,
+})
+// @log: '0x...'
+
+const { channelId } = await client.channel.openSync({
+  authorizedSigner,
+  deposit: parseUnits('100', 6),
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  salt,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const salt = await Actions.channel.getOpenSalt(client, {
+  signer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+```
+
+## Return Value
+
+`Hex`
+
+The signer's configuration commitment when it is nonzero, else a random 32-byte salt.
+
+## Parameters
+
+### signer
+
+- **Type:** `Account | Address`
+
+Voucher signer of the channel: its `authorizedSigner` when set, else the payer.
+
+<ReadParameters />

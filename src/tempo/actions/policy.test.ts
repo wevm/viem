@@ -504,3 +504,18 @@ describe('watchBlacklistUpdated', () => {
     expect(logs[1].args.restricted).toBe(false)
   })
 })
+
+describe('errors', () => {
+  test('behavior: policy not found', async () => {
+    const error = await actions.policy
+      .modifyWhitelistSync(client, {
+        address: account2.address,
+        allowed: true,
+        policyId: 999_999n,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.policy.PolicyNotFoundError)
+    expect(error.policyId).toBe(999_999n)
+  })
+})

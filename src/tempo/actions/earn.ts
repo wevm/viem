@@ -40,6 +40,7 @@ import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { stringify } from '../../utils/stringify.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
 import {
   GetVaultEngineChangedError,
   type GetVaultEngineChangedErrorType,
@@ -48,6 +49,7 @@ import {
   WaitForPrivateRedeemTimeoutError,
   type WaitForPrivateRedeemTimeoutErrorType,
 } from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -152,6 +154,8 @@ export async function configureExitSafePolicy<
     chain: client.chain,
     type: 'whitelist',
   } as never)
+  if ((eligibility.receipt as TransactionReceipt).status === 'pending')
+    return { receipt: eligibility.receipt } as never
   const compoundPolicy = await writeContractSync(client, {
     account,
     abi: Abis.tip403Registry,
@@ -161,6 +165,8 @@ export async function configureExitSafePolicy<
     functionName: 'createCompoundPolicy',
     throwOnReceiptRevert: true,
   } as never)
+  if ((compoundPolicy as TransactionReceipt).status === 'pending')
+    return { receipt: compoundPolicy } as never
   const [compoundEvent] = parseEventLogs({
     abi: Abis.tip403Registry,
     eventName: 'CompoundPolicyCreated',
@@ -176,6 +182,8 @@ export async function configureExitSafePolicy<
     policyId: compoundEvent.args.policyId,
     token: parameters.shareToken,
   } as never)
+  if ((tokenPolicy.receipt as TransactionReceipt).status === 'pending')
+    return { receipt: tokenPolicy.receipt } as never
   const policyAdmin = isAddressEqual(
     parameters.accessAdministrator,
     account.address,
@@ -187,6 +195,11 @@ export async function configureExitSafePolicy<
         chain: client.chain,
         policyId: eligibility.policyId,
       } as never)
+  if (
+    policyAdmin &&
+    (policyAdmin.receipt as TransactionReceipt).status === 'pending'
+  )
+    return { receipt: policyAdmin.receipt } as never
 
   return {
     policy: {
@@ -266,20 +279,20 @@ export async function validateExitSafePolicy<chain extends Chain | undefined>(
     parameters
   const [tokenPolicyId, compound, simplePolicy, memberResults] =
     await Promise.all([
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         ...rest,
         abi: Abis.tip20,
         address: shareToken,
         functionName: 'transferPolicyId',
       }),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         ...rest,
         abi: Abis.tip403Registry,
         address: Addresses.tip403Registry,
         args: [policy.transferPolicyId],
         functionName: 'compoundPolicyData',
       }),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         ...rest,
         abi: Abis.tip403Registry,
         address: Addresses.tip403Registry,
@@ -289,14 +302,14 @@ export async function validateExitSafePolicy<chain extends Chain | undefined>(
       Promise.all(
         requiredMembers.map(async (member) => {
           const [recipient, mintRecipient] = await Promise.all([
-            readContract(client, {
+            withExecutionError(readContract)(client, {
               ...rest,
               abi: Abis.tip403Registry,
               address: Addresses.tip403Registry,
               args: [policy.transferPolicyId, member],
               functionName: 'isAuthorizedRecipient',
             }),
-            readContract(client, {
+            withExecutionError(readContract)(client, {
               ...rest,
               abi: Abis.tip403Registry,
               address: Addresses.tip403Registry,
@@ -348,7 +361,7 @@ export namespace validateExitSafePolicy {
   export type Parameters = Omit<ReadParameters, 'account'> & Args
   export type ReturnValue = void
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -416,7 +429,7 @@ export namespace deposit {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = SendTransactionReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal Shared dispatch; reads the asset for the approval. */
   export async function inner<
@@ -430,13 +443,13 @@ export namespace deposit {
   ): Promise<ReturnType<action>> {
     const [args, assetToken] = await Promise.all([
       toDepositArgs(client, parameters as never),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         abi: Abis.earnVault,
         address: parameters.vault,
         functionName: 'asset',
       }),
     ])
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: deposit.calls({ ...args, assetToken }),
     } as never)) as never
@@ -617,6 +630,8 @@ export async function depositSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = deposit.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -646,7 +661,7 @@ export namespace depositSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -717,7 +732,7 @@ export namespace depositShares {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = SendTransactionReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal Shared dispatch; reads the engine for the approval. */
   export async function inner<
@@ -729,12 +744,12 @@ export namespace depositShares {
     client: Client<Transport, chain, account>,
     parameters: depositShares.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const engine = await readContract(client, {
+    const engine = await withExecutionError(readContract)(client, {
       abi: Abis.earnVault,
       address: parameters.vault,
       functionName: 'engine',
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: depositShares.calls({
         ...toDepositSharesArgs(client, parameters as never),
@@ -920,6 +935,8 @@ export async function depositSharesSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = depositShares.extractEvent(receipt.logs, { vault })
   return {
     caller: args.caller,
@@ -953,7 +970,7 @@ export namespace depositSharesSync {
     venueShareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1311,7 +1328,7 @@ export async function getFeeState<chain extends Chain | undefined>(
   parameters: getFeeState.Parameters,
 ): Promise<getFeeState.ReturnValue> {
   const { recipient, vault, ...rest } = parameters
-  const fees = await readContract(client, {
+  const fees = await withExecutionError(readContract)(client, {
     ...rest,
     abi: Abis.earnVault,
     address: vault,
@@ -1348,7 +1365,7 @@ export async function getFeeState<chain extends Chain | undefined>(
   // consistent with the batched id.
   const feeConfig = async (configId: bigint) =>
     toFeeConfig(
-      await readContract(client, {
+      await withExecutionError(readContract)(client, {
         ...rest,
         abi: Abis.earnFees,
         address: fees,
@@ -1424,7 +1441,7 @@ export namespace getFeeState {
     targetBase: bigint
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /** Vault fee configuration. */
@@ -1556,7 +1573,7 @@ export async function getPosition<
       ],
       deployless: true,
     })
-  const value = await readContract(client, {
+  const value = await withExecutionError(readContract)(client, {
     ...rest,
     abi: Abis.earnVault,
     address: vault,
@@ -1600,7 +1617,7 @@ export namespace getPosition {
     value: bigint
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1632,7 +1649,7 @@ export async function getRedeemQuote<chain extends Chain | undefined>(
   parameters: getRedeemQuote.Parameters,
 ): Promise<getRedeemQuote.ReturnValue> {
   const { shareAmount, vault, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getRedeemQuote.call({ shareAmount, vault }),
   })
@@ -1653,7 +1670,7 @@ export namespace getRedeemQuote {
     never
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the vault's `previewRedeem` function.
@@ -1717,13 +1734,13 @@ export async function getVault<chain extends Chain | undefined>(
 ): Promise<getVault.ReturnValue> {
   const { vault, ...rest } = parameters
   const [engine, fees] = await Promise.all([
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       abi: Abis.earnVault,
       address: vault,
       functionName: 'engine',
     }),
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       abi: Abis.earnVault,
       address: vault,
@@ -1834,7 +1851,10 @@ export namespace getVault {
     shareToken: Address
   }
   // TODO: exhaustive error type
-  export type ErrorType = GetVaultEngineChangedErrorType | BaseErrorType
+  export type ErrorType =
+    | Errors.ExecutionErrorType
+    | GetVaultEngineChangedErrorType
+    | BaseErrorType
 
   /**
    * Defines the reads used by {@link getVault}. Pass the current engine and
@@ -1984,7 +2004,7 @@ export async function getWithdrawQuote<chain extends Chain | undefined>(
   parameters: getWithdrawQuote.Parameters,
 ): Promise<getWithdrawQuote.ReturnValue> {
   const { assetAmount, vault, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getWithdrawQuote.call({ assetAmount, vault }),
   })
@@ -2005,7 +2025,7 @@ export namespace getWithdrawQuote {
     never
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the vault's `previewWithdraw` function.
@@ -2107,7 +2127,7 @@ export namespace redeem {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = SendTransactionReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
@@ -2121,13 +2141,13 @@ export namespace redeem {
   ): Promise<ReturnType<action>> {
     const [args, shareToken] = await Promise.all([
       toRedeemArgs(client, parameters as never),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         abi: Abis.earnVault,
         address: parameters.vault,
         functionName: 'earnShare',
       }),
     ])
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: redeem.calls({ ...args, shareToken }),
     } as never)) as never
@@ -2308,6 +2328,8 @@ export async function redeemSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = redeem.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -2337,7 +2359,7 @@ export namespace redeemSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2763,7 +2785,7 @@ export namespace withdrawExact {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = SendTransactionReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
@@ -2777,13 +2799,13 @@ export namespace withdrawExact {
   ): Promise<ReturnType<action>> {
     const [args, shareToken] = await Promise.all([
       toWithdrawExactArgs(client, parameters as never),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         abi: Abis.earnVault,
         address: parameters.vault,
         functionName: 'earnShare',
       }),
     ])
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: withdrawExact.calls({ ...args, shareToken }),
     } as never)) as never
@@ -2972,6 +2994,8 @@ export async function withdrawExactSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = withdrawExact.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -3002,7 +3026,7 @@ export namespace withdrawExactSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 type MinimumShareAmountParameters = OneOf<
@@ -3383,7 +3407,7 @@ async function toBaseUnitsLive(
   if (typeof amount === 'bigint') return amount
   if (amount.decimals !== undefined)
     return internal_Token.toBaseUnits(amount, amount.decimals)
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     abi: Abis.earnVault,
     address: vault,
     functionName: token === 'asset' ? 'asset' : 'earnShare',
@@ -3402,8 +3426,8 @@ function resolveRecipient(
     recipient?: Address | undefined
   },
 ): Address {
-  if (parameters.recipient) return parameters.recipient
-  const account = parameters.account ?? client.account
+  const { account = client.account, recipient } = parameters
+  if (recipient) return recipient
   if (!account) throw new AccountNotFoundError()
   return parseAccount(account).address
 }

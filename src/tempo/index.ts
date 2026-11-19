@@ -12,9 +12,10 @@ export type {
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
 export {
+  AccountConfig,
+  AccountOperation,
   Channel,
   EarnShares,
-  MultisigConfig,
   Period,
   ReceivePolicyReceipt,
   TempoAddress,
@@ -23,6 +24,10 @@ export {
   VirtualAddress,
   VirtualMaster,
 } from 'ox/tempo'
+export type {
+  /** @deprecated */
+  Owner as z_AccountConfigOwner,
+} from 'ox/tempo/AccountConfig'
 export {
   type CustomTransport,
   type CustomTransportConfig,
@@ -62,17 +67,37 @@ export {
   type Decorator as TempoActions,
   decorator as tempoActions,
 } from './Decorator.js'
+/** Decodes Tempo precompile reverts into readable execution errors. */
+export * as ExecutionError from './ExecutionError.js'
 export * as Expiry from './Expiry.js'
 export * from './errors.js'
 export * as Formatters from './Formatters.js'
+/**
+ * Wallet-paid inference, object storage, sandboxed compute, and key-value state
+ * on a Tempo Gateway.
+ * @experimental
+ */
+export * as Gateway from './Gateway.js'
+export {
+  /** @experimental */
+  type Decorator as GatewayActions,
+  /** @experimental */
+  decorator as gatewayActions,
+} from './GatewayDecorator.js'
 export * as Hardfork from './Hardfork.js'
+/** Client-side storage for pending key authorizations, backed by a `Store`. */
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 export * as P256 from './P256.js'
+/**
+ * Composable relay request handlers alongside the Tempo (Execution) RPC.
+ * @experimental
+ */
+export * as Relay from './Relay.js'
 /** @experimental */
 export * as Scopes from './Scopes.js'
 /** @experimental */
 export * as Selectors from './Selectors.js'
-export * as Storage from './Storage.js'
+export * as Store from './Store.js'
 export * as TokenIds from './TokenIds.js'
 // Export types required for inference.
 export type {
@@ -106,8 +131,12 @@ export type {
 export * as Transaction from './Transaction.js'
 export * as Transport from './Transport.js'
 export {
+  /** Transport that `withFeePayer` returns. */
+  type FeePayer as FeePayerTransport,
   type HttpConfig,
   http,
+  /** Transport that `withRelay` returns for a remote relay. */
+  type Relay as RelayTransport,
   walletNamespaceCompat,
   withFeePayer,
   withRelay,

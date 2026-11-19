@@ -1,4 +1,5 @@
 import { type Address, parseAbiParameters } from 'abitype'
+import { numberToHex, size, stringToHex } from 'viem'
 import { assertType, describe, expect, test } from 'vitest'
 
 import { seaportContractConfig } from '~test/abis.js'
@@ -467,10 +468,16 @@ describe('dynamic', () => {
       )
     })
 
-    test('leading zero bytes (round-trip)', () => {
+    test('leading zero bytes and U+FEFF (round-trip)', () => {
       // The ABI length prefix is authoritative, so leading NUL (0x00) bytes
-      // of a string payload must be preserved, not trimmed.
-      for (const value of ['\x00ab', '\x00\x00x', 'a\x00b', '\x00']) {
+      // and a leading U+FEFF of a string payload must be preserved, not trimmed.
+      for (const value of [
+        '\x00ab',
+        '\x00\x00x',
+        'a\x00b',
+        '\x00',
+        '\uFEFFhello',
+      ]) {
         expect(
           decodeAbiParameters(
             parseAbiParameters('string'),
@@ -1542,7 +1549,7 @@ test('invalid type', () => {
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidAbiDecodingType: Type "lol" is not a valid decoding type.
+    [InvalidAbiDecodingTypeError: Type "lol" is not a valid decoding type.
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/decodeAbiParameters
@@ -1584,6 +1591,27 @@ test('error: recursive decode array', () => {
     decodeAbiParameters(
       [{ type: 'uint256[][][][][][][][][][]' }],
       `0x${payload}`,
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('zst after reading past the end', () => {
+  // `bytes1` in the last, partial word moves the cursor past the end, and
+  // zero-width reads there must still count against the read limit.
+  const payload = `0x${'00'.repeat(31)}01ff` as const
+
+  expect(() =>
+    decodeAbiParameters(
+      [
+        { type: 'uint256' },
+        { type: 'bytes1' },
+        { type: 'uint256[0][4294967295]' },
+      ],
+      payload,
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
@@ -1839,3 +1867,170 @@ describe('zero-width types', () => {
     }
   })
 })
+
+describe('decoded size limit', () => {
+  const word = (value: number) => numberToHex(value, { size: 32 }).slice(2)
+
+  // `n` element offsets whose tails start 64 bytes apart, each with a
+  // length that runs to the end of the data.
+  function overlapping(n: number) {
+    const size = 64 + 96 * n
+    let tails = ''
+    for (let i = 0; i < n; i++)
+      tails += word(size - (64 + 32 * n + 64 * i + 32)) + word(0)
+    let offsets = ''
+    for (let i = 0; i < n; i++) offsets += word(32 * n + 64 * i)
+    return `0x${word(32)}${word(n)}${offsets}${tails}` as const
+  }
+
+  test('error: overlapping string tails', () => {
+    const data = overlapping(1024)
+    expect(size(data)).toMatchInlineSnapshot(`98368`)
+
+    expect(() =>
+      decodeAbiParameters([{ type: 'string[]' }], data),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiDecodingSizeLimitExceededError: Decoded \`bytes\` and \`string\` values exceed the size limit of 3147776 bytes.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error: overlapping bytes tails', () => {
+    expect(() =>
+      decodeAbiParameters([{ type: 'bytes[]' }], overlapping(1024)),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [AbiDecodingSizeLimitExceededError: Decoded \`bytes\` and \`string\` values exceed the size limit of 3147776 bytes.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('shared tails', () => {
+    const value = 'a'.repeat(1024)
+    const n = 1000
+    const data = `0x${word(32)}${word(n)}${word(32 * n).repeat(n)}${word(
+      value.length,
+    )}${stringToHex(value).slice(2)}` as const
+
+    expect(decodeAbiParameters([{ type: 'string[]' }], data)).toEqual([
+      Array(n).fill(value),
+    ])
+  })
+
+  test('distinct tails', () => {
+    const strings = Array.from({ length: 1024 }, (_, i) =>
+      String(i).padEnd(64, 'a'),
+    )
+    const bytes = [`0x${'ff'.repeat(2 ** 20)}`] as const
+    const data = encodeAbiParameters(parseAbiParameters('string[], bytes[]'), [
+      strings,
+      bytes,
+    ])
+
+    expect(
+      decodeAbiParameters(parseAbiParameters('string[], bytes[]'), data),
+    ).toEqual([strings, bytes])
+  })
+})
+
+test('round-trips random types', () => {
+  let seed = 0x12345678
+  const random = () => {
+    seed ^= seed << 13
+    seed ^= seed >>> 17
+    seed ^= seed << 5
+    return (seed >>> 0) / 4294967296
+  }
+  const randomInt = (n: number) => Math.floor(random() * n)
+  const randomHex = (bytes: number) =>
+    `0x${Array.from({ length: bytes }, () => randomInt(256).toString(16).padStart(2, '0')).join('')}` as Hex
+
+  type Param = { type: string; name?: string; components?: Param[] }
+  const randomParam = (depth: number): Param => {
+    const r = random()
+    if (depth < 3 && r < 0.15) {
+      const named = random() < 0.7
+      return {
+        type: 'tuple',
+        components: Array.from({ length: 1 + randomInt(4) }, (_, i) => ({
+          ...randomParam(depth + 1),
+          ...(named ? { name: `f${i}` } : {}),
+        })),
+      }
+    }
+    if (depth < 3 && r < 0.3) {
+      const inner = randomParam(depth + 1)
+      const length = random() < 0.5 ? '' : String(1 + randomInt(3))
+      return { ...inner, type: `${inner.type}[${length}]` }
+    }
+    const bits = 8 * (1 + randomInt(32))
+    return {
+      type: [
+        'address',
+        'bool',
+        'bytes',
+        'string',
+        `bytes${1 + randomInt(32)}`,
+        `uint${bits}`,
+        `int${bits}`,
+      ][randomInt(7)]!,
+    }
+  }
+  const randomValue = (param: Param): unknown => {
+    const array = param.type.match(/^(.*)\[(\d*)\]$/)
+    if (array) {
+      const length = array[2] ? Number(array[2]) : randomInt(5)
+      return Array.from({ length }, () =>
+        randomValue({ ...param, type: array[1]! }),
+      )
+    }
+    if (param.type === 'tuple') return param.components!.map(randomValue)
+    if (param.type === 'address') return randomHex(20)
+    if (param.type === 'bool') return random() < 0.5
+    if (param.type === 'string')
+      return ['', 'hello', 'ünïcødé 🚀'][randomInt(3)]
+    if (param.type === 'bytes') return randomHex(randomInt(80))
+    if (param.type.startsWith('bytes'))
+      return randomHex(Number(param.type.slice(5)))
+    const signed = param.type.startsWith('int')
+    const bits = BigInt(param.type.replace(/^u?int/, ''))
+    const value = BigInt(randomHex(32)) % 2n ** (bits - (signed ? 1n : 0n))
+    return signed && random() < 0.5 ? -value - 1n : value
+  }
+
+  for (let i = 0; i < 500; i++) {
+    const params = Array.from({ length: 1 + randomInt(3) }, () =>
+      randomParam(0),
+    )
+    const data = encodeAbiParameters(params, params.map(randomValue))
+    // Zero-width parameters (e.g. `uint8[0]`) encode to no data.
+    if (data === '0x') continue
+
+    const decoded = decodeAbiParameters(params, data)
+
+    expect(encodeAbiParameters(params, decoded as never)).toBe(data)
+  }
+})
+
+test.each(['string', 'bytes'] as const)(
+  'rejects a missing static head after %s rewinds into an earlier word',
+  (type) => {
+    const word = (value: number) => value.toString(16).padStart(64, '0')
+    const data = `0x${word(3)}${word(0x77)}${word(0)}` as const
+    const params = [
+      { type: 'uint256' },
+      { type: 'uint256' },
+      { type },
+      { type: 'uint256' },
+    ] as const
+
+    expect(() =>
+      decodeAbiParameters(params, data),
+    ).toThrowErrorMatchingInlineSnapshot(`
+    [PositionOutOfBoundsError: Position \`127\` is out of bounds (\`0 < position < 96\`).
+
+    Version: viem@x.y.z]
+  `)
+  },
+)
