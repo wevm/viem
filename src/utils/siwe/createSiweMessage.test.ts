@@ -1,7 +1,6 @@
 import { expect, test, vi } from 'vitest'
 
 import { mainnet } from '../../chains/definitions/mainnet.js'
-import { SiweInvalidMessageFieldError } from '../../errors/siwe.js'
 import { createSiweMessage } from './createSiweMessage.js'
 import type { SiweMessage } from './types.js'
 
@@ -423,7 +422,7 @@ test('behavior: invalid statement', () => {
 
   for (const statement of ['foo\rbar', 'foo\u2028bar', 'foo\u2029bar'])
     expect(() => createSiweMessage({ ...message, statement })).toThrow(
-      SiweInvalidMessageFieldError,
+      'Statement must not include a line break.',
     )
 })
 
