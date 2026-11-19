@@ -5,7 +5,7 @@ import type { Hex } from '../../types/misc.js'
 import { size } from '../../utils/data/size.js'
 import { sliceHex } from '../../utils/data/slice.js'
 import { recoverAddress } from '../../utils/signature/recoverAddress.js'
-import { ecrecoverAuthenticator, openPayer } from '../constants.js'
+import { k1Authenticator, openPayer } from '../constants.js'
 import type { TransactionSerializable8130 } from '../types/transaction.js'
 import {
   getPayerSignatureHash,
@@ -84,7 +84,7 @@ describe('signTransaction (EIP-8130)', () => {
 
     expect(parsed.from?.toLowerCase()).toBe(sender.address.toLowerCase())
     // first 20 bytes are the authenticator
-    expect(sliceHex(parsed.senderAuth!, 0, 20)).toBe(ecrecoverAuthenticator)
+    expect(sliceHex(parsed.senderAuth!, 0, 20)).toBe(k1Authenticator)
 
     const hash = getSenderSignatureHash(parsed)
     const recovered = await recoverAddress({
@@ -110,7 +110,7 @@ describe('signTransaction (EIP-8130)', () => {
     const parsed = parseTransaction(serialized)
 
     expect(parsed.payer?.toLowerCase()).toBe(sponsor.address.toLowerCase())
-    expect(sliceHex(parsed.payerAuth!, 0, 20)).toBe(ecrecoverAuthenticator)
+    expect(sliceHex(parsed.payerAuth!, 0, 20)).toBe(k1Authenticator)
 
     // payer hash binds the resolved (recovered) sender address
     const payerHash = getPayerSignatureHash({
@@ -122,6 +122,13 @@ describe('signTransaction (EIP-8130)', () => {
       signature: sliceHex(parsed.payerAuth!, 20),
     })
     expect(recovered.toLowerCase()).toBe(sponsor.address.toLowerCase())
+
+    // sender_auth signs the same payload, including the resolved payer
+    const sender_ = await recoverAddress({
+      hash: getSenderSignatureHash(parsed),
+      signature: parsed.senderAuth!,
+    })
+    expect(sender_.toLowerCase()).toBe(sender.address.toLowerCase())
   })
 
   test('open payer: raw 65-byte payer_auth recovers sponsor', async () => {

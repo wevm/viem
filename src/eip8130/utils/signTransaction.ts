@@ -107,6 +107,10 @@ export async function signTransaction(
   const { account, payer } = parameters
   const transaction: TransactionSerializable8130 = { ...parameters.transaction }
 
+  // Resolve the payer first: the sender hash commits to the `payer` field.
+  if (payer && !transaction.payer)
+    transaction.payer = payer.address ?? payer.account.address
+
   // Sender authorization.
   if (!transaction.senderAuth) {
     if (!account?.sign)
@@ -124,10 +128,6 @@ export async function signTransaction(
       : // EOA path: raw 65-byte signature
         signature
   }
-
-  // Sponsored: bind the payer over the resolved sender.
-  if (payer && !transaction.payer)
-    transaction.payer = payer.address ?? payer.account.address
 
   if (transaction.payer && !transaction.payerAuth && payer) {
     if (!payer.account.sign)
