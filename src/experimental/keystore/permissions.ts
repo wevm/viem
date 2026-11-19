@@ -175,6 +175,13 @@ export function toSessionPolicyConfig(
         break
       }
       case 'contract-call': {
+        // A call scope has no spend cap or call-frequency limit, so reject
+        // policies it cannot enforce instead of granting a broader key.
+        const { limit, period } = spendFromPolicies(permission.policies)
+        if (limit !== undefined || period !== undefined)
+          throw new BaseError(
+            'A `contract-call` permission cannot carry a `token-allowance` or `rate-limit` policy (a call scope cannot enforce them).',
+          )
         callScopes.push({
           target: permission.data.address as Address,
           selectorRules: permission.data.calls.map((call) => ({

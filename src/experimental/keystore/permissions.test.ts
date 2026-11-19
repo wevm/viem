@@ -197,6 +197,34 @@ describe('toSessionPolicyConfig', () => {
         } as unknown as Permission,
       ]),
     ).toThrow(/custom ERC-7715 policy/)
+
+    expect(() =>
+      toSessionPolicyConfig([
+        {
+          type: 'contract-call',
+          data: { address: zeroAddress, calls: ['mint()'] },
+          policies: [{ type: { custom: 'x' }, data: {} }],
+        } as unknown as Permission,
+      ]),
+    ).toThrow(/custom ERC-7715 policy/)
+  })
+
+  test('throws on a contract-call policy a call scope cannot enforce', () => {
+    expect(() =>
+      toSessionPolicyConfig([
+        {
+          type: 'contract-call',
+          data: { address: zeroAddress, calls: ['mint()'] },
+          policies: [
+            { type: 'rate-limit', data: { count: 1, interval: 86400 } },
+          ],
+        },
+      ]),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [BaseError: A \`contract-call\` permission cannot carry a \`token-allowance\` or \`rate-limit\` policy (a call scope cannot enforce them).
+
+      Version: viem@x.y.z]
+    `)
   })
 })
 
