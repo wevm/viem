@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Renamed the `SignerSnapshotCached` event on the TIP-20 channel reserve ABI to `OpeningCommitmentRecorded` (TIP-1166), and added `verifyVoucher` to the ABI and `channel.verifyVoucher` to `viem/tempo`.
+`viem/tempo`: Renamed the `SignerSnapshotCached` event on `Abis.tip20ChannelReserve` to `OpeningCommitmentRecorded` to match the TIP-1166 precompile, which no longer emits the old event, and added `verifyVoucher` to the ABI with a `channel.verifyVoucher` action.

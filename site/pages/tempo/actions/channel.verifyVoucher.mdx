@@ -49,8 +49,6 @@ const valid = await Actions.channel.verifyVoucher(client, {
 
 Whether the signature is a valid voucher for the channel and amount.
 
-Throws `ChannelNotFoundError` when the channel does not exist.
-
 ## Parameters
 
 ### channel
@@ -72,3 +70,9 @@ Total voucher amount signed for the channel.
 Voucher signature, from [`channel.signVoucher`](/tempo/actions/channel.signVoucher).
 
 <ReadParameters />
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ChannelNotFoundError` | The channel does not exist. |
