@@ -163,6 +163,7 @@ export const tip20ChannelReserve = {
   settle: '0x97fb5104',
   storageCredits: '0x4d65338b',
   topUp: '0xdc48471e',
+  verifyVoucher: '0xcabd6d5a',
   withdraw: '0x41e2c664',
 } as const satisfies FunctionSelectors<typeof Abis.tip20ChannelReserve>
 

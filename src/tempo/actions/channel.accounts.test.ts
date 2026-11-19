@@ -25,7 +25,7 @@ const payerClient = getClient({
  * Whether the test chain accepts configurable voucher signers (T15, TIP-1166).
  * Earlier forks reject a registered configurable signer with `RootKeyRetired`.
  */
-const signerSnapshots =
+const openingCommitments =
   Number(/^T(\d+)$/.exec(import.meta.env.VITE_TEMPO_HARDFORK ?? '')?.[1]) >= 15
 
 let token: `0x${string}`
@@ -75,7 +75,7 @@ describe('getOpenSalt', () => {
 })
 
 describe('open', () => {
-  test.runIf(signerSnapshots)(
+  test.runIf(openingCommitments)(
     'behavior: authorized signer defaults salt to its commitment',
     async () => {
       const signer = await setupSigner()
@@ -97,11 +97,11 @@ describe('open', () => {
       expect(opened.channelId).toBe(
         Channel.computeId(toChannel(opened), { chainId: chain.id }),
       )
-      if (signerSnapshots)
+      if (openingCommitments)
         expect(
           parseEventLogs({
             abi: Abis.tip20ChannelReserve,
-            eventName: 'SignerSnapshotCached',
+            eventName: 'OpeningCommitmentRecorded',
             logs: receipt.logs,
           }).map((log) => log.args),
         ).toEqual([
@@ -110,7 +110,7 @@ describe('open', () => {
     },
   )
 
-  test.runIf(signerSnapshots)(
+  test.runIf(openingCommitments)(
     'behavior: account defaults salt to its commitment',
     async () => {
       const signer = await setupSigner()
@@ -135,7 +135,7 @@ describe('open', () => {
     },
   )
 
-  test.runIf(signerSnapshots)(
+  test.runIf(openingCommitments)(
     "behavior: access key defaults salt to its parent's commitment",
     async () => {
       const signer = await setupSigner()
@@ -167,7 +167,7 @@ describe('open', () => {
     },
   )
 
-  test.runIf(signerSnapshots)(
+  test.runIf(openingCommitments)(
     'behavior: unregistered account defaults salt to its initial commitment',
     async () => {
       const signer = await setupSigner({ commit: false })
@@ -236,34 +236,37 @@ describe('open', () => {
     expect(opened.salt).toBe(salt)
   })
 
-  test.runIf(signerSnapshots)('error: salt not signer commitment', async () => {
-    const signer = await setupSigner()
+  test.runIf(openingCommitments)(
+    'error: salt not signer commitment',
+    async () => {
+      const signer = await setupSigner()
 
-    const error = await actions.channel
-      .openSync(payerClient, {
-        authorizedSigner: signer.address,
-        deposit: parseUnits('1', 6),
-        payee: payee.address,
-        salt: zeroHash,
-        token,
+      const error = await actions.channel
+        .openSync(payerClient, {
+          authorizedSigner: signer.address,
+          deposit: parseUnits('1', 6),
+          payee: payee.address,
+          salt: zeroHash,
+          token,
+        })
+        .catch((error) => error)
+
+      expect(error).toBeInstanceOf(
+        actions.channel.ChannelSaltNotSignerCommitmentError,
+      )
+      expect({
+        commitment: error.commitment,
+        signer: error.signer,
+      }).toEqual({
+        commitment: AccountConfig.getCommitment(signer.config),
+        signer: signer.address,
       })
-      .catch((error) => error)
-
-    expect(error).toBeInstanceOf(
-      actions.channel.ChannelSaltNotSignerCommitmentError,
-    )
-    expect({
-      commitment: error.commitment,
-      signer: error.signer,
-    }).toEqual({
-      commitment: AccountConfig.getCommitment(signer.config),
-      signer: signer.address,
-    })
-  })
+    },
+  )
 })
 
 describe('topUp', () => {
-  test.runIf(signerSnapshots)('error: signer config changed', async () => {
+  test.runIf(openingCommitments)('error: signer config changed', async () => {
     const signer = await setupSigner()
     const { receipt: _, ...opened } = await actions.channel.openSync(
       payerClient,

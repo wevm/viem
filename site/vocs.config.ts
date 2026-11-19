@@ -2816,6 +2816,10 @@ export default defineConfig({
                   link: '/tempo/actions/channel.topUp',
                 },
                 {
+                  text: 'verifyVoucher',
+                  link: '/tempo/actions/channel.verifyVoucher',
+                },
+                {
                   text: 'withdraw',
                   link: '/tempo/actions/channel.withdraw',
                 },

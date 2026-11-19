@@ -29,10 +29,12 @@ const operatorClient = getClient({
 
 let tokenId = 0
 let channelReserveSupported = false
+let verifyVoucherSupported = false
 
 describe.runIf(nodeEnv === 'localnet')('channel', () => {
   beforeAll(async () => {
-    channelReserveSupported = await supportsChannelReserve()
+    channelReserveSupported = await supportsFork(5)
+    verifyVoucherSupported = await supportsFork(15)
     if (!channelReserveSupported) return
 
     await Promise.all([
@@ -195,6 +197,69 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
         cumulativeAmount,
       }),
     )
+  })
+
+  test('verifyVoucher', async (ctx) => {
+    if (!verifyVoucherSupported) ctx.skip()
+
+    const { channelId, channel } = await setupChannel()
+    const cumulativeAmount = parseUnits('40', 6)
+    const signature = await signVoucher({
+      channel: channelId,
+      cumulativeAmount,
+    })
+
+    expect(
+      await actions.channel.verifyVoucher(payerClient, {
+        channel,
+        cumulativeAmount,
+        signature,
+      }),
+    ).toBe(true)
+
+    // Not checked against the deposit.
+    const overDeposit = parseUnits('1000', 6)
+    expect(
+      await actions.channel.verifyVoucher(payerClient, {
+        channel,
+        cumulativeAmount: overDeposit,
+        signature: await signVoucher({
+          channel: channelId,
+          cumulativeAmount: overDeposit,
+        }),
+      }),
+    ).toBe(true)
+
+    expect(
+      await actions.channel.verifyVoucher(payerClient, {
+        channel,
+        cumulativeAmount: parseUnits('41', 6),
+        signature,
+      }),
+    ).toBe(false)
+
+    const otherSignature = await payee.signVoucher({
+      chainId: chain.id,
+      channel: channelId,
+      cumulativeAmount,
+    })
+    expect(
+      await actions.channel.verifyVoucher(payerClient, {
+        channel,
+        cumulativeAmount,
+        signature: otherSignature,
+      }),
+    ).toBe(false)
+
+    await expect(
+      actions.channel.verifyVoucher(payerClient, {
+        channel: { ...channel, salt: `0x${'11'.repeat(32)}` },
+        cumulativeAmount,
+        signature,
+      }),
+    ).rejects.toMatchObject({
+      name: 'ChannelNotFoundError',
+    })
   })
 
   test('topUp', async (ctx) => {
@@ -376,6 +441,48 @@ describe('open.call', () => {
   })
 })
 
+describe('verifyVoucher.call', () => {
+  test('behavior: encodes the channel descriptor', () => {
+    const channel = Channel.from({
+      expiringNonceHash: zeroHash,
+      payee: payee.address,
+      payer: payer.address,
+      salt: zeroHash,
+      token: '0x20C0000000000000000000000000000000000001',
+    })
+    const signature = `0x${'ab'.repeat(65)}` as const
+
+    const call = actions.channel.verifyVoucher.call({
+      channel,
+      cumulativeAmount: parseUnits('40', 6),
+      signature,
+    })
+
+    const { abi: _, ...rest } = call
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "address": "0x4d50500000000000000000000000000000000000",
+        "args": [
+          {
+            "authorizedSigner": "0x0000000000000000000000000000000000000000",
+            "expiringNonceHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "operator": "0x0000000000000000000000000000000000000000",
+            "payee": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+            "payer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "token": "0x20C0000000000000000000000000000000000001",
+          },
+          40000000n,
+          "0xababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab",
+        ],
+        "data": "0xcabd6d5a000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000008c8d35429f74ec245f8ef2f4fd1e551cff97d650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002625a0000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000041ababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab00000000000000000000000000000000000000000000000000000000000000",
+        "functionName": "verifyVoucher",
+        "to": "0x4d50500000000000000000000000000000000000",
+      }
+    `)
+  })
+})
+
 async function setupChannel() {
   tokenId += 1
   const { token } = await setupToken(payerClient, {
@@ -407,7 +514,8 @@ async function setupChannel() {
   }
 }
 
-async function supportsChannelReserve() {
+/** Whether a `T<minimum>` or later hardfork is active on the test chain. */
+async function supportsFork(minimum: number) {
   const schedule = (await payerClient.request({
     method: 'tempo_forkSchedule',
   } as never)) as {
@@ -416,7 +524,7 @@ async function supportsChannelReserve() {
   return schedule.schedule.some((fork) => {
     if (!fork.active) return false
     const match = fork.name.match(/^T(\d+)$/)
-    return match ? Number(match[1]) >= 5 : false
+    return match ? Number(match[1]) >= minimum : false
   })
 }
 
