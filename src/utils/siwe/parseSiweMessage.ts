@@ -3,8 +3,6 @@ import type { Address } from 'abitype'
 import type { ExactPartial, Prettify } from '../../types/utils.js'
 import type { SiweMessage } from './types.js'
 
-const statementLineBreakRegex = /[\r\n\u2028\u2029]/
-
 const siweDateTimeRegex =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 
@@ -31,28 +29,20 @@ export function parseSiweMessage(
   message: string,
 ): Prettify<ExactPartial<SiweMessage>> {
   const prefixMatch = message.match(prefixRegex)
+  const suffixMatch = message.match(suffixRegex)
+  // A statement with a line break skips the optional `statement` group, so
+  // check the text between the blank line after the address and the suffix.
+  if (prefixMatch && suffixMatch) {
+    const section = message
+      .slice(message.indexOf('\n\n') + 2, suffixMatch.index)
+      .replace(/\n\n?$/, '')
+    if (/[\r\n\u2028\u2029]/.test(section)) return {}
+  }
   const { scheme, statement, ...prefix } = (prefixMatch?.groups ?? {}) as {
     address: Address
     domain: string
     scheme?: string
     statement?: string
-  }
-  const { address } = prefix
-  if (address) {
-    const statementAnchor = `${address}\n\n`
-    const anchorIndex = message.indexOf(statementAnchor)
-    if (anchorIndex !== -1) {
-      const afterStatement = message.slice(anchorIndex + statementAnchor.length)
-      const suffixStart = afterStatement.indexOf('\n\nURI: ')
-      if (suffixStart !== -1) {
-        const statementSection = afterStatement.slice(0, suffixStart)
-        if (
-          statementSection.length > 0 &&
-          statementLineBreakRegex.test(statementSection)
-        )
-          return {}
-      }
-    }
   }
   const {
     chainId,
@@ -62,7 +52,7 @@ export function parseSiweMessage(
     requestId,
     resources: resources_,
     ...suffix
-  } = (message.match(suffixRegex)?.groups ?? {}) as {
+  } = (suffixMatch?.groups ?? {}) as {
     chainId: string
     expirationTime?: string
     issuedAt?: string
