@@ -202,8 +202,13 @@ describe('cip64', () => {
     expect(signed).toEqual(serialized)
     expect(parseTransaction(signed)).toEqual({
       ...baseCip64,
+      r: '0x87a588ffb7bec68b00d264932305b3badc3bfba2f48e9d3d916d038e1bb831a5',
+      s: '0x77e665b35849c636b52b3cc205acb98141b4a582fb84a7181e048dc5473c6d6d',
       type: 'cip64',
+      v: 28n,
+      yParity: 1,
     })
+    expect(serializeTransaction(parseTransaction(signed))).toEqual(signed)
   })
 
   test('signature', () => {
@@ -233,8 +238,15 @@ describe('cip64', () => {
         },
       ),
     ).toEqual(tx2)
-    expect(parseTransaction(tx1)).toEqual(parseTransaction(tx2))
-    expect(parseTransaction(tx1)).toEqual({ ...baseCip64, type: 'cip64' })
+    expect(parseTransaction(tx1)).toEqual({
+      ...baseCip64,
+      r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+      s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+      type: 'cip64',
+      v: 28n,
+      yParity: 1,
+    })
+    expect(parseTransaction(tx2)).toMatchObject({ v: 27n, yParity: 0 })
   })
 
   test('CIP-42 transaction should be discarded and sent as CIP-64', () => {

@@ -624,7 +624,7 @@ type ParseEIP155SignatureErrorType =
   | PadHexErrorType
   | ErrorType
 
-function parseEIP155Signature(
+export function parseEIP155Signature(
   transactionArray: RecursiveArray<Hex>,
 ): Signature & { yParity: number } {
   const signature = transactionArray.slice(-3)
