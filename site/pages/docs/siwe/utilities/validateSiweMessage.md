@@ -68,7 +68,7 @@ Random string to check against.
 
 - **Type:** `string`
 
-[RFC 3986](https://www.rfc-editor.org/rfc/rfc3986#section-3.1) URI scheme to check against.
+[RFC 3986](https://www.rfc-editor.org/rfc/rfc3986#section-3.1) URI scheme to check against. If the message omits `scheme`, `https` is assumed ([EIP-4361](https://eips.ethereum.org/EIPS/eip-4361)).
 
 ### time (optional)
 
