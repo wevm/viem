@@ -264,6 +264,7 @@ export async function simulateBlocks<
           abi && status === 'success' && data !== '0x'
             ? decodeFunctionResult({
                 abi,
+                args,
                 data,
                 functionName,
               })

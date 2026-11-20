@@ -337,6 +337,53 @@ test('behavior: contract revert', async () => {
   )
 })
 
+test('behavior: overloaded function', async () => {
+  const abi = [
+    {
+      inputs: [],
+      name: 'ownerOf',
+      outputs: [{ type: 'uint256' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [{ name: 'tokenId', type: 'uint256' }],
+      name: 'ownerOf',
+      outputs: [{ type: 'address' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+  ] as const
+
+  const result = await simulateBlocks(client, {
+    blocks: [
+      {
+        calls: [
+          {
+            abi,
+            args: [420n],
+            functionName: 'ownerOf',
+            to: wagmiContractConfig.address,
+          },
+        ],
+      },
+    ],
+  })
+
+  expect(result[0].calls).toMatchInlineSnapshot(`
+    [
+      {
+        "data": "0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac",
+        "gasUsed": 23728n,
+        "logs": [],
+        "maxUsedGas": 23728n,
+        "result": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+        "status": "success",
+      },
+    ]
+  `)
+})
+
 test('behavior: decodes error from returnData when error field is absent', async () => {
   const mockClient = createPublicClient({
     chain: client.chain,
