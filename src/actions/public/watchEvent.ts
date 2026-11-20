@@ -18,16 +18,11 @@ import type {
 } from '../../types/contract.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
-import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
 import {
   AbiEventAmbiguityError,
   decodeEventLog,
 } from '../../utils/abi/decodeEventLog.js'
-import {
-  type EncodeEventTopicsParameters,
-  encodeEventTopics,
-} from '../../utils/abi/encodeEventTopics.js'
 import { formatLog } from '../../utils/formatters/log.js'
 import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
@@ -40,6 +35,7 @@ import {
 import { getBlockNumber } from './getBlockNumber.js'
 import { getFilterChanges } from './getFilterChanges.js'
 import { type GetLogsParameters, getLogs } from './getLogs.js'
+import { encodeEventFilterTopics } from './internal/encodeEventFilterTopics.js'
 import { isRangeError } from './internal/isRangeError.js'
 import {
   getSubscriptionTransport,
@@ -339,19 +335,7 @@ export function watchEvent<
         const transport = getSubscriptionTransport(client)
 
         const events_ = events ?? (event ? [event] : undefined)
-        let topics: LogTopic[] = []
-        if (events_) {
-          const encoded = (events_ as AbiEvent[]).flatMap((event) =>
-            encodeEventTopics({
-              abi: [event],
-              eventName: (event as AbiEvent).name,
-              args,
-            } as EncodeEventTopicsParameters),
-          )
-          // TODO: Clean up type casting
-          topics = [encoded as LogTopic]
-          if (event) topics = topics[0] as LogTopic[]
-        }
+        const topics = encodeEventFilterTopics({ args, event, events })
 
         const { unsubscribe: unsubscribe_ } = await transport.subscribe({
           params: ['logs', { address, topics }],
