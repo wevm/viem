@@ -304,10 +304,14 @@ export async function ccipRequest({
       )
 
       let result: any
+      let message: string | undefined
       if (
         response.headers.get('Content-Type')?.startsWith('application/json')
       ) {
-        result = JSON.parse(responseBody).data
+        const json = JSON.parse(responseBody)
+        result = json.data
+        // EIP-3668 gateways describe 4xx and 5xx errors as `{ message: string }`.
+        if (typeof json.message === 'string') message = json.message
       } else {
         result = responseBody
       }
@@ -317,7 +321,7 @@ export async function ccipRequest({
           body,
           details: result?.error
             ? stringify(result.error)
-            : response.statusText,
+            : (message ?? response.statusText),
           headers: response.headers,
           status: response.status,
           url,
