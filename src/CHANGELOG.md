@@ -1,5 +1,21 @@
 # viem
 
+## 2.58.3
+
+### Patch Changes
+
+- [#5614](https://github.com/wevm/viem/pull/5614) [`b4be930334b5a3eadc100abf1ad0d923f477f081`](https://github.com/wevm/viem/commit/b4be930334b5a3eadc100abf1ad0d923f477f081) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `ccipRequest` to include the gateway's EIP-3668 error `message` in `HttpRequestError` details instead of only the HTTP status text.
+
+- [#5622](https://github.com/wevm/viem/pull/5622) [`0715fb19ac6b35f0e45509d506b60c394dc9a677`](https://github.com/wevm/viem/commit/0715fb19ac6b35f0e45509d506b60c394dc9a677) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `parseTransaction` in `viem/celo` dropping the signature (`r`, `s`, `v`, and `yParity`) of signed CIP-42 and CIP-64 transactions.
+
+- [#5613](https://github.com/wevm/viem/pull/5613) [`9381167dfe73db732d979c6076301559a689e81f`](https://github.com/wevm/viem/commit/9381167dfe73db732d979c6076301559a689e81f) Thanks [@jxom](https://github.com/jxom)! - Passed the latest block to the chain `fees.estimateFeesPerGas` and `fees.baseFeeMultiplier` hooks when `estimateFeesPerGas` is called without a block.
+
+- [#5620](https://github.com/wevm/viem/pull/5620) [`2395eba0946d3b2f666c9487f4a6ba5e8efce46f`](https://github.com/wevm/viem/commit/2395eba0946d3b2f666c9487f4a6ba5e8efce46f) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Decoded `simulateBlocks` and `simulateCalls` contract call results with the overload matching the call's `args`.
+
+- [#5621](https://github.com/wevm/viem/pull/5621) [`8a96a9980464492d69295a8e3303bb86410af9ff`](https://github.com/wevm/viem/commit/8a96a9980464492d69295a8e3303bb86410af9ff) Thanks [@HereForTheTechNFT](https://github.com/HereForTheTechNFT)! - Fixed `validateSiweMessage` to assume the `https` scheme when the message omits `scheme`, per EIP-4361.
+
+- [#5604](https://github.com/wevm/viem/pull/5604) [`d90ffc7db962baf69bd0d620fa140ca440c70b1a`](https://github.com/wevm/viem/commit/d90ffc7db962baf69bd0d620fa140ca440c70b1a) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Threw `AccountStateConflictError` when a state override set the same account more than once with different address casing.
+
 ## 2.58.2
 
 ### Patch Changes
