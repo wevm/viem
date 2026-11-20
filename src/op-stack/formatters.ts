@@ -77,6 +77,14 @@ export const formatters = {
         ...(args.depositReceiptVersion
           ? { depositReceiptVersion: hexToNumber(args.depositReceiptVersion) }
           : {}),
+        ...(args.opGasRefund !== undefined
+          ? {
+              opGasRefund:
+                args.opGasRefund === null
+                  ? null
+                  : hexToBigInt(args.opGasRefund),
+            }
+          : {}),
         l1GasPrice: args.l1GasPrice ? hexToBigInt(args.l1GasPrice) : null,
         l1GasUsed: args.l1GasUsed ? hexToBigInt(args.l1GasUsed) : null,
         l1Fee: args.l1Fee ? hexToBigInt(args.l1Fee) : null,

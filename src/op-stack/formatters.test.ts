@@ -7,6 +7,7 @@ import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.j
 import { optimism } from '../chains/index.js'
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'
+import type { OpStackRpcTransactionReceipt } from './types/transaction.js'
 
 const optimismClient = anvilOptimism.getClient()
 
@@ -714,6 +715,48 @@ describe('transaction receipt', async () => {
         "transactionIndex": 10,
         "type": "eip1559",
       }
+    `)
+  })
+
+  test('formatter: opGasRefund', () => {
+    const { transactionReceipt } = optimism.formatters!
+    const receipt: OpStackRpcTransactionReceipt = {
+      blockHash:
+        '0x7f9f15ca4806d8f8deb2c73e82a2a153a2de668118e14e27a96cd672936449f0',
+      blockNumber: '0x1',
+      contractAddress: null,
+      cumulativeGasUsed: '0x1',
+      effectiveGasPrice: '0x1',
+      from: '0x24476ac81915c512b0e13207aa917923fba4a16a',
+      gasUsed: '0x42069',
+      l1Fee: null,
+      l1FeeScalar: null,
+      l1GasPrice: null,
+      l1GasUsed: null,
+      logs: [],
+      logsBloom: '0x00',
+      status: '0x1',
+      to: '0xdd69db25f6d620a7bad3023c5d32761d353d3de9',
+      transactionHash:
+        '0x4d8f0ebd260ea5ac2e11886cdd0af8cba982b21d9f9c1efad808212c6d6a65d3',
+      transactionIndex: '0x1',
+      type: '0x2',
+    }
+
+    const refunds = [
+      transactionReceipt.format({ ...receipt, opGasRefund: '0x5208' }),
+      transactionReceipt.format({ ...receipt, opGasRefund: null }),
+      transactionReceipt.format(receipt),
+    ].map((receipt) =>
+      'opGasRefund' in receipt ? receipt.opGasRefund : 'omitted',
+    )
+
+    expect(refunds).toMatchInlineSnapshot(`
+      [
+        21000n,
+        null,
+        "omitted",
+      ]
     `)
   })
 })

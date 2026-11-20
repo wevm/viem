@@ -103,12 +103,9 @@ export async function getGames<
   const disputeGameFactoryAddress = await (async () => {
     if (parameters.disputeGameFactoryAddress)
       return parameters.disputeGameFactoryAddress
-    const disputeGameFactory = targetChain?.contracts.disputeGameFactory
-    const address = chain
-      ? disputeGameFactory?.[chain.id]?.address
-      : Object.values(disputeGameFactory ?? {})[0]?.address
-    if (address) return address
-    // The target chain has no factory for this L1, so read it from the portal.
+    // Read the factory from the portal rather than the chain definition: the
+    // portal only accepts games from its current factory, and a chain's factory
+    // can change (for example when chains move to a shared factory for interop).
     return withCache(
       () =>
         readContract(client, {

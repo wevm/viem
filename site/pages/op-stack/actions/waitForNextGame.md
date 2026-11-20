@@ -81,9 +81,9 @@ const game = await publicClientL1.waitForNextGame({
 ### disputeGameFactoryAddress (optional)
 
 - **Type:** `Address`
-- **Default:** `targetChain.contracts.disputeGameFactory[chainId].address`
+- **Default:** the portal's `disputeGameFactory()`
 
-The address of the [`DisputeGameFactory` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol). Defaults to the `DisputeGameFactory` contract specified on the `targetChain`.
+The address of the [`DisputeGameFactory` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol). Defaults to the factory returned by the portal's `disputeGameFactory()`, which is the factory the portal accepts games from.
 
 If a `disputeGameFactoryAddress` is provided, the `targetChain` parameter becomes optional.
 

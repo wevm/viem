@@ -292,6 +292,7 @@ test('behavior: reads the game and finalized state concurrently with the proof s
   const sender = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
   const replies: Record<string, unknown> = {
     checkWithdrawal: undefined,
+    disputeGameFactory: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
     finalizedWithdrawals: false,
     findLatestGames: [
       {
@@ -391,14 +392,17 @@ test('behavior: reads the game and finalized state concurrently with the proof s
         "respectedGameType",
       ],
       [
-        "gameCount",
+        "disputeGameFactory",
         "proofSubmitters",
-        "respectedGameType",
       ],
       [
         "checkWithdrawal",
-        "findLatestGames",
+        "gameCount",
         "provenWithdrawals",
+        "respectedGameType",
+      ],
+      [
+        "findLatestGames",
       ],
       [
         "aggregate3(l2SequenceNumber)",

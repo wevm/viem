@@ -111,5 +111,8 @@ describe('smoke', () => {
     expectTypeOf(transactionReceipt.depositReceiptVersion).toEqualTypeOf<
       number | undefined
     >()
+    expectTypeOf(transactionReceipt.opGasRefund).toEqualTypeOf<
+      bigint | null | undefined
+    >()
   })
 })
