@@ -11,6 +11,7 @@ import type { GetSerializedTransactionType } from '../utils/transaction/getSeria
 import {
   type ParseTransactionReturnType as ParseTransactionReturnType_,
   parseAccessList,
+  parseEIP155Signature,
   toTransactionArray,
 } from '../utils/transaction/parseTransaction.js'
 import {
@@ -129,7 +130,12 @@ function parseTransactionCIP42(
 
   assertTransactionCIP42(transaction as TransactionSerializableCIP42)
 
-  return transaction as TransactionSerializableCIP42
+  const signature =
+    transactionArray.length === 15
+      ? parseEIP155Signature(transactionArray as RecursiveArray<Hex>)
+      : undefined
+
+  return { ...signature, ...transaction } as TransactionSerializableCIP42
 }
 
 function parseTransactionCIP64(
@@ -200,5 +206,10 @@ function parseTransactionCIP64(
 
   assertTransactionCIP64(transaction as TransactionSerializableCIP64)
 
-  return transaction as TransactionSerializableCIP64
+  const signature =
+    transactionArray.length === 13
+      ? parseEIP155Signature(transactionArray as RecursiveArray<Hex>)
+      : undefined
+
+  return { ...signature, ...transaction } as TransactionSerializableCIP64
 }

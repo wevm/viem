@@ -139,6 +139,46 @@ describe('should parse a CIP42 transaction', () => {
         }
       `)
   })
+
+  test('with signature', () => {
+    expect(
+      parseTransaction(
+        `0x7c${toRlp([
+          '0xa51e',
+          '0x0311',
+          '0x77359400',
+          '0x77359400',
+          '0x5209',
+          '0x765de816845861e75a25fca122bb6898b8b1282a',
+          '0x',
+          '0x',
+          '0x90f79bf6eb2c4f870365e785982e1f101e93b906',
+          '0x0de0b6b3a7640000',
+          '0x',
+          [],
+          '0x01',
+          '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          '0x70fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        ]).slice(2)}`,
+      ),
+    ).toMatchInlineSnapshot(`
+      {
+        "chainId": 42270,
+        "feeCurrency": "0x765de816845861e75a25fca122bb6898b8b1282a",
+        "gas": 21001n,
+        "maxFeePerGas": 2000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "nonce": 785,
+        "r": "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+        "s": "0x70fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+        "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+        "type": "cip42",
+        "v": 28n,
+        "value": 1000000000000000000n,
+        "yParity": 1,
+      }
+    `)
+  })
 })
 
 describe('should throw an error for invalid cip42 transactions', () => {
