@@ -55,7 +55,8 @@ export function validateSiweMessage(
 
   if (domain && message.domain !== domain) return false
   if (nonce && message.nonce !== nonce) return false
-  if (scheme && message.scheme !== scheme) return false
+  // EIP-4361: if `scheme` is not specified, HTTPS is assumed by default.
+  if (scheme && (message.scheme ?? 'https') !== scheme) return false
 
   // EIP-4361 requires `nonce = 8*( ALPHA / DIGIT )` and `version = "1"`.
   if (message.nonce !== undefined && !nonceRegex.test(message.nonce))

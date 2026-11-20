@@ -118,6 +118,11 @@ test('behavior: scheme mismatch', () => {
   ).toBeFalsy()
 })
 
+test('behavior: scheme defaults to https when omitted', () => {
+  expect(validateSiweMessage({ scheme: 'https', message })).toBeTruthy()
+  expect(validateSiweMessage({ scheme: 'http', message })).toBeFalsy()
+})
+
 test('behavior: time is after expirationTime', () => {
   expect(
     validateSiweMessage({
