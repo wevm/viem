@@ -1,5 +1,11 @@
 # viem
 
+## 2.58.4
+
+### Patch Changes
+
+- [#5625](https://github.com/wevm/viem/pull/5625) [`4357826238423ab3e18e7bc52a7952308ae224f0`](https://github.com/wevm/viem/commit/4357826238423ab3e18e7bc52a7952308ae224f0) Thanks [@jxom](https://github.com/jxom)! - Fixed `viem/op-stack` withdrawals on chains that move to a shared `DisputeGameFactory` in OP Stack Upgrade 22 (Lagoon) by reading the factory from the portal, treated `ZK_DISPUTE_GAME` (game type `10`) as a super-root game, and formatted the `opGasRefund` receipt field.
+
 ## 2.58.3
 
 ### Patch Changes
