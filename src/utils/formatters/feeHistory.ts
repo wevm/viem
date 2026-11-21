@@ -5,12 +5,13 @@ import type { RpcFeeHistory } from '../../types/rpc.js'
 export type FormatFeeHistoryErrorType = ErrorType
 
 export function formatFeeHistory(feeHistory: RpcFeeHistory): FeeHistory {
+  const { baseFeePerBlobGas, blobGasUsedRatio } = feeHistory
   return {
-    baseFeePerBlobGas: feeHistory.baseFeePerBlobGas?.map((value) =>
-      BigInt(value),
-    ),
+    ...(baseFeePerBlobGas && {
+      baseFeePerBlobGas: baseFeePerBlobGas.map((value) => BigInt(value)),
+    }),
     baseFeePerGas: feeHistory.baseFeePerGas.map((value) => BigInt(value)),
-    blobGasUsedRatio: feeHistory.blobGasUsedRatio,
+    ...(blobGasUsedRatio && { blobGasUsedRatio }),
     gasUsedRatio: feeHistory.gasUsedRatio,
     oldestBlock: BigInt(feeHistory.oldestBlock),
     reward: feeHistory.reward?.map((reward) =>

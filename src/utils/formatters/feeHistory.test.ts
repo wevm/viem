@@ -79,3 +79,16 @@ test('deserializes fee history', () => {
     }
   `)
 })
+
+test('omits blob fields the node does not return', () => {
+  const { baseFeePerBlobGas: _, blobGasUsedRatio: __, ...rest } = feeHistory
+
+  expect(Object.keys(formatFeeHistory(rest))).toMatchInlineSnapshot(`
+    [
+      "baseFeePerGas",
+      "gasUsedRatio",
+      "oldestBlock",
+      "reward",
+    ]
+  `)
+})
