@@ -19,7 +19,9 @@ const feeHistory = await publicClient.getFeeHistory({ // [!code focus:4]
   rewardPercentiles: [25, 75]
 })
 // @log: {
+// @log:   baseFeePerBlobGas: [1n, 1n, 1n, 1n, 1n],
 // @log:   baseFeePerGas: [2317411253n, 2182401005n, 2322561949n, 2411884398n, 2161030694n],
+// @log:   blobGasUsedRatio: [0, 0.5, 1, 0.3333333333333333],
 // @log:   gasUsedRatio: [0.3061775, 0.2403, 0.2931, 0.1690],
 // @log:   oldestBlock: 1551231n,
 // @log:   reward: [[1000000000n, 1000000000n], [1000000000n, 1000000000n], ...],
@@ -43,7 +45,7 @@ export const publicClient = createPublicClient({
 
 [`FeeHistory`](/docs/glossary/types#feehistory)
 
-The fee history.
+The fee history. `baseFeePerBlobGas` and `blobGasUsedRatio` are only included when the node returns them. Nodes and chains without EIP-4844 support omit them.
 
 ## Parameters
 
