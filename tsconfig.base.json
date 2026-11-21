@@ -9,7 +9,7 @@
 
     // Type checking
     "strict": true,
-    "useDefineForClassFields": true, // Not enabled by default in `strict` mode unless we bump `target` to ES2022.
+    "useDefineForClassFields": true, // Default for the ES2022 `target`; kept explicit because class field semantics affect emitted code.
     "noFallthroughCasesInSwitch": true, // Not enabled by default in `strict` mode.
     "noImplicitReturns": true, // Not enabled by default in `strict` mode.
     "useUnknownInCatchVariables": true, // TODO: This would normally be enabled in `strict` mode but would require some adjustments to the codebase.
@@ -31,7 +31,7 @@
     // Language and environment
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
-    "target": "ES2021", // Setting this to `ES2021` enables native support for `Node v16+`: https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping.
+    "target": "ES2022", // Setting this to `ES2022` enables native support for `Node v18+` and emits native class fields, which bundlers can tree-shake: https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping.
     "types": ["node"],
     "lib": [
       "ES2022", // By using ES2022 we get access to the `.cause` property on `Error` instances.
