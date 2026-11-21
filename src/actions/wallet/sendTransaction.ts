@@ -191,6 +191,12 @@ export async function sendTransaction<
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
   const account = account_ ? parseAccount(account_) : null
+  const calldata = dataSuffix
+    ? concat([
+        data ?? '0x',
+        dataSuffix.length % 2 ? `0x0${dataSuffix.slice(2)}` : dataSuffix,
+      ])
+    : data
   let nonceManagerParameters:
     | { address: Address; chainId: number; nonce?: number | undefined }
     | undefined
@@ -243,7 +249,7 @@ export async function sendTransaction<
           authorizationList,
           blobs,
           chainId,
-          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+          data: calldata,
           gas,
           gasPrice,
           maxFeePerBlobGas,
@@ -352,7 +358,7 @@ export async function sendTransaction<
         authorizationList,
         blobs,
         chain,
-        data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+        data: calldata,
         gas,
         gasPrice,
         maxFeePerBlobGas,
