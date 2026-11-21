@@ -5,6 +5,7 @@ import type { RpcFeeHistory } from '../../types/rpc.js'
 import { formatFeeHistory } from './feeHistory.js'
 
 const feeHistory: RpcFeeHistory = {
+  baseFeePerBlobGas: ['0x1', '0x1', '0x2', '0x2', '0x1'],
   baseFeePerGas: [
     '0x27a818102',
     '0x256704d4c',
@@ -12,6 +13,7 @@ const feeHistory: RpcFeeHistory = {
     '0x25fca330e',
     '0x2433d4457',
   ],
+  blobGasUsedRatio: [0, 0.6666666666666666, 1, 0.3333333333333333],
   gasUsedRatio: [0.2726281302071925, 0.79851, 0.2803831724987217, 0.3121027],
   oldestBlock: '0xe6e55d',
   reward: [
@@ -25,12 +27,25 @@ const feeHistory: RpcFeeHistory = {
 test('deserializes fee history', () => {
   expect(formatFeeHistory(feeHistory)).toMatchInlineSnapshot(`
     {
+      "baseFeePerBlobGas": [
+        1n,
+        1n,
+        2n,
+        2n,
+        1n,
+      ],
       "baseFeePerGas": [
         10645242114n,
         10040134988n,
         10789405161n,
         10197021454n,
         9718023255n,
+      ],
+      "blobGasUsedRatio": [
+        0,
+        0.6666666666666666,
+        1,
+        0.3333333333333333,
       ],
       "gasUsedRatio": [
         0.2726281302071925,
@@ -62,5 +77,18 @@ test('deserializes fee history', () => {
         ],
       ],
     }
+  `)
+})
+
+test('omits blob fields the node does not return', () => {
+  const { baseFeePerBlobGas: _, blobGasUsedRatio: __, ...rest } = feeHistory
+
+  expect(Object.keys(formatFeeHistory(rest))).toMatchInlineSnapshot(`
+    [
+      "baseFeePerGas",
+      "gasUsedRatio",
+      "oldestBlock",
+      "reward",
+    ]
   `)
 })

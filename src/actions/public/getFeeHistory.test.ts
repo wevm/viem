@@ -15,12 +15,25 @@ test('default', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
+      "baseFeePerBlobGas": [
+        1n,
+        1n,
+        1n,
+        1n,
+        1n,
+      ],
       "baseFeePerGas": [
         634639953n,
         649317659n,
         638630382n,
         635678744n,
         618836874n,
+      ],
+      "blobGasUsedRatio": [
+        0,
+        0,
+        1,
+        1,
       ],
       "gasUsedRatio": [
         0.5925104444444445,
@@ -74,10 +87,19 @@ test('args: blockCount', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
+      "baseFeePerBlobGas": [
+        1n,
+        1n,
+        1n,
+      ],
       "baseFeePerGas": [
         638630382n,
         635678744n,
         618836874n,
+      ],
+      "blobGasUsedRatio": [
+        1,
+        1,
       ],
       "gasUsedRatio": [
         0.48151269444444444,
@@ -109,10 +131,19 @@ test('args: rewardPercentiles', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
+      "baseFeePerBlobGas": [
+        1n,
+        1n,
+        1n,
+      ],
       "baseFeePerGas": [
         638630382n,
         635678744n,
         618836874n,
+      ],
+      "blobGasUsedRatio": [
+        1,
+        1,
       ],
       "gasUsedRatio": [
         0.48151269444444444,
