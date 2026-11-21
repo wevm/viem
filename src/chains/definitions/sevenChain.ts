@@ -3,10 +3,10 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const sevenChain = /*#__PURE__*/ defineChain({
   id: 70007,
   name: 'Seven Chain',
-  blockTime: 3000,
+  blockTime: 20_000,
   nativeCurrency: {
     decimals: 18,
-    name: 'SEVEN',
+    name: 'Seven',
     symbol: 'SEVEN',
   },
   rpcUrls: {
@@ -16,9 +16,8 @@ export const sevenChain = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'SevenScan',
+      name: 'Seven Chain Explorer',
       url: 'https://theseven.meme/blockchain/explorer',
     },
   },
-  testnet: false,
 })
