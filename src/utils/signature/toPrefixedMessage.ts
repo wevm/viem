@@ -19,7 +19,11 @@ export type ToPrefixedMessageErrorType =
 export function toPrefixedMessage(message_: SignableMessage): Hex {
   const message = (() => {
     if (typeof message_ === 'string') return stringToHex(message_)
-    if (typeof message_.raw === 'string') return message_.raw
+    // Odd-length hex is left-padded to whole bytes, matching `hexToBytes`.
+    if (typeof message_.raw === 'string')
+      return message_.raw.length % 2
+        ? (`0x0${message_.raw.slice(2)}` as Hex)
+        : message_.raw
     return bytesToHex(message_.raw)
   })()
   const prefix = stringToHex(`${presignMessagePrefix}${size(message)}`)
