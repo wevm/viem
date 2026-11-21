@@ -5,7 +5,18 @@ import type { UserOperation } from '../../types/userOperation.js'
 export type FormatUserOperationErrorType = ErrorType
 
 export function formatUserOperation(parameters: RpcUserOperation) {
-  const userOperation = { ...parameters } as unknown as UserOperation
+  const { eip7702Auth, ...rest } = parameters
+  const userOperation = rest as unknown as UserOperation
+
+  if (eip7702Auth)
+    userOperation.authorization = {
+      address: eip7702Auth.address,
+      chainId: Number(eip7702Auth.chainId),
+      nonce: Number(eip7702Auth.nonce),
+      r: eip7702Auth.r,
+      s: eip7702Auth.s,
+      yParity: Number(eip7702Auth.yParity),
+    }
 
   if (parameters.callGasLimit)
     userOperation.callGasLimit = BigInt(parameters.callGasLimit)
