@@ -2235,6 +2235,31 @@ describe('behavior: sendTransactionSync dataSuffix', () => {
     expect(capturedData).toBe('0x12345678')
   })
 
+  test('sends transaction with odd-length dataSuffix (json-rpc account)', async () => {
+    await setup()
+
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+    })
+
+    const [receipt] = await Promise.all([
+      sendTransaction(walletClient, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        data: '0xa9059cbb',
+        dataSuffix: '0xabc',
+      }),
+      (async () => {
+        await wait(500)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
+
+    const tx = await getTransaction(client, { hash: receipt.transactionHash })
+    expect(tx.input).toMatchInlineSnapshot(`"0xa9059cbb0abc"`)
+  })
+
   test('sends transaction with sendTransactionSync dataSuffix (local account)', async () => {
     await setup()
 
@@ -2259,5 +2284,23 @@ describe('behavior: sendTransactionSync dataSuffix', () => {
 
     const tx = await getTransaction(client, { hash: receipt.transactionHash })
     expect(tx.input).toBe('0x12345678')
+
+    const [oddReceipt] = await Promise.all([
+      sendTransaction(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        data: '0xa9059cbb',
+        dataSuffix: '0xabc',
+      }),
+      (async () => {
+        await wait(500)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
+
+    const oddTx = await getTransaction(client, {
+      hash: oddReceipt.transactionHash,
+    })
+    expect(oddTx.input).toMatchInlineSnapshot(`"0xa9059cbb0abc"`)
   })
 })

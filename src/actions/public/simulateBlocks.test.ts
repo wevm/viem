@@ -486,6 +486,12 @@ test('behavior: dataSuffix', async () => {
             to: wagmiContractConfig.address,
             dataSuffix: '0x1234',
           },
+          {
+            abi: wagmiContractConfig.abi,
+            functionName: 'symbol',
+            to: wagmiContractConfig.address,
+            dataSuffix: '0x123',
+          },
         ],
       },
     ],
@@ -501,6 +507,10 @@ test('behavior: dataSuffix', async () => {
         "calls": [
           {
             "data": "0x06fdde031234",
+            "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+          },
+          {
+            "data": "0x95d89b410123",
             "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
           },
         ],

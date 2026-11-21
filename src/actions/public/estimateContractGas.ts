@@ -22,6 +22,7 @@ import {
   type EncodeFunctionDataParameters,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { concat } from '../../utils/data/concat.js'
 import {
   type GetContractErrorReturnType,
   getContractError,
@@ -128,7 +129,12 @@ export async function estimateContractGas<
       estimateGas,
       'estimateGas',
     )({
-      data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
+      data: dataSuffix
+        ? concat([
+            data,
+            dataSuffix.length % 2 ? `0x0${dataSuffix.slice(2)}` : dataSuffix,
+          ])
+        : data,
       to: address,
       ...request,
     } as unknown as EstimateGasParameters)

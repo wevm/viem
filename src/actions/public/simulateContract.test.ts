@@ -7,7 +7,7 @@
  *        - Custom chain types
  *        - Custom nonce
  */
-import { InsufficientFundsError } from 'viem'
+import { createPublicClient, http, InsufficientFundsError } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Delegation, ErrorsExample } from '~contracts/generated.js'
@@ -261,6 +261,33 @@ test('args: dataSuffix', async () => {
     to: wagmiContractConfig.address,
   })
   expect(request.dataSuffix).toEqual('0x12345678')
+})
+
+test('args: dataSuffix (odd length)', async () => {
+  const data: string[] = []
+  const client = createPublicClient({
+    chain: anvilMainnet.chain,
+    transport: http(anvilMainnet.rpcUrl.http, {
+      onFetchRequest(_, init) {
+        const { method, params } = JSON.parse(init.body as string)
+        if (method === 'eth_call') data.push(params[0].data)
+      },
+    }),
+  })
+
+  await simulateContract(client, {
+    abi: wagmiContractConfig.abi,
+    address: wagmiContractConfig.address,
+    account: accounts[0].address,
+    functionName: 'mint',
+    dataSuffix: '0xabc',
+  })
+
+  expect(data).toMatchInlineSnapshot(`
+    [
+      "0x1249c58b0abc",
+    ]
+  `)
 })
 
 describe('BAYC', () => {

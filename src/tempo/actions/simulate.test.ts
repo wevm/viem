@@ -220,6 +220,25 @@ describe('simulateBlocks', () => {
     `)
   })
 
+  test('behavior: odd-length dataSuffix', async () => {
+    const result = await actions.simulate.simulateBlocks(client, {
+      blocks: [
+        {
+          calls: [
+            {
+              ...actions.token.getBalance.call(client, {
+                token: addresses.alphaUsd,
+              }),
+              dataSuffix: '0xabc',
+            },
+          ],
+        },
+      ],
+    })
+
+    expect(result.blocks[0].calls[0].status).toMatchInlineSnapshot(`"success"`)
+  })
+
   test('behavior: stateOverrides', async () => {
     const result = await actions.simulate.simulateBlocks(client, {
       blocks: [

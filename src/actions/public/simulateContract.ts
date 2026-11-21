@@ -34,6 +34,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { concat } from '../../utils/data/concat.js'
 import {
   type GetContractErrorReturnType,
   getContractError,
@@ -278,7 +279,12 @@ export async function simulateContract<
       'call',
     )({
       batch: false,
-      data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
+      data: dataSuffix
+        ? concat([
+            calldata,
+            dataSuffix.length % 2 ? `0x0${dataSuffix.slice(2)}` : dataSuffix,
+          ])
+        : calldata,
       to: address,
       ...callRequest,
       // `call` omits the sender for `null` at runtime, but its parameter type excludes `null`.
