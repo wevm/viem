@@ -153,6 +153,33 @@ describe('wagmi', () => {
 
     expect(gasWithDataSuffix).toBeGreaterThan(gasWithoutDataSuffix)
   })
+
+  test('args: dataSuffix (odd length)', async () => {
+    const data: string[] = []
+    const client = createPublicClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http, {
+        onFetchRequest(_, init) {
+          const { method, params } = JSON.parse(init.body as string)
+          if (method === 'eth_estimateGas') data.push(params[0].data)
+        },
+      }),
+    })
+
+    await estimateContractGas(client, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+      dataSuffix: '0xabc',
+    })
+
+    expect(data).toMatchInlineSnapshot(`
+      [
+        "0x1249c58b0abc",
+      ]
+    `)
+  })
 })
 
 describe('BAYC', () => {

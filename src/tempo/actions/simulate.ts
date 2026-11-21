@@ -150,7 +150,12 @@ export async function simulateBlocks<
           ...call,
           account,
           data: call.dataSuffix
-            ? concat([data || '0x', call.dataSuffix])
+            ? concat([
+                data || '0x',
+                call.dataSuffix.length % 2
+                  ? `0x0${call.dataSuffix.slice(2)}`
+                  : call.dataSuffix,
+              ])
             : data,
           from: call.from ?? account?.address,
         } as const

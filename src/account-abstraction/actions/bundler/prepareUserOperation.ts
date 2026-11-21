@@ -545,7 +545,12 @@ export async function prepareUserOperation<
   ////////////////////////////////////////////////////////////////////////////////
 
   if (typeof callData !== 'undefined')
-    request.callData = dataSuffix ? concat([callData, dataSuffix]) : callData
+    request.callData = dataSuffix
+      ? concat([
+          callData,
+          dataSuffix.length % 2 ? `0x0${dataSuffix.slice(2)}` : dataSuffix,
+        ])
+      : callData
   if (typeof factory !== 'undefined')
     request = { ...request, ...(factory as any) }
   if (typeof fees !== 'undefined') request = { ...request, ...(fees as any) }
