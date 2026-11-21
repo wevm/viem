@@ -1752,6 +1752,16 @@ describe('behavior: sendTransaction dataSuffix', () => {
     })
 
     expect(capturedData).toBe('0x12345678')
+
+    await sendTransaction(walletClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      data: '0xa9059cbb',
+      gas: 100_000n,
+      dataSuffix: '0xabc',
+    })
+
+    expect(capturedData).toMatchInlineSnapshot(`"0xa9059cbb0abc"`)
   })
 
   test('sends transaction with sendTransaction dataSuffix (local account)', async () => {
@@ -1775,5 +1785,17 @@ describe('behavior: sendTransaction dataSuffix', () => {
 
     const tx = await getTransaction(client, { hash })
     expect(tx.input).toBe('0x12345678')
+
+    const oddHash = await sendTransaction(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      data: '0xa9059cbb',
+      dataSuffix: '0xabc',
+    })
+
+    await mine(client, { blocks: 1 })
+
+    const oddTx = await getTransaction(client, { hash: oddHash })
+    expect(oddTx.input).toMatchInlineSnapshot(`"0xa9059cbb0abc"`)
   })
 })

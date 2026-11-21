@@ -837,6 +837,11 @@ test('args: dataSuffix', async () => {
         to: wagmiContractConfig.address,
         dataSuffix: '0x12345678',
       },
+      {
+        data: '0x1234',
+        dataSuffix: '0xabc',
+        to: accounts[1].address,
+      },
     ],
   })
 
@@ -850,6 +855,11 @@ test('args: dataSuffix', async () => {
             {
               "data": "0x1249c58b12345678",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+              "value": undefined,
+            },
+            {
+              "data": "0x12340abc",
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
               "value": undefined,
             },
           ],
