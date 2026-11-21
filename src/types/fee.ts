@@ -2,10 +2,17 @@ import type { OneOf } from './utils.js'
 
 export type FeeHistory<quantity = bigint> = {
   /**
+   * An array of block base fees per blob gas (in wei). This includes the next block after
+   * the newest of the returned range, because this value can be derived from the newest block.
+   * Zeroes are returned for pre-EIP-4844 blocks. */
+  baseFeePerBlobGas?: quantity[] | undefined
+  /**
    * An array of block base fees per gas (in wei). This includes the next block after
    * the newest of the returned range, because this value can be derived from the newest block.
    * Zeroes are returned for pre-EIP-1559 blocks. */
   baseFeePerGas: quantity[]
+  /** An array of block blob gas used ratios. These are calculated as the ratio of blobGasUsed and the max blob gas per block. */
+  blobGasUsedRatio?: number[] | undefined
   /** An array of block gas used ratios. These are calculated as the ratio of gasUsed and gasLimit. */
   gasUsedRatio: number[]
   /** Lowest number block of the returned range. */
