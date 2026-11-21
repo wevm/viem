@@ -27,6 +27,9 @@ test('to hex', () => {
   ).toMatchInlineSnapshot(
     '"0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68"',
   )
+  expect(hashMessage({ raw: '0x123' })).toMatchInlineSnapshot(
+    `"0x849ae777ca7db3e23b5d649e010b8d332b052b4884aac9ebe689311ab27b5751"`,
+  )
 })
 
 test('to bytes', () => {
