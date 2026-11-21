@@ -2233,18 +2233,31 @@ describe('behavior: sendTransactionSync dataSuffix', () => {
     ).rejects.toThrow('Test interception - data captured')
 
     expect(capturedData).toBe('0x12345678')
+  })
 
-    await expect(
+  test('sends transaction with odd-length dataSuffix (json-rpc account)', async () => {
+    await setup()
+
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+    })
+
+    const [receipt] = await Promise.all([
       sendTransaction(walletClient, {
         account: sourceAccount.address,
         to: targetAccount.address,
         data: '0xa9059cbb',
-        gas: 100_000n,
         dataSuffix: '0xabc',
       }),
-    ).rejects.toThrow('Test interception - data captured')
+      (async () => {
+        await wait(500)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
 
-    expect(capturedData).toMatchInlineSnapshot(`"0xa9059cbb0abc"`)
+    const tx = await getTransaction(client, { hash: receipt.transactionHash })
+    expect(tx.input).toMatchInlineSnapshot(`"0xa9059cbb0abc"`)
   })
 
   test('sends transaction with sendTransactionSync dataSuffix (local account)', async () => {
