@@ -1,0 +1,140 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `channel.verifyVoucher`
+
+Verifies a TIP-20 channel reserve voucher signature.
+
+Returns whether `signature` is a valid voucher for `cumulativeAmount` from the channel's voucher signer: its `authorizedSigner` when set, else the payer. It does not check `cumulativeAmount` against the channel's deposit or settled amount, so a valid voucher can still fail to settle. Use [`channel.getStates`](/tempo/actions/channel.getStates) to read the deposit and settled amount.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client, channel } from './viem.config'
+
+const valid = await client.channel.verifyVoucher({
+  channel,
+  cumulativeAmount: parseUnits('40', 6),
+  signature: '0x...',
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
+```
+
+:::
+
+### Standalone Action
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client, channel } from './viem.config'
+
+const valid = await Actions.channel.verifyVoucher(client, {
+  channel,
+  cumulativeAmount: parseUnits('40', 6),
+  signature: '0x...',
+})
+// @log: true
+```
+
+## Return Value
+
+`boolean`
+
+Whether the signature is a valid voucher for the channel and amount.
+
+## Parameters
+
+### channel
+
+- **Type:** `Channel.from.Value`
+
+Channel descriptor. The precompile computes the channel ID from it, so a channel ID alone is not enough.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account, Channel, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+const channel = Channel.from({ // [!code focus]
+  expiringNonceHash: '0x...', // [!code focus]
+  payee: '0x...', // [!code focus]
+  payer: client.account.address, // [!code focus]
+  salt: '0x...', // [!code focus]
+  token: '0x...', // [!code focus]
+}) // [!code focus]
+
+await client.channel.verifyVoucher({
+  channel, // [!code focus]
+  cumulativeAmount: parseUnits('40', 6),
+  signature: '0x...',
+})
+```
+
+### cumulativeAmount
+
+- **Type:** `bigint`
+
+Total voucher amount signed for the channel.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account, Channel, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+const channel = Channel.from({
+  expiringNonceHash: '0x...',
+  payee: '0x...',
+  payer: client.account.address,
+  salt: '0x...',
+  token: '0x...',
+})
+// ---cut---
+await client.channel.verifyVoucher({
+  channel,
+  cumulativeAmount: parseUnits('40', 6), // [!code focus]
+  signature: '0x...',
+})
+```
+
+### signature
+
+- **Type:** `Hex`
+
+Voucher signature, from [`channel.signVoucher`](/tempo/actions/channel.signVoucher).
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account, Channel, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+const channel = Channel.from({
+  expiringNonceHash: '0x...',
+  payee: '0x...',
+  payer: client.account.address,
+  salt: '0x...',
+  token: '0x...',
+})
+// ---cut---
+await client.channel.verifyVoucher({
+  channel,
+  cumulativeAmount: parseUnits('40', 6),
+  signature: '0x...', // [!code focus]
+})
+```
+
+<ReadParameters />
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ChannelNotFoundError` | The channel does not exist. |

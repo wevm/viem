@@ -121,6 +121,41 @@ describe('eip7702', () => {
       `"0x04f90126018203118080809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fef85a0a9400000000000000000000000000000000000000004501a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe01a060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe"`,
     )
   })
+
+  test('behavior: authorization yParity above 1', () => {
+    // Mainnet transaction 0xaec8420968abd74e70ef5b3099d6ba7baa3f069c4f718d7c4d729d591cffcb09,
+    // whose authorization holds a `y_parity` of 28.
+    const serialized = serializeTransaction({
+      authorizationList: [
+        {
+          address: '0xc498cea4bfedbb8de856491bdd9967e677775f4f',
+          chainId: 0,
+          nonce: 6,
+          r: '0x44754b7f217808e21f1935cfa450380e17a3ab8f2c6996c0190d678f0c14a512',
+          s: '0x27a6b869798cbbbd8d538dbc95b9bb28783bf08f8ef88ad6bb82552d0b47b191',
+          yParity: 28,
+        },
+      ],
+      chainId: 1,
+      gas: 100000n,
+      maxFeePerGas: 1082263230n,
+      maxPriorityFeePerGas: 1000000000n,
+      nonce: 2,
+      r: '0x287d894b2ebb8a178a55810b242af186c73de663382358363d58b42628bbded3',
+      s: '0x678f589cd41571248f24df7e60912d05f14c76471b859f4abd956c612bf175ee',
+      to: '0xdb35624115a810cf541988294a57766cd02acc82',
+      type: 'eip7702',
+      value: 0n,
+      yParity: 0,
+    })
+
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x04f8c90102843b9aca0084408206be830186a094db35624115a810cf541988294a57766cd02acc828080c0f85cf85a8094c498cea4bfedbb8de856491bdd9967e677775f4f061ca044754b7f217808e21f1935cfa450380e17a3ab8f2c6996c0190d678f0c14a512a027a6b869798cbbbd8d538dbc95b9bb28783bf08f8ef88ad6bb82552d0b47b19180a0287d894b2ebb8a178a55810b242af186c73de663382358363d58b42628bbded3a0678f589cd41571248f24df7e60912d05f14c76471b859f4abd956c612bf175ee"`,
+    )
+    expect(keccak256(serialized)).toMatchInlineSnapshot(
+      `"0xaec8420968abd74e70ef5b3099d6ba7baa3f069c4f718d7c4d729d591cffcb09"`,
+    )
+  })
 })
 
 describe('eip4844', () => {

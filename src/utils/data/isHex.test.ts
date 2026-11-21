@@ -12,3 +12,19 @@ test('is hex', () => {
   expect(isHex({ foo: 'bar' })).toBeFalsy()
   expect(isHex(undefined)).toBeFalsy()
 })
+
+test('options: even', () => {
+  expect(isHex('0x', { even: true })).toMatchInlineSnapshot('true')
+  expect(isHex('0x00', { even: true })).toMatchInlineSnapshot('true')
+  expect(isHex('0x0400', { even: true })).toMatchInlineSnapshot('true')
+  expect(isHex('0x0', { even: true })).toMatchInlineSnapshot('false')
+  expect(isHex('0x400', { even: true })).toMatchInlineSnapshot('false')
+  expect(isHex('0x0g', { even: true })).toMatchInlineSnapshot('false')
+  expect(isHex('0x0g', { even: true, strict: false })).toMatchInlineSnapshot(
+    'true',
+  )
+  expect(isHex('0xg', { even: true, strict: false })).toMatchInlineSnapshot(
+    'false',
+  )
+  expect(isHex('0x0', { even: false })).toMatchInlineSnapshot('true')
+})

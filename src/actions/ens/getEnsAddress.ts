@@ -18,9 +18,15 @@ import {
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import {
+  type GetAddressErrorType,
+  getAddress,
+} from '../../utils/address/getAddress.js'
+import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
+import { type PadErrorType, pad } from '../../utils/data/pad.js'
+import { type SizeErrorType, size } from '../../utils/data/size.js'
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
@@ -75,11 +81,14 @@ export type GetEnsAddressReturnType = Address | null
 
 export type GetEnsAddressErrorType =
   | GetChainContractAddressErrorType
+  | GetAddressErrorType
   | EncodeFunctionDataErrorType
   | NamehashErrorType
   | ToHexErrorType
   | PacketToBytesErrorType
+  | PadErrorType
   | DecodeFunctionResultErrorType
+  | SizeErrorType
   | TrimErrorType
   | ErrorType
 
@@ -167,12 +176,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
 
     if (res[0] === '0x') return null
 
-    const address = decodeFunctionResult({
-      abi: addressResolverAbi,
-      args,
-      functionName: 'addr',
-      data: res[0],
-    })
+    const address = decodeAddress({ coinType, data: res[0], args })
 
     if (address === '0x') return null
     if (trim(address) === '0x00') return null
@@ -180,6 +184,44 @@ export async function getEnsAddress<chain extends Chain | undefined>(
   } catch (err) {
     if (strict) throw err
     if (isNullUniversalResolverError(err)) return null
+    throw err
+  }
+}
+
+function decodeAddress({
+  coinType,
+  data,
+  args,
+}: {
+  coinType: bigint | undefined
+  data: `0x${string}`
+  args: readonly [`0x${string}`] | readonly [`0x${string}`, bigint]
+}) {
+  try {
+    return decodeFunctionResult({
+      abi: addressResolverAbi,
+      args,
+      functionName: 'addr',
+      data,
+    })
+  } catch (err) {
+    if (coinType == null) throw err
+
+    const addressSize = 20
+    const abiWordSize = 32
+    const address = trim(data)
+    const addressLength = size(address)
+    const dataSize = size(data)
+    // Ethereum (ENSIP-9) and EVM chain (ENSIP-11) coin types use 20-byte addresses.
+    if (
+      (coinType === 60n ||
+        (coinType >= 0x80000000n && coinType <= 0xffffffffn)) &&
+      (dataSize === addressSize || dataSize === abiWordSize) &&
+      addressLength < addressSize
+    )
+      return getAddress(pad(address, { size: addressSize }))
+    if (addressLength === addressSize) return getAddress(address)
+
     throw err
   }
 }

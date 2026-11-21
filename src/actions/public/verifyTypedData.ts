@@ -12,6 +12,7 @@ import {
   hashTypedData,
 } from '../../utils/signature/hashTypedData.js'
 import {
+  type BlockParameters,
   type VerifyHashErrorType,
   type VerifyHashParameters,
   verifyHash,
@@ -20,7 +21,11 @@ import {
 export type VerifyTypedDataParameters<
   typedData extends TypedData | Record<string, unknown> = TypedData,
   primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
-> = Omit<VerifyHashParameters, 'hash'> &
+> = Omit<
+  VerifyHashParameters,
+  'blockHash' | 'blockNumber' | 'blockTag' | 'hash' | 'requireCanonical'
+> &
+  BlockParameters &
   TypedDataDefinition<typedData, primaryType> & {
     /** The address to verify the typed data for. */
     address: Address

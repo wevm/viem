@@ -66,6 +66,55 @@ export class InvalidHexValueError extends BaseError {
   }
 }
 
+export type RlpDepthLimitExceededErrorType = RlpDepthLimitExceededError & {
+  name: 'RlpDepthLimitExceededError'
+}
+export class RlpDepthLimitExceededError extends BaseError {
+  constructor({ limit }: { limit: number }) {
+    super(`RLP depth limit of \`${limit}\` exceeded.`, {
+      name: 'RlpDepthLimitExceededError',
+    })
+  }
+}
+
+export type RlpListBoundaryExceededErrorType = RlpListBoundaryExceededError & {
+  name: 'RlpListBoundaryExceededError'
+}
+export class RlpListBoundaryExceededError extends BaseError {
+  constructor({ consumed, declared }: { consumed: number; declared: number }) {
+    super(
+      `RLP list items consumed \`${consumed}\` bytes but the list declared a length of \`${declared}\`.`,
+      { name: 'RlpListBoundaryExceededError' },
+    )
+  }
+}
+
+export type RlpNonCanonicalErrorType = RlpNonCanonicalError & {
+  name: 'RlpNonCanonicalError'
+}
+/** Thrown when an RLP payload uses a non-minimal length prefix or wraps a single byte below `0x80` in a length prefix. */
+export class RlpNonCanonicalError extends BaseError {
+  constructor({ reason }: { reason: string }) {
+    super(`RLP payload is not canonically encoded: ${reason}.`, {
+      name: 'RlpNonCanonicalError',
+    })
+  }
+}
+
+export type RlpTrailingBytesErrorType = RlpTrailingBytesError & {
+  name: 'RlpTrailingBytesError'
+}
+export class RlpTrailingBytesError extends BaseError {
+  constructor({ count }: { count: number }) {
+    super(
+      `RLP payload encodes a single item, but \`${count}\` trailing ${
+        count === 1 ? 'byte remains' : 'bytes remain'
+      }.`,
+      { name: 'RlpTrailingBytesError' },
+    )
+  }
+}
+
 export type SizeOverflowErrorType = SizeOverflowError & {
   name: 'SizeOverflowError'
 }

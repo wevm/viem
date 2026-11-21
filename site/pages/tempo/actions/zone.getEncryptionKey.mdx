@@ -1,0 +1,54 @@
+# `zone.getEncryptionKey`
+
+Gets the active sequencer encryption key and its zero-based index from a zone portal. This action uses a parent Tempo chain client.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { keyIndex, publicKey } = await client.zone.getEncryptionKey({
+  zoneId: 7,
+})
+
+console.log('Key index:', keyIndex)
+console.log('Public key:', publicKey)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The key count and public key are read in one deployless multicall snapshot, keeping the key paired with its index during rotation.
+
+## Return Type
+
+```ts
+type ReturnType = {
+  keyIndex: bigint
+  publicKey: {
+    // SEC1 compressed public key prefix.
+    prefix: 2 | 3
+    x: Hex
+  }
+}
+```
+
+## Parameters
+
+### zoneId
+
+- **Type:** `number`
+
+Zone ID whose portal contains the encryption key.
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** Resolved from the client chain and `zoneId`.
+
+Explicit zone portal address.

@@ -1,8 +1,10 @@
+import { stringToHex, toBlobs } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 import { getSmartAccounts_07 } from '~test/account-abstraction.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { deploy, deployErrorExample } from '~test/utils.js'
+import { blobData, kzg } from '~test/kzg.js'
+import { createRpcProxy, deploy, deployErrorExample } from '~test/utils.js'
 import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
@@ -31,11 +33,13 @@ import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
+  createNonceManager,
   decodeEventLog,
   encodeFunctionData,
   getAddress,
   nonceManager,
 } from '../../utils/index.js'
+import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
@@ -43,6 +47,7 @@ import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { getBalance } from '../public/getBalance.js'
 import { getBlock } from '../public/getBlock.js'
 import { getTransaction } from '../public/getTransaction.js'
+import { getTransactionCount } from '../public/getTransactionCount.js'
 import { mine } from '../test/mine.js'
 import { reset } from '../test/reset.js'
 import { setBalance } from '../test/setBalance.js'
@@ -116,7 +121,6 @@ test('sends transaction', async () => {
     transactionHash: null,
   }).toMatchInlineSnapshot(`
     {
-      "blobGasPrice": 1n,
       "blockHash": null,
       "blockNumber": null,
       "blockTimestamp": null,
@@ -176,7 +180,6 @@ test('sends transaction (w/ formatter)', async () => {
     transactionHash: null,
   }).toMatchInlineSnapshot(`
     {
-      "blobGasPrice": 1n,
       "blockHash": null,
       "blockNumber": null,
       "blockTimestamp": null,
@@ -260,6 +263,8 @@ test('sends transaction (w/ serializer)', async () => {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
+      maxFeePerGas: parseGwei('10.3875'),
+      maxPriorityFeePerGas: parseGwei('1'),
     }),
   ).rejects.toThrowError()
 
@@ -375,7 +380,6 @@ describe('args: gasPrice', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -467,7 +471,6 @@ describe('args: maxFeePerGas', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -564,7 +567,6 @@ describe('args: maxPriorityFeePerGas', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -618,7 +620,6 @@ describe('args: maxPriorityFeePerGas', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -676,7 +677,6 @@ describe('args: nonce', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -725,6 +725,30 @@ describe('args: chain', async () => {
         value: parseEther('1'),
       }),
     ).toBeDefined
+  })
+
+  test('behavior: null uses the client transaction envelope serializer', async () => {
+    const chain = defineChain({
+      ...anvilMainnet.chain,
+      serializers: {
+        transactionEnvelope() {
+          throw new Error('client transaction envelope serializer')
+        },
+      },
+    })
+    const client = createWalletClient({
+      chain,
+      transport: anvilMainnet.clientConfig.transport,
+    })
+
+    await expect(
+      sendTransactionSync(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: null,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowError('client transaction envelope serializer')
   })
 
   test('chain mismatch', async () => {
@@ -842,7 +866,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -891,7 +914,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -1008,7 +1030,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -1065,7 +1086,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -1122,7 +1142,6 @@ describe('local account', () => {
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
-        "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
         "blockTimestamp": null,
@@ -1181,7 +1200,6 @@ describe('local account', () => {
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
-          "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
           "blockTimestamp": null,
@@ -1223,10 +1241,10 @@ describe('local account', () => {
           account: privateKeyToAccount(sourceAccount.privateKey),
           to: targetAccount.address,
           value: parseEther('1'),
+          gas: 21000n,
           maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
         [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
         This error could arise when the account does not have enough funds to:
@@ -1242,12 +1260,12 @@ describe('local account', () => {
           from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
           to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
           value:         1 ETH
+          gas:           21000
           maxFeePerGas:  10000000000010 gwei
 
         Details: Insufficient funds for gas * price + value
         Version: viem@x.y.z]
-      `,
-      )
+      `)
     })
   })
 
@@ -1269,13 +1287,12 @@ describe('local account', () => {
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
-          "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
           "blockTimestamp": null,
           "contractAddress": null,
           "cumulativeGasUsed": 21000n,
-          "effectiveGasPrice": 11700000000n,
+          "effectiveGasPrice": 13750000000n,
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gasUsed": 21000n,
           "logs": [],
@@ -1328,7 +1345,6 @@ describe('local account', () => {
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
-          "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
           "blockTimestamp": null,
@@ -1394,7 +1410,6 @@ describe('local account', () => {
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
-          "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
           "blockTimestamp": null,
@@ -1505,6 +1520,214 @@ describe('local account', () => {
         (await getTransaction(client, { hash: receipt_7.transactionHash }))
           .nonce,
       ).toBe(40)
+    })
+  })
+
+  describe('behavior: node stops waiting (error code 4)', () => {
+    // A node that puts the transaction in the mempool, waits out the
+    // requested `timeout`, then answers `eth_sendRawTransactionSync` with
+    // error code 4. Without a `timeout`, it answers at once.
+    async function createNode(getData: (hash: Hex) => unknown) {
+      const pooled = withResolvers<Hex>()
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        async ({ method, params }) => {
+          if (method !== 'eth_sendRawTransactionSync') return undefined
+          const hash = await client.request({
+            method: 'eth_sendRawTransaction',
+            params: [params[0] as Hex],
+          })
+          pooled.resolve(hash)
+          await wait((params[1] as number | undefined) ?? 0)
+          return {
+            error: {
+              code: 4,
+              data: getData(hash),
+              message: 'Transaction confirmation timeout',
+            },
+          }
+        },
+      )
+      return {
+        client: createWalletClient({
+          chain: anvilMainnet.chain,
+          transport: http(url),
+        }),
+        pooled: pooled.promise,
+      }
+    }
+
+    test('returns the receipt', async () => {
+      await setup()
+      const node = await createNode((hash) => hash)
+
+      const [receipt] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        node.pooled.then(() => mine(client, { blocks: 1 })),
+      ])
+      // Whether `eth_getTransactionReceipt` returns it depends on the Anvil version.
+      const { blobGasPrice: _, ...rest } = receipt
+
+      expect({
+        ...rest,
+        blockHash: null,
+        blockNumber: null,
+        blockTimestamp: null,
+        transactionHash: null,
+      }).toMatchInlineSnapshot(`
+        {
+          "blockHash": null,
+          "blockNumber": null,
+          "blockTimestamp": null,
+          "contractAddress": null,
+          "cumulativeGasUsed": 21000n,
+          "effectiveGasPrice": 9750000000n,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gasUsed": 21000n,
+          "logs": [],
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "status": "success",
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "transactionHash": null,
+          "transactionIndex": 0,
+          "type": "eip1559",
+        }
+      `)
+    })
+
+    test('args: throwOnReceiptRevert', async () => {
+      await setup()
+      const { contractAddress } = await deployErrorExample()
+      const node = await createNode((hash) => hash)
+
+      const [error, hash] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          data: encodeFunctionData({
+            abi: ErrorsExample.abi,
+            functionName: 'revertWrite',
+          }),
+          gas: 100_000n,
+          throwOnReceiptRevert: true,
+          to: contractAddress!,
+        }).catch((error: Error) => error),
+        node.pooled.then(async (hash) => {
+          await mine(client, { blocks: 1 })
+          return hash
+        }),
+      ])
+      // The hash and the contract address depend on the chain state, so the
+      // assertions compare the hash with the one that the node pooled.
+      expect(error).toBeInstanceOf(Error)
+      expect((error as Error).name).toMatchInlineSnapshot(
+        `"TransactionExecutionError"`,
+      )
+      expect((error as Error).message).toContain(
+        `Transaction with hash "${hash}" reverted.`,
+      )
+    })
+
+    test('throws when `timeout` runs out', async () => {
+      await setup()
+      const node = await createNode((hash) => hash)
+
+      const error = await sendTransaction(node.client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        timeout: 1_000,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }).catch((error: Error) => error)
+      const hash = await node.pooled
+
+      // The hash depends on the chain state, so the assertions compare it
+      // with the one that the node pooled.
+      expect(error).toBeInstanceOf(Error)
+      expect((error as Error).name).toMatchInlineSnapshot(
+        `"TransactionExecutionError"`,
+      )
+      expect((error as Error).message).toContain(
+        `Timed out while waiting for transaction with hash "${hash}" to be confirmed.`,
+      )
+
+      await mine(client, { blocks: 1 })
+    })
+
+    test('returns the receipt when the error holds no hash', async () => {
+      await setup()
+      const node = await createNode(() => undefined)
+
+      const [receipt, hash] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+        node.pooled.then(async (hash) => {
+          await mine(client, { blocks: 1 })
+          return hash
+        }),
+      ])
+
+      expect(receipt.transactionHash).toBe(hash)
+    })
+
+    test('returns the receipt of a blob transaction', async () => {
+      await setup()
+      const node = await createNode(() => undefined)
+
+      const [receipt, hash] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          blobs: toBlobs({ data: stringToHex(blobData) }),
+          kzg,
+          maxFeePerBlobGas: parseGwei('30'),
+          to: '0x0000000000000000000000000000000000000000',
+        }),
+        node.pooled.then(async (hash) => {
+          await mine(client, { blocks: 1 })
+          return hash
+        }),
+      ])
+
+      expect(receipt.transactionHash).toBe(hash)
+    })
+
+    test('keeps the nonce', async () => {
+      await setup()
+      const node = await createNode(() => undefined)
+      const account = privateKeyToAccount(sourceAccount.privateKey, {
+        // Reads `latest`, like nodes whose `pending` count leaves out the
+        // mempool. A reset would hand out the pending transaction's nonce.
+        nonceManager: createNonceManager({
+          source: {
+            get: ({ address, client }) =>
+              getTransactionCount(client, { address, blockTag: 'latest' }),
+            set() {},
+          },
+        }),
+      })
+
+      await expect(() =>
+        sendTransaction(node.client, {
+          account,
+          timeout: 1_000,
+          to: targetAccount.address,
+          value: parseEther('1'),
+        }),
+      ).rejects.toThrow('Timed out while waiting for transaction with hash')
+      const hash = await node.pooled
+      const nonce = await account.nonceManager!.consume({
+        address: account.address,
+        chainId: anvilMainnet.chain.id,
+        client,
+      })
+      await mine(client, { blocks: 1 })
+
+      expect(nonce - (await getTransaction(client, { hash })).nonce).toBe(1)
     })
   })
 
@@ -1973,5 +2196,68 @@ describe('behavior: client dataSuffix', () => {
 
     const tx = await getTransaction(client, { hash: receipt.transactionHash })
     expect(tx.input).toBe(concatHex([baseData, '0x12345678']))
+  })
+})
+
+describe('behavior: sendTransactionSync dataSuffix', () => {
+  test('sends transaction with sendTransactionSync dataSuffix (hex string)', async () => {
+    await setup()
+
+    let capturedData: string | undefined
+
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0xabc',
+    })
+
+    walletClient.request = async (params: any) => {
+      if (
+        params.method === 'eth_sendTransaction' ||
+        params.method === 'wallet_sendTransaction'
+      ) {
+        capturedData = params.params[0].data
+        throw new Error('Test interception - data captured')
+      }
+      throw new Error('Unexpected method')
+    }
+
+    await expect(
+      sendTransaction(walletClient, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gas: 100_000n,
+        dataSuffix: '0x12345678',
+      }),
+    ).rejects.toThrow('Test interception - data captured')
+
+    expect(capturedData).toBe('0x12345678')
+  })
+
+  test('sends transaction with sendTransactionSync dataSuffix (local account)', async () => {
+    await setup()
+
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0xabc',
+    })
+
+    const [receipt] = await Promise.all([
+      sendTransaction(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+        dataSuffix: '0x12345678',
+      }),
+      (async () => {
+        await wait(500)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
+
+    const tx = await getTransaction(client, { hash: receipt.transactionHash })
+    expect(tx.input).toBe('0x12345678')
   })
 })

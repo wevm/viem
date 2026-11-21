@@ -13,7 +13,7 @@ export const panicReasons = {
   81: 'Attempted to call a zero-initialized variable of internal function type.',
 } as const
 
-export const solidityError: AbiError = {
+export const solidityError = {
   inputs: [
     {
       name: 'message',
@@ -22,8 +22,8 @@ export const solidityError: AbiError = {
   ],
   name: 'Error',
   type: 'error',
-}
-export const solidityPanic: AbiError = {
+} as const satisfies AbiError
+export const solidityPanic = {
   inputs: [
     {
       name: 'reason',
@@ -32,4 +32,4 @@ export const solidityPanic: AbiError = {
   ],
   name: 'Panic',
   type: 'error',
-}
+} as const satisfies AbiError

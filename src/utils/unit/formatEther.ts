@@ -1,6 +1,5 @@
-import { etherUnits } from '../../constants/unit.js'
-
-import { type FormatUnitsErrorType, formatUnits } from './formatUnits.js'
+import type { FormatUnitsErrorType } from './formatUnits.js'
+import * as Value from './Value.js'
 
 export type FormatEtherErrorType = FormatUnitsErrorType
 
@@ -16,5 +15,5 @@ export type FormatEtherErrorType = FormatUnitsErrorType
  * // '1'
  */
 export function formatEther(wei: bigint, unit: 'wei' | 'gwei' = 'wei') {
-  return formatUnits(wei, etherUnits[unit])
+  return Value.formatEther(wei, unit)
 }

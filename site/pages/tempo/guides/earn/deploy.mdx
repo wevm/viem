@@ -1,0 +1,226 @@
+---
+description: Deploy and bind an experimental ERC-4626 Tempo Earn stack.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Deploy an Earn Stack
+
+## Overview
+
+An ERC-4626 Earn deployment uses two factories. First, the engine factory deploys the engine. Then,
+the Earn factory creates EarnShare, EarnVault, and EarnFees. Finally, the engine's owner binds it to
+the new vault.
+
+Viem publishes the canonical factory pair for Tempo mainnet and testnet. The recipe verifies
+contract code, Tempo's TIP-20 factory, and the deployed topology, but it cannot verify a release
+from an address alone. Deployment actions infer the pair from the client chain.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo) with a funded account.
+
+### Deploy a Fee-Free Stack
+
+Use [`earn.deployErc4626StackSync`](/tempo/actions/earn.deployErc4626StackSync) for the standard
+sequential flow.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { keccak256, toHex } from 'viem'
+import { client } from './viem.config'
+
+const deploymentId = keccak256(toHex('acme-usd-v1'))
+const result = await client.earn.deployErc4626StackSync({
+  deploymentId,
+  venue: '0x0000000000000000000000000000000000000003',
+})
+
+console.log(result.engine, result.vault, result.earnShare, result.fees)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The defaults are fee-free, `userOnly` migration, unrestricted transfers, unlimited managed assets,
+and the zero address for `emergencyGuardian` and `asyncJanitor`. The client account is both deployer
+and owner.
+
+### Use Separate Deployment and Owner Accounts
+
+Provide the owner account as both `owner` and `bindingAccount`. The client account submits the
+factory transactions, while the owner account submits the final binding transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { keccak256, toHex } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { client } from './viem.config'
+
+const owner = privateKeyToAccount('0x...')
+const result = await client.earn.deployErc4626StackSync({
+  bindingAccount: owner,
+  deploymentId: keccak256(toHex('acme-usd-owner-v1')),
+  owner,
+  venue: '0x0000000000000000000000000000000000000003',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The recipe requires the binding signer before it deploys a new or unbound engine. An idempotent
+rerun of an already bound stack does not require the signer. The owner must have enough of the
+selected fee token to submit the binding transaction.
+
+### Resume After a Partial Failure
+
+Persist the state attached to `DeployErc4626StackError`, then rerun with the same identifier and
+inputs.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { keccak256, toHex } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const parameters = {
+  deploymentId: keccak256(toHex('acme-usd-v1')),
+  venue: '0x0000000000000000000000000000000000000003',
+} as const
+
+try {
+  await client.earn.deployErc4626StackSync(parameters)
+} catch (error) {
+  if (error instanceof Actions.earn.DeployErc4626StackError) {
+    console.log(error.stage, error.state, error.receipts)
+    await client.earn.deployErc4626StackSync({
+      ...parameters,
+      resume: error.state,
+    })
+  }
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The recipe predicts deterministic addresses, verifies existing bytecode and topology, recovers the
+factory event when needed, and skips stages that are already complete.
+
+### Compose Primitive Calls
+
+Use [`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine),
+[`earn.createStack`](/tempo/actions/earn.createStack), and
+[`earn.bindEngine`](/tempo/actions/earn.bindEngine) when a deployment system needs to
+own each transaction.
+
+Each primitive exposes a `call` helper for
+[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync), simulation, and gas estimation.
+Treat multi-call deployment as experimental. A batch combines both factories' deployment work into
+one transaction, so measure the combined gas profile against the target network before batching.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { keccak256, toHex } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const deploymentId = keccak256(toHex('acme-usd-v1'))
+const earnFactory = '0x0000000000000000000000000000000000000003'
+const engineParameters = {
+  deploymentId,
+  factory: '0x0000000000000000000000000000000000000001',
+  owner: client.account.address,
+  venue: '0x0000000000000000000000000000000000000002',
+} as const
+const engine = await Actions.earn.createErc4626Engine.predict(
+  client,
+  engineParameters,
+)
+
+const receipt = await client.sendTransactionSync({
+  calls: [
+    Actions.earn.createErc4626Engine.call(engineParameters),
+    Actions.earn.createStack.call({
+      deploymentId,
+      engine,
+      factory: earnFactory,
+      owner: client.account.address,
+    }),
+  ],
+})
+
+const { args } = Actions.earn.createStack.extractEvent(receipt.logs, {
+  factory: earnFactory,
+})
+await client.earn.bindEngineSync({
+  engine,
+  finalOwner: client.account.address,
+  vault: args.earnVault,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Binding remains a separate final-owner operation. The EarnVault address is emitted by
+`earn.createStack` rather than predicted, so it cannot be fed into a binding call in the same batch.
+
+Use the primitives when deployment infrastructure must set an explicit nonce or gas limit for each
+stage. The high-level recipe lets each transaction estimate gas and resolve its own nonce.
+
+## Best Practices
+
+### Keep the Factory Pair Together
+
+Store factory addresses, release commit, runtime hashes, and factory deployment blocks with every
+deployment record. Do not mix factories from different Earn releases.
+
+Verify both factory runtime hashes against the reviewed release. Viem's generated Earn ABIs record
+the `tempoxyz/earn` source commit used to generate them.
+
+### Derive Stable Identifiers
+
+Use a domain-separated string or structured record and hash it to 32 bytes. Do not use random IDs
+when deployments must be reproducible or recoverable.
+
+### Persist Every Stage
+
+Record predicted and deployed addresses after each receipt. Persisting the EarnVault address avoids
+a historical event query. If it is unavailable, set `fromBlock` so recovery does not scan the full
+chain.
+
+The deterministic addresses include the owner, venue, metadata, controls, fees, distributor, and
+transfer policy. Reuse a deployment ID only with the same inputs, and always pass persisted state
+when resuming. Changing an input can produce a different stack instead of recovering the first one.
+
+### Keep Binding Authority Explicit
+
+The engine owner is the only account authorized to bind the engine. Fund and secure that account
+before beginning the deployment.
+
+## See More
+
+<Cards>
+  <Card title="Deploy a Stack" to="/tempo/actions/earn.deployErc4626StackSync" />
+  <Card title="Deploy an Engine" to="/tempo/actions/earn.createErc4626Engine" />
+  <Card title="Create Core Contracts" to="/tempo/actions/earn.createStack" />
+  <Card title="Bind an Engine" to="/tempo/actions/earn.bindEngine" />
+</Cards>

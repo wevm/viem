@@ -10,6 +10,7 @@ export class InvalidDomainError extends BaseError {
   constructor({ domain }: { domain: unknown }) {
     super(`Invalid domain "${stringify(domain)}".`, {
       metaMessages: ['Must be a valid EIP-712 domain.'],
+      name: 'InvalidDomainError',
     })
   }
 }
@@ -27,6 +28,7 @@ export class InvalidPrimaryTypeError extends BaseError {
       {
         docsPath: '/api/glossary/Errors#typeddatainvalidprimarytypeerror',
         metaMessages: ['Check that the primary type is a key in `types`.'],
+        name: 'InvalidPrimaryTypeError',
       },
     )
   }
@@ -38,8 +40,26 @@ export type InvalidStructTypeErrorType = InvalidStructTypeError & {
 export class InvalidStructTypeError extends BaseError {
   constructor({ type }: { type: string }) {
     super(`Struct type "${type}" is invalid.`, {
-      metaMessages: ['Struct type must not be a Solidity type.'],
+      metaMessages: [
+        'Struct type must contain only letters, digits, "_", "$" and ":", and must not be a Solidity type.',
+      ],
       name: 'InvalidStructTypeError',
+    })
+  }
+}
+
+export type InvalidTypedDataTypeErrorType = InvalidTypedDataTypeError & {
+  name: 'InvalidTypedDataTypeError'
+}
+export class InvalidTypedDataTypeError extends BaseError {
+  constructor({ type }: { type: string }) {
+    // Suggest the canonical type only for the `int`/`uint` aliases.
+    const isAlias = /^u?int(\[[0-9]*\])*$/.test(type)
+    super(`Type "${type}" is not a valid EIP-712 type.`, {
+      metaMessages: isAlias
+        ? [`Use "${type.replace(/^(u?int)/, '$&256')}" instead.`]
+        : undefined,
+      name: 'InvalidTypedDataTypeError',
     })
   }
 }

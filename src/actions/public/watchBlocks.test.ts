@@ -1,9 +1,12 @@
-import { describe, expect, test, vi } from 'vitest'
+import { Instance, Pool } from 'prool'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { localhost } from '../../chains/index.js'
+import { createRpcProxy } from '~test/utils.js'
+import { foundry, localhost } from '../../chains/index.js'
 import { type Client, createClient } from '../../clients/createClient.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
+import { createTestClient } from '../../clients/createTestClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
 import { webSocket } from '../../clients/transports/webSocket.js'
@@ -38,17 +41,15 @@ describe('poll', () => {
       poll: true,
       pollingInterval: 100,
     })
-    await mine(client, { blocks: 1 })
-    await wait(200)
-    await mine(client, { blocks: 1 })
-    await wait(200)
-    await mine(client, { blocks: 1 })
-    await wait(200)
-    await mine(client, { blocks: 1 })
-    await wait(200)
+    onTestFinished(unwatch)
+    await expect.poll(() => blocks.length).toBe(1)
+    for (let i = 1; i <= 4; i++) {
+      await mine(client, { blocks: 1 })
+      await expect.poll(() => blocks.length).toBe(i + 1)
+    }
     unwatch()
-    expect(blocks.length).toBe(4)
-    expect(prevBlocks.length).toBe(3)
+    expect(blocks.length).toBe(5)
+    expect(prevBlocks.length).toBe(4)
     expect(typeof blocks[0].number).toBe('bigint')
   })
 
@@ -83,13 +84,177 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      blocks.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(1)
       await mine(client, { blocks: 5 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(6)
       unwatch()
       expect(blocks.length).toBe(6)
     })
+
+    test('emits missed blocks in order across batches', async () => {
+      const blocks: [OnBlockParameter, OnBlockParameter | undefined][] = []
+      const unwatch = watchBlocks(client, {
+        emitMissed: true,
+        emitOnBegin: true,
+        onBlock: (block, prevBlock) => blocks.push([block, prevBlock]),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      const start = blocks[0]![0].number
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 12 })
+      await expect.poll(() => blocks.length, { timeout: 10_000 }).toBe(13)
+
+      expect(
+        blocks
+          .slice(1)
+          .map(([block, prevBlock]) => [
+            Number(block.number - start),
+            Number(prevBlock!.number - start),
+          ]),
+      ).toEqual(Array.from({ length: 12 }, (_, i) => [i + 1, i]))
+    })
+
+    test('defaults to true when polling less than twice per block', async () => {
+      const fastClient = createClient({
+        ...anvilMainnet.clientConfig,
+        chain: { ...anvilMainnet.chain, blockTime: 4_000 },
+      })
+      const blocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(fastClient, {
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      const start = blocks[0]!.number
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 5 })
+      await expect.poll(() => blocks.length, { timeout: 10_000 }).toBe(6)
+
+      expect(blocks.map((block) => Number(block.number - start))).toEqual([
+        0, 1, 2, 3, 4, 5,
+      ])
+    })
+
+    test('defaults to false when polling at least twice per block', async () => {
+      const blocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(client, {
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      const start = blocks[0]!.number
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 5 })
+      await expect
+        .poll(() => blocks.at(-1)!.number, { timeout: 10_000 })
+        .toBe(start + 5n)
+
+      expect(blocks.length).toBeLessThan(6)
+    })
+
+    test('caps default catch-up without limiting explicit emitMissed', async () => {
+      // Mining 102 blocks on the shared fork can exceed a minute, so mine
+      // them on a fresh local node.
+      const pool = Pool.define({ instance: Instance.anvil({ noMining: true }) })
+      onTestFinished(() => pool.destroyAll())
+      const node = await pool.start(1)
+      let mining = Promise.resolve()
+      const url = await createRpcProxy(node.url, async () => {
+        await mining
+        return undefined
+      })
+      const miningClient = createTestClient({
+        chain: foundry,
+        mode: 'anvil',
+        transport: http(node.url, { retryCount: 0 }),
+      })
+      const fastClient = createClient({
+        chain: { ...foundry, blockTime: 4_000 },
+        transport: http(url),
+      })
+      const defaultBlocks: OnBlockParameter[] = []
+      const blocks: OnBlockParameter[] = []
+      const unwatchDefault = watchBlocks(fastClient, {
+        emitOnBegin: true,
+        onBlock: (block) => defaultBlocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatchDefault)
+      const unwatch = watchBlocks(fastClient, {
+        emitMissed: true,
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect
+        .poll(() => [defaultBlocks.length, blocks.length])
+        .toEqual([1, 1])
+      const start = blocks[0]!.number
+
+      // Hold RPC reads until the entire batch is mined, even if it spans a poll.
+      // Mining is not retried: a timed-out request may already have mined blocks.
+      mining = mine(miningClient, { blocks: 102 })
+      await mining
+      await expect.poll(() => blocks.length, { timeout: 10_000 }).toBe(103)
+      await expect
+        .poll(() => defaultBlocks.at(-1)!.number, { timeout: 10_000 })
+        .toBe(start + 102n)
+
+      expect(
+        defaultBlocks.map((block) => Number(block.number - start)),
+      ).toEqual([0, 102])
+      expect(blocks.map((block) => Number(block.number - start))).toEqual(
+        Array.from({ length: 103 }, (_, i) => i),
+      )
+    })
+
+    test.each(['safe', 'finalized'] as const)(
+      'defaults to false for the %s tag',
+      async (blockTag) => {
+        const fastClient = createClient({
+          ...anvilMainnet.clientConfig,
+          chain: { ...anvilMainnet.chain, blockTime: 4_000 },
+        })
+        const blocks: OnBlockParameter<Chain, false, typeof blockTag>[] = []
+        const unwatch = watchBlocks(fastClient, {
+          blockTag,
+          emitOnBegin: true,
+          onBlock: (block) => blocks.push(block),
+          poll: true,
+          pollingInterval: 4_000,
+        })
+        onTestFinished(unwatch)
+        await expect.poll(() => blocks.length).toBe(1)
+        const start = blocks[0]!.number
+
+        // Mine between two polls, so the next poll sees all the new blocks.
+        await mine(client, { blocks: 5 })
+        await expect
+          .poll(() => blocks.at(-1)!.number, { timeout: 10_000 })
+          .toBe(start + 5n)
+
+        expect(blocks.length).toBeLessThan(6)
+      },
+    )
   })
 
   describe('emitOnBegin', () => {
@@ -128,10 +293,13 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      blocks.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(2)
       unwatch()
       expect(blocks.length).toBe(2)
     })
@@ -148,17 +316,15 @@ describe('poll', () => {
         },
         pollingInterval: 100,
       })
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      await mine(client, { blocks: 1 })
-      await wait(200)
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      for (let i = 1; i <= 4; i++) {
+        await mine(client, { blocks: 1 })
+        await expect.poll(() => blocks.length).toBe(i + 1)
+      }
       unwatch()
-      expect(blocks.length).toBe(4)
-      expect(prevBlocks.length).toBe(3)
+      expect(blocks.length).toBe(5)
+      expect(prevBlocks.length).toBe(4)
     })
 
     test('fallback transport', async () => {
@@ -202,10 +368,14 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      blocks.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(2)
+      await wait(300)
       unwatch()
       expect(blocks.length).toBe(2)
     })
@@ -217,10 +387,13 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      blocks.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(2)
       unwatch()
       expect(blocks.length).toBe(2)
 
@@ -230,10 +403,13 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      blocks.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(1)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(2)
       unwatch()
       expect(blocks.length).toBe(2)
     })
@@ -246,20 +422,25 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch1)
       let unwatch2 = watchBlocks(client, {
         onBlock: (block) => blocks.push(block),
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch2)
       let unwatch3 = watchBlocks(client, {
         onBlock: (block) => blocks.push(block),
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch3)
+      await expect.poll(() => blocks.length).toBe(3)
+      blocks.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(3)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(6)
       unwatch1()
       unwatch2()
       unwatch3()
@@ -272,20 +453,25 @@ describe('poll', () => {
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch1)
       unwatch2 = watchBlocks(client, {
         onBlock: (block) => blocks.push(block),
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch2)
       unwatch3 = watchBlocks(client, {
         onBlock: (block) => blocks.push(block),
         poll: true,
         pollingInterval: 100,
       })
+      onTestFinished(unwatch3)
+      await expect.poll(() => blocks.length).toBe(3)
+      blocks.length = 0
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(3)
       await mine(client, { blocks: 1 })
-      await wait(200)
+      await expect.poll(() => blocks.length).toBe(6)
       unwatch1()
       unwatch2()
       unwatch3()

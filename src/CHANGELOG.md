@@ -1,5 +1,1436 @@
 # viem
 
+## 2.58.4
+
+### Patch Changes
+
+- [#5625](https://github.com/wevm/viem/pull/5625) [`4357826238423ab3e18e7bc52a7952308ae224f0`](https://github.com/wevm/viem/commit/4357826238423ab3e18e7bc52a7952308ae224f0) Thanks [@jxom](https://github.com/jxom)! - Fixed `viem/op-stack` withdrawals on chains that move to a shared `DisputeGameFactory` in OP Stack Upgrade 22 (Lagoon) by reading the factory from the portal, treated `ZK_DISPUTE_GAME` (game type `10`) as a super-root game, and formatted the `opGasRefund` receipt field.
+
+## 2.58.3
+
+### Patch Changes
+
+- [#5614](https://github.com/wevm/viem/pull/5614) [`b4be930334b5a3eadc100abf1ad0d923f477f081`](https://github.com/wevm/viem/commit/b4be930334b5a3eadc100abf1ad0d923f477f081) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `ccipRequest` to include the gateway's EIP-3668 error `message` in `HttpRequestError` details instead of only the HTTP status text.
+
+- [#5622](https://github.com/wevm/viem/pull/5622) [`0715fb19ac6b35f0e45509d506b60c394dc9a677`](https://github.com/wevm/viem/commit/0715fb19ac6b35f0e45509d506b60c394dc9a677) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `parseTransaction` in `viem/celo` dropping the signature (`r`, `s`, `v`, and `yParity`) of signed CIP-42 and CIP-64 transactions.
+
+- [#5613](https://github.com/wevm/viem/pull/5613) [`9381167dfe73db732d979c6076301559a689e81f`](https://github.com/wevm/viem/commit/9381167dfe73db732d979c6076301559a689e81f) Thanks [@jxom](https://github.com/jxom)! - Passed the latest block to the chain `fees.estimateFeesPerGas` and `fees.baseFeeMultiplier` hooks when `estimateFeesPerGas` is called without a block.
+
+- [#5620](https://github.com/wevm/viem/pull/5620) [`2395eba0946d3b2f666c9487f4a6ba5e8efce46f`](https://github.com/wevm/viem/commit/2395eba0946d3b2f666c9487f4a6ba5e8efce46f) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Decoded `simulateBlocks` and `simulateCalls` contract call results with the overload matching the call's `args`.
+
+- [#5621](https://github.com/wevm/viem/pull/5621) [`8a96a9980464492d69295a8e3303bb86410af9ff`](https://github.com/wevm/viem/commit/8a96a9980464492d69295a8e3303bb86410af9ff) Thanks [@HereForTheTechNFT](https://github.com/HereForTheTechNFT)! - Fixed `validateSiweMessage` to assume the `https` scheme when the message omits `scheme`, per EIP-4361.
+
+- [#5604](https://github.com/wevm/viem/pull/5604) [`d90ffc7db962baf69bd0d620fa140ca440c70b1a`](https://github.com/wevm/viem/commit/d90ffc7db962baf69bd0d620fa140ca440c70b1a) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Threw `AccountStateConflictError` when a state override set the same account more than once with different address casing.
+
+## 2.58.2
+
+### Patch Changes
+
+- [#5601](https://github.com/wevm/viem/pull/5601) [`bc5f35549f5e01fc6ea87571dd257cb7ad57a525`](https://github.com/wevm/viem/commit/bc5f35549f5e01fc6ea87571dd257cb7ad57a525) Thanks [@jxom](https://github.com/jxom)! - Stripped a trailing slash from a custom Arweave gateway when `getEnsAvatar` rewrites `https://arweave.net` avatar URLs.
+
+- [#5609](https://github.com/wevm/viem/pull/5609) [`c1f59aff0923c65cc23aa9bcdaeb7efb591761ff`](https://github.com/wevm/viem/commit/c1f59aff0923c65cc23aa9bcdaeb7efb591761ff) Thanks [@jxom](https://github.com/jxom)! - Rejected CR, LF, U+2028, and U+2029 in SIWE statements in `parseSiweMessage` and `createSiweMessage`, and anchored the parsed suffix to a line start so long inputs no longer take quadratic time.
+
+- [#5606](https://github.com/wevm/viem/pull/5606) [`b5df58607b511825e47a99faaf4f6d3318ea67e7`](https://github.com/wevm/viem/commit/b5df58607b511825e47a99faaf4f6d3318ea67e7) Thanks [@legion2002](https://github.com/legion2002)! - `viem/tempo`: Renamed the `SignerSnapshotCached` event on `Abis.tip20ChannelReserve` to `OpeningCommitmentRecorded` to match the TIP-1166 precompile, which no longer emits the old event, and added `verifyVoucher` to the ABI with a `channel.verifyVoucher` action.
+
+## 2.58.1
+
+### Patch Changes
+
+- [#5588](https://github.com/wevm/viem/pull/5588) [`bdf936497e28d307be7a139e34727a3fbcac39fa`](https://github.com/wevm/viem/commit/bdf936497e28d307be7a139e34727a3fbcac39fa) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Added `ChainNotConfiguredErrorType` and `TransportNotConfiguredErrorType` so `createClientResolver.ErrorType` narrows on the namespaced error names.
+
+- [#5519](https://github.com/wevm/viem/pull/5519) [`cf1071fb3fa469c7bcc61a29f3908f54ec9fb397`](https://github.com/wevm/viem/commit/cf1071fb3fa469c7bcc61a29f3908f54ec9fb397) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Updated unavailable default RPC URLs for Klaytn, Klaytn Baobab, Metis, Shibarium, Puppynet Shibarium, TAC, TAC SPB Testnet, Mezo and Areon Network, and deprecated `areonNetwork` in favor of `areum`.
+
+- [#5579](https://github.com/wevm/viem/pull/5579) [`ffdd25af4acd334b7f7f5c940d4c9195a36c69cd`](https://github.com/wevm/viem/commit/ffdd25af4acd334b7f7f5c940d4c9195a36c69cd) Thanks [@jxom](https://github.com/jxom)! - Updated `base` and `baseSepolia` `blockTime` to 200 ms to match Base's 200 ms blocks, which lowers their default `pollingInterval` to 500 ms.
+
+- [#5578](https://github.com/wevm/viem/pull/5578) [`be73ffa779e69817ef9aea1a4db03f25ab6ad654`](https://github.com/wevm/viem/commit/be73ffa779e69817ef9aea1a4db03f25ab6ad654) Thanks [@tydavid5](https://github.com/tydavid5)! - Fixed the HTTP transport resolving with `undefined` when the server replied to a request with an empty body, it now throws an `HttpRequestError` instead.
+
+- [#5572](https://github.com/wevm/viem/pull/5572) [`cb14298d7ecaca45a359b6a2fa68c1c35cfdc5ca`](https://github.com/wevm/viem/commit/cb14298d7ecaca45a359b6a2fa68c1c35cfdc5ca) Thanks [@yinbowen-dc](https://github.com/yinbowen-dc)! - Fixed truncated ABI parameter heads being decoded from a stale position after a dynamic read.
+
+- [#5558](https://github.com/wevm/viem/pull/5558) [`90e59ebbd05f331bc64047617e398f464dfa2b63`](https://github.com/wevm/viem/commit/90e59ebbd05f331bc64047617e398f464dfa2b63) Thanks [@jxom](https://github.com/jxom)! - Fixed `EIP1193ProviderRpcError` to set its documented `name` of `'ProviderRpcError'` (was `'Error'`).
+
+- [#5595](https://github.com/wevm/viem/pull/5595) [`0f738319d08625218dfa52b26fc9537d375b14ed`](https://github.com/wevm/viem/commit/0f738319d08625218dfa52b26fc9537d375b14ed) Thanks [@jxom](https://github.com/jxom)! - Fixed `fallback` ranking so that a failing Transport no longer stays first when every sampled latency is 0 ms.
+
+- [#5586](https://github.com/wevm/viem/pull/5586) [`d8cac52afda6574e276d1b99c6607448baab4d33`](https://github.com/wevm/viem/commit/d8cac52afda6574e276d1b99c6607448baab4d33) Thanks [@jxom](https://github.com/jxom)! - Fixed malformed JSON from the `ipc` transport escaping the socket data listener instead of rejecting pending requests.
+
+- [#5573](https://github.com/wevm/viem/pull/5573) [`a44ad6cf1bf555ca3f13ef8f8e4045e3c9519de2`](https://github.com/wevm/viem/commit/a44ad6cf1bf555ca3f13ef8f8e4045e3c9519de2) Thanks [@yinbowen-dc](https://github.com/yinbowen-dc)! - Fixed IPC framing being permanently desynchronized by stray closing braces between messages.
+
+- [#5582](https://github.com/wevm/viem/pull/5582) [`591c7b91cbf3890f373f8f71befac60f4a9f6344`](https://github.com/wevm/viem/commit/591c7b91cbf3890f373f8f71befac60f4a9f6344) Thanks [@jxom](https://github.com/jxom)! - Fixed `ipc` transport subscriptions hanging and skipping `onError` when the socket closed or errored.
+
+- [#5581](https://github.com/wevm/viem/pull/5581) [`612cea0e633236149fcf64d51860f28af6fb88e2`](https://github.com/wevm/viem/commit/612cea0e633236149fcf64d51860f28af6fb88e2) Thanks [@jxom](https://github.com/jxom)! - Fixed Multicall3 `blockCreated` for Core Dao (`6988931`), BOB (`0`), Shape (`0`), Shape Sepolia (`0`), Soneium (`0`), Soneium Minato (`0`), Celo Sepolia (`0`), and XDC Apothem (`84333000`).
+
+- [#5571](https://github.com/wevm/viem/pull/5571) [`515d5a5fe6c0acc90fe82eede8593b6531a3cd60`](https://github.com/wevm/viem/commit/515d5a5fe6c0acc90fe82eede8593b6531a3cd60) Thanks [@yinbowen-dc](https://github.com/yinbowen-dc)! - Fixed right-side hex trimming to remove whole zero bytes without shifting nonzero nibbles.
+
+- [#5597](https://github.com/wevm/viem/pull/5597) [`6c3e120f9b2132c1518995dd41650ff5e33d5eaa`](https://github.com/wevm/viem/commit/6c3e120f9b2132c1518995dd41650ff5e33d5eaa) Thanks [@jxom](https://github.com/jxom)! - Fixed socket clients so that dropping a client that will not reconnect closes its socket, and a failed request is no longer reported again on later disconnects.
+
+- [#5584](https://github.com/wevm/viem/pull/5584) [`c8b2a59799dcb908e11691dc78c646f4311b098b`](https://github.com/wevm/viem/commit/c8b2a59799dcb908e11691dc78c646f4311b098b) Thanks [@jxom](https://github.com/jxom)! - Fixed WebSocket and IPC unsubscribe requests hanging on socket failures or missing responses, without raising unhandled rejections when the result is not awaited.
+
+- [#5594](https://github.com/wevm/viem/pull/5594) [`9d4822539a2029b0e024e73f0bf2521870b75944`](https://github.com/wevm/viem/commit/9d4822539a2029b0e024e73f0bf2521870b75944) Thanks [@jxom](https://github.com/jxom)! - Fixed `http` transport batches to match replies to requests by id (also when the server echoes a numeric id as a string), so a reply with `id: null` no longer gives other requests the wrong results.
+
+- [#5520](https://github.com/wevm/viem/pull/5520) [`43f4b879c2fa78bb1f00301f8bcd827707ba6051`](https://github.com/wevm/viem/commit/43f4b879c2fa78bb1f00301f8bcd827707ba6051) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Updated HPP Sepolia and Orderly Sepolia default RPC URLs and the Orderly Sepolia block explorer URL, and removed unusable HPP default WebSocket URLs.
+
+- [#5580](https://github.com/wevm/viem/pull/5580) [`8a2bf7bf6d3059c383737b8d50b171149bfe33de`](https://github.com/wevm/viem/commit/8a2bf7bf6d3059c383737b8d50b171149bfe33de) Thanks [@jxom](https://github.com/jxom)! - Fixed `createSiweMessage` accepting a `requestId` with a line break, which let it append fields such as `Resources` to the signed message; it now throws `SiweInvalidMessageFieldError`.
+
+- [#5583](https://github.com/wevm/viem/pull/5583) [`53184e3c4164b7cb89f5dd7da30f2a8ec2056a56`](https://github.com/wevm/viem/commit/53184e3c4164b7cb89f5dd7da30f2a8ec2056a56) Thanks [@jxom](https://github.com/jxom)! - Fixed `wrapTypedDataSignature` and the ERC-7739 `signTypedData` action producing signatures that ERC-7739 accounts rejected when a nested type sorted before the primary type.
+
+- [#5590](https://github.com/wevm/viem/pull/5590) [`66b6f1f458ae1e8dde977984a5a1258836352d48`](https://github.com/wevm/viem/commit/66b6f1f458ae1e8dde977984a5a1258836352d48) Thanks [@jxom](https://github.com/jxom)! - Fixed `decodeAbiParameters`, `hexToString`, and `bytesToString` dropping a leading U+FEFF (byte order mark) from decoded strings.
+
+- [#5556](https://github.com/wevm/viem/pull/5556) [`4febd2254b53b9ebd692b1c7ed38e42558d3489c`](https://github.com/wevm/viem/commit/4febd2254b53b9ebd692b1c7ed38e42558d3489c) Thanks [@jxom](https://github.com/jxom)! - Fixed `validateTypedData` (and so `hashTypedData`, `signTypedData`, `verifyTypedData` and `recoverTypedDataAddress`) accepting a fixed-length array field such as `uint256[2]` whose value has a different number of elements, in any dimension or inside a struct array; it now throws `AbiEncodingArrayLengthMismatchError`.
+
+- [#5587](https://github.com/wevm/viem/pull/5587) [`26e438a2b7f64f38e559d1625a41a30ff35010b2`](https://github.com/wevm/viem/commit/26e438a2b7f64f38e559d1625a41a30ff35010b2) Thanks [@jxom](https://github.com/jxom)! - Added the error types of the actions and helpers called internally to `GetL1TokenBalanceErrorType` and `IsWithdrawalFinalizedErrorType`, so propagated contract and RPC failures are described by those unions.
+
+## 2.58.0
+
+### Minor Changes
+
+- [`1f9d4ea9f581e4cd94662b900966c4345f7053b8`](https://github.com/wevm/viem/commit/1f9d4ea9f581e4cd94662b900966c4345f7053b8) Thanks [@ampagent](https://github.com/ampagent)! - Implemented performance improvements across ABI encoding and decoding, event logs, RLP, hex and data utilities, formatters, request batching, IPC, `multicall`, and transaction preparation.
+
+### Patch Changes
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Bounded the `withCache` caches and the EIP-1559 network cache in `prepareTransactionRequest`, which grew by one entry per client.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Rejected pending IPC requests when the node closes the connection, and shared one IPC socket between requests and subscriptions when `reconnect` is set.
+
+- [#5546](https://github.com/wevm/viem/pull/5546) [`ffbbc7eb9b4cee8b81b9e3031d654d75a6bc514b`](https://github.com/wevm/viem/commit/ffbbc7eb9b4cee8b81b9e3031d654d75a6bc514b) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Fixed the Celo block formatter leaving `type` undefined on CIP-64 and deposit transactions, and `mint` unparsed on deposits, when `includeTransactions` is set.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `formatLog` by assigning `args` and `eventName` instead of spreading them into the formatted log.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Read the dispute game and the finalized state concurrently with the proof submitter in `getWithdrawalStatus`.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Estimated the priority fee concurrently with the block that detects the transaction type in `prepareTransactionRequest` when the chain has no fee hooks.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `decodeAbiParameters` by parsing parameters once per call, reading offsets, lengths and integers straight from the data, and tracking re-reads with a bitset.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `encodeAbiParameters` and `encodeFunctionData` by parsing parameters once per call, building the hex output in one pass, and caching function selectors per ABI item.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `formatTransaction` and the OP Stack, Celo, and zkSync block formatters by building transactions without `delete` and formatting each block transaction once.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `padBytes`, `padHex`, `concatHex`, `trim`, `sliceHex` and `size` by copying bytes with `Uint8Array.set`, comparing characters by char code and stripping the `0x` prefix with `slice`.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `parseEventLogs` and `decodeEventLog` by preparing each event once per call, looking events up by selector, and reading `address`, `uint` and `bytesN` topics directly.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `numberToHex` for unsigned values, `hexToNumber` for safe integers, `bytesToNumber` and `bytesToBigInt` for unsigned values of up to 6 significant bytes, and signed `hexToBigInt` for negative values.
+
+- [#5524](https://github.com/wevm/viem/pull/5524) [`10d4ee2c6fb1b14d3e449ca186fab00cbde0dfe2`](https://github.com/wevm/viem/commit/10d4ee2c6fb1b14d3e449ca186fab00cbde0dfe2) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `InvalidAbiEncodingTypeError`, `InvalidAbiDecodingTypeError`, and `InvalidSerializedTransactionTypeError` to set their documented `name`.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `toRlp`, `fromRlp`, `serializeTransaction` and `parseTransaction` by encoding and decoding hex RLP directly from strings instead of converting through bytes.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Stopped requesting the latest block for legacy fees in `prepareTransactionRequest` when the chain has no fee hooks.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Queued batched requests in place and tracked a running batch size for split checks, so scheduling `n` requests in one batch no longer copies the queue `n` times.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Kept IPC message framing state across `data` events and concatenated each message once, so large IPC responses are no longer rescanned and copied on every chunk.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Appended calls to `multicall` chunks in place instead of copying the chunk for every call, making chunking linear in the number of calls.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `hashTypedData` and `hashStruct` by computing each struct type hash once per call.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `bytesToHex` by using the native `Uint8Array.prototype.toHex` when the runtime has it, and `stringToHex` and `stringToBytes` by skipping `TextEncoder` for ASCII strings of up to 64 characters.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Awaited the nonce from a `nonceManager` together with the other parameters in `prepareTransactionRequest`, while still consuming it in call order.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Read the bridge addresses, fees, and token metadata concurrently in the ZKsync `deposit` Action, and reused the bridge addresses instead of requesting them twice.
+
+- [#5548](https://github.com/wevm/viem/pull/5548) [`2970f8c74816bdf25ef248c08edb648680195b4a`](https://github.com/wevm/viem/commit/2970f8c74816bdf25ef248c08edb648680195b4a) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Fixed `getGames` and the OP Stack actions built on it (`getWithdrawalStatus`, `waitToProve`, `getTimeToProve`, `getGame`, `getL2Output`) throwing a `TypeError` on fault-proof chains that do not define `disputeGameFactory`, by reading the factory address from the portal instead.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `bytesToString` and `hexToString` by reusing one `TextDecoder`, `normalizeSignature` by comparing characters directly, and `formatUnits` by trimming trailing zeros without a regular expression.
+
+- [#5521](https://github.com/wevm/viem/pull/5521) [`c368d8393edae7cb7f7bcdc09711bfc9e102bff2`](https://github.com/wevm/viem/commit/c368d8393edae7cb7f7bcdc09711bfc9e102bff2) Thanks [@jxom](https://github.com/jxom)! - Looked up the in-flight request cache once instead of twice on deduplicated cache hits, halving the LRU refreshes per hit.
+
+- [#5547](https://github.com/wevm/viem/pull/5547) [`73f5149b38fcf82975bc1bf8fdbab9b613db1476`](https://github.com/wevm/viem/commit/73f5149b38fcf82975bc1bf8fdbab9b613db1476) Thanks [@gomesalexandre](https://github.com/gomesalexandre)! - Added `disputeGameFactory` to 10 OP Stack chains whose portals use fault proofs and updated Superseed's stale one, which fixed the withdrawal status actions on those chains.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Stopped `waitForTransactionReceipt` from starting to poll when its `timeout` fired during the first receipt lookup.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Generated `generateSiweNonce` nonces from `crypto.getRandomValues`, since consecutive nonces previously shared 95 of their 96 characters.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Kept WebSocket and IPC clients reconnecting after a failed attempt, and dropped a client whose attempts ran out so the next request opens a new socket.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Requested the block and the priority fee concurrently in `estimateFeesPerGas` when the chain has no fee hooks, and stopped requesting the unused block for legacy fees.
+
+- [#5543](https://github.com/wevm/viem/pull/5543) [`79966ad2370800a546b10150f192c79b81370321`](https://github.com/wevm/viem/commit/79966ad2370800a546b10150f192c79b81370321) Thanks [@jxom](https://github.com/jxom)! - Sped up `hexToBytes` by decoding through a nibble lookup table straight into the output, and `toBytes` by decoding `0x` strings in one pass instead of checking them with `isHex` first.
+
+- [#5550](https://github.com/wevm/viem/pull/5550) [`4bd026ac8088650fd98679c30de99641b75b9345`](https://github.com/wevm/viem/commit/4bd026ac8088650fd98679c30de99641b75b9345) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added the `t15` hardfork to `Hardfork`.
+
+- [#5545](https://github.com/wevm/viem/pull/5545) [`076464179ad0a1c17576dc23f8c5695470e31219`](https://github.com/wevm/viem/commit/076464179ad0a1c17576dc23f8c5695470e31219) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added TIP-1166 support to `viem/tempo` channels: the `SignerSnapshotCached` event and `SignerConfigChanged` and `SaltNotSignerCommitment` errors on the channel reserve ABI, `channel.getOpenSalt`, typed `ChannelSignerConfigChangedError` and `ChannelSaltNotSignerCommitmentError`, and a default `salt` for `channel.open` set to the voucher signer's configuration commitment when the signer is a configurable account or an access key of one.
+
+- [#5544](https://github.com/wevm/viem/pull/5544) [`f390caa499468231e7b282400e683df9f79081d2`](https://github.com/wevm/viem/commit/f390caa499468231e7b282400e683df9f79081d2) Thanks [@dmytrozahumennov-wb](https://github.com/dmytrozahumennov-wb)! - Added OP Stack config to `whitechain` and deprecated `whitechainTestnet`.
+
+## 2.57.20
+
+### Patch Changes
+
+- [#5499](https://github.com/wevm/viem/pull/5499) [`018d5605fb23612e0395f453dabd2c917e763ca4`](https://github.com/wevm/viem/commit/018d5605fb23612e0395f453dabd2c917e763ca4) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.67`, which parses Tempo WebAuthn signatures in linear time and refuses those above 2048 bytes, refuses a keychain signature nested in a keychain signature, a key authorization scope with `recipients` and no `selector`, a compressed public key where a Tempo address is derived, and a Tempo transaction with a `validBefore` or `validAfter` that is not a non-negative safe integer number, a `chainId` that is not a positive safe integer, or a fee payer signature `yParity` other than `0` or `1`, hashes the payload in `Secp256k1.verify` of `viem/tempo` when `hash: true` is used with `address`, and refuses call `data` with an odd number of hex digits in `viem/experimental/erc7821`.
+
+- [#5512](https://github.com/wevm/viem/pull/5512) [`fb861e2d3a0f576843a7e51070b8e91da0a0137e`](https://github.com/wevm/viem/commit/fb861e2d3a0f576843a7e51070b8e91da0a0137e) Thanks [@wavebyrd](https://github.com/wavebyrd)! - Fixed Multicall3 `blockCreated` for Darwinia (`251739`) and Flow EVM Mainnet (`968659`).
+
+- [#5508](https://github.com/wevm/viem/pull/5508) [`4b122ec322497536e77f8411d50636723aa971da`](https://github.com/wevm/viem/commit/4b122ec322497536e77f8411d50636723aa971da) Thanks [@erkancamli](https://github.com/erkancamli)! - Fixed `getTypesForEIP712Domain` to include every domain field that is present (not `undefined` or `null`), so that a domain with a string `chainId` (e.g. from a JSON payload) is no longer hashed and signed without `chainId`.
+
+- [#5504](https://github.com/wevm/viem/pull/5504) [`c05ab61850ffe305e12e85c2be154156ac39e8f7`](https://github.com/wevm/viem/commit/c05ab61850ffe305e12e85c2be154156ac39e8f7) Thanks [@jxom](https://github.com/jxom)! - Fixed batched `http` and multicall requests flushing before `wait` elapsed after an earlier batch was split at `batchSize`.
+
+- [#5515](https://github.com/wevm/viem/pull/5515) [`fb1687aa92faf11ae95d4bc6a98c08c0a5c23de7`](https://github.com/wevm/viem/commit/fb1687aa92faf11ae95d4bc6a98c08c0a5c23de7) Thanks [@jxom](https://github.com/jxom)! - Fixed `publicKeyToAddress` silently returning a wrong address for public keys that are not uncompressed (65 bytes with a `0x04` prefix), such as compressed keys; it now throws `InvalidPublicKeyError`.
+
+- [#5514](https://github.com/wevm/viem/pull/5514) [`9677703fc287efc59ef227f45332dc4f7d60e48a`](https://github.com/wevm/viem/commit/9677703fc287efc59ef227f45332dc4f7d60e48a) Thanks [@jxom](https://github.com/jxom)! - Cached `checksumAddress` results by the lowercase address, so differently cased inputs no longer recompute the hash, and skipped the `isAddress` cache for checks that do not need a checksum.
+
+- [#5505](https://github.com/wevm/viem/pull/5505) [`8d3f29e03333d40283811dc69dbd02cdee2bd354`](https://github.com/wevm/viem/commit/8d3f29e03333d40283811dc69dbd02cdee2bd354) Thanks [@jxom](https://github.com/jxom)! - Fetched the nonce, block, and priority fee concurrently in `prepareTransactionRequest` when the chain has no fee hooks.
+
+- [#5511](https://github.com/wevm/viem/pull/5511) [`5f60d1d8a604cf65b54f8ce0b8ac3ce6d3f4b6e6`](https://github.com/wevm/viem/commit/5f60d1d8a604cf65b54f8ce0b8ac3ce6d3f4b6e6) Thanks [@backseats](https://github.com/backseats)! - Replaced runtime `parseAbi` calls in `call` with literal ABIs, removing the human-readable ABI parser from bundles that only read contracts.
+
+- [#5513](https://github.com/wevm/viem/pull/5513) [`1759adf32ddbfc68060e7cb3b05c889075b1d10d`](https://github.com/wevm/viem/commit/1759adf32ddbfc68060e7cb3b05c889075b1d10d) Thanks [@jxom](https://github.com/jxom)! - Fixed `fromRlp` accepting non-minimal RLP length prefixes and length-prefixed single bytes below `0x80`, which now throw `RlpNonCanonicalError`.
+
+## 2.57.19
+
+### Patch Changes
+
+- [#5498](https://github.com/wevm/viem/pull/5498) [`e87e3ec03457c503377648548628180881974035`](https://github.com/wevm/viem/commit/e87e3ec03457c503377648548628180881974035) Thanks [@jxom](https://github.com/jxom)! - Fixed the Tempo `verifyHash` hook accepting a signature of a root key that a config commitment retired, which made `verifyHash`, `verifyMessage`, and `verifySiweMessage` read the account's config commitment for a signature that recovers to the account, in every `mode`.
+
+- [#5496](https://github.com/wevm/viem/pull/5496) [`a0ddd34678563d1bab367357eae5d4ab4553115f`](https://github.com/wevm/viem/commit/a0ddd34678563d1bab367357eae5d4ab4553115f) Thanks [@jxom](https://github.com/jxom)! - Fixed `Relay.create(...).fetch` never answering 413 for a body over 16 MiB when the request had an unread clone.
+
+- [#5498](https://github.com/wevm/viem/pull/5498) [`e87e3ec03457c503377648548628180881974035`](https://github.com/wevm/viem/commit/e87e3ec03457c503377648548628180881974035) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.accounts.getConfigCommitment` in `viem/tempo` rejecting on chains without the configurable account precompile, where it now returns the zero commitment.
+
+- [#5494](https://github.com/wevm/viem/pull/5494) [`0fee300f54aa6da04e4d2094c5f169ae1909fd1f`](https://github.com/wevm/viem/commit/0fee300f54aa6da04e4d2094c5f169ae1909fd1f) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `InvalidDomainError` and `InvalidPrimaryTypeError` to set their `name`, and corrected `TxHashNotFoundInLogsErrorType` to describe `TxHashNotFoundInLogsError`.
+
+- [#5490](https://github.com/wevm/viem/pull/5490) [`1e117b1a6cf13fb0fb06ac6e002759fc0a66570b`](https://github.com/wevm/viem/commit/1e117b1a6cf13fb0fb06ac6e002759fc0a66570b) Thanks [@fmrmf](https://github.com/fmrmf)! - Added Kinetiq Elysium and Kinetiq Elysium Testnet chains.
+
+- [#5495](https://github.com/wevm/viem/pull/5495) [`f3fe670de4c8df551462602291caf28ff8f5dfb1`](https://github.com/wevm/viem/commit/f3fe670de4c8df551462602291caf28ff8f5dfb1) Thanks [@jxom](https://github.com/jxom)! - Resolved the actions called by `deployContract`, `getDelegation`, `sendCalls`, and `signAuthorization` through `getAction`, so overrides of those actions on the client are used.
+
+- [#5493](https://github.com/wevm/viem/pull/5493) [`cd91b17b229be5c06c02c57cb80a6188cf10fd0d`](https://github.com/wevm/viem/commit/cd91b17b229be5c06c02c57cb80a6188cf10fd0d) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Appended the generic `ErrorType` to `GetFeeHistoryErrorType`, `GetEnsTextErrorType`, and `PrepareTransactionRequestErrorType` so unexpected throw sites are assignable.
+
+- [#5488](https://github.com/wevm/viem/pull/5488) [`5c6a920eb5ce88d50f64e22f1d848b29818c48d7`](https://github.com/wevm/viem/commit/5c6a920eb5ce88d50f64e22f1d848b29818c48d7) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added `chainId` to `ResolvedToken`, so a token resolved with `token(chainId)` records the chain it was resolved for, and added the Tempo Moderato address to `ousd`.
+
+## 2.57.18
+
+### Patch Changes
+
+- [#5483](https://github.com/wevm/viem/pull/5483) [`78060dbbe684b75fbce8e150adf25fe96145b92e`](https://github.com/wevm/viem/commit/78060dbbe684b75fbce8e150adf25fe96145b92e) Thanks [@jxom](https://github.com/jxom)! - Limited the total size of `bytes` and `string` values that `decodeAbiParameters` decodes to 32 times the input size, throwing `AbiDecodingSizeLimitExceededError` beyond it.
+
+- [#5463](https://github.com/wevm/viem/pull/5463) [`41c1a5f7c7e18560f93d8dd6b251da46f4e1cb5d`](https://github.com/wevm/viem/commit/41c1a5f7c7e18560f93d8dd6b251da46f4e1cb5d) Thanks [@jxom](https://github.com/jxom)! - Fixed `accessKey.authorize` and `accessKey.authorizeSync` falling back to the client account when `account` was `null`; they now throw `account is required.` instead.
+
+- [#5465](https://github.com/wevm/viem/pull/5465) [`f2c54e49ee6b5665b6b7d9df98149ec1a3c63431`](https://github.com/wevm/viem/commit/f2c54e49ee6b5665b6b7d9df98149ec1a3c63431) Thanks [@jxom](https://github.com/jxom)! - Updated batched `call` to reject every call in a multicall batch when the number of returned results did not match the number of calls.
+
+- [`37a88da74836cb42f82d19ca93a8c873f29fa9b5`](https://github.com/wevm/viem/commit/37a88da74836cb42f82d19ca93a8c873f29fa9b5) Thanks [@ampagent](https://github.com/ampagent)! - Fixed batched `multicall`, `call`, and HTTP requests hanging with an unhandled rejection when the batch function threw synchronously, such as an extended `readContract` action.
+
+- [#5479](https://github.com/wevm/viem/pull/5479) [`ccd175704841433e6ba52af0a53a5a7850619220`](https://github.com/wevm/viem/commit/ccd175704841433e6ba52af0a53a5a7850619220) Thanks [@jxom](https://github.com/jxom)! - **ccip:** Limited the total response size of local batch gateway requests in one CCIP-Read lookup to 10 MiB, failing the lookup when it is exceeded.
+
+- [#5461](https://github.com/wevm/viem/pull/5461) [`55763b62de2eeb3435d18050cbfc9a190c0c74cb`](https://github.com/wevm/viem/commit/55763b62de2eeb3435d18050cbfc9a190c0c74cb) Thanks [@jxom](https://github.com/jxom)! - Fixed `call` running CCIP-Read callbacks at the default block instead of the `blockNumber`, `blockTag`, or `blockHash` passed to it.
+
+- [#5457](https://github.com/wevm/viem/pull/5457) [`b3af075de8797c707ef028ee3507582430e27023`](https://github.com/wevm/viem/commit/b3af075de8797c707ef028ee3507582430e27023) Thanks [@jxom](https://github.com/jxom)! - Updated the Celo `serializeTransaction` to serialize any transaction with a `feeCurrency` as a CIP-64 transaction.
+
+- [#5474](https://github.com/wevm/viem/pull/5474) [`429c3fce93bb38a12ec0fc8e5bedfe31bf57dce7`](https://github.com/wevm/viem/commit/429c3fce93bb38a12ec0fc8e5bedfe31bf57dce7) Thanks [@jxom](https://github.com/jxom)! - Fixed `getChainContractAddress` returning a contract address at block `0n` when the contract was created at a later block.
+
+- [#5472](https://github.com/wevm/viem/pull/5472) [`9f0e002f9c81435f74f63858732bf1cf67b49440`](https://github.com/wevm/viem/commit/9f0e002f9c81435f74f63858732bf1cf67b49440) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.earn.deployErc4626StackSync` falling back to the client account when `account` was `null`, so it now throws `AccountNotFoundError` like the other Earn deployment actions.
+
+- [#5476](https://github.com/wevm/viem/pull/5476) [`272622faf010afc39a3369cf2c900a38feea0a46`](https://github.com/wevm/viem/commit/272622faf010afc39a3369cf2c900a38feea0a46) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo Earn `deposit`, `depositShares`, `redeem`, and `withdrawExact` to throw `AccountNotFoundError` when `account` is `null` and no `recipient` is given, instead of defaulting the recipient to the client account.
+
+- [#5458](https://github.com/wevm/viem/pull/5458) [`6a08be9a4b1c3888315b395a89060c15b6fc00c4`](https://github.com/wevm/viem/commit/6a08be9a4b1c3888315b395a89060c15b6fc00c4) Thanks [@jxom](https://github.com/jxom)! - **ens:** Applied a 10 second timeout to ENS avatar metadata and image requests, and a 10 MiB limit to avatar metadata response bodies.
+
+- [#5468](https://github.com/wevm/viem/pull/5468) [`0231beb3f1048a14d7a93b8e6c88aa16ebcaea9c`](https://github.com/wevm/viem/commit/0231beb3f1048a14d7a93b8e6c88aa16ebcaea9c) Thanks [@jxom](https://github.com/jxom)! - Updated `verifyHash`, `verifyMessage`, `verifyTypedData`, and `verifySiweMessage` to return `false` for the zero address and for signatures whose ECDSA recovery fails instead of matching the zero address.
+
+- [#5484](https://github.com/wevm/viem/pull/5484) [`ed3350460ee9327c9c6ec977c578e9c44a984366`](https://github.com/wevm/viem/commit/ed3350460ee9327c9c6ec977c578e9c44a984366) Thanks [@jxom](https://github.com/jxom)! - Fixed `Relay.feePayer` to reject fills whose requested and filled senders differ, and to validate and sign for the same sender.
+
+- [#5480](https://github.com/wevm/viem/pull/5480) [`a9ec1633f533807bba685812c5cf9fcc0c170297`](https://github.com/wevm/viem/commit/a9ec1633f533807bba685812c5cf9fcc0c170297) Thanks [@jxom](https://github.com/jxom)! - Changed `prepareTransactionRequest` to keep the `chainId` argument or chain id over the `eth_fillTransaction` result and throw `ChainMismatchError` when they differ.
+
+- [#5447](https://github.com/wevm/viem/pull/5447) [`1dd5cc13680dc6319eae7707e6b5a9a156b90d12`](https://github.com/wevm/viem/commit/1dd5cc13680dc6319eae7707e6b5a9a156b90d12) Thanks [@jxom](https://github.com/jxom)! - Added `iterateLogs` and a `blockRange` parameter on `getLogs`, which read logs across a block range in pages of blocks and split pages that an RPC Provider rejects.
+
+- [#5469](https://github.com/wevm/viem/pull/5469) [`44e53b8199cc698958c81836b635acec2b306168`](https://github.com/wevm/viem/commit/44e53b8199cc698958c81836b635acec2b306168) Thanks [@jxom](https://github.com/jxom)! - Updated `getL2Output` to read the L2OutputOracle directly when no portal address or target chain portal is provided.
+
+- [#5466](https://github.com/wevm/viem/pull/5466) [`e87461eaaa64f37d6055e676a68600563bb27f63`](https://github.com/wevm/viem/commit/e87461eaaa64f37d6055e676a68600563bb27f63) Thanks [@jxom](https://github.com/jxom)! - Fixed `encodeAbiParameters` and `encodePacked` encoding odd-length hex `bytes` values (and `bytesN` values in `encodeAbiParameters`) without left-padding them to whole bytes.
+
+- [#5444](https://github.com/wevm/viem/pull/5444) [`c51bd55ae71ef9da4151eb691fd246f911e9e44a`](https://github.com/wevm/viem/commit/c51bd55ae71ef9da4151eb691fd246f911e9e44a) Thanks [@jxom](https://github.com/jxom)! - Fixed `hexToBytes` and `toBytes` shifting the bytes of odd-length hex values when `size` was specified.
+
+- [#5455](https://github.com/wevm/viem/pull/5455) [`ee8e8b79d86a00deee8087abe37effed592ccb5a`](https://github.com/wevm/viem/commit/ee8e8b79d86a00deee8087abe37effed592ccb5a) Thanks [@jxom](https://github.com/jxom)! - Added `usesSuperRoots` to `getL2Output` and `waitToProve` outputs so `buildProveWithdrawal` resolved the L2 block for super-root outputs passed as `output`.
+
+- [#5471](https://github.com/wevm/viem/pull/5471) [`e6e401365a5435167f429a254d74c60f4b780a9f`](https://github.com/wevm/viem/commit/e6e401365a5435167f429a254d74c60f4b780a9f) Thanks [@jxom](https://github.com/jxom)! - Updated `getPaymasterData` and `getPaymasterStubData` to return only paymaster-related fields from the paymaster response.
+
+- [#5475](https://github.com/wevm/viem/pull/5475) [`08e0f253b45f940688cc4fdecabd235945d0ef8c`](https://github.com/wevm/viem/commit/08e0f253b45f940688cc4fdecabd235945d0ef8c) Thanks [@jxom](https://github.com/jxom)! - Fixed `prepareTransactionRequest` replacing an explicit `account: null` with the client account and modifying the passed parameters.
+
+- [#5481](https://github.com/wevm/viem/pull/5481) [`2bba86fe81ba6592147774855cb54b518bff73af`](https://github.com/wevm/viem/commit/2bba86fe81ba6592147774855cb54b518bff73af) Thanks [@jxom](https://github.com/jxom)! - Fixed `propAmm.swap`, `propAmm.swapSync`, and `propAmm.swap.estimateGas` defaulting `recipient` and `customerId` from the client account when `account` was `null`.
+
+- [#5464](https://github.com/wevm/viem/pull/5464) [`8a53e55308a22c3943d967c38239522d3873d5be`](https://github.com/wevm/viem/commit/8a53e55308a22c3943d967c38239522d3873d5be) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.accounts.updateConfig` to forward an explicit `account: null` instead of falling back to the client account.
+
+- [#5456](https://github.com/wevm/viem/pull/5456) [`baefc9c59a42dd85b48819f8664e6a2c8dfeb660`](https://github.com/wevm/viem/commit/baefc9c59a42dd85b48819f8664e6a2c8dfeb660) Thanks [@jxom](https://github.com/jxom)! - Fixed `finalizeWithdrawal`, `estimateFee`, and `estimateGasL1ToL2` in `viem/zksync` falling back to the client account when `account` is `null`.
+
+- [#5443](https://github.com/wevm/viem/pull/5443) [`bb4662fdb1aaa3194f20ccf6d8a3ea42466348e0`](https://github.com/wevm/viem/commit/bb4662fdb1aaa3194f20ccf6d8a3ea42466348e0) Thanks [@jxom](https://github.com/jxom)! - Added a `signal` parameter to `waitForTransactionReceipt` that stops the wait, rejecting with the signal's reason.
+
+- [`08c90ddb787ad165e78e2c86c5abbd85f0feeb40`](https://github.com/wevm/viem/commit/08c90ddb787ad165e78e2c86c5abbd85f0feeb40) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `simulateContract` falling back to the client account when `account` is `null`.
+
+- [#5440](https://github.com/wevm/viem/pull/5440) [`b7e14ab83a607a5cfed7ac469ae592954bb3ff1e`](https://github.com/wevm/viem/commit/b7e14ab83a607a5cfed7ac469ae592954bb3ff1e) Thanks [@jxom](https://github.com/jxom)! - Fixed `validateSiweMessage` and `verifySiweMessage` accepting a message with a nonce shorter than 8 alphanumeric characters or a version other than `1`, which EIP-4361 does not allow.
+
+- [#5452](https://github.com/wevm/viem/pull/5452) [`255930d3644be9a4eb63953b4f77fce0238d3c53`](https://github.com/wevm/viem/commit/255930d3644be9a4eb63953b4f77fce0238d3c53) Thanks [@jxom](https://github.com/jxom)! - Added [TIP-1165](https://tips.sh/1165) pre-authorized access key signatures: `viem/tempo` access key accounts return them from `sign`, `signMessage`, and `signTypedData` while their key authorization is pending, and Tempo's `verifyHash` (with `mode: 'allowAccessKey'`) accepts them before the access key is registered.
+
+- [#5478](https://github.com/wevm/viem/pull/5478) [`1cd07fd44c4bb708322a2926133593d9f22d9982`](https://github.com/wevm/viem/commit/1cd07fd44c4bb708322a2926133593d9f22d9982) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.token.transfer` and `Actions.token.transferSync` (`viem/tempo`) passing the transfer arguments to the write action, so a JSON-RPC account sending a `transferFrom` now sends the transaction from the account instead of `from`.
+
+- [#5470](https://github.com/wevm/viem/pull/5470) [`0b7d8150d4a55f69825eff22f1ab6b0c0d26efd5`](https://github.com/wevm/viem/commit/0b7d8150d4a55f69825eff22f1ab6b0c0d26efd5) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.accounts.upgrade` and `Actions.accounts.upgradeSync` checking the client account when `account` is `null`.
+
+- [#5442](https://github.com/wevm/viem/pull/5442) [`a960ce1a524d3e14066f73a1b0daeea8a4abc49b`](https://github.com/wevm/viem/commit/a960ce1a524d3e14066f73a1b0daeea8a4abc49b) Thanks [@jxom](https://github.com/jxom)! - Fixed `getEnsAddress` to resolve leading-zero EVM addresses and return `null` for the zero address instead of throwing when an offchain resolver returned an address-encoded response for an Ethereum or EVM chain `coinType`.
+
+- [#5459](https://github.com/wevm/viem/pull/5459) [`947d629e7ac5411ec7049d78f43ab0759f0cae77`](https://github.com/wevm/viem/commit/947d629e7ac5411ec7049d78f43ab0759f0cae77) Thanks [@jxom](https://github.com/jxom)! - Fixed `verifyHash` ignoring `blockTag` when verifying pre-delegated ERC-8010 signatures, which now fall back to `'pending'` only when no block is selected.
+
+- [#5462](https://github.com/wevm/viem/pull/5462) [`e2d02d81acd4d84ba06ad71e118d3772fec04839`](https://github.com/wevm/viem/commit/e2d02d81acd4d84ba06ad71e118d3772fec04839) Thanks [@jxom](https://github.com/jxom)! - Updated `verifyHash` to only treat ERC-8010 pre-delegated signatures as valid when the `isValidSignature` call succeeds.
+
+- [#5477](https://github.com/wevm/viem/pull/5477) [`6d08c6c5de21da5220cbc2eb2865b10b0c525286`](https://github.com/wevm/viem/commit/6d08c6c5de21da5220cbc2eb2865b10b0c525286) Thanks [@jxom](https://github.com/jxom)! - Updated `verifyHash` to make its onchain verification calls with CCIP-Read disabled, so an `OffchainLookup` revert from a signer now returns `false`.
+
+- [#5473](https://github.com/wevm/viem/pull/5473) [`21306d4605cf7c1830fd6e024b6b9c805b8b17f3`](https://github.com/wevm/viem/commit/21306d4605cf7c1830fd6e024b6b9c805b8b17f3) Thanks [@jxom](https://github.com/jxom)! - Fixed `verifyHash` sending its onchain verification calls through multicall batching, so they now run as separate `eth_call` requests.
+
+- [#5460](https://github.com/wevm/viem/pull/5460) [`253d066bf64ccbcc413eccb0045a029b1387a8f4`](https://github.com/wevm/viem/commit/253d066bf64ccbcc413eccb0045a029b1387a8f4) Thanks [@jxom](https://github.com/jxom)! - Updated `verifyHash` to use the deployless validator when `blockNumber` is before the chain's `erc6492Verifier` `blockCreated`.
+
+- [#5435](https://github.com/wevm/viem/pull/5435) [`8421bad488309e97efe7c813414cfa2632e4af7c`](https://github.com/wevm/viem/commit/8421bad488309e97efe7c813414cfa2632e4af7c) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Centralized the transport selection logic shared by `watchBlockHeaders`, `watchBlockNumber`, `watchBlocks`, `watchContractEvent`, and `watchEvent`.
+
+- [#5467](https://github.com/wevm/viem/pull/5467) [`15f2496ca81b7028725f5181e5eefe1a34b38cfc`](https://github.com/wevm/viem/commit/15f2496ca81b7028725f5181e5eefe1a34b38cfc) Thanks [@jxom](https://github.com/jxom)! - Updated `viem/zksync` `sendEip712Transaction` to send an unsigned `eth_sendTransaction` and `signEip712Transaction` to throw `AccountNotFoundError` when `account` is `null`, instead of using the Client's account.
+
+## 2.57.17
+
+### Patch Changes
+
+- [#5411](https://github.com/wevm/viem/pull/5411) [`3708ffc3fc8ec0a957a577970da87903811cf649`](https://github.com/wevm/viem/commit/3708ffc3fc8ec0a957a577970da87903811cf649) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Removed the `getKey` read before transactions from an access key with a pending key authorization, retrying the fill without the authorization when the chain has already registered the key.
+
+- [#5411](https://github.com/wevm/viem/pull/5411) [`3708ffc3fc8ec0a957a577970da87903811cf649`](https://github.com/wevm/viem/commit/3708ffc3fc8ec0a957a577970da87903811cf649) Thanks [@jxom](https://github.com/jxom)! - Added an `afterFillTransactionError` phase to chain `prepareTransactionRequest` hooks that retries `eth_fillTransaction` once with the request the hook returns.
+
+  ```ts
+  const chain = defineChain({
+    // ...
+    prepareTransactionRequest: [
+      async (request, { error, phase }) => {
+        if (phase === "afterFillTransactionError")
+          return retryable(error) ? fixed(request) : undefined;
+        return request;
+      },
+      { runAt: ["beforeFillTransaction", "afterFillTransactionError"] },
+    ],
+  });
+  ```
+
+- [#5437](https://github.com/wevm/viem/pull/5437) [`7bfee154063d5630668b26add1e35de927cabfff`](https://github.com/wevm/viem/commit/7bfee154063d5630668b26add1e35de927cabfff) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed webpack builds without `mppx` failing on the `mppx/client` import of `gatewayActions`, which now only warns.
+
+- [#5389](https://github.com/wevm/viem/pull/5389) [`5a7ec0946af3936eb13b9cd5ad6b4bc0ee7f3f08`](https://github.com/wevm/viem/commit/5a7ec0946af3936eb13b9cd5ad6b4bc0ee7f3f08) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed HTTP JSON-RPC batches using another transport's authorization headers and request configuration.
+
+- [#5404](https://github.com/wevm/viem/pull/5404) [`39d9b10798bc29d387f4948fa7fd95484e7e607c`](https://github.com/wevm/viem/commit/39d9b10798bc29d387f4948fa7fd95484e7e607c) Thanks [@jxom](https://github.com/jxom)! - Fixed the `http` transport dropping `fetchOptions.headers` supplied as `Headers` instances or tuple arrays.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated `ox` to `0.14.63`.
+
+- [#5428](https://github.com/wevm/viem/pull/5428) [`29a0d8497d586ddbf664767b1d1404bb2cedf7fc`](https://github.com/wevm/viem/commit/29a0d8497d586ddbf664767b1d1404bb2cedf7fc) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseEventLogs` / `getLogs` args filters dropping matches when integer filters are JS numbers and decoded values are bigints.
+
+- [#5431](https://github.com/wevm/viem/pull/5431) [`8b040a3542cd3527b3c73941c9924cae42cea748`](https://github.com/wevm/viem/commit/8b040a3542cd3527b3c73941c9924cae42cea748) Thanks [@jxom](https://github.com/jxom)! - Fixed `prepareUserOperation` replacing a falsy per-operation `paymasterContext` (`false`, `0`, `''`, or `null`) with the bundler client's default `paymasterContext`.
+
+- [#5409](https://github.com/wevm/viem/pull/5409) [`bf3ffc52b5633afebacf3d728d846080f1668f30`](https://github.com/wevm/viem/commit/bf3ffc52b5633afebacf3d728d846080f1668f30) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed reads failing with "Key not found." when the client account is an access key that the chain has not registered yet.
+
+- [#5417](https://github.com/wevm/viem/pull/5417) [`f3fb0ae9d40ad1b54a7f5c840022e0620191b464`](https://github.com/wevm/viem/commit/f3fb0ae9d40ad1b54a7f5c840022e0620191b464) Thanks [@frontier159](https://github.com/frontier159)! - Fixed `waitForTransactionReceipt` dropping a block that arrived while it looked up the transaction or scanned for a replacement, which timed out the wait on a chain that mined no later block.
+
+- [#5406](https://github.com/wevm/viem/pull/5406) [`bb7c12c7514f5a2856c476a4df59ce6489af348f`](https://github.com/wevm/viem/commit/bb7c12c7514f5a2856c476a4df59ce6489af348f) Thanks [@jxom](https://github.com/jxom)! - Fixed `waitForTransactionReceipt` returning a discarded receipt after a reorg while waiting for confirmations.
+
+- [#5430](https://github.com/wevm/viem/pull/5430) [`6c017d55f6f384e6553db09114036169177c21ae`](https://github.com/wevm/viem/commit/6c017d55f6f384e6553db09114036169177c21ae) Thanks [@jxom](https://github.com/jxom)! - Fixed `recoverPublicKey` and `recoverAddress` throwing `Invalid yParityOrV value` for signature objects with an EIP-155 `v` (e.g. from a legacy transaction).
+
+- [#5384](https://github.com/wevm/viem/pull/5384) [`5bfc88bb6f55029094cda6e870d3d7d038467ca0`](https://github.com/wevm/viem/commit/5bfc88bb6f55029094cda6e870d3d7d038467ca0) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `getAbiItem` to resolve `string` overloads for non-hex strings when a `bytes` overload is present.
+
+- [#5401](https://github.com/wevm/viem/pull/5401) [`1d457699c28d19e8f239c1201132adbe3c47fe0c`](https://github.com/wevm/viem/commit/1d457699c28d19e8f239c1201132adbe3c47fe0c) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Marked the aggregate `Abis` exports (`core`, `earn`, `zone`, `propAmm`, `all`) as pure so bundlers drop the ABIs a consumer does not import.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Renamed the `UpgradeMustBeOnlyCall` error to `UpgradeMustBeDirectCall` and added `Abis.configurableAccountShim` (`isValidSignature`, `onERC721Received`) for registered configurable accounts.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Removed admin access keys, which T14 (TIP-1137) retires: the `admin` option on key authorizations, `accessKey.isAdmin`, and `accessKey.watchAdminAuthorized`, so access keys no longer sign key authorizations.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added owner approval coordination for configurable accounts acting as access keys (TIP-1111) to `Relay.accounts` and `withRelay`.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `keyAuthorizationSimulation` to Tempo transaction requests, filled during preparation while a configurable account's key authorization lacks its owner quorum.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Changed `verifyHash` with `mode: 'allowAccessKey'` to verify configurable access keys and to reject retired root keys and inner signatures that do not match the stored key type.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added an `access` option to `Account.fromConfig` so a configurable account can sign as an access key of another account (TIP-1111), with keychain envelopes the relay fee payer accepts.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `Actions.accounts.updateConfigSync` returning the version-0 registration config instead of the installed config on an account's first transaction.
+
+- [#5408](https://github.com/wevm/viem/pull/5408) [`7585a54228fa66d476969029a943afcbf30a8aeb`](https://github.com/wevm/viem/commit/7585a54228fa66d476969029a943afcbf30a8aeb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Allowed `keyAuthorization` in `Actions.accounts.upgrade` and `upgradeSync`, and made the accounts relay cache configs from upgrades anywhere in a batch, matching TIP-1113.
+
+- [#5405](https://github.com/wevm/viem/pull/5405) [`828d3964bf1bbf72f438f0942aee0dd760eabe1a`](https://github.com/wevm/viem/commit/828d3964bf1bbf72f438f0942aee0dd760eabe1a) Thanks [@gakonst](https://github.com/gakonst)! - Added the Multicall3 that Tempo Mainnet, Moderato and Devnet deploy at genesis to `tempo`, `tempoModerato` and `tempoDevnet`, so their clients batch and `multicall` through it instead of needing `deployless`.
+
+- [#5411](https://github.com/wevm/viem/pull/5411) [`3708ffc3fc8ec0a957a577970da87903811cf649`](https://github.com/wevm/viem/commit/3708ffc3fc8ec0a957a577970da87903811cf649) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Removed the `decimals` read when resolving an insufficient TIP-20 balance error.
+
+- [#5403](https://github.com/wevm/viem/pull/5403) [`2a5d1a19c363d4cdf53222aeda084e96386fcd52`](https://github.com/wevm/viem/commit/2a5d1a19c363d4cdf53222aeda084e96386fcd52) Thanks [@A-G0D](https://github.com/A-G0D)! - Fixed `validateTypedData` (and so `hashTypedData` and `signTypedData`) rejecting struct names that contain `:`, such as `HyperliquidTransaction:SendAsset`.
+
+- [#5427](https://github.com/wevm/viem/pull/5427) [`2b9026da097323e7e9be8914c53f58edcdd0249a`](https://github.com/wevm/viem/commit/2b9026da097323e7e9be8914c53f58edcdd0249a) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `withRelay` and `withFeePayer` nesting the retries of their inner transports, which sent a failed request up to 16 times. The inner transports now send each attempt once, and the relay transport retries with the client's `retryCount`, as `fallback` does.
+
+## 2.57.16
+
+### Patch Changes
+
+- [#5395](https://github.com/wevm/viem/pull/5395) [`c60ca26e030706610bcf61689331008a30a3db2a`](https://github.com/wevm/viem/commit/c60ca26e030706610bcf61689331008a30a3db2a) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: `gatewayActions` paid in the Gateway currency the Client account held most of, threw `Gateway.InsufficientFundsError` (with the account's balances) when it couldn't pay, and explained how to pay in `Gateway.PaymentRequiredError`.
+
+- [#5392](https://github.com/wevm/viem/pull/5392) [`9348d386a9f62fd6713124e25360d6040e4a34cf`](https://github.com/wevm/viem/commit/9348d386a9f62fd6713124e25360d6040e4a34cf) Thanks [@gakonst](https://github.com/gakonst)! - Stopped retrying JSON-RPC method-not-found (`-32601`) and method-not-supported (`-32004`) errors from non-2xx HTTP responses, since a retry gets the same refusal.
+
+- [#5392](https://github.com/wevm/viem/pull/5392) [`9348d386a9f62fd6713124e25360d6040e4a34cf`](https://github.com/wevm/viem/commit/9348d386a9f62fd6713124e25360d6040e4a34cf) Thanks [@gakonst](https://github.com/gakonst)! - Reduced per-request overhead of the `http`, `webSocket` and `ipc` transports by building the `onFetchRequest` `Request` only when the hook is set and the `TimeoutError` only when a request times out, and fetched the withdrawal receipt once in the ZKsync `finalizeWithdrawal` and `isWithdrawalFinalized` actions.
+
+- [#5392](https://github.com/wevm/viem/pull/5392) [`9348d386a9f62fd6713124e25360d6040e4a34cf`](https://github.com/wevm/viem/commit/9348d386a9f62fd6713124e25360d6040e4a34cf) Thanks [@gakonst](https://github.com/gakonst)! - Cached signature hashes in `toSignatureHash`, so selector lookups in `decodeFunctionData`, `decodeEventLog`, `decodeErrorResult` and `encodeFunctionData` no longer hash every ABI item on each call.
+
+- [#5391](https://github.com/wevm/viem/pull/5391) [`721d6824516514195c0a98971731c6d81b2f9032`](https://github.com/wevm/viem/commit/721d6824516514195c0a98971731c6d81b2f9032) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added experimental `Gateway` and `gatewayActions` (`client.ai`, `client.bucket`, `client.compute`, `client.kv`), with standalone `Actions.ai`, `Actions.bucket`, `Actions.compute`, and `Actions.kv`, with `client.gateway.getCapabilities`, `Actions.gateway.getCapabilities` and defaults for every option (`gatewayActions()`), for wallet-paid inference (including streamed text), object storage, metered and streamed CPU and GPU compute, and key-value state on a Tempo Gateway paid with a local Client account through the optional `mppx` peer dependency, with Tempo Wallet through the Accounts SDK, or with an app-supplied payment-aware `fetch`.
+
+## 2.57.15
+
+### Patch Changes
+
+- [#5339](https://github.com/wevm/viem/pull/5339) [`a864b864b8b9031d970910fb8247471924d09280`](https://github.com/wevm/viem/commit/a864b864b8b9031d970910fb8247471924d09280) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `getAbiItem` to throw `AbiItemAmbiguityError` for overloads that JavaScript cannot distinguish, such as `bytes` vs `bytes32`, `uint256` vs `int256`, and `uint256[]` vs `uint256[2]`, while resolving distinguishable values by byte length and integer range.
+
+- [#5321](https://github.com/wevm/viem/pull/5321) [`af062571382ec3631cf1901aeda9b58a87c8fad5`](https://github.com/wevm/viem/commit/af062571382ec3631cf1901aeda9b58a87c8fad5) Thanks [@evanaronson](https://github.com/evanaronson)! - Removed a trailing slash to the ZKsync explorer URL.
+
+- [#5358](https://github.com/wevm/viem/pull/5358) [`179a53682d9bf2ac2b7a65a86ec312fca0c7c9a8`](https://github.com/wevm/viem/commit/179a53682d9bf2ac2b7a65a86ec312fca0c7c9a8) Thanks [@Turkchain1919](https://github.com/Turkchain1919)! - Added Turkchain Mainnet (Chain ID: 1919) to the supported chains.
+
+- [#5375](https://github.com/wevm/viem/pull/5375) [`bb12b94649962cd7f03c339c226399c614b49805`](https://github.com/wevm/viem/commit/bb12b94649962cd7f03c339c226399c614b49805) Thanks [@jxom](https://github.com/jxom)! - Fixed `decodeEventLog` and `parseEventLogs` to decode anonymous event logs when `eventName` names the event or every event in `abi` is anonymous, as with `getLogs` and `watchEvent` given a single anonymous `event`.
+
+- [#5364](https://github.com/wevm/viem/pull/5364) [`8f2a79ba8b4d235a24c4c101f4ef04a824c3e429`](https://github.com/wevm/viem/commit/8f2a79ba8b4d235a24c4c101f4ef04a824c3e429) Thanks [@jxom](https://github.com/jxom)! - **ccip:** Applied the HTTP transport timeout (including its override) and 10 MiB response cap to CCIP-Read gateway requests, refused non-HTTP(S) gateway URLs (including `data:` URLs, which previously worked), and limited one lookup to 4 nested callbacks, 4 nested local batches, 256 gateway requests and 16 concurrent requests.
+
+- [#5372](https://github.com/wevm/viem/pull/5372) [`f32ef6c41e623683b99989422eac7ac6cea5c107`](https://github.com/wevm/viem/commit/f32ef6c41e623683b99989422eac7ac6cea5c107) Thanks [@jxom](https://github.com/jxom)! - Fixed `estimateGas` and `estimateContractGas` returning a gas limit filled by `eth_fillTransaction` that ignored `blockNumber`, `blockTag`, and `stateOverride`.
+
+- [#5360](https://github.com/wevm/viem/pull/5360) [`41801d827e339b96d1b4dd775f4dd379f17cc610`](https://github.com/wevm/viem/commit/41801d827e339b96d1b4dd775f4dd379f17cc610) Thanks [@jxom](https://github.com/jxom)! - Raised the default expiring nonce `validBefore` from 25 to 270 seconds, capped `Relay.feePayer` expiring nonce windows at 300 seconds, added `Transaction.expiringNonceMaxExpiry`, and replaced the random expiring nonce `validAfter` with a random `nonce` discriminator.
+
+- [#5360](https://github.com/wevm/viem/pull/5360) [`41801d827e339b96d1b4dd775f4dd379f17cc610`](https://github.com/wevm/viem/commit/41801d827e339b96d1b4dd775f4dd379f17cc610) Thanks [@jxom](https://github.com/jxom)! - Fixed sponsored `prepareTransactionRequest` fills keeping a requested `feeToken` that the fee payer did not sign, which made the fee payer signature invalid.
+
+- [#5378](https://github.com/wevm/viem/pull/5378) [`cbdd61078378012368464c9b0e4a76804a5ea987`](https://github.com/wevm/viem/commit/cbdd61078378012368464c9b0e4a76804a5ea987) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `fillTransaction` and `prepareTransactionRequest` returning `gasPrice` next to EIP-1559 fees on Anvil, which made `estimateGas` and `sendTransaction` fail on Anvil 1.8.5 and later with "both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) specified".
+
+- [#5346](https://github.com/wevm/viem/pull/5346) [`7156f80f77c47c0a3f9df479b0a6e856029edb3b`](https://github.com/wevm/viem/commit/7156f80f77c47c0a3f9df479b0a6e856029edb3b) Thanks [@KieranAltman](https://github.com/KieranAltman)! - Updated HashKey Chain and HashKey Chain Testnet display names, native currency name, and block explorer URLs.
+
+- [#5373](https://github.com/wevm/viem/pull/5373) [`ddc2d365d093793f9d8f5818743f169c98eed8d7`](https://github.com/wevm/viem/commit/ddc2d365d093793f9d8f5818743f169c98eed8d7) Thanks [@jxom](https://github.com/jxom)! - Added an optional `nonce` to `NonceManager` `reset` parameters, which `sendTransaction` and `sendTransactionSync` now set to the consumed nonce when a send fails after `consume` returned.
+
+- [#5371](https://github.com/wevm/viem/pull/5371) [`035c519b6b6b3f179fa741953751a501f05132a2`](https://github.com/wevm/viem/commit/035c519b6b6b3f179fa741953751a501f05132a2) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseTransaction` to accept an EIP-7702 authorization `yParity` from 2 to 255 so a serialized transaction parses back, and made `recoverAuthorizationAddress` throw `InvalidYParityError` (and `verifyAuthorization` return `false`) for a `yParity` other than 0 or 1, which EIP-7702 treats as having no authority.
+
+- [#5318](https://github.com/wevm/viem/pull/5318) [`57db085e896dfee3a3387fb7573bf7f7ebc6170d`](https://github.com/wevm/viem/commit/57db085e896dfee3a3387fb7573bf7f7ebc6170d) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseTransaction` not raising `TipAboveFeeCapError` when the encoded `maxFeePerGas` is zero.
+
+- [#5377](https://github.com/wevm/viem/pull/5377) [`42c41ca3c42792e56a2e1f64d3007c28adc9fbba`](https://github.com/wevm/viem/commit/42c41ca3c42792e56a2e1f64d3007c28adc9fbba) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `sendTransactionSync` and `writeContractSync` failing at once and freeing the nonce when the node had accepted the transaction but stopped waiting for its receipt (`eth_sendRawTransactionSync` error code 4), even if the error had no transaction hash, and stopped `fallback` from sending that transaction to the next node.
+
+- [#5388](https://github.com/wevm/viem/pull/5388) [`141f8c0ed7f5fdeafbfc514131781638e9340bd9`](https://github.com/wevm/viem/commit/141f8c0ed7f5fdeafbfc514131781638e9340bd9) Thanks [@jxom](https://github.com/jxom)! - Added `Account.serialize` and `Account.deserialize` to `viem/tempo`, which store a configurable account (TIP-1107) as JSON and rebuild it with passkey owners that sign, and `Account.AddressMismatchError` for a version-zero config that does not derive the stored address. Added a `keyAuthorization` option to access key accounts, which attaches a signed key authorization to the account's transactions until the chain registers the access key.
+
+- [#5318](https://github.com/wevm/viem/pull/5318) [`57db085e896dfee3a3387fb7573bf7f7ebc6170d`](https://github.com/wevm/viem/commit/57db085e896dfee3a3387fb7573bf7f7ebc6170d) Thanks [@jxom](https://github.com/jxom)! - Fixed `maxPriorityFeePerGas` above a `maxFeePerGas` of `0n` not raising `TipAboveFeeCapError` or `MaxFeePerGasTooLowError` (including in actions that validate requests before calling the node, such as `call` and `estimateGas`), and fixed fee error messages dropping `0n` values.
+
+- [#5370](https://github.com/wevm/viem/pull/5370) [`18b6b9041ef9d19421d182e6b0ca4b1caf5be09e`](https://github.com/wevm/viem/commit/18b6b9041ef9d19421d182e6b0ca4b1caf5be09e) Thanks [@jxom](https://github.com/jxom)! - Fixed `validateTypedData` (and so `hashTypedData` and `signTypedData`) accepting field types that are not EIP-712 types, such as `uint7`, `uint264`, `uint08`, `int0` or `bytes0`, and field types that reference a struct missing from `types`, including in structs only referenced as array elements; it now throws `InvalidTypedDataTypeError`.
+
+- [#5345](https://github.com/wevm/viem/pull/5345) [`b019bf82f2eb0927c375cbdd32bb9c06095edea3`](https://github.com/wevm/viem/commit/b019bf82f2eb0927c375cbdd32bb9c06095edea3) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed `formatUserOperationReceipt` (used by `getUserOperationReceipt` and `waitForUserOperationReceipt`) to format `nonce` as a `bigint`.
+
+- [#5381](https://github.com/wevm/viem/pull/5381) [`5d11346a9be71deceb3ee4998cbc281a57c2887a`](https://github.com/wevm/viem/commit/5d11346a9be71deceb3ee4998cbc281a57c2887a) Thanks [@jxom](https://github.com/jxom)! - Limited the default catch-up of `watchBlocks` to 100 missed blocks, so a longer gap emits only the latest block.
+
+- [#5380](https://github.com/wevm/viem/pull/5380) [`b650f56c15ea3f7a08a0e1f4afa178bfc206b576`](https://github.com/wevm/viem/commit/b650f56c15ea3f7a08a0e1f4afa178bfc206b576) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `watchBlocks` and `watchBlockNumber` skipping blocks over HTTP on fast chains such as Monad and Arbitrum, and `watchBlocks` falling behind while it caught up on missed blocks.
+
+## 2.57.14
+
+### Patch Changes
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Added `Relay.autoSwap`, which buys a fill's missing token on the stablecoin DEX and reports the swap as `capabilities.autoSwap`.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Fixed relay previews omitting every balance diff when a moved token is a plain ERC-20, such as a vault share, by reading its standard metadata.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Changed `Relay.simulate` balance diffs and `Relay.autoSwap` swaps to require request opt-in through `capabilities.balanceDiffs: true` and `capabilities.autoSwap`; fee estimates stay default.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Changed `Relay.simulate` to report same-token incoming and outgoing transfers separately, and approval exposure net of allowance the calls consumed.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Fixed sponsored Tempo transactions failing with intrinsic gas too low on T14 by reserving gas for the fee payer's signature and fee token.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo request formatting dropping `capabilities` from fill requests without Tempo-specific fields.
+
+## 2.57.13
+
+### Patch Changes
+
+- [#5310](https://github.com/wevm/viem/pull/5310) [`7e015cb1d72e6b54e4468d7dd60aa59a51fe8d9b`](https://github.com/wevm/viem/commit/7e015cb1d72e6b54e4468d7dd60aa59a51fe8d9b) Thanks [@BaronOdon](https://github.com/BaronOdon)! - Added Molibra chain.
+
+- [#5314](https://github.com/wevm/viem/pull/5314) [`c0d52cdcb262744a64e742e4cf891cbbde9ccdc9`](https://github.com/wevm/viem/commit/c0d52cdcb262744a64e742e4cf891cbbde9ccdc9) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Keyed `Relay.accounts` stored configs by chain ID so `account_getConfig` no longer serves a config stored for another chain (configs stored under the previous key are no longer read), added a `resolveConfig` option that resolves and stores configs the store does not hold, and reduced round trips by reading the commitment without a prior block number request and writing each config once.
+
+- [#5332](https://github.com/wevm/viem/pull/5332) [`de39e106022f313a16c3b7367d8330753748c516`](https://github.com/wevm/viem/commit/de39e106022f313a16c3b7367d8330753748c516) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `signMessage` and `signTypedData` support to `Account.fromConfig` configurable accounts, which sign the EIP-191 or EIP-712 digest with the same configurable signature envelope as `sign`.
+
+- [#5325](https://github.com/wevm/viem/pull/5325) [`2220ab8f52cf7fcf5420502d30272175b49065ca`](https://github.com/wevm/viem/commit/2220ab8f52cf7fcf5420502d30272175b49065ca) Thanks [@Slokh](https://github.com/Slokh)! - `viem/tempo`: Fixed formatting of Tempo transactions whose nonce exceeds `Number.MAX_SAFE_INTEGER` (such as TIP-1106 expiring-nonce discriminators), which made `getTransaction`, `getBlock` with `includeTransactions` and `waitForTransactionReceipt` replacement checks throw `IntegerOutOfRangeError`. Formatted Tempo transactions now carry `nonce` as an exact `bigint`, matching ox.
+
+- [#5337](https://github.com/wevm/viem/pull/5337) [`609f2bf5a127774904cbc9d97f0e9be7b45c3a7d`](https://github.com/wevm/viem/commit/609f2bf5a127774904cbc9d97f0e9be7b45c3a7d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `Relay.feePayer` not reporting base-fee floor rejections when the Tempo node returns `fee cap less than base fee`.
+
+- [#5336](https://github.com/wevm/viem/pull/5336) [`35e551ed4189d28749f0d12e67177a10e574f4f0`](https://github.com/wevm/viem/commit/35e551ed4189d28749f0d12e67177a10e574f4f0) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `fillTransaction` returning a `number` `nonce` on Tempo transactions when a `nonce` was passed and no fee payer signed the filled transaction.
+
+- [#5330](https://github.com/wevm/viem/pull/5330) [`1f9c2f00e6b18b194aa510ee09f4ae684af2e976`](https://github.com/wevm/viem/commit/1f9c2f00e6b18b194aa510ee09f4ae684af2e976) Thanks [@jxom](https://github.com/jxom)! - Fixed `watchEvent` and `watchContractEvent` in the `eth_getLogs` fallback stalling for good when the blocks since the last poll exceeded the RPC Provider's block range, log count, or response size limit, repeating logs when an RPC node reported a lower block number, emitting logs from before a `fromBlock` past the latest block, ignoring `fromBlock: 1n`, and missing logs from the first polling interval without `fromBlock`.
+
+## 2.57.12
+
+### Patch Changes
+
+- [#5281](https://github.com/wevm/viem/pull/5281) [`744f749bcd56fa0bc93efd0fcdc05125e0252c21`](https://github.com/wevm/viem/commit/744f749bcd56fa0bc93efd0fcdc05125e0252c21) Thanks [@jxom](https://github.com/jxom)! - Fixed `getAbiItem` overload resolution for arrays with a `0` in the element size (e.g. `uint160[]`) or the wrong fixed length, tuple objects with reordered keys, and ambiguous `address[]` overloads.
+
+- [#5304](https://github.com/wevm/viem/pull/5304) [`918955e81ef333af521e3e3e1b3fe03cb5231bdf`](https://github.com/wevm/viem/commit/918955e81ef333af521e3e3e1b3fe03cb5231bdf) Thanks [@jxom](https://github.com/jxom)! - Fixed `serializeAuthorizationList` and `serializeTransaction` to encode an EIP-7702 authorization `yParity` above 1 as is instead of normalizing it to 1, which changed the transaction hash.
+
+- [#5279](https://github.com/wevm/viem/pull/5279) [`10ef1295f73362ea4f3c36b6655fef1cb04b397e`](https://github.com/wevm/viem/commit/10ef1295f73362ea4f3c36b6655fef1cb04b397e) Thanks [@jxom](https://github.com/jxom)! - Fixed `signatureToCompactSignature` and `compactSignatureToSignature` for values shorter than 32 bytes and a legacy `v` with a chain id, and added errors for invalid `v` and high `s`.
+
+- [#5298](https://github.com/wevm/viem/pull/5298) [`a69e96c8e89cc0398a6b918c392e24e3b615bee0`](https://github.com/wevm/viem/commit/a69e96c8e89cc0398a6b918c392e24e3b615bee0) Thanks [@jxom](https://github.com/jxom)! - Fixed `getTimeToFinalize` and `waitToFinalize` to also wait for the proof's dispute game to resolve and pass its finality delay, instead of only the proof maturity delay.
+
+- [#5282](https://github.com/wevm/viem/pull/5282) [`52140fef00389781737477de205f82f71553b3c3`](https://github.com/wevm/viem/commit/52140fef00389781737477de205f82f71553b3c3) Thanks [@jxom](https://github.com/jxom)! - Fixed `http` transport batches and `getHttpRpcClient` array requests mishandling a server that rejected the whole batch with a single error or returned fewer responses than requests.
+
+- [#5286](https://github.com/wevm/viem/pull/5286) [`8e058ca71bf09c85d2a4669af5e98aeb5bc87e71`](https://github.com/wevm/viem/commit/8e058ca71bf09c85d2a4669af5e98aeb5bc87e71) Thanks [@jxom](https://github.com/jxom)! - Fixed the `http` transport to retry JSON-RPC errors from non-2xx responses by their HTTP status and `Retry-After` header, and exposed `status` and `headers` on `RpcRequestError`.
+
+- [#5300](https://github.com/wevm/viem/pull/5300) [`485a9d922ffe00a3d2bc4bbfc6ef0262a85e9f45`](https://github.com/wevm/viem/commit/485a9d922ffe00a3d2bc4bbfc6ef0262a85e9f45) Thanks [@jxom](https://github.com/jxom)! - Fixed `toFunctionSelector` and `toSignatureHash` keeping the `error` keyword in string signatures like `error Foo(uint256)`, which produced the wrong selector.
+
+- [#5283](https://github.com/wevm/viem/pull/5283) [`b2b7a3b82fd52ad74f80075d5a25cd99750f754a`](https://github.com/wevm/viem/commit/b2b7a3b82fd52ad74f80075d5a25cd99750f754a) Thanks [@jxom](https://github.com/jxom)! - Added an `even` option to `isHex` that rejects hex values with an odd number of hex characters.
+
+- [#5303](https://github.com/wevm/viem/pull/5303) [`d10dc3c203c63ec42abc2cd392fb7de4562cb591`](https://github.com/wevm/viem/commit/d10dc3c203c63ec42abc2cd392fb7de4562cb591) Thanks [@jxom](https://github.com/jxom)! - Fixed `InsufficientFundsError` not being raised for reth's `EVM error: OutOfFunds` node message.
+
+- [#5280](https://github.com/wevm/viem/pull/5280) [`e7e0122fab41b6c43d1d03ffe395044d1445bcc0`](https://github.com/wevm/viem/commit/e7e0122fab41b6c43d1d03ffe395044d1445bcc0) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseEventLogs` `args` filters dropping logs whose `string` or `bytes` values were decoded from data or differed in hex case, and matching every partially decoded log.
+
+- [#5284](https://github.com/wevm/viem/pull/5284) [`b3e39473523d7be57ec5f35f51cb416f16b6cbd2`](https://github.com/wevm/viem/commit/b3e39473523d7be57ec5f35f51cb416f16b6cbd2) Thanks [@jxom](https://github.com/jxom)! - Added a `replacement` parameter to `waitForTransactionReceipt` that detects a replacement of a Transaction the node dropped before the wait first read it, and fixed `onReplaced` not being called for a replacement when `confirmations` is greater than 1.
+
+- [#5288](https://github.com/wevm/viem/pull/5288) [`75ffe81d29d85bee3b895a5d7ae612675b625ee8`](https://github.com/wevm/viem/commit/75ffe81d29d85bee3b895a5d7ae612675b625ee8) Thanks [@jxom](https://github.com/jxom)! - Fixed request retries firing immediately for `Retry-After` headers in HTTP-date form or for delays longer than the 24.8-day timer limit.
+
+- [#5301](https://github.com/wevm/viem/pull/5301) [`efda1c43147b85fdde5a9d5b88c4ffd5a9262073`](https://github.com/wevm/viem/commit/efda1c43147b85fdde5a9d5b88c4ffd5a9262073) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendCalls` dropping a call's `dataSuffix` when the call has no `data`.
+
+- [#5306](https://github.com/wevm/viem/pull/5306) [`30833eca2ef352e2af34f577964b633823acc999`](https://github.com/wevm/viem/commit/30833eca2ef352e2af34f577964b633823acc999) Thanks [@jxom](https://github.com/jxom)! - Fixed importing `viem`, `viem/actions`, `viem/chains`, and other entrypoints under SES `lockdown()`, which threw `Cannot assign to read only property 'call'`.
+
+- [#5299](https://github.com/wevm/viem/pull/5299) [`6c2278d129eb21b2928999fd2f5b28c233132f7d`](https://github.com/wevm/viem/commit/6c2278d129eb21b2928999fd2f5b28c233132f7d) Thanks [@jxom](https://github.com/jxom)! - Fixed `createSiweMessage` rejecting domains with a punycode (internationalized) top-level domain, such as `example.xn--p1ai`, and accepting top-level domain labels longer than 63 characters.
+
+- [#5302](https://github.com/wevm/viem/pull/5302) [`c42c189ee8fe1b0183b6abf1b00a58f134ea2b57`](https://github.com/wevm/viem/commit/c42c189ee8fe1b0183b6abf1b00a58f134ea2b57) Thanks [@jxom](https://github.com/jxom)! - Fixed `getWithdrawalStatus`, `getTimeToProve` and `waitToProve` matching super-root dispute games against the withdrawal's L2 block number when `l2Timestamp` was not passed: they now use the `blockTimestamp` of the receipt's logs, or throw `L2TimestampRequiredError` when it is missing.
+
+- [#5311](https://github.com/wevm/viem/pull/5311) [`e3247c5513912695313dba030111e7f6a1e1aacd`](https://github.com/wevm/viem/commit/e3247c5513912695313dba030111e7f6a1e1aacd) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Derived configurable account addresses from the initial config hash instead of a recovery factory (tempoxyz/tempo#8595), so `Account.fromConfig` no longer takes a `factory` option and `Addresses.configurableAccountRecoveryFactory` was removed.
+
+- [#5308](https://github.com/wevm/viem/pull/5308) [`71636a342b859fa9f15296d2f15377430db4629e`](https://github.com/wevm/viem/commit/71636a342b859fa9f15296d2f15377430db4629e) Thanks [@jxom](https://github.com/jxom)! - Fixed `validateTypedData` and `hashTypedData` to accept struct names that start with a Solidity type name (such as `intent`), to reject struct names that shadow a Solidity type (such as `uint256[]` or `uint7`), and to include struct names that contain `$` in the encoded type.
+
+- [#5271](https://github.com/wevm/viem/pull/5271) [`2867b2a88458044af6aa84fc5494539eab05e143`](https://github.com/wevm/viem/commit/2867b2a88458044af6aa84fc5494539eab05e143) Thanks [@loveyuanfandj-glitch](https://github.com/loveyuanfandj-glitch)! - Added ValueChain mainnet and testnet chains.
+
+- [#5309](https://github.com/wevm/viem/pull/5309) [`5068c9ffc5cdb8b7240aa18158db6c62ad455944`](https://github.com/wevm/viem/commit/5068c9ffc5cdb8b7240aa18158db6c62ad455944) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `watchEvent` to pass `strict` to its `getLogs` fallback, so a `strict: true` watcher on an RPC Provider without filters no longer gets logs that do not match the event.
+
+## 2.57.11
+
+### Patch Changes
+
+- [#5274](https://github.com/wevm/viem/pull/5274) [`bea62b141a437cfd4027be182e94ae9b7a56fcf1`](https://github.com/wevm/viem/commit/bea62b141a437cfd4027be182e94ae9b7a56fcf1) Thanks [@mmv08](https://github.com/mmv08)! - Changed the default `cacheTime` to the shorter of `pollingInterval` and half of `chain.blockTime`, so block numbers are cached for at most half a block and a long `pollingInterval` no longer lengthens the cache.
+
+- [#5245](https://github.com/wevm/viem/pull/5245) [`f4da1f6384a2bec09d81164a9bd953c159acdcd6`](https://github.com/wevm/viem/commit/f4da1f6384a2bec09d81164a9bd953c159acdcd6) Thanks [@wavebyrd](https://github.com/wavebyrd)! - Fixed `watchEvent` so concurrent polling watchers on one client each honor their own `events` and `strict` instead of sharing the first watcher's filter.
+
+- [#5253](https://github.com/wevm/viem/pull/5253) [`94e5c08e73f3627f3b99660d4498344f976707c2`](https://github.com/wevm/viem/commit/94e5c08e73f3627f3b99660d4498344f976707c2) Thanks [@decofe](https://github.com/decofe)! - Increased the base fee multiplier to 2 for HyperEVM mainnet and testnet to provide more headroom for fee increases.
+
+- [#5247](https://github.com/wevm/viem/pull/5247) [`d65dff84a25d3c89352610bd23d29dc8d773a48a`](https://github.com/wevm/viem/commit/d65dff84a25d3c89352610bd23d29dc8d773a48a) Thanks [@clippytool](https://github.com/clippytool)! - Fixed `waitForTransactionReceipt` leaving a listener behind for concurrent calls with the same options, which made later waits for the same hash join an observer that was no longer polling and never settle.
+
+- [#5250](https://github.com/wevm/viem/pull/5250) [`2d54066f114a10ad9a05871c321a8d2e9d49445d`](https://github.com/wevm/viem/commit/2d54066f114a10ad9a05871c321a8d2e9d49445d) Thanks [@RaphaelFakhri](https://github.com/RaphaelFakhri)! - Fixed `getEnsAvatar` returning `null` for inline SVG avatars containing non-Latin-1 characters (e.g. `é` or emoji), and decoded base64 NFT metadata as UTF-8.
+
+- [#5273](https://github.com/wevm/viem/pull/5273) [`ef92315ab2139aee63f9222634109f5bb48c69e8`](https://github.com/wevm/viem/commit/ef92315ab2139aee63f9222634109f5bb48c69e8) Thanks [@mmv08](https://github.com/mmv08)! - Updated `monad` and `monadTestnet` `blockTime` to 300 ms.
+
+- [#5244](https://github.com/wevm/viem/pull/5244) [`55ee45c4d9573badcdc76ef6d39de294bfe8184b`](https://github.com/wevm/viem/commit/55ee45c4d9573badcdc76ef6d39de294bfe8184b) Thanks [@erkancamli](https://github.com/erkancamli)! - Fixed `nonceManager` handing out a duplicate nonce when the previously consumed nonce was `0`.
+
+- [#5267](https://github.com/wevm/viem/pull/5267) [`4ae58f6135c77b5afeb70c19af237d6a3bd127a6`](https://github.com/wevm/viem/commit/4ae58f6135c77b5afeb70c19af237d6a3bd127a6) Thanks [@struong](https://github.com/struong)! - `viem/tempo`: Fixed `prepareTransactionRequest` defaulting `nonce` to `0` for `nonceKey: 0n`. The protocol nonce key now fills `nonce` from the account's transaction count or `nonceManager`.
+
+- [#5269](https://github.com/wevm/viem/pull/5269) [`3b9afb2219498bd338f136f505e3770589a8404e`](https://github.com/wevm/viem/commit/3b9afb2219498bd338f136f505e3770589a8404e) Thanks [@jxom](https://github.com/jxom)! - Exported the `FeePayerTransport` and `RelayTransport` types from `viem/tempo`, so declaration emit can name the transports that `withFeePayer` and `withRelay` return.
+
+- [#5275](https://github.com/wevm/viem/pull/5275) [`7315f38a32e83d489d412a73225afd8a3d9f614d`](https://github.com/wevm/viem/commit/7315f38a32e83d489d412a73225afd8a3d9f614d) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `getTransactionConfirmations` returning `0n` or a negative number for a transaction already in a block, when the block number it read was lower than the transaction's block number.
+
+- [#5266](https://github.com/wevm/viem/pull/5266) [`6834ec45211b8b38167950c6a9a5f5d3c1406c47`](https://github.com/wevm/viem/commit/6834ec45211b8b38167950c6a9a5f5d3c1406c47) Thanks [@bxpana](https://github.com/bxpana)! - Added ZKsync Era Testnet chain.
+
+## 2.57.10
+
+### Patch Changes
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `Actions.accounts.upgrade` and `Actions.accounts.upgradeSync` to upgrade an existing account to a configurable account in place ([TIP-1113](https://tips.sh/1113)), and an `upgrade` form of `Account.fromConfig` for the upgraded account.
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added the `configurable` key type to `Actions.accessKey.getMetadata` and execution error messages for configurable account upgrades and retired root keys.
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Synced configurable accounts with Tempo T14, renaming the `nativeMultisig` ABI, address and selector exports to `configurableAccount`, sending `configurableAccountSimulation` to the node, deriving configurable account addresses and signatures with the `tempo:configurable-account:*` domains, and storing relay state under `configurableAccount:*` store keys.
+
+  ```diff
+  - Abis.nativeMultisig
+  + Abis.configurableAccount
+  - Addresses.nativeMultisig
+  + Addresses.configurableAccount
+  - Addresses.nativeMultisigFactory
+  + Addresses.configurableAccountRecoveryFactory
+  - Selectors.nativeMultisig
+  + Selectors.configurableAccount
+  ```
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `Actions.accounts.deriveAccount` and `Actions.accounts.verifyHash` for the configurable account precompiles, configurable account signature support in `verifyHash`, and a `factory` option on `Account.fromConfig` that defaults to `Addresses.configurableAccountRecoveryFactory`.
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added hardforks `t7` through `t14` and fixed `Hardfork.lt` treating unknown hardforks as older than every known hardfork.
+
+## 2.57.9
+
+### Patch Changes
+
+- [#5258](https://github.com/wevm/viem/pull/5258) [`13c03860b3688153af22368ba42709955880edfc`](https://github.com/wevm/viem/commit/13c03860b3688153af22368ba42709955880edfc) Thanks [@jxom](https://github.com/jxom)! - Fixed `getPortalVersion` and `supportsExecutionMode` sharing cached results across Clients.
+
+- [#5258](https://github.com/wevm/viem/pull/5258) [`13c03860b3688153af22368ba42709955880edfc`](https://github.com/wevm/viem/commit/13c03860b3688153af22368ba42709955880edfc) Thanks [@jxom](https://github.com/jxom)! - Added `client.scope` for creating a Client, memoized per `signal`, that does not share in-flight requests, cached values, or request batches with other Clients.
+
+  ```ts
+  const scoped = client.scope({ signal: request.signal });
+  const blockNumber = await scoped.getBlockNumber();
+  ```
+
+- [#5258](https://github.com/wevm/viem/pull/5258) [`13c03860b3688153af22368ba42709955880edfc`](https://github.com/wevm/viem/commit/13c03860b3688153af22368ba42709955880edfc) Thanks [@jxom](https://github.com/jxom)! - Fixed `fallback` dropping the request `signal` before calling its Transports.
+
+- [#5258](https://github.com/wevm/viem/pull/5258) [`13c03860b3688153af22368ba42709955880edfc`](https://github.com/wevm/viem/commit/13c03860b3688153af22368ba42709955880edfc) Thanks [@jxom](https://github.com/jxom)! - Fixed requests with an aborted `signal` staying pending on Transports that ignore the signal.
+
+## 2.57.8
+
+### Patch Changes
+
+- [#5239](https://github.com/wevm/viem/pull/5239) [`a97d64c1d401f2bdfb8c549cff6c4a4732d465be`](https://github.com/wevm/viem/commit/a97d64c1d401f2bdfb8c549cff6c4a4732d465be) Thanks [@erkancamli](https://github.com/erkancamli)! - Fixed `getEnsAvatar` substituting the `{id}` placeholder of ERC-1155 metadata URIs with the raw token ID instead of its lowercase, zero-padded hexadecimal form.
+
+- [#5238](https://github.com/wevm/viem/pull/5238) [`8b685f84ca257c1558bf3735dbd3c9e7acf19f5b`](https://github.com/wevm/viem/commit/8b685f84ca257c1558bf3735dbd3c9e7acf19f5b) Thanks [@Iamsohungrynow](https://github.com/Iamsohungrynow)! - Fixed `encodeEventTopics` and `parseEventLogs` hashing an indexed `string` arg as raw bytes instead of UTF-8 when the string looked like hex (e.g. `0x1234`).
+
+- [#5240](https://github.com/wevm/viem/pull/5240) [`323c9fda96b89e941c046fd51f5d9b4e98aab5cb`](https://github.com/wevm/viem/commit/323c9fda96b89e941c046fd51f5d9b4e98aab5cb) Thanks [@wavebyrd](https://github.com/wavebyrd)! - Fixed an issue where an empty `version` on `EIP712Domain` would generate the wrong signature.
+
+- [#5241](https://github.com/wevm/viem/pull/5241) [`da50caabd9df56fb0a4a6d8e71d28325a806cb36`](https://github.com/wevm/viem/commit/da50caabd9df56fb0a4a6d8e71d28325a806cb36) Thanks [@ksrr9351](https://github.com/ksrr9351)! - Added RWA Chain and RWA Chain Sepolia chains.
+
+- [#5236](https://github.com/wevm/viem/pull/5236) [`72950dd9442df72fbcb78a3949a778c9bfc78f8d`](https://github.com/wevm/viem/commit/72950dd9442df72fbcb78a3949a778c9bfc78f8d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Hardened `Relay` sponsorship.
+
+- [#5243](https://github.com/wevm/viem/pull/5243) [`2be950705bead4672b1b65852120fd0bfed2f9de`](https://github.com/wevm/viem/commit/2be950705bead4672b1b65852120fd0bfed2f9de) Thanks [@Slokh](https://github.com/Slokh)! - Added a `transactionReplacement` chain config hook to `waitForTransactionReceipt`. Fixed `viem/tempo` replacement detection to respect nonce slots, so expiring-nonce waits no longer resolve to an earlier transaction's receipt.
+
+## 2.57.7
+
+### Patch Changes
+
+- [#5232](https://github.com/wevm/viem/pull/5232) [`d302ad053a31806644c39229423c58978dca8785`](https://github.com/wevm/viem/commit/d302ad053a31806644c39229423c58978dca8785) Thanks [@mattsse](https://github.com/mattsse)! - Fixed `prepareTransactionRequest` to preserve relay-filled `validBefore` and `validAfter` bounds so sponsored Tempo transactions retain a valid fee-payer signature.
+
+## 2.57.6
+
+### Patch Changes
+
+- [#5228](https://github.com/wevm/viem/pull/5228) [`b86b380b55928d6c5785cef1ddc9adf595fbe078`](https://github.com/wevm/viem/commit/b86b380b55928d6c5785cef1ddc9adf595fbe078) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added typed `TempoExecutionError` errors to Tempo actions, with per-module subclasses carrying decoded arguments, fetched onchain details, and resolution hints.
+
+- [#5226](https://github.com/wevm/viem/pull/5226) [`5a022d8b08d6b2d11e171fa11e4acea454c09a04`](https://github.com/wevm/viem/commit/5a022d8b08d6b2d11e171fa11e4acea454c09a04) Thanks [@jxom](https://github.com/jxom)! - Added the `ousd` token address to `Addresses` in `viem/tempo`.
+
+## 2.57.5
+
+### Patch Changes
+
+- [#5193](https://github.com/wevm/viem/pull/5193) [`41f75635dd04b6bbcc51a91180b708caf3273c0f`](https://github.com/wevm/viem/commit/41f75635dd04b6bbcc51a91180b708caf3273c0f) Thanks [@ironoa](https://github.com/ironoa)! - Added QMS Testnet chain.
+
+- [#5202](https://github.com/wevm/viem/pull/5202) [`6501d059faac4f92cadc0099f67cf3fcc6aa6f4f`](https://github.com/wevm/viem/commit/6501d059faac4f92cadc0099f67cf3fcc6aa6f4f) Thanks [@Blessing-Circle](https://github.com/Blessing-Circle)! - Updated Arc Testnet RPC and block explorer URLs from `arc.network` to `arc.io`.
+
+- [#5196](https://github.com/wevm/viem/pull/5196) [`cae835c03cea2d13e2d36b76805010e45c0f6b99`](https://github.com/wevm/viem/commit/cae835c03cea2d13e2d36b76805010e45c0f6b99) Thanks [@Kshot3000](https://github.com/Kshot3000)! - Fixed `waitForCallsStatus` resolving concurrent waits with the first call's options and hanging on a later wait for the same id after concurrent waits had settled.
+
+- [#5200](https://github.com/wevm/viem/pull/5200) [`a8f8a0786145728510f972c8feb2f9736cad6c07`](https://github.com/wevm/viem/commit/a8f8a0786145728510f972c8feb2f9736cad6c07) Thanks [@Ernesto-tha-great](https://github.com/Ernesto-tha-great)! - Fixed the `http` transport `timeout` not applying while the response body is read, or when the request is given an abort `signal`.
+
+- [#5220](https://github.com/wevm/viem/pull/5220) [`9285d18b18292c21c4288f02e2e91f375049a5da`](https://github.com/wevm/viem/commit/9285d18b18292c21c4288f02e2e91f375049a5da) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Changed `KeyAuthorizationManager.from` to build the manager from a `Store` instead of a custom `get`/`set`/`remove` source.
+
+- [#5201](https://github.com/wevm/viem/pull/5201) [`0c504acc549bf488c70ea93fd444bea251dcee87`](https://github.com/wevm/viem/commit/0c504acc549bf488c70ea93fd444bea251dcee87) Thanks [@ara-stock](https://github.com/ara-stock)! - Fixed `normalizeSignature` (and `toFunctionSelector`, `toEventSelector`, `toSignature`) dropping the first parameter when a space directly follows an opening parenthesis (e.g. `function foo( uint256 a )`).
+
+- [#5192](https://github.com/wevm/viem/pull/5192) [`700a6855a9139dfed72e9c7ee2e527775962a31b`](https://github.com/wevm/viem/commit/700a6855a9139dfed72e9c7ee2e527775962a31b) Thanks [@frontier159](https://github.com/frontier159)! - Fixed `waitForTransactionReceipt` missing a replacement transaction, or reporting a repriced one as `replaced`, when the RPC returned addresses in a different case than for the replaced transaction.
+
+- [#5214](https://github.com/wevm/viem/pull/5214) [`0dc5f580bbff294837237dd2793c666101cda91c`](https://github.com/wevm/viem/commit/0dc5f580bbff294837237dd2793c666101cda91c) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added the `Relay.keyAuthorization` plugin to `viem/tempo`, which saves key authorizations signed with `Actions.accessKey.signAuthorization` (including configurable account authorizations at quorum) and attaches them to the access key's next transaction, and added `Actions.accessKey.saveAuthorization` for authorizations signed elsewhere.
+
+- [#5213](https://github.com/wevm/viem/pull/5213) [`dd7369899c45e78a0a5278cc207d425337e563c8`](https://github.com/wevm/viem/commit/dd7369899c45e78a0a5278cc207d425337e563c8) Thanks [@EperezOk](https://github.com/EperezOk)! - Fixed `unsubscribe()` on `webSocket` and `ipc` transports using a stale subscription id after a reconnect, which leaked the subscription.
+
+- [#5216](https://github.com/wevm/viem/pull/5216) [`0872b534d3d6217a64530e526e7c9c2a7751d44c`](https://github.com/wevm/viem/commit/0872b534d3d6217a64530e526e7c9c2a7751d44c) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Renamed experimental native multisig APIs to configurable accounts ([TIP-1107](https://tips.sh/1107)).
+
+- [#5221](https://github.com/wevm/viem/pull/5221) [`21205c90f4b4c695c0db8a47a97f4130c85d327e`](https://github.com/wevm/viem/commit/21205c90f4b4c695c0db8a47a97f4130c85d327e) Thanks [@Slokh](https://github.com/Slokh)! - Updated the Tempo mainnet and testnet Earn factory addresses to the latest releases.
+
+## 2.57.4
+
+### Patch Changes
+
+- [#5204](https://github.com/wevm/viem/pull/5204) [`9adede02f2a5d171b8302e5671c3e4f70789fb57`](https://github.com/wevm/viem/commit/9adede02f2a5d171b8302e5671c3e4f70789fb57) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.54`, which keeps absent Tempo key-authorization `limits` (unlimited) distinct from an empty list (deny-all).
+
+- [#5190](https://github.com/wevm/viem/pull/5190) [`2149aa18fc0363e702c81b95e0759c1f171eaace`](https://github.com/wevm/viem/commit/2149aa18fc0363e702c81b95e0759c1f171eaace) Thanks [@struong](https://github.com/struong)! - Added the current Tempo ZoneInbox ABI, selectors, and predeploy address for reading deposit outcomes.
+
+## 2.57.3
+
+### Patch Changes
+
+- [#5180](https://github.com/wevm/viem/pull/5180) [`031f5e2445031fed4328f32cb201f779b9101265`](https://github.com/wevm/viem/commit/031f5e2445031fed4328f32cb201f779b9101265) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendCalls` with `experimental_fallback` enabled to recognize Base RPC's unsupported-method response.
+
+- [#5168](https://github.com/wevm/viem/pull/5168) [`d6f63b57b4cc9b93654ca20f848b46a1080551d3`](https://github.com/wevm/viem/commit/d6f63b57b4cc9b93654ca20f848b46a1080551d3) Thanks [@bearpong](https://github.com/bearpong)! - Fixed `getContractError` throwing when an error cause is not an object.
+
+- [#5173](https://github.com/wevm/viem/pull/5173) [`26d5bd227ba532ceff83bd76e807ea605c703e8b`](https://github.com/wevm/viem/commit/26d5bd227ba532ceff83bd76e807ea605c703e8b) Thanks [@jxom](https://github.com/jxom)! - Updated automatic relay fee-token selection to skip tokens without fee AMM liquidity in the existing preflight request.
+
+- [#5171](https://github.com/wevm/viem/pull/5171) [`bbd9c15a1de604cc4948f6033456c7f7f15a5f9a`](https://github.com/wevm/viem/commit/bbd9c15a1de604cc4948f6033456c7f7f15a5f9a) Thanks [@Iretse](https://github.com/Iretse)! - Fixed IPC response framing for JSON strings containing braces and escaped quotes.
+
+- [#5160](https://github.com/wevm/viem/pull/5160) [`ed89bfdf5c4595fbd7b38346c8dfb7b1250dbfcb`](https://github.com/wevm/viem/commit/ed89bfdf5c4595fbd7b38346c8dfb7b1250dbfcb) Thanks [@KJdayo](https://github.com/KJdayo)! - Updated Jasmy Chain and Jasmy Chain Testnet RPC URLs (`rpc.jasmyscan.net` / `jasmy-chain-testnet.alt.technology`) and added their block explorers.
+
+- [#5179](https://github.com/wevm/viem/pull/5179) [`60951cb0166d8f55615294b2b71de4c3526128e9`](https://github.com/wevm/viem/commit/60951cb0166d8f55615294b2b71de4c3526128e9) Thanks [@jxom](https://github.com/jxom)! - Fixed `waitForTransactionReceipt` treating the awaited transaction as its own replacement when its receipt was unavailable.
+
+- [#5172](https://github.com/wevm/viem/pull/5172) [`69e9facaba86a4a171b473fdc19419b12ff4ed74`](https://github.com/wevm/viem/commit/69e9facaba86a4a171b473fdc19419b12ff4ed74) Thanks [@Iretse](https://github.com/Iretse)! - Fixed retention of timed-out IPC and WebSocket request callbacks.
+
+- [#5176](https://github.com/wevm/viem/pull/5176) [`2f97c5e1639969179e76ea61f5b10641f6f101f8`](https://github.com/wevm/viem/commit/2f97c5e1639969179e76ea61f5b10641f6f101f8) Thanks [@Kshot3000](https://github.com/Kshot3000)! - Fixed `waitForUserOperationReceipt` hanging until timeout on a later call for the same hash after concurrent calls for that hash had settled.
+
+## 2.57.2
+
+### Patch Changes
+
+- [#5157](https://github.com/wevm/viem/pull/5157) [`bc45023eb72279e225ed924ac93e4aae1589356c`](https://github.com/wevm/viem/commit/bc45023eb72279e225ed924ac93e4aae1589356c) Thanks [@myfxpaddy](https://github.com/myfxpaddy)! - Added CRYMAD Chain and CRYMAD Chain L2 chains.
+
+- [#5162](https://github.com/wevm/viem/pull/5162) [`cf4591306183f1622b376115cd4ed077b8fffb34`](https://github.com/wevm/viem/commit/cf4591306183f1622b376115cd4ed077b8fffb34) Thanks [@tmm](https://github.com/tmm)! - Marked Open USD as popular in its token definition and included it in `tokens.popular`.
+
+- [#5166](https://github.com/wevm/viem/pull/5166) [`f9f9d1bc0bc9d7fa116a164cf9deceadfe5f35a8`](https://github.com/wevm/viem/commit/f9f9d1bc0bc9d7fa116a164cf9deceadfe5f35a8) Thanks [@decofe](https://github.com/decofe)! - Added `from` to Tempo `token.burn` and `token.burnSync` to burn from another address via TIP-1006 `burnAt` (T12), and synced Tempo ABIs.
+
+- [#5156](https://github.com/wevm/viem/pull/5156) [`3f38e899dca519598165091c363faa9c884630bd`](https://github.com/wevm/viem/commit/3f38e899dca519598165091c363faa9c884630bd) Thanks [@decofe](https://github.com/decofe)! - Fixed the Tempo preparation hook to preserve explicitly supplied expiring nonces for TIP-1106.
+
+## 2.57.1
+
+### Patch Changes
+
+- [#5151](https://github.com/wevm/viem/pull/5151) [`93ea7b3928b41929e5e8b1116937c0caf4f2606f`](https://github.com/wevm/viem/commit/93ea7b3928b41929e5e8b1116937c0caf4f2606f) Thanks [@tmm](https://github.com/tmm)! - Added Open USD (OUSD) token support on Ethereum, Tempo, and Base.
+
+## 2.57.0
+
+### Minor Changes
+
+- [#5138](https://github.com/wevm/viem/pull/5138) [`6599af365a27476c9f9b7b6f2950941709807393`](https://github.com/wevm/viem/commit/6599af365a27476c9f9b7b6f2950941709807393) Thanks [@jxom](https://github.com/jxom)! - Added `createClientResolver` to lazily resolve and cache typed clients across configured chains using a transport map or callback.
+
+- [#5140](https://github.com/wevm/viem/pull/5140) [`8a5ef5b06400530e7a45b6b52ed01e49c42f34dd`](https://github.com/wevm/viem/commit/8a5ef5b06400530e7a45b6b52ed01e49c42f34dd) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added a Relay RPC handler with a composable plugin mechanism.
+
+  ```ts
+  import { createClient, Relay, Store } from "viem/tempo";
+
+  const relay = Relay.create({
+    client: createClient(),
+    plugins: [
+      Relay.multisig({ store: Store.memory() }),
+      Relay.simulate(),
+      Relay.feePayer(),
+      Relay.feeToken(),
+    ],
+  });
+
+  export default { fetch: relay.fetch };
+  ```
+
+### Patch Changes
+
+- [#5136](https://github.com/wevm/viem/pull/5136) [`d3b492aa4769a8fe05177799e3983bea2ae650ec`](https://github.com/wevm/viem/commit/d3b492aa4769a8fe05177799e3983bea2ae650ec) Thanks [@Lukecele](https://github.com/Lukecele)! - Added Kortana chain.
+
+- [#5128](https://github.com/wevm/viem/pull/5128) [`51f9ad9595507c3a5032254b3bc1ed342af2ba68`](https://github.com/wevm/viem/commit/51f9ad9595507c3a5032254b3bc1ed342af2ba68) Thanks [@cryptocandyio](https://github.com/cryptocandyio)! - Added CandyChain.
+
+- [#5133](https://github.com/wevm/viem/pull/5133) [`1106809071cea88eca868262ee7bab8a82081338`](https://github.com/wevm/viem/commit/1106809071cea88eca868262ee7bab8a82081338) Thanks [@garywilson87](https://github.com/garywilson87)! - Added the BlockDAG chain definition.
+
+- [#5145](https://github.com/wevm/viem/pull/5145) [`f0bf794c2903663c8cf4c006ba1598bab6075ec1`](https://github.com/wevm/viem/commit/f0bf794c2903663c8cf4c006ba1598bab6075ec1) Thanks [@fe-dudu](https://github.com/fe-dudu)! - Updated the Multicall3 deployment metadata for Creditcoin Devnet, Testnet, and Mainnet.
+
+- [#5130](https://github.com/wevm/viem/pull/5130) [`33e3777a5291ec3553efcde025cf5d6037960002`](https://github.com/wevm/viem/commit/33e3777a5291ec3553efcde025cf5d6037960002) Thanks [@HereForTheTechNFT](https://github.com/HereForTheTechNFT)! - Fixed `getGame`, `getGames`, `getTimeToNextGame` and `getTimeToNextL2Output` to treat a dispute game (or L2 output) at exactly the requested L2 block number as covering it.
+
+- [#5132](https://github.com/wevm/viem/pull/5132) [`e713dba3b7e2751457952dc2ed6fde1fca2fbfeb`](https://github.com/wevm/viem/commit/e713dba3b7e2751457952dc2ed6fde1fca2fbfeb) Thanks [@gjija](https://github.com/gjija)! - Fixed `parseSiweMessage` losing or truncating `resources` when `Resources:` appeared in the statement, URI, Request ID or a resource.
+
+- [#5142](https://github.com/wevm/viem/pull/5142) [`e65f6640031af871622a4929d58a1593695c488c`](https://github.com/wevm/viem/commit/e65f6640031af871622a4929d58a1593695c488c) Thanks [@rubenmarcus](https://github.com/rubenmarcus)! - Fixed `waitForTransactionReceipt` so concurrent calls for the same hash on one client each honor their own `timeout`, `confirmations`, `pollingInterval`, `retryCount` and `checkReplacement` instead of inheriting the first call's options.
+
+## 2.56.9
+
+### Patch Changes
+
+- [#5123](https://github.com/wevm/viem/pull/5123) [`2068265d2fefb41da2ca672f7b8ef0d221efdbde`](https://github.com/wevm/viem/commit/2068265d2fefb41da2ca672f7b8ef0d221efdbde) Thanks [@rabbitmainnet](https://github.com/rabbitmainnet)! - Added Rabbit Chain Testnet (chain ID 9280) to `viem/chains`.
+
+- [#5124](https://github.com/wevm/viem/pull/5124) [`4767ff7be7aed3845b617f8b16806d72469ea657`](https://github.com/wevm/viem/commit/4767ff7be7aed3845b617f8b16806d72469ea657) Thanks [@kyscott18](https://github.com/kyscott18)! - Added the `getStorageValues` action for batch retrieval of contract storage slots.
+
+- [#5108](https://github.com/wevm/viem/pull/5108) [`5a201d9a5996a836023bdb676c8d7c0f43f9c8fa`](https://github.com/wevm/viem/commit/5a201d9a5996a836023bdb676c8d7c0f43f9c8fa) Thanks [@Lukecele](https://github.com/Lukecele)! - Added Plasma mainnet addresses for USDC and EURC.
+
+- [#5114](https://github.com/wevm/viem/pull/5114) [`de663c98de19da2ffccdd1681fd616e6ed653b98`](https://github.com/wevm/viem/commit/de663c98de19da2ffccdd1681fd616e6ed653b98) Thanks [@jxom](https://github.com/jxom)! - Resynced Tempo contract ABIs and added the current committee address.
+
+  ```diff
+   // Abis.earnMerkleRewardDistributor contract calls
+  -functionName: 'fundWithAssets',
+  -args: [funder, assets, minEarnShares],
+  +functionName: 'fundAndPublishRoot',
+  +args: [settlementId, expectedRootVersion, funder, assets, minEarnShares, root, totalEntitlement, statementHash],
+
+   functionName: 'publishRoot',
+  -args: [root, totalEntitlement, statementHash],
+  +args: [expectedRootVersion, root, totalEntitlement, statementHash],
+
+  -const verifierAbi = Abis.zone
+  +const verifierAbi = Abis.core
+
+  -const selector = Selectors.zoneVerifier.verify
+  +const selector = Selectors.zoneVerifier.verify[
+  +  'verify(uint32,uint64,uint64,bytes32,uint64,(bytes32,bytes32),(bytes32,bytes32,uint64,uint64),bytes32,bytes,bytes)'
+  +]
+  ```
+
+- [#5112](https://github.com/wevm/viem/pull/5112) [`c704647d93ed5eaabe3ca9e22fdd4f7e9132b641`](https://github.com/wevm/viem/commit/c704647d93ed5eaabe3ca9e22fdd4f7e9132b641) Thanks [@spalladino](https://github.com/spalladino)! - Added optional `maxUsedGas` to `simulateBlocks` call results, preserving the per-call `maxUsedGas` reported by `eth_simulateV1`.
+
+  `maxUsedGas` is the node's measurement of the gas used by a call before gas refunds are applied – it is not a guaranteed minimum sufficient gas limit for the call. It is `undefined` against nodes that do not report it, and is available on both successful and failed call results.
+
+- [#5126](https://github.com/wevm/viem/pull/5126) [`6feacb3a9066b47d3f083a0da0da2d8172577870`](https://github.com/wevm/viem/commit/6feacb3a9066b47d3f083a0da0da2d8172577870) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added PropAMM actions.
+
+## 2.56.8
+
+### Patch Changes
+
+- [#5110](https://github.com/wevm/viem/pull/5110) [`f54b9d3e9d89dfc750525d57c9fd83ce0157aca1`](https://github.com/wevm/viem/commit/f54b9d3e9d89dfc750525d57c9fd83ce0157aca1) Thanks [@jxom](https://github.com/jxom)! - Fixed declaration inference for exported Tempo chains by preserving named formatter return types.
+
+## 2.56.7
+
+### Patch Changes
+
+- [#5098](https://github.com/wevm/viem/pull/5098) [`5a6b1e8ef72b8eabd237e0b3bb836108dc3654da`](https://github.com/wevm/viem/commit/5a6b1e8ef72b8eabd237e0b3bb836108dc3654da) Thanks [@deepakansh11nov](https://github.com/deepakansh11nov)! - Added E Canna Mainnet (4111) and E Canna Testnet (4112).
+
+- [#5106](https://github.com/wevm/viem/pull/5106) [`ed37560943385e6636153c0d8db7ac81f2013757`](https://github.com/wevm/viem/commit/ed37560943385e6636153c0d8db7ac81f2013757) Thanks [@hjchen-circle](https://github.com/hjchen-circle)! - Added Arc mainnet addresses for EURC and cirBTC.
+
+- [#5107](https://github.com/wevm/viem/pull/5107) [`1dfad6e684d635b5775812a219dc27b51ee4a081`](https://github.com/wevm/viem/commit/1dfad6e684d635b5775812a219dc27b51ee4a081) Thanks [@jxom](https://github.com/jxom)! - Updated experimental multisig for the latest protocol, including recovery-factory addresses, initial config caching, and primitive-only approvals.
+
+- [#5093](https://github.com/wevm/viem/pull/5093) [`6b4be93c6e95cab9ec47079c10df1d91d8cffc99`](https://github.com/wevm/viem/commit/6b4be93c6e95cab9ec47079c10df1d91d8cffc99) Thanks [@canopyhub](https://github.com/canopyhub)! - Added OrdoFi public RPC (HTTP + WebSocket) to Robinhood Chain.
+
+- [#5097](https://github.com/wevm/viem/pull/5097) [`f43b66920158db6a2093e9982957d5f5f2a09408`](https://github.com/wevm/viem/commit/f43b66920158db6a2093e9982957d5f5f2a09408) Thanks [@2bsrwjskys-coder](https://github.com/2bsrwjskys-coder)! - Added Zagros chain.
+
+## 2.56.6
+
+### Patch Changes
+
+- [#5094](https://github.com/wevm/viem/pull/5094) [`e80a7b1979439a3130d3f12b1d92d42379fd557a`](https://github.com/wevm/viem/commit/e80a7b1979439a3130d3f12b1d92d42379fd557a) Thanks [@0xjohnk](https://github.com/0xjohnk)! - Added public RPC, block explorer, Multicall3, and USDC address metadata to Arc.
+
+- [#5063](https://github.com/wevm/viem/pull/5063) [`e38289c13777a3da75cca0549e4aa694884f456d`](https://github.com/wevm/viem/commit/e38289c13777a3da75cca0549e4aa694884f456d) Thanks [@nicknixcape](https://github.com/nicknixcape)! - Added HyveChain.
+
+- [#5096](https://github.com/wevm/viem/pull/5096) [`ee4489f4ebd0b9bdb6acb66b8e7b835616601ad5`](https://github.com/wevm/viem/commit/ee4489f4ebd0b9bdb6acb66b8e7b835616601ad5) Thanks [@jxom](https://github.com/jxom)! - Limited token balance and metadata probe gas to prevent failing candidates from exhausting the `simulateCalls` asset-tracing gas budget.
+
+- [#5083](https://github.com/wevm/viem/pull/5083) [`83c47e96f39c2838da74f1d34f78c16313e29390`](https://github.com/wevm/viem/commit/83c47e96f39c2838da74f1d34f78c16313e29390) Thanks [@Eras256](https://github.com/Eras256)! - Fixed `shouldRetry` not retrying QuickNode's `-32007` rate-limit error code, mirroring the existing handling for the `429` (Alchemy) case.
+
+- [#5077](https://github.com/wevm/viem/pull/5077) [`b8c79781ecc7bb3c99e14a0e2164ea6245a00a30`](https://github.com/wevm/viem/commit/b8c79781ecc7bb3c99e14a0e2164ea6245a00a30) Thanks [@dmytrozahumennov-wb](https://github.com/dmytrozahumennov-wb)! - Added `whitechainSepolia` to `viem/op-stack` chain exports.
+
+## 2.56.5
+
+### Patch Changes
+
+- [#5069](https://github.com/wevm/viem/pull/5069) [`86adf420cfb20721ff99aa5bf6e6c1017588d473`](https://github.com/wevm/viem/commit/86adf420cfb20721ff99aa5bf6e6c1017588d473) Thanks [@moyanghe-uniswap](https://github.com/moyanghe-uniswap)! - Fixed `stateOverride` being silently dropped by `estimateGas` in `viem/linea` — it was destructured into an unused rest object and never serialized onto the `linea_estimateGas` request, so overrides never reached the node.
+
+## 2.56.4
+
+### Patch Changes
+
+- [#5058](https://github.com/wevm/viem/pull/5058) [`307961495ce402adbbd31c793277850726308f82`](https://github.com/wevm/viem/commit/307961495ce402adbbd31c793277850726308f82) Thanks [@riba2534](https://github.com/riba2534)! - Fixed `getUserOperation` throwing `Cannot convert null to a BigInt` for pending User Operations, and made `blockHash`, `blockNumber`, and `transactionHash` nullable on its return value (as well as on `GetUserOperationByHashReturnType`) to reflect what Bundlers return while a User Operation is in the mempool.
+
+- [#5055](https://github.com/wevm/viem/pull/5055) [`5531c78f24039475d276fa34e6d7c9073b0abf35`](https://github.com/wevm/viem/commit/5531c78f24039475d276fa34e6d7c9073b0abf35) Thanks [@alexursol2](https://github.com/alexursol2)! - Added OP Stack configuration to the Whitechain Sepolia chain.
+
+- [#5056](https://github.com/wevm/viem/pull/5056) [`1a6076e582f596acba03b7cc28963a746bcce839`](https://github.com/wevm/viem/commit/1a6076e582f596acba03b7cc28963a746bcce839) Thanks [@struong](https://github.com/struong)! - Added canonical Earn factory addresses to the Tempo mainnet and testnet chain definitions and inferred them in Earn deployments.
+
+- [#5062](https://github.com/wevm/viem/pull/5062) [`200fbe123d897208d315242d5f6ceabdce503a08`](https://github.com/wevm/viem/commit/200fbe123d897208d315242d5f6ceabdce503a08) Thanks [@oliverboehm-xgr](https://github.com/oliverboehm-xgr)! - Added XGR Testnet chain.
+
+- [#5068](https://github.com/wevm/viem/pull/5068) [`3dd157b5305c9fb837752c74039d7571cc9d6ec0`](https://github.com/wevm/viem/commit/3dd157b5305c9fb837752c74039d7571cc9d6ec0) Thanks [@pucedoteth](https://github.com/pucedoteth)! - Fixed the SIWE scheme check accepting a comma. `[a-zA-Z0-9+-.]` reads `+-.` as a character range (`+` `,` `-` `.`), so `createSiweMessage` did not reject a scheme such as `ht,tps` despite validating against RFC 3986, and `parseSiweMessage` returned it as `scheme`.
+
+## 2.56.3
+
+### Patch Changes
+
+- [#5059](https://github.com/wevm/viem/pull/5059) [`e3de334a73bd06ee16ba6a1e30e1bb2cf94ea708`](https://github.com/wevm/viem/commit/e3de334a73bd06ee16ba6a1e30e1bb2cf94ea708) Thanks [@jxom](https://github.com/jxom)! - Made Tempo Zone return types portable across declaration-emitting projects.
+
+- [#5061](https://github.com/wevm/viem/pull/5061) [`1ba6aa3860bcbe2c1c51257b1a2c386d182507e7`](https://github.com/wevm/viem/commit/1ba6aa3860bcbe2c1c51257b1a2c386d182507e7) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added chain inference to `Multisig.handleRequest` downstream request options.
+
+## 2.56.2
+
+### Patch Changes
+
+- [#5042](https://github.com/wevm/viem/pull/5042) [`5df98198c47cb898ba35a1afcd2abd5d0cbcc371`](https://github.com/wevm/viem/commit/5df98198c47cb898ba35a1afcd2abd5d0cbcc371) Thanks [@Wagalidoom](https://github.com/Wagalidoom)! - Fixed `isHash` returning `true` for odd-length hex strings. `size` rounds odd-length hex up to the next whole byte, so a 63-character hex string reported a size of 32 and passed the check. `isHash` now validates the length directly.
+
+- [#4913](https://github.com/wevm/viem/pull/4913) [`ef4be8eb45abc773587abb1df7fd8791acf30413`](https://github.com/wevm/viem/commit/ef4be8eb45abc773587abb1df7fd8791acf30413) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed signed `hexToBigInt` and `hexToNumber` calls with odd-length hex values.
+
+- [#5029](https://github.com/wevm/viem/pull/5029) [`dd7d792dd84f57d1784af56058fe88d3149a44fb`](https://github.com/wevm/viem/commit/dd7d792dd84f57d1784af56058fe88d3149a44fb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added Multisig accounts.
+
+## 2.56.1
+
+### Patch Changes
+
+- [#5052](https://github.com/wevm/viem/pull/5052) [`e336a1d93a39063fb1883ba0a84b5d37f313a35a`](https://github.com/wevm/viem/commit/e336a1d93a39063fb1883ba0a84b5d37f313a35a) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed declaration emit for inferred Tempo chains.
+
+## 2.56.0
+
+### Minor Changes
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Renamed `Abis.abis` to `Abis.all` and expanded the aggregate with Earn and Zone ABIs.
+
+  ```diff
+  -const abis = Abis.abis
+  +const abis = Abis.all
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Moved Zone exports from `viem/tempo/zones` into `viem/tempo`.
+
+  ```diff
+  -import { Abis, Addresses, http, zoneModerato } from 'viem/tempo/zones'
+  +import { Abis, Addresses, http, Zone } from 'viem/tempo'
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Replaced curried Zone network factories with built-in Zone definitions and `Zone.from` for custom chains.
+
+  ```diff
+  -const zone = zoneModerato(6)
+  +const zone = Zone.a
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Replaced chain-specific Zone portal registries with deterministic `Addresses.zonePortal(id)` resolution for Zone IDs and chain IDs.
+
+  ```diff
+  -import { getPortalAddress } from 'viem/tempo/zones'
+  +import { Addresses, Zone } from 'viem/tempo'
+
+  -const portal = getPortalAddress(42_431, 7)
+  +const portal = Addresses.zonePortal(Zone.b.id)
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - Added selector maps for Zone portal, outbox, messenger, and verifier ABIs.
+
+  ```ts
+  import { Selectors } from "viem/tempo";
+
+  const selector = Selectors.zonePortal.admin;
+  ```
+
+### Patch Changes
+
+- [#5039](https://github.com/wevm/viem/pull/5039) [`e802c6b16e03c83d61c144d0b6388a21a8391a22`](https://github.com/wevm/viem/commit/e802c6b16e03c83d61c144d0b6388a21a8391a22) Thanks [@struong](https://github.com/struong)! - Replaced `tempo.earn.bindErc4626Engine` with the engine-agnostic `tempo.earn.bindEngine` action and added optional final ownership transfer.
+
+- [#5034](https://github.com/wevm/viem/pull/5034) [`b8707d998ab8c7d4ee95c9a70989cd6fbd145356`](https://github.com/wevm/viem/commit/b8707d998ab8c7d4ee95c9a70989cd6fbd145356) Thanks [@jxom](https://github.com/jxom)! - Added `zone.getPortalInfo` to read Zone Portal administration, sequencer, and token metadata.
+
+- [#5030](https://github.com/wevm/viem/pull/5030) [`901bf2f09b057e03f34067fdee6c3f6a2dae7bd3`](https://github.com/wevm/viem/commit/901bf2f09b057e03f34067fdee6c3f6a2dae7bd3) Thanks [@decofe](https://github.com/decofe)! - Added Zone protocol addresses, ZoneFactory registry reads, and ZonePortal administration operations to Tempo exports.
+
+- [#5028](https://github.com/wevm/viem/pull/5028) [`ffbf342ba3f5b312433ec927332f817b754fdafb`](https://github.com/wevm/viem/commit/ffbf342ba3f5b312433ec927332f817b754fdafb) Thanks [@codingwithmanny](https://github.com/codingwithmanny)! - Updated the Berachain Bepolia block explorer.
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - Added `Abis.core`, `Abis.earn`, and `Abis.zone` contract groups.
+
+- [#5044](https://github.com/wevm/viem/pull/5044) [`56a54cc3c80c5c774963be4f02d68c4b43e261d4`](https://github.com/wevm/viem/commit/56a54cc3c80c5c774963be4f02d68c4b43e261d4) Thanks [@decofe](https://github.com/decofe)! - Added the derived public key address to the `sequencerEncryptionKey` Zone Portal ABI output while preserving T10 encryption key reads.
+
+## 2.55.19
+
+### Patch Changes
+
+- [#5018](https://github.com/wevm/viem/pull/5018) [`abf0d746952176eadbe5c72d9d708863d9bbb97e`](https://github.com/wevm/viem/commit/abf0d746952176eadbe5c72d9d708863d9bbb97e) Thanks [@david9104online](https://github.com/david9104online)! - Added Morph Tachyon mainnet and testnet chains.
+
+- [#5022](https://github.com/wevm/viem/pull/5022) [`edfb7e7adf1398b26fb94ba47fe55331cb1f16a0`](https://github.com/wevm/viem/commit/edfb7e7adf1398b26fb94ba47fe55331cb1f16a0) Thanks [@jxom](https://github.com/jxom)! - Updated multisig implementation.
+
+- [#5017](https://github.com/wevm/viem/pull/5017) [`7aac99a43eddea3af4d511e5d6cfccb5a9caabc0`](https://github.com/wevm/viem/commit/7aac99a43eddea3af4d511e5d6cfccb5a9caabc0) Thanks [@JiahaoAlbus](https://github.com/JiahaoAlbus)! - Added YNX Testnet chain.
+
+## 2.55.18
+
+### Patch Changes
+
+- [#5016](https://github.com/wevm/viem/pull/5016) [`9244e27940675fa32b227d4ba845a0f574447e8a`](https://github.com/wevm/viem/commit/9244e27940675fa32b227d4ba845a0f574447e8a) Thanks [@struong](https://github.com/struong)! - **Breaking(viem/tempo)**: Renamed the Tempo Earn private entry recovery parameter from `recoveryRecipient` to `tempoRefundRecipient`.
+
+## 2.55.17
+
+### Patch Changes
+
+- [#5013](https://github.com/wevm/viem/pull/5013) [`70e7145dcc9c0442a68344cc9f115c63ecde2495`](https://github.com/wevm/viem/commit/70e7145dcc9c0442a68344cc9f115c63ecde2495) Thanks [@CheyneWeb3](https://github.com/CheyneWeb3)! - Added Haus Chain Testnet chain.
+
+- [#5012](https://github.com/wevm/viem/pull/5012) [`5e436053872805cd5db7c0ca504abb9296497025`](https://github.com/wevm/viem/commit/5e436053872805cd5db7c0ca504abb9296497025) Thanks [@struong](https://github.com/struong)! - Preserved filled transaction fields covered by a Tempo fee payer signature.
+
+- [#4290](https://github.com/wevm/viem/pull/4290) [`20dcc0675d26cf673ef473eeaafa424ba353e771`](https://github.com/wevm/viem/commit/20dcc0675d26cf673ef473eeaafa424ba353e771) Thanks [@Kemperino](https://github.com/Kemperino)! - Fixed Operator Fee estimation for Isthmus upgrade by using the `getOperatorFee` function from the Gas Price Oracle instead of manually computing from L1Block parameters.
+
+## 2.55.16
+
+### Patch Changes
+
+- [#4997](https://github.com/wevm/viem/pull/4997) [`0c4f19a354255ec5e7e159228df36f9c8714ce0a`](https://github.com/wevm/viem/commit/0c4f19a354255ec5e7e159228df36f9c8714ce0a) Thanks [@Ghadi8](https://github.com/Ghadi8)! - Fixed `simulateCalls` asset discovery across reverting, state-dependent, malformed, and newly deployed tokens while pinning stable block tags and isolating balance probes.
+
+- [#4990](https://github.com/wevm/viem/pull/4990) [`cd1d2d51849f78e20f09e4a26f4c0a20afa84bb4`](https://github.com/wevm/viem/commit/cd1d2d51849f78e20f09e4a26f4c0a20afa84bb4) Thanks [@SashaMIT](https://github.com/SashaMIT)! - Required EIP-4361 / RFC 3339 date-time strings and rejected invalid `time`.
+
+## 2.55.15
+
+### Patch Changes
+
+- [#5002](https://github.com/wevm/viem/pull/5002) [`8f7ef0435914133582633004d123eb2e5fe5a35b`](https://github.com/wevm/viem/commit/8f7ef0435914133582633004d123eb2e5fe5a35b) Thanks [@struong](https://github.com/struong)! - Bound encrypted Zone deposits to the parent-chain portal caller.
+
+## 2.55.14
+
+### Patch Changes
+
+- [#4999](https://github.com/wevm/viem/pull/4999) [`2d7e83757373a8333dd55a43080c5cd697065a80`](https://github.com/wevm/viem/commit/2d7e83757373a8333dd55a43080c5cd697065a80) Thanks [@jxom](https://github.com/jxom)! - Added `watchBlockHeaders` for emitting formatted subscription headers without refetching full blocks.
+
+  ```ts
+  watchBlockHeaders(client, { onBlockHeader });
+  ```
+
+## 2.55.13
+
+### Patch Changes
+
+- [#4967](https://github.com/wevm/viem/pull/4967) [`942c0d30586e44e0d09881a015742616f7b81b1e`](https://github.com/wevm/viem/commit/942c0d30586e44e0d09881a015742616f7b81b1e) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Avoid consuming sequential nonces when chain preparation selects an expiring nonce.
+
+- [#4980](https://github.com/wevm/viem/pull/4980) [`7b2f2275ac792e979bbed0abcd4c8543dd16cca7`](https://github.com/wevm/viem/commit/7b2f2275ac792e979bbed0abcd4c8543dd16cca7) Thanks [@struong](https://github.com/struong)! - Fixed Zone withdrawal sender tags to include the emitted fallback nonce.
+
+## 2.55.12
+
+### Patch Changes
+
+- [#4969](https://github.com/wevm/viem/pull/4969) [`1f34ba0f12278525ee61edc51b9e5e6eb37dab54`](https://github.com/wevm/viem/commit/1f34ba0f12278525ee61edc51b9e5e6eb37dab54) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Detected concurrent Tempo requests made with equivalent JSON-RPC address accounts.
+
+- [#4964](https://github.com/wevm/viem/pull/4964) [`3c193e3df0969001b08aacfa52c6bf8c718716b0`](https://github.com/wevm/viem/commit/3c193e3df0969001b08aacfa52c6bf8c718716b0) Thanks [@struong](https://github.com/struong)! - Added experimental Tempo Earn actions for deterministic ERC-4626 stack deployment and binding.
+
+- [#4968](https://github.com/wevm/viem/pull/4968) [`9e5c4ec260bc899d4e3015b1e338382ea62d8b86`](https://github.com/wevm/viem/commit/9e5c4ec260bc899d4e3015b1e338382ea62d8b86) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Detect concurrent Tempo requests before asynchronous access key preparation.
+
+- [#4966](https://github.com/wevm/viem/pull/4966) [`82684eaedddbc4117809b030cd358bf98a86594b`](https://github.com/wevm/viem/commit/82684eaedddbc4117809b030cd358bf98a86594b) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Allow relay-routed sponsorship fills to bypass unsupported fill state cached from non-sponsored requests.
+
+- [#4970](https://github.com/wevm/viem/pull/4970) [`c2602fc8dceea4c0318fd073dae3abac4fa12376`](https://github.com/wevm/viem/commit/c2602fc8dceea4c0318fd073dae3abac4fa12376) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Populate the required validity window for the numeric Tempo expiring nonce sentinel.
+
+## 2.55.11
+
+### Patch Changes
+
+- [#4949](https://github.com/wevm/viem/pull/4949) [`f05ae7eff8852cd4b4b117a5c5d77140bd26a8f6`](https://github.com/wevm/viem/commit/f05ae7eff8852cd4b4b117a5c5d77140bd26a8f6) Thanks [@grandpig](https://github.com/grandpig)! - Fixed `withRetry` hanging when `shouldRetry` or the retry delay callback throws.
+
+- [#4955](https://github.com/wevm/viem/pull/4955) [`87067c2fc2487967872582c1a0739b419612d5ee`](https://github.com/wevm/viem/commit/87067c2fc2487967872582c1a0739b419612d5ee) Thanks [@ShenWang-PiP](https://github.com/ShenWang-PiP)! - Updated the `story` (1514) and `storyAeneid` (1315) chains for the Story → Data rebrand: renamed to "Data Network" / "Data Network Aeneid", set the native currency to $DATA, the RPC URLs to `datarpc.io`, and the block explorer to `datanetscan.io`. Chain IDs and the `story` / `storyAeneid` exports are unchanged.
+
+- [#4958](https://github.com/wevm/viem/pull/4958) [`3fe8f4bef7688d4e76d112cf89846d66d272d17b`](https://github.com/wevm/viem/commit/3fe8f4bef7688d4e76d112cf89846d66d272d17b) Thanks [@struong](https://github.com/struong)! - Refreshed the experimental Tempo Earn interfaces and Zone router actions against the latest reviewed contract source.
+
+- [#4956](https://github.com/wevm/viem/pull/4956) [`3304d2ec8efdf4704cc1978c3beb3d7bdfb30016`](https://github.com/wevm/viem/commit/3304d2ec8efdf4704cc1978c3beb3d7bdfb30016) Thanks [@struong](https://github.com/struong)! - Respect explicit client multicall configuration when fetching Tempo token metadata.
+
+- [#4961](https://github.com/wevm/viem/pull/4961) [`fca3ff599e16172a86a9d1f6ce7057ea91246056`](https://github.com/wevm/viem/commit/fca3ff599e16172a86a9d1f6ce7057ea91246056) Thanks [@RezaRahemtola](https://github.com/RezaRahemtola)! - Rejected nonstandard `uint` and `int` aliases in `validateTypedData` to prevent noncanonical EIP-712 hashes.
+
+## 2.55.10
+
+### Patch Changes
+
+- [#4873](https://github.com/wevm/viem/pull/4873) [`ccdf9a02c14d569bfde9cd1840bea59548f798cf`](https://github.com/wevm/viem/commit/ccdf9a02c14d569bfde9cd1840bea59548f798cf) Thanks [@decofe](https://github.com/decofe)! - Added `Addresses.validatorV2` for the Tempo Validator Config V2 precompile.
+
+- [#4856](https://github.com/wevm/viem/pull/4856) [`109ef0f8af627131dfb055e99bf43ec06625199a`](https://github.com/wevm/viem/commit/109ef0f8af627131dfb055e99bf43ec06625199a) Thanks [@ibruno](https://github.com/ibruno)! - Updated Polygon Amoy's deprecated default RPC URL.
+
+- [#4900](https://github.com/wevm/viem/pull/4900) [`3b78e9b78f8052da0ed20be6264c35e39e7f62f9`](https://github.com/wevm/viem/commit/3b78e9b78f8052da0ed20be6264c35e39e7f62f9) Thanks [@cristianizzo](https://github.com/cristianizzo)! - Fixed `formatUserOperationRequest` encoding an EIP-7702 authorization `yParity` of `0` as a 32-byte zero value instead of `0x00`.
+
+- [#4846](https://github.com/wevm/viem/pull/4846) [`0e6c671284aa9530142ccb3b17f697807b423890`](https://github.com/wevm/viem/commit/0e6c671284aa9530142ccb3b17f697807b423890) Thanks [@m4ttw4n](https://github.com/m4ttw4n)! - Updated EDU Chain and EDU Chain Testnet RPC URLs, block explorer URLs, and added multicall3 contract to EDU Chain mainnet
+
+- [#4861](https://github.com/wevm/viem/pull/4861) [`31f47493a18f9699d0c2d3d78ad09204a870c8fd`](https://github.com/wevm/viem/commit/31f47493a18f9699d0c2d3d78ad09204a870c8fd) Thanks [@wriches](https://github.com/wriches)! - Updated 0G Testnet native currency to `0G` and 0G explorer names, per [ethereum-lists/chains](https://github.com/ethereum-lists/chains/blob/master/_data/chains/eip155-16602.json).
+
+- [#4862](https://github.com/wevm/viem/pull/4862) [`e5a4ac4e96859f3aaad1eab8dde67ef584917b22`](https://github.com/wevm/viem/commit/e5a4ac4e96859f3aaad1eab8dde67ef584917b22) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed `estimateFeesPerGas` (and `fillTransaction`) rounding the base fee multiplier up via `Math.ceil`, which overshot the intended value for multipliers such as `1.09` (applied as `1.1`) due to floating-point error. The multiplier is now recovered with `Math.round`.
+
+- [#4903](https://github.com/wevm/viem/pull/4903) [`a20fc674487d32640c1ea5b1422e2fddc53f7723`](https://github.com/wevm/viem/commit/a20fc674487d32640c1ea5b1422e2fddc53f7723) Thanks [@nishant-uxs](https://github.com/nishant-uxs)! - Fixed missing `{"type":"module"}` marker in the emitted `_types/` folder so declaration files resolve correctly under TypeScript `nodenext`.
+
+## 2.55.9
+
+### Patch Changes
+
+- [#4898](https://github.com/wevm/viem/pull/4898) [`4062bf5549e635f92de4a0cf70451ca6ea31704b`](https://github.com/wevm/viem/commit/4062bf5549e635f92de4a0cf70451ca6ea31704b) Thanks [@jxom](https://github.com/jxom)! - Updated Tempo Earn actions
+
+- [#4894](https://github.com/wevm/viem/pull/4894) [`efd29f713f5ebd1f385be03ae67c4da3471dc89c`](https://github.com/wevm/viem/commit/efd29f713f5ebd1f385be03ae67c4da3471dc89c) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.33`.
+
+## 2.55.8
+
+### Patch Changes
+
+- [#4890](https://github.com/wevm/viem/pull/4890) [`3078687aabea3064fc868f395114f41815895685`](https://github.com/wevm/viem/commit/3078687aabea3064fc868f395114f41815895685) Thanks [@parvahuja](https://github.com/parvahuja)! - `viem/tempo`: Fixed gas estimation for sponsored access key transactions prepared without gas.
+
+- [#4891](https://github.com/wevm/viem/pull/4891) [`c067f1a0c540afb54e27864b601064fb1c6e5249`](https://github.com/wevm/viem/commit/c067f1a0c540afb54e27864b601064fb1c6e5249) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added Zone E metadata, address registries, and Portal and Messenger contracts.
+
+- [#4891](https://github.com/wevm/viem/pull/4891) [`c067f1a0c540afb54e27864b601064fb1c6e5249`](https://github.com/wevm/viem/commit/c067f1a0c540afb54e27864b601064fb1c6e5249) Thanks [@jxom](https://github.com/jxom)! - **Breaking(viem/tempo)**: Removed `portalAddresses`.
+
+## 2.55.7
+
+### Patch Changes
+
+- [#4881](https://github.com/wevm/viem/pull/4881) [`34c30a01012e326682a1ef365ee6599b2510e9da`](https://github.com/wevm/viem/commit/34c30a01012e326682a1ef365ee6599b2510e9da) Thanks [@jxom](https://github.com/jxom)! - `tempo/viem`: Added earn actions
+
+- [#4888](https://github.com/wevm/viem/pull/4888) [`944a011e2edabfc4aa5ed59b8ee201486e0dc74b`](https://github.com/wevm/viem/commit/944a011e2edabfc4aa5ed59b8ee201486e0dc74b) Thanks [@jxom](https://github.com/jxom)! - Fixed `fromBlobs` misreading a `0x80` data byte at a blob boundary as the terminator.
+
+- [#4887](https://github.com/wevm/viem/pull/4887) [`b693174dde06dd322b6f88508fb37231d38b620b`](https://github.com/wevm/viem/commit/b693174dde06dd322b6f88508fb37231d38b620b) Thanks [@jxom](https://github.com/jxom)! - Fixed `bytesToBigInt` and `bytesToNumber` (and `fromBytes` with `to: "bigint" | "number"`) scaling the decoded value when a `size` larger than the input byte length was provided.
+
+- [#4880](https://github.com/wevm/viem/pull/4880) [`0095510ba5051931eb89d05c8a9b33b3a65ff356`](https://github.com/wevm/viem/commit/0095510ba5051931eb89d05c8a9b33b3a65ff356) Thanks [@tmm](https://github.com/tmm)! - Fixed Tempo access key transactions failing by preserving the gas limit covered by fee payer signatures returned from `eth_fillTransaction`.
+
+- [#4884](https://github.com/wevm/viem/pull/4884) [`14a2537066f353092d4b6cc77941c018fde8f6c8`](https://github.com/wevm/viem/commit/14a2537066f353092d4b6cc77941c018fde8f6c8) Thanks [@jxom](https://github.com/jxom)! - Replaced `zone.getZoneInfo.sequencer` with `sequencers`.
+
+## 2.55.6
+
+### Patch Changes
+
+- [#4878](https://github.com/wevm/viem/pull/4878) [`fe79685307b4f85ba6d1d2c3ed3a8be3a62e9f3a`](https://github.com/wevm/viem/commit/fe79685307b4f85ba6d1d2c3ed3a8be3a62e9f3a) Thanks [@decofe](https://github.com/decofe)! - Added `tempoBlockNumber` to the return value of `zone.getZoneInfo`.
+
+  **Breaking (viem/tempo):** Replaced `zone.waitForDepositStatus` with `zone.waitForTempoBlock`, backed by the new zone info field, and removed `zone.getDepositStatus` with the underlying RPC method.
+
+## 2.55.5
+
+### Patch Changes
+
+- [#4865](https://github.com/wevm/viem/pull/4865) [`d993c2c331f4bedb76ecb78250c7858603bbdd62`](https://github.com/wevm/viem/commit/d993c2c331f4bedb76ecb78250c7858603bbdd62) Thanks [@jxom](https://github.com/jxom)! - Batched compatible concurrent `multicall` actions into one aggregate call.
+
+- [#4863](https://github.com/wevm/viem/pull/4863) [`b6f7349221d4d3b51e4094634fa2839b5a448c24`](https://github.com/wevm/viem/commit/b6f7349221d4d3b51e4094634fa2839b5a448c24) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated multisig implementation.
+
+- [#4868](https://github.com/wevm/viem/pull/4868) [`cb7d66f966e9eea501b075eeb0f14a7ddd0c35fc`](https://github.com/wevm/viem/commit/cb7d66f966e9eea501b075eeb0f14a7ddd0c35fc) Thanks [@jsutaria](https://github.com/jsutaria)! - Ensured `prepareTransactionRequest` fetched Tempo fee payer signatures when the caller's `parameters` option omitted `fees`/`gas`.
+
+- [#4866](https://github.com/wevm/viem/pull/4866) [`5ee7eb12b248a1e72f37196d1fbb25d38283723f`](https://github.com/wevm/viem/commit/5ee7eb12b248a1e72f37196d1fbb25d38283723f) Thanks [@jsutaria](https://github.com/jsutaria)! - Ensured `prepareTransactionRequest` fetched Tempo fee payer signatures for fully specified transactions.
+
+## 2.55.4
+
+### Patch Changes
+
+- [#4848](https://github.com/wevm/viem/pull/4848) [`dceac56692bb2db5b710908321ab722195de79a2`](https://github.com/wevm/viem/commit/dceac56692bb2db5b710908321ab722195de79a2) Thanks [@jxom](https://github.com/jxom)! - Updated Ethereum's default RPC URL.
+
+- [#4851](https://github.com/wevm/viem/pull/4851) [`2b1f8deeac868a3480e1ede7f6fd6066995f36a1`](https://github.com/wevm/viem/commit/2b1f8deeac868a3480e1ede7f6fd6066995f36a1) Thanks [@nezouse](https://github.com/nezouse)! - Add `blockTime` to Robinhood chain definition
+
+- [#4858](https://github.com/wevm/viem/pull/4858) [`1de66e727e5f328d111cf41bca29731a5af4afb4`](https://github.com/wevm/viem/commit/1de66e727e5f328d111cf41bca29731a5af4afb4) Thanks [@decofe](https://github.com/decofe)! - Defaulted omitted `validAfter` values to random past timestamps for Tempo expiring-nonce transactions, preventing otherwise-identical transactions from sharing a nonce hash.
+
+- [#4852](https://github.com/wevm/viem/pull/4852) [`99b14341b807767cd783863ac645331f4b1cd708`](https://github.com/wevm/viem/commit/99b14341b807767cd783863ac645331f4b1cd708) Thanks [@nezouse](https://github.com/nezouse)! - Add `blockTime` to xLayer chain definition
+
+## 2.55.3
+
+### Patch Changes
+
+- [#4844](https://github.com/wevm/viem/pull/4844) [`1f4d4dbd960d099496b6dd2c473c4be0e907e080`](https://github.com/wevm/viem/commit/1f4d4dbd960d099496b6dd2c473c4be0e907e080) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed `decodeAbiParameters` to preserve leading NUL bytes when decoding `string` values.
+
+## 2.55.2
+
+### Patch Changes
+
+- [#4813](https://github.com/wevm/viem/pull/4813) [`3f7f0f6839738de70e2f836b475d589c6f1c68b4`](https://github.com/wevm/viem/commit/3f7f0f6839738de70e2f836b475d589c6f1c68b4) Thanks [@Slokh](https://github.com/Slokh)! - Added Tempo Zone helpers for preparing encrypted deposit recipients and withdrawal requests with normalized details, maximum fees, and distinct callback and Zone transaction gas limits.
+
+## 2.55.1
+
+### Patch Changes
+
+- [#4828](https://github.com/wevm/viem/pull/4828) [`765e19b99b97567ef7b3446bc196353cdaa281a3`](https://github.com/wevm/viem/commit/765e19b99b97567ef7b3446bc196353cdaa281a3) Thanks [@jxom](https://github.com/jxom)! - Added Tempo zone encryption-key and deposit-status waiting actions, defaulted bounceback recipients to accounts, and adapted receipt polling for private Zone RPCs.
+
+- [#4823](https://github.com/wevm/viem/pull/4823) [`c31e0bd376bf41250c1833cd741e9a93bfe75398`](https://github.com/wevm/viem/commit/c31e0bd376bf41250c1833cd741e9a93bfe75398) Thanks [@jxom](https://github.com/jxom)! - Added `blockHash` and `requireCanonical` parameters to `verifyHash`, `verifyMessage`, `verifyTypedData`, and `verifySiweMessage`, allowing onchain signature verification to be pinned to a specific block via EIP-1898.
+
+## 2.55.0
+
+### Minor Changes
+
+- [#4817](https://github.com/wevm/viem/pull/4817) [`2825f37bd4d9429a312dad378410d63c67feb0f8`](https://github.com/wevm/viem/commit/2825f37bd4d9429a312dad378410d63c67feb0f8) Thanks [@davidperk](https://github.com/davidperk)! - Added `depositNonce` and `depositReceiptVersion` to OP Stack transaction receipts.
+
+- [#4822](https://github.com/wevm/viem/pull/4822) [`0ef1b5d84abc6f03c4f7573ca5bab851593ccb2f`](https://github.com/wevm/viem/commit/0ef1b5d84abc6f03c4f7573ca5bab851593ccb2f) Thanks [@tmm](https://github.com/tmm)! - Added `filterChains` utility for filtering chain definitions by structured criteria.
+
+### Patch Changes
+
+- [#4809](https://github.com/wevm/viem/pull/4809) [`c93d355d68f2ac98d5f139c963564651576793de`](https://github.com/wevm/viem/commit/c93d355d68f2ac98d5f139c963564651576793de) Thanks [@defiQUG](https://github.com/defiQUG)! - Added Defi Oracle Meta Mainnet chain.
+
+- [#4818](https://github.com/wevm/viem/pull/4818) [`48324f72c057e5e52545e4672408af6bc9eeb60a`](https://github.com/wevm/viem/commit/48324f72c057e5e52545e4672408af6bc9eeb60a) Thanks [@cctdaniel](https://github.com/cctdaniel)! - Added Robinhood Chain and Robinhood Chain Testnet chains.
+
+## 2.54.6
+
+### Patch Changes
+
+- [#4807](https://github.com/wevm/viem/pull/4807) [`f1ac4480d0c1c6f29bf709f116068e903643ecad`](https://github.com/wevm/viem/commit/f1ac4480d0c1c6f29bf709f116068e903643ecad) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Supported calling token `.call` builders without a Client (restores the pre-`2.54` call signature). When the Client is omitted, `token` must be a TIP20 token id or contract address, and formatted amounts require explicit `decimals`.
+
+## 2.54.5
+
+### Patch Changes
+
+- [#4803](https://github.com/wevm/viem/pull/4803) [`49fa5c885c5478e3e7a92411d7b309785df36974`](https://github.com/wevm/viem/commit/49fa5c885c5478e3e7a92411d7b309785df36974) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed fee-payer sponsorship for native multisig transaction preparation and serialization.
+
+- [#4805](https://github.com/wevm/viem/pull/4805) [`5c0aae47181b13f58c7125542c13a2bc82f8662b`](https://github.com/wevm/viem/commit/5c0aae47181b13f58c7125542c13a2bc82f8662b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Preserved sponsor-returned `feeToken` values from `eth_fillTransaction` responses with `feePayerSignature`.
+
+## 2.54.4
+
+### Patch Changes
+
+- [#4801](https://github.com/wevm/viem/pull/4801) [`8d1db77e6379cfb4028cb8f0742b6633311fce43`](https://github.com/wevm/viem/commit/8d1db77e6379cfb4028cb8f0742b6633311fce43) Thanks [@jxom](https://github.com/jxom)! - Added `getRawTransaction` action to retrieve a raw, serialized transaction via `eth_getRawTransactionByHash`.
+
+## 2.54.3
+
+### Patch Changes
+
+- [#4792](https://github.com/wevm/viem/pull/4792) [`da4f54be6d3b5f5b0741e9ade94055685f9247c1`](https://github.com/wevm/viem/commit/da4f54be6d3b5f5b0741e9ade94055685f9247c1) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added TIP-1061 multisig gas estimation hints (`multisigInit`, `multisigSignatureCount`), and attached `multisigInit` to multisig requests so node-side fill and estimation price bootstrap gas.
+
+- [#4792](https://github.com/wevm/viem/pull/4792) [`da4f54be6d3b5f5b0741e9ade94055685f9247c1`](https://github.com/wevm/viem/commit/da4f54be6d3b5f5b0741e9ade94055685f9247c1) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.30`.
+
+- [#4791](https://github.com/wevm/viem/pull/4791) [`515b637cde2d0338f012abfb501f1983440e4e76`](https://github.com/wevm/viem/commit/515b637cde2d0338f012abfb501f1983440e4e76) Thanks [@jxom](https://github.com/jxom)! - Fixed `encodeAbiParameters` and `decodeAbiParameters` handling of zero-width types (zero-length fixed arrays and empty tuples).
+
+## 2.54.2
+
+### Patch Changes
+
+- [#4742](https://github.com/wevm/viem/pull/4742) [`71f8731a4cb0d569f7bc9453bc27e238f3f90c29`](https://github.com/wevm/viem/commit/71f8731a4cb0d569f7bc9453bc27e238f3f90c29) Thanks [@lifeofjer](https://github.com/lifeofjer)! - Added Mars Credit chain.
+
+- [#4790](https://github.com/wevm/viem/pull/4790) [`e5626e3ec72149721d1109a8a638ae9aea982695`](https://github.com/wevm/viem/commit/e5626e3ec72149721d1109a8a638ae9aea982695) Thanks [@jxom](https://github.com/jxom)! - Rejected RLP payloads in `fromRlp` with trailing bytes after the decoded item or list items extending beyond their declared list length.
+
+- [#4768](https://github.com/wevm/viem/pull/4768) [`48175663f1bb2b2a2a32d51c8e87100d977b3eb9`](https://github.com/wevm/viem/commit/48175663f1bb2b2a2a32d51c8e87100d977b3eb9) Thanks [@nikhilkumar1612](https://github.com/nikhilkumar1612)! - Fixed `estimateUserOperationGas` omitting `fees` during User Operation preparation, which caused strict bundlers to reject gas estimation requests.
+
+- [#4784](https://github.com/wevm/viem/pull/4784) [`404a11944045b88405fec20b52f8d9b7fa727056`](https://github.com/wevm/viem/commit/404a11944045b88405fec20b52f8d9b7fa727056) Thanks [@decofe](https://github.com/decofe)! - Added Storage Credits (TIP-1060) precompile ABI & address to Tempo exports.
+
+- [#4789](https://github.com/wevm/viem/pull/4789) [`1e93747abba0f0d8286e083c6c1ff3f07a640aa6`](https://github.com/wevm/viem/commit/1e93747abba0f0d8286e083c6c1ff3f07a640aa6) Thanks [@jxom](https://github.com/jxom)! - Added Storage Credits (TIP-1060) precompile selectors to Tempo exports.
+
+- [#4786](https://github.com/wevm/viem/pull/4786) [`b4b3cbed4329e1d49887ed5812b07610a84a6b32`](https://github.com/wevm/viem/commit/b4b3cbed4329e1d49887ed5812b07610a84a6b32) Thanks [@struong](https://github.com/struong)! - Added `zone.encryptedDeposit.prepare` for Tempo Zone encrypted deposits.
+
+- [#4788](https://github.com/wevm/viem/pull/4788) [`74699ef25d0549f020c168a7ff535bee5e50adf0`](https://github.com/wevm/viem/commit/74699ef25d0549f020c168a7ff535bee5e50adf0) Thanks [@jxom](https://github.com/jxom)! - Updated `ws` to `8.21.0`.
+
+- [#4758](https://github.com/wevm/viem/pull/4758) [`0fafede5136b42a5322f8f900961e9b3fe9a526f`](https://github.com/wevm/viem/commit/0fafede5136b42a5322f8f900961e9b3fe9a526f) Thanks [@decofe](https://github.com/decofe)! - Added validation rejecting Tempo receive policy claimers that can never claim funds (TIP-1022 virtual addresses, TIP-20 token addresses, and Tempo system precompiles), and exported `Addresses.tip20ChannelReserve`.
+
+## 2.54.1
+
+### Patch Changes
+
+- [#4780](https://github.com/wevm/viem/pull/4780) [`7ce10f40e466273fdc6926127394d36d0955c688`](https://github.com/wevm/viem/commit/7ce10f40e466273fdc6926127394d36d0955c688) Thanks [@tmm](https://github.com/tmm)! - Added EURC, USYC, and cirBTC token definitions to `viem/tokens`.
+
+- [#4780](https://github.com/wevm/viem/pull/4780) [`7ce10f40e466273fdc6926127394d36d0955c688`](https://github.com/wevm/viem/commit/7ce10f40e466273fdc6926127394d36d0955c688) Thanks [@tmm](https://github.com/tmm)! - Added USDC token addresses for more supported chains.
+
+- [#4782](https://github.com/wevm/viem/pull/4782) [`cf4bdca930df835452a467efd95c59a5e2a4a89f`](https://github.com/wevm/viem/commit/cf4bdca930df835452a467efd95c59a5e2a4a89f) Thanks [@jxom](https://github.com/jxom)! - Added a `tokens` export to `viem/tokens` with curated token sets (`tokens.all`, `tokens.popular`, `tokens.tempo`) that can be passed to a Client's `tokens` property. `viem/tempo`'s `createClient` now defaults `tokens` to `tokens.tempo`.
+
+## 2.54.0
+
+### Minor Changes
+
+- [#4767](https://github.com/wevm/viem/pull/4767) [`0def05663277a93e645bc28740a78bfc916810ec`](https://github.com/wevm/viem/commit/0def05663277a93e645bc28740a78bfc916810ec) Thanks [@jxom](https://github.com/jxom)! - **Breaking (viem/tempo):** Changed Tempo token balance and allowance reads to return `Amount` objects.
+
+  ```diff
+  -const balance = await client.token.getBalance({ token })
+  -// ^? bigint
+  +const balance = await client.token.getBalance({ token })
+  +// ^? { amount: bigint; decimals: number; formatted: string }
+
+  -const allowance = await client.token.getAllowance({ account, spender, token })
+  -// ^? bigint
+  +const allowance = await client.token.getAllowance({ account, spender, token })
+  +// ^? { amount: bigint; decimals: number; formatted: string }
+  ```
+
+- [#4767](https://github.com/wevm/viem/pull/4767) [`0def05663277a93e645bc28740a78bfc916810ec`](https://github.com/wevm/viem/commit/0def05663277a93e645bc28740a78bfc916810ec) Thanks [@jxom](https://github.com/jxom)! - **Breaking (viem/tempo):** Changed Tempo token `.call` helpers to take the client before their action arguments.
+
+  ```diff
+  -Actions.token.transfer.call({ token, to, amount })
+  +Actions.token.transfer.call(client, { token, to, amount })
+
+  -Actions.token.getBalance.call({ account, token })
+  +Actions.token.getBalance.call(client, { account, token })
+  ```
+
+- [#4767](https://github.com/wevm/viem/pull/4767) [`0def05663277a93e645bc28740a78bfc916810ec`](https://github.com/wevm/viem/commit/0def05663277a93e645bc28740a78bfc916810ec) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Changed ERC-20 token actions to resolve token symbols from the Client `tokens` array instead of built-in chain `tokens` config.
+
+  ```diff
+   import { createPublicClient, http } from 'viem'
+   import { mainnet } from 'viem/chains'
+  +import { usdc } from 'viem/tokens'
+
+  -const client = createPublicClient({ chain: mainnet, transport: http() })
+  +const client = createPublicClient({
+  +  chain: mainnet,
+  +  tokens: [usdc],
+  +  transport: http(),
+  +})
+
+   const balance = await client.token.getBalance({ account, token: 'usdc' })
+  ```
+
+- [#4767](https://github.com/wevm/viem/pull/4767) [`0def05663277a93e645bc28740a78bfc916810ec`](https://github.com/wevm/viem/commit/0def05663277a93e645bc28740a78bfc916810ec) Thanks [@jxom](https://github.com/jxom)! - Added `viem/tokens` entrypoint.
+
+### Patch Changes
+
+- [#4739](https://github.com/wevm/viem/pull/4739) [`cc3c2ff6a50dbca96a665c8fc2ad635f86d94f53`](https://github.com/wevm/viem/commit/cc3c2ff6a50dbca96a665c8fc2ad635f86d94f53) Thanks [@Equious](https://github.com/Equious)! - Added BattleChain Mainnet (chainId 626) to `viem/chains`.
+
+- [#4733](https://github.com/wevm/viem/pull/4733) [`1caa5766109309d5fab48f1c4316deff5f504f9c`](https://github.com/wevm/viem/commit/1caa5766109309d5fab48f1c4316deff5f504f9c) Thanks [@2wheeh](https://github.com/2wheeh)! - Added MarooTestnet chain.
+
+- [#4772](https://github.com/wevm/viem/pull/4772) [`b0a0e1ccd158198d56903759d362f22716a6b1e7`](https://github.com/wevm/viem/commit/b0a0e1ccd158198d56903759d362f22716a6b1e7) Thanks [@jxom](https://github.com/jxom)! - Added an RLP depth limit for decoding deeply nested payloads.
+
+## 2.53.1
+
+### Patch Changes
+
+- [#4748](https://github.com/wevm/viem/pull/4748) [`ed55a13fbf8af9c587d94a3363f507e642236e93`](https://github.com/wevm/viem/commit/ed55a13fbf8af9c587d94a3363f507e642236e93) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added `createClient` to `viem/tempo` with a default chain, transport, and actions.
+
+## 2.53.0
+
+### Minor Changes
+
+- [#4745](https://github.com/wevm/viem/pull/4745) [`f603eb5b6e01bc621df26cc386218b3954e33f41`](https://github.com/wevm/viem/commit/f603eb5b6e01bc621df26cc386218b3954e33f41) Thanks [@jxom](https://github.com/jxom)! - Raised the minimum supported TypeScript version to v5.9.
+
+- [#4745](https://github.com/wevm/viem/pull/4745) [`f603eb5b6e01bc621df26cc386218b3954e33f41`](https://github.com/wevm/viem/commit/f603eb5b6e01bc621df26cc386218b3954e33f41) Thanks [@jxom](https://github.com/jxom)! - Added the ability for action decorators to attach a default `chain` to the Client.
+
+- [#4729](https://github.com/wevm/viem/pull/4729) [`ce518cde15845fedc3cab51f0d560159d7c794fe`](https://github.com/wevm/viem/commit/ce518cde15845fedc3cab51f0d560159d7c794fe) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added generated Tempo function selector exports under `Selectors` and call scope builders under `Scopes` in `viem/tempo`.
+
+### Patch Changes
+
+- [#4725](https://github.com/wevm/viem/pull/4725) [`2b558fd3a21ad2dd5947067d4c5862cce291d76b`](https://github.com/wevm/viem/commit/2b558fd3a21ad2dd5947067d4c5862cce291d76b) Thanks [@brianspens](https://github.com/brianspens)! - Added Whitechain Sepolia chain.
+
+- [#4727](https://github.com/wevm/viem/pull/4727) [`0505541fcd57f2b2eb35b339d3f630a1535507bf`](https://github.com/wevm/viem/commit/0505541fcd57f2b2eb35b339d3f630a1535507bf) Thanks [@crow-004](https://github.com/crow-004)! - Fixed `estimateUserOperationGas` omitting `maxFeePerGas` and `maxPriorityFeePerGas` during User Operation preparation, which caused strict bundlers to reject gas estimation requests.
+
+- [#4728](https://github.com/wevm/viem/pull/4728) [`e70d2e8543af38b3d8c2ed4b8cd114d171ce53ba`](https://github.com/wevm/viem/commit/e70d2e8543af38b3d8c2ed4b8cd114d171ce53ba) Thanks [@jarrodwatts](https://github.com/jarrodwatts)! - Changed Monad's default block explorer to Monadscan.
+
+## 2.52.2
+
+### Patch Changes
+
+- [#4718](https://github.com/wevm/viem/pull/4718) [`1969c01715736de8a16b841cfed81640f0d708c2`](https://github.com/wevm/viem/commit/1969c01715736de8a16b841cfed81640f0d708c2) Thanks [@jxom](https://github.com/jxom)! - **Tempo:** Set the `t5` hardfork on the Tempo Testnet (Moderato) chain.
+
+## 2.52.1
+
+### Patch Changes
+
+- [#4702](https://github.com/wevm/viem/pull/4702) [`fc2e04d67f56b98327e91c61fb769b63c3c8b6f0`](https://github.com/wevm/viem/commit/fc2e04d67f56b98327e91c61fb769b63c3c8b6f0) Thanks [@SaulBuilds](https://github.com/SaulBuilds)! - Added Citrate chain.
+
+- [#4699](https://github.com/wevm/viem/pull/4699) [`e13bb9c010e8c57524201fb56383ee2710f38bc9`](https://github.com/wevm/viem/commit/e13bb9c010e8c57524201fb56383ee2710f38bc9) Thanks [@rmullens220838](https://github.com/rmullens220838)! - Added LadyChain.
+
+- [#4681](https://github.com/wevm/viem/pull/4681) [`2c79bbfba1d51d3998834a2db9ec62e4f7d5b87c`](https://github.com/wevm/viem/commit/2c79bbfba1d51d3998834a2db9ec62e4f7d5b87c) Thanks [@AshinGau](https://github.com/AshinGau)! - Added Gravity mainnet chain.
+
+- [#4710](https://github.com/wevm/viem/pull/4710) [`25c2d6ac46ba293c830d7593cd2e71a772e6b960`](https://github.com/wevm/viem/commit/25c2d6ac46ba293c830d7593cd2e71a772e6b960) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added experimental native multisig account support.
+
+- [#4658](https://github.com/wevm/viem/pull/4658) [`62d25464ed173fe103cb12be22ab66ef28618bf3`](https://github.com/wevm/viem/commit/62d25464ed173fe103cb12be22ab66ef28618bf3) Thanks [@VYO-Labs](https://github.com/VYO-Labs)! - Added VALYGO Smartchain and VALYGO NFT chain definitions.
+
+## 2.52.0
+
+### Minor Changes
+
+- [#4689](https://github.com/wevm/viem/pull/4689) [`fb032ee43ace76bbe72170c1b3ed48880033b763`](https://github.com/wevm/viem/commit/fb032ee43ace76bbe72170c1b3ed48880033b763) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added admin access key actions, and an `accessKey.verifyHash` action.
+
+- [#4688](https://github.com/wevm/viem/pull/4688) [`19a26084eb448632883602b401516e17cc9f7e0d`](https://github.com/wevm/viem/commit/19a26084eb448632883602b401516e17cc9f7e0d) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added access-key witness actions.
+
+- [#4683](https://github.com/wevm/viem/pull/4683) [`42d54ef89a85aa9ef8658a89b67271331b5a31d4`](https://github.com/wevm/viem/commit/42d54ef89a85aa9ef8658a89b67271331b5a31d4) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Updated precompile ABIs and added the `receivePolicyGuard` and `signatureVerifier` precompile addresses to `Addresses`, plus the `t4`/`t5`/`t6` hardforks to `Hardfork`.
+
+- [#4687](https://github.com/wevm/viem/pull/4687) [`0e826149964a6e76d8079b368ca6f034bde7f482`](https://github.com/wevm/viem/commit/0e826149964a6e76d8079b368ca6f034bde7f482) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added `receivePolicy` actions.
+
+## 2.51.3
+
+### Patch Changes
+
+- [#4675](https://github.com/wevm/viem/pull/4675) [`cc15e56ae47e03d2ec8fe9b0e443b4e52b7c350a`](https://github.com/wevm/viem/commit/cc15e56ae47e03d2ec8fe9b0e443b4e52b7c350a) Thanks [@deodad](https://github.com/deodad)! - Fixed access key metadata reads incorrectly using the client account.
+
+## 2.51.2
+
+### Patch Changes
+
+- [#4668](https://github.com/wevm/viem/pull/4668) [`672a7ef72cd7fb9b9330d5c90979729e6b96cbbc`](https://github.com/wevm/viem/commit/672a7ef72cd7fb9b9330d5c90979729e6b96cbbc) Thanks [@deodad](https://github.com/deodad)! - `viem/tempo`: Fixed `signVoucher` to raw sign channel vouchers with access key accounts.
+
+- [#4672](https://github.com/wevm/viem/pull/4672) [`c582dad966c136488b9f36c01f0f3986ff98e407`](https://github.com/wevm/viem/commit/c582dad966c136488b9f36c01f0f3986ff98e407) Thanks [@deodad](https://github.com/deodad)! - Added a Tempo key authorization manager that can be used by `prepareTransactionRequest` to attach pending key authorizations.
+
+## 2.51.1
+
+### Patch Changes
+
+- [#4669](https://github.com/wevm/viem/pull/4669) [`44a197c6d3ca881472c5a849d199907b5ede453d`](https://github.com/wevm/viem/commit/44a197c6d3ca881472c5a849d199907b5ede453d) Thanks [@deodad](https://github.com/deodad)! - Use the published `ox@0.14.24` package instead of a `pkg.pr.new` build.
+
+## 2.51.0
+
+### Minor Changes
+
+- [#4663](https://github.com/wevm/viem/pull/4663) [`752712f1d2358715e9d63bd754f80c90a8d02e91`](https://github.com/wevm/viem/commit/752712f1d2358715e9d63bd754f80c90a8d02e91) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `Actions.channel` actions for reading and mutating TIP-20 channel reserve state.
+
+- [#4597](https://github.com/wevm/viem/pull/4597) [`d346038e71f31cb1c82fc94bb49c4ac553a23717`](https://github.com/wevm/viem/commit/d346038e71f31cb1c82fc94bb49c4ac553a23717) Thanks [@wwared](https://github.com/wwared)! - `viem/op-stack`: Added OP Stack super-root dispute game support for withdrawal prove flows.
+
+- [#4661](https://github.com/wevm/viem/pull/4661) [`9713c7562eac9fd328e6cc1be7388bc1659a9c27`](https://github.com/wevm/viem/commit/9713c7562eac9fd328e6cc1be7388bc1659a9c27) Thanks [@jxom](https://github.com/jxom)! - Updated generated Tempo precompile ABIs from latest Tempo main and added `logoURI` to TIP-20 metadata and token creation.
+
+- [#4653](https://github.com/wevm/viem/pull/4653) [`a29cf5eef5809b50bbb7931f35331203c32d7692`](https://github.com/wevm/viem/commit/a29cf5eef5809b50bbb7931f35331203c32d7692) Thanks [@islishude](https://github.com/islishude)! - Added support for `eth_getBlockReceipts`.
+
+### Patch Changes
+
+- [#4650](https://github.com/wevm/viem/pull/4650) [`73b8b89c0369597bf4df781b021130f544ebe6b0`](https://github.com/wevm/viem/commit/73b8b89c0369597bf4df781b021130f544ebe6b0) Thanks [@deodad](https://github.com/deodad)! - Exported `ExtractFormattedTransactionRequest`.
+
+- [#4664](https://github.com/wevm/viem/pull/4664) [`c3fda73603695bc68336f6e22f6475ba6ed0cdc7`](https://github.com/wevm/viem/commit/c3fda73603695bc68336f6e22f6475ba6ed0cdc7) Thanks [@jxom](https://github.com/jxom)! - Handled `eth_createAccessList` responses that include an `error` field.
+
+- [#4660](https://github.com/wevm/viem/pull/4660) [`c5cc58ebbc027029022f09eba54ed2e789b8b2b1`](https://github.com/wevm/viem/commit/c5cc58ebbc027029022f09eba54ed2e789b8b2b1) Thanks [@struong](https://github.com/struong)! - Emitted a full broadcast envelope when the fee payer co-signed during `eth_fillTransaction`, enabling single round-trip sponsorship, and stripped `feeToken` from the sender's sign payload under sponsorship per the Tempo Transaction spec.
+
+- [#4654](https://github.com/wevm/viem/pull/4654) [`038a062a8c2a875a3bbd58426e6060cf5d1d7986`](https://github.com/wevm/viem/commit/038a062a8c2a875a3bbd58426e6060cf5d1d7986) Thanks [@deodad](https://github.com/deodad)! - Added `raw` signing support to Tempo access key accounts.
+
+## 2.50.4
+
+### Patch Changes
+
+- [#4647](https://github.com/wevm/viem/pull/4647) [`423131df9e00e3df062274e483b98a4921674cea`](https://github.com/wevm/viem/commit/423131df9e00e3df062274e483b98a4921674cea) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo chain declarations to emit portable inferred types for exported derived chains.
+
+## 2.50.3
+
+### Patch Changes
+
+- [#4642](https://github.com/wevm/viem/pull/4642) [`5bafcd444f7ebae9bb06a8efbc801a7ea845154d`](https://github.com/wevm/viem/commit/5bafcd444f7ebae9bb06a8efbc801a7ea845154d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated `wallet.deposit` to use `amount` and supported token symbols for `wallet_deposit` requests.
+
+## 2.50.2
+
+### Patch Changes
+
+- [#4640](https://github.com/wevm/viem/pull/4640) [`dfe1964905fd7ab7767771d4b3451918a22be648`](https://github.com/wevm/viem/commit/dfe1964905fd7ab7767771d4b3451918a22be648) Thanks [@tmm](https://github.com/tmm)! - Added Tempo chain exports to `viem/tempo` and `viem/tempo/chains`.
+
+## 2.50.1
+
+### Patch Changes
+
+- [`118bc22b80f07c30bfca4a4f61ae98a49882fe61`](https://github.com/wevm/viem/commit/118bc22b80f07c30bfca4a4f61ae98a49882fe61) Thanks [@tmm](https://github.com/tmm)! - Added `viem/tempo/chains` entrypoint
+
+## 2.50.0
+
+### Minor Changes
+
+- [#4337](https://github.com/wevm/viem/pull/4337) [`fd2fbd5c24b7002849e55cbeb066d165041abca2`](https://github.com/wevm/viem/commit/fd2fbd5c24b7002849e55cbeb066d165041abca2) Thanks [@haydenshively](https://github.com/haydenshively)! - Added support for batching calls that share matching `stateOverride` values.
+
+- [#4186](https://github.com/wevm/viem/pull/4186) [`aa1ac95104ae3a51dd446bfdcac9c4ebdd47ba43`](https://github.com/wevm/viem/commit/aa1ac95104ae3a51dd446bfdcac9c4ebdd47ba43) Thanks [@dputko](https://github.com/dputko)! - Added EIP-1898 block identifier support (`blockHash` and `requireCanonical` parameters) for `call`, `getBalance`, `getCode`, `getProof`, `getStorageAt`, and `getTransactionCount` actions.
+
+- [#4590](https://github.com/wevm/viem/pull/4590) [`a9bfd944aea8f7822b8fc3fcf92c583f4144f672`](https://github.com/wevm/viem/commit/a9bfd944aea8f7822b8fc3fcf92c583f4144f672) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added Tempo fee token validation with typed errors.
+
+- [#4551](https://github.com/wevm/viem/pull/4551) [`efc76f9f8e521829a90f811353cda4b5bb5ec6c5`](https://github.com/wevm/viem/commit/efc76f9f8e521829a90f811353cda4b5bb5ec6c5) Thanks [@adraffy](https://github.com/adraffy)! - Added CCIP-Read Tunneling.
+
+### Patch Changes
+
+- [#4630](https://github.com/wevm/viem/pull/4630) [`e8bc0fb9de7ac4155431ae5de6566616e3a0993f`](https://github.com/wevm/viem/commit/e8bc0fb9de7ac4155431ae5de6566616e3a0993f) Thanks [@jxom](https://github.com/jxom)! - Fixed `observe` retaining listener and cleanup cache entries after the last listener unwatched.
+
+- [#4613](https://github.com/wevm/viem/pull/4613) [`bd1d24420a324cf51ce2ea4efec2d7d048c5d3be`](https://github.com/wevm/viem/commit/bd1d24420a324cf51ce2ea4efec2d7d048c5d3be) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed `encodeEventTopics` incorrectly prepending the event signature as a topic for anonymous events.
+
+- [#4601](https://github.com/wevm/viem/pull/4601) [`449c5f6a239d04f5ef7c5031430fb3c8013d4119`](https://github.com/wevm/viem/commit/449c5f6a239d04f5ef7c5031430fb3c8013d4119) Thanks [@o19k](https://github.com/o19k)! - Fixed `socketClient.close()` triggering an unwanted reconnect loop that prevented the Node.js process from exiting.
+
+- [#4625](https://github.com/wevm/viem/pull/4625) [`ddee0b2f61723ba0a3e5b447da0f4b9db493c1f5`](https://github.com/wevm/viem/commit/ddee0b2f61723ba0a3e5b447da0f4b9db493c1f5) Thanks [@jxom](https://github.com/jxom)! - Fixed `morphHolesky` block explorer `apiUrl` (removed trailing `?`).
+
+- [#4612](https://github.com/wevm/viem/pull/4612) [`552b7f7e755342e37e01fb57d79904b3e0689000`](https://github.com/wevm/viem/commit/552b7f7e755342e37e01fb57d79904b3e0689000) Thanks [@deodad](https://github.com/deodad)! - Fixed `prepareTransactionRequest` return types to preserve chain-specific transaction types.
+
+- [#4599](https://github.com/wevm/viem/pull/4599) [`2e9745406453746cc4890c57c2bab55c46b34eb4`](https://github.com/wevm/viem/commit/2e9745406453746cc4890c57c2bab55c46b34eb4) Thanks [@esorense](https://github.com/esorense)! - Fixed `sova` block explorer default URL.
+
+- [#4603](https://github.com/wevm/viem/pull/4603) [`0354bb3c6702b32a3761776e5e15eecaa299d0e5`](https://github.com/wevm/viem/commit/0354bb3c6702b32a3761776e5e15eecaa299d0e5) Thanks [@satyakwok](https://github.com/satyakwok)! - Added Sentrix Chain (`sentrix`, id `7119`) and Sentrix Testnet (`sentrixTestnet`, id `7120`) chain definitions.
+
+- [#4633](https://github.com/wevm/viem/pull/4633) [`84fb78fdb015ae1c83fe7372e1317254cbf9f989`](https://github.com/wevm/viem/commit/84fb78fdb015ae1c83fe7372e1317254cbf9f989) Thanks [@jxom](https://github.com/jxom)! - Fixed `getEnsAddress` decoding offchain DNS address records when `coinType` was specified.
+
+- [#4620](https://github.com/wevm/viem/pull/4620) [`277c636492387be5f2b0b50bee252d22900baf29`](https://github.com/wevm/viem/commit/277c636492387be5f2b0b50bee252d22900baf29) Thanks [@nikitakent](https://github.com/nikitakent)! - Added the MIZUHIKI Testnet Awaji
+
+- [#4634](https://github.com/wevm/viem/pull/4634) [`e7b71e59dd9e28f60750e3184b8f71a9e9cb4ddf`](https://github.com/wevm/viem/commit/e7b71e59dd9e28f60750e3184b8f71a9e9cb4ddf) Thanks [@jxom](https://github.com/jxom)! - Fixed `nonceManager` resetting stale nonces after failed transaction submissions.
+
+- [#4596](https://github.com/wevm/viem/pull/4596) [`0c71a69e54b871ab3835d4551d647a2ade80b135`](https://github.com/wevm/viem/commit/0c71a69e54b871ab3835d4551d647a2ade80b135) Thanks [@cmende](https://github.com/cmende)! - Fixed `verifyHash` for Tempo `allowAccessKey` mode with `secp256k1` keychain access keys, whose inner envelope did not carry a `publicKey`.
+
+## 2.49.3
+
+### Patch Changes
+
+- [#4621](https://github.com/wevm/viem/pull/4621) [`6d80eaeea315c552a57e9683607ed36f7d219a9e`](https://github.com/wevm/viem/commit/6d80eaeea315c552a57e9683607ed36f7d219a9e) Thanks [@Blessing-Circle](https://github.com/Blessing-Circle)! - Added Arc chain.
+
+- [#4622](https://github.com/wevm/viem/pull/4622) [`c5dc4d63506f787e92417eff77dd0ef84e3a2c8c`](https://github.com/wevm/viem/commit/c5dc4d63506f787e92417eff77dd0ef84e3a2c8c) Thanks [@struong](https://github.com/struong)! - `viem/tempo`: Preserved `feeToken` on broadcast envelope when `feePayerSignature` is present. Previously stripped unconditionally when `feePayer === true`, breaking fee payer signature verification on-chain.
+
+## 2.49.2
+
+### Patch Changes
+
+- [`215469280e57b4ec729bd2537857a4ca363c984b`](https://github.com/wevm/viem/commit/215469280e57b4ec729bd2537857a4ca363c984b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Renamed `Actions.wallet.send` to `Actions.wallet.transfer`.
+
+## 2.49.1
+
+### Patch Changes
+
+- [#4614](https://github.com/wevm/viem/pull/4614) [`8e914dfb47a3a5a95bc0f7527d74aaec626cc570`](https://github.com/wevm/viem/commit/8e914dfb47a3a5a95bc0f7527d74aaec626cc570) Thanks [@decofe](https://github.com/decofe)! - `viem/tempo`: Encoded WebAuthn `keyData` as a 2-byte length hint instead of a raw blob, and auto-shimmed user-provided values longer than 4 bytes.
+
+## 2.49.0
+
+### Minor Changes
+
+- [#4584](https://github.com/wevm/viem/pull/4584) [`4cd686d4acf2c0f14955509a91a3c7ee6d0257f9`](https://github.com/wevm/viem/commit/4cd686d4acf2c0f14955509a91a3c7ee6d0257f9) Thanks [@tmm](https://github.com/tmm)! - Added AbortSignal support to request options and `call` action.
+
+### Patch Changes
+
+- [#4608](https://github.com/wevm/viem/pull/4608) [`0e282d69d534e7fc277300260e31c07c4d8cb325`](https://github.com/wevm/viem/commit/0e282d69d534e7fc277300260e31c07c4d8cb325) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated `Actions.wallet.send` parameters to match the latest wallet RPC schema: renamed `value` to `amount`, added an optional `memo` field (UTF-8, max 32 bytes; rejected for non-TIP-20 tokens), and widened `token` to also accept curated tokenlist symbols.
+
+  ```diff
+  await Actions.wallet.send(client, {
+  +  amount: '1.5',
+  +  memo: 'thanks',
+     to: '0x...',
+  -  token: '0x...',
+  +  token: 'pathUsd',
+  -  value: '1.5',
+  })
+  ```
+
+## 2.48.11
+
+### Patch Changes
+
+- [#4585](https://github.com/wevm/viem/pull/4585) [`18ccb586bd40d8410703e426261b0f03e530ade5`](https://github.com/wevm/viem/commit/18ccb586bd40d8410703e426261b0f03e530ade5) Thanks [@gakonst](https://github.com/gakonst)! - `viem/tempo`: Added `wallet_` JSON-RPC Actions for opening send, swap, and deposit flows.
+
+## 2.48.10
+
+### Patch Changes
+
+- [#4579](https://github.com/wevm/viem/pull/4579) [`d413d1be25674e33dfcbe0fdf883aa18268034bc`](https://github.com/wevm/viem/commit/d413d1be25674e33dfcbe0fdf883aa18268034bc) Thanks [@deodad](https://github.com/deodad)! - Added `virtualAddresses` metadata to Tempo fill transaction capabilities.
+
+- [#4547](https://github.com/wevm/viem/pull/4547) [`bb4a63f0632910079d2a33653fadfc4f7ee31aa1`](https://github.com/wevm/viem/commit/bb4a63f0632910079d2a33653fadfc4f7ee31aa1) Thanks [@IrshadKohl51](https://github.com/IrshadKohl51)! - Aligned `sendTransactionSync` `dataSuffix` behavior with `sendTransaction` so that calls passing only `dataSuffix` (without `data`) correctly append to `data ?? '0x'` instead of being silently dropped.
+
+## 2.48.9
+
+### Patch Changes
+
+- [#4570](https://github.com/wevm/viem/pull/4570) [`00228343d7a278d3930971b745c50c65c22a932b`](https://github.com/wevm/viem/commit/00228343d7a278d3930971b745c50c65c22a932b) Thanks [@mattsse](https://github.com/mattsse)! - **viem/tempo:** Fixed Tempo zone encrypted deposit payload encoding to match the zone protocol.
+
+- [#4541](https://github.com/wevm/viem/pull/4541) [`1ab557ec1bd2f60a9a1f851d2474028bf32b682c`](https://github.com/wevm/viem/commit/1ab557ec1bd2f60a9a1f851d2474028bf32b682c) Thanks [@PaulRBerg](https://github.com/PaulRBerg)! - Added `multicall3` contract address to `hyperEvm` chain definition.
+
+## 2.48.8
+
+### Patch Changes
+
+- [#4573](https://github.com/wevm/viem/pull/4573) [`6df91c4bd23bcc83b82b2c058e685fc85d18f98f`](https://github.com/wevm/viem/commit/6df91c4bd23bcc83b82b2c058e685fc85d18f98f) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `capabilities` to `TransactionRequestTempo` and forwarded it through `formatTransactionRequest`.
+
+## 2.48.7
+
+### Patch Changes
+
+- [#4567](https://github.com/wevm/viem/pull/4567) [`ef3f4334f81bffc40bc2666103d3f2210f6da004`](https://github.com/wevm/viem/commit/ef3f4334f81bffc40bc2666103d3f2210f6da004) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Preserved `keyType`, `keyId`, and `keyData` from the input request when no account is present in `formatTransactionRequest`.
+
+## 2.48.6
+
+### Patch Changes
+
+- [#4564](https://github.com/wevm/viem/pull/4564) [`d55c4a5a74112d594e306b7ed7a714d5b17a0d43`](https://github.com/wevm/viem/commit/d55c4a5a74112d594e306b7ed7a714d5b17a0d43) Thanks [@jxom](https://github.com/jxom)! - Stripped basic-auth credentials (`user:pass@`) from URLs surfaced in
+  error meta-messages (`HttpRequestError`, `WebSocketRequestError`,
+  `RpcRequestError`, `TimeoutError`).
+
+## 2.48.5
+
+### Patch Changes
+
+- [#4561](https://github.com/wevm/viem/pull/4561) [`e1d2ffdcbf1235165e03e4e17871a69655b886b1`](https://github.com/wevm/viem/commit/e1d2ffdcbf1235165e03e4e17871a69655b886b1) Thanks [@emmajam](https://github.com/emmajam)! - Added `blockTimestamp` formatting for transaction responses.
+
+- [#4559](https://github.com/wevm/viem/pull/4559) [`8d8f243d08757f115fccca7f4e644996e954d0b0`](https://github.com/wevm/viem/commit/8d8f243d08757f115fccca7f4e644996e954d0b0) Thanks [@jxom](https://github.com/jxom)! - Added override for `zoneModerato(6)` (`Zone A`) and `zoneModerato(7)` (`Zone B`) names and RPC URLs.
+
 ## 2.48.4
 
 ### Patch Changes

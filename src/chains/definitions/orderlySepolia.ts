@@ -6,13 +6,13 @@ export const orderlySepolia = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://l2-orderly-l2-4460-sepolia-8tc3sd7dvy.t.conduit.xyz'],
+      http: ['https://testnet-rpc.orderly.org'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Orderly Explorer',
-      url: 'https://explorerl2new-orderly-l2-4460-sepolia-8tc3sd7dvy.t.conduit.xyz',
+      url: 'https://testnet-explorer.orderly.org',
     },
   },
   testnet: true,

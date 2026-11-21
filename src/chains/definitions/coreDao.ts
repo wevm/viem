@@ -20,7 +20,7 @@ export const coreDao = /*#__PURE__*/ defineChain({
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 11_907_934,
+      blockCreated: 6_988_931,
     },
   },
   testnet: false,

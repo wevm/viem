@@ -136,3 +136,24 @@ test('errors: abi item not a function', () => {
     Version: viem@x.y.z]
   `)
 })
+
+test('behavior: abi item edited in place', () => {
+  const abiItem = {
+    inputs: [{ name: 'a', type: 'uint256' }],
+    name: 'foo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  }
+  const before = prepareEncodeFunctionData({ abi: [abiItem] }).functionName
+
+  abiItem.name = 'bar'
+  const after = prepareEncodeFunctionData({ abi: [abiItem] }).functionName
+
+  expect({ after, before }).toMatchInlineSnapshot(`
+    {
+      "after": "0x0423a132",
+      "before": "0x2fbebd38",
+    }
+  `)
+})

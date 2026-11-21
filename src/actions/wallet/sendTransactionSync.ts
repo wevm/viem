@@ -18,6 +18,7 @@ import { BaseError } from '../../errors/base.js'
 import {
   TransactionReceiptRevertedError,
   type TransactionReceiptRevertedErrorType,
+  WaitForTransactionReceiptTimeoutError,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -40,6 +41,9 @@ import {
   assertCurrentChain,
 } from '../../utils/chain/assertCurrentChain.js'
 import { concat } from '../../utils/data/concat.js'
+import { sliceHex } from '../../utils/data/slice.js'
+import { fromRlp } from '../../utils/encoding/fromRlp.js'
+import { toRlp } from '../../utils/encoding/toRlp.js'
 import {
   type GetTransactionErrorReturnType,
   getTransactionError,
@@ -50,7 +54,10 @@ import {
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import { isHash } from '../../utils/hash/isHash.js'
+import { keccak256 } from '../../utils/hash/keccak256.js'
 import { LruMap } from '../../utils/lru.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -213,6 +220,9 @@ export async function sendTransactionSync<
       docsPath: '/docs/actions/wallet/sendTransactionSync',
     })
   const account = account_ ? parseAccount(account_) : null
+  let nonceManagerParameters:
+    | { address: Address; chainId: number; nonce?: number | undefined }
+    | undefined
 
   try {
     assertRequest(parameters as AssertRequestParameters)
@@ -262,7 +272,7 @@ export async function sendTransactionSync<
           authorizationList,
           blobs,
           chainId,
-          data: data ? concat([data, dataSuffix ?? '0x']) : data,
+          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
           gas,
           gasPrice,
           maxFeePerBlobGas,
@@ -348,6 +358,34 @@ export async function sendTransactionSync<
     }
 
     if (account?.type === 'local') {
+      const nonceManager = ((): NonceManager | undefined => {
+        if (!account.nonceManager || typeof nonce !== 'undefined')
+          return account.nonceManager
+        const nonceManager = account.nonceManager
+        return {
+          async consume(parameters) {
+            nonceManagerParameters = {
+              address: parameters.address,
+              chainId: parameters.chainId,
+            }
+            const nonce = await nonceManager.consume(parameters)
+            // Pass the consumed nonce to `reset` so the manager can tell
+            // which `consume` a failed send follows.
+            nonceManagerParameters = { ...nonceManagerParameters, nonce }
+            return nonce
+          },
+          get(parameters) {
+            return nonceManager.get(parameters)
+          },
+          increment(parameters) {
+            return nonceManager.increment(parameters)
+          },
+          reset(parameters) {
+            return nonceManager.reset(parameters)
+          },
+        }
+      })()
+
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await getAction(
         client,
@@ -359,14 +397,14 @@ export async function sendTransactionSync<
         authorizationList,
         blobs,
         chain,
-        data: data ? concat([data, dataSuffix ?? '0x']) : data,
+        data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
         gas,
         gasPrice,
         maxFeePerBlobGas,
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceManager: account.nonceManager,
+        nonceManager,
         parameters: [...defaultParameters, 'sidecars'],
         type,
         value,
@@ -375,21 +413,79 @@ export async function sendTransactionSync<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(
+      const signedTransaction = (await account.signTransaction(
         request as never,
         {
           serializer,
         },
       )) as Hash
-      return (await getAction(
-        client,
-        sendRawTransactionSync,
-        'sendRawTransactionSync',
-      )({
-        serializedTransaction,
-        throwOnReceiptRevert,
-        timeout: parameters.timeout,
-      })) as never
+      const transactionEnvelope = (chain ?? client.chain)?.serializers
+        ?.transactionEnvelope
+      const serializedTransaction = transactionEnvelope
+        ? await transactionEnvelope({
+            serializedTransaction: signedTransaction,
+            transaction: request as never,
+          })
+        : signedTransaction
+      const start = Date.now()
+      try {
+        return (await getAction(
+          client,
+          sendRawTransactionSync,
+          'sendRawTransactionSync',
+        )({
+          serializedTransaction,
+          throwOnReceiptRevert,
+          timeout: parameters.timeout,
+        })) as never
+      } catch (err) {
+        // The node accepted the transaction but stopped waiting for its
+        // receipt (EIP-7966).
+        const timeoutError =
+          err instanceof BaseError
+            ? (err.walk((e) => (e as { code?: unknown } | null)?.code === 4) as
+                | (Error & { data?: unknown })
+                | null)
+            : null
+        if (!timeoutError) throw err
+
+        // The pending transaction holds the nonce, so keep it.
+        nonceManagerParameters = undefined
+
+        // Prefer the node's hash, since a relay (such as a fee payer) can
+        // change the bytes it broadcasts. Without one, derive it locally.
+        const hash = (() => {
+          const { data } = timeoutError
+          if (typeof data === 'string' && isHash(data)) return data
+          // An EIP-4844 network wrapper holds the signed payload, then the
+          // blobs, commitments, and proofs. The hash covers only the payload.
+          if (sliceHex(serializedTransaction, 0, 1) === '0x03') {
+            const fields = fromRlp(sliceHex(serializedTransaction, 1))
+            if (fields.length === 4 && Array.isArray(fields[0]))
+              return keccak256(concat(['0x03', toRlp(fields[0])]))
+          }
+          return keccak256(serializedTransaction)
+        })()
+
+        const remaining = timeout - (Date.now() - start)
+        // The node used up `timeout` before it answered.
+        if (remaining <= 0)
+          throw new WaitForTransactionReceiptTimeoutError({ hash })
+
+        const receipt = await getAction(
+          client,
+          waitForTransactionReceipt,
+          'waitForTransactionReceipt',
+        )({
+          checkReplacement: false,
+          hash,
+          pollingInterval,
+          timeout: remaining,
+        })
+        if (throwOnReceiptRevert && receipt.status === 'reverted')
+          throw new TransactionReceiptRevertedError({ receipt })
+        return receipt as never
+      }
     }
 
     if (account?.type === 'smart')
@@ -407,6 +503,11 @@ export async function sendTransactionSync<
     })
   } catch (err) {
     if (err instanceof AccountTypeNotSupportedError) throw err
+    if (
+      nonceManagerParameters &&
+      !(err instanceof TransactionReceiptRevertedError)
+    )
+      account?.nonceManager?.reset(nonceManagerParameters)
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,

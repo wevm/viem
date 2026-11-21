@@ -1,12 +1,21 @@
 import {
   HttpRequestError,
   type HttpRequestErrorType as HttpRequestErrorType_,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
+  RpcRequestError,
+  type RpcRequestErrorType,
   TimeoutError,
   type TimeoutErrorType,
 } from '../../errors/request.js'
-import type { ErrorType } from '../../errors/utils.js'
+import {
+  type ErrorType,
+  getAbortError,
+  isAbortError,
+} from '../../errors/utils.js'
 import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import type { MaybePromise } from '../../types/utils.js'
+import { anySignal, readResponseBody } from '../internal/http.js'
 import {
   type WithTimeoutErrorType,
   withTimeout,
@@ -21,6 +30,8 @@ export type HttpRpcClientOptions = {
     | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
+  /** Maximum response body size in bytes. Set to `false` to disable. @default 10_485_760 */
+  maxResponseBodySize?: number | false | undefined
   /** A callback to handle the request. */
   onRequest?:
     | ((
@@ -45,6 +56,8 @@ export type HttpRequestParameters<
   fetchFn?: HttpRpcClientOptions['fetchFn'] | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
+  /** Maximum response body size in bytes. Set to `false` to disable. */
+  maxResponseBodySize?: HttpRpcClientOptions['maxResponseBodySize'] | undefined
   /** A callback to handle the response. */
   onRequest?:
     | ((
@@ -66,9 +79,19 @@ export type HttpRequestReturnType<
 
 export type HttpRequestErrorType =
   | HttpRequestErrorType_
+  | ResponseBodyTooLargeErrorType
+  | RpcRequestErrorType
   | TimeoutErrorType
   | WithTimeoutErrorType
   | ErrorType
+
+const defaultMaxResponseBodySize = 10_485_760
+
+/**
+ * Rejection of a request that timed out. Replaced by a `TimeoutError`, which
+ * serializes the request body, only once a request actually times out.
+ */
+const timedOut = /*#__PURE__*/ new Error('timed out')
 
 export type HttpRpcClient = {
   request<body extends RpcRequest | RpcRequest[]>(
@@ -87,6 +110,8 @@ export function getHttpRpcClient(
       const {
         body,
         fetchFn = options.fetchFn ?? fetch,
+        maxResponseBodySize = options.maxResponseBodySize ??
+          defaultMaxResponseBodySize,
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
@@ -100,52 +125,78 @@ export function getHttpRpcClient(
       const { headers, method, signal: signal_ } = fetchOptions
 
       try {
-        const response = await withTimeout(
-          async ({ signal }) => {
-            const init: RequestInit = {
-              ...fetchOptions,
-              body: Array.isArray(body)
-                ? stringify(
-                    body.map((body) => ({
+        const { response, responseBody } = await withTimeout(
+          async ({ signal: timeoutSignal }) => {
+            // Abort on whichever fires first so that a `signal` does not
+            // disable the timeout.
+            const { signal, cleanup } = anySignal([
+              signal_,
+              timeout > 0 ? timeoutSignal : null,
+            ])
+            try {
+              // Keep a plain object so `onRequest` hooks can spread it.
+              const headers_: Record<string, string> = {}
+              for (const init of [
+                headers_url,
+                { 'Content-Type': 'application/json' },
+                headers,
+              ])
+                new Headers(init).forEach((value, key) => {
+                  headers_[key] = value
+                })
+              const init: RequestInit = {
+                ...fetchOptions,
+                body: Array.isArray(body)
+                  ? stringify(
+                      body.map((body) => ({
+                        jsonrpc: '2.0',
+                        id: body.id ?? idCache.take(),
+                        ...body,
+                      })),
+                    )
+                  : stringify({
                       jsonrpc: '2.0',
                       id: body.id ?? idCache.take(),
                       ...body,
-                    })),
-                  )
-                : stringify({
-                    jsonrpc: '2.0',
-                    id: body.id ?? idCache.take(),
-                    ...body,
-                  }),
-              headers: {
-                ...headers_url,
-                'Content-Type': 'application/json',
-                ...headers,
-              },
-              method: method || 'POST',
-              signal: signal_ || (timeout > 0 ? signal : null),
+                    }),
+                headers: headers_,
+                method: method || 'POST',
+                signal,
+              }
+              // Only the hook needs a `Request`, which is costly to construct.
+              const args = (onRequest &&
+                (await onRequest(new Request(url, init), init))) ?? {
+                ...init,
+                url,
+              }
+              const response = await fetchFn(args.url ?? url, args)
+
+              if (onResponse) await onResponse(response)
+
+              // Read the body within the timeout too, so a response that stalls
+              // after its headers cannot hang the request.
+              const responseBody = await readResponseBody(response, {
+                maxResponseBodySize,
+              })
+              return { response, responseBody }
+            } finally {
+              cleanup()
             }
-            const request = new Request(url, init)
-            const args = (await onRequest?.(request, init)) ?? { ...init, url }
-            const response = await fetchFn(args.url ?? url, args)
-            return response
           },
           {
-            errorInstance: new TimeoutError({ body, url }),
+            errorInstance: timedOut,
             timeout,
             signal: true,
           },
         )
 
-        if (onResponse) await onResponse(response)
-
         let data: any
         if (
           response.headers.get('Content-Type')?.startsWith('application/json')
         )
-          data = await response.json()
+          data = JSON.parse(responseBody)
         else {
-          data = await response.text()
+          data = responseBody
           try {
             data = JSON.parse(data || '{}')
           } catch (err) {
@@ -154,14 +205,24 @@ export function getHttpRpcClient(
           }
         }
 
+        // A server that rejects a whole batch replies with a single error, bare
+        // or in a one-element array (geth).
+        const error =
+          Array.isArray(body) && Array.isArray(data) && data.length === 1
+            ? data[0]
+            : data
+
         if (!response.ok) {
-          // If the response body contains a valid JSON-RPC error, return it
-          // so it flows through the normal RPC error handling pipeline.
-          if (
-            typeof data.error?.code === 'number' &&
-            typeof data.error?.message === 'string'
-          )
-            return data
+          // A valid JSON-RPC error body keeps its RPC error class and the
+          // response status and headers for retries.
+          if (isRpcError(error))
+            throw new RpcRequestError({
+              body,
+              error: error.error,
+              headers: response.headers,
+              status: response.status,
+              url,
+            })
 
           throw new HttpRequestError({
             body,
@@ -172,9 +233,25 @@ export function getHttpRpcClient(
           })
         }
 
-        return data
+        if (!Array.isArray(body) || !body.length) {
+          if (!isRpcResponse(data))
+            throw new Error(
+              'Invalid JSON-RPC response: expected an object with a result or error.',
+            )
+          return data
+        }
+        if (Array.isArray(data) && data.length >= body.length) return data
+        if (!isRpcError(error))
+          throw new Error(`Expected ${body.length} responses to batch request.`)
+        // The error answers every request, so each copy carries its request's id.
+        return body.map(({ id }) => ({ ...error, id: id ?? error.id }))
       } catch (err) {
+        if (signal_?.aborted) throw getAbortError(signal_)
+        if (err === timedOut) throw new TimeoutError({ body, url })
+        if (isAbortError(err)) throw err
         if (err instanceof HttpRequestError) throw err
+        if (err instanceof ResponseBodyTooLargeError) throw err
+        if (err instanceof RpcRequestError) throw err
         if (err instanceof TimeoutError) throw err
         throw new HttpRequestError({
           body,
@@ -184,6 +261,21 @@ export function getHttpRpcClient(
       }
     },
   }
+}
+
+function isRpcError(data: any) {
+  return (
+    typeof data?.error?.code === 'number' &&
+    typeof data?.error?.message === 'string'
+  )
+}
+
+function isRpcResponse(data: any) {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    ('result' in data || 'error' in data)
+  )
 }
 
 /** @internal */

@@ -312,6 +312,60 @@ test('Foo(string)', () => {
   ])
 })
 
+test('Foo(string): hex-like value', () => {
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'message',
+              type: 'string',
+            },
+          ],
+          name: 'Foo',
+          type: 'event',
+        },
+      ],
+      eventName: 'Foo',
+      args: {
+        message: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      },
+    }),
+  ).toEqual([
+    '0x9f0b7f1630bdb7d474466e2dfef0fb9dff65f7a50eec83935b68f77d0808f08a',
+    '0x1e1424ab9612aff0e8fd41ee0d78f525ad6963610bd017d18f96d2a37cdf402a',
+  ])
+})
+
+test('Foo(bytes)', () => {
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          inputs: [
+            {
+              indexed: true,
+              name: 'data',
+              type: 'bytes',
+            },
+          ],
+          name: 'Foo',
+          type: 'event',
+        },
+      ],
+      eventName: 'Foo',
+      args: {
+        data: '0x1234',
+      },
+    }),
+  ).toEqual([
+    '0xefc9afd358f1472682cf8cc82e1d3ae36be2538ed858a4a604119399d6f22b48',
+    '0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432',
+  ])
+})
+
 test('Foo((uint,string))', () => {
   expect(() =>
     encodeEventTopics({
@@ -531,4 +585,90 @@ test('https://github.com/wevm/viem/issues/3278', () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000",
     ]
   `)
+})
+
+test('https://github.com/wevm/viem/issues/4461', () => {
+  const anonymousAbi = [
+    {
+      name: 'RawEvent',
+      type: 'event',
+      anonymous: true,
+      inputs: [
+        { name: 'topic0', type: 'bytes32', indexed: true },
+        { name: 'topic1', type: 'bytes32', indexed: true },
+        { name: 'topic2', type: 'bytes32', indexed: true },
+        { name: 'topic3', type: 'bytes32', indexed: true },
+      ],
+    },
+  ] as const
+
+  // no args: signature topic must not be prepended
+  expect(encodeEventTopics({ abi: anonymousAbi })).toEqual([])
+
+  // leading indexed arg
+  expect(
+    encodeEventTopics({
+      abi: anonymousAbi,
+      args: {
+        topic0:
+          '0x000000000000000000000000000000000000000000000000000000000000abcd',
+      },
+    }),
+  ).toEqual([
+    '0x000000000000000000000000000000000000000000000000000000000000abcd',
+    null,
+    null,
+    null,
+  ])
+
+  // all indexed args
+  expect(
+    encodeEventTopics({
+      abi: anonymousAbi,
+      args: {
+        topic0:
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+        topic1:
+          '0x0000000000000000000000000000000000000000000000000000000000000001',
+        topic2:
+          '0x0000000000000000000000000000000000000000000000000000000000000002',
+        topic3:
+          '0x0000000000000000000000000000000000000000000000000000000000000003',
+      },
+    }),
+  ).toEqual([
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x0000000000000000000000000000000000000000000000000000000000000001',
+    '0x0000000000000000000000000000000000000000000000000000000000000002',
+    '0x0000000000000000000000000000000000000000000000000000000000000003',
+  ])
+
+  // unnamed args
+  const anonymousAbiUnnamed = [
+    {
+      name: 'RawEvent',
+      type: 'event',
+      anonymous: true,
+      inputs: [
+        { type: 'bytes32', indexed: true },
+        { type: 'bytes32', indexed: true },
+        { type: 'bytes32', indexed: true },
+        { type: 'bytes32', indexed: true },
+      ],
+    },
+  ] as const
+
+  expect(
+    encodeEventTopics({
+      abi: anonymousAbiUnnamed,
+      args: [
+        '0x000000000000000000000000000000000000000000000000000000000000abcd',
+      ],
+    }),
+  ).toEqual([
+    '0x000000000000000000000000000000000000000000000000000000000000abcd',
+    null,
+    null,
+    null,
+  ])
 })

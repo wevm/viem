@@ -1,0 +1,170 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `propAmm.swap`
+
+Approves the input token and swaps through a propAMM pool in one Tempo transaction.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.propAmm.swapSync({
+  amountIn: 1_000_000n,
+  expectedOraclePrice: 1_000_000_000_000_000_000n,
+  minAmountOut: 1_000_000n,
+  minimumOracleUpdatedAt: 1_799_999_000n,
+  mode: 'exactInput',
+  pool: '0x0000000000000000000000000000000000000002',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires explicit `baseToQuote`, `customerId`, `deadline`, `recipient`, `tradeId`, and `oraclePriceToleranceBps` values.
+
+Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
+
+Simulation accepts `blockNumber`, `blockTag`, `stateOverrides`, `traceTransfers`, and `validation` options; transaction options such as `gas` are only supported by `estimateGas`.
+
+### Asynchronous Usage
+
+The example above uses `swapSync`, which waits for the transaction to be included and returns the
+confirmed trade fields and receipt. Use `swap` to return the hash immediately and wait for inclusion
+manually:
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.propAmm.swap({
+  amountIn: 1_000_000n,
+  expectedOraclePrice: 1_000_000_000_000_000_000n,
+  minAmountOut: 1_000_000n,
+  minimumOracleUpdatedAt: 1_799_999_000n,
+  mode: 'exactInput',
+  pool: '0x0000000000000000000000000000000000000002',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  amountIn: bigint
+  amountOut: bigint
+  customerId: Hex
+  oraclePrice: bigint
+  oracleUpdatedAt: bigint
+  receipt: TransactionReceipt
+  recipient: Address
+  taker: Address
+  tokenIn: Address
+  tokenOut: Address
+  tradeId: Hex
+}
+```
+
+Returns the confirmed trade event fields and transaction receipt for `swapSync`. The asynchronous `swap` action returns a transaction hash.
+
+## Parameters
+
+### amountIn
+
+- **Type:** `bigint`
+
+Required with `mode: 'exactInput'`. Input amount in token base units.
+
+### amountOut
+
+- **Type:** `bigint`
+
+Required with `mode: 'exactOutput'`. Output amount in token base units.
+
+### baseToQuote
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Set `true` to send base and receive quote, or `false` to send quote and receive base.
+
+### customerId
+
+- **Type:** `Hex`
+- **Default:** The sender address left-padded to 32 bytes
+
+Nonzero 32-byte customer route identifier. Set an explicit value to separate customer routes that share a wallet.
+
+### deadline
+
+- **Type:** `bigint`
+- **Default:** Five minutes from the current time
+
+Last accepted execution timestamp, in Unix seconds.
+
+### expectedOraclePrice
+
+- **Type:** `bigint`
+
+Oracle price returned by the quote.
+
+### maxAmountIn
+
+- **Type:** `bigint`
+
+Required with `mode: 'exactOutput'`. Highest accepted input in token base units; the action approves this amount, and unused allowance remains after the swap.
+
+### minAmountOut
+
+- **Type:** `bigint`
+
+Required with `mode: 'exactInput'`. Lowest accepted output in token base units.
+
+### minimumOracleUpdatedAt
+
+- **Type:** `bigint`
+
+Earliest accepted oracle observation timestamp, in Unix seconds.
+
+### mode
+
+- **Type:** `'exactInput' | 'exactOutput'`
+
+Select the amount that you specify.
+
+### oraclePriceToleranceBps
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Maximum accepted oracle price movement in basis points. Zero binds exactly.
+
+### pool
+
+- **Type:** `Address`
+
+Address of the propAMM pool and spender approved by the action.
+
+### recipient
+
+- **Type:** `Address`
+- **Default:** The account override or client account
+
+Destination of the output token. Required when no account is available.
+
+### tradeId
+
+- **Type:** `Hex`
+- **Default:** A random 32-byte value per swap
+
+Trade attribution value. The contract does not use it as replay protection.
+
+<WriteParameters />

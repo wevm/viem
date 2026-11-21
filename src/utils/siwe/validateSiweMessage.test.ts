@@ -1,5 +1,6 @@
 import { expect, test, vi } from 'vitest'
 
+import { parseSiweMessage } from './parseSiweMessage.js'
 import type { SiweMessage } from './types.js'
 import { validateSiweMessage } from './validateSiweMessage.js'
 
@@ -77,6 +78,34 @@ test('behavior: nonce mismatch', () => {
   ).toBeFalsy()
 })
 
+test('behavior: nonce shorter than 8 characters', () => {
+  const parsed =
+    parseSiweMessage(`example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobar
+Issued At: 2023-02-01T00:00:00.000Z`)
+
+  expect(validateSiweMessage({ message: parsed })).toBeFalsy()
+})
+
+test('behavior: version other than 1', () => {
+  const parsed =
+    parseSiweMessage(`example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+URI: https://example.com/path
+Version: 2
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`)
+
+  expect(validateSiweMessage({ message: parsed })).toBeFalsy()
+})
+
 test('behavior: scheme mismatch', () => {
   expect(
     validateSiweMessage({
@@ -89,6 +118,11 @@ test('behavior: scheme mismatch', () => {
   ).toBeFalsy()
 })
 
+test('behavior: scheme defaults to https when omitted', () => {
+  expect(validateSiweMessage({ scheme: 'https', message })).toBeTruthy()
+  expect(validateSiweMessage({ scheme: 'http', message })).toBeFalsy()
+})
+
 test('behavior: time is after expirationTime', () => {
   expect(
     validateSiweMessage({
@@ -97,6 +131,18 @@ test('behavior: time is after expirationTime', () => {
         expirationTime: new Date(Date.UTC(2024, 1, 1)),
       },
       time: new Date(Date.UTC(2025, 1, 1)),
+    }),
+  ).toBeFalsy()
+})
+
+test('behavior: unparseable expirationTime', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        expirationTime: new Date('never'),
+      },
+      time: new Date(Date.UTC(2020, 1, 1)),
     }),
   ).toBeFalsy()
 })
@@ -116,4 +162,28 @@ test('behavior: time is before notBefore', () => {
   ).toBeFalsy()
 
   vi.useRealTimers()
+})
+
+test('behavior: unparseable notBefore', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        notBefore: new Date('not-a-date'),
+      },
+      time: new Date(Date.UTC(2025, 1, 1)),
+    }),
+  ).toBeFalsy()
+})
+
+test('behavior: invalid time rejects before lifetime checks', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        expirationTime: new Date(Date.UTC(2030, 1, 1)),
+      },
+      time: new Date('never'),
+    }),
+  ).toBeFalsy()
 })

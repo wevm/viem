@@ -1,15 +1,22 @@
 name: "Install dependencies"
 description: "Prepare repository and all dependencies"
 
+inputs:
+  skip-cache:
+    description: 'Skip dependency cache restore/save'
+    required: false
+    default: 'false'
+
 runs:
   using: "composite"
   steps:
     - name: Set up foundry
-      uses: foundry-rs/foundry-toolchain@v1
+      uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@b518cf981b50a4c745a8b7335fc693f34b108a75
       with:
-        version: nightly
+        version: v1.8.7
 
     - name: Set up pnpm
-      uses: wevm/actions/.github/actions/pnpm@main
+      uses: wevm/actions/.github/actions/pnpm@b518cf981b50a4c745a8b7335fc693f34b108a75
       with:
-        node-version: 24.5
+        node-version: 24.22.1
+        skip-cache: ${{ inputs.skip-cache }}

@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
 import type { ErrorType } from '../errors/utils.js'
+import type { Tokens } from '../tokens/defineToken.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { RpcSchema, WalletRpcSchema } from '../types/eip1193.js'
@@ -23,9 +24,10 @@ export type WalletClientConfig<
     | Address
     | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Prettify<
   Pick<
-    ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
+    ClientConfig<transport, chain, accountOrAddress, rpcSchema, tokens>,
     | 'account'
     | 'cacheTime'
     | 'ccipRead'
@@ -35,6 +37,7 @@ export type WalletClientConfig<
     | 'name'
     | 'pollingInterval'
     | 'rpcSchema'
+    | 'tokens'
     | 'transport'
   >
 >
@@ -44,6 +47,7 @@ export type WalletClient<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Prettify<
   Client<
     transport,
@@ -52,7 +56,8 @@ export type WalletClient<
     rpcSchema extends RpcSchema
       ? [...WalletRpcSchema, ...rpcSchema]
       : WalletRpcSchema,
-    WalletActions<chain, account>
+    WalletActions<chain, account, tokens>,
+    tokens
   >
 >
 
@@ -99,9 +104,22 @@ export function createWalletClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  const tokens extends Tokens | undefined = undefined,
 >(
-  parameters: WalletClientConfig<transport, chain, accountOrAddress, rpcSchema>,
-): WalletClient<transport, chain, ParseAccount<accountOrAddress>, rpcSchema>
+  parameters: WalletClientConfig<
+    transport,
+    chain,
+    accountOrAddress,
+    rpcSchema,
+    tokens
+  >,
+): WalletClient<
+  transport,
+  chain,
+  ParseAccount<accountOrAddress>,
+  rpcSchema,
+  tokens
+>
 
 export function createWalletClient(
   parameters: WalletClientConfig,

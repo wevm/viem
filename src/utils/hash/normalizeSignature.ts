@@ -18,7 +18,7 @@ export function normalizeSignature(
     const char = signature[i]
 
     // If the character is a separator, we want to reactivate.
-    if (['(', ')', ','].includes(char)) active = true
+    if (char === '(' || char === ')' || char === ',') active = true
 
     // If the character is a "level" token, we want to increment/decrement.
     if (char === '(') level++
@@ -29,7 +29,13 @@ export function normalizeSignature(
 
     // If level === 0, we are at the definition level.
     if (level === 0) {
-      if (char === ' ' && ['event', 'function', ''].includes(result))
+      if (
+        char === ' ' &&
+        (result === 'event' ||
+          result === 'function' ||
+          result === 'error' ||
+          result === '')
+      )
         result = ''
       else {
         result += char
@@ -46,8 +52,9 @@ export function normalizeSignature(
 
     // Ignore spaces
     if (char === ' ') {
-      // If the previous character is a separator, and the current section isn't empty, we want to deactivate.
-      if (signature[i - 1] !== ',' && current !== ',' && current !== ',(') {
+      // A space directly after a `(` or `,` separator is leading whitespace.
+      // Otherwise, it ends the type, so we want to deactivate.
+      if (!current.endsWith(',') && !current.endsWith('(')) {
         current = ''
         active = false
       }

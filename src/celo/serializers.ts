@@ -24,8 +24,11 @@ export function serializeTransaction(
   transaction: CeloTransactionSerializable,
   signature?: Signature | undefined,
 ) {
-  if (isCIP64(transaction))
-    return serializeTransactionCIP64(transaction, signature)
+  if (isCIP64(transaction) || isPresent(transaction.feeCurrency))
+    return serializeTransactionCIP64(
+      transaction as TransactionSerializableCIP64,
+      signature,
+    )
   return serializeTransaction_op(transaction, signature)
 }
 

@@ -6,6 +6,7 @@ import { mine } from '../test/mine.js'
 import { setNonce } from '../test/setNonce.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
+import { getBlock } from './getBlock.js'
 import { getTransactionCount } from './getTransactionCount.js'
 
 const client = anvilMainnet.getClient()
@@ -58,4 +59,31 @@ test('no count', async () => {
       address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ad',
     }),
   ).toBe(0)
+})
+
+test('args: blockHash (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  expect(
+    await getTransactionCount(client, {
+      address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      blockHash: block.hash!,
+    }),
+  ).toBe(676)
+})
+
+test('args: blockHash + requireCanonical (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  expect(
+    await getTransactionCount(client, {
+      address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      blockHash: block.hash!,
+      requireCanonical: true,
+    }),
+  ).toBe(676)
 })

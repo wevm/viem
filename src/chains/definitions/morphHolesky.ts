@@ -14,7 +14,7 @@ export const morphHolesky = /*#__PURE__*/ defineChain({
     default: {
       name: 'Morph Holesky Explorer',
       url: 'https://explorer-holesky.morphl2.io',
-      apiUrl: 'https://explorer-api-holesky.morphl2.io/api?',
+      apiUrl: 'https://explorer-api-holesky.morphl2.io/api',
     },
   },
   testnet: true,

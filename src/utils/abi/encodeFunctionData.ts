@@ -8,7 +8,7 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
-import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
+import type { ConcatHexErrorType } from '../data/concat.js'
 import type { ToFunctionSelectorErrorType } from '../hash/toFunctionSelector.js'
 import {
   type EncodeAbiParametersErrorType,
@@ -87,9 +87,7 @@ export function encodeFunctionData<
   const abiItem = abi[0]
   const signature = functionName
 
-  const data =
-    'inputs' in abiItem && abiItem.inputs
-      ? encodeAbiParameters(abiItem.inputs, args ?? [])
-      : undefined
-  return concatHex([signature, data ?? '0x'])
+  if (!('inputs' in abiItem && abiItem.inputs)) return signature
+  const data = encodeAbiParameters(abiItem.inputs, args ?? [])
+  return `${signature}${data.slice(2)}`
 }

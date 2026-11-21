@@ -1,11 +1,81 @@
-import { beforeAll, describe, expect, test, vi } from 'vitest'
+import {
+  type AbiFunction,
+  createClient,
+  decodeFunctionData,
+  type EncodeFunctionResultParameters,
+  encodeFunctionResult,
+  type Hex,
+  http,
+  multicall3Abi,
+  pad,
+  toFunctionSelector,
+} from 'viem'
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
+import { createRpcProxy } from '~test/utils.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
+import * as readContractModule from '../../actions/public/readContract.js'
+import { mainnet, optimism } from '../../chains/index.js'
+import { wait } from '../../utils/wait.js'
+import { disputeGameAbi, disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 
+import { GameNotFoundError } from '../errors/withdrawal.js'
+import * as getGameModule from './getGame.js'
+import * as getPortalVersionModule from './getPortalVersion.js'
 import { getWithdrawalStatus } from './getWithdrawalStatus.js'
 
 const client = anvilMainnet.getClient()
 const optimismClient = anvilOptimism.getClient()
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+test('args: l2Timestamp', async () => {
+  vi.spyOn(getPortalVersionModule, 'getPortalVersion').mockResolvedValueOnce({
+    major: 3,
+    minor: 0,
+    patch: 0,
+  })
+  const getGame = vi
+    .spyOn(getGameModule, 'getGame')
+    .mockRejectedValueOnce(new GameNotFoundError())
+  vi.spyOn(readContractModule, 'readContract').mockImplementation(
+    (_, parameters) => {
+      if (parameters.functionName === 'numProofSubmitters')
+        return Promise.resolve(1n)
+      if (parameters.functionName === 'proofSubmitters')
+        return Promise.resolve('0x0000000000000000000000000000000000000001')
+      if (parameters.functionName === 'provenWithdrawals')
+        return Promise.resolve([
+          '0x0000000000000000000000000000000000000000',
+          0n,
+          0n,
+        ])
+      if (parameters.functionName === 'checkWithdrawal')
+        return Promise.resolve()
+      if (parameters.functionName === 'finalizedWithdrawals')
+        return Promise.resolve(false)
+      return Promise.reject(new Error('unexpected readContract call'))
+    },
+  )
+
+  const status = await getWithdrawalStatus(client, {
+    disputeGameFactoryAddress: '0x0000000000000000000000000000000000000001',
+    l2BlockNumber: 10n,
+    l2Timestamp: 20n,
+    portalAddress: '0x0000000000000000000000000000000000000002',
+    sender: '0x0000000000000000000000000000000000000001',
+    withdrawalHash:
+      '0x0000000000000000000000000000000000000000000000000000000000000003',
+  })
+
+  expect(status).toBe('waiting-to-prove')
+  expect(getGame).toHaveBeenCalledWith(
+    client,
+    expect.objectContaining({ l2BlockNumber: 20n }),
+  )
+})
 
 test('waiting-to-prove', async () => {
   await reset(client, {
@@ -145,6 +215,30 @@ test('finalized', async () => {
   expect(status).toBe('finalized')
 })
 
+test('behavior: target chain without disputeGameFactory', async () => {
+  await reset(client, {
+    blockNumber: 26430000n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
+  const status = await getWithdrawalStatus(client, {
+    gameLimit: 10,
+    l2BlockNumber: 159615611n,
+    l2Timestamp: 1794830000n,
+    targetChain: {
+      ...optimism,
+      contracts: {
+        l2OutputOracle: optimism.contracts.l2OutputOracle,
+        portal: optimism.contracts.portal,
+      },
+    },
+    sender: '0x0000000000000000000000000000000000000001',
+    withdrawalHash:
+      '0x0000000000000000000000000000000000000000000000000000000000000003',
+  })
+  expect(status).toBe('ready-to-prove')
+})
+
 test('error: non-withdrawal tx', async () => {
   const receipt = await getTransactionReceipt(optimismClient, {
     hash: '0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023',
@@ -190,6 +284,130 @@ test('error: portal contract non-existent (old block)', async () => {
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
+  `)
+})
+
+test('behavior: reads the game and finalized state concurrently with the proof submitter', async () => {
+  const game = '0x00000000000000000000000000000000000ca5e0'
+  const sender = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+  const replies: Record<string, unknown> = {
+    checkWithdrawal: undefined,
+    disputeGameFactory: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+    finalizedWithdrawals: false,
+    findLatestGames: [
+      {
+        extraData: '0x',
+        index: 9n,
+        metadata: pad(game, { size: 32 }),
+        rootClaim: pad('0x01', { size: 32 }),
+        timestamp: 1_700_000_000n,
+      },
+    ],
+    gameCount: 10n,
+    l2SequenceNumber: 120_000_100n,
+    numProofSubmitters: 1n,
+    proofSubmitters: sender,
+    provenWithdrawals: [game, 1_700_000_000n],
+    respectedGameType: 0,
+    version: '3.10.0',
+  }
+  const functions = Object.fromEntries(
+    [...portal2Abi, ...disputeGameFactoryAbi, ...disputeGameAbi]
+      .map((item) => item as AbiFunction)
+      .filter((fn) => fn.type === 'function' && fn.name in replies)
+      .map((fn) => [toFunctionSelector(fn), fn]),
+  )
+
+  const answer = (data: Hex) => {
+    const fn = functions[data.slice(0, 10)]!
+    return {
+      name: fn.name,
+      result:
+        fn.outputs.length === 0
+          ? '0x'
+          : encodeFunctionResult({
+              abi: [fn],
+              functionName: fn.name,
+              result: replies[fn.name],
+            } as EncodeFunctionResultParameters),
+    }
+  }
+
+  // Answers each read after 50ms, and groups the reads into rounds by how many
+  // reads each one waited on in sequence.
+  const rounds: string[][] = []
+  const finished: number[] = [0]
+  const url = await createRpcProxy(
+    anvilMainnet.rpcUrl.http,
+    async ({ params }) => {
+      const [{ data }] = params as [{ data: Hex }]
+      const { name, result } = (() => {
+        if (
+          !data.startsWith(
+            toFunctionSelector('aggregate3((address,bool,bytes)[])'),
+          )
+        )
+          return answer(data)
+        const { args } = decodeFunctionData({ abi: multicall3Abi, data })
+        const calls = (args[0] as readonly { callData: Hex }[]).map(
+          ({ callData }) => answer(callData),
+        )
+        return {
+          name: `aggregate3(${calls.map(({ name }) => name)})`,
+          result: encodeFunctionResult({
+            abi: multicall3Abi,
+            functionName: 'aggregate3',
+            result: calls.map(({ result }) => ({
+              success: true,
+              returnData: result,
+            })),
+          }),
+        }
+      })()
+      const depth = Math.max(...finished) + 1
+      rounds[depth - 1] = [...(rounds[depth - 1] ?? []), name]
+      await wait(50)
+      finished.push(depth)
+      return { result }
+    },
+  )
+  const client = createClient({ chain: mainnet, transport: http(url) })
+
+  const status = await getWithdrawalStatus(client, {
+    l2BlockNumber: 120_000_000n,
+    sender,
+    targetChain: optimism,
+    withdrawalHash: `0x${'aa'.repeat(32)}`,
+  })
+
+  expect(status).toMatchInlineSnapshot(`"ready-to-finalize"`)
+  expect(rounds.map((names) => names.sort())).toMatchInlineSnapshot(`
+    [
+      [
+        "version",
+      ],
+      [
+        "finalizedWithdrawals",
+        "numProofSubmitters",
+        "respectedGameType",
+      ],
+      [
+        "disputeGameFactory",
+        "proofSubmitters",
+      ],
+      [
+        "checkWithdrawal",
+        "gameCount",
+        "provenWithdrawals",
+        "respectedGameType",
+      ],
+      [
+        "findLatestGames",
+      ],
+      [
+        "aggregate3(l2SequenceNumber)",
+      ],
+    ]
   `)
 })
 
@@ -268,4 +486,79 @@ describe('legacy (portal v2)', () => {
     })
     expect(status).toBe('ready-to-finalize')
   }, 20_000)
+})
+
+describe('super root games', () => {
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 26270300n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+    await reset(optimismClient, {
+      blockNumber: 158668700n,
+      jsonRpcUrl: anvilOptimism.forkUrl,
+    })
+  })
+
+  test('waiting-to-prove', async () => {
+    // L2 timestamp 1792936085, newer than the latest game (1792934571).
+    const receipt = await getTransactionReceipt(optimismClient, {
+      hash: '0xdab8c1862755454ce77526f02c11dfda79687cb4838a47778f1543123ab205f6',
+    })
+
+    const status = await getWithdrawalStatus(client, {
+      receipt,
+      targetChain: optimismClient.chain,
+    })
+
+    expect(status).toBe('waiting-to-prove')
+  })
+
+  test('ready-to-prove', async () => {
+    // L2 timestamp 1792882853, covered by the latest game (1792934571).
+    const receipt = await getTransactionReceipt(optimismClient, {
+      hash: '0xee9fa457e05836ba7dbbecdf6b0c9c1741b9fd59fd4da715d57b0c16529c3e5d',
+    })
+
+    const status = await getWithdrawalStatus(client, {
+      receipt,
+      targetChain: optimismClient.chain,
+    })
+
+    expect(status).toBe('ready-to-prove')
+  })
+
+  test('finalized: no l2Timestamp', async () => {
+    const status = await getWithdrawalStatus(client, {
+      targetChain: optimismClient.chain,
+      l2BlockNumber: 21890440n,
+      withdrawalHash:
+        '0x1CD56A12D477EDB091DDECAC56A29D51AD61A9920BE8FCF1EE62BA00AF2B8E55',
+      sender: '0x7F6a4DfFcE8aE3AD8b75a35b6e2FB611b93Ca1DB',
+    })
+
+    expect(status).toBe('finalized')
+  })
+
+  test('error: receipt logs without blockTimestamp', async () => {
+    const receipt = await getTransactionReceipt(optimismClient, {
+      hash: '0xdab8c1862755454ce77526f02c11dfda79687cb4838a47778f1543123ab205f6',
+    })
+
+    await expect(() =>
+      getWithdrawalStatus(client, {
+        receipt: {
+          ...receipt,
+          logs: receipt.logs.map(({ blockTimestamp: _, ...log }) => log),
+        },
+        targetChain: optimismClient.chain,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [L2TimestampRequiredError: Dispute game type 9 anchors on L2 timestamps, so the L2 timestamp of the withdrawal is required.
+
+      Pass \`l2Timestamp\`, or a receipt whose logs include \`blockTimestamp\`.
+
+      Version: viem@x.y.z]
+    `)
+  })
 })

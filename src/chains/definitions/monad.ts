@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const monad = /*#__PURE__*/ defineChain({
   id: 143,
   name: 'Monad',
-  blockTime: 400,
+  blockTime: 300,
   nativeCurrency: {
     name: 'Monad',
     symbol: 'MON',
@@ -17,13 +17,13 @@ export const monad = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'MonadVision',
-      url: 'https://monadvision.com',
-    },
-    monadscan: {
       name: 'Monadscan',
       url: 'https://monadscan.com',
-      apiUrl: 'https://api.monadscan.com/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=143',
+    },
+    monadvision: {
+      name: 'MonadVision',
+      url: 'https://monadvision.com',
     },
   },
   testnet: false,

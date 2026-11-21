@@ -18,14 +18,14 @@ export type GetUserOperationParameters = {
 }
 
 export type GetUserOperationReturnType = Prettify<{
-  /** The block hash the User Operation was included on. */
-  blockHash: Hash
-  /** The block number the User Operation was included on. */
-  blockNumber: bigint
+  /** The block hash the User Operation was included on. `null` if pending. */
+  blockHash: Hash | null
+  /** The block number the User Operation was included on. `null` if pending. */
+  blockNumber: bigint | null
   /** The EntryPoint which handled the User Operation. */
   entryPoint: Address
-  /** The hash of the transaction which included the User Operation. */
-  transactionHash: Hash
+  /** The hash of the transaction which included the User Operation. `null` if pending. */
+  transactionHash: Hash | null
   /** The User Operation. */
   userOperation: UserOperation
 }>
@@ -76,10 +76,10 @@ export async function getUserOperation(
     result
 
   return {
-    blockHash,
-    blockNumber: BigInt(blockNumber),
+    blockHash: blockHash ?? null,
+    blockNumber: blockNumber ? BigInt(blockNumber) : null,
     entryPoint,
-    transactionHash,
+    transactionHash: transactionHash ?? null,
     userOperation: formatUserOperation(userOperation),
   }
 }

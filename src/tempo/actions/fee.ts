@@ -11,7 +11,7 @@ import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroAddress } from '../../constants/address.js'
-import type { BaseErrorType } from '../../errors/base.js'
+import type { BaseError, BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
@@ -19,6 +19,20 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import {
+  FeeTokenNotTip20Error,
+  FeeTokenNotUsdError,
+  FeeTokenPausedError,
+  InvalidFeeTokenError,
+  TempoExecutionError,
+} from '../errors.js'
+import {
+  formatAmount,
+  getFeeToken,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -26,6 +40,117 @@ import type {
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import * as tokenActions from './token.js'
+
+const tip20AddressPrefix = '0x20c0'
+
+/**
+ * Validates that a token can be used as a Tempo fee token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const { address, metadata } = await Actions.fee.validateToken(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The fee token address, ID, and metadata.
+ */
+export async function validateToken<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: validateToken.Parameters,
+): Promise<validateToken.ReturnValue> {
+  const { token, ...rest } = parameters
+  const token_ = String(token)
+  const address = (() => {
+    try {
+      return TokenId.toAddress(token)
+    } catch (cause) {
+      throw new InvalidFeeTokenError({
+        cause: cause as BaseError | Error,
+        token: token_,
+      })
+    }
+  })()
+
+  if (!address.toLowerCase().startsWith(tip20AddressPrefix))
+    throw new FeeTokenNotTip20Error({ token: address })
+
+  const isPathUsd = address.toLowerCase() === Addresses.pathUsd.toLowerCase()
+  if (!isPathUsd) {
+    const isTip20 = await withExecutionError(readContract)(client, {
+      ...rest,
+      address: Addresses.tip20Factory,
+      abi: Abis.tip20Factory,
+      functionName: 'isTIP20',
+      args: [address],
+    }).catch((cause) => {
+      throw new InvalidFeeTokenError({
+        cause: cause as BaseError | Error,
+        token: address,
+      })
+    })
+    if (!isTip20) throw new FeeTokenNotTip20Error({ token: address })
+  }
+
+  const metadata = await tokenActions
+    .getMetadata(client, {
+      ...rest,
+      token: address,
+    })
+    .catch((cause) => {
+      throw new InvalidFeeTokenError({
+        cause: cause as BaseError | Error,
+        token: address,
+      })
+    })
+
+  if (metadata.currency !== 'USD')
+    throw new FeeTokenNotUsdError({
+      currency: metadata.currency,
+      token: address,
+    })
+  if (metadata.paused === true)
+    throw new FeeTokenPausedError({ token: address })
+
+  return {
+    address,
+    id: TokenId.fromAddress(address),
+    metadata,
+  }
+}
+
+export declare namespace validateToken {
+  export type Parameters = ReadParameters & {
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = Compute<{
+    address: Address
+    id: bigint
+    metadata: tokenActions.getMetadata.ReturnValue
+  }>
+
+  export type ErrorType =
+    | Errors.ExecutionErrorType
+    | FeeTokenNotTip20Error
+    | FeeTokenNotUsdError
+    | FeeTokenPausedError
+    | InvalidFeeTokenError
+    | BaseErrorType
+}
 
 /**
  * Gets the user's default fee token.
@@ -62,7 +187,7 @@ export async function getUserToken<
   const { account: account_ = client.account, ...rest } = parameters[0] ?? {}
   if (!account_) throw new Error('account is required.')
   const account = parseAccount(account_)
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     ...rest,
     ...getUserToken.call({ account: account.address }),
   })
@@ -103,6 +228,8 @@ export namespace getUserToken {
       functionName: 'userTokens',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -154,7 +281,7 @@ export namespace setUserToken {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -168,7 +295,7 @@ export namespace setUserToken {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = setUserToken.call({ token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -267,6 +394,8 @@ export async function setUserTokenSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setUserToken.extractEvent(receipt.logs)
   return {
     ...args,
@@ -293,7 +422,7 @@ export namespace setUserTokenSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -396,7 +525,7 @@ export async function getValidatorToken<
   parameters: getValidatorToken.Parameters,
 ): Promise<getValidatorToken.ReturnValue> {
   const { validator, ...rest } = parameters
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     ...rest,
     ...getValidatorToken.call({ validator }),
   })
@@ -435,6 +564,8 @@ export namespace getValidatorToken {
       functionName: 'validatorTokens',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -486,7 +617,7 @@ export namespace setValidatorToken {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -500,7 +631,7 @@ export namespace setValidatorToken {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = setValidatorToken.call({ token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -599,6 +730,8 @@ export async function setValidatorTokenSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setValidatorToken.extractEvent(receipt.logs)
   return {
     ...args,
@@ -625,7 +758,7 @@ export namespace setValidatorTokenSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -699,4 +832,93 @@ export declare namespace watchSetValidatorToken {
     /** Callback to invoke when a validator token is set. */
     onValidatorTokenSet: (args: Args, log: Log) => void
   }
+}
+
+// Errors
+
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
+export type ExecutionErrorType = FeeInsufficientBalanceErrorType
+
+/** `FeeInsufficientBalanceError` with a literal `name`, for narrowing. */
+export type FeeInsufficientBalanceErrorType = FeeInsufficientBalanceError & {
+  name: 'FeeInsufficientBalanceError'
+}
+
+/** Thrown when an account cannot pay transaction fees in its fee token. */
+export class FeeInsufficientBalanceError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientFeeTokenBalance'>
+> {
+  /** Fee token balance, when known. */
+  balance: bigint | undefined
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Fee token, when known. */
+  feeToken: Address | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      balance?: bigint | undefined
+      decimals?: number | undefined
+      feeToken?: Address | undefined
+    },
+  ) {
+    const { balance, decimals, feeToken } = parameters
+    super(parameters, {
+      details: {
+        'fee token': feeToken,
+        balance: formatAmount(balance, decimals),
+      },
+      name: 'FeeInsufficientBalanceError',
+      shortMessage: `Insufficient balance to pay fees${feeToken ? ` in token "${feeToken}"` : ''}.`,
+    })
+    this.balance = balance
+    this.decimals = decimals
+    this.feeToken = feeToken
+  }
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'InsufficientFeeTokenBalance()': async (context) => {
+    const { feePayer } = context.parameters
+    // A local fee payer pays instead of the sender. External fee payers cannot be read.
+    const payer =
+      typeof feePayer === 'object'
+        ? parseAccount(feePayer).address
+        : feePayer
+          ? undefined
+          : context.signer?.address
+    if (!payer) return new FeeInsufficientBalanceError(context.base)
+    const [userToken] = getFeeToken(context)
+      ? []
+      : await context.read([
+          {
+            address: Addresses.feeManager,
+            abi: Abis.feeManager,
+            functionName: 'userTokens',
+            args: [payer],
+          },
+        ])
+    const feeToken =
+      getFeeToken(context) ??
+      (userToken?.result && userToken.result !== zeroAddress
+        ? userToken.result
+        : undefined)
+    if (!feeToken) return new FeeInsufficientBalanceError(context.base)
+    const [balance, decimals] = await context.read([
+      {
+        address: feeToken,
+        abi: Abis.tip20,
+        functionName: 'balanceOf',
+        args: [payer],
+      },
+      { address: feeToken, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new FeeInsufficientBalanceError({
+      ...context.base,
+      balance: balance?.result,
+      decimals: decimals?.result,
+      feeToken,
+    })
+  },
 }

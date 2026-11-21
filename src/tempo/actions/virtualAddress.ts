@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
+import { VirtualAddress } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
@@ -15,6 +16,8 @@ import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -49,7 +52,7 @@ export async function getMasterAddress<
   client: Client<Transport, chain, account>,
   parameters: getMasterAddress.Parameters,
 ): Promise<getMasterAddress.ReturnValue> {
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     ...parameters,
     ...getMasterAddress.call({ masterId: parameters.masterId }),
   })
@@ -68,7 +71,7 @@ export namespace getMasterAddress {
   export type ReturnValue = Address | null
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the `getMaster` function.
@@ -121,7 +124,7 @@ export async function resolve<
   client: Client<Transport, chain, account>,
   parameters: resolve.Parameters,
 ): Promise<resolve.ReturnValue> {
-  if (!isVirtual(parameters.address)) return parameters.address
+  if (!VirtualAddress.isVirtual(parameters.address)) return parameters.address
 
   const masterId = Hex.slice(parameters.address, 0, 4)
   return getMasterAddress(client, { ...parameters, masterId })
@@ -190,7 +193,7 @@ export namespace registerMaster {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -204,7 +207,7 @@ export namespace registerMaster {
   ): Promise<ReturnType<action>> {
     const { salt, ...rest } = parameters
     const call = registerMaster.call({ salt })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -300,6 +303,8 @@ export async function registerMasterSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = registerMaster.extractEvent(receipt.logs)
   return {
     ...args,
@@ -326,12 +331,5 @@ export namespace registerMasterSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-}
-
-const virtualMagic = '0xfdfdfdfdfdfdfdfdfdfd'
-
-/** @internal */
-function isVirtual(address: string): boolean {
-  return Hex.slice(address as Hex.Hex, 4, 14).toLowerCase() === virtualMagic
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }

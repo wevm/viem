@@ -1,6 +1,16 @@
-import { describe, expect, test } from 'vitest'
+import * as Hex from 'ox/Hex'
+import {
+  KeyAuthorization,
+  SignatureEnvelope,
+  SignaturePreAuthorized,
+} from 'ox/tempo'
+import { getBlock, getBlockNumber } from 'viem/actions'
+import { Transaction } from 'viem/tempo'
+import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { rpcUrl } from '~test/tempo/prool.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import {
   getTransaction,
   getTransactionReceipt,
@@ -9,12 +19,21 @@ import {
   signTransaction,
   verifyHash,
 } from '../actions/index.js'
+import { supportsFillTransaction } from '../actions/wallet/prepareTransactionRequest.js'
 import { mainnet, tempoLocalnet } from '../chains/index.js'
-import { createClient, http } from '../index.js'
+import { ContractFunctionExecutionError, createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
-import { hashMessage } from '../utils/index.js'
+import { hashMessage, keccak256 } from '../utils/index.js'
+import { withResolvers } from '../utils/promise/withResolvers.js'
 import * as accessKeyActions from './actions/accessKey.js'
-import { Account, P256, WebCryptoP256 } from './index.js'
+import { chainConfig } from './chainConfig.js'
+import {
+  Account,
+  Addresses,
+  KeyAuthorizationManager,
+  P256,
+  WebCryptoP256,
+} from './index.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -23,6 +42,145 @@ const client = getClient({
 const maxUint256 = 2n ** 256n - 1n
 
 describe('prepareTransactionRequest', () => {
+  describe('behavior: expiring nonce discriminators', () => {
+    test.each([
+      { nonceKey: 'expiring' as const },
+      { nonceKey: maxUint256 },
+      { feePayer: true as const },
+    ])(
+      'preserves caller input in the preparation hook for %o',
+      async (mode) => {
+        const nonces = [undefined, 0, 42, Number.MAX_SAFE_INTEGER] as const
+        const requests = await Promise.all(
+          nonces.map((nonce) => {
+            const request = { ...mode, nonce, chain: client.chain }
+            return chainConfig.prepareTransactionRequest[0](request, {
+              client,
+              phase: 'beforeFillTransaction',
+            })
+          }),
+        )
+
+        const [random, ...explicit] = requests.map((request) => request?.nonce)
+        expect(Number.isSafeInteger(random)).toBe(true)
+        expect(explicit).toMatchInlineSnapshot(`
+        [
+          0,
+          42,
+          9007199254740991,
+        ]
+      `)
+      },
+    )
+
+    test.each([
+      { nonceKey: 'expiring' as const },
+      { nonceKey: maxUint256 },
+      { feePayer: true as const },
+    ])('preserves caller input for %o', async (mode) => {
+      const nonces = [undefined, 0, 42, Number.MAX_SAFE_INTEGER] as const
+      const requests = await Promise.all(
+        nonces.map((nonce) =>
+          prepareTransactionRequest(client, {
+            ...mode,
+            nonce,
+            parameters: [],
+            validAfter: 1_800_000_000,
+            validBefore: 1_800_000_025,
+          }),
+        ),
+      )
+
+      const [random, ...explicit] = requests.map((request) => request?.nonce)
+      expect(Number.isSafeInteger(random)).toBe(true)
+      expect(explicit).toMatchInlineSnapshot(`
+        [
+          0,
+          42,
+          9007199254740991,
+        ]
+      `)
+      for (const request of requests) {
+        expect(request.nonceKey).toBe(maxUint256)
+        expect(request.validAfter).toBe(1_800_000_000)
+        expect(request.validBefore).toBe(1_800_000_025)
+      }
+    })
+
+    test('preserves caller input when concurrency enables expiring nonces', async () => {
+      const requests = await Promise.all(
+        [42, 43].map((nonce) =>
+          prepareTransactionRequest(client, {
+            nonce,
+            parameters: ['nonce'],
+          }),
+        ),
+      )
+
+      expect(requests.map(({ nonce }) => nonce)).toMatchInlineSnapshot(`
+        [
+          42,
+          43,
+        ]
+      `)
+      for (const request of requests) expect(request.nonceKey).toBe(maxUint256)
+    })
+
+    test('preserves discriminators through signing and repeated preparation', async () => {
+      const transaction = {
+        chainId: client.chain.id,
+        calls: [{ to: accounts[1].address }],
+        gas: 100_000n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 0n,
+        nonceKey: maxUint256,
+        validAfter: 1_800_000_000,
+        validBefore: 1_800_000_025,
+      } as const
+      const serialized = await Promise.all(
+        [0, 42, Number.MAX_SAFE_INTEGER].map(async (nonce) => {
+          const request = await prepareTransactionRequest(client, {
+            ...transaction,
+            nonce,
+            parameters: ['nonce'],
+          })
+          const repeated = await prepareTransactionRequest(client, {
+            ...request,
+            parameters: ['nonce'],
+          })
+
+          expect(repeated).toEqual(request)
+
+          const signed = await client.account.signTransaction({
+            ...transaction,
+            nonce: request.nonce,
+          })
+
+          expect(
+            await client.account.signTransaction({
+              ...transaction,
+              nonce: repeated.nonce,
+            }),
+          ).toBe(signed)
+          return signed
+        }),
+      )
+
+      expect(
+        serialized.map(
+          (transaction) => Transaction.deserialize(transaction).nonce,
+        ),
+      ).toMatchInlineSnapshot(`
+        [
+          0,
+          42,
+          9007199254740991,
+        ]
+      `)
+      expect(new Set(serialized).size).toBe(3)
+    })
+  })
+
   test('behavior: expiring nonces for feePayer transactions', async () => {
     const now = Math.floor(Date.now() / 1000)
     const requests = await Promise.all([
@@ -36,14 +194,19 @@ describe('prepareTransactionRequest', () => {
     expect(requests[1]?.nonceKey).toBe(maxUint256)
     expect(requests[2]?.nonceKey).toBe(maxUint256)
 
-    // All should have nonce = 0 for expiring nonces
-    expect(requests[0]?.nonce).toBe(0)
-    expect(requests[1]?.nonce).toBe(0)
-    expect(requests[2]?.nonce).toBe(0)
+    // Each gets a distinct nonce discriminator
+    const nonces = requests.map((request) => request.nonce)
+    expect(nonces.every((nonce) => Number.isSafeInteger(nonce))).toBe(true)
+    expect(new Set(nonces).size).toBe(3)
 
-    // All should have validBefore set within 30 seconds
-    expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now)
-    expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 31)
+    // All should be immediately valid
+    expect(requests[0]?.validAfter).toBeUndefined()
+    expect(requests[1]?.validAfter).toBeUndefined()
+    expect(requests[2]?.validAfter).toBeUndefined()
+
+    // All should have validBefore set 270 seconds ahead
+    expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 271)
   })
 
   test('behavior: explicit nonceKey overrides expiring nonce', async () => {
@@ -77,25 +240,235 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBeUndefined()
   })
 
+  test('behavior: does not set gas when gas is not prepared', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      feePayer: true,
+      parameters: [],
+    })
+
+    expect(request.gas).toBeUndefined()
+  })
+
+  test('behavior: bumps prepared gas for sponsored access keys', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      feePayer: true,
+      gas: 33_000n,
+      parameters: [],
+    })
+
+    // 5,000 for the fee payer's signature and fee token, plus 10,000 for the access-key signature.
+    expect(request.gas).toBe(48_000n)
+  })
+
+  test('behavior: bumps prepared gas for sponsored transactions', async () => {
+    const request = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(generatePrivateKey()),
+      feePayer: true,
+      gas: 33_000n,
+      parameters: [],
+    })
+
+    expect(request.gas).toBe(38_000n)
+  })
+
   test('behavior: nonceKey expiring uses expiring nonces', async () => {
     const now = Math.floor(Date.now() / 1000)
     const request = await prepareTransactionRequest(client, {
       nonceKey: 'expiring',
     })
     expect(request?.nonceKey).toBe(maxUint256)
-    expect(request?.nonce).toBe(0)
-    expect(request?.validBefore).toBeGreaterThanOrEqual(now)
-    expect(request?.validBefore).toBeLessThanOrEqual(now + 31)
+    expect(Number.isSafeInteger(request?.nonce)).toBe(true)
+    expect(request?.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(request?.validBefore).toBeLessThanOrEqual(now + 271)
   })
 
-  test('behavior: explicit validBefore is preserved', async () => {
+  test('behavior: numeric expiring nonce sentinel gets a validity window', async () => {
+    const now = Math.floor(Date.now() / 1000)
+    const request = await prepareTransactionRequest(client, {
+      nonceKey: maxUint256,
+      parameters: [],
+    })
+
+    expect(request.nonceKey).toBe(maxUint256)
+    expect(Number.isSafeInteger(request.nonce)).toBe(true)
+    expect(request.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(request.validBefore).toBeLessThanOrEqual(now + 271)
+  })
+
+  test('behavior: explicit validity window is preserved', async () => {
+    const customValidAfter = Math.floor(Date.now() / 1000) - 15
     const customValidBefore = Math.floor(Date.now() / 1000) + 15
     const request = await prepareTransactionRequest(client, {
       feePayer: true,
+      validAfter: customValidAfter,
       validBefore: customValidBefore,
     })
     expect(request?.nonceKey).toBe(maxUint256)
+    expect(request?.validAfter).toBe(customValidAfter)
     expect(request?.validBefore).toBe(customValidBefore)
+  })
+
+  test('behavior: expiring nonces do not consume a sequential nonce', async () => {
+    const consume = vi.fn(async () => 7)
+    const request = await prepareTransactionRequest(client, {
+      feePayer: true,
+      nonceManager: {
+        consume,
+        get: vi.fn(async () => 7),
+        increment: vi.fn(),
+        reset: vi.fn(),
+      },
+      parameters: ['nonce'],
+    })
+
+    expect(consume).not.toHaveBeenCalled()
+    expect(request.nonceKey).toBe(maxUint256)
+    expect(Number.isSafeInteger(request.nonce)).toBe(true)
+  })
+
+  test('behavior: protocol nonce key consumes a sequential nonce', async () => {
+    const consume = vi.fn(async () => 7)
+    const nonceManager = {
+      consume,
+      get: vi.fn(async () => 7),
+      increment: vi.fn(),
+      reset: vi.fn(),
+    }
+
+    const protocol = await prepareTransactionRequest(client, {
+      nonceKey: 0n,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    expect(protocol.nonceKey).toBe(0n)
+    expect(protocol.nonce).toBe(7)
+    expect(consume).toHaveBeenCalledTimes(1)
+
+    const parallel = await prepareTransactionRequest(client, {
+      nonceKey: 42n,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    expect(parallel.nonceKey).toBe(42n)
+    expect(parallel.nonce).toBe(0)
+    expect(consume).toHaveBeenCalledTimes(1)
+  })
+
+  test('behavior: detects concurrent JSON-RPC address accounts', async () => {
+    const address = accounts.at(0)!.address
+    const requests = await Promise.all([
+      prepareTransactionRequest(client, {
+        account: address,
+        parameters: [],
+      }),
+      prepareTransactionRequest(client, {
+        account: address.toLowerCase() as typeof address,
+        parameters: [],
+      }),
+    ])
+
+    expect(requests[0].nonceKey).toBe(maxUint256)
+    expect(requests[1].nonceKey).toBe(maxUint256)
+  })
+
+  test('behavior: detects concurrency before asynchronous account preparation', async () => {
+    let reads = 0
+    let releaseSecondRead: (() => void) | undefined
+    const secondRead = new Promise<undefined>((resolve) => {
+      releaseSecondRead = () => resolve(undefined)
+    })
+    const keyAuthorizationManager = KeyAuthorizationManager.from({
+      store: {
+        getItem() {
+          reads++
+          if (reads === 1) return undefined
+          return secondRead
+        },
+        removeItem() {},
+        setItem() {},
+      },
+    })
+    const account = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+      keyAuthorizationManager,
+    })
+
+    const firstPromise = prepareTransactionRequest(client, {
+      account,
+      parameters: [],
+    })
+    const secondPromise = prepareTransactionRequest(client, {
+      account,
+      parameters: [],
+    })
+    const first = await firstPromise
+    releaseSecondRead?.()
+    const second = await secondPromise
+
+    expect(first.nonceKey).toBe(maxUint256)
+    expect(second.nonceKey).toBe(maxUint256)
+  })
+
+  test('behavior: staggered requests use sequential nonces', async () => {
+    const entered_1 = withResolvers<void>()
+    const entered_2 = withResolvers<void>()
+    const release = withResolvers<void>()
+    let getCount = 0
+    const keyAuthorizationManager = KeyAuthorizationManager.from({
+      store: {
+        async getItem() {
+          getCount++
+          if (getCount === 1) entered_1.resolve()
+          if (getCount === 2) entered_2.resolve()
+          await release.promise
+          return undefined
+        },
+        removeItem() {},
+        setItem() {},
+      },
+    })
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+      keyAuthorizationManager,
+    })
+    let nonce = 7
+    const consume = vi.fn(async () => nonce++)
+    const nonceManager = {
+      consume,
+      get: vi.fn(async () => nonce),
+      increment: vi.fn(),
+      reset: vi.fn(),
+    }
+
+    const request_1 = prepareTransactionRequest(client, {
+      account: accessKey,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    await entered_1.promise
+    const request_2 = prepareTransactionRequest(client, {
+      account: accessKey,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    await entered_2.promise
+    release.resolve()
+
+    const requests = await Promise.all([request_1, request_2])
+    expect(requests.map((request) => request.nonce)).toEqual([7, 8])
+    expect(requests.map((request) => request.nonceKey)).toEqual([
+      undefined,
+      undefined,
+    ])
+    expect(consume).toHaveBeenCalledTimes(2)
   })
 
   test('behavior: sendTransaction with expiring nonces', async () => {
@@ -141,7 +514,267 @@ describe('prepareTransactionRequest', () => {
     const request = await prepareTransactionRequest(clientWithFeeToken, {})
     expect(request.feeToken).toBe(feeToken)
   })
+
+  test('behavior: keyAuthorizationManager attaches pending key authorization', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+
+    await keyAuthorizationManager.set(
+      {
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: client.chain.id,
+      },
+      keyAuthorization,
+    )
+
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      parameters: ['chainId'],
+    })
+
+    expect(request.keyAuthorization).toEqual(keyAuthorization)
+  })
+
+  test('behavior: keyAuthorizationManager reads metadata without client account', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const accessKeyClient = getClient({
+      account: accessKey,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+
+    await keyAuthorizationManager.set(
+      {
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: accessKeyClient.chain.id,
+      },
+      keyAuthorization,
+    )
+
+    const requestSpy = vi.spyOn(accessKeyClient, 'request')
+    const request = await prepareTransactionRequest(accessKeyClient, {
+      parameters: ['chainId'],
+    })
+    const requestCalls = requestSpy.mock.calls as [
+      { method: string; params?: readonly unknown[] },
+    ][]
+    const metadataCall = requestCalls.find(([request]) => {
+      if (request.method !== 'eth_call') return false
+      const call = request.params?.[0] as { to?: string } | undefined
+      return call?.to?.toLowerCase() === Addresses.accountKeychain.toLowerCase()
+    })
+    const call = metadataCall?.[0].params?.[0] as
+      | { from?: string | undefined }
+      | undefined
+
+    expect(request.keyAuthorization).toEqual(keyAuthorization)
+    expect(call?.from).toBeUndefined()
+  })
+
+  test('behavior: keyAuthorizationManager removes authorization for authorized key', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const key = {
+      address: accessKey.address,
+      accessKey: accessKey.accessKeyAddress,
+      chainId: client.chain.id,
+    }
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+
+    await accessKeyActions.authorizeSync(client, { accessKey, expiry })
+    await keyAuthorizationManager.set(key, keyAuthorization)
+
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      parameters: ['chainId'],
+    })
+
+    expect(request.keyAuthorization).toBeUndefined()
+    expect(await keyAuthorizationManager.get(key)).toBeUndefined()
+  })
+
+  test('behavior: keyAuthorizationManager sends a fresh authorization without reading the key', async () => {
+    const rootAccount = accounts.at(0)!
+    const privateKey = generatePrivateKey()
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey: Account.fromP256(privateKey, { access: rootAccount }),
+      expiry,
+    })
+    const accessKey = Account.fromP256(privateKey, {
+      access: rootAccount,
+      keyAuthorization,
+    })
+    const methods: string[] = []
+    const accessKeyClient = getClient({
+      account: accessKey,
+      transport: http(rpcUrl, {
+        onFetchRequest(_request, init) {
+          methods.push(JSON.parse(init.body as string).method)
+        },
+      }),
+    })
+    const to = '0x0000000000000000000000000000000000000000'
+
+    await sendTransactionSync(accessKeyClient, { to })
+    const first = methods.splice(0)
+    await sendTransactionSync(accessKeyClient, { to })
+    const second = methods.splice(0)
+    await sendTransactionSync(accessKeyClient, { to })
+    const third = methods.splice(0)
+
+    expect({ first, second, third }).toMatchInlineSnapshot(`
+      {
+        "first": [
+          "eth_fillTransaction",
+          "eth_sendRawTransactionSync",
+        ],
+        "second": [
+          "eth_fillTransaction",
+          "eth_fillTransaction",
+          "eth_sendRawTransactionSync",
+        ],
+        "third": [
+          "eth_fillTransaction",
+          "eth_sendRawTransactionSync",
+        ],
+      }
+    `)
+    expect(
+      await accessKey.keyAuthorizationManager?.get({
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: client.chain.id,
+      }),
+    ).toBeUndefined()
+  })
+
+  test('behavior: keyAuthorizationManager reads the key when the fill does not run', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const key = {
+      address: accessKey.address,
+      accessKey: accessKey.accessKeyAddress,
+      chainId: client.chain.id,
+    }
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+    await accessKeyActions.authorizeSync(client, { accessKey, expiry })
+    await keyAuthorizationManager.set(key, keyAuthorization)
+    const methods: string[] = []
+    const accessKeyClient = getClient({
+      account: accessKey,
+      transport: http(rpcUrl, {
+        onFetchRequest(_request, init) {
+          methods.push(JSON.parse(init.body as string).method)
+        },
+      }),
+    })
+    supportsFillTransaction.set(accessKeyClient.uid, false)
+
+    const request = await prepareTransactionRequest(accessKeyClient, {
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(request.keyAuthorization).toBeUndefined()
+    expect(await keyAuthorizationManager.get(key)).toBeUndefined()
+    expect(methods).toMatchInlineSnapshot(`
+      [
+        "eth_call",
+        "eth_getTransactionCount",
+        "eth_getBlockByNumber",
+        "eth_maxPriorityFeePerGas",
+        "eth_estimateGas",
+      ]
+    `)
+  })
 })
+
+const expiringNonceTransaction = {
+  accessList: [],
+  aaAuthorizationList: [],
+  blockHash:
+    '0x2a1be7bdf66a1d611af5af52d961261bd8f2f49fd6131ec00d702b585dca6f45',
+  blockNumber: '0x2c052d2',
+  blockTimestamp: '0x6ae0cad2',
+  calls: [
+    {
+      data: null,
+      input:
+        '0xa9059cbb0000000000000000000000004c2c0f0bb2631b02ac9299c59690914ee7a200b8000000000000000000000000000000000000000000000000000000000052b3e0',
+      to: '0x20c0000000000000000000006a37da5c996874be',
+      value: '0x0',
+    },
+  ],
+  chainId: '0x1079',
+  feePayerSignature: {
+    r: '0x7c4ef2a5e8e020d72493c05b7973ebcef0d67229042de01a0a07d64933f8880f',
+    s: '0x2298cf0122f6e8e6cd9d6bec68a06e75176f0e8231b81ad35430065b49323bc9',
+    v: '0x0',
+    yParity: '0x0',
+  },
+  feeToken: '0x20c0000000000000000000000000000000000000',
+  from: '0xec069186420e91902de5343393503d635ea90382',
+  gas: '0x916d2',
+  gasPrice: '0x23c34600',
+  hash: '0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239',
+  keyAuthorization: null,
+  maxFeePerGas: '0x47868c00',
+  maxPriorityFeePerGas: '0x0',
+  nonce: '0xe723b82c0de6fb54',
+  nonceKey:
+    '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+  signature: {
+    r: '0x20b5df0d1c766184d8d3867f4322fc6980bd6c8cf3cd41ceb4620fafb7e9f7fd',
+    s: '0x567734f30f9b8e9cbf71eb2be871a3a5eecf773da2feb74eda0fe82d52d83813',
+    type: 'secp256k1',
+    v: '0x0',
+    yParity: '0x0',
+  },
+  transactionIndex: '0x0',
+  type: '0x76',
+  validAfter: null,
+  validBefore: '0x6ae0cb0d',
+} as const
 
 describe('formatters', () => {
   test('transaction formatter (getTransaction)', async () => {
@@ -153,10 +786,49 @@ describe('formatters', () => {
       hash: receipt.transactionHash,
     })
     expect(transaction.hash).toBe(receipt.transactionHash)
+    expect(transaction.blockTimestamp).toBeTypeOf('bigint')
     expect(transaction.type).toBe('tempo')
     expect(transaction.calls).toBeDefined()
     expect(transaction.signature).toBeDefined()
     expect(transaction.feeToken).toBe(feeToken)
+  })
+
+  test('behavior: transaction formatter accepts expiring nonces above 2^53', () => {
+    const transaction = chainConfig.formatters.transaction.format(
+      expiringNonceTransaction as never,
+    )
+
+    expect(transaction.type).toBe('tempo')
+    expect(transaction.nonce).toBe(0xe723b82c0de6fb54n)
+    expect(transaction.nonceKey).toBe(
+      0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn,
+    )
+    expect(transaction.gasPrice).toBe(0x23c34600n)
+    expect('aaAuthorizationList' in transaction).toBe(false)
+  })
+
+  test('behavior: serializes formatted expiring nonces exactly', async () => {
+    const transaction = chainConfig.formatters.transaction.format(
+      expiringNonceTransaction as never,
+    )
+
+    const serialized = await Transaction.serialize(transaction as never)
+
+    expect(keccak256(serialized)).toBe(expiringNonceTransaction.hash)
+  })
+
+  test('behavior: block formatter formats Tempo transactions', () => {
+    const block = chainConfig.formatters.block.format({
+      number: '0x2c052d2',
+      transactions: [expiringNonceTransaction],
+    } as never)
+
+    const [transaction] =
+      block.transactions as readonly Transaction.Transaction[]
+    expect(block.number).toBe(0x2c052d2n)
+    expect(transaction?.type).toBe('tempo')
+    expect(transaction?.nonce).toBe(0xe723b82c0de6fb54n)
+    expect(transaction && 'aaAuthorizationList' in transaction).toBe(false)
   })
 
   test('transactionReceipt formatter (getTransactionReceipt)', async () => {
@@ -387,6 +1059,30 @@ describe('verifyHash', () => {
     ).toBe(true)
   })
 
+  test('accessKey: secp256k1 valid signature', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  })
+
   test('accessKey: invalid signature returns false', async () => {
     const rootAccount = accounts.at(0)!
     const accessKey = Account.fromP256(generatePrivateKey(), {
@@ -439,6 +1135,59 @@ describe('verifyHash', () => {
     ).toBe(false)
   })
 
+  test('secp256k1: valid signature', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const { address } = account
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    expect({
+      auto: await verifyHash(client, { address, hash, signature }),
+      eoa: await verifyHash(client, { address, hash, mode: 'eoa', signature }),
+    }).toMatchInlineSnapshot(`
+      {
+        "auto": true,
+        "eoa": true,
+      }
+    `)
+  })
+
+  test('secp256k1: invalid signature returns false', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const { address } = account
+
+    const hash = hashMessage('wrong message')
+    const signature = await account.sign({ hash: hashMessage('hello world') })
+
+    expect({
+      auto: await verifyHash(client, { address, hash, signature }),
+      eoa: await verifyHash(client, { address, hash, mode: 'eoa', signature }),
+    }).toMatchInlineSnapshot(`
+      {
+        "auto": false,
+        "eoa": false,
+      }
+    `)
+  })
+
+  test('secp256k1: failed commitment read rejects', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    await expect(
+      verifyHash(client, {
+        address: account.address,
+        blockNumber: 2n ** 62n,
+        hash,
+        mode: 'eoa',
+        signature,
+      }),
+    ).rejects.toThrow(ContractFunctionExecutionError)
+  })
+
   test('behavior: non-tempo chain', async () => {
     const privateKey = P256.randomPrivateKey()
     const account = Account.fromP256(privateKey)
@@ -474,6 +1223,277 @@ describe('verifyHash', () => {
         hash,
         signature,
       }),
+    ).toBe(false)
+  })
+})
+
+describe('verifyHash: pre-authorized signature', () => {
+  const root = accounts.at(0)!
+  const hash = hashMessage('hello world')
+  const now = () => Math.floor(Date.now() / 1000)
+
+  /** Signs a key authorization for an access key with the root key, and returns the access key account. */
+  async function setup(
+    parameters: Partial<KeyAuthorization.KeyAuthorization> & {
+      signer?: Account.RootAccount | undefined
+    } = {},
+  ) {
+    const { signer = root, ...rest } = parameters
+    const privateKey = generatePrivateKey()
+    const key = Account.fromSecp256k1(privateKey, { access: root })
+    const authorization = KeyAuthorization.from({
+      address: key.accessKeyAddress,
+      chainId: BigInt(client.chain.id),
+      expiry: now() + 3_600,
+      type: 'secp256k1',
+      ...rest,
+    } as KeyAuthorization.KeyAuthorization)
+    const keyAuthorization = KeyAuthorization.from(authorization, {
+      signature: SignatureEnvelope.from(
+        await signer.sign({
+          hash: KeyAuthorization.getSignPayload(authorization),
+        }),
+      ) as KeyAuthorization.Signature,
+    }) as KeyAuthorization.Signed
+    const account = Account.fromSecp256k1(privateKey, {
+      access: root,
+      keyAuthorization,
+    })
+    return { account, keyAuthorization }
+  }
+
+  // The node's clock can differ from the local clock, so expiries follow the chain.
+  async function blockTimestamp() {
+    return Number((await getBlock(client)).timestamp)
+  }
+
+  async function waitForTimestamp(timestamp: number) {
+    while ((await blockTimestamp()) <= timestamp)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+  }
+
+  async function verify(signature: Hex.Hex, address = root.address) {
+    return await verifyHash(client, {
+      address,
+      hash,
+      signature,
+      mode: 'allowAccessKey',
+    })
+  }
+
+  test('behavior: unregistered access key', async () => {
+    const { account } = await setup({
+      limits: [{ limit: 1_000_000n, token: feeToken }],
+      witness: keccak256('0x01'),
+    })
+
+    const signature = await account.sign({ hash })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(true)
+    expect(await verify(signature)).toBe(true)
+    expect(
+      await verifyHash(client, { address: root.address, hash, signature }),
+    ).toBe(false)
+  })
+
+  test('behavior: verifyMessage', async () => {
+    const { account } = await setup()
+
+    const signature = await account.signMessage({ message: 'hello world' })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: registered access key', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    await sendTransactionSync(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: registered access key with an unrelated authorization', async () => {
+    const key = Account.fromSecp256k1(generatePrivateKey(), { access: root })
+    await accessKeyActions.authorizeSync(client, {
+      accessKey: key,
+      expiry: now() + 3_600,
+    })
+    // The chain would refuse this authorization: it is for another chain.
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: 1n,
+    })
+
+    const signature = SignaturePreAuthorized.wrap({
+      keyAuthorization,
+      signature: SignatureEnvelope.from(
+        await key.sign({ hash }),
+      ) as SignatureEnvelope.Keychain,
+    })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: plain keychain signature is unchanged', async () => {
+    const key = Account.fromSecp256k1(generatePrivateKey(), { access: root })
+    const signature = await key.sign({ hash })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(false)
+    expect(await verify(signature)).toBe(false)
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey: key,
+      expiry: now() + 3_600,
+    })
+
+    expect(await verify(signature)).toBe(true)
+  })
+
+  test('behavior: revoked access key', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+    await sendTransactionSync(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    await accessKeyActions.revokeSync(client, { accessKey: account })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: registered access key that expired', async () => {
+    const expiry = (await blockTimestamp()) + 5
+    const { account } = await setup({ expiry })
+    const signature = await account.sign({ hash })
+    await sendTransactionSync(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    await waitForTimestamp(expiry)
+
+    expect(await verify(signature)).toBe(false)
+  }, 20_000)
+
+  test('behavior: burned witness', async () => {
+    const witness = keccak256(generatePrivateKey())
+    const { account } = await setup({ witness })
+    const signature = await account.sign({ hash })
+
+    expect(await verify(signature)).toBe(true)
+
+    await accessKeyActions.burnWitnessSync(client, { witness })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: expired authorization', async () => {
+    const { account } = await setup({ expiry: now() - 60 })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: reference block before the authorization expires', async () => {
+    const expiry = (await blockTimestamp()) + 5
+    const { account } = await setup({ expiry })
+    const signature = await account.sign({ hash })
+    const blockNumber = await getBlockNumber(client)
+
+    await waitForTimestamp(expiry)
+
+    expect(await verify(signature)).toBe(false)
+    expect(
+      await verifyHash(client, {
+        address: root.address,
+        blockNumber,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  }, 20_000)
+
+  test('behavior: wrong chain', async () => {
+    const { account } = await setup({ chainId: 1n })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: account mismatch', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    expect(await verify(signature, accounts.at(1)!.address)).toBe(false)
+  })
+
+  test('behavior: bound to another account', async () => {
+    const bound = await setup({ account: root.address })
+    const other = await setup({ account: accounts.at(1)!.address })
+
+    expect(await verify(await bound.account.sign({ hash }))).toBe(true)
+    expect(await verify(await other.account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: signed by a key other than the root', async () => {
+    const { account } = await setup({ signer: accounts.at(1)! })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: admin authorization', async () => {
+    const { account } = await setup({ isAdmin: true })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: key type mismatch', async () => {
+    const { account } = await setup({ type: 'p256' })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: wrong hash', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash: hashMessage('other') })
+
+    expect(await verify(signature)).toBe(false)
+  })
+
+  test('behavior: invalid call scope', async () => {
+    const { account } = await setup({
+      scopes: [
+        {
+          address: '0x0000000000000000000000000000000000000001',
+          recipients: [accounts.at(1)!.address],
+          selector: '0xa9059cbb',
+        },
+      ],
+    })
+
+    expect(await verify(await account.sign({ hash }))).toBe(false)
+  })
+
+  test('behavior: malformed signature', async () => {
+    const { account } = await setup()
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verify(
+        Hex.concat('0xc0', SignaturePreAuthorized.magicBytes) as Hex.Hex,
+      ),
+    ).toBe(false)
+    expect(
+      await verify(
+        Hex.concat(
+          Hex.slice(signature, 0, -32),
+          '0x00',
+          SignaturePreAuthorized.magicBytes,
+        ) as Hex.Hex,
+      ),
     ).toBe(false)
   })
 })

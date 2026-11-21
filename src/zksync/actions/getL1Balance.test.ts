@@ -3,6 +3,7 @@ import { expect, test, vi } from 'vitest'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
+import * as getBalance from '../../actions/public/getBalance.js'
 import * as readContract from '../../actions/public/readContract.js'
 import { sepolia } from '../../chains/index.js'
 import { erc20Abi } from '../../constants/abis.js'
@@ -112,16 +113,26 @@ test('args: blockTag with account provided to the method and token', async () =>
 })
 
 test('default with account hoisting', async () => {
+  const spy = vi.spyOn(getBalance, 'getBalance').mockResolvedValue(170n)
+
   const client = createClient({
     chain: sepolia,
     transport: http(),
     account,
   })
 
-  expect(await getL1Balance(client)).toBeDefined()
+  expect(await getL1Balance(client)).toBe(170n)
+
+  expect(spy).toHaveBeenCalledWith(client, {
+    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    blockNumber: undefined,
+    blockTag: undefined,
+  })
 })
 
 test('args: blockTag with account hoisting', async () => {
+  const spy = vi.spyOn(getBalance, 'getBalance').mockResolvedValue(170n)
+
   const client = createClient({
     chain: sepolia,
     transport: http(),
@@ -132,10 +143,18 @@ test('args: blockTag with account hoisting', async () => {
     await getL1Balance(client, {
       blockTag: 'finalized',
     }),
-  ).toBeDefined()
+  ).toBe(170n)
+
+  expect(spy).toHaveBeenCalledWith(client, {
+    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    blockNumber: undefined,
+    blockTag: 'finalized',
+  })
 })
 
 test('default with account provided to the method', async () => {
+  const spy = vi.spyOn(getBalance, 'getBalance').mockResolvedValue(170n)
+
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),
@@ -145,10 +164,18 @@ test('default with account provided to the method', async () => {
     await getL1Balance(client, {
       account,
     }),
-  ).toBeDefined()
+  ).toBe(170n)
+
+  expect(spy).toHaveBeenCalledWith(client, {
+    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    blockNumber: undefined,
+    blockTag: undefined,
+  })
 })
 
 test('args: blockTag with account provided to the method', async () => {
+  const spy = vi.spyOn(getBalance, 'getBalance').mockResolvedValue(170n)
+
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),
@@ -159,5 +186,11 @@ test('args: blockTag with account provided to the method', async () => {
       account,
       blockTag: 'finalized',
     }),
-  ).toBeDefined()
+  ).toBe(170n)
+
+  expect(spy).toHaveBeenCalledWith(client, {
+    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    blockNumber: undefined,
+    blockTag: 'finalized',
+  })
 })

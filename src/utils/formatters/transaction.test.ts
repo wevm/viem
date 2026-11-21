@@ -8,6 +8,7 @@ test('legacy transaction', () => {
       accessList: undefined,
       blockHash: '0x1',
       blockNumber: '0x10f2c',
+      blockTimestamp: '0x10f2c',
       from: '0x1',
       gas: '0x4234584',
       gasPrice: '0x45',
@@ -26,6 +27,7 @@ test('legacy transaction', () => {
     {
       "blockHash": "0x1",
       "blockNumber": 69420n,
+      "blockTimestamp": 69420n,
       "chainId": undefined,
       "from": "0x1",
       "gas": 69420420n,
@@ -808,4 +810,101 @@ test('contract deployment transaction', () => {
       "value": 1n,
     }
   `)
+})
+
+test('behavior: fields a type does not have are left out, in key order', () => {
+  const transaction: Record<string, unknown> = {
+    yParity: '0x1',
+    type: '0x0',
+    maxFeePerGas: '0x2',
+    accessList: [],
+    gas: '0x3',
+    hash: '0x4',
+    maxFeePerBlobGas: '0x5',
+    v: '0x1c',
+  }
+
+  expect(
+    Object.keys(formatTransaction(transaction as never)),
+  ).toMatchInlineSnapshot(`
+    [
+      "type",
+      "gas",
+      "hash",
+      "v",
+      "blockHash",
+      "blockNumber",
+      "chainId",
+      "gasPrice",
+      "nonce",
+      "to",
+      "transactionIndex",
+      "typeHex",
+      "value",
+    ]
+  `)
+  expect(
+    Object.keys(formatTransaction({ ...transaction, type: '0x1' } as never)),
+  ).toMatchInlineSnapshot(`
+    [
+      "yParity",
+      "type",
+      "accessList",
+      "gas",
+      "hash",
+      "v",
+      "blockHash",
+      "blockNumber",
+      "chainId",
+      "gasPrice",
+      "nonce",
+      "to",
+      "transactionIndex",
+      "typeHex",
+      "value",
+    ]
+  `)
+  expect(
+    Object.keys(formatTransaction({ ...transaction, type: '0x2' } as never)),
+  ).toMatchInlineSnapshot(`
+    [
+      "yParity",
+      "type",
+      "maxFeePerGas",
+      "accessList",
+      "gas",
+      "hash",
+      "v",
+      "blockHash",
+      "blockNumber",
+      "chainId",
+      "gasPrice",
+      "maxPriorityFeePerGas",
+      "nonce",
+      "to",
+      "transactionIndex",
+      "typeHex",
+      "value",
+    ]
+  `)
+  expect(() =>
+    formatTransaction({
+      ...transaction,
+      maxFeePerBlobGas: '0xzz',
+    } as never),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `[SyntaxError: Cannot convert 0xzz to a BigInt]`,
+  )
+})
+
+test('behavior: own `__proto__` key', () => {
+  const transaction = JSON.parse(
+    '{"__proto__":{"polluted":true},"type":"0x0","hash":"0x1"}',
+  )
+
+  const formatted = formatTransaction(transaction)
+
+  expect(Object.getPrototypeOf(formatted)).toBe(Object.prototype)
+  expect(Object.keys(formatted)).toContain('__proto__')
+  expect((formatted as { polluted?: boolean }).polluted).toBeUndefined()
 })

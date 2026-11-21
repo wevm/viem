@@ -1,10 +1,14 @@
 import type { ChainFormatters } from '../types/chain.js'
+import type { RpcBlock, RpcTransaction } from '../types/rpc.js'
 import { hexToBigInt, hexToNumber } from '../utils/encoding/fromHex.js'
 import { hexToBytes } from '../utils/encoding/toBytes.js'
 import { toHex } from '../utils/encoding/toHex.js'
-import { defineBlock } from '../utils/formatters/block.js'
+import { formatBlock } from '../utils/formatters/block.js'
 import { formatLog } from '../utils/formatters/log.js'
-import { defineTransaction } from '../utils/formatters/transaction.js'
+import {
+  defineTransaction,
+  formatTransaction,
+} from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import { gasPerPubdataDefault } from './constants/number.js'
@@ -19,44 +23,52 @@ import type {
   ZksyncTransactionRequest,
 } from './types/transaction.js'
 
-export const formatters = {
-  block: /*#__PURE__*/ defineBlock({
-    format(args: ZksyncRpcBlock): ZksyncBlock {
-      const transactions = args.transactions?.map((transaction) => {
-        if (typeof transaction === 'string') return transaction
-        const formatted = formatters.transaction?.format(
-          transaction as ZksyncRpcTransaction,
-        ) as ZksyncTransaction
-        if (formatted.typeHex === '0x71') formatted.type = 'eip712'
-        else if (formatted.typeHex === '0xff') formatted.type = 'priority'
-        return formatted
-      })
-      return {
-        l1BatchNumber: args.l1BatchNumber
-          ? hexToBigInt(args.l1BatchNumber)
-          : null,
-        l1BatchTimestamp: args.l1BatchTimestamp
-          ? hexToBigInt(args.l1BatchTimestamp)
-          : null,
-        transactions,
-      } as ZksyncBlock
-    },
-  }),
-  transaction: /*#__PURE__*/ defineTransaction({
-    format(args: ZksyncRpcTransaction): ZksyncTransaction {
-      const transaction = {} as ZksyncTransaction
-      if (args.type === '0x71') transaction.type = 'eip712'
-      else if (args.type === '0xff') transaction.type = 'priority'
-      return {
+const block = {
+  exclude: undefined as [] | undefined,
+  format: (args: ZksyncRpcBlock, action?: string | undefined) => {
+    // `formatBlock` formats every transaction, so it gets none and each
+    // transaction is formatted once here, in the same order of errors.
+    const formatted = Array.isArray(args.transactions)
+      ? args.transactions.map((transaction) =>
+          typeof transaction === 'string'
+            ? transaction
+            : formatTransaction(transaction as RpcTransaction),
+        )
+      : undefined
+    const base = formatBlock(
+      (formatted ? { ...args, transactions: [] } : args) as RpcBlock,
+      action,
+    )
+    const transactions = formatted?.map((transaction, i) => {
+      if (typeof transaction === 'string') return transaction
+      const formatted = {
         ...transaction,
-        l1BatchNumber: args.l1BatchNumber
-          ? hexToBigInt(args.l1BatchNumber)
-          : null,
-        l1BatchTxIndex: args.l1BatchTxIndex
-          ? hexToBigInt(args.l1BatchTxIndex)
-          : null,
+        ...formatZksyncTransaction(
+          args.transactions![i] as ZksyncRpcTransaction,
+        ),
       } as ZksyncTransaction
-    },
+      if (formatted.typeHex === '0x71') formatted.type = 'eip712'
+      else if (formatted.typeHex === '0xff') formatted.type = 'priority'
+      return formatted
+    })
+    return {
+      ...base,
+      l1BatchNumber: args.l1BatchNumber
+        ? hexToBigInt(args.l1BatchNumber)
+        : null,
+      l1BatchTimestamp: args.l1BatchTimestamp
+        ? hexToBigInt(args.l1BatchTimestamp)
+        : null,
+      transactions,
+    } as ZksyncBlock
+  },
+  type: 'block' as const,
+}
+
+export const formatters = {
+  block,
+  transaction: /*#__PURE__*/ defineTransaction({
+    format: formatZksyncTransaction,
   }),
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
     format(args: ZksyncRpcTransactionReceipt): ZksyncTransactionReceipt {
@@ -144,3 +156,18 @@ export const formatters = {
     },
   }),
 } as const satisfies ChainFormatters
+
+function formatZksyncTransaction(
+  args: ZksyncRpcTransaction,
+): ZksyncTransaction {
+  const transaction = {} as ZksyncTransaction
+  if (args.type === '0x71') transaction.type = 'eip712'
+  else if (args.type === '0xff') transaction.type = 'priority'
+  return {
+    ...transaction,
+    l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
+    l1BatchTxIndex: args.l1BatchTxIndex
+      ? hexToBigInt(args.l1BatchTxIndex)
+      : null,
+  } as ZksyncTransaction
+}

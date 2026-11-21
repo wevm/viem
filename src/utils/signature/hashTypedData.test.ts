@@ -61,6 +61,18 @@ test('domain: empty name', () => {
   )
 })
 
+test('domain: empty version', () => {
+  expect(
+    hashTypedData({
+      ...typedData.complex,
+      domain: { name: 'Ether Mail', version: '' },
+      primaryType: 'Mail',
+    }),
+  ).toMatchInlineSnapshot(
+    '"0xa437e12ee2fd4391429d9714be617951b7e69fb61dc520ad6fb8230d03b7508c"',
+  )
+})
+
 test('domain: bigint value for chainId', () => {
   expect(
     hashTypedData({
@@ -73,6 +85,26 @@ test('domain: bigint value for chainId', () => {
     }),
   ).toMatchInlineSnapshot(
     '"0xb7cb45cf19c056d355e5d807ba0eac8cd5b4a7193f7ed978f4f9339f76cdf4d9"',
+  )
+})
+
+test('domain: string value for chainId', () => {
+  const domain = {
+    name: 'Ether Mail',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  } as const
+  expect(
+    hashTypedData({
+      ...typedData.complex,
+      domain: { ...domain, chainId: '1' } as never,
+      primaryType: 'Mail',
+    }),
+  ).toBe(
+    hashTypedData({
+      ...typedData.complex,
+      domain: { ...domain, chainId: 1 },
+      primaryType: 'Mail',
+    }),
   )
 })
 
@@ -230,9 +262,76 @@ test('wrong domain value', () => {
       primaryType: 'Mail',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [BaseError: Invalid domain ""wrong"".
+    [InvalidDomainError: Invalid domain ""wrong"".
 
     Must be a valid EIP-712 domain.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('invalid integer alias', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'amount', type: 'uint' }],
+      },
+      primaryType: 'Message',
+      message: { amount: 1n },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "uint" is not a valid EIP-712 type.
+
+    Use "uint256" instead.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('invalid integer width', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'amount', type: 'uint7' }],
+      },
+      primaryType: 'Message',
+      message: { amount: 1000n },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "uint7" is not a valid EIP-712 type.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('invalid bytes width', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'data', type: 'bytes0' }],
+      },
+      primaryType: 'Message',
+      message: { data: '0x' },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "bytes0" is not a valid EIP-712 type.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('invalid type in array element struct', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Mail: [{ name: 'to', type: 'Person[]' }],
+        Person: [{ name: 'x', type: 'uint7' }],
+      },
+      primaryType: 'Mail',
+      message: { to: [{ x: 1n }] },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "uint7" is not a valid EIP-712 type.
 
     Version: viem@x.y.z]
   `)
@@ -256,7 +355,133 @@ test('https://github.com/wevm/viem/issues/2888', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidStructTypeError: Struct type "bytes32" is invalid.
 
-    Struct type must not be a Solidity type.
+    Struct type must contain only letters, digits, "_", "$" and ":", and must not be a Solidity type.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('struct type: prefixed by a Solidity type', () => {
+  expect(
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        Message: [{ name: 'intent', type: 'intent' }],
+        intent: [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Message',
+      message: { intent: { amount: 1n } },
+    }),
+  ).toMatchInlineSnapshot(
+    `"0xcbeb995e95e87817f47e51736d0e5825644055cbcad196c2b26449ad78fd87ee"`,
+  )
+})
+
+test('struct type: with $', () => {
+  expect(
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        Message: [{ name: 'order', type: 'Order$1' }],
+        Order$1: [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Message',
+      message: { order: { amount: 1n } },
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x97a137d1f96a18c6a214fd8e7b991ed7309ff25f223b68aa63a4670f9838a94a"`,
+  )
+})
+
+test('struct type: with colon', () => {
+  expect(
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        'Order:1': [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Order:1',
+      message: { amount: 1n },
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x3465390e0ea754dae581e653862bc7f8b71258ad85150e27ad18d87dd63fe6ab"`,
+  )
+})
+
+test('struct types repeated in arrays and recursively', () => {
+  // Expected value from ox `TypedData.getSignPayload`.
+  expect(
+    hashTypedData({
+      domain: { name: 'Grid', chainId: 1 },
+      types: {
+        Grid: [
+          { name: 'rows', type: 'Row[]' },
+          { name: 'owner', type: 'Person' },
+          { name: 'cells', type: 'Cell[2][]' },
+        ],
+        Row: [
+          { name: 'cells', type: 'Cell[]' },
+          { name: 'author', type: 'Person' },
+        ],
+        Cell: [
+          { name: 'x', type: 'int8' },
+          { name: 'owner', type: 'Person' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'friends', type: 'Person[]' },
+        ],
+      },
+      primaryType: 'Grid',
+      message: {
+        rows: [
+          {
+            cells: [
+              { x: 1, owner: { name: 'a', friends: [] } },
+              {
+                x: -1,
+                owner: { name: 'b', friends: [{ name: 'c', friends: [] }] },
+              },
+            ],
+            author: { name: 'd', friends: [] },
+          },
+          {
+            cells: [],
+            author: {
+              name: 'e',
+              friends: [{ name: 'f', friends: [{ name: 'g', friends: [] }] }],
+            },
+          },
+        ],
+        owner: { name: 'h', friends: [] },
+        cells: [
+          [
+            { x: 2, owner: { name: 'i', friends: [] } },
+            { x: 3, owner: { name: 'j', friends: [] } },
+          ],
+        ],
+      },
+    } as any),
+  ).toMatchInlineSnapshot(
+    `"0x8619c904622aeacace1d4f09f05d86a23b9750cac4a00ea3ac808edb149cb789"`,
+  )
+})
+
+test('struct type: array of a Solidity type', () => {
+  expect(() =>
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        Message: [{ name: 'amounts', type: 'uint256[]' }],
+        'uint256[]': [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Message',
+      message: { amounts: { amount: 1n } },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidStructTypeError: Struct type "uint256[]" is invalid.
+
+    Struct type must contain only letters, digits, "_", "$" and ":", and must not be a Solidity type.
 
     Version: viem@x.y.z]
   `)
@@ -298,4 +523,72 @@ test('https://github.com/wevm/viem/issues/4095', () => {
     },
   })
   expect(result3).toEqual(result)
+})
+
+test('fixed-length array: wrong number of elements', () => {
+  const hash = (values: readonly bigint[]) =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'values', type: 'uint256[2]' }],
+      },
+      primaryType: 'Message',
+      message: { values } as never,
+    })
+
+  expect(hash([1n, 2n])).toMatchInlineSnapshot(
+    `"0x042fde620bf72b76fa3d3f96f6c805a9306cd4c459af3c01ad1a0b08be628685"`,
+  )
+  expect(() => hash([1n, 2n, 3n])).toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+    Expected length: 2
+    Given length: 3
+
+    Version: viem@x.y.z]
+  `)
+  expect(() => hash([1n])).toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+    Expected length: 2
+    Given length: 1
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('fixed-length array: wrong number of elements in an inner dimension', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'values', type: 'uint256[2][]' }],
+      },
+      primaryType: 'Message',
+      // @ts-expect-error
+      message: { values: [[1n, 2n], [3n]] },
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type uint256[2].
+    Expected length: 2
+    Given length: 1
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('fixed-length array: wrong number of structs', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Mail: [{ name: 'to', type: 'Person[1]' }],
+        Person: [{ name: 'name', type: 'string' }],
+      },
+      primaryType: 'Mail',
+      // @ts-expect-error
+      message: { to: [{ name: 'Bob' }, { name: 'Alice' }] },
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiEncodingArrayLengthMismatchError: ABI encoding array length mismatch for type Person[1].
+    Expected length: 1
+    Given length: 2
+
+    Version: viem@x.y.z]
+  `)
 })

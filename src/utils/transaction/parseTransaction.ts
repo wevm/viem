@@ -7,6 +7,8 @@ import {
   type InvalidLegacyVErrorType,
   InvalidSerializedTransactionError,
   type InvalidSerializedTransactionErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
@@ -186,10 +188,14 @@ function parseTransactionEIP7702(
   if (isHex(data) && data !== '0x') transaction.data = data
   if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
-  if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
-    transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
   if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
     transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
+  if (
+    isHex(maxFeePerGas) &&
+    (maxFeePerGas !== '0x' || transaction.maxPriorityFeePerGas)
+  )
+    transaction.maxFeePerGas =
+      maxFeePerGas === '0x' ? 0n : hexToBigInt(maxFeePerGas)
   if (accessList.length !== 0 && accessList !== '0x')
     transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
   if (authorizationList.length !== 0 && authorizationList !== '0x')
@@ -287,10 +293,14 @@ function parseTransactionEIP4844(
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
   if (isHex(maxFeePerBlobGas) && maxFeePerBlobGas !== '0x')
     transaction.maxFeePerBlobGas = hexToBigInt(maxFeePerBlobGas)
-  if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
-    transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
   if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
     transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
+  if (
+    isHex(maxFeePerGas) &&
+    (maxFeePerGas !== '0x' || transaction.maxPriorityFeePerGas)
+  )
+    transaction.maxFeePerGas =
+      maxFeePerGas === '0x' ? 0n : hexToBigInt(maxFeePerGas)
   if (accessList.length !== 0 && accessList !== '0x')
     transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
   if (blobs && commitments && proofs)
@@ -376,10 +386,14 @@ function parseTransactionEIP1559(
   if (isHex(data) && data !== '0x') transaction.data = data
   if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
-  if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
-    transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
   if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
     transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
+  if (
+    isHex(maxFeePerGas) &&
+    (maxFeePerGas !== '0x' || transaction.maxPriorityFeePerGas)
+  )
+    transaction.maxFeePerGas =
+      maxFeePerGas === '0x' ? 0n : hexToBigInt(maxFeePerGas)
   if (accessList.length !== 0 && accessList !== '0x')
     transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
 
@@ -581,11 +595,24 @@ function parseAuthorizationList(
     const [chainId, address, nonce, yParity, r, s] =
       serializedAuthorizationList[i]
 
+    // EIP-7702 permits any `y_parity` below 2**8 in an authorization tuple, and a
+    // tuple that fails recovery does not invalidate the transaction. Keep such a
+    // `yParity` as is, so that the transaction parses and re-serializes unchanged.
+    const yParity_ = yParity === '0x' ? 0n : hexToBigInt(yParity)
+    const signature =
+      yParity_ > 1n && yParity_ < 256n
+        ? {
+            r: padHex(r, { size: 32 }),
+            s: padHex(s, { size: 32 }),
+            yParity: Number(yParity_),
+          }
+        : parseEIP155Signature([yParity, r, s])
+
     authorizationList.push({
       address,
       chainId: chainId === '0x' ? 0 : hexToNumber(chainId),
       nonce: nonce === '0x' ? 0 : hexToNumber(nonce),
-      ...parseEIP155Signature([yParity, r, s]),
+      ...signature,
     })
   }
   return authorizationList
@@ -593,15 +620,18 @@ function parseAuthorizationList(
 
 type ParseEIP155SignatureErrorType =
   | HexToBigIntErrorType
+  | InvalidYParityErrorType
   | PadHexErrorType
   | ErrorType
 
-function parseEIP155Signature(
+export function parseEIP155Signature(
   transactionArray: RecursiveArray<Hex>,
 ): Signature & { yParity: number } {
   const signature = transactionArray.slice(-3)
-  const v =
-    signature[0] === '0x' || hexToBigInt(signature[0] as Hex) === 0n ? 27n : 28n
+  const yParity = signature[0] === '0x' ? 0n : hexToBigInt(signature[0] as Hex)
+  if (yParity !== 0n && yParity !== 1n)
+    throw new InvalidYParityError({ yParity })
+  const v = yParity === 0n ? 27n : 28n
   return {
     r: padHex(signature[1] as Hex, { size: 32 }),
     s: padHex(signature[2] as Hex, { size: 32 }),

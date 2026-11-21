@@ -9,13 +9,27 @@ const generateBytes = (length: number) => {
   return bytes
 }
 
-describe.skip('Number to Hex', () => {
+describe('Number to Hex', () => {
   bench('viem: `numberToHex`', () => {
     numberToHex(52)
   })
 
   bench('ethers: `hexlify`', () => {
     toBeHex(52)
+  })
+})
+
+describe('Number to Hex (size: 32)', () => {
+  bench('viem: `numberToHex`', () => {
+    numberToHex(420, { size: 32 })
+  })
+
+  bench('viem: `numberToHex` (uint256)', () => {
+    numberToHex(2n ** 255n + 420n, { size: 32 })
+  })
+
+  bench('ethers: `toBeHex`', () => {
+    toBeHex(420, 32)
   })
 })
 
@@ -29,6 +43,18 @@ describe('String to Hex', () => {
   })
 })
 
+for (const [label, value] of [
+  ['64 chars', 'x'.repeat(64)],
+  ['200 chars', 'x'.repeat(200)],
+  ['10K chars', 'x'.repeat(10_000)],
+  ['12 chars, non-ASCII', 'Héllo wörld.'],
+] as const)
+  describe(`String to Hex (${label})`, () => {
+    bench('viem: `stringToHex`', () => {
+      stringToHex(value)
+    })
+  })
+
 describe('Bytes to Hex', () => {
   const bytes = generateBytes(1024)
 
@@ -40,3 +66,23 @@ describe('Bytes to Hex', () => {
     hexlify(new Uint8Array(bytes))
   })
 })
+
+const randomBytes = (length: number) => {
+  const bytes = new Uint8Array(length)
+  for (let i = 0; i < length; i++) bytes[i] = Math.floor(Math.random() * 256)
+  return bytes
+}
+
+// Rotates through distinct random inputs so the CPU cannot learn one input.
+for (const size of [20, 32, 1024, 100 * 1024]) {
+  const pool = Array.from(
+    { length: Math.max(16, Math.min(4096, Math.floor(2 ** 23 / size))) },
+    () => randomBytes(size),
+  )
+  let i = 0
+  describe(`Bytes to Hex (${size} bytes, random pool)`, () => {
+    bench('viem: `bytesToHex`', () => {
+      bytesToHex(pool[i++ % pool.length]!)
+    })
+  })
+}

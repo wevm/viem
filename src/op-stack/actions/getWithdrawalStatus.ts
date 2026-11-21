@@ -18,9 +18,12 @@ import type { TransactionReceipt } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
 import { anchorStateRegistryAbi, portal2Abi, portalAbi } from '../abis.js'
 import {
+  L2TimestampRequiredError,
+  type L2TimestampRequiredErrorType,
   ReceiptContainsNoWithdrawalsError,
   type ReceiptContainsNoWithdrawalsErrorType,
 } from '../errors/withdrawal.js'
+import { isSuperGameType } from '../gameTypes.js'
 import type { TargetChain } from '../types/chain.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
@@ -64,6 +67,10 @@ export type GetWithdrawalStatusParameters<
      * @default 100
      */
     gameLimit?: number
+    /**
+     * L2 timestamp of the withdrawal. Required for super-root dispute games.
+     */
+    l2Timestamp?: bigint | undefined
   } & OneOf<
     | {
         /**
@@ -102,6 +109,7 @@ export type GetWithdrawalStatusErrorType =
   | GetL2OutputErrorType
   | GetTimeToFinalizeErrorType
   | GetWithdrawalsErrorType
+  | L2TimestampRequiredErrorType
   | ReadContractErrorType
   | ReceiptContainsNoWithdrawalsErrorType
   | ErrorType
@@ -148,6 +156,7 @@ export async function getWithdrawalStatus<
     chain = client.chain,
     gameLimit = 100,
     receipt,
+    l2Timestamp,
     targetChain: targetChain_,
     logIndex = 0,
   } = parameters
@@ -160,7 +169,8 @@ export async function getWithdrawalStatus<
     return Object.values(targetChain.contracts.portal)[0].address
   })()
 
-  const l2BlockNumber = receipt?.blockNumber ?? parameters.l2BlockNumber
+  const l2BlockNumber =
+    l2Timestamp ?? receipt?.blockNumber ?? parameters.l2BlockNumber
 
   const withdrawal = (() => {
     if (receipt) {
@@ -235,6 +245,42 @@ export async function getWithdrawalStatus<
     return seconds > 0 ? 'waiting-to-finalize' : 'ready-to-finalize'
   }
 
+  // Super-root games anchor on L2 timestamps instead of L2 block numbers.
+  // Not awaited, so a missing L2 timestamp only fails the game lookup and a
+  // finalized withdrawal still resolves.
+  const gameL2BlockNumber = (async () => {
+    if (typeof l2Timestamp === 'bigint') return l2Timestamp
+    const gameType = await readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'respectedGameType',
+    })
+    if (!isSuperGameType(gameType)) return l2BlockNumber
+    const timestamp = receipt?.logs[0]?.blockTimestamp
+    if (typeof timestamp !== 'bigint')
+      throw new L2TimestampRequiredError({ gameType })
+    return timestamp
+  })()
+
+  // The game and the finalized state do not depend on the proof submitter, so
+  // they are read concurrently with it. Their rejections are read from the
+  // settled results below.
+  const disputeGame = gameL2BlockNumber.then((l2BlockNumber) =>
+    getGame(client, {
+      ...parameters,
+      l2BlockNumber,
+      limit: gameLimit,
+    } as GetGameParameters),
+  )
+  disputeGame.catch(() => {})
+  const finalized = readContract(client, {
+    abi: portal2Abi,
+    address: portalAddress,
+    functionName: 'finalizedWithdrawals',
+    args: [withdrawal.withdrawalHash],
+  })
+  finalized.catch(() => {})
+
   const numProofSubmitters = await readContract(client, {
     abi: portal2Abi,
     address: portalAddress,
@@ -255,11 +301,7 @@ export async function getWithdrawalStatus<
     checkWithdrawalResult,
     finalizedResult,
   ] = await Promise.allSettled([
-    getGame(client, {
-      ...parameters,
-      l2BlockNumber,
-      limit: gameLimit,
-    } as GetGameParameters),
+    disputeGame,
     readContract(client, {
       abi: portal2Abi,
       address: portalAddress,
@@ -272,12 +314,7 @@ export async function getWithdrawalStatus<
       functionName: 'checkWithdrawal',
       args: [withdrawal.withdrawalHash, proofSubmitter],
     }),
-    readContract(client, {
-      abi: portal2Abi,
-      address: portalAddress,
-      functionName: 'finalizedWithdrawals',
-      args: [withdrawal.withdrawalHash],
-    }),
+    finalized,
   ])
 
   if (finalizedResult.status === 'fulfilled' && finalizedResult.value)

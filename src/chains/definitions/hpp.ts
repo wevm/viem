@@ -7,7 +7,6 @@ export const hpp = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://mainnet.hpp.io'],
-      webSocket: ['wss://mainnet.hpp.io'],
     },
   },
   blockExplorers: {

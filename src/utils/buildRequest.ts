@@ -2,6 +2,7 @@ import { BaseError } from '../errors/base.js'
 import {
   HttpRequestError,
   type HttpRequestErrorType,
+  RpcRequestError,
   type RpcRequestErrorType,
   type TimeoutErrorType,
   type WebSocketRequestErrorType,
@@ -66,7 +67,12 @@ import {
   WalletConnectSessionSettlementError,
   type WalletConnectSessionSettlementErrorType,
 } from '../errors/rpc.js'
-import type { ErrorType } from '../errors/utils.js'
+import {
+  type AbortErrorType,
+  type ErrorType,
+  getAbortError,
+  isAbortError,
+} from '../errors/utils.js'
 import type {
   EIP1193RequestFn,
   EIP1193RequestOptions,
@@ -113,18 +119,22 @@ export type RequestErrorType =
   | WalletConnectSessionSettlementErrorType
   | WebSocketRequestErrorType
   | WithRetryErrorType
+  | AbortErrorType
   | ErrorType
 
-export function buildRequest<request extends (args: any) => Promise<any>>(
-  request: request,
-  options: EIP1193RequestOptions = {},
-): EIP1193RequestFn {
+export function buildRequest<
+  request extends (
+    args: any,
+    options?: { signal?: AbortSignal | undefined } | undefined,
+  ) => Promise<any>,
+>(request: request, options: EIP1193RequestOptions = {}): EIP1193RequestFn {
   return async (args, overrideOptions = {}) => {
     const {
       dedupe = false,
       methods,
       retryDelay = 150,
       retryCount = 3,
+      signal,
       uid,
     } = {
       ...options,
@@ -141,6 +151,8 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
         method,
       })
 
+    if (signal?.aborted) throw getAbortError(signal)
+
     const requestId = dedupe
       ? hashString(`${uid}.${stringify(args)}`)
       : undefined
@@ -149,8 +161,11 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
         withRetry(
           async () => {
             try {
-              return await request(args)
+              return await request(args, signal ? { signal } : undefined)
             } catch (err_) {
+              if (signal?.aborted) throw getAbortError(signal)
+              if (isAbortError(err_)) throw err_
+
               const err = err_ as unknown as RpcError<
                 RpcErrorCode | ProviderRpcErrorCode
               >
@@ -254,16 +269,21 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
           {
             delay: ({ count, error }) => {
               // If we find a Retry-After header, let's retry after the given time.
-              if (error && error instanceof HttpRequestError) {
-                const retryAfter = error?.headers?.get('Retry-After')
-                if (retryAfter?.match(/\d/))
-                  return Number.parseInt(retryAfter, 10) * 1000
+              const retryAfter =
+                getHttpError(error)?.headers?.get('Retry-After')
+              if (retryAfter) {
+                const seconds = Number.parseInt(retryAfter, 10)
+                if (!Number.isNaN(seconds)) return seconds * 1000
+                // HTTP-date form. A past or invalid date falls back to backoff.
+                const delay = Date.parse(retryAfter) - Date.now()
+                if (delay > 0) return delay
               }
 
               // Otherwise, let's retry with an exponential backoff.
               return ~~(1 << count) * retryDelay
             },
             retryCount,
+            signal,
             shouldRetry: ({ error }) => shouldRetry(error),
           },
         ),
@@ -274,6 +294,8 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
 
 /** @internal */
 export function shouldRetry(error: Error) {
+  if (isAbortError(error)) return false
+  const status = getHttpError(error)?.status
   if ('code' in error && typeof error.code === 'number') {
     if (error.code === -1) return true // Unknown error
     if (error.code === LimitExceededRpcError.code) return true
@@ -282,28 +304,47 @@ export function shouldRetry(error: Error) {
     // HTTP 200 with a JSON-RPC body of `{ code: 429 }` instead of an HTTP 429,
     // so we need to handle this code in addition to the HTTP status check below.
     if (error.code === 429) return true
-    return false
+    // Request limit exceeded — QuickNode's own non-standard rate-limit code,
+    // distinct from the standard `LimitExceededRpcError` (`-32005`). Seen in
+    // production as `{ code: -32007, message: "N/second request limit
+    // reached - reduce calls per second or upgrade your account at
+    // quicknode.com" }`.
+    if (error.code === -32007) return true
+    // The node does not serve the method, so a retry gets the same refusal
+    // whatever the HTTP status (e.g. a 403 refusing an unserved method).
+    if (error.code === MethodNotFoundRpcError.code) return false
+    if (error.code === MethodNotSupportedRpcError.code) return false
+    // A JSON-RPC error from a non-2xx response also retries by its HTTP status.
+    if (!status) return false
   }
-  if (error instanceof HttpRequestError && error.status) {
+  if (status) {
     // Forbidden
-    if (error.status === 403) return true
+    if (status === 403) return true
     // Request Timeout
-    if (error.status === 408) return true
+    if (status === 408) return true
     // Request Entity Too Large
-    if (error.status === 413) return true
+    if (status === 413) return true
     // Too Many Requests
-    if (error.status === 429) return true
+    if (status === 429) return true
     // Internal Server Error
-    if (error.status === 500) return true
+    if (status === 500) return true
     // Bad Gateway
-    if (error.status === 502) return true
+    if (status === 502) return true
     // Service Unavailable
-    if (error.status === 503) return true
+    if (status === 503) return true
     // Gateway Timeout
-    if (error.status === 504) return true
+    if (status === 504) return true
     return false
   }
   return true
+}
+
+/** Returns the error in the cause chain that carries the HTTP response. */
+function getHttpError(error: Error | undefined) {
+  if (!(error instanceof BaseError)) return undefined
+  return error.walk(
+    (err) => err instanceof HttpRequestError || err instanceof RpcRequestError,
+  ) as HttpRequestError | RpcRequestError | null
 }
 
 /** @internal cyrb53 – fast, non-cryptographic 53-bit string hash */

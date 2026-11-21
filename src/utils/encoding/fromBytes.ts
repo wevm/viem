@@ -13,6 +13,9 @@ import {
 } from './fromHex.js'
 import { type BytesToHexErrorType, bytesToHex } from './toHex.js'
 
+// Created on first use, so importing this module needs no `TextDecoder`.
+let decoder: TextDecoder | undefined
+
 export type FromBytesParameters<
   to extends 'string' | 'hex' | 'bigint' | 'number' | 'boolean',
 > =
@@ -118,7 +121,18 @@ export function bytesToBigInt(
   opts: BytesToBigIntOpts = {},
 ): bigint {
   if (typeof opts.size !== 'undefined') assertSize(bytes, { size: opts.size })
-  const hex = bytesToHex(bytes, opts)
+  // Unsigned values with up to 6 significant bytes are safe integers, so read
+  // them directly instead of through hex.
+  if (!opts.signed && bytes.length > 0) {
+    let i = 0
+    while (i < bytes.length && bytes[i] === 0) i++
+    if (bytes.length - i <= 6) {
+      let value = 0
+      for (; i < bytes.length; i++) value = value * 256 + bytes[i]
+      return BigInt(value)
+    }
+  }
+  const hex = bytesToHex(bytes)
   return hexToBigInt(hex, opts)
 }
 
@@ -186,7 +200,18 @@ export function bytesToNumber(
   opts: BytesToNumberOpts = {},
 ): number {
   if (typeof opts.size !== 'undefined') assertSize(bytes, { size: opts.size })
-  const hex = bytesToHex(bytes, opts)
+  // Unsigned values with up to 6 significant bytes are safe integers, so read
+  // them directly instead of through hex.
+  if (!opts.signed && bytes.length > 0) {
+    let i = 0
+    while (i < bytes.length && bytes[i] === 0) i++
+    if (bytes.length - i <= 6) {
+      let value = 0
+      for (; i < bytes.length; i++) value = value * 256 + bytes[i]
+      return value
+    }
+  }
+  const hex = bytesToHex(bytes)
   return hexToNumber(hex, opts)
 }
 
@@ -223,5 +248,7 @@ export function bytesToString(
     assertSize(bytes, { size: opts.size })
     bytes = trim(bytes, { dir: 'right' })
   }
-  return new TextDecoder().decode(bytes)
+  return (decoder ??= new TextDecoder('utf-8', { ignoreBOM: true })).decode(
+    bytes,
+  )
 }

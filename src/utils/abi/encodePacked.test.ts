@@ -99,6 +99,11 @@ test.each([
     expected: '0xdeadbeef',
   },
   {
+    types: ['bytes', 'bytes'],
+    values: ['0xa', '0xb'],
+    expected: '0x0a0b',
+  },
+  {
     types: ['bytes4'],
     values: ['0xdeadbeef'],
     expected: '0xdeadbeef',

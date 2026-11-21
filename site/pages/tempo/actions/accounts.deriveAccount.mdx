@@ -1,0 +1,100 @@
+---
+description: Derives a configurable account address from an initial config with the configurable account precompile.
+---
+
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accounts.deriveAccount`
+
+Derives a configurable account address from an initial config with the configurable account
+precompile. The precompile validates the config and derives the address with the chain's recovery
+factory.
+
+To derive the address without a network request, use
+[`Account.fromConfig`](/tempo/accounts/account.fromConfig) with `address: 'infer'`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const address = await client.accounts.deriveAccount({
+  owners: [
+    { owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', weight: 1 },
+    { owner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', weight: 1 },
+  ],
+  threshold: 2,
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+`Address`
+
+The configurable account address.
+
+## Parameters
+
+### owners
+
+- **Type:** `readonly { owner: Address; weight: number }[]`
+
+The initial owners. Owners are normalized into canonical address order.
+
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.deriveAccount({
+  owners: [{ owner: '0x...', weight: 1 }], // [!code focus]
+  threshold: 1,
+})
+```
+
+### salt
+
+- **Type:** `Hex`
+- **Default:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+
+The 32-byte config salt.
+
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.deriveAccount({
+  owners: [{ owner: '0x...', weight: 1 }],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+  threshold: 1,
+})
+```
+
+### threshold
+
+- **Type:** `number`
+
+The approval weight required to authorize the account.
+
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.deriveAccount({
+  owners: [{ owner: '0x...', weight: 1 }],
+  threshold: 1, // [!code focus]
+})
+```
+
+<ReadParameters />

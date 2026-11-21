@@ -28,7 +28,7 @@ export type PadHexErrorType = SizeExceedsPaddingSizeErrorType | ErrorType
 
 export function padHex(hex_: Hex, { dir, size = 32 }: PadOptions = {}) {
   if (size === null) return hex_
-  const hex = hex_.replace('0x', '')
+  const hex = hex_.startsWith('0x') ? hex_.slice(2) : hex_.replace('0x', '')
   if (hex.length > size * 2)
     throw new SizeExceedsPaddingSizeError({
       size: Math.ceil(hex.length / 2),
@@ -56,6 +56,13 @@ export function padBytes(
       type: 'bytes',
     })
   const paddedBytes = new Uint8Array(size)
+  if (Number.isSafeInteger(size)) {
+    // `set` throws on detached views, which have length 0.
+    if (bytes.length > 0)
+      paddedBytes.set(bytes, dir === 'right' ? 0 : size - bytes.length)
+    return paddedBytes
+  }
+  // Other sizes, such as `NaN` or fractions, keep the per-index copy.
   for (let i = 0; i < size; i++) {
     const padEnd = dir === 'right'
     paddedBytes[padEnd ? i : size - i - 1] =

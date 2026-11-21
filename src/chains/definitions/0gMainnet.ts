@@ -11,7 +11,7 @@ export const zeroGMainnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: '0G BlockChain Explorer',
+      name: '0G Chainscan',
       url: 'https://chainscan.0g.ai',
     },
   },

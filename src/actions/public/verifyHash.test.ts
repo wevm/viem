@@ -1,9 +1,25 @@
+import {
+  encodeDeployData,
+  erc6492SignatureValidatorAbi,
+  erc6492SignatureValidatorByteCode,
+  getContractAddress,
+  publicActions,
+  zeroAddress,
+} from 'viem'
+import {
+  call,
+  deployContract,
+  getTransaction,
+  readContract,
+  setCode,
+} from 'viem/actions'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
-
 import {
   Eoa,
   EoaInitializer,
   EoaOptional,
+  EoaReverting,
+  OffchainLookupSigner,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
@@ -41,12 +57,15 @@ import {
 } from '../../utils/index.js'
 import { parseSignature } from '../../utils/signature/parseSignature.js'
 import { serializeErc8010Signature } from '../../utils/signature/serializeErc8010Signature.js'
+import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { setNonce } from '../test/setNonce.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
+import { getBlock } from './getBlock.js'
+import { getBlockNumber } from './getBlockNumber.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
@@ -242,6 +261,59 @@ describe('erc6492', async () => {
     ).resolves.toBe(true)
   })
 
+  test('undeployed with predeployed verifier (batched reads)', async () => {
+    const batchClient = anvilMainnet.getClient({
+      batch: { multicall: { wait: 50 } },
+    })
+    const { factoryAddress } = await deploySoladyAccount_07()
+    const { contractAddress: erc6492VerifierAddress } =
+      await deployErc6492SignatureVerifier()
+
+    const { result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+
+    const factoryData = encodeFunctionData({
+      abi: SoladyAccountFactory07.abi,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+
+    const signature = await signMessageErc1271(client, {
+      account: localAccount,
+      factory: factoryAddress,
+      factoryData,
+      message: 'hello world',
+      verifier,
+    })
+
+    const verified = verifyHash(batchClient, {
+      address: verifier,
+      factory: factoryAddress,
+      factoryData,
+      hash: hashMessage('hello world'),
+      signature,
+      erc6492VerifierAddress: erc6492VerifierAddress!,
+    })
+    await wait(10)
+    const entryPoint = readContract(batchClient, {
+      address: verifier,
+      abi: SoladyAccount07.abi,
+      functionName: 'entryPoint',
+    }).catch((error) => error.name)
+
+    expect(await Promise.all([verified, entryPoint])).toMatchInlineSnapshot(`
+      [
+        true,
+        "ContractFunctionExecutionError",
+      ]
+    `)
+  })
+
   test('undeployed with predeployed verifier (via client)', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
     const { contractAddress: verifySig } =
@@ -289,6 +361,86 @@ describe('erc6492', async () => {
         signature,
       }),
     ).resolves.toBe(true)
+  })
+
+  test('deployed at block before chain verifier was created', async () => {
+    const { factoryAddress } = await deploySoladyAccount_07()
+
+    const { request, result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+    const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+
+    const { contractAddress: verifySig } =
+      await deployErc6492SignatureVerifier()
+    const blockCreated = await getBlockNumber(client, { cacheTime: 0 })
+
+    const overrideClient = {
+      ...client,
+      chain: {
+        ...client.chain,
+        contracts: {
+          ...client.chain.contracts,
+          erc6492Verifier: {
+            address: verifySig!,
+            blockCreated: Number(blockCreated),
+          },
+        },
+      },
+    }
+
+    const signature = await signMessageErc1271(overrideClient, {
+      account: localAccount,
+      message: 'hello world',
+      verifier,
+    })
+
+    await expect(
+      verifyHash(overrideClient, {
+        address: verifier,
+        blockNumber,
+        hash: hashMessage('hello world'),
+        signature,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('predeployed verifier: signer reverts with OffchainLookup', async () => {
+    const { contractAddress: erc6492VerifierAddress } =
+      await deployErc6492SignatureVerifier()
+    const { contractAddress: signer } = await deploy(client, {
+      abi: OffchainLookupSigner.abi,
+      bytecode: OffchainLookupSigner.bytecode.object,
+    })
+
+    const signature = await signMessage(client, {
+      account: localAccount,
+      message: 'hello world',
+    })
+
+    const parameters = {
+      address: signer!,
+      erc6492VerifierAddress: erc6492VerifierAddress!,
+      hash: hashMessage('hello world'),
+      signature,
+    }
+    const results = [
+      await verifyHash(client, parameters),
+      await verifyHash(client.extend(publicActions), parameters),
+    ]
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        false,
+        false,
+      ]
+    `)
   })
 
   test('deployed w/ factory + factoryData', async () => {
@@ -577,6 +729,123 @@ describe('erc8010', async () => {
     expect(valid).toBe(true)
   })
 
+  test('predelegated: reverting isValidSignature (failure)', async () => {
+    const { contractAddress } = await deploy(client, {
+      abi: EoaReverting.abi,
+      bytecode: EoaReverting.bytecode.object,
+    })
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: contractAddress!,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const valid = await verifyHash(client, {
+      address: account.address,
+      hash,
+      signature,
+    })
+
+    expect(valid).toBe(false)
+  })
+
+  test('predelegated: blockHash (EIP-1898)', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const block = await getBlock(client)
+
+    const valid = await verifyHash(client, {
+      address: account.address,
+      blockHash: block.hash!,
+      hash,
+      signature,
+    })
+
+    expect(valid).toBe(true)
+  })
+
+  test('predelegated: blockTag', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    // Deploy a delegation contract that only exists in pending state.
+    const deployHash = await deployContract(client, {
+      abi: EoaOptional.abi,
+      bytecode: EoaOptional.bytecode.object,
+    })
+    const pendingDelegation = getContractAddress({
+      from: client.account.address,
+      nonce: BigInt((await getTransaction(client, { hash: deployHash })).nonce),
+    })
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: pendingDelegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const results = {
+      default: await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+      latest: await verifyHash(client, {
+        address: account.address,
+        blockTag: 'latest',
+        hash,
+        signature,
+      }),
+      pending: await verifyHash(client, {
+        address: account.address,
+        blockTag: 'pending',
+        hash,
+        signature,
+      }),
+    }
+
+    await mine(client, { blocks: 1 })
+
+    expect(results).toMatchInlineSnapshot(`
+      {
+        "default": true,
+        "latest": false,
+        "pending": true,
+      }
+    `)
+  })
+
   test('predelegated: with init data', async () => {
     const account = privateKeyToAccount(generatePrivateKey())
 
@@ -763,6 +1032,71 @@ describe('erc8010', async () => {
   })
 })
 
+describe('args: blockHash (EIP-1898)', async () => {
+  let blockHashBeforeDeploy: `0x${string}`
+  let blockHashAfterDeploy: `0x${string}`
+  let signature: Hex
+  let verifier: `0x${string}`
+
+  beforeAll(async () => {
+    blockHashBeforeDeploy = (await getBlock(client)).hash!
+
+    const { factoryAddress } = await deploySoladyAccount_07()
+    const { request, result } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+    verifier = result
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+
+    signature = await signMessageErc1271(client, {
+      account: localAccount,
+      message: 'hello world',
+      verifier,
+    })
+
+    blockHashAfterDeploy = (await getBlock(client)).hash!
+  })
+
+  test('blockHash', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashAfterDeploy,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash + requireCanonical', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashAfterDeploy,
+        requireCanonical: true,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash: pre-deployment block', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashBeforeDeploy,
+      }),
+    ).resolves.toBe(false)
+  })
+})
+
 test.each([
   {
     _name: 'deployed, supports ERC1271, valid signature, plaintext',
@@ -819,6 +1153,20 @@ test.each([
     signature: '0xdead',
     expectedResult: false,
   },
+  {
+    _name: 'zero address, zeroed r and s, v = 27',
+    address: zeroAddress,
+    hash: hashMessage('hello world'),
+    signature: concat([pad('0x', { size: 64 }), '0x1b']),
+    expectedResult: false,
+  },
+  {
+    _name: 'zero address, zeroed r and s, v = 28',
+    address: zeroAddress,
+    hash: hashMessage('hello world'),
+    signature: concat([pad('0x', { size: 64 }), '0x1c']),
+    expectedResult: false,
+  },
 ] as {
   _name: string
   address: Hex
@@ -833,6 +1181,48 @@ test.each([
       signature,
     }),
   ).toBe(expectedResult)
+})
+
+test('zero address with a verifier that accepts any signature', async () => {
+  // Verifier that returns `true` for every call.
+  const verifier = '0x0000000000000000000000000000000000006492'
+  await setCode(client, {
+    address: verifier,
+    bytecode: '0x600160005260206000f3',
+  })
+  const parameters = {
+    erc6492VerifierAddress: verifier,
+    hash: hashMessage('hello world'),
+    signature: concat([pad('0x', { size: 64 }), '0x1b']),
+  } as const
+
+  const results = await Promise.all([
+    verifyHash(client, { ...parameters, address: address.notDeployed }),
+    verifyHash(client, { ...parameters, address: zeroAddress }),
+  ])
+
+  expect(results).toMatchInlineSnapshot(`
+    [
+      true,
+      false,
+    ]
+  `)
+})
+
+test('deployless verifier rejects zero address', async () => {
+  const { data } = await call(client, {
+    data: encodeDeployData({
+      abi: erc6492SignatureValidatorAbi,
+      args: [
+        zeroAddress,
+        hashMessage('hello world'),
+        concat([pad('0x', { size: 64 }), '0x1b']),
+      ],
+      bytecode: erc6492SignatureValidatorByteCode,
+    }),
+  })
+
+  expect(data).toMatchInlineSnapshot(`"0x00"`)
 })
 
 test('unexpected errors still get thrown', async () => {

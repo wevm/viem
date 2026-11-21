@@ -1,14 +1,27 @@
 import { Value, WebCryptoP256 } from 'ox'
 import * as Address from 'ox/Address'
+import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { Period, SignatureEnvelope } from 'ox/tempo'
+import {
+  AccountConfig,
+  Channel,
+  KeyAuthorization,
+  Period,
+  SignatureEnvelope,
+  SignaturePreAuthorized,
+} from 'ox/tempo'
+import { privateKeyToAccount, toAccount } from 'viem/accounts'
+import { KeyAuthorizationManager } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
+import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
+import * as Scopes from './Scopes.js'
+import * as Transaction from './Transaction.js'
 
 const client = tempo.getClient()
 
@@ -16,6 +29,448 @@ const privateKey_secp256k1 =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
+
+describe('fromConfig', () => {
+  test('behavior: custom local owner', async () => {
+    const owner = privateKeyToAccount(privateKey_secp256k1)
+    const customOwner = toAccount(owner)
+    const account = Account.fromConfig({
+      owners: [{ owner: customOwner, weight: 2 }],
+      threshold: 2,
+    })
+    const payload = keccak256('0x1234')
+    const signature = SignatureEnvelope.from(
+      await account.sign({ hash: payload }),
+    )
+
+    expect(customOwner.source).toBe('custom')
+    expect(signature.type).toBe('configurable')
+    if (signature.type !== 'configurable')
+      throw new Error('Expected configurable account signature.')
+    expect(signature.signatures).toHaveLength(1)
+    expect(
+      SignatureEnvelope.verify(signature.signatures[0]!, {
+        payload: AccountConfig.getSignPayload({
+          account: account.address,
+          config: account.config,
+          payload,
+        }),
+        address: owner.address,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: initial config', () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const account = Account.fromConfig({
+      owners: [owner],
+    })
+
+    expect(account).toMatchInlineSnapshot(
+      { owners: expect.any(Array) },
+      `
+      {
+        "address": "0x00a786b5deE39362fEAB935C9B9BCAc7D6b36850",
+        "config": {
+          "owners": [
+            {
+              "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 1,
+          "version": 0n,
+        },
+        "owners": Any<Array>,
+        "publicKey": "0x",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "configurable",
+        "type": "local",
+      }
+    `,
+    )
+  })
+
+  test('behavior: Tempo account vector', () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: ['0x1111111111111111111111111111111111111111'],
+    })
+
+    expect(account.address).toBe('0xCbB727E2489C904A905420E794e8275B6150bfE1')
+  })
+
+  test('behavior: upgrade config', () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const account = Account.fromConfig({
+      address: '0x3333333333333333333333333333333333333333',
+      upgrade: { owners: [owner], threshold: 1 },
+    })
+
+    expect(account).toMatchInlineSnapshot(
+      { owners: expect.any(Array) },
+      `
+      {
+        "address": "0x3333333333333333333333333333333333333333",
+        "config": {
+          "owners": [
+            {
+              "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x42b3dad8fa6c40b50e6dbbbdaaace72d6c04250c16c1e263a52355983a30eb56",
+          "threshold": 1,
+          "version": 1n,
+        },
+        "owners": Any<Array>,
+        "publicKey": "0x",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "configurable",
+        "type": "local",
+      }
+    `,
+    )
+  })
+
+  test('behavior: current config', () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const account = Account.fromConfig({
+      address: '0x0000000000000000000000000000000000000001',
+      owners: [owner],
+      salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      threshold: 1,
+      version: 1,
+    })
+
+    expect(account).toMatchInlineSnapshot(
+      { owners: expect.any(Array) },
+      `
+      {
+        "address": "0x0000000000000000000000000000000000000001",
+        "config": {
+          "owners": [
+            {
+              "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 1,
+          "version": 1n,
+        },
+        "owners": Any<Array>,
+        "publicKey": "0x",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "configurable",
+        "type": "local",
+      }
+    `,
+    )
+  })
+
+  test('behavior: address-only account', () => {
+    const account = Account.fromConfig(
+      '0x0000000000000000000000000000000000000001',
+    )
+
+    expect(account).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000001",
+        "config": undefined,
+        "owners": [],
+        "publicKey": "0x",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "configurable",
+        "type": "local",
+      }
+    `)
+  })
+
+  test('error: zero current config version', () => {
+    expect(() =>
+      Account.fromConfig({
+        address: '0x0000000000000000000000000000000000000001',
+        owners: [tempo.accounts[0]],
+        salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        threshold: 1,
+        version: 0,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: A current account config must have a version.]`,
+    )
+  })
+
+  test('error: nonzero initial config version', () => {
+    expect(() =>
+      Account.fromConfig({
+        address: 'infer',
+        owners: [tempo.accounts[0]],
+        version: 1,
+      } as never),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: An initial account config must have version zero.]`,
+    )
+  })
+})
+
+describe('deserialize', () => {
+  const owner = Account.fromSecp256k1(privateKey_secp256k1)
+
+  test('behavior: initial config', () => {
+    const account = Account.fromConfig({ owners: [owner] })
+
+    const deserialized = Account.deserialize(
+      JSON.parse(JSON.stringify(Account.serialize(account))),
+    )
+
+    expect(deserialized.address).toBe(account.address)
+    expect(deserialized.config).toEqual(account.config)
+    expect(deserialized.owners).toEqual([])
+  })
+
+  test('behavior: current config', () => {
+    const account = Account.fromConfig({
+      address: '0x0000000000000000000000000000000000000001',
+      owners: [owner],
+      salt: AccountConfig.zeroSalt,
+      threshold: 1,
+      version: 2,
+    })
+
+    const deserialized = Account.deserialize(Account.serialize(account))
+
+    expect(deserialized.address).toBe(account.address)
+    expect(deserialized.config?.version).toBe(2n)
+  })
+
+  test('behavior: address-only account', () => {
+    const deserialized = Account.deserialize({
+      address: '0x0000000000000000000000000000000000000001',
+    })
+
+    expect(deserialized.config).toBeUndefined()
+  })
+
+  test('behavior: passkey owner signs', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }))
+    const passkey = Address.fromPublicKey(PublicKey.fromHex(publicKey))
+    const other = P256.randomPrivateKey()
+    const account = Account.fromConfig({ owners: [passkey] })
+
+    const deserialized = Account.deserialize(Account.serialize(account), {
+      credentials: [
+        {
+          id: 'other',
+          publicKey: PublicKey.toHex(P256.getPublicKey({ privateKey: other })),
+        },
+        { id: 'passkey', publicKey, rpId: 'example.com' },
+      ],
+    })
+
+    expect(deserialized.owners.map((owner) => owner.address)).toEqual([
+      Address.checksum(passkey),
+    ])
+  })
+
+  test('error: address mismatch', () => {
+    const account = Account.fromConfig({ owners: [owner] })
+
+    expect(() =>
+      Account.deserialize({
+        ...Account.serialize(account),
+        address: '0x0000000000000000000000000000000000000001',
+      }),
+    ).toThrowError(Account.AddressMismatchError)
+  })
+})
+
+describe('keyAuthorization', () => {
+  test('behavior: holds the authorization until removed', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: root })
+    const chainId = client.chain!.id
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: BigInt(chainId),
+    })
+
+    const account = Account.fromP256(privateKey_p256, {
+      access: root,
+      keyAuthorization,
+    })
+    const entry = {
+      accessKey: account.accessKeyAddress,
+      address: root.address,
+      chainId,
+    }
+
+    expect(await account.keyAuthorizationManager!.get(entry)).toBe(
+      keyAuthorization,
+    )
+    expect(
+      await account.keyAuthorizationManager!.get({ ...entry, chainId: 1 }),
+    ).toBeUndefined()
+    await account.keyAuthorizationManager!.remove(entry)
+    expect(await account.keyAuthorizationManager!.get(entry)).toBeUndefined()
+  })
+
+  test('error: authorization of another key', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: root })
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+    })
+
+    expect(() =>
+      Account.fromSecp256k1(privateKey_secp256k1, {
+        access: root,
+        keyAuthorization,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Key authorization does not authorize this access key.]`,
+    )
+  })
+
+  test('behavior: signs pre-authorized signatures while the authorization is pending', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: root })
+    const chainId = client.chain!.id
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: BigInt(chainId),
+    })
+    const account = Account.fromP256(privateKey_p256, {
+      access: root,
+      keyAuthorization,
+    })
+    const typedData = {
+      domain: { name: 'Test' },
+      message: { value: 'hello' },
+      primaryType: 'Mail',
+      types: { Mail: [{ name: 'value', type: 'string' }] },
+    } as const
+
+    const signatures = [
+      await account.sign({ hash: '0xdeadbeef' }),
+      await account.signMessage({ message: 'hello' }),
+      await account.signTypedData(typedData),
+    ]
+    const raw = await account.sign({ hash: '0xdeadbeef', raw: true })
+
+    expect(
+      signatures.map((signature) => {
+        const { keyAuthorization: authorization, signature: keychain } =
+          SignaturePreAuthorized.unwrap(signature)
+        return [
+          KeyAuthorization.serialize(authorization) ===
+            KeyAuthorization.serialize(keyAuthorization),
+          keychain.type,
+          keychain.userAddress,
+          keychain.inner.type,
+        ]
+      }),
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+        [
+          true,
+          "keychain",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "p256",
+        ],
+      ]
+    `)
+    expect(SignatureEnvelope.deserialize(raw).type).toMatchInlineSnapshot(
+      `"p256"`,
+    )
+
+    await account.keyAuthorizationManager!.remove({
+      accessKey: account.accessKeyAddress,
+      address: root.address,
+      chainId,
+    })
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(false)
+    expect(SignatureEnvelope.deserialize(signature).type).toMatchInlineSnapshot(
+      `"keychain"`,
+    )
+  })
+
+  test('behavior: signs plain keychain signatures without an initial authorization', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const account = Account.fromP256(privateKey_p256, {
+      access: root,
+      keyAuthorizationManager,
+    })
+    await keyAuthorizationManager.set(
+      {
+        accessKey: account.accessKeyAddress,
+        address: root.address,
+        chainId: client.chain!.id,
+      },
+      await root.signKeyAuthorization(account, {
+        chainId: BigInt(client.chain!.id),
+      }),
+    )
+
+    const signature = await account.signMessage({ message: 'hello' })
+
+    expect(SignaturePreAuthorized.validate(signature)).toBe(false)
+  })
+
+  test('behavior: wraps the pending authorization', async () => {
+    const root = Account.fromSecp256k1(privateKey_secp256k1)
+    const privateKey =
+      '0x59c6995e998f97a5a0044966f0945389dc9d86dae88c7a8412f4603b6b78690d'
+    const key = Account.fromSecp256k1(privateKey, { access: root })
+    const keyAuthorization = await root.signKeyAuthorization(key, {
+      chainId: 4217n,
+      expiry: 1_900_000_000,
+    })
+    const account = Account.fromSecp256k1(privateKey, {
+      access: root,
+      keyAuthorization,
+    })
+
+    const signature = await account.sign({
+      hash: keccak256(Hex.fromString('hello')),
+    })
+
+    const unwrapped = SignaturePreAuthorized.unwrap(signature)
+    expect(KeyAuthorization.serialize(unwrapped.keyAuthorization)).toBe(
+      KeyAuthorization.serialize(keyAuthorization),
+    )
+    expect(unwrapped.signature.userAddress.toLowerCase()).toBe(
+      root.address.toLowerCase(),
+    )
+  })
+})
 
 describe('fromSecp256k1', () => {
   test('default', async () => {
@@ -31,6 +486,7 @@ describe('fromSecp256k1', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
+        "signVoucher": [Function],
         "source": "root",
         "type": "local",
       }
@@ -85,6 +541,39 @@ describe('fromSecp256k1', () => {
       }
     `)
   })
+
+  test('behavior: access key raw signature', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const access = Account.fromSecp256k1(
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
+      {
+        access: account,
+      },
+    )
+
+    const signature = await access.sign({
+      hash: '0xdeadbeef',
+      raw: true,
+    })
+
+    expect(SignatureEnvelope.deserialize(signature)).toMatchInlineSnapshot(`
+      {
+        "signature": {
+          "r": 17986519448152736741806679848301503760738507672285374215138617395147700232421n,
+          "s": 50573419219106101097329274608677894804280434221354410855341207650465321473558n,
+          "yParity": 0,
+        },
+        "type": "secp256k1",
+      }
+    `)
+    expect(
+      await verifyHash(client, {
+        address: access.accessKeyAddress,
+        hash: '0xdeadbeef',
+        signature,
+      }),
+    ).toBe(true)
+  })
 })
 
 describe('fromP256', () => {
@@ -101,6 +590,7 @@ describe('fromP256', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
+        "signVoucher": [Function],
         "source": "root",
         "type": "local",
       }
@@ -158,6 +648,22 @@ describe('fromP256', () => {
       }
     `)
   })
+
+  test('behavior: access key raw signature', async () => {
+    const account = Account.fromP256(privateKey_p256)
+    const access = Account.fromP256(privateKey_p256, {
+      access: account,
+    })
+
+    const signature = await access.sign({
+      hash: '0xdeadbeef',
+      raw: true,
+    })
+
+    expect(SignatureEnvelope.deserialize(signature)).toMatchObject({
+      type: 'p256',
+    })
+  })
 })
 
 describe('fromHeadlessWebAuthn', () => {
@@ -177,6 +683,7 @@ describe('fromHeadlessWebAuthn', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
+        "signVoucher": [Function],
         "source": "root",
         "type": "local",
       }
@@ -354,6 +861,39 @@ describe('signTransaction', () => {
       `"0x76f9015401808502540be40080d8d79400000000000000000000000000000000000000018080c0808080808080c0b901270249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2247394b526f3462364a4336446d4e596241477847514e42373962356a6d41425f486a6e364e562d7a5f3851222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d8825fcab1b36bd74f6171f6a02698f8a3f7c4494005ed58c10526fe292e7583f2421e978ad3f70421e98a22e5c0b940d483793eeb1ba0e0556a1650ebced6ae520fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
     )
   })
+
+  test('behavior: current account simulation', async () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const initialConfig = AccountConfig.from({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    })
+    const config = AccountConfig.from({ ...initialConfig, version: 1 })
+    const request = {
+      calls: [],
+      chainId: 1,
+      maxFeePerGas: parseGwei('10'),
+      from: AccountConfig.getAddress(initialConfig),
+      accountSimulation: {
+        approvals: [{ owner: owner.address }],
+        config,
+      },
+    } as const
+    const signature = SignatureEnvelope.from(
+      await owner.signTransaction(request),
+    )
+    const { accountSimulation: _, ...unsigned } = request
+    const payload = keccak256(await Transaction.serialize(unsigned))
+    const digest = AccountConfig.getSignPayload({
+      account: request.from,
+      config,
+      payload,
+    })
+
+    expect(
+      SignatureEnvelope.extractAddress({ payload: digest, signature }),
+    ).toMatchInlineSnapshot(`"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"`)
+  })
 })
 
 describe('signTypedData', () => {
@@ -466,6 +1006,117 @@ describe('signTypedData', () => {
         signature,
       }),
     ).toBe(true)
+  })
+})
+
+describe('signVoucher', () => {
+  const voucher = {
+    chainId: 4217,
+    channel:
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    cumulativeAmount: 123n,
+  } as const
+
+  test('default', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const signature = await account.signVoucher(voucher)
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId: voucher.channel,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
+
+    expect(signature).toBe(await account.sign({ hash: payload }))
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: payload,
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: channel', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const channel = Channel.from({
+      expiringNonceHash:
+        '0x0000000000000000000000000000000000000000000000000000000000000002',
+      payee: '0x2222222222222222222222222222222222222222',
+      payer: account.address,
+      salt: '0x0000000000000000000000000000000000000000000000000000000000000003',
+      token: 1n,
+    })
+    const channelId = Channel.computeId(channel, { chainId: voucher.chainId })
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
+
+    expect(
+      await account.signVoucher({
+        chainId: voucher.chainId,
+        channel,
+        cumulativeAmount: voucher.cumulativeAmount,
+      }),
+    ).toBe(await account.sign({ hash: payload }))
+  })
+
+  test('behavior: access key', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const access = Account.fromSecp256k1(
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
+      {
+        access: account,
+      },
+    )
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId: voucher.channel,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
+    const signature = await access.signVoucher(voucher)
+
+    expect(signature).toBe(await access.sign({ hash: payload, raw: true }))
+    expect(SignatureEnvelope.deserialize(signature)).toMatchObject({
+      type: 'secp256k1',
+    })
+    expect(
+      await verifyHash(client, {
+        address: access.accessKeyAddress,
+        hash: payload,
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('standalone', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+
+    expect(await Account.signVoucher(account, voucher)).toBe(
+      await account.signVoucher(voucher),
+    )
+  })
+
+  test('standalone: access key', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const access = Account.fromSecp256k1(
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
+      {
+        access: account,
+      },
+    )
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId: voucher.channel,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
+    const signature = await Account.signVoucher(access, voucher)
+
+    expect(signature).toBe(await access.sign({ hash: payload, raw: true }))
+    expect(SignatureEnvelope.deserialize(signature)).toMatchObject({
+      type: 'secp256k1',
+    })
   })
 })
 
@@ -771,18 +1422,11 @@ describe('signKeyAuthorization', () => {
       chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       scopes: [
-        {
-          address: '0x20c0000000000000000000000000000000000001',
-        },
-        {
-          address: '0x20c0000000000000000000000000000000000002',
-          selector: '0xa9059cbb',
-        },
-        {
-          address: '0x20c0000000000000000000000000000000000003',
-          selector: '0xa9059cbb',
+        Scopes.target('0x20c0000000000000000000000000000000000001').any(),
+        Scopes.tip20('0x20c0000000000000000000000000000000000002').transfer(),
+        Scopes.tip20('0x20c0000000000000000000000000000000000003').transfer({
           recipients: ['0x0000000000000000000000000000000000000001'],
-        },
+        }),
       ],
     })
     const { chainId: _, ...rest } = authorization
@@ -828,6 +1472,7 @@ describe('signKeyAuthorization', () => {
           address: '0x20c0000000000000000000000000000000000001',
           selector: '0xa9059cbb',
         },
+        Scopes.tip20('0x20c0000000000000000000000000000000000001').transfer(),
       ],
     })
     const { chainId: _, ...rest } = authorization
@@ -842,6 +1487,10 @@ describe('signKeyAuthorization', () => {
     `)
     expect(rest.scopes).toMatchInlineSnapshot(`
       [
+        {
+          "address": "0x20c0000000000000000000000000000000000001",
+          "selector": "0xa9059cbb",
+        },
         {
           "address": "0x20c0000000000000000000000000000000000001",
           "selector": "0xa9059cbb",
@@ -1062,11 +1711,9 @@ describe('signKeyAuthorization (standalone)', () => {
       chainId: BigInt(client.chain!.id),
       key,
       scopes: [
-        {
-          address: '0x20c0000000000000000000000000000000000001',
-          selector: '0xa9059cbb',
+        Scopes.tip20('0x20c0000000000000000000000000000000000001').transfer({
           recipients: ['0x0000000000000000000000000000000000000001'],
-        },
+        }),
       ],
     })
     const { chainId: _, ...rest } = authorization

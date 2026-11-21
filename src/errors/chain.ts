@@ -21,8 +21,8 @@ export class ChainDoesNotSupportContract extends BaseError {
       {
         metaMessages: [
           'This could be due to any of the following:',
-          ...(blockNumber &&
-          contract.blockCreated &&
+          ...(blockNumber !== undefined &&
+          contract.blockCreated !== undefined &&
           contract.blockCreated > blockNumber
             ? [
                 `- The contract "${contract.name}" was not deployed until block ${contract.blockCreated} (current block ${blockNumber}).`,

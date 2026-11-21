@@ -84,62 +84,72 @@ export function waitForUserOperationReceipt(
     hash,
   ])
 
-  return new Promise((resolve, reject) => {
-    const unobserve = observe(observerId, { resolve, reject }, (emit) => {
-      const done = (fn: () => void) => {
-        unpoll()
-        fn()
-        unobserve()
-      }
+  let unobserve: () => void
 
-      const timeoutId = timeout
-        ? setTimeout(
-            () =>
+  const promise = new Promise<WaitForUserOperationReceiptReturnType>(
+    (resolve, reject) => {
+      unobserve = observe(observerId, { resolve, reject }, (emit) => {
+        const done = (fn: () => void) => {
+          unpoll()
+          fn()
+          unobserve()
+        }
+
+        const timeoutId = timeout
+          ? setTimeout(
+              () =>
+                done(() =>
+                  emit.reject(
+                    new WaitForUserOperationReceiptTimeoutError({ hash }),
+                  ),
+                ),
+              timeout,
+            )
+          : undefined
+
+        const unpoll = poll(
+          async () => {
+            if (retryCount && count >= retryCount) {
+              clearTimeout(timeoutId)
               done(() =>
                 emit.reject(
                   new WaitForUserOperationReceiptTimeoutError({ hash }),
                 ),
-              ),
-            timeout,
-          )
-        : undefined
-
-      const unpoll = poll(
-        async () => {
-          if (retryCount && count >= retryCount) {
-            clearTimeout(timeoutId)
-            done(() =>
-              emit.reject(
-                new WaitForUserOperationReceiptTimeoutError({ hash }),
-              ),
-            )
-          }
-
-          try {
-            const receipt = await getAction(
-              client,
-              getUserOperationReceipt,
-              'getUserOperationReceipt',
-            )({ hash })
-            clearTimeout(timeoutId)
-            done(() => emit.resolve(receipt))
-          } catch (err) {
-            const error = err as GetUserOperationReceiptErrorType
-            if (error.name !== 'UserOperationReceiptNotFoundError') {
-              clearTimeout(timeoutId)
-              done(() => emit.reject(error))
+              )
             }
-          }
 
-          count++
-        },
-        {
-          emitOnBegin: true,
-          interval: pollingInterval,
-        },
-      )
+            try {
+              const receipt = await getAction(
+                client,
+                getUserOperationReceipt,
+                'getUserOperationReceipt',
+              )({ hash })
+              clearTimeout(timeoutId)
+              done(() => emit.resolve(receipt))
+            } catch (err) {
+              const error = err as GetUserOperationReceiptErrorType
+              if (error.name !== 'UserOperationReceiptNotFoundError') {
+                clearTimeout(timeoutId)
+                done(() => emit.reject(error))
+              }
+            }
 
-      return unpoll
-    })
-  })
+            count++
+          },
+          {
+            emitOnBegin: true,
+            interval: pollingInterval,
+          },
+        )
+
+        return unpoll
+      })
+    },
+  )
+
+  // Remove this caller's listener once its promise settles. `done` only
+  // unobserves the caller that started the poll, so a listener from a
+  // concurrent caller would otherwise stay cached and block every later
+  // wait for the same hash from polling.
+  return promise.finally(() => unobserve())
 }

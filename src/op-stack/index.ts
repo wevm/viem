@@ -207,7 +207,6 @@ export {
 export { chainConfig } from './chainConfig.js'
 
 export * from './chains.js'
-
 export {
   type PublicActionsL1,
   publicActionsL1,
@@ -224,6 +223,7 @@ export {
   type WalletActionsL2,
   walletActionsL2,
 } from './decorators/walletL2.js'
+export { isSuperGameType, superGameTypes } from './gameTypes.js'
 
 export {
   type ParseTransactionErrorType,
@@ -266,6 +266,12 @@ export {
   type ExtractWithdrawalMessageLogsReturnType,
   extractWithdrawalMessageLogs,
 } from './utils/extractWithdrawalMessageLogs.js'
+export {
+  type GetL2BlockNumberAtTimestampErrorType,
+  type GetL2BlockNumberAtTimestampParameters,
+  type GetL2BlockNumberAtTimestampReturnType,
+  getL2BlockNumberAtTimestamp,
+} from './utils/getL2BlockNumberAtTimestamp.js'
 export {
   type GetL2TransactionHashErrorType,
   type GetL2TransactionHashParameters,

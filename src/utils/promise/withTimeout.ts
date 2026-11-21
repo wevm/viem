@@ -1,4 +1,4 @@
-import type { ErrorType } from '../../errors/utils.js'
+import { type ErrorType, isAbortError } from '../../errors/utils.js'
 
 export type WithTimeoutErrorType = ErrorType
 
@@ -24,8 +24,8 @@ export function withTimeout<data>(
   return new Promise((resolve, reject) => {
     ;(async () => {
       let timeoutId!: NodeJS.Timeout
+      const controller = new AbortController()
       try {
-        const controller = new AbortController()
         if (timeout > 0) {
           timeoutId = setTimeout(() => {
             if (signal) {
@@ -37,7 +37,10 @@ export function withTimeout<data>(
         }
         resolve(await fn({ signal: controller?.signal || null }))
       } catch (err) {
-        if ((err as Error)?.name === 'AbortError') reject(errorInstance)
+        if (controller?.signal.aborted && isAbortError(err)) {
+          reject(errorInstance)
+          return
+        }
         reject(err)
       } finally {
         clearTimeout(timeoutId)

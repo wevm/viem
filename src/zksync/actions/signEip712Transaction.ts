@@ -104,12 +104,12 @@ export async function signEip712Transaction<
     ...transaction
   } = args
 
-  const account = account_ ? parseAccount(account_) : client.account
-
-  if (!account)
+  if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/signTransaction',
     })
+
+  const account = parseAccount(account_)
 
   assertEip712Request({
     account,

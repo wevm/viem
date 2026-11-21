@@ -28,6 +28,11 @@ export const zoraSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0xA983A71253Eb74e5E86A4E4eD9F37113FC25f2BF',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9',

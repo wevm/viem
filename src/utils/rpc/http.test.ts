@@ -1,28 +1,27 @@
 import type { IncomingHttpHeaders } from 'node:http'
+import { Instance } from 'prool'
 import { describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer } from '~test/utils.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
-import { keccak256 } from '../../index.js'
+import { createTestClient, http, keccak256 } from '../../index.js'
 import { numberToHex, toHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
 import { getHttpRpcClient, parseUrl } from './http.js'
-
-const client = anvilMainnet.getClient()
 
 describe('request', () => {
   test('valid request', async () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     expect(
       await client.request({
-        body: { method: 'web3_clientVersion' },
+        body: { method: 'eth_chainId' },
       }),
     ).toMatchInlineSnapshot(`
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.6.0",
+        "result": "0x1",
       }
     `)
   })
@@ -31,13 +30,13 @@ describe('request', () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
     expect(
       await client.request({
-        body: { method: 'web3_clientVersion' },
+        body: { method: 'eth_chainId' },
       }),
     ).toMatchInlineSnapshot(`
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.6.0",
+        "result": "0x1",
       }
     `)
   })
@@ -103,10 +102,16 @@ describe('request', () => {
     )
   })
 
-  test('parallel requests', async () => {
-    const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
+  test('parallel requests', async ({ onTestFinished }) => {
+    const instance = Instance.anvil({ port: 6969 })
+    await instance.start()
+    onTestFinished(() => instance.stop())
 
-    await wait(500)
+    const client = createTestClient({
+      mode: 'anvil',
+      transport: http(instance.url),
+    })
+    const rpcClient = getHttpRpcClient(instance.url)
 
     await mine(client, { blocks: 100 })
     const blockNumber = await getBlockNumber(client)
@@ -126,7 +131,6 @@ describe('request', () => {
         numberToHex(blockNumber - BigInt(i)),
       ),
     )
-    await wait(500)
   })
 
   test('no application/json header', async () => {
@@ -186,6 +190,106 @@ describe('request', () => {
       }),
     ).toBeDefined()
     expect(headers['x-wagmi']).toBeDefined()
+
+    await server.close()
+  })
+
+  test('fetchOptions: signal aborts request', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    const controller = new AbortController()
+
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+        fetchOptions: { signal: controller.signal },
+      }),
+    ).rejects.toThrowError('This operation was aborted')
+
+    await server.close()
+  })
+
+  test('fetchOptions: signal does not disable timeout', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    const controller = new AbortController()
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+        fetchOptions: { signal: controller.signal },
+        timeout: 100,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TimeoutError: The request took too long to respond.
+
+      URL: http://localhost
+      Request body: {"method":"web3_clientVersion"}
+
+      Details: The request timed out.
+      Version: viem@x.y.z]
+    `)
+    expect(controller.signal.aborted).toBe(false)
+
+    await server.close()
+  })
+
+  test('fetchOptions: signal listener is removed after request', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    const controller = new AbortController()
+    const addEventListener = vi.spyOn(controller.signal, 'addEventListener')
+    const removeEventListener = vi.spyOn(
+      controller.signal,
+      'removeEventListener',
+    )
+
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+      fetchOptions: { signal: controller.signal },
+    })
+
+    expect(addEventListener).toHaveBeenCalledTimes(1)
+    expect(removeEventListener).toHaveBeenCalledWith(
+      'abort',
+      addEventListener.mock.calls[0]![1],
+    )
+
+    await server.close()
+  })
+
+  test('timeout: response body stalls', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      // Send the headers and part of the body, then never finish it.
+      res.write('{"jsonrpc":"2.0","id":0,')
+    })
+    const client = getHttpRpcClient(server.url)
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+        timeout: 100,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TimeoutError: The request took too long to respond.
+
+      URL: http://localhost
+      Request body: {"method":"web3_clientVersion"}
+
+      Details: The request timed out.
+      Version: viem@x.y.z]
+    `)
 
     await server.close()
   })
@@ -361,6 +465,59 @@ describe('request', () => {
     expect(fetchOverride).toHaveBeenCalled()
   })
 
+  test('maxResponseBodySize', async () => {
+    const body = JSON.stringify({ result: '0x1' })
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+
+    const client = getHttpRpcClient(server.url, {
+      maxResponseBodySize: body.length - 1,
+    })
+
+    await expect(() =>
+      client.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ResponseBodyTooLargeError: HTTP response body exceeded the size limit.
+
+      Max: 15 bytes
+      Received: 16 bytes
+
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
+  test('maxResponseBodySize disabled', async () => {
+    const body = JSON.stringify({ result: '0x1' })
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+
+    const client = getHttpRpcClient(server.url, {
+      maxResponseBodySize: false,
+    })
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).resolves.toEqual({ result: '0x1' })
+
+    await server.close()
+  })
+
   // TODO: This is flaky.
   test.skip('timeout', async () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
@@ -468,22 +625,19 @@ describe('http (batch)', () => {
 
     expect(
       await client.request({
-        body: [
-          { method: 'web3_clientVersion' },
-          { method: 'web3_clientVersion' },
-        ],
+        body: [{ method: 'eth_chainId' }, { method: 'eth_chainId' }],
       }),
     ).toMatchInlineSnapshot(`
       [
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "0x1",
         },
         {
           "id": 2,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "0x1",
         },
       ]
     `)
@@ -495,7 +649,7 @@ describe('http (batch)', () => {
     expect(
       await client.request({
         body: [
-          { method: 'web3_clientVersion' },
+          { method: 'eth_chainId' },
           { method: 'eth_getBlockByHash', params: ['0x0', false] },
         ],
       }),
@@ -504,7 +658,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "0x1",
         },
         {
           "error": {
@@ -523,14 +677,14 @@ describe('http (batch)', () => {
 
     expect(
       await client.request({
-        body: [{ method: 'web3_clientVersion' }, { method: 'eth_wagmi' }],
+        body: [{ method: 'eth_chainId' }, { method: 'eth_wagmi' }],
       }),
     ).toMatchInlineSnapshot(`
       [
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "0x1",
         },
         {
           "error": {
@@ -606,6 +760,32 @@ describe('http (batch)', () => {
       Version: viem@x.y.z]
     `,
     )
+  })
+
+  test('empty batch', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: null,
+          error: { code: -32600, message: 'empty batch' },
+        }),
+      )
+    })
+
+    const client = getHttpRpcClient(server.url)
+
+    expect(await client.request({ body: [] })).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32600,
+          "message": "empty batch",
+        },
+        "id": null,
+        "jsonrpc": "2.0",
+      }
+    `)
   })
 
   test('unknown', async () => {

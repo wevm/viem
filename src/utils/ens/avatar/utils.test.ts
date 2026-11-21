@@ -1,11 +1,13 @@
 import { describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer } from '~test/utils.js'
+import { wait } from '../../wait.js'
 
 import {
   getGateway,
   getJsonImage,
   getMetadataAvatarUri,
+  getNftMetadataUri,
   getNftTokenUri,
   isImageUri,
   parseAvatarUri,
@@ -25,6 +27,18 @@ describe('isImageUri', () => {
     })
 
     await expect(isImageUri(server.url)).resolves.toBe(true)
+  })
+
+  test('timeout', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.writeHead(200, { 'Content-Type': 'image/png' })
+      res.end()
+    })
+
+    await expect(isImageUri(server.url, { timeout: 100 })).resolves.toBe(false)
+
+    await server.close()
   })
 
   test('is not image', async () => {
@@ -266,18 +280,23 @@ describe('resolveAvatarUri()', () => {
     })
   })
 
-  test('arweave replace default', () => {
-    expect(
-      resolveAvatarUri({
-        uri: 'https://arweave.net/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
-        gatewayUrls: { arweave: 'https://example.com' },
-      }),
-    ).toStrictEqual({
-      uri: 'https://example.com/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
-      isOnChain: false,
-      isEncoded: false,
-    })
-  })
+  test.each(['https://example.com', 'https://example.com/'])(
+    'arweave replace default with gateway %s',
+    (arweave) => {
+      expect(
+        resolveAvatarUri({
+          uri: 'https://arweave.net/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI',
+          gatewayUrls: { arweave },
+        }),
+      ).toMatchInlineSnapshot(`
+      {
+        "isEncoded": false,
+        "isOnChain": false,
+        "uri": "https://example.com/rgW4h3ffQQzOD8ynnwdl3_YlHxtssqV3aXOregPr7yI",
+      }
+    `)
+    },
+  )
 
   test.each([
     {
@@ -308,6 +327,14 @@ describe('resolveAvatarUri()', () => {
       uri: 'data:image/svg+xml;utf8,<svg></svg>',
       expected: {
         uri: 'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=',
+        isOnChain: true,
+        isEncoded: false,
+      },
+    },
+    {
+      uri: '<svg><text>café ⚡</text></svg>',
+      expected: {
+        uri: 'data:image/svg+xml;base64,PHN2Zz48dGV4dD5jYWbDqSDimqE8L3RleHQ+PC9zdmc+',
         isOnChain: true,
         isEncoded: false,
       },
@@ -414,6 +441,53 @@ describe('getMetadataAvatarUri', () => {
     await expect(() =>
       getMetadataAvatarUri({ uri: server.url }),
     ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+  })
+
+  test('error: timeout', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ image: 'data:image/png;base64,AA==' }))
+    })
+
+    await expect(() =>
+      getMetadataAvatarUri({ timeout: 100, uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
+  test('error: body stalls after headers', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.write('{"image":')
+      await wait(1_000)
+      res.end('"data:image/png;base64,AA=="}')
+    })
+
+    await expect(() =>
+      getMetadataAvatarUri({ timeout: 100, uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
+  test('error: body too large', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          image: 'data:image/png;base64,AA==',
+          padding: 'a'.repeat(10_485_760),
+        }),
+      )
+    })
+
+    await expect(() =>
+      getMetadataAvatarUri({ uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
   })
 })
 
@@ -571,5 +645,67 @@ describe('getNftTokenUri', () => {
       Version: viem@x.y.z]
     `,
     )
+  })
+})
+
+describe('getNftMetadataUri', () => {
+  test('erc721', () => {
+    expect(
+      getNftMetadataUri({
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
+          tokenID: '314592',
+          namespace: 'erc721',
+        },
+        uri: 'https://token-cdn-domain/0x{id}',
+      }),
+    ).toMatchInlineSnapshot(`"https://token-cdn-domain/314592"`)
+  })
+
+  test('erc1155: decimal token id', () => {
+    expect(
+      getNftMetadataUri({
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb32979486938aa9694bfc898f35dbed459f44424',
+          tokenID: '314592',
+          namespace: 'erc1155',
+        },
+        uri: 'https://token-cdn-domain/{id}.json',
+      }),
+    ).toMatchInlineSnapshot(
+      `"https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json"`,
+    )
+  })
+
+  test('erc1155: hex token id', () => {
+    expect(
+      getNftMetadataUri({
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb32979486938aa9694bfc898f35dbed459f44424',
+          tokenID: '0x4CCE0',
+          namespace: 'erc1155',
+        },
+        uri: 'https://token-cdn-domain/0x{id}',
+      }),
+    ).toMatchInlineSnapshot(
+      `"https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0"`,
+    )
+  })
+
+  test('erc1155: no placeholder', () => {
+    expect(
+      getNftMetadataUri({
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb32979486938aa9694bfc898f35dbed459f44424',
+          tokenID: '10063',
+          namespace: 'erc1155',
+        },
+        uri: 'https://token-cdn-domain/10063.json',
+      }),
+    ).toMatchInlineSnapshot(`"https://token-cdn-domain/10063.json"`)
   })
 })

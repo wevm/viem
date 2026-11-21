@@ -32,6 +32,16 @@ test('checksums address', () => {
   ).toMatchInlineSnapshot(`"0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC"`)
 })
 
+test('caches EIP-1191 checksums separately', () => {
+  const address = '0x27b1fdb04752bbc536007a920d24acb045561c26'
+  expect([getAddress(address, 30), getAddress(address)]).toMatchInlineSnapshot(`
+    [
+      "0x27b1FdB04752BBc536007A920D24ACB045561c26",
+      "0x27b1fdb04752bbc536007a920d24acb045561c26",
+    ]
+  `)
+})
+
 describe('errors', () => {
   test('invalid address', () => {
     expect(() =>

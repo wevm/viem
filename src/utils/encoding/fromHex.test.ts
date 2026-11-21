@@ -1,3 +1,4 @@
+import type { Hex } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import {
@@ -46,6 +47,10 @@ describe('converts hex to number', () => {
     expect(hexToNumber('0x00027760a62ec2ac', { signed: true })).toBe(
       694206942069420,
     )
+
+    // odd-length hex
+    expect(hexToNumber('0x0', { signed: true })).toBe(0)
+    expect(hexToNumber('0x1a4', { signed: true })).toBe(420)
   })
 
   test('args: size', () => {
@@ -83,6 +88,163 @@ describe('converts hex to number', () => {
       Version: viem@x.y.z]
     `)
   })
+})
+
+test('hexToNumber and hexToBigInt edge cases', () => {
+  const run = (fn: () => unknown) => {
+    try {
+      return fn()
+    } catch (error) {
+      return `${(error as Error).name}: ${(error as Error).message.split('\n')[0]}`
+    }
+  }
+  const hexes = [
+    '0x',
+    '0x0',
+    '0x1a',
+    '0X1a',
+    '0x1a ',
+    '0x1fffffffffffff',
+    '0x20000000000000',
+    `0x${'0'.repeat(50)}1fffffffffffff`,
+    '0x7f',
+    '0x80',
+    '0xff',
+    '0xfff',
+    '0x8000',
+    `0x${'f'.repeat(64)}`,
+    `0x8${'0'.repeat(63)}`,
+    '0x1_0',
+    '0xzz',
+    '1234',
+    '',
+  ] as Hex[]
+
+  expect(
+    hexes.map((hex) => [
+      hex,
+      run(() => hexToNumber(hex)),
+      run(() => hexToNumber(hex, { signed: true })),
+      run(() => hexToBigInt(hex, { signed: true })),
+    ]),
+  ).toMatchInlineSnapshot(`
+    [
+      [
+        "0x",
+        "SyntaxError: Cannot convert 0x to a BigInt",
+        "SyntaxError: Cannot convert 0x to a BigInt",
+        "SyntaxError: Cannot convert 0x to a BigInt",
+      ],
+      [
+        "0x0",
+        0,
+        0,
+        0n,
+      ],
+      [
+        "0x1a",
+        26,
+        26,
+        26n,
+      ],
+      [
+        "0X1a",
+        26,
+        26,
+        26n,
+      ],
+      [
+        "0x1a ",
+        26,
+        26,
+        26n,
+      ],
+      [
+        "0x1fffffffffffff",
+        9007199254740991,
+        9007199254740991,
+        9007199254740991n,
+      ],
+      [
+        "0x20000000000000",
+        "IntegerOutOfRangeError: Number "9007199254740992n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        "IntegerOutOfRangeError: Number "9007199254740992n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        9007199254740992n,
+      ],
+      [
+        "0x000000000000000000000000000000000000000000000000001fffffffffffff",
+        9007199254740991,
+        9007199254740991,
+        9007199254740991n,
+      ],
+      [
+        "0x7f",
+        127,
+        127,
+        127n,
+      ],
+      [
+        "0x80",
+        128,
+        -128,
+        -128n,
+      ],
+      [
+        "0xff",
+        255,
+        -1,
+        -1n,
+      ],
+      [
+        "0xfff",
+        4095,
+        4095,
+        4095n,
+      ],
+      [
+        "0x8000",
+        32768,
+        -32768,
+        -32768n,
+      ],
+      [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "IntegerOutOfRangeError: Number "115792089237316195423570985008687907853269984665640564039457584007913129639935n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        -1,
+        -1n,
+      ],
+      [
+        "0x8000000000000000000000000000000000000000000000000000000000000000",
+        "IntegerOutOfRangeError: Number "57896044618658097711785492504343953926634992332820282019728792003956564819968n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        "IntegerOutOfRangeError: Number "-57896044618658097711785492504343953926634992332820282019728792003956564819968n" is not in safe integer range (-9007199254740991 to 9007199254740991)",
+        -57896044618658097711785492504343953926634992332820282019728792003956564819968n,
+      ],
+      [
+        "0x1_0",
+        "SyntaxError: Cannot convert 0x1_0 to a BigInt",
+        "SyntaxError: Cannot convert 0x1_0 to a BigInt",
+        "SyntaxError: Cannot convert 0x1_0 to a BigInt",
+      ],
+      [
+        "0xzz",
+        "SyntaxError: Cannot convert 0xzz to a BigInt",
+        "SyntaxError: Cannot convert 0xzz to a BigInt",
+        "SyntaxError: Cannot convert 0xzz to a BigInt",
+      ],
+      [
+        "1234",
+        1234,
+        978,
+        978n,
+      ],
+      [
+        "",
+        0,
+        -16,
+        -16n,
+      ],
+    ]
+  `)
 })
 
 describe('converts hex to bigint', () => {
@@ -129,6 +291,11 @@ describe('converts hex to bigint', () => {
         { signed: true },
       ),
     ).toBe(-12312312312312312412n)
+
+    // odd-length hex
+    expect(hexToBigInt('0x0', { signed: true })).toBe(0n)
+    expect(hexToBigInt('0xf', { signed: true })).toBe(15n)
+    expect(hexToBigInt('0x1a4', { signed: true })).toBe(420n)
   })
 
   test('args: size', () => {
@@ -203,6 +370,8 @@ describe('converts hex to string', () => {
     expect(hexToString('0x48656c6c6f20576f726c6421')).toMatchInlineSnapshot(
       `"Hello World!"`,
     )
+    // A snapshot would render U+FEFF invisibly.
+    expect(hexToString('0xefbbbf68656c6c6f')).toBe('\uFEFFhello')
   })
 
   test('args: size', () => {
@@ -225,6 +394,11 @@ describe('converts hex to string', () => {
 
       Version: viem@x.y.z]
     `)
+  })
+
+  test('behavior: an incomplete sequence does not affect the next call', () => {
+    expect(hexToString('0xe282')).toBe('\ufffd')
+    expect(hexToString('0xac41')).toBe('\ufffdA')
   })
 })
 

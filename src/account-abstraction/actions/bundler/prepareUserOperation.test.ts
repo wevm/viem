@@ -14,7 +14,13 @@ import { accounts } from '~test/constants.js'
 import { mine } from '../../../actions/test/mine.js'
 import { writeContract } from '../../../actions/wallet/writeContract.js'
 import { http } from '../../../clients/transports/http.js'
-import { pad, parseEther, parseGwei } from '../../../utils/index.js'
+import {
+  hexToString,
+  pad,
+  parseEther,
+  parseGwei,
+  stringToHex,
+} from '../../../utils/index.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
 import { getPaymasterData } from '../paymaster/getPaymasterData.js'
 import { getPaymasterStubData } from '../paymaster/getPaymasterStubData.js'
@@ -1284,6 +1290,43 @@ describe('entryPointVersion: 0.8', async () => {
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
+    `)
+  })
+
+  test('behavior: paymasterContext overrides bundlerClient.paymasterContext when not undefined', async () => {
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      paymaster: {
+        async getPaymasterData({ context }) {
+          return {
+            paymaster: '0x0000000000000000000000000000000000000001',
+            paymasterData: stringToHex(JSON.stringify({ context })),
+          }
+        },
+      },
+      paymasterContext: { validUntil: 3735928600 },
+    })
+
+    const contexts = await Promise.all(
+      [undefined, false, 0, '', null].map(async (paymasterContext) => {
+        const { paymasterData } = await prepareUserOperation(bundlerClient, {
+          account,
+          callData: '0x',
+          parameters: ['paymaster'],
+          paymasterContext,
+        })
+        return hexToString(paymasterData!)
+      }),
+    )
+
+    expect(contexts).toMatchInlineSnapshot(`
+      [
+        "{"context":{"validUntil":3735928600}}",
+        "{"context":false}",
+        "{"context":0}",
+        "{"context":""}",
+        "{"context":null}",
+      ]
     `)
   })
 

@@ -16,7 +16,9 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import { withCache } from '../../utils/promise/withCache.js'
 import { disputeGameAbi, disputeGameFactoryAbi, portal2Abi } from '../abis.js'
+import { isSuperGameType } from '../gameTypes.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Game } from '../types/withdrawal.js'
 
@@ -40,7 +42,14 @@ export type GetGamesParameters<
     limit?: number | undefined
   }
 export type GetGamesReturnType = (Game & {
+  /**
+   * L2 block number anchored by the dispute game. For super-root games, this
+   * value is the L2 timestamp instead. Check `usesSuperRoots` to distinguish
+   * the unit.
+   */
   l2BlockNumber: bigint
+  /** Whether the dispute game anchors on super roots. */
+  usesSuperRoots: boolean
 })[]
 export type GetGamesErrorType =
   | ReadContractErrorType
@@ -91,12 +100,24 @@ export async function getGames<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const disputeGameFactoryAddress = (() => {
+  const disputeGameFactoryAddress = await (async () => {
     if (parameters.disputeGameFactoryAddress)
       return parameters.disputeGameFactoryAddress
-    if (chain)
-      return targetChain!.contracts.disputeGameFactory[chain.id].address
-    return Object.values(targetChain!.contracts.disputeGameFactory)[0].address
+    // Read the factory from the portal rather than the chain definition: the
+    // portal only accepts games from its current factory, and a chain's factory
+    // can change (for example when chains move to a shared factory for interop).
+    return withCache(
+      () =>
+        readContract(client, {
+          abi: portal2Abi,
+          address: portalAddress,
+          functionName: 'disputeGameFactory',
+        }),
+      {
+        cacheKey: ['disputeGameFactory', client.uid, portalAddress].join('.'),
+        cacheTime: 300,
+      },
+    )
   })()
 
   const [gameCount, gameType] = await Promise.all([
@@ -133,11 +154,12 @@ export async function getGames<
     })),
   })
 
+  const usesSuperRoots = isSuperGameType(gameType)
   const games = rawGames
     .map((game, i) => {
       const blockNumber = l2SequenceNumbers[i] as bigint
-      return !l2BlockNumber || blockNumber > l2BlockNumber
-        ? { ...game, l2BlockNumber: blockNumber }
+      return !l2BlockNumber || blockNumber >= l2BlockNumber
+        ? { ...game, l2BlockNumber: blockNumber, usesSuperRoots }
         : null
     })
     .filter(Boolean) as GetGamesReturnType

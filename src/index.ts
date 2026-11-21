@@ -169,6 +169,11 @@ export type {
   GetBlockNumberReturnType,
 } from './actions/public/getBlockNumber.js'
 export type {
+  GetBlockReceiptsErrorType,
+  GetBlockReceiptsParameters,
+  GetBlockReceiptsReturnType,
+} from './actions/public/getBlockReceipts.js'
+export type {
   GetBlockTransactionCountErrorType,
   GetBlockTransactionCountParameters,
   GetBlockTransactionCountReturnType,
@@ -233,10 +238,20 @@ export type {
   GetProofReturnType,
 } from './actions/public/getProof.js'
 export type {
+  GetRawTransactionErrorType,
+  GetRawTransactionParameters,
+  GetRawTransactionReturnType,
+} from './actions/public/getRawTransaction.js'
+export type {
   GetStorageAtErrorType,
   GetStorageAtParameters,
   GetStorageAtReturnType,
 } from './actions/public/getStorageAt.js'
+export type {
+  GetStorageValuesErrorType,
+  GetStorageValuesParameters,
+  GetStorageValuesReturnType,
+} from './actions/public/getStorageValues.js'
 export type {
   GetTransactionErrorType,
   GetTransactionParameters,
@@ -257,6 +272,11 @@ export type {
   GetTransactionReceiptParameters,
   GetTransactionReceiptReturnType,
 } from './actions/public/getTransactionReceipt.js'
+export type {
+  IterateLogsErrorType,
+  IterateLogsParameters,
+  IterateLogsReturnType,
+} from './actions/public/iterateLogs.js'
 export type {
   MulticallErrorType,
   MulticallParameters,
@@ -310,6 +330,14 @@ export type {
   WaitForTransactionReceiptParameters,
   WaitForTransactionReceiptReturnType,
 } from './actions/public/waitForTransactionReceipt.js'
+export type {
+  BlockHeader,
+  OnBlockHeader,
+  OnBlockHeaderParameter,
+  WatchBlockHeadersErrorType,
+  WatchBlockHeadersParameters,
+  WatchBlockHeadersReturnType,
+} from './actions/public/watchBlockHeaders.js'
 export type {
   OnBlockNumberFn,
   OnBlockNumberParameter,
@@ -586,6 +614,14 @@ export {
   type MulticallBatchOptions,
   rpcSchema,
 } from './clients/createClient.js'
+/** Lazily resolves and caches typed Clients across configured chains. */
+export {
+  ChainNotConfiguredError,
+  type ChainNotConfiguredErrorType,
+  createClientResolver,
+  TransportNotConfiguredError,
+  type TransportNotConfiguredErrorType,
+} from './clients/createClientResolver.js'
 export {
   type CreatePublicClientErrorType,
   createPublicClient,
@@ -873,6 +909,14 @@ export {
   type InvalidHexBooleanErrorType,
   InvalidHexValueError,
   type InvalidHexValueErrorType,
+  RlpDepthLimitExceededError,
+  type RlpDepthLimitExceededErrorType,
+  RlpListBoundaryExceededError,
+  type RlpListBoundaryExceededErrorType,
+  RlpNonCanonicalError,
+  type RlpNonCanonicalErrorType,
+  RlpTrailingBytesError,
+  type RlpTrailingBytesErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
@@ -933,6 +977,8 @@ export {
 export {
   HttpRequestError,
   type HttpRequestErrorType,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
   RpcRequestError,
   type RpcRequestErrorType,
   SocketClosedError,
@@ -1010,6 +1056,8 @@ export {
 export {
   FeeConflictError,
   type FeeConflictErrorType,
+  FeePayerNonceMismatchError,
+  type FeePayerNonceMismatchErrorType,
   InvalidLegacyVError,
   type InvalidLegacyVErrorType,
   InvalidSerializableTransactionError,
@@ -1020,6 +1068,8 @@ export {
   type InvalidSerializedTransactionTypeErrorType,
   InvalidStorageKeySizeError,
   type InvalidStorageKeySizeErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
   TransactionExecutionError,
   type TransactionExecutionErrorType,
   TransactionNotFoundError,
@@ -1040,11 +1090,14 @@ export {
   type InvalidPrimaryTypeErrorType,
   InvalidStructTypeError,
   type InvalidStructTypeErrorType,
+  InvalidTypedDataTypeError,
+  type InvalidTypedDataTypeErrorType,
 } from './errors/typedData.js'
 export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
+export type { ResolvedToken, Tokens } from './tokens/defineToken.js'
 export type {
   DeriveAccount,
   HDKey,
@@ -1135,6 +1188,7 @@ export type {
   EIP1193Parameters,
   EIP1193Provider,
   EIP1193RequestFn,
+  EIP1193RequestOptions,
   EIP1474Methods,
   NetworkSync,
   PaymasterRpcSchema,
@@ -1288,6 +1342,8 @@ export type {
 } from './types/utils.js'
 export type { Withdrawal } from './types/withdrawal.js'
 export {
+  AbiDecodingSizeLimitExceededError,
+  type AbiDecodingSizeLimitExceededErrorType,
   type DecodeAbiParametersErrorType,
   type DecodeAbiParametersReturnType,
   decodeAbiParameters,
@@ -1305,6 +1361,8 @@ export {
   decodeErrorResult,
 } from './utils/abi/decodeErrorResult.js'
 export {
+  AbiEventAmbiguityError,
+  type AbiEventAmbiguityErrorType,
   type DecodeEventLogErrorType,
   type DecodeEventLogParameters,
   type DecodeEventLogReturnType,
@@ -1464,6 +1522,10 @@ export {
   offchainLookupAbiItem,
   offchainLookupSignature,
 } from './utils/ccip.js'
+export {
+  type CcipReadTunnelParameters,
+  ccipReadTunnel,
+} from './utils/ccipTunnel.js'
 export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,
@@ -1630,6 +1692,7 @@ export {
 export {
   type DefineTransactionRequestErrorType,
   defineTransactionRequest,
+  type ExtractFormattedTransactionRequest,
   type FormatTransactionRequestErrorType,
   type FormattedTransactionRequest,
   formatTransactionRequest,

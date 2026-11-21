@@ -26,6 +26,7 @@ test('default', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 })
 
 test('args: l2BlockNumber', async () => {
@@ -43,6 +44,7 @@ test('args: l2BlockNumber', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 })
 
 test('args: l2BlockNumber (high)', async () => {
@@ -70,4 +72,43 @@ test('args: address', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
+})
+
+test('behavior: reads disputeGameFactory from the portal', async () => {
+  await reset(client, {
+    blockNumber: 26430000n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
+  const expected = await getGames(client, {
+    limit: 10,
+    disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+    portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
+  })
+  expect(expected.length > 0).toBeTruthy()
+
+  // `getWithdrawalStatus` and friends accept chains with only `l2OutputOracle`.
+  const withoutFactory = {
+    ...optimism,
+    contracts: { portal: optimism.contracts.portal },
+  } as unknown as typeof optimism
+  expect(
+    await getGames(client, { targetChain: withoutFactory, limit: 10 }),
+  ).toEqual(expected)
+
+  // A chain definition can hold a factory the portal no longer uses, such as
+  // after a chain moves to a shared factory. Unichain's factory stands in here.
+  const staleFactory = {
+    ...optimism,
+    contracts: {
+      ...optimism.contracts,
+      disputeGameFactory: {
+        1: { address: '0x2F12d621a16e2d3285929C9996f478508951dFe4' },
+      },
+    },
+  } as const
+  expect(
+    await getGames(client, { targetChain: staleFactory, limit: 10 }),
+  ).toEqual(expected)
 })

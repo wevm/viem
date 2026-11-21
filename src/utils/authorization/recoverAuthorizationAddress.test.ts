@@ -55,3 +55,22 @@ test('args: signature (hex)', async () => {
     }),
   ).toBe(getAddress(accounts[0].address))
 })
+
+test('error: yParity not 0 or 1', async () => {
+  const authorization = await signAuthorization({
+    contractAddress: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 0,
+    privateKey: accounts[0].privateKey,
+  })
+
+  await expect(() =>
+    recoverAuthorizationAddress({
+      authorization: { ...authorization, v: undefined, yParity: 28 },
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [InvalidYParityError: Invalid \`yParity\` value "28". Expected 0 or 1.
+
+    Version: viem@x.y.z]
+  `)
+})

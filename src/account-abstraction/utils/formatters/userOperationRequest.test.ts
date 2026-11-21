@@ -70,3 +70,62 @@ test('default', () => {
     }
   `)
 })
+
+test('behavior: eip7702 authorization (yParity: 0)', () => {
+  const request = formatUserOperationRequest({
+    callData: '0xdeadbeef',
+    callGasLimit: 69420n,
+    maxFeePerGas: 69420n,
+    maxPriorityFeePerGas: 10n,
+    nonce: 69n,
+    preVerificationGas: 69420n,
+    verificationGasLimit: 69420n,
+    sender: '0x0000000000000000000000000000000000000000',
+    signature: '0xdeadbeef',
+    authorization: {
+      address: '0x0000000000000000000000000000000000000000',
+      chainId: 1,
+      nonce: 0,
+      r: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      s: '0x0000000000000000000000000000000000000000000000000000000000000002',
+      yParity: 0,
+    },
+  })
+
+  // `yParity` of `0` must be encoded as the 1-byte `0x00`, not a 32-byte zero.
+  expect(request.eip7702Auth?.yParity).toBe('0x00')
+  expect(request.eip7702Auth).toMatchInlineSnapshot(`
+    {
+      "address": "0x0000000000000000000000000000000000000000",
+      "chainId": "0x1",
+      "nonce": "0x0",
+      "r": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "s": "0x0000000000000000000000000000000000000000000000000000000000000002",
+      "yParity": "0x00",
+    }
+  `)
+})
+
+test('behavior: eip7702 authorization (yParity: 1)', () => {
+  const request = formatUserOperationRequest({
+    callData: '0xdeadbeef',
+    callGasLimit: 69420n,
+    maxFeePerGas: 69420n,
+    maxPriorityFeePerGas: 10n,
+    nonce: 69n,
+    preVerificationGas: 69420n,
+    verificationGasLimit: 69420n,
+    sender: '0x0000000000000000000000000000000000000000',
+    signature: '0xdeadbeef',
+    authorization: {
+      address: '0x0000000000000000000000000000000000000000',
+      chainId: 1,
+      nonce: 0,
+      r: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      s: '0x0000000000000000000000000000000000000000000000000000000000000002',
+      yParity: 1,
+    },
+  })
+
+  expect(request.eip7702Auth?.yParity).toBe('0x01')
+})

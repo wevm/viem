@@ -28,6 +28,10 @@ import { keccak256 } from '../../utils/hash/keccak256.js'
 import { contracts } from '../contracts.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
+  type GetL2BlockNumberAtTimestampErrorType,
+  getL2BlockNumberAtTimestamp,
+} from '../utils/getL2BlockNumberAtTimestamp.js'
+import {
   type GetWithdrawalHashStorageSlotErrorType,
   getWithdrawalHashStorageSlot,
 } from '../utils/getWithdrawalHashStorageSlot.js'
@@ -73,6 +77,7 @@ export type BuildProveWithdrawalReturnType<
 export type BuildProveWithdrawalErrorType =
   | GetBlockErrorType
   | GetProofErrorType
+  | GetL2BlockNumberAtTimestampErrorType
   | GetWithdrawalHashStorageSlotErrorType
   | ErrorType
 
@@ -119,19 +124,29 @@ export async function buildProveWithdrawal<
   const { account, chain = client.chain, game, output, withdrawal } = args
 
   const { withdrawalHash } = withdrawal
-  const { l2BlockNumber } = game ?? output
+  const { l2BlockNumber, usesSuperRoots } = game ?? output
+  const blockNumber = usesSuperRoots
+    ? await getL2BlockNumberAtTimestamp(client, {
+        timestamp: l2BlockNumber,
+      })
+    : l2BlockNumber
 
   const slot = getWithdrawalHashStorageSlot({ withdrawalHash })
   const [proof, block] = await Promise.all([
     getProof(client, {
       address: contracts.l2ToL1MessagePasser.address,
       storageKeys: [slot],
-      blockNumber: l2BlockNumber,
+      blockNumber,
     }),
     getBlock(client, {
-      blockNumber: l2BlockNumber,
+      blockNumber,
     }),
   ])
+
+  if (usesSuperRoots && block.timestamp !== l2BlockNumber)
+    throw new Error(
+      `L2 block timestamp ${block.timestamp} does not match dispute game timestamp ${l2BlockNumber}.`,
+    )
 
   return {
     account,

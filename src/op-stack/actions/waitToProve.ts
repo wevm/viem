@@ -1,3 +1,7 @@
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
@@ -9,7 +13,14 @@ import type {
 } from '../../types/chain.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
-import { ReceiptContainsNoWithdrawalsError } from '../errors/withdrawal.js'
+import { portal2Abi } from '../abis.js'
+import {
+  L2TimestampRequiredError,
+  type L2TimestampRequiredErrorType,
+  ReceiptContainsNoWithdrawalsError,
+} from '../errors/withdrawal.js'
+import { isSuperGameType } from '../gameTypes.js'
+import type { TargetChain } from '../types/chain.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
@@ -49,6 +60,10 @@ export type WaitToProveParameters<
      * @default 100
      */
     gameLimit?: number | undefined
+    /**
+     * L2 timestamp of the withdrawal. Required for super-root dispute games.
+     */
+    l2Timestamp?: bigint | undefined
     receipt: TransactionReceipt
     /**
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.
@@ -64,6 +79,8 @@ export type WaitToProveReturnType = {
 
 export type WaitToProveErrorType =
   | GetWithdrawalsErrorType
+  | L2TimestampRequiredErrorType
+  | ReadContractErrorType
   | WaitForNextL2OutputErrorType
   | ErrorType
 
@@ -105,7 +122,15 @@ export async function waitToProve<
   client: Client<Transport, chain, account>,
   parameters: WaitToProveParameters<chain, chainOverride>,
 ): Promise<WaitToProveReturnType> {
-  const { gameLimit, receipt } = parameters
+  const {
+    chain = client.chain,
+    gameLimit,
+    l2Timestamp,
+    receipt,
+    targetChain: targetChain_,
+  } = parameters
+
+  const targetChain = targetChain_ as unknown as TargetChain
 
   const [withdrawal] = getWithdrawals(receipt)
 
@@ -123,7 +148,7 @@ export async function waitToProve<
   if (portalVersion.major < 3) {
     const output = await waitForNextL2Output(client, {
       ...parameters,
-      l2BlockNumber: receipt.blockNumber,
+      l2BlockNumber: l2Timestamp ?? receipt.blockNumber,
     } as WaitForNextL2OutputParameters)
     return {
       game: {
@@ -133,16 +158,38 @@ export async function waitToProve<
         metadata: '0x',
         rootClaim: output.outputRoot,
         timestamp: output.timestamp,
+        usesSuperRoots: false,
       },
       output,
       withdrawal,
     }
   }
 
+  const portalAddress = (() => {
+    if (parameters.portalAddress) return parameters.portalAddress
+    if (chain) return targetChain.contracts.portal[chain.id].address
+    return Object.values(targetChain.contracts.portal)[0].address
+  })()
+
+  // Super-root games anchor on L2 timestamps instead of L2 block numbers.
+  const l2BlockNumber = await (async () => {
+    if (typeof l2Timestamp === 'bigint') return l2Timestamp
+    const gameType = await readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'respectedGameType',
+    })
+    if (!isSuperGameType(gameType)) return receipt.blockNumber
+    const timestamp = receipt.logs[0]?.blockTimestamp
+    if (typeof timestamp !== 'bigint')
+      throw new L2TimestampRequiredError({ gameType })
+    return timestamp
+  })()
+
   const game = await waitForNextGame(client, {
     ...parameters,
     limit: gameLimit,
-    l2BlockNumber: receipt.blockNumber,
+    l2BlockNumber,
   } as WaitForNextGameParameters)
   return {
     game,
@@ -151,6 +198,7 @@ export async function waitToProve<
       outputIndex: game.index,
       outputRoot: game.rootClaim,
       timestamp: game.timestamp,
+      usesSuperRoots: game.usesSuperRoots,
     },
     withdrawal,
   }

@@ -10,7 +10,7 @@ export const klaytnBaobab = /*#__PURE__*/ defineChain({
     symbol: 'KLAY',
   },
   rpcUrls: {
-    default: { http: ['https://public-en-baobab.klaytn.net'] },
+    default: { http: ['https://public-en-kairos.node.kaia.io'] },
   },
   blockExplorers: {
     default: {

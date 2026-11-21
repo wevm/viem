@@ -8,7 +8,12 @@ import type {
   WalletRpcSchema,
 } from './eip1193.js'
 import type { Hash, Hex } from './misc.js'
-import type { Quantity, RpcLog, RpcTransaction } from './rpc.js'
+import type {
+  Quantity,
+  RpcLog,
+  RpcTransaction,
+  RpcTransactionReceipt,
+} from './rpc.js'
 
 test('default', async () => {
   type DefaultRequestFn = EIP1193RequestFn
@@ -51,12 +56,18 @@ test('public methods', async () => {
   })
   expectTypeOf<typeof x3>().toEqualTypeOf<RpcLog[]>()
 
-  const x4 = await request<{
+  const x4 = await request({
+    method: 'eth_getBlockReceipts',
+    params: ['latest'],
+  })
+  expectTypeOf<typeof x4>().toEqualTypeOf<RpcTransactionReceipt[] | null>()
+
+  const x5 = await request<{
     Method: 'eth_wagmi'
     Parameters: undefined
     ReturnType: number
   }>({ method: 'eth_wagmi' })
-  expectTypeOf<typeof x4>().toEqualTypeOf<number>()
+  expectTypeOf<typeof x5>().toEqualTypeOf<number>()
 
   // @ts-expect-error
   request({ method: 'eth_newFilter' })

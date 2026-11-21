@@ -13,6 +13,6 @@ test('default', async () => {
 
 test('unsupported chain', async () => {
   await expect(switchChain(client!, fantom)).rejects.toMatchInlineSnapshot(
-    '[Error: Unrecognized chain.]',
+    '[ProviderRpcError: Unrecognized chain.]',
   )
 })

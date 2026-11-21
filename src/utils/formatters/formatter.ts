@@ -1,5 +1,4 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { Prettify } from '../../types/utils.js'
 
 export type DefineFormatterErrorType = ErrorType
 
@@ -30,12 +29,13 @@ export function defineFormatter<type extends string, parameters, returnType>(
             delete (formatted as any)[key]
           }
         }
+        // Preserve named return types so exported chains can emit portable declarations.
         return {
           ...formatted,
           ...overrides(args, action),
-        } as Prettify<returnTypeOverride> & {
-          [_key in exclude[number]]: never
-        }
+        } as exclude[number] extends never
+          ? returnTypeOverride
+          : returnTypeOverride & { [_key in exclude[number]]: never }
       },
       type,
     }

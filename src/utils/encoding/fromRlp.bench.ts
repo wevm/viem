@@ -3,13 +3,16 @@ import { decodeRlp } from 'ethers'
 import { bench, describe } from 'vitest'
 
 import { fromRlp } from './fromRlp.js'
-import { bytesToRlp } from './toRlp.js'
+import { bytesToRlp, toRlp } from './toRlp.js'
 
 const generateBytes = (length: number) => {
   const bytes = new Uint8Array(length)
   for (let i = 0; i < length; i++) bytes[i] = i
   return bytes
 }
+
+const hex = (size: number, seed = 0) =>
+  `0x${Array.from({ length: size }, (_, i) => ((i * 31 + seed) & 0xff).toString(16).padStart(2, '0')).join('')}` as const
 
 const generateList = (length: number) => {
   const bytes = []
@@ -130,5 +133,29 @@ describe('rlp: tx (2048kB - prefix: 0xfa)', () => {
 
   bench('@ethereumjs/rlp: `RLP.decode`', () => {
     RLP.decode(list, true)
+  })
+})
+
+describe('rlp (hex): 40 × bytes32 list', () => {
+  const list = toRlp(Array.from({ length: 40 }, (_, i) => hex(32, i)))
+
+  bench('viem: `fromRlp`', () => {
+    fromRlp(list)
+  })
+})
+
+describe('rlp (hex): 200 × bytes32 list', () => {
+  const list = toRlp(Array.from({ length: 200 }, (_, i) => hex(32, i)))
+
+  bench('viem: `fromRlp`', () => {
+    fromRlp(list)
+  })
+})
+
+describe('rlp (hex): 2 × 128 KiB blobs', () => {
+  const list = toRlp([hex(131_072, 1), hex(131_072, 2), hex(48), hex(48)])
+
+  bench('viem: `fromRlp`', () => {
+    fromRlp(list)
   })
 })

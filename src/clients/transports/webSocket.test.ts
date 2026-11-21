@@ -1,6 +1,10 @@
+import { once } from 'node:events'
+import type { AddressInfo } from 'node:net'
 import { WebSocket } from 'isows'
-
-import { assertType, describe, expect, test } from 'vitest'
+import { createClient } from 'viem'
+import { watchBlocks } from 'viem/actions'
+import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
+import { WebSocketServer } from 'ws'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { mine } from '../../actions/test/mine.js'
@@ -146,13 +150,12 @@ test('errors: rpc error', async () => {
   await expect(() =>
     transport.request({ method: 'eth_wagmi' }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
-    Double check you have provided the correct parameters.
+    [MethodNotFoundRpcError: The method "eth_wagmi" does not exist / is not available.
 
     URL: http://localhost
     Request body: {"method":"eth_wagmi"}
 
-    Details: data did not match any variant of untagged enum EthRpcCall
+    Details: Method not found
     Version: viem@x.y.z]
   `)
 })
@@ -219,6 +222,102 @@ test('throws on socket closure', async () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+describe('unsubscribe', () => {
+  // Replies to every request, except `eth_unsubscribe` on `/silent`.
+  const server = new WebSocketServer({ host: '127.0.0.1', port: 0 })
+  const listening = once(server, 'listening')
+  server.on('connection', (peer, request) => {
+    peer.on('message', (message) => {
+      const { id, method } = JSON.parse(message.toString())
+      if (method === 'eth_unsubscribe' && request.url === '/silent') return
+      const result = method === 'eth_subscribe' ? '0xsubscription' : true
+      peer.send(JSON.stringify({ id, jsonrpc: '2.0', result }))
+    })
+  })
+
+  beforeAll(() => listening)
+
+  afterAll(async () => {
+    for (const peer of server.clients) peer.terminate()
+    await new Promise((resolve) => server.close(resolve))
+  })
+
+  function url(path: string) {
+    const { port } = server.address() as AddressInfo
+    return `ws://127.0.0.1:${port}${path}`
+  }
+
+  async function closeSocket(socket: WebSocket) {
+    const closed = once(socket, 'close')
+    socket.close()
+    await closed
+  }
+
+  test('settles and releases the request', async () => {
+    const results: Record<string, unknown> = {}
+    for (const path of ['/open', '/closed', '/silent']) {
+      const transport = webSocket(url(path), {
+        keepAlive: false,
+        reconnect: false,
+        timeout: 200,
+      })({ retryCount: 0 })
+      const rpcClient = await transport.value!.getRpcClient()
+      const { unsubscribe } = await transport.value!.subscribe({
+        params: ['newHeads'],
+        onData() {},
+      })
+      if (path === '/closed') await closeSocket(rpcClient.socket)
+
+      const result = await unsubscribe().then(
+        ({ result }) => ({ result }),
+        (error) => ({ error: error.name }),
+      )
+
+      results[path] = { ...result, requests: rpcClient.requests.size }
+      rpcClient.close()
+    }
+
+    expect(results).toMatchInlineSnapshot(`
+      {
+        "/closed": {
+          "error": "WebSocketRequestError",
+          "requests": 0,
+        },
+        "/open": {
+          "requests": 0,
+          "result": true,
+        },
+        "/silent": {
+          "error": "TimeoutError",
+          "requests": 0,
+        },
+      }
+    `)
+  })
+
+  test('behavior: unwatch over a closed socket', async () => {
+    const reasons: unknown[] = []
+    const onUnhandledRejection = (reason: unknown) => reasons.push(reason)
+    process.on('unhandledRejection', onUnhandledRejection)
+
+    const transport = webSocket(url('/unwatch'), {
+      keepAlive: false,
+      reconnect: false,
+    })
+    const client = createClient({ transport })
+    const rpcClient = await client.transport.getRpcClient()
+    const unwatch = watchBlocks(client, { onBlock() {} })
+    await wait(100)
+    await closeSocket(rpcClient.socket)
+
+    unwatch()
+    await wait(100)
+    process.off('unhandledRejection', onUnhandledRejection)
+
+    expect(reasons).toMatchInlineSnapshot(`[]`)
+  })
 })
 
 test('throws on bogus subscription', async () => {

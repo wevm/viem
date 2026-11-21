@@ -22,6 +22,11 @@ export const shape = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x2c03e8BF8b16Af89079852BE87f0e9eC674a5952',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x6Ef8c69CfE4635d866e3E02732068022c06e724D',
@@ -30,7 +35,7 @@ export const shape = /*#__PURE__*/ defineChain({
     },
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 1,
+      blockCreated: 0,
     },
     portal: {
       [sourceId]: {

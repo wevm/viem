@@ -6,6 +6,7 @@ import {
   textResolverAbi,
   universalResolverResolveAbi,
 } from '../../constants/abis.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Prettify } from '../../types/utils.js'
 import {
@@ -60,6 +61,7 @@ export type GetEnsTextErrorType =
   | EncodeFunctionDataErrorType
   | NamehashErrorType
   | DecodeFunctionResultErrorType
+  | ErrorType
 
 /**
  * Gets a text record for specified ENS name.

@@ -21,6 +21,7 @@ import { concat } from '../../utils/data/concat.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
+import { getAction } from '../../utils/getAction.js'
 import { sendTransaction } from './sendTransaction.js'
 
 export const fallbackMagicIdentifier =
@@ -137,7 +138,7 @@ export async function sendCalls<
       : call.data
 
     return {
-      data: call.dataSuffix && data ? concat([data, call.dataSuffix]) : data,
+      data: call.dataSuffix ? concat([data ?? '0x', call.dataSuffix]) : data,
       to: call.to,
       value: call.value ? numberToHex(call.value) : undefined,
     }
@@ -173,6 +174,8 @@ export async function sendCalls<
       (error.name === 'MethodNotFoundRpcError' ||
         error.name === 'MethodNotSupportedRpcError' ||
         error.name === 'UnknownRpcError' ||
+        error.details.toLowerCase() ===
+          'this request method is not supported' ||
         error.details
           .toLowerCase()
           .includes('does not exist / is not available') ||
@@ -220,16 +223,24 @@ export async function sendCalls<
         )
       }
 
-      const promises: Promise<Hex>[] = []
+      const results: PromiseSettledResult<Hex>[] = []
       for (const call of calls) {
-        const promise = sendTransaction(client, {
-          account,
-          chain,
-          data: call.data,
-          to: call.to,
-          value: call.value ? hexToBigInt(call.value) : undefined,
-        })
-        promises.push(promise)
+        try {
+          const value = await getAction(
+            client,
+            sendTransaction,
+            'sendTransaction',
+          )({
+            account,
+            chain,
+            data: call.data,
+            to: call.to,
+            value: call.value ? hexToBigInt(call.value) : undefined,
+          })
+          results.push({ status: 'fulfilled', value })
+        } catch (reason) {
+          results.push({ reason, status: 'rejected' })
+        }
 
         // Note: some browser wallets require a small delay between transactions
         // to prevent duplicate JSON-RPC requests.
@@ -239,7 +250,6 @@ export async function sendCalls<
           )
       }
 
-      const results = await Promise.allSettled(promises)
       if (results.every((r) => r.status === 'rejected')) throw results[0].reason
 
       const hashes = results.map((result) => {

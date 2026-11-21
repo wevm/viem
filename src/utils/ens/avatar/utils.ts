@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import * as Base64 from 'ox/Base64'
 
 import {
   type ReadContractErrorType,
@@ -16,9 +17,13 @@ import {
   EnsAvatarUriResolutionError,
   type EnsAvatarUriResolutionErrorType,
 } from '../../../errors/ens.js'
+import { TimeoutError } from '../../../errors/request.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
+import { type NumberToHexErrorType, numberToHex } from '../../encoding/toHex.js'
+import { readResponseBody } from '../../internal/http.js'
+import { withTimeout } from '../../promise/withTimeout.js'
 
 type UriItem = {
   uri: string
@@ -33,12 +38,27 @@ const ipfsHashRegex =
 const base64Regex = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/
 const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
 
+const fetchTimeout = 10_000
+// Same ceiling as the HTTP transport.
+const maxMetadataBytes = 10_485_760
+
 type IsImageUriErrorType = ErrorType
 
 /** @internal */
-export async function isImageUri(uri: string) {
+export async function isImageUri(
+  uri: string,
+  { timeout = fetchTimeout }: { timeout?: number | undefined } = {},
+) {
   try {
-    const res = await fetch(uri, { method: 'HEAD' })
+    const res = await withTimeout(
+      ({ signal }) =>
+        fetch(uri, { method: 'HEAD', ...(signal ? { signal } : {}) }),
+      {
+        errorInstance: new TimeoutError({ body: {}, url: uri }),
+        signal: true,
+        timeout,
+      },
+    )
     // retrieve content type header to check if content is image
     if (res.status === 200) {
       const contentType = res.headers.get('content-type')
@@ -46,6 +66,7 @@ export async function isImageUri(uri: string) {
     }
     return false
   } catch (error: any) {
+    if (error instanceof TimeoutError) return false
     // if error is not cors related then fail
     if (typeof error === 'object' && typeof error.response !== 'undefined') {
       return false
@@ -108,7 +129,7 @@ export function resolveAvatarUri({
   if (uri.startsWith('http') && !isIPNS && !isIPFS) {
     let replacedUri = uri
     if (gatewayUrls?.arweave)
-      replacedUri = uri.replace(/https:\/\/arweave.net/g, gatewayUrls?.arweave)
+      replacedUri = uri.replace(/https:\/\/arweave.net/g, arweaveGateway)
     return { uri: replacedUri, isOnChain: false, isEncoded: false }
   }
 
@@ -131,7 +152,7 @@ export function resolveAvatarUri({
   let parsedUri = uri.replace(dataURIRegex, '')
   if (parsedUri.startsWith('<svg')) {
     // if svg, base64 encode
-    parsedUri = `data:image/svg+xml;base64,${btoa(parsedUri)}`
+    parsedUri = `data:image/svg+xml;base64,${Base64.fromString(parsedUri)}`
   }
 
   if (parsedUri.startsWith('data:') || parsedUri.startsWith('{')) {
@@ -169,16 +190,31 @@ export type GetMetadataAvatarUriErrorType =
 
 export async function getMetadataAvatarUri({
   gatewayUrls,
+  timeout = fetchTimeout,
   uri,
 }: {
   gatewayUrls?: AssetGatewayUrls | undefined
+  /** The timeout (in ms) for the metadata request, including its body. Default: 10_000 */
+  timeout?: number | undefined
   uri: string
 }): Promise<string> {
   try {
-    const res = await fetch(uri).then((res) => res.json())
+    const body = await withTimeout(
+      async ({ signal }) => {
+        const response = await fetch(uri, signal ? { signal } : {})
+        return readResponseBody(response, {
+          maxResponseBodySize: maxMetadataBytes,
+        })
+      },
+      {
+        errorInstance: new TimeoutError({ body: {}, url: uri }),
+        signal: true,
+        timeout,
+      },
+    )
     const image = await parseAvatarUri({
       gatewayUrls,
-      uri: getJsonImage(res),
+      uri: getJsonImage(JSON.parse(body)),
     })
     return image
   } catch {
@@ -294,4 +330,28 @@ export async function getNftTokenUri<chain extends Chain | undefined>(
     })
   }
   throw new EnsAvatarUnsupportedNamespaceError({ namespace: nft.namespace })
+}
+
+export type GetNftMetadataUriErrorType = NumberToHexErrorType | ErrorType
+
+/**
+ * Substitutes the `{id}` placeholder of an NFT metadata URI with the token ID.
+ *
+ * ERC-1155 requires the ID to be substituted as lowercase hex, without a `0x`
+ * prefix and zero-padded to 64 characters.
+ *
+ * @see https://eips.ethereum.org/EIPS/eip-1155#metadata
+ */
+export function getNftMetadataUri({
+  nft,
+  uri,
+}: {
+  nft: ParsedNft
+  uri: string
+}) {
+  const tokenId =
+    nft.namespace === 'erc1155'
+      ? numberToHex(BigInt(nft.tokenID), { size: 32 }).slice(2)
+      : nft.tokenID
+  return uri.replace(/(?:0x)?{id}/, tokenId)
 }

@@ -404,6 +404,7 @@ describe('watchAdminUpdated', () => {
 
     const logs: any[] = []
     const unwatch = actions.policy.watchAdminUpdated(client, {
+      args: { admin: account2.address, policyId },
       onAdminUpdated: (args, log) => {
         logs.push({ args, log })
       },
@@ -501,5 +502,20 @@ describe('watchBlacklistUpdated', () => {
     expect(logs[0].args.account).toBe(account2.address)
     expect(logs[0].args.restricted).toBe(true)
     expect(logs[1].args.restricted).toBe(false)
+  })
+})
+
+describe('errors', () => {
+  test('behavior: policy not found', async () => {
+    const error = await actions.policy
+      .modifyWhitelistSync(client, {
+        address: account2.address,
+        allowed: true,
+        policyId: 999_999n,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.policy.PolicyNotFoundError)
+    expect(error.policyId).toBe(999_999n)
   })
 })

@@ -14,6 +14,21 @@ type FunctionParameters = {
   chainId: number
 }
 
+type ResetParameters = FunctionParameters & {
+  /**
+   * The nonce that `consume` returned for the send being reset.
+   *
+   * Set when a send fails after `consume` returned a nonce, and omitted
+   * when `consume` threw or `reset` is called outside of a send. Managers
+   * that track a nonce per send can use it to release that nonce only.
+   *
+   * A failed send does not prove the nonce is unused: the node may have
+   * accepted the transaction before the request failed (e.g. a timeout).
+   * Check the account's pending nonce before reusing a released nonce.
+   */
+  nonce?: number | undefined
+}
+
 export type NonceManager = {
   /** Get and increment a nonce. */
   consume: (
@@ -24,7 +39,7 @@ export type NonceManager = {
   /** Get a nonce. */
   get: (chainId: FunctionParameters & { client: Client }) => Promise<number>
   /** Reset a nonce. */
-  reset: (chainId: FunctionParameters) => void
+  reset: (chainId: ResetParameters) => void
 }
 
 /**
@@ -50,6 +65,10 @@ export function createNonceManager(
 
   const getKey = ({ address, chainId }: FunctionParameters) =>
     `${address}.${chainId}`
+  const resetCache = (key: string) => {
+    deltaMap.delete(key)
+    promiseMap.delete(key)
+  }
 
   return {
     async consume({ address, chainId, client }) {
@@ -77,13 +96,13 @@ export function createNonceManager(
         promise = (async () => {
           try {
             const nonce = await source.get({ address, chainId, client })
-            const previousNonce = nonceMap.get(key) ?? 0
-            if (previousNonce > 0 && nonce <= previousNonce)
+            const previousNonce = nonceMap.get(key)
+            if (previousNonce !== undefined && nonce <= previousNonce)
               return previousNonce + 1
             nonceMap.delete(key)
             return nonce
           } finally {
-            this.reset({ address, chainId })
+            resetCache(key)
           }
         })()
         promiseMap.set(key, promise)
@@ -94,8 +113,8 @@ export function createNonceManager(
     },
     reset({ address, chainId }) {
       const key = getKey({ address, chainId })
-      deltaMap.delete(key)
-      promiseMap.delete(key)
+      nonceMap.delete(key)
+      resetCache(key)
     },
   }
 }

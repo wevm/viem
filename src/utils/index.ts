@@ -14,6 +14,8 @@ export {
   parseAccount,
 } from '../accounts/utils/parseAccount.js'
 export {
+  InvalidPublicKeyError,
+  type InvalidPublicKeyErrorType,
   type PublicKeyToAddressErrorType,
   publicKeyToAddress,
 } from '../accounts/utils/publicKeyToAddress.js'
@@ -156,6 +158,10 @@ export {
   offchainLookupSignature,
 } from './ccip.js'
 export {
+  type CcipReadTunnelParameters,
+  ccipReadTunnel,
+} from './ccipTunnel.js'
+export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,
   assertCurrentChain,
@@ -167,6 +173,12 @@ export {
   type ExtractChainReturnType,
   extractChain,
 } from './chain/extractChain.js'
+export {
+  type FilterChainsErrorType,
+  type FilterChainsParameters,
+  type FilterChainsReturnType,
+  filterChains,
+} from './chain/filterChains.js'
 export {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
@@ -337,6 +349,7 @@ export {
 export {
   type DefineTransactionRequestErrorType,
   defineTransactionRequest,
+  type ExtractFormattedTransactionRequest,
   type FormatTransactionRequestErrorType,
   type FormattedTransactionRequest,
   formatTransactionRequest,

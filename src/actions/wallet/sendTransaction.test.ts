@@ -553,6 +553,30 @@ describe('args: chain', async () => {
     ).toBeDefined
   })
 
+  test('behavior: null uses the client transaction envelope serializer', async () => {
+    const chain = defineChain({
+      ...anvilMainnet.chain,
+      serializers: {
+        transactionEnvelope() {
+          throw new Error('client transaction envelope serializer')
+        },
+      },
+    })
+    const client = createWalletClient({
+      chain,
+      transport: anvilMainnet.clientConfig.transport,
+    })
+
+    await expect(
+      sendTransaction(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: null,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowError('client transaction envelope serializer')
+  })
+
   test('chain mismatch', async () => {
     await expect(() =>
       sendTransaction(client, {
@@ -785,6 +809,7 @@ describe('local account', () => {
     const recipient = privateKeyToAccount(generatePrivateKey())
 
     const client_sepolia = anvilSepolia.getClient({ account: relay })
+    await reset(client_sepolia, { jsonRpcUrl: anvilSepolia.forkUrl })
 
     await setBalance(client, { address: eoa.address, value: parseEther('10') })
     await setBalance(client_sepolia, {
@@ -1051,10 +1076,10 @@ describe('local account', () => {
           account: privateKeyToAccount(sourceAccount.privateKey),
           to: targetAccount.address,
           value: parseEther('1'),
+          gas: 21000n,
           maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
         [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 
         This error could arise when the account does not have enough funds to:
@@ -1070,12 +1095,12 @@ describe('local account', () => {
           from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
           to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
           value:         1 ETH
+          gas:           21000
           maxFeePerGas:  10000000000010 gwei
 
         Details: Insufficient funds for gas * price + value
         Version: viem@x.y.z]
-      `,
-      )
+      `)
     })
   })
 

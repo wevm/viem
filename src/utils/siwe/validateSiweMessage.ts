@@ -55,10 +55,27 @@ export function validateSiweMessage(
 
   if (domain && message.domain !== domain) return false
   if (nonce && message.nonce !== nonce) return false
-  if (scheme && message.scheme !== scheme) return false
+  // EIP-4361: if `scheme` is not specified, HTTPS is assumed by default.
+  if (scheme && (message.scheme ?? 'https') !== scheme) return false
 
-  if (message.expirationTime && time >= message.expirationTime) return false
-  if (message.notBefore && time < message.notBefore) return false
+  // EIP-4361 requires `nonce = 8*( ALPHA / DIGIT )` and `version = "1"`.
+  if (message.nonce !== undefined && !nonceRegex.test(message.nonce))
+    return false
+  if (message.version !== undefined && message.version !== '1') return false
+
+  // Invalid `time` makes both lifetime comparisons false in JS; reject first.
+  if (Number.isNaN(time.getTime())) return false
+
+  // Invalid Date (e.g. non-RFC-3339 SIWE timestamp coerced at parse) is truthy;
+  // comparisons against it are always false and previously skipped checks.
+  if (message.expirationTime) {
+    if (Number.isNaN(message.expirationTime.getTime())) return false
+    if (time >= message.expirationTime) return false
+  }
+  if (message.notBefore) {
+    if (Number.isNaN(message.notBefore.getTime())) return false
+    if (time < message.notBefore) return false
+  }
 
   try {
     if (!message.address) return false
@@ -70,3 +87,5 @@ export function validateSiweMessage(
 
   return true
 }
+
+const nonceRegex = /^[a-zA-Z0-9]{8,}$/

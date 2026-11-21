@@ -47,6 +47,7 @@ import {
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { LruMap } from '../../utils/lru.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -190,6 +191,9 @@ export async function sendTransaction<
       docsPath: '/docs/actions/wallet/sendTransaction',
     })
   const account = account_ ? parseAccount(account_) : null
+  let nonceManagerParameters:
+    | { address: Address; chainId: number; nonce?: number | undefined }
+    | undefined
 
   try {
     assertRequest(parameters as AssertRequestParameters)
@@ -309,6 +313,34 @@ export async function sendTransaction<
     }
 
     if (account?.type === 'local') {
+      const nonceManager = ((): NonceManager | undefined => {
+        if (!account.nonceManager || typeof nonce !== 'undefined')
+          return account.nonceManager
+        const nonceManager = account.nonceManager
+        return {
+          async consume(parameters) {
+            nonceManagerParameters = {
+              address: parameters.address,
+              chainId: parameters.chainId,
+            }
+            const nonce = await nonceManager.consume(parameters)
+            // Pass the consumed nonce to `reset` so the manager can tell
+            // which `consume` a failed send follows.
+            nonceManagerParameters = { ...nonceManagerParameters, nonce }
+            return nonce
+          },
+          get(parameters) {
+            return nonceManager.get(parameters)
+          },
+          increment(parameters) {
+            return nonceManager.increment(parameters)
+          },
+          reset(parameters) {
+            return nonceManager.reset(parameters)
+          },
+        }
+      })()
+
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await getAction(
         client,
@@ -327,7 +359,7 @@ export async function sendTransaction<
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceManager: account.nonceManager,
+        nonceManager,
         parameters: [...defaultParameters, 'sidecars'],
         type,
         value,
@@ -336,12 +368,20 @@ export async function sendTransaction<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(
+      const signedTransaction = (await account.signTransaction(
         request as never,
         {
           serializer,
         },
       )) as Hash
+      const transactionEnvelope = (chain ?? client.chain)?.serializers
+        ?.transactionEnvelope
+      const serializedTransaction = transactionEnvelope
+        ? await transactionEnvelope({
+            serializedTransaction: signedTransaction,
+            transaction: request as never,
+          })
+        : signedTransaction
       return await getAction(
         client,
         sendRawTransaction,
@@ -366,6 +406,8 @@ export async function sendTransaction<
     })
   } catch (err) {
     if (err instanceof AccountTypeNotSupportedError) throw err
+    if (nonceManagerParameters)
+      account?.nonceManager?.reset(nonceManagerParameters)
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,

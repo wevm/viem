@@ -42,12 +42,19 @@ import { getHttpRpcClient } from './rpc/http.js'
 
 function request(url: string) {
   const httpClient = getHttpRpcClient(url)
-  return async ({ method, params }: any) => {
+  return async (
+    { method, params }: any,
+    options?: { signal?: AbortSignal | undefined },
+  ) => {
+    const fetchOptions = options?.signal
+      ? { signal: options.signal }
+      : undefined
     const { error, result } = await httpClient.request({
       body: {
         method,
         params,
       },
+      fetchOptions,
     })
     if (error)
       throw new RpcRequestError({
@@ -252,6 +259,52 @@ describe('args', () => {
       }),
     ).rejects.toThrowError()
     expect(end > 1000 && end < 1020).toBeTruthy()
+  })
+})
+
+describe('options', () => {
+  test('passes signal to underlying request', async () => {
+    let receivedSignal: AbortSignal | undefined
+    const request_ = buildRequest(async (_args, options) => {
+      receivedSignal = options?.signal
+      return 'success'
+    })
+    const controller = new AbortController()
+
+    await request_({ method: 'eth_blockNumber' }, { signal: controller.signal })
+
+    expect(receivedSignal).toBe(controller.signal)
+  })
+
+  test('prioritizes override signal over initial signal', async () => {
+    let receivedSignal: AbortSignal | undefined
+    const request_ = buildRequest(
+      async (_args, options) => {
+        receivedSignal = options?.signal
+        return 'success'
+      },
+      { signal: new AbortController().signal },
+    )
+    const controller = new AbortController()
+
+    await request_({ method: 'eth_blockNumber' }, { signal: controller.signal })
+
+    expect(receivedSignal).toBe(controller.signal)
+  })
+
+  test('does not call underlying request if signal is already aborted', async () => {
+    let count = 0
+    const request_ = buildRequest(async () => {
+      count++
+      return 'success'
+    })
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      request_({ method: 'eth_blockNumber' }, { signal: controller.signal }),
+    ).rejects.toThrowError('This operation was aborted')
+    expect(count).toBe(0)
   })
 })
 
@@ -1071,6 +1124,35 @@ describe('behavior', () => {
     `)
   })
 
+  test('dedupe does not join in-flight request when signal is already aborted', async () => {
+    let count = 0
+    let resolve!: (value: string) => void
+    const request_ = buildRequest(
+      async () => {
+        count++
+        return new Promise<string>((resolve_) => {
+          resolve = resolve_
+        })
+      },
+      { uid: 'foo' },
+    )
+
+    const first = request_({ method: 'eth_blockNumber' }, { dedupe: true })
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      request_(
+        { method: 'eth_blockNumber' },
+        { dedupe: true, signal: controller.signal },
+      ),
+    ).rejects.toThrowError('This operation was aborted')
+
+    resolve('0x1')
+    await expect(first).resolves.toBe('0x1')
+    expect(count).toBe(1)
+  })
+
   describe('retry', () => {
     test('non-deterministic InternalRpcError', async () => {
       let retryCount = -1
@@ -1174,6 +1256,78 @@ describe('behavior', () => {
         Version: viem@x.y.z]
       `)
       expect(retryCount).toBe(3)
+    })
+
+    test('non-deterministic HttpRequestError (503 w/ Retry-After HTTP-date)', async () => {
+      // HTTP-dates have whole-second precision.
+      const retryAt = Math.ceil(Date.now() / 1000) * 1000 + 1000
+      const server = await createHttpServer((_req, res) => {
+        // Timers can fire a few ms early.
+        if (Date.now() < retryAt - 100) {
+          res.writeHead(503, {
+            'Content-Type': 'application/json',
+            'Retry-After': new Date(retryAt).toUTCString(),
+          })
+          res.end(JSON.stringify({}))
+          return
+        }
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+
+      expect(
+        await buildRequest(request(server.url), { retryCount: 1 })({
+          method: 'eth_blockNumber',
+        }),
+      ).toMatchInlineSnapshot(`"0x1"`)
+    })
+
+    test('non-deterministic HttpRequestError (503 w/ Retry-After HTTP-date beyond timer limit)', async () => {
+      const retryAt = Date.now() + 30 * 24 * 60 * 60 * 1000
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(503, {
+          'Content-Type': 'application/json',
+          'Retry-After': new Date(retryAt).toUTCString(),
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url), { retryCount: 1 })(
+          { method: 'eth_blockNumber' },
+          { signal: AbortSignal.timeout(200) },
+        ),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[TimeoutError: The operation was aborted due to timeout]`,
+      )
+    })
+
+    test('non-deterministic HttpRequestError (503 w/ past Retry-After HTTP-date)', async () => {
+      const start = Date.now()
+      const server = await createHttpServer((_req, res) => {
+        // Retries sooner than the backoff get another 503.
+        if (Date.now() < start + 100) {
+          res.writeHead(503, {
+            'Content-Type': 'application/json',
+            'Retry-After': new Date(start - 60_000).toUTCString(),
+          })
+          res.end(JSON.stringify({}))
+          return
+        }
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+
+      expect(
+        await buildRequest(request(server.url), {
+          retryCount: 1,
+          retryDelay: 200,
+        })({ method: 'eth_blockNumber' }),
+      ).toMatchInlineSnapshot(`"0x1"`)
     })
 
     test('non-deterministic HttpRequestError (403)', async () => {
@@ -1290,6 +1444,102 @@ describe('behavior', () => {
         buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
       ).rejects.toThrowError()
       expect(retryCount).toBe(0)
+    })
+
+    test('non-deterministic RpcRequestError (403)', async () => {
+      // Only the first request is refused.
+      const refusals = [{ error: { code: -32000, message: 'rate limited' } }]
+      const server = await createHttpServer((_req, res) => {
+        const refusal = refusals.shift()
+        if (refusal) {
+          res.writeHead(403, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify(refusal))
+          return
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+
+      expect(
+        await buildRequest(request(server.url), {
+          retryCount: 1,
+          retryDelay: 0,
+        })({ method: 'eth_blockNumber' }),
+      ).toMatchInlineSnapshot(`"0x1"`)
+    })
+
+    test('deterministic MethodNotFoundRpcError (403)', async () => {
+      // A retry would receive the second, successful response.
+      const responses = [
+        {
+          status: 403,
+          body: {
+            error: {
+              code: MethodNotFoundRpcError.code,
+              message: 'method not allowed',
+            },
+          },
+        },
+        { status: 200, body: { result: '0x1' } },
+      ]
+      const server = await createHttpServer((_req, res) => {
+        const { status, body } = responses.shift()!
+        res.writeHead(status, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(body))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url), {
+          retryCount: 1,
+          retryDelay: 0,
+        })({ method: 'eth_wagmi' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [MethodNotFoundRpcError: The method "eth_wagmi" does not exist / is not available.
+
+        Status: 403
+        URL: http://localhost
+        Request body: {"method":"eth_wagmi"}
+
+        Details: method not allowed
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('deterministic MethodNotSupportedRpcError (403)', async () => {
+      // A retry would receive the second, successful response.
+      const responses = [
+        {
+          status: 403,
+          body: {
+            error: {
+              code: MethodNotSupportedRpcError.code,
+              message: 'method not supported',
+            },
+          },
+        },
+        { status: 200, body: { result: '0x1' } },
+      ]
+      const server = await createHttpServer((_req, res) => {
+        const { status, body } = responses.shift()!
+        res.writeHead(status, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(body))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url), {
+          retryCount: 1,
+          retryDelay: 0,
+        })({ method: 'eth_wagmi' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [MethodNotSupportedRpcError: Method "eth_wagmi" is not supported.
+
+        Status: 403
+        URL: http://localhost
+        Request body: {"method":"eth_wagmi"}
+
+        Details: method not supported
+        Version: viem@x.y.z]
+      `)
     })
 
     test('deterministic RpcError', async () => {
@@ -1454,11 +1704,82 @@ describe('shouldRetry', () => {
     expect(shouldRetry(new LimitExceededRpcError({} as any))).toBe(true)
   })
 
+  test('LimitExceededRpcError (403)', () => {
+    expect(
+      shouldRetry(
+        new LimitExceededRpcError(
+          new RpcRequestError({
+            body: {},
+            error: { code: LimitExceededRpcError.code, message: '' },
+            status: 403,
+            url: '',
+          }),
+        ),
+      ),
+    ).toBe(true)
+  })
+
+  test('MethodNotFoundRpcError (403)', () => {
+    expect(
+      shouldRetry(
+        new MethodNotFoundRpcError(
+          new RpcRequestError({
+            body: {},
+            error: { code: MethodNotFoundRpcError.code, message: '' },
+            status: 403,
+            url: '',
+          }),
+        ),
+      ),
+    ).toBe(false)
+  })
+
+  test('MethodNotSupportedRpcError (500)', () => {
+    expect(
+      shouldRetry(
+        new MethodNotSupportedRpcError(
+          new RpcRequestError({
+            body: {},
+            error: { code: MethodNotSupportedRpcError.code, message: '' },
+            status: 500,
+            url: '',
+          }),
+        ),
+      ),
+    ).toBe(false)
+  })
+
+  test('RpcRequestError (403)', () => {
+    expect(
+      shouldRetry(
+        new RpcRequestError({
+          body: {},
+          error: { code: -32000, message: '' },
+          status: 403,
+          url: '',
+        }),
+      ),
+    ).toBe(true)
+  })
+
   test('RPC code 429 (batch rate-limit, e.g. Alchemy HTTP 200 + JSON body)', () => {
     // Some providers (e.g. Alchemy in batch mode) respond with HTTP 200 and a
     // JSON-RPC body containing `{ code: 429 }` rather than a real HTTP 429.
     // shouldRetry must return true so that retryCount is honoured.
     const err = Object.assign(new Error('rate limited'), { code: 429 })
+    expect(shouldRetry(err)).toBe(true)
+  })
+
+  test('RPC code -32007 (QuickNode rate limit)', () => {
+    // QuickNode returns its own rate-limit error as `{ code: -32007 }`
+    // rather than the standard `LimitExceededRpcError` code (`-32005`) or
+    // HTTP 429. shouldRetry must return true so that retryCount is honoured.
+    const err = Object.assign(
+      new Error(
+        '15/second request limit reached - reduce calls per second or upgrade your account at quicknode.com',
+      ),
+      { code: -32007 },
+    )
     expect(shouldRetry(err)).toBe(true)
   })
 

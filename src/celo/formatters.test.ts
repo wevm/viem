@@ -247,6 +247,129 @@ describe('block', () => {
     `)
   })
 
+  test('formatter: cip64 and deposit transactions', () => {
+    const { block, transaction } = celo.formatters!
+
+    const transactions = [
+      {
+        type: '0x7e',
+        sourceHash:
+          '0xdfaaf997184dd9adae5478b83703d8e38bc1528ba5f0be929bc2c53a1b440b4c',
+        from: '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001',
+        to: '0x4200000000000000000000000000000000000015',
+        mint: '0x0',
+        value: '0x0',
+        gas: '0xf4240',
+        input: '0x3db6be2b',
+        hash: '0x5868a16a908690c6335033294fa5ac41717c78c7eca79f1fa15541861eac2c15',
+        r: '0x0',
+        s: '0x0',
+        yParity: '0x0',
+        v: '0x0',
+        blockHash:
+          '0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f',
+        blockNumber: '0x4f1e433',
+        transactionIndex: '0x0',
+        gasPrice: '0x0',
+        nonce: '0x31801c0',
+      },
+      {
+        type: '0x7b',
+        chainId: '0xa4ec',
+        nonce: '0x2dc',
+        gas: '0x3ed5d',
+        maxFeePerGas: '0x2dc3ed3dd',
+        maxPriorityFeePerGas: '0x105f6',
+        to: '0xbedaccbd65230ea441e7955c0f5344acfc2a45e5',
+        value: '0x0',
+        accessList: [],
+        feeCurrency: '0x0e2a3e05bc9a16f5292a6170456a710cb89c6f72',
+        input: '0xb5b27b7e',
+        r: '0xed141b3bbfc9f7e9fa58c6f185e9436f95e0278010e4253a8d23b84fbf6063b6',
+        s: '0x22f2dfd8612f76dbe24769f17133cb9a0a226f36242fe3fe93aa046d9cf10ed3',
+        yParity: '0x0',
+        v: '0x0',
+        hash: '0xa0d6cc6dfda680bf5354d5b3bdf3d579b0e28db9c3bf83d712e0803d568b36ed',
+        blockHash:
+          '0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f',
+        blockNumber: '0x4f1e433',
+        transactionIndex: '0x1',
+        from: '0x0756abb4662a05140afa075d3cc3a2cbed763ff0',
+        gasPrice: '0x2d6c7eca6',
+      },
+    ] as const
+
+    const formatted = block.format({
+      hash: '0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f',
+      number: '0x4f1e433',
+      transactions,
+    } as any)
+
+    expect(formatted.transactions).toMatchInlineSnapshot(`
+      [
+        {
+          "blockHash": "0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f",
+          "blockNumber": 82961459n,
+          "chainId": undefined,
+          "from": "0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001",
+          "gas": 1000000n,
+          "gasPrice": 0n,
+          "hash": "0x5868a16a908690c6335033294fa5ac41717c78c7eca79f1fa15541861eac2c15",
+          "input": "0x3db6be2b",
+          "isSystemTx": undefined,
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+          "mint": 0n,
+          "nonce": 51904960,
+          "r": "0x0",
+          "s": "0x0",
+          "sourceHash": "0xdfaaf997184dd9adae5478b83703d8e38bc1528ba5f0be929bc2c53a1b440b4c",
+          "to": "0x4200000000000000000000000000000000000015",
+          "transactionIndex": 0,
+          "type": "deposit",
+          "typeHex": "0x7e",
+          "v": 0n,
+          "value": 0n,
+          "yParity": 0,
+        },
+        {
+          "accessList": [],
+          "blockHash": "0x238fabc2c784585097a24629c020b071dcdbf761cd54cfae087aba870517000f",
+          "blockNumber": 82961459n,
+          "chainId": 42220,
+          "feeCurrency": "0x0e2a3e05bc9a16f5292a6170456a710cb89c6f72",
+          "from": "0x0756abb4662a05140afa075d3cc3a2cbed763ff0",
+          "gas": 257373n,
+          "gasPrice": 12193361062n,
+          "hash": "0xa0d6cc6dfda680bf5354d5b3bdf3d579b0e28db9c3bf83d712e0803d568b36ed",
+          "input": "0xb5b27b7e",
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": 12285039581n,
+          "maxPriorityFeePerGas": 67062n,
+          "nonce": 732,
+          "r": "0xed141b3bbfc9f7e9fa58c6f185e9436f95e0278010e4253a8d23b84fbf6063b6",
+          "s": "0x22f2dfd8612f76dbe24769f17133cb9a0a226f36242fe3fe93aa046d9cf10ed3",
+          "to": "0xbedaccbd65230ea441e7955c0f5344acfc2a45e5",
+          "transactionIndex": 1,
+          "type": "cip64",
+          "typeHex": "0x7b",
+          "v": 0n,
+          "value": 0n,
+          "yParity": 0,
+        },
+      ]
+    `)
+    expect(
+      formatted.transactions.map((x: any) => [x.type, x.mint]),
+    ).toStrictEqual(
+      transactions.map((x) => {
+        const { type, mint } = transaction.format(x as any) as any
+        return [type, mint]
+      }),
+    )
+  })
+
   test('action', async () => {
     const client = createPublicClient({
       chain: celo,
@@ -258,57 +381,33 @@ describe('block', () => {
       includeTransactions: true,
     })
 
-    const { extraData: _extraData, transactions, ...rest } = block
-    expect(transactions[0]).toMatchInlineSnapshot(`
-      {
-        "blockHash": "0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d",
-        "blockNumber": 16645775n,
-        "chainId": 42220,
-        "ethCompatible": false,
-        "feeCurrency": undefined,
-        "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
-        "gas": 1527520n,
-        "gasPrice": 562129081n,
-        "gatewayFee": 0n,
-        "gatewayFeeRecipient": undefined,
-        "hash": "0x487efb864b308ee85afd7ed5954e968457cfe84e71726114b0a44f31fb876e85",
-        "input": "0x389ec778",
-        "nonce": 714820,
-        "r": "0x1c0c8776e2e9d97b9a95435d2c2439d5f634e1afc35a5a0f0bd02093dd4724e0",
-        "s": "0xde418ff749f2430a85e60a4b3f81af9f8e2117cffbe32c719b9b784c01be774",
-        "to": "0xb86d682b1b6bf20d8d54f55c48f848b9487dec37",
-        "transactionIndex": 0,
-        "type": "legacy",
-        "typeHex": "0x0",
-        "v": 84476n,
-        "value": 0n,
-      }
-    `)
-    expect(rest).toMatchInlineSnapshot(`
-      {
-        "baseFeePerGas": 100000000n,
-        "blobGasUsed": undefined,
-        "difficulty": 0n,
-        "excessBlobGas": undefined,
-        "gasLimit": 20000000n,
-        "gasUsed": 5045322n,
-        "hash": "0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d",
-        "logsBloom": "0x02004000004200000000000000800020000000000000400002040000002020000000802000000000000180000001000020800000000000000000000000000000000000000022000260000008000800000000000000000000000000000000000000000008000410002100000140000800000044c00200000000400010000800008800000080000000000010000040000000000000000000000000000000800020028000000100000000000000000000002002881000000000000800020000040020900402020000180000000000000040000800000011020090002000400000200010002000001000000000000080000000000000000000000000000004000000",
-        "miner": "0xe267d978037b89db06c6a5fcf82fad8297e290ff",
-        "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "nonce": "0x0000000000000000",
-        "number": 16645775n,
-        "parentHash": "0xf6e57c99be5a81167bcb7bdf8d55572235384182c71635857ace2c04d25294ed",
-        "receiptsRoot": "0xca8aabc507534e45c982aa43e38118fc6f9cf222800e3d703a6e299a2e661f2a",
-        "sha3Uncles": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "size": 24429n,
-        "stateRoot": "0x051c8e40ed3d8afabbad5321a4bb6b9d686a8a62d9b696b3e5a5c769c3623d48",
-        "timestamp": 1670896907n,
-        "totalDifficulty": 16645776n,
-        "transactionsRoot": "0xb293e2c4ce20a9eac253241e750a5592c9d3c1b27bf090d0fc2fa4756a038866",
-        "uncles": [],
-      }
-    `)
+    expect(block.transactions[0]).toMatchObject({
+      blockHash:
+        '0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d',
+      blockNumber: 16645775n,
+      ethCompatible: false,
+      feeCurrency: undefined,
+      from: '0x045d685d23e8aa34dc408a66fb408f20dc84d785',
+      gas: 1527520n,
+      gasPrice: 562129081n,
+      gatewayFee: 0n,
+      hash: '0x487efb864b308ee85afd7ed5954e968457cfe84e71726114b0a44f31fb876e85',
+      nonce: 714820,
+      type: 'legacy',
+      value: 0n,
+    })
+    expect(block).toMatchObject({
+      baseFeePerGas: 100000000n,
+      gasLimit: 20000000n,
+      gasUsed: 5045322n,
+      hash: '0xac8c9bc3b84e103dc321bbe83b670e425ff68bfc9a333a4f1b1b204ad11c583d',
+      number: 16645775n,
+      stateRoot:
+        '0x051c8e40ed3d8afabbad5321a4bb6b9d686a8a62d9b696b3e5a5c769c3623d48',
+      timestamp: 1670896907n,
+      transactionsRoot:
+        '0xb293e2c4ce20a9eac253241e750a5592c9d3c1b27bf090d0fc2fa4756a038866',
+    })
   })
 })
 

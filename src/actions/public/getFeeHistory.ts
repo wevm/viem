@@ -1,5 +1,6 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { FeeHistory } from '../../types/fee.js'
@@ -43,6 +44,7 @@ export type GetFeeHistoryErrorType =
   | NumberToHexErrorType
   | RequestErrorType
   | FormatFeeHistoryErrorType
+  | ErrorType
 
 /**
  * Returns a collection of historical gas information.

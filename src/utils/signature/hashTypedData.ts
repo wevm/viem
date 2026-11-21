@@ -120,6 +120,7 @@ export function hashStruct<
   const encoded = encodeData({
     data: data as Record<string, unknown>,
     primaryType,
+    typeHashes: new Map(),
     types: types as Record<string, readonly MessageTypeProperty[]>,
   })
   return keccak256(encoded)
@@ -134,17 +135,28 @@ type EncodeDataErrorType =
 function encodeData({
   data,
   primaryType,
+  typeHashes,
   types,
 }: {
   data: Record<string, unknown>
   primaryType: string
+  /** Type hashes computed so far in one `hashStruct` call, by type name. */
+  typeHashes: Map<string, Hex>
   types: Record<string, readonly MessageTypeProperty[]>
 }) {
   const encodedTypes: AbiParameter[] = [{ type: 'bytes32' }]
-  const encodedValues: unknown[] = [hashType({ primaryType, types })]
+  const encodedValues: unknown[] = [
+    typeHashes.get(primaryType) ??
+      (() => {
+        const hash = hashType({ primaryType, types })
+        typeHashes.set(primaryType, hash)
+        return hash
+      })(),
+  ]
 
   for (const field of types[primaryType]) {
     const [type, value] = encodeField({
+      typeHashes,
       types,
       name: field.name,
       type: field.type,
@@ -209,8 +221,7 @@ function findTypeDependencies(
   },
   results: Set<string> = new Set(),
 ): Set<string> {
-  const match = primaryType_.match(/^\w*/u)
-  const primaryType = match?.[0]!
+  const primaryType = primaryType_.replace(/(\[[0-9]*\])+$/, '')
   if (results.has(primaryType) || types[primaryType] === undefined) {
     return results
   }
@@ -230,11 +241,13 @@ type EncodeFieldErrorType =
   | ErrorType
 
 function encodeField({
+  typeHashes,
   types,
   name,
   type,
   value,
 }: {
+  typeHashes: Map<string, Hex>
   types: Record<string, readonly MessageTypeProperty[]>
   name: string
   type: string
@@ -243,7 +256,9 @@ function encodeField({
   if (types[type] !== undefined) {
     return [
       { type: 'bytes32' },
-      keccak256(encodeData({ data: value, primaryType: type, types })),
+      keccak256(
+        encodeData({ data: value, primaryType: type, typeHashes, types }),
+      ),
     ]
   }
 
@@ -257,6 +272,7 @@ function encodeField({
       encodeField({
         name,
         type: parsedType,
+        typeHashes,
         types,
         value: item,
       }),

@@ -1,0 +1,87 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.bindEngine`
+
+Permanently binds an engine to its factory-created EarnVault. This API is experimental.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.bindEngineSync({
+  engine: '0x0000000000000000000000000000000000000001',
+  finalOwner: client.account.address,
+  vault: '0x0000000000000000000000000000000000000002',
+})
+// @log: { engine: '0x...', vault: '0x...', receipt: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The action initializes the vault. Set `finalOwner` to transfer engine ownership atomically, or omit
+it to retain the current owner. The binding cannot be changed after initialization.
+
+### Asynchronous Usage
+
+`earn.bindEngineSync` waits for inclusion and returns the decoded binding event. Use
+`earn.bindEngine` to return the transaction hash immediately.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const engine = '0x0000000000000000000000000000000000000001'
+const hash = await client.earn.bindEngine({
+  engine,
+  finalOwner: client.account.address,
+  vault: '0x0000000000000000000000000000000000000002',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+const { args } = Actions.earn.bindEngine.extractEvent(receipt.logs, {
+  engine,
+})
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Engine address. */
+  engine: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Bound EarnVault address. */
+  vault: Address
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Parameters
+
+### engine
+
+- **Type:** `Address`
+
+Engine address.
+
+### finalOwner
+
+- **Type:** `Address | undefined`
+
+Address that will own the initialized engine. Omit to retain the current owner.
+
+### vault
+
+- **Type:** `Address`
+
+EarnVault created for the engine.
+
+<WriteParameters />

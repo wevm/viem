@@ -70,6 +70,40 @@ test('parameters: domain', () => {
     Issued At: 2023-02-01T00:00:00.000Z"
   `)
 
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'example.xn--p1ai',
+    }),
+  ).toMatchInlineSnapshot(`
+    "example.xn--p1ai wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'example.XN--P1AI',
+    }),
+  ).toMatchInlineSnapshot(`
+    "example.XN--P1AI wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
   vi.useRealTimers()
 })
 
@@ -348,13 +382,74 @@ test('behavior: invalid scheme', () => {
   `)
 })
 
+test('behavior: invalid scheme (comma)', () => {
+  // `[a-zA-Z0-9+-.]` reads `+-.` as a range (+ , - .), so a comma slipped past the
+  // RFC 3986 scheme check this error is about.
+  expect(() =>
+    createSiweMessage({ ...message, scheme: 'ht,tps' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "scheme".
+
+    - Scheme must be an RFC 3986 URI scheme.
+    - See https://www.rfc-editor.org/rfc/rfc3986#section-3.1
+
+    Provided value: ht,tps
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('behavior: valid scheme punctuation is still accepted', () => {
+  // RFC 3986 §3.1: ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+  for (const scheme of ['https', 'a+b', 'a-b', 'a.b']) {
+    expect(() => createSiweMessage({ ...message, scheme })).not.toThrow()
+  }
+})
+
 test('behavior: invalid statement', () => {
   expect(() =>
     createSiweMessage({ ...message, statement: 'foo\nbar' }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "statement".
 
-    - Statement must not include '\\n'.
+    - Statement must not include a line break.
+
+    Provided value: foo
+    bar
+
+    Version: viem@x.y.z]
+  `)
+
+  for (const statement of ['foo\rbar', 'foo\u2028bar', 'foo\u2029bar'])
+    expect(() => createSiweMessage({ ...message, statement })).toThrow(
+      'Statement must not include a line break.',
+    )
+})
+
+test('behavior: invalid requestId', () => {
+  // A line break would start a new field: this one appends a `Resources`
+  // section that `parseSiweMessage` reads back as part of the signed message.
+  const requestId = 'foo\nResources:\n- https://example.com/admin'
+  expect(() =>
+    createSiweMessage({ ...message, requestId }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "requestId".
+
+    - Request ID must not include a line break.
+
+    Provided value: foo
+    Resources:
+    - https://example.com/admin
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    createSiweMessage({ ...message, requestId: 'foo\rbar' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "requestId".
+
+    - Request ID must not include a line break.
 
     Provided value: foo
     bar
@@ -388,6 +483,12 @@ test.each([
   'example.com:3000',
   'localhost:3000',
   '127.0.0.1:3000',
+  'example.xN--p1ai',
+  'example.xn--p1ai:443',
+  'example.xn--vermgensberater-ctb',
+  // 63 octets: "xn--" plus 59 LDH characters.
+  `example.xn--${'a'.repeat(59)}`,
+  `example.${'a'.repeat(63)}`,
 ])('valid domain `%s`', (domain) => {
   expect(
     createSiweMessage({
@@ -406,6 +507,13 @@ test.each([
   'http://127.0.0.1:3000',
   'foobarbaz',
   '-example.com',
+  'example.xn--',
+  'example.xn--p1ai-',
+  'example.xx--p1ai',
+  'xn--p1ai',
+  // 64 octets: one past the maximum label length.
+  `example.xn--${'a'.repeat(60)}`,
+  `example.${'a'.repeat(64)}`,
 ])('invalid domain `%s`', (domain) => {
   expect(() =>
     createSiweMessage({

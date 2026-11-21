@@ -2,6 +2,12 @@
 pragma solidity ^0.8.28;
 
 contract EnsAvatarTokenUri {
+    string internal metadataUri;
+
+    constructor(string memory metadataUri_) {
+        metadataUri = metadataUri_;
+    }
+
     function ownerOf(uint256 tokenId) public view returns (address) {
         return 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045;
     }
@@ -47,6 +53,19 @@ contract EnsAvatarTokenUri {
             return
                 '{"image_url": "https://images2.minutemediacdn.com/image/upload/c_fill,w_1440,ar_16:9,f_auto,q_auto,g_auto/shape/cover/sport/62455-shout-factory1-869b74b647b88045caac956956bd1ff8.jpg"}';
         }
+        if (tokenId == 109) {
+            return
+                "data:application/json;base64,eyJuYW1lIjoiY2Fmw6kg4pqhIiwiaW1hZ2VfZGF0YSI6Ijxzdmc+PHRleHQ+Y2Fmw6kg4pqhPC90ZXh0Pjwvc3ZnPiJ9";
+        }
+        if (tokenId == 110) {
+            return
+                unicode'{"name":"café ⚡","image_data":"<svg><text>café ⚡</text></svg>"}';
+        }
+
+        if (tokenId == 111) {
+            return
+                "data:application/json;base64,eyJuYW1lIjoiY2Fmw6kg4pqhIiwiaW1hZ2VfZGF0\nYSI6Ijxzdmc+PHRleHQ+Y2Fmw6kg4pqhPC90ZXh0Pjwvc3ZnPiJ9\n";
+        }
 
         if (tokenId == 200) {
             return
@@ -75,6 +94,6 @@ contract EnsAvatarTokenUri {
             return "wat";
         }
 
-        return "https://boredapeyachtclub.com/api/mutants/0x{id}";
+        return string.concat(metadataUri, "0x{id}");
     }
 }

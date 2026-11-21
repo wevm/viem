@@ -1,3 +1,4 @@
+import { mine, setCode } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
@@ -17,6 +18,7 @@ import { createCcipServer } from '~test/ccip.js'
 import { accounts } from '~test/constants.js'
 import { blobData, kzg } from '~test/kzg.js'
 import {
+  createRpcProxy,
   deploy,
   deployOffchainLookupExample,
   deploySoladyAccount_07,
@@ -31,8 +33,10 @@ import {
   createClient,
   decodeFunctionResult,
   encodeAbiParameters,
+  encodeFunctionResult,
   type Hex,
   http,
+  InsufficientFundsError,
   maxUint256,
   multicall3Abi,
   pad,
@@ -47,6 +51,7 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { call, getRevertErrorData } from './call.js'
+import { getBlock } from './getBlock.js'
 import { readContract } from './readContract.js'
 
 const client = anvilMainnet.getClient({ account: accounts[0].address })
@@ -93,6 +98,45 @@ describe('ccip', () => {
     })
 
     expect(trim(data!)).toEqual(accounts[0].address)
+
+    await server.close()
+  })
+
+  test('block parameters', async () => {
+    const server = await createCcipServer()
+    const { contractAddress } = await deployOffchainLookupExample({
+      urls: [`${server.url}/{sender}/{data}`],
+    })
+    const { hash: blockHash, number: blockNumber } = await getBlock(client)
+    await mine(client, { blocks: 1 })
+    await setCode(client, { address: contractAddress!, bytecode: '0x' })
+    await mine(client, { blocks: 1 })
+
+    const calldata = encodeFunctionData({
+      abi: OffchainLookupExample.abi,
+      functionName: 'getAddress',
+      args: ['jxom.viem'],
+    })
+    const results = await Promise.all([
+      call(client, { blockNumber, data: calldata, to: contractAddress! }),
+      call(client, { blockHash, data: calldata, to: contractAddress! }),
+      call(client, {
+        blockHash,
+        data: calldata,
+        requireCanonical: true,
+        to: contractAddress!,
+      }),
+    ])
+
+    expect(
+      results.map(({ data }) => data && trim(data)),
+    ).toMatchInlineSnapshot(`
+      [
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      ]
+    `)
 
     await server.close()
   })
@@ -158,6 +202,41 @@ test('zero data', async () => {
   expect(data).toMatchInlineSnapshot('undefined')
 })
 
+test('args: requestOptions', async () => {
+  const client_2 = anvilMainnet.getClient()
+  const requestOptions = {
+    signal: new AbortController().signal,
+  }
+  const spy = vi.spyOn(client_2, 'request').mockResolvedValue('0x1234')
+
+  await call(client_2, {
+    batch: false,
+    data: name4bytes,
+    requestOptions,
+    to: wagmiContractAddress,
+  })
+
+  expect(spy).toHaveBeenCalledWith(
+    expect.objectContaining({ method: 'eth_call' }),
+    requestOptions,
+  )
+})
+
+test('args: requestOptions abort error is not wrapped', async () => {
+  const client_2 = anvilMainnet.getClient()
+  const error = new DOMException('This operation was aborted', 'AbortError')
+  vi.spyOn(client_2, 'request').mockRejectedValue(error)
+
+  await expect(
+    call(client_2, {
+      batch: false,
+      data: name4bytes,
+      requestOptions: { signal: new AbortController().signal },
+      to: wagmiContractAddress,
+    }),
+  ).rejects.toBe(error)
+})
+
 test('args: authorizationList', async () => {
   const { contractAddress } = await deploy(client, {
     abi: Delegation.abi,
@@ -198,6 +277,41 @@ test.skip('args: blockNumber', async () => {
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
+})
+
+test('args: blockHash (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  const { data } = await call(client, {
+    blockHash: block.hash!,
+    data: name4bytes,
+    account: sourceAccount.address,
+    to: wagmiContractAddress,
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
+  )
+})
+
+test('args: blockHash + requireCanonical (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  const { data } = await call(client, {
+    blockHash: block.hash!,
+    requireCanonical: true,
+    data: name4bytes,
+    account: sourceAccount.address,
+    to: wagmiContractAddress,
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
+  )
 })
 
 test('args: override', async () => {
@@ -331,15 +445,6 @@ describe('errors', () => {
       Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
       Version: viem@x.y.z]
     `)
-
-    await expect(() =>
-      call(mainnetClient, {
-        data: `${mintWithParams4bytes}${fourTwenty}`,
-        account: sourceAccount.address,
-        to: wagmiContractAddress,
-        gas: 100n,
-      }),
-    ).rejects.toThrowError('intrinsic gas too low')
   })
 
   // TODO:  Waiting for Anvil fix – should fail with "gas too high" reason
@@ -434,7 +539,10 @@ describe('errors', () => {
         to: accounts[0].address,
         value: parseEther('100000'),
       }),
-    ).rejects.toThrowError('insufficient funds for gas * price + value')
+    ).rejects.toMatchObject({
+      cause: expect.any(InsufficientFundsError),
+      name: 'CallExecutionError',
+    })
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
@@ -455,6 +563,29 @@ describe('errors', () => {
         data:                  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
         maxFeePerGas:          20 gwei
         maxPriorityFeePerGas:  22 gwei
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('maxFeePerGas zero and less than maxPriorityFeePerGas', async () => {
+    await expect(
+      call(client, {
+        data: `${mintWithParams4bytes}${fourTwenty}`,
+        account: sourceAccount.address,
+        to: wagmiContractAddress,
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: parseGwei('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [CallExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Raw Call Arguments:
+        from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:                    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:                  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
+        maxFeePerGas:          0 gwei
+        maxPriorityFeePerGas:  1 gwei
 
       Version: viem@x.y.z]
     `)
@@ -715,6 +846,44 @@ describe.each([{ deployless: true }, { deployless: false }])(
       expect(results).toMatchSnapshot()
     })
 
+    test('args: requestOptions', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
+      const requestOptions = {
+        signal: new AbortController().signal,
+      }
+
+      const spy = vi.spyOn(client_2, 'request').mockResolvedValue(
+        encodeFunctionResult({
+          abi: multicall3Abi,
+          functionName: 'aggregate3',
+          result: [{ returnData: '0x1234', success: true }],
+        }),
+      )
+
+      await Promise.all([
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+        call(client_2, {
+          data: name4bytes,
+          requestOptions,
+          to: wagmiContractAddress,
+        }),
+      ])
+
+      expect(spy).toBeCalledTimes(2)
+      const calls = spy.mock.calls as unknown as [unknown, unknown][]
+      expect(calls.some(([, options]) => options === undefined)).toBe(true)
+      expect(calls.some(([, options]) => options === requestOptions)).toBe(true)
+    })
+
     test('args: blockNumber', async () => {
       const client_2 = anvilMainnet.getClient({
         batch: {
@@ -954,6 +1123,110 @@ describe.each([{ deployless: true }, { deployless: false }])(
       expect(results).toMatchSnapshot()
     })
 
+    test('args: stateOverride', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
+
+      const spy = vi.spyOn(client_2, 'request')
+
+      const stateOverride = [
+        {
+          address: wagmiContractAddress,
+          balance: parseEther('100'),
+        },
+      ] as const
+
+      const p = []
+      // Two calls with the same stateOverride should batch together
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [...stateOverride],
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+          stateOverride: [...stateOverride],
+        }),
+      )
+      // A call with a different stateOverride should go to a separate batch
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+          stateOverride: [
+            {
+              address: wagmiContractAddress,
+              balance: parseEther('200'),
+            },
+          ],
+        }),
+      )
+
+      const results = await Promise.all(p)
+
+      // 2 batched eth_call requests: one for the shared stateOverride, one for the different stateOverride
+      expect(spy).toBeCalledTimes(2)
+      expect(results).toMatchSnapshot()
+    })
+
+    test.runIf(deployless === false)(
+      'args: stateOverride for multicall address',
+      async () => {
+        const client_2 = anvilMainnet.getClient({
+          batch: {
+            multicall: {
+              deployless,
+            },
+          },
+        })
+
+        const multicallAddress = client_2.chain!.contracts!.multicall3!.address
+        const spy = vi
+          .spyOn(client_2, 'request')
+          .mockImplementation(async ({ params }) => {
+            const [{ to }] = params as [{ to?: Hex }]
+            if (to?.toLowerCase() === multicallAddress.toLowerCase())
+              throw new Error('multicall should not be used')
+            return '0x'
+          })
+
+        const results = await Promise.all([
+          call(client_2, {
+            data: name4bytes,
+            to: wagmiContractAddress,
+            stateOverride: [
+              {
+                address: multicallAddress,
+                code: '0x',
+              },
+            ],
+          }),
+          call(client_2, {
+            data: name4bytes,
+            to: usdcContractConfig.address,
+            stateOverride: [
+              {
+                address: multicallAddress,
+                code: '0x',
+              },
+            ],
+          }),
+        ])
+
+        expect(spy).toBeCalledTimes(2)
+        expect(results).toEqual([{ data: undefined }, { data: undefined }])
+      },
+    )
+
     test.runIf(deployless === false)(
       'chain not configured with multicall',
       async () => {
@@ -1000,6 +1273,57 @@ describe.each([{ deployless: true }, { deployless: false }])(
         expect(results).toMatchSnapshot()
       },
     )
+
+    test('behavior: results length mismatch', async () => {
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method }) => {
+          if (method !== 'eth_call') return
+          return {
+            result: encodeFunctionResult({
+              abi: multicall3Abi,
+              functionName: 'aggregate3',
+              result: [{ success: true, returnData: '0x01' }],
+            }),
+          }
+        },
+      )
+      const client_2 = createClient({
+        batch: { multicall: { deployless } },
+        chain: anvilMainnet.chain,
+        transport: http(url),
+      })
+
+      const results = await Promise.allSettled([
+        call(client_2, { data: name4bytes, to: wagmiContractAddress }),
+        call(client_2, { data: name4bytes, to: usdcContractConfig.address }),
+      ])
+
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "reason": [CallExecutionError: Multicall returned 1 results for 2 calls.
+
+        Raw Call Arguments:
+          to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+          data:  0x06fdde03
+
+        Version: viem@x.y.z],
+            "status": "rejected",
+          },
+          {
+            "reason": [CallExecutionError: Multicall returned 1 results for 2 calls.
+
+        Raw Call Arguments:
+          to:    0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+          data:  0x06fdde03
+
+        Version: viem@x.y.z],
+            "status": "rejected",
+          },
+        ]
+      `)
+    })
   },
 )
 

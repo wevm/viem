@@ -1,0 +1,154 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.createStack`
+
+Deploys deterministic EarnShare, EarnVault, and EarnFees contracts around an unbound engine. This
+API is experimental.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { keccak256, toHex } from 'viem'
+import { client } from './viem.config'
+
+const result = await client.earn.createStackSync({
+  deploymentId: keccak256(toHex('acme-usd-v1')),
+  engine: '0x0000000000000000000000000000000000000001',
+  factory: '0x0000000000000000000000000000000000000002',
+})
+// @log: { earnFees: '0x...', earnShare: '0x...', earnVault: '0x...', receipt: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Omitting `fees` deploys a fee-free stack. The emergency guardian and async janitor default to the
+zero address, migration defaults to `userOnly`, managed assets are unlimited, and transfers use the
+built-in always-allow policy.
+
+### Asynchronous Usage
+
+`earn.createStackSync` waits for inclusion and returns the decoded deployment event. Use
+`earn.createStack` to return the transaction hash immediately.
+
+```ts twoslash
+import { keccak256, toHex } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const factory = '0x0000000000000000000000000000000000000002'
+const hash = await client.earn.createStack({
+  deploymentId: keccak256(toHex('acme-usd-v1')),
+  engine: '0x0000000000000000000000000000000000000001',
+  factory,
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+const { args } = Actions.earn.createStack.extractEvent(receipt.logs, {
+  factory,
+})
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Async janitor address. */
+  asyncJanitor: Address
+  /** Venue asset address. */
+  asset: Address
+  /** Control configuration hash. */
+  controlConfigHash: Hex
+  /** Deployment identifier. */
+  deploymentId: Hex
+  /** Deployed EarnFees address. */
+  earnFees: Address
+  /** Deterministic EarnFees salt. */
+  earnFeesSalt: Hex
+  /** Deployed EarnShare address. */
+  earnShare: Address
+  /** Deterministic EarnShare salt. */
+  earnShareSalt: Hex
+  /** Deployed EarnVault address. */
+  earnVault: Address
+  /** Emergency guardian address. */
+  emergencyGuardian: Address
+  /** ERC-4626 engine address. */
+  engine: Address
+  /** Fee configuration hash. */
+  feeConfigHash: Hex
+  /** Maximum managed assets. */
+  maxManagedAssets: bigint
+  /** Engine migration mode. */
+  migrationMode: number
+  /** Final stack owner and operator. */
+  owner: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Effective transfer policy ID. */
+  transferPolicyId: bigint
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Parameters
+
+### deploymentId
+
+- **Type:** `Hex`
+
+A required, nonzero 32-byte identifier shared with the engine deployment.
+
+### engine
+
+- **Type:** `Address`
+
+Unbound engine address.
+
+### factory
+
+- **Type:** `Address`
+
+Reviewed `EarnFactory` address from the same release as the engine factory.
+
+### owner (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `account.address`
+
+Final stack owner and operator.
+
+### controls (optional)
+
+- **Type:** `EarnVaultControls`
+
+Initial `emergencyGuardian`, `asyncJanitor`, `maxManagedAssets`, and `migrationMode` controls.
+
+### fees (optional)
+
+- **Type:** `EarnFeeConfiguration`
+
+Up to four fixed fees and an optional excess-return fee, all expressed in basis points. Omit this
+parameter for a fee-free stack. When a distributor is enabled, `fixedFees[0]` is its protected fee
+and the remaining entries are operator-controlled.
+
+### distributor (optional)
+
+- **Type:** `EarnDistributorConfiguration`
+
+Protected distributor and update delay. An enabled distributor requires at least one fixed fee and
+controls the first entry in `fees.fixedFees` through its delayed update path.
+
+### transferPolicyId (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Existing simple whitelist policy. Zero selects the built-in always-allow policy.
+
+<WriteParameters />

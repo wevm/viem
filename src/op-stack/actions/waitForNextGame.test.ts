@@ -30,4 +30,5 @@ test('default', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 }, 20_000)

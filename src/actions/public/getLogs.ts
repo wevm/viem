@@ -10,14 +10,10 @@ import type {
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
-import type { Hash, LogTopic } from '../../types/misc.js'
+import type { Hash } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
 import type { DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
-import {
-  type EncodeEventTopicsErrorType,
-  type EncodeEventTopicsParameters,
-  encodeEventTopics,
-} from '../../utils/abi/encodeEventTopics.js'
+import type { EncodeEventTopicsErrorType } from '../../utils/abi/encodeEventTopics.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
@@ -28,6 +24,9 @@ import {
   type FormatLogErrorType,
   formatLog,
 } from '../../utils/formatters/log.js'
+import type { GetBlockErrorType } from './getBlock.js'
+import { encodeEventFilterTopics } from './internal/encodeEventFilterTopics.js'
+import { type IterateLogsParameters, iterateLogs } from './iterateLogs.js'
 
 export type GetLogsParameters<
   abiEvent extends AbiEvent | undefined = undefined,
@@ -78,12 +77,30 @@ export type GetLogsParameters<
         /** Block number or tag before which to include logs */
         toBlock?: toBlock | BlockNumber | BlockTag | undefined
         blockHash?: undefined
+        blockRange?: undefined
       }
     | {
         fromBlock?: undefined
         toBlock?: undefined
         /** Hash of block to include logs from */
         blockHash?: Hash | undefined
+        blockRange?: undefined
+      }
+    | {
+        /** First block to include logs from. Inclusive. */
+        fromBlock: BlockNumber
+        /**
+         * Last block to include logs from. Inclusive. A block tag is resolved to a block number once, before the first request.
+         * @default 'latest'
+         */
+        toBlock?: BlockNumber | Exclude<BlockTag, 'pending'> | undefined
+        blockHash?: undefined
+        /**
+         * Most blocks to request in one `eth_getLogs` call. When set, logs are requested in
+         * consecutive ranges of at most this many blocks, and a range the RPC Provider rejects
+         * is halved and requested again. Must be at least `1n`.
+         */
+        blockRange: bigint
       }
   )
 
@@ -107,6 +124,7 @@ export type GetLogsErrorType =
   | DecodeEventLogErrorType
   | EncodeEventTopicsErrorType
   | FormatLogErrorType
+  | GetBlockErrorType
   | NumberToHexErrorType
   | RequestErrorType
   | ErrorType
@@ -153,25 +171,40 @@ export async function getLogs<
     event,
     events: events_,
     args,
+    blockRange,
     strict: strict_,
   }: GetLogsParameters<abiEvent, abiEvents, strict, fromBlock, toBlock> = {},
 ): Promise<GetLogsReturnType<abiEvent, abiEvents, strict, fromBlock, toBlock>> {
+  if (blockRange !== undefined) {
+    const logs = []
+    for await (const page of iterateLogs(client, {
+      address,
+      args,
+      blockRange,
+      event,
+      events: events_,
+      fromBlock,
+      strict: strict_,
+      toBlock,
+    } as IterateLogsParameters))
+      for (const log of page.logs) logs.push(log)
+    return logs as GetLogsReturnType<
+      abiEvent,
+      abiEvents,
+      strict,
+      fromBlock,
+      toBlock
+    >
+  }
+
   const strict = strict_ ?? false
   const events = events_ ?? (event ? [event] : undefined)
 
-  let topics: LogTopic[] = []
-  if (events) {
-    const encoded = (events as AbiEvent[]).flatMap((event) =>
-      encodeEventTopics({
-        abi: [event],
-        eventName: (event as AbiEvent).name,
-        args: events_ ? undefined : args,
-      } as EncodeEventTopicsParameters),
-    )
-    // TODO: Clean up type casting
-    topics = [encoded as LogTopic]
-    if (event) topics = topics[0] as LogTopic[]
-  }
+  const topics = encodeEventFilterTopics({
+    args: events_ ? undefined : args,
+    event,
+    events: events_,
+  })
 
   let logs: RpcLog[]
   if (blockHash) {

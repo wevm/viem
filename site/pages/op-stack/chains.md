@@ -18,6 +18,8 @@ import {
   soneiumMinato, // [!code hl]
   unichain, // [!code hl]
   unichainSepolia, // [!code hl]
+  whitechain, // [!code hl]
+  whitechainSepolia, // [!code hl]
   zircuit, // [!code hl]
   zircuitGarfieldTestnet, // [!code hl]
   zora, // [!code hl]
