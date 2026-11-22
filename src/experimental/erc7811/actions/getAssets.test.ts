@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest'
+import { createHttpServer } from '~test/utils.js'
 import { createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
@@ -212,6 +213,47 @@ test.skip('args: assetTypes', async () => {
     expect(typeof chainNativeAsset.balance).toBe('bigint')
     expect(chainNativeAsset.address).toBeUndefined()
   }
+})
+
+test('args: assets', async () => {
+  const params: unknown[] = []
+  const server = await createHttpServer(async (req, res) => {
+    let body = ''
+    for await (const chunk of req) body += chunk
+    const request = JSON.parse(body)
+    params.push(...request.params)
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result: {} }))
+  })
+
+  await getAssets(createClient({ transport: http(server.url) }), {
+    account: '0x0000000000000000000000000000000000000001',
+    assets: {
+      8453: [
+        {
+          address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+          type: 'erc20',
+        },
+      ],
+    },
+  })
+  await server.close()
+
+  expect(params).toMatchInlineSnapshot(`
+    [
+      {
+        "account": "0x0000000000000000000000000000000000000001",
+        "assetFilter": {
+          "0x2105": [
+            {
+              "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "type": "erc20",
+            },
+          ],
+        },
+      },
+    ]
+  `)
 })
 
 test.skip('behavior: erc721 assets with tokenId', async () => {

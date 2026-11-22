@@ -208,7 +208,14 @@ function formatRequest(
 
   return {
     account: account.address,
-    assetFilter: assets,
+    assetFilter: assets
+      ? Object.fromEntries(
+          Object.entries(assets).map(([chainId, filter]) => [
+            numberToHex(Number(chainId)),
+            filter,
+          ]),
+        )
+      : undefined,
     assetTypeFilter: assetTypes,
     chainFilter: chainIds?.map((chainId) => numberToHex(chainId)),
   }
