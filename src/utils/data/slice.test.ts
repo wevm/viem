@@ -31,6 +31,15 @@ test('hex', () => {
   )
   expect(sliceHex('0x0123456789', -10)).toMatchInlineSnapshot('"0x0123456789"')
 
+  expect(sliceHex('0x123')).toMatchInlineSnapshot(`"0x0123"`)
+  expect(sliceHex('0x123', 0, 1)).toMatchInlineSnapshot(`"0x01"`)
+  expect(sliceHex('0x123', 1)).toMatchInlineSnapshot(`"0x23"`)
+  expect(sliceHex('0x12345', -3)).toMatchInlineSnapshot(`"0x012345"`)
+  expect(sliceHex('0x123', 1, 2, { strict: true })).toMatchInlineSnapshot(
+    `"0x23"`,
+  )
+  expect(slice('0x123', 1)).toMatchInlineSnapshot(`"0x23"`)
+
   expect(() => sliceHex('0x0123456789', 5)).toThrowErrorMatchingInlineSnapshot(
     `
     [SliceOffsetOutOfBoundsError: Slice starting at offset "5" is out-of-bounds (size: 5).
@@ -57,6 +66,18 @@ test('hex', () => {
     Version: viem@x.y.z]
   `,
   )
+  expect(() => sliceHex('0x123', 2)).toThrowErrorMatchingInlineSnapshot(`
+    [SliceOffsetOutOfBoundsError: Slice starting at offset "2" is out-of-bounds (size: 2).
+
+    Version: viem@x.y.z]
+  `)
+  expect(() =>
+    sliceHex('0x123', 1, 3, { strict: true }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [SliceOffsetOutOfBoundsError: Slice ending at offset "3" is out-of-bounds (size: 1).
+
+    Version: viem@x.y.z]
+  `)
 })
 
 test('bytes', () => {

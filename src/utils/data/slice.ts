@@ -120,9 +120,11 @@ export function sliceHex(
   { strict }: { strict?: boolean | undefined } = {},
 ): Hex {
   assertStartOffset(value_, start)
-  const hex = value_.startsWith('0x')
+  const digits = value_.startsWith('0x')
     ? value_.slice(2)
     : value_.replace('0x', '')
+  // Odd-length hex is left-padded to whole bytes, matching `hexToBytes`.
+  const hex = digits.length % 2 ? `0${digits}` : digits
   const value =
     `0x${hex.slice((start ?? 0) * 2, (end ?? value_.length) * 2)}` as const
   if (strict) assertEndOffset(value, start, end)
