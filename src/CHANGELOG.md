@@ -1,5 +1,23 @@
 # viem
 
+## 2.58.5
+
+### Patch Changes
+
+- [#5630](https://github.com/wevm/viem/pull/5630) [`129fb774a6b59611b22bf5a6b99899048c1eacd0`](https://github.com/wevm/viem/commit/129fb774a6b59611b22bf5a6b99899048c1eacd0) Thanks [@jxom](https://github.com/jxom)! - Added Seven Chain (Chain ID: 70007) to the supported chains.
+
+- [#5635](https://github.com/wevm/viem/pull/5635) [`745bfaf9e28f16fa597d910a50b36c5d6f5b0d9e`](https://github.com/wevm/viem/commit/745bfaf9e28f16fa597d910a50b36c5d6f5b0d9e) Thanks [@jxom](https://github.com/jxom)! - Added the EIP-4844 `baseFeePerBlobGas` and `blobGasUsedRatio` fields of `eth_feeHistory` to `getFeeHistory` and `formatFeeHistory` results.
+
+- [#5636](https://github.com/wevm/viem/pull/5636) [`fe755bbd8061215b6ebf2575369dd93036f0c6d3`](https://github.com/wevm/viem/commit/fe755bbd8061215b6ebf2575369dd93036f0c6d3) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `formatUserOperation` and `getUserOperation` returning the raw `eip7702Auth` RPC field instead of a formatted `authorization`.
+
+- [#5639](https://github.com/wevm/viem/pull/5639) [`39c58cff4cd09e059d14657e8edd38819cc774eb`](https://github.com/wevm/viem/commit/39c58cff4cd09e059d14657e8edd38819cc774eb) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `getAssets` sending the `assets` filter to `wallet_getAssets` with decimal chain ID keys instead of hex chain IDs, and allowed `'native'` addresses in `WalletGetAssetsParameters['assetFilter']`.
+
+- [#5628](https://github.com/wevm/viem/pull/5628) [`a92d87f64cdfd7a8f32787cf37e70a2e7de365ce`](https://github.com/wevm/viem/commit/a92d87f64cdfd7a8f32787cf37e70a2e7de365ce) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Compiled to the ES2022 target so class fields are emitted natively, which lets bundlers tree-shake unused error classes.
+
+- [#5633](https://github.com/wevm/viem/pull/5633) [`01b6e4b42ff03b0738a33446cf95bb8c5ef1ba34`](https://github.com/wevm/viem/commit/01b6e4b42ff03b0738a33446cf95bb8c5ef1ba34) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendTransaction`, `sendTransactionSync`, `writeContract`, `writeContractSync`, `sendCalls`, `simulateBlocks`, `simulateContract`, `estimateContractGas`, `prepareUserOperation`, and the Tempo `simulate` actions producing misaligned calldata when `dataSuffix` has an odd length.
+
+- [#5631](https://github.com/wevm/viem/pull/5631) [`1cf295c5960d865f8a41c2976089c227b1476ced`](https://github.com/wevm/viem/commit/1cf295c5960d865f8a41c2976089c227b1476ced) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `toPrefixedMessage`, `hashMessage`, `signMessage`, `verifyMessage`, and `recoverMessageAddress` shifting the EIP-191 prefix when a `raw` hex message has an odd length.
+
 ## 2.58.4
 
 ### Patch Changes
