@@ -183,7 +183,7 @@ export type WalletGetAssetsParameters = {
   assetFilter?:
     | {
         [chainId: Hex]: readonly {
-          address: Address
+          address: Address | 'native'
           type: 'native' | 'erc20' | 'erc721' | (string & {})
         }[]
       }
