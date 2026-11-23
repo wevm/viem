@@ -35,7 +35,7 @@ done
 
 step "Uphill"
 # The installer checks the release's sha256 and writes ~/.uphill/bin/uphill.
-uphill=0.0.2
+uphill=0.0.3
 if [ "$("$HOME/.uphill/bin/uphill" --version 2>/dev/null)" != "uphill $uphill" ]; then
   curl -fsSL "https://raw.githubusercontent.com/wevm/uphill/v$uphill/install.sh" | UPHILL_VERSION=$uphill sh
 fi

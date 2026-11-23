@@ -24,6 +24,7 @@ type Item = {
 
 type Metric = {
   better: 'higher' | 'lower'
+  default: Value | null
   description: string | null
   item: string | null
   items: readonly Item[]
@@ -498,8 +499,8 @@ function Audit(props: { metric: Metric }) {
     if (check)
       return missed === 0 ? `All ${count} pass` : `${missed} of ${count} fail`
     if (judged.length === 0) return `${count} items`
-    if (missed === 0) return `All ${judged.length} with a target meet it`
-    return `${missed} of ${judged.length} with a target miss it`
+    if (missed === 0) return `All ${count} meet their target`
+    return `${missed} of ${count} miss their target`
   })()
 
   return (
@@ -543,7 +544,7 @@ function Audit(props: { metric: Metric }) {
 
 function ItemRow(props: { item: Item; metric: Metric }) {
   const { item, metric } = props
-  const target = typeof item.target === 'number' ? item.target : undefined
+  const target = targetOf(item, metric)
 
   const cells = (() => {
     if (typeof item.value === 'boolean')
@@ -808,13 +809,18 @@ function headline(metric: Metric) {
   return `${passed} of ${metric.items.length} pass`
 }
 
-/** Whether an item misses the target it carries, or `undefined` when it carries none. */
+/** Whether an item misses its target, or `undefined` when neither it nor its metric has one. */
 function misses(item: Item, metric: Metric) {
   if (typeof item.value === 'boolean') return !item.value
-  if (typeof item.target !== 'number') return undefined
-  return metric.better === 'lower'
-    ? item.value > item.target
-    : item.value < item.target
+  const target = targetOf(item, metric)
+  if (target === undefined) return undefined
+  return metric.better === 'lower' ? item.value > target : item.value < target
+}
+
+/** The target an item must meet: its own, from its line or a `targets` pattern, or else the metric's default. */
+function targetOf(item: Item, metric: Metric) {
+  const target = item.target ?? metric.default
+  return typeof target === 'number' ? target : undefined
 }
 
 function scoreBand(score: number | null): Band {

@@ -15,7 +15,8 @@ jobs:
     # A full run takes about 1 h 45 min on 4 cores.
     timeout-minutes: 180
     permissions:
-      # Pushes this run's note to refs/notes/uphill, which the report's trends read.
+      # Pushes this run's notes: refs/notes/uphill, which the report's trends read, and
+      # refs/notes/uphill-report with the run's report.json.
       contents: write
     outputs:
       ran: ${{ steps.uphill.outputs.exit-code != '' }}
@@ -40,23 +41,24 @@ jobs:
           echo "$GITHUB_WORKSPACE/node_modules/.bin" >> "$GITHUB_PATH"
           node_modules/.bin/bun install --cwd .agents/metrics --frozen-lockfile
 
+      # The pattern matches refs/notes/uphill and refs/notes/uphill-report.
       - name: Fetch past runs
         run: |
-          git fetch origin refs/notes/uphill:refs/notes/uphill || true
+          git fetch origin 'refs/notes/uphill*:refs/notes/uphill*' || true
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
       - name: Run Uphill
         id: uphill
-        uses: wevm/uphill@d79fc8b24e9a332055d15e8ed2d79da86eef68d5 # v0.0.2
+        uses: wevm/uphill@768b23f183e01bf86ff2638cf4e23f3430728b3f # v0.0.3
         with:
           args: --note
           comment: 'false'
-          version: 0.0.2
+          version: 0.0.3
 
-      - name: Push this run's note
+      - name: Push this run's notes
         if: ${{ !cancelled() && steps.uphill.outputs.exit-code != '' && github.ref == 'refs/heads/main' }}
-        run: git push origin refs/notes/uphill
+        run: git push origin 'refs/notes/uphill*:refs/notes/uphill*'
 
       - name: Upload report
         if: ${{ !cancelled() && steps.uphill.outputs.exit-code != '' }}
