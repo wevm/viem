@@ -1583,6 +1583,37 @@ test('error: zero data', () => {
   `)
 })
 
+test('error: integer out of range', () => {
+  // A negative int16 is its sign extension; anything else above 16 bits is out of range.
+  expect(
+    decodeAbiParameters([{ type: 'int16' }], `0x${'ff'.repeat(30)}8000`),
+  ).toEqual([-32768])
+  expect(() =>
+    decodeAbiParameters([{ type: 'int16' }], `0x${'ff'.repeat(30)}7fff`),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "-32769" is not in safe 16-bit signed integer range (-32768 to 32767)
+
+    Version: viem@x.y.z]
+  `)
+  expect(() =>
+    decodeAbiParameters([{ type: 'int8' }], `0x${'00'.repeat(31)}ff`),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "255" is not in safe 8-bit signed integer range (-128 to 127)
+
+    Version: viem@x.y.z]
+  `)
+  expect(() =>
+    decodeAbiParameters(
+      [{ type: 'uint56' }],
+      `0x${'00'.repeat(24)}01${'00'.repeat(7)}`,
+    ),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "72057594037927936" is not in safe 56-bit unsigned integer range (0 to 72057594037927935)
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('error: recursive decode array', () => {
   const payload = `0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a${'0000000000000000000000000000000000000000000000000000000000000020'.repeat(
     64,
