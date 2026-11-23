@@ -17,6 +17,7 @@ src/node/trustedSetups_esm.ts
 .idea
 .pnpm-store
 tasks
+.uphill
 
 # local env files
 .env
