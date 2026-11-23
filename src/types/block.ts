@@ -46,6 +46,8 @@ export type Block<
   parentHash: Hash
   /** Root of the this block’s receipts trie */
   receiptsRoot: Hex
+  /** Hash of the execution layer requests ([EIP-7685](https://eips.ethereum.org/EIPS/eip-7685)) */
+  requestsHash?: Hash | undefined
   sealFields: Hex[]
   /** SHA3 of the uncles data in this block */
   sha3Uncles: Hash
