@@ -9,7 +9,6 @@ import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import * as createPendingTransactionFilter from './createPendingTransactionFilter.js'
-import * as getFilterChanges from './getFilterChanges.js'
 import {
   type OnTransactionsParameter,
   watchPendingTransactions,
@@ -106,13 +105,15 @@ describe('poll', () => {
     })
 
     test('handles error thrown from filter changes', async () => {
-      vi.spyOn(getFilterChanges, 'getFilterChanges').mockRejectedValueOnce(
-        new Error('bar'),
-      )
+      const client_ = client.extend(() => ({
+        async getFilterChanges() {
+          throw new Error('bar')
+        },
+      }))
 
       let unwatch: () => void = () => null
       const error = await new Promise((resolve) => {
-        unwatch = watchPendingTransactions(client, {
+        unwatch = watchPendingTransactions(client_, {
           onTransactions: () => null,
           onError: resolve,
           poll: true,
