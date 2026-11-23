@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
-import { type Hex, RpcResponse } from 'ox'
+import type * as Hex from 'ox/Hex'
+import * as RpcResponse from 'ox/RpcResponse'
 import * as VirtualAddress from 'ox/tempo/VirtualAddress'
 import type { Client } from '../../../clients/createClient.js'
 import type { Call } from '../../../types/calls.js'

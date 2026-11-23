@@ -1,12 +1,10 @@
 import type { Address } from 'abitype'
-import {
-  Address as core_Address,
-  Hash,
-  Hex,
-  Rlp,
-  RpcResponse,
-  Signature,
-} from 'ox'
+import * as core_Address from 'ox/Address'
+import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
+import * as Rlp from 'ox/Rlp'
+import * as RpcResponse from 'ox/RpcResponse'
+import * as Signature from 'ox/Signature'
 import {
   AccountConfig,
   type Transaction as core_Transaction,

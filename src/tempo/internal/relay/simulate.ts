@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
-import { AbiEvent, Hex } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
+import * as Hex from 'ox/Hex'
 import type { Client } from '../../../clients/createClient.js'
 import { zeroAddress } from '../../../constants/address.js'
 import type { Call } from '../../../types/calls.js'

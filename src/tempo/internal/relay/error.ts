@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { Hex } from 'ox'
+import * as Hex from 'ox/Hex'
 import type { Client } from '../../../clients/createClient.js'
 import { zeroAddress } from '../../../constants/address.js'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'

@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { RpcResponse } from 'ox'
+import * as RpcResponse from 'ox/RpcResponse'
 import { readContract } from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import { erc20Abi } from '../../../constants/abis.js'

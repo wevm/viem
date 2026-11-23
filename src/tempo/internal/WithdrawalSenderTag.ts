@@ -1,5 +1,7 @@
 import type { Address } from 'abitype'
-import { AbiParameters, Hash, type Hex } from 'ox'
+import * as AbiParameters from 'ox/AbiParameters'
+import * as Hash from 'ox/Hash'
+import type * as Hex from 'ox/Hex'
 
 /** Derives a user withdrawal sender tag. @internal */
 export function from(options: from.Options): Hex.Hex {

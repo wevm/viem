@@ -1,4 +1,4 @@
-import { RpcResponse } from 'ox'
+import * as RpcResponse from 'ox/RpcResponse'
 import type * as Relay from '../../Relay.js'
 
 /** Bounds the complete fill, including callbacks that do not observe abort signals. */

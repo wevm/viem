@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
-import { Hex, RpcResponse } from 'ox'
+import * as Hex from 'ox/Hex'
+import * as RpcResponse from 'ox/RpcResponse'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
