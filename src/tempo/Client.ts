@@ -83,18 +83,16 @@ export type Client<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-> = Prettify<
-  Client_<
-    transport,
-    chain,
-    account,
-    rpcSchema,
-    Omit<
-      PublicActions<transport, chain, account> & WalletActions<chain, account>,
-      'token'
-    > &
-      Decorator<chain, account>
-  >
+> = Client_<
+  transport,
+  chain,
+  account,
+  rpcSchema,
+  Omit<
+    PublicActions<transport, chain, account> & WalletActions<chain, account>,
+    'token'
+  > &
+    Decorator<chain, account>
 >
 
 export type CreateClientErrorType = ErrorType
