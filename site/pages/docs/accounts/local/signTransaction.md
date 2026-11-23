@@ -60,7 +60,7 @@ const signature = await account.signTransaction({
 
 ## Returns
 
-[`Hex`](/docs/glossary/types#Hex)
+[`Hex`](/docs/glossary/types#hex)
 
 The signed transaction.
 
