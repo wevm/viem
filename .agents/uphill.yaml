@@ -9,6 +9,7 @@ setup: 'pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild bun && p
 
 footprint:
   run: bun .agents/metrics/footprint.ts
+  description: 'Gzipped bytes a browser bundle adds to import each export from its entry point, or a whole entry point.'
   # Gzipped bytes a consumer bundles to import one export from its entry point, such as
   # `viem/actions:getBlockNumber`, or the whole entry, such as `viem/actions`. rolldown bundles and
   # minifies each import for the browser. Chunks that load only through a dynamic import are left
@@ -2012,6 +2013,7 @@ footprint:
 
 speed:
   run: bun .agents/metrics/speed.ts
+  description: 'CPU time and memory per call of each public function, replaying the arguments viem''s tests pass it, and the time and memory to import each entry point.'
   # Recording viem's tests takes about 35 minutes and replaying them about 11 at concurrency 2.
   timeout: 90m
   # CPU time per call of each public function, replaying the arguments viem's tests call it with.
@@ -2103,6 +2105,7 @@ speed:
 # How much of viem the speed bench reaches. It shares the speed script's run.
 coverage:
   run: bun .agents/metrics/speed.ts
+  description: 'Whether the speed bench can call each public function with arguments recorded from its tests.'
   timeout: 90m
   # Whether each public function has a call the bench can replay. The note says why when it has
   # none, such as an action whose every recorded call passes a client.
@@ -3442,6 +3445,7 @@ coverage:
 
 latency:
   run: bun .agents/metrics/latency.ts
+  description: 'Whether each async function awaits independent requests one after another instead of together.'
   # Whether each async function in src awaits independent reads in sequence, or in a loop of
   # independent iterations, instead of in one Promise.all.
   waterfalls:
@@ -4401,6 +4405,7 @@ latency:
 
 types:
   run: bun .agents/metrics/types.ts
+  description: 'Type instantiations, check time, and memory for TypeScript to check one use of each public export.'
   timeout: 15m
   # Type instantiations to check one use of each public export, values and types, with namespace
   # members counted as exports. A use is `typeof` the value, with `Parameters` and `ReturnType` for
@@ -8519,6 +8524,7 @@ types:
 # call. Instantiations are exact, so one run suffices.
 call-types:
   run: bun .agents/metrics/types-calls.ts
+  description: 'Type instantiations for TypeScript to check the call each public function''s tests make.'
   timeout: 20m
   # What a call should cost: 1,000 for a utility; 5,000 for an ABI or typed-data utility and for an
   # action, where about 4,500 is relating the anvil test client to `Client<...>`; 10,000 where the
@@ -8561,11 +8567,13 @@ call-types:
 # why not. It shares the call-types script's run.
 type-coverage:
   run: bun .agents/metrics/types-calls.ts
+  description: 'Whether each public function has a test call that Call types can measure.'
   timeout: 20m
   type-benched: {}
 
 fuzz:
   run: bun .agents/metrics/fuzz.ts
+  description: 'Whether each public function has a fuzz harness, whether fuzzing finds no failure, and how much of its source the fuzzer runs.'
   # About 3 minutes at UPHILL_CONCURRENCY=2; the limit leaves room for a loaded machine.
   timeout: 15m
   # Whether each public function has a fuzz harness that ran: structured properties (round trips,

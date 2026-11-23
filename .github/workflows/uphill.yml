@@ -69,7 +69,8 @@ jobs:
             .uphill/report.json
             .uphill/report.md
 
-  # Publishes the report to GitHub Pages, which https://viem.sh/hillclimb embeds.
+  # Publishes the report to GitHub Pages: report.json, which https://viem.sh/hillclimb renders, and
+  # Uphill's own report.html with trends.
   pages:
     name: Pages
     needs: uphill
