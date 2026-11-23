@@ -39,7 +39,7 @@ export const [account] = await walletClient.getAddresses()
 
 If you do not wish to pass an `account` to every `sendTransaction`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet#account).
+[Learn more](/docs/clients/wallet#account-optional).
 
 :::code-group
 
