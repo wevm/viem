@@ -31,6 +31,7 @@ test('blockTag = "latest" & includeTransactions = true', async () => {
   expectTypeOf(block.logsBloom).toEqualTypeOf<Hex>()
   expectTypeOf(block.nonce).toEqualTypeOf<Hex>()
   expectTypeOf(block.number).toEqualTypeOf<bigint>()
+  expectTypeOf(block.requestsHash).toEqualTypeOf<Hash | undefined>()
   expectTypeOf(block.transactions[0].blockHash).toEqualTypeOf<Hex>()
   expectTypeOf(block.transactions[0].blockNumber).toEqualTypeOf<bigint>()
   expectTypeOf(block.transactions[0].transactionIndex).toEqualTypeOf<number>()
