@@ -58,7 +58,7 @@ The Bundler URL above is a public endpoint. Please do not use it in production a
 
 If you do not wish to pass an `account` to every `prepareUserOperation`, you can also hoist the Account on the Bundler Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet#account).
+[Learn more](/docs/clients/wallet#account-optional).
 
 :::code-group
 
