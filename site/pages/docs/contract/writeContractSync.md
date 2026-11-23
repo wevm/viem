@@ -193,7 +193,7 @@ export const account = privateKeyToAccount('0x...')
 
 ## Return Value
 
-[`TransactionReceipt`](/docs/glossary/types#transaction-receipt)
+[`TransactionReceipt`](/docs/glossary/types#transactionreceipt)
 
 A [Transaction receipt](/docs/glossary/terms#transaction-receipt).
 
