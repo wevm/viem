@@ -237,6 +237,9 @@ This document contains general guidelines for AI agents working on the Viem code
   - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
 - **Contract dependencies use Git submodules**; `contracts/foundry.toml` remaps to packages in
   `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
+- **Metrics**; `pnpm build && uphill` scores viem against `.agents/uphill.yaml` and writes `.uphill/report.md`.
+  - Name a category to run one, such as `uphill footprint`; `uphill --update` writes the run's values as baselines.
+  - Orbs get Foundry, Uphill, and the dependencies from `.agents/setup`.
 - **Preserve canonical token definitions during generation**; match hand-authored tokens by
   chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
 

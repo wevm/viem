@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Orb setup: installs what viem's tests, `pnpm contracts:build`, and Uphill (.agents/uphill.yaml)
+# need: the Foundry release CI pins, the dependencies, the contract submodules, the contracts, and
+# the uphill binary.
+set -euo pipefail
+
+repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$repo"
+step() { printf '\n== %s (%ss)\n' "$1" "$SECONDS"; }
+
+step "Foundry, as pinned in CI"
+foundry=$(sed -n 's/^ *version: \(v[0-9][0-9.]*\)$/\1/p' .github/actions/install-dependencies/action.yml)
+[ -n "$foundry" ] || { echo "no Foundry version in .github/actions/install-dependencies/action.yml" >&2; exit 1; }
+case "$(uname -m)" in
+  x86_64) arch=amd64 ;;
+  aarch64) arch=arm64 ;;
+  *) echo "Foundry has no Linux build for $(uname -m)" >&2; exit 1 ;;
+esac
+foundry_dir="$HOME/.foundry/versions/$foundry"
+if [ ! -x "$foundry_dir/forge" ]; then
+  asset="foundry_${foundry}_linux_${arch}"
+  url="https://github.com/foundry-rs/foundry/releases/download/$foundry"
+  tmp=$(mktemp -d)
+  curl -fsSL -o "$tmp/$asset.tar.gz" "$url/$asset.tar.gz"
+  curl -fsSL -o "$tmp/$asset.sha256" "$url/$asset.sha256"
+  (cd "$tmp" && sha256sum --check --quiet "$asset.sha256")
+  mkdir -p "$tmp/bin" "$(dirname "$foundry_dir")"
+  tar -xzf "$tmp/$asset.tar.gz" -C "$tmp/bin"
+  mv "$tmp/bin" "$foundry_dir"
+  rm -rf "$tmp"
+fi
+for bin in anvil cast chisel forge; do
+  sudo ln -sf "$foundry_dir/$bin" "/usr/local/bin/$bin"
+done
+
+step "Uphill"
+# The installer checks the release's sha256 and writes ~/.uphill/bin/uphill.
+uphill=0.0.2
+if [ "$("$HOME/.uphill/bin/uphill" --version 2>/dev/null)" != "uphill $uphill" ]; then
+  curl -fsSL "https://raw.githubusercontent.com/wevm/uphill/v$uphill/install.sh" | UPHILL_VERSION=$uphill sh
+fi
+sudo ln -sf "$HOME/.uphill/bin/uphill" /usr/local/bin/uphill
+
+step "dependencies"
+# Install hooks stay off: postinstall fetches the submodules over SSH, which orbs cannot use. bun's
+# hook still runs, since contracts:build runs the bun binary it places.
+pnpm install --frozen-lockfile --ignore-scripts
+pnpm rebuild bun
+# Uphill runs the configuration's setup only in the checkouts it makes for --compare and blame, so
+# the metric scripts' own dependencies are installed here.
+bun install --cwd .agents/metrics --frozen-lockfile
+
+step "contract submodules and contracts"
+git -c url.https://github.com/.insteadOf=git@github.com: submodule update --init --recursive
+pnpm contracts:build
+
+step "done"
+forge --version | head -1
+uphill --version
