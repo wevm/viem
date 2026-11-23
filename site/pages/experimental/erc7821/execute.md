@@ -163,7 +163,7 @@ export const client = createClient({
 
 [`Hash`](/docs/glossary/types#hash)
 
-A [Transaction Hash](/docs/glossary/terms#hash).
+A [Transaction Hash](/docs/glossary/types#hash).
 
 ## Parameters
 

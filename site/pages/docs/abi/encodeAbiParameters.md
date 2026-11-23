@@ -60,7 +60,7 @@ The ABI encoded data.
 
 ### params
 
-- **Type**: [`AbiParameter[]`](/docs/glossary/terms#abiparameter)
+- **Type**: [`AbiParameter[]`](/docs/glossary/types#abiparameter)
 
 The set of ABI parameters to encode, in the shape of the `inputs` or `outputs` attribute of an ABI event/function.
 
@@ -75,7 +75,7 @@ encodeAbiParameters(
 
 ### values
 
-- **Type**: [`AbiParametersToPrimitiveTypes<AbiParameter[]>`](/docs/glossary/terms#abiparameterstoprimitivetypes)
+- **Type**: [`AbiParametersToPrimitiveTypes<AbiParameter[]>`](/docs/glossary/types#abiparameterstoprimitivetypes)
 
 The set of primitive values that correspond to the ABI types defined in `params`.
 
