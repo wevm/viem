@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { Hex } from 'ox'
+import * as Hex from 'ox/Hex'
 import type { Account } from '../../../accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import { getCode } from '../../../actions/public/getCode.js'
@@ -22,7 +22,7 @@ import { TransactionReceiptRevertedError } from '../../../errors/transaction.js'
 import type { Chain } from '../../../types/chain.js'
 import type { GetEventArgs } from '../../../types/contract.js'
 import type { Log } from '../../../types/log.js'
-import type { Compute } from '../../../types/utils.js'
+import type { Compute, UnionOmit } from '../../../types/utils.js'
 import { getAbiItem } from '../../../utils/abi/getAbiItem.js'
 import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
@@ -188,7 +188,7 @@ export namespace createErc4626Engine {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<WriteParameters<chain, account>, 'owner'> &
+  > = UnionOmit<WriteParameters<chain, account>, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final engine owner. @default `account.address` */
       owner?: Account | Address | undefined
@@ -455,7 +455,7 @@ export namespace createStack {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<WriteParameters<chain, account>, 'owner'> &
+  > = UnionOmit<WriteParameters<chain, account>, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final stack owner and operator. @default `account.address` */
       owner?: Account | Address | undefined
@@ -1208,7 +1208,7 @@ export namespace deployErc4626StackSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<
+  > = UnionOmit<
     WriteParameters<chain, account>,
     'gas' | 'keyAuthorization' | 'nonce' | 'owner' | 'throwOnReceiptRevert'
   > &
