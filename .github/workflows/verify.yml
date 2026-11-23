@@ -136,7 +136,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -151,7 +151,7 @@ jobs:
           VITE_SHARD_ID: ${{ matrix.shard }}
 
       - name: Upload coverage reports to Codecov
-        uses: wevm/actions/vendor/codecov/codecov-action/v4.6.0@b518cf981b50a4c745a8b7335fc693f34b108a75
+        uses: wevm/actions/vendor/codecov/codecov-action/v4.6.0@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -204,7 +204,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Run tests
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -242,7 +242,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local Tempo
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@b518cf981b50a4c745a8b7335fc693f34b108a75
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -290,16 +290,16 @@ jobs:
           submodules: 'recursive'
 
       - name: Set up foundry
-        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@b518cf981b50a4c745a8b7335fc693f34b108a75
+        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
         with:
           version: v1.8.7
 
       - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@b518cf981b50a4c745a8b7335fc693f34b108a75
+        uses: wevm/actions/.github/actions/pnpm@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
-        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@b518cf981b50a4c745a8b7335fc693f34b108a75
+        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
         with:
           bun-version: 1.4.4
 
