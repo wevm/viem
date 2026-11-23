@@ -127,3 +127,7 @@ test('args: to', () => {
     ]
   `)
 })
+
+test('behavior: no sidecars', () => {
+  expect(sidecarsToVersionedHashes({ sidecars: [] })).toEqual([])
+})

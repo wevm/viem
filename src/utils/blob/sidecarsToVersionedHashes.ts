@@ -50,7 +50,7 @@ export function sidecarsToVersionedHashes<
   const { sidecars, version } = parameters
 
   const to =
-    parameters.to ?? (typeof sidecars[0].blob === 'string' ? 'hex' : 'bytes')
+    parameters.to ?? (typeof sidecars[0]?.blob === 'string' ? 'hex' : 'bytes')
 
   const hashes: Uint8Array[] | Hex[] = []
   for (const { commitment } of sidecars) {
