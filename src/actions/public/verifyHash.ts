@@ -1,6 +1,4 @@
 import type { Address } from 'abitype'
-import { SignatureErc6492 } from 'ox/erc6492'
-import { SignatureErc8010 } from 'ox/erc8010'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -46,12 +44,15 @@ import {
   type BytesToHexErrorType,
   bytesToHex,
   type NumberToHexErrorType,
-  numberToHex,
 } from '../../utils/encoding/toHex.js'
+import { isErc6492Signature } from '../../utils/signature/isErc6492Signature.js'
+import { isErc8010Signature } from '../../utils/signature/isErc8010Signature.js'
+import { parseErc8010Signature } from '../../utils/signature/parseErc8010Signature.js'
 import {
   type RecoverAddressErrorType,
   recoverAddress,
 } from '../../utils/signature/recoverAddress.js'
+import { serializeErc6492Signature } from '../../utils/signature/serializeErc6492Signature.js'
 import {
   type SerializeSignatureErrorType,
   serializeSignature,
@@ -176,7 +177,7 @@ export async function verifyHash<chain extends Chain | undefined>(
       } catch {}
     }
 
-    if (SignatureErc8010.validate(signature))
+    if (isErc8010Signature(signature))
       return await verifyErc8010(client, {
         ...parameters,
         multicallAddress,
@@ -226,11 +227,11 @@ export async function verifyErc8010(
   } = parameters
 
   const {
-    authorization: authorization_ox,
+    address: to,
+    authorization,
     data: initData,
     signature,
-    to,
-  } = SignatureErc8010.unwrap(parameters.signature)
+  } = parseErc8010Signature(parameters.signature)
 
   // Check if already delegated
   const code = await getCode(client, {
@@ -242,24 +243,15 @@ export async function verifyErc8010(
   } as never)
 
   // If already delegated, perform standard ERC-1271 verification.
-  if (code === concatHex(['0xef0100', authorization_ox.address]))
+  if (code === concatHex(['0xef0100', authorization!.address]))
     return await verifyErc1271(client, {
       ...parameters,
       signature,
     })
 
-  const authorization = {
-    address: authorization_ox.address,
-    chainId: Number(authorization_ox.chainId),
-    nonce: Number(authorization_ox.nonce),
-    r: numberToHex(authorization_ox.r, { size: 32 }),
-    s: numberToHex(authorization_ox.s, { size: 32 }),
-    yParity: authorization_ox.yParity,
-  } as const
-
   const valid = await verifyAuthorization({
     address,
-    authorization,
+    authorization: authorization!,
   })
   if (!valid) throw new VerificationError()
 
@@ -268,7 +260,7 @@ export async function verifyErc8010(
     ...(multicallAddress
       ? { to: multicallAddress }
       : { code: multicall3Bytecode }),
-    authorizationList: [authorization],
+    authorizationList: [authorization!],
     blockHash,
     blockNumber,
     blockTag: blockTag ?? 'pending',
@@ -347,14 +339,14 @@ async function verifyErc6492(
     if (!factory && !factoryData) return signature
 
     // If the signature is already wrapped, return the signature.
-    if (SignatureErc6492.validate(signature)) return signature
+    if (isErc6492Signature(signature)) return signature
 
     // If the Smart Account is not deployed, wrap the signature with a 6492 wrapper
     // to perform counterfactual validation.
-    return SignatureErc6492.wrap({
+    return serializeErc6492Signature({
+      address: factory!,
       data: factoryData!,
       signature,
-      to: factory!,
     })
   })()
 
