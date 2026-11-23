@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import { SignatureErc8010 } from 'ox/erc8010'
+import * as Signature from 'ox/Signature'
 import type { ErrorType } from '../../errors/utils.js'
 import type { SignedAuthorization } from '../../types/authorization.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
@@ -42,7 +43,9 @@ export function serializeErc8010Signature<to extends To = 'hex'>(
       nonce: BigInt(parameters.authorization.nonce),
       r: BigInt(parameters.authorization.r),
       s: BigInt(parameters.authorization.s),
-      yParity: parameters.authorization.yParity!,
+      yParity:
+        parameters.authorization.yParity ??
+        Signature.vToYParity(Number(parameters.authorization.v)),
     },
     data,
     signature,
