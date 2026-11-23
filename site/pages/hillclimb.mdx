@@ -1,0 +1,25 @@
+---
+title: Hillclimb
+description: Viem's Uphill metrics (bundle size, speed, latency, types, and fuzzing), measured every night on main.
+layout: minimal
+content:
+  width: full
+outline: false
+showAskAi: false
+showFeedback: false
+---
+
+{/* .github/workflows/uphill.yml publishes the report every night. */}
+<iframe
+  src="https://wevm.github.io/viem/hillclimb/"
+  title="Viem Uphill report"
+  style={{
+    border: 0,
+    bottom: 0,
+    height: 'calc(100dvh - var(--vocs-spacing-topNav) - var(--vocs-spacing-banner))',
+    left: 0,
+    position: 'fixed',
+    top: 'calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner))',
+    width: '100%',
+  }}
+/>

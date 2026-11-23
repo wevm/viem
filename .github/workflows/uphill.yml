@@ -1,0 +1,110 @@
+name: Uphill
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  uphill:
+    name: Uphill
+    runs-on: ubuntu-latest
+    # A full run takes about 1 h 45 min on 4 cores.
+    timeout-minutes: 180
+    permissions:
+      # Pushes this run's note to refs/notes/uphill, which the report's trends read.
+      contents: write
+    outputs:
+      ran: ${{ steps.uphill.outputs.exit-code != '' }}
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Trends read the notes on the first-parent history.
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build
+        run: pnpm build
+
+      # The metric scripts run `bun`, and keep their own dependencies in .agents/metrics.
+      - name: Install metric dependencies
+        run: |
+          echo "$GITHUB_WORKSPACE/node_modules/.bin" >> "$GITHUB_PATH"
+          node_modules/.bin/bun install --cwd .agents/metrics --frozen-lockfile
+
+      - name: Fetch past runs
+        run: |
+          git fetch origin refs/notes/uphill:refs/notes/uphill || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Run Uphill
+        id: uphill
+        uses: wevm/uphill@d79fc8b24e9a332055d15e8ed2d79da86eef68d5 # v0.0.2
+        with:
+          args: --note
+          comment: 'false'
+          version: 0.0.2
+
+      - name: Push this run's note
+        if: ${{ !cancelled() && steps.uphill.outputs.exit-code != '' && github.ref == 'refs/heads/main' }}
+        run: git push origin refs/notes/uphill
+
+      - name: Upload report
+        if: ${{ !cancelled() && steps.uphill.outputs.exit-code != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          include-hidden-files: true
+          name: uphill
+          path: |
+            .uphill/report.html
+            .uphill/report.json
+            .uphill/report.md
+
+  # Publishes the report to GitHub Pages, which https://viem.sh/hillclimb embeds.
+  pages:
+    name: Pages
+    needs: uphill
+    if: ${{ !cancelled() && needs.uphill.outputs.ran == 'true' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}hillclimb/
+    permissions:
+      id-token: write
+      pages: write
+
+    steps:
+      - name: Download report
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: uphill
+          path: site/hillclimb
+
+      - name: Name the page
+        run: mv site/hillclimb/report.html site/hillclimb/index.html
+
+      # A rerun keeps the artifacts of earlier attempts, and deploy-pages refuses two with one name.
+      - name: Upload page
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          name: github-pages-${{ github.run_attempt }}
+          path: site
+
+      - name: Deploy page
+        id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
