@@ -37,4 +37,4 @@ The hex formatted signature.
 
 The compact signature.
 
-- **Type:** [`CompactSignature`](/docs/glossary/types#CompactSignature)
+- **Type:** [`CompactSignature`](/docs/glossary/types#compactsignature)

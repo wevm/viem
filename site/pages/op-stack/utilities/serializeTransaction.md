@@ -51,9 +51,9 @@ const serialized = serializeTransaction({
 Returns a template `Hex` value based on transaction type:
 
 - `deposit`: [TransactionSerializedDeposit](/docs/glossary/types#TransactionSerializedDeposit)
-- `eip1559`: [TransactionSerializedEIP1559](/docs/glossary/types#TransactionSerializedEIP1559)
-- `eip2930`: [TransactionSerializedEIP2930](/docs/glossary/types#TransactionSerializedEIP2930)
-- `legacy`: [TransactionSerializedLegacy](/docs/glossary/types#TransactionSerializedLegacy) 
+- `eip1559`: [TransactionSerializedEIP1559](/docs/glossary/types#transactionserializedeip1559)
+- `eip2930`: [TransactionSerializedEIP2930](/docs/glossary/types#transactionserializedeip2930)
+- `legacy`: [TransactionSerializedLegacy](/docs/glossary/types#transactionserializedlegacy) 
 
 ## Parameters
 

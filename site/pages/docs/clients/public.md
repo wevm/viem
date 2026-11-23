@@ -37,7 +37,7 @@ const blockNumber = await publicClient.getBlockNumber() // [!code focus:10]
 
 ## Optimization
 
-The Public Client also supports [`eth_call` Aggregation](#multicall) for improved performance.
+The Public Client also supports [`eth_call` Aggregation](#eth_call-aggregation-via-multicall) for improved performance.
 
 ### `eth_call` Aggregation (via Multicall)
 

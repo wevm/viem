@@ -195,9 +195,9 @@ export const account = privateKeyToAccount('0x...')
 
 [`Hash`](/docs/glossary/types#hash)
 
-A [Transaction Hash](/docs/glossary/terms#hash).
+A [Transaction Hash](/docs/glossary/types#hash).
 
-Unlike [`readContract`](/docs/contract/readContract), `writeContract` only returns a [Transaction Hash](/docs/glossary/terms#hash). If you would like to retrieve the return data of a write function, you can use the [`simulateContract` action](/docs/contract/simulateContract) – this action does not execute a transaction, and does not require gas (it is very similar to `readContract`).
+Unlike [`readContract`](/docs/contract/readContract), `writeContract` only returns a [Transaction Hash](/docs/glossary/types#hash). If you would like to retrieve the return data of a write function, you can use the [`simulateContract` action](/docs/contract/simulateContract) – this action does not execute a transaction, and does not require gas (it is very similar to `readContract`).
 
 ## Parameters
 

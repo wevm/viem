@@ -49,7 +49,7 @@ const block = await publicClient.getBlockNumber({
 })
 ```
 
-By default, block numbers are cached for the period of the [Client's `cacheTime`](/docs/clients/public#cacheTime-optional).
+By default, block numbers are cached for the period of the [Client's `cacheTime`](/docs/clients/public#cachetime-optional).
 
 - Setting a value of above zero will make block number remain in the cache for that period.
 - Setting a value of `0` will disable the cache, and always retrieve a fresh block number.

@@ -53,7 +53,7 @@ encodePacked(
 
 ### values
 
-- **Type**: [`AbiParametersToPrimitiveTypes<PackedAbiType[]>`](/docs/glossary/terms#abiparameterstoprimitivetypes)
+- **Type**: [`AbiParametersToPrimitiveTypes<PackedAbiType[]>`](/docs/glossary/types#abiparameterstoprimitivetypes)
 
 The set of primitive values that correspond to the ABI types defined in `types`.
 
