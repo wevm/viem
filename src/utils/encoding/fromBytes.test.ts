@@ -319,6 +319,9 @@ describe('converts bytes to string', () => {
         size: 32,
       }),
     ).toEqual('wagmi')
+    expect(
+      bytesToString(stringToBytes('', { size: 32 }), { size: 32 }),
+    ).toEqual('')
   })
 
   test('error: size overflow', () => {

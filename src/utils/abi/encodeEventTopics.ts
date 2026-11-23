@@ -110,7 +110,7 @@ export function encodeEventTopics<
     abiItem = item
   }
 
-  if (abiItem.type !== 'event')
+  if (abiItem?.type !== 'event')
     throw new AbiEventNotFoundError(undefined, { docsPath })
 
   let topics: (Hex | Hex[] | null)[] = []

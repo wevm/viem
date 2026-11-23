@@ -384,6 +384,7 @@ describe('converts hex to string', () => {
     expect(
       hexToString(stringToHex('wagmi', { size: 32 }), { size: 32 }),
     ).toEqual('wagmi')
+    expect(hexToString(stringToHex('', { size: 32 }), { size: 32 })).toEqual('')
   })
 
   test('error: size overflow', () => {

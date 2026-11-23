@@ -80,7 +80,7 @@ export function encodeErrorResult<
     abiItem = item
   }
 
-  if (abiItem.type !== 'error')
+  if (abiItem?.type !== 'error')
     throw new AbiErrorNotFoundError(undefined, { docsPath })
 
   const definition = formatAbiItem(abiItem)

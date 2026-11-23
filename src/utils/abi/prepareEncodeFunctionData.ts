@@ -105,7 +105,7 @@ export function prepareEncodeFunctionData<
     abiItem = item
   }
 
-  if (abiItem.type !== 'function')
+  if (abiItem?.type !== 'function')
     throw new AbiFunctionNotFoundError(undefined, { docsPath })
 
   const signature = formatAbiItem(abiItem)
