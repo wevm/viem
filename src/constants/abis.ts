@@ -1389,6 +1389,22 @@ export const erc721Abi = [
   },
   {
     type: 'function',
+    name: 'supportsInterface',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'interfaceId',
+        type: 'bytes4',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+  },
+  {
+    type: 'function',
     name: 'symbol',
     stateMutability: 'view',
     inputs: [],
@@ -1416,7 +1432,7 @@ export const erc721Abi = [
   },
   {
     type: 'function',
-    name: 'tokenByIndex',
+    name: 'tokenOfOwnerByIndex',
     stateMutability: 'view',
     inputs: [
       {

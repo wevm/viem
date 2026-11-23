@@ -1678,6 +1678,22 @@ test('exports abis', () => {
           "type": "function",
         },
         {
+          "inputs": [
+            {
+              "name": "interfaceId",
+              "type": "bytes4",
+            },
+          ],
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "type": "bool",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+        {
           "inputs": [],
           "name": "symbol",
           "outputs": [
@@ -1715,7 +1731,7 @@ test('exports abis', () => {
               "type": "uint256",
             },
           ],
-          "name": "tokenByIndex",
+          "name": "tokenOfOwnerByIndex",
           "outputs": [
             {
               "name": "tokenId",
