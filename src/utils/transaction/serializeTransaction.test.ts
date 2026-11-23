@@ -897,6 +897,24 @@ describe('legacy', () => {
     })
   })
 
+  test('signature w/ yParity only', () => {
+    for (const chainId of [undefined, 1, 69])
+      for (const yParity of [0, 1]) {
+        const args = { ...baseLegacy, chainId }
+        const signature = {
+          r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+          yParity,
+        } as const
+        expect(serializeTransaction(args, signature)).toEqual(
+          serializeTransaction(args, {
+            ...signature,
+            v: yParity ? 28n : 27n,
+          }),
+        )
+      }
+  })
+
   describe('errors', () => {
     test('invalid v', () => {
       expect(() =>

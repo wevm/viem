@@ -3,12 +3,7 @@ import {
   type InvalidLegacyVErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type {
-  ByteArray,
-  Hex,
-  Signature,
-  SignatureLegacy,
-} from '../../types/misc.js'
+import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
@@ -142,7 +137,7 @@ export function serializeTransaction<
 
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
-    signature as SignatureLegacy,
+    signature,
   ) as SerializedTransactionReturnType<transaction>
 }
 
@@ -391,7 +386,7 @@ type SerializeTransactionLegacyErrorType =
 
 function serializeTransactionLegacy(
   transaction: TransactionSerializableLegacy,
-  signature?: SignatureLegacy | undefined,
+  signature_?: Signature | undefined,
 ): TransactionSerializedLegacy {
   const { chainId = 0, gas, data, nonce, to, value, gasPrice } = transaction
 
@@ -406,7 +401,12 @@ function serializeTransactionLegacy(
     data ?? '0x',
   ]
 
-  if (signature) {
+  if (signature_) {
+    // A signature may carry only `yParity`, as `parseSignature` returns it.
+    const signature = {
+      ...signature_,
+      v: signature_.v ?? (signature_.yParity ? 28n : 27n),
+    }
     const v = (() => {
       // EIP-155 (inferred chainId)
       if (signature.v >= 35n) {
