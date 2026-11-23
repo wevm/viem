@@ -1,5 +1,4 @@
 import type { ChainConfig, ChainEstimateFeesPerGasFn } from '../types/chain.js'
-import { estimateGas } from './actions/estimateGas.js'
 
 export const chainConfig = {
   fees: {
@@ -30,6 +29,8 @@ async function estimateFeesPerGas({
   request,
   type,
 }: Parameters<ChainEstimateFeesPerGasFn>[0]): ReturnType<ChainEstimateFeesPerGasFn> {
+  // Loaded on first use, so a Linea chain object does not bundle the action.
+  const { estimateGas } = await import('./actions/estimateGas.js')
   try {
     const response = await estimateGas(client, {
       ...request,
