@@ -95,12 +95,11 @@ export async function estimateOperatorFee<
     return contracts.gasPriceOracle.address
   })() as Address
 
-  const gasUsed = await estimateGas(client, args as EstimateGasParameters)
-
   if (l1BlockAddress) {
     // `isJovian` is unavailable on Isthmus Gas Price Oracle implementations.
-    const [operatorFeeScalar, operatorFeeConstant, isJovian] =
+    const [gasUsed, operatorFeeScalar, operatorFeeConstant, isJovian] =
       await Promise.all([
+        estimateGas(client, args as EstimateGasParameters),
         readContract(client, {
           abi: l1BlockAbi,
           address: l1BlockAddress,
@@ -124,6 +123,7 @@ export async function estimateOperatorFee<
     return (gasUsed * scalar) / 1_000_000n + constant
   }
 
+  const gasUsed = await estimateGas(client, args as EstimateGasParameters)
   return readContract(client, {
     abi: gasPriceOracleAbi,
     address: gasPriceOracleAddress,

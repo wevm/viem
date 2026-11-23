@@ -173,12 +173,17 @@ export async function withdraw<
     value = amount
     contract = l2BaseTokenAddress
   } else {
-    const assetId = await readContract(client, {
-      address: l2NativeTokenVaultAddress,
-      abi: parseAbi(['function assetId(address token) view returns (bytes32)']),
-      functionName: 'assetId',
-      args: [token],
-    })
+    const [assetId, l1ChainId] = await Promise.all([
+      readContract(client, {
+        address: l2NativeTokenVaultAddress,
+        abi: parseAbi([
+          'function assetId(address token) view returns (bytes32)',
+        ]),
+        functionName: 'assetId',
+        args: [token],
+      }),
+      getL1ChainId(client),
+    ])
     const originChainId = await readContract(client, {
       address: l2NativeTokenVaultAddress,
       abi: parseAbi([
@@ -187,7 +192,6 @@ export async function withdraw<
       functionName: 'originChainId',
       args: [assetId],
     })
-    const l1ChainId = await getL1ChainId(client)
 
     const isTokenL1Native =
       originChainId === BigInt(l1ChainId) || token === ethAddressInContracts

@@ -148,12 +148,10 @@ export async function finalizeWithdrawal<
     })
   if (!l2Client.chain) throw new ChainNotFoundError()
 
-  const finalizeWithdrawalParams = await getFinalizeWithdrawalParams(l2Client, {
-    hash,
-    index,
-  })
-
-  const l1Nullifier = (await getBridgeAddresses(client, l2Client)).l1Nullifier
+  const [finalizeWithdrawalParams, { l1Nullifier }] = await Promise.all([
+    getFinalizeWithdrawalParams(l2Client, { hash, index }),
+    getBridgeAddresses(client, l2Client),
+  ])
 
   const data = encodeFunctionData({
     abi: parseAbi([
