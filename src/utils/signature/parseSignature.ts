@@ -1,13 +1,8 @@
-import { secp256k1 } from '@noble/curves/secp256k1'
-
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex, Signature } from '../../types/misc.js'
-import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
+import { fromCompactHex } from './internal/compact.js'
 
-export type ParseSignatureErrorType = NumberToHexErrorType | ErrorType
+export type ParseSignatureErrorType = ErrorType
 
 /**
  * @description Parses a hex formatted signature into a structured signature.
@@ -20,7 +15,7 @@ export type ParseSignatureErrorType = NumberToHexErrorType | ErrorType
  * // { r: '0x...', s: '0x...', v: 28n }
  */
 export function parseSignature(signatureHex: Hex) {
-  const { r, s } = secp256k1.Signature.fromCompact(signatureHex.slice(2, 130))
+  const { r, s } = fromCompactHex(signatureHex.slice(2, 130))
   const yParityOrV = Number(`0x${signatureHex.slice(130)}`)
   const [v, yParity] = (() => {
     if (yParityOrV === 0 || yParityOrV === 1) return [undefined, yParityOrV]
@@ -31,14 +26,14 @@ export function parseSignature(signatureHex: Hex) {
 
   if (typeof v !== 'undefined')
     return {
-      r: numberToHex(r, { size: 32 }),
-      s: numberToHex(s, { size: 32 }),
+      r,
+      s,
       v,
       yParity,
     } satisfies Signature
   return {
-    r: numberToHex(r, { size: 32 }),
-    s: numberToHex(s, { size: 32 }),
+    r,
+    s,
     yParity,
   } satisfies Signature
 }

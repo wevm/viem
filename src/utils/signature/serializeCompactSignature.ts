@@ -1,7 +1,7 @@
-import { secp256k1 } from '@noble/curves/secp256k1'
 import type { ErrorType } from '../../errors/utils.js'
 import type { CompactSignature, Hex } from '../../types/misc.js'
 import { type HexToBigIntErrorType, hexToBigInt } from '../encoding/fromHex.js'
+import { toCompactHex } from './internal/compact.js'
 
 export type SerializeCompactSignatureErrorType =
   | HexToBigIntErrorType
@@ -24,8 +24,5 @@ export function serializeCompactSignature({
   r,
   yParityAndS,
 }: CompactSignature): Hex {
-  return `0x${new secp256k1.Signature(
-    hexToBigInt(r),
-    hexToBigInt(yParityAndS),
-  ).toCompactHex()}`
+  return `0x${toCompactHex(hexToBigInt(r), hexToBigInt(yParityAndS))}`
 }
