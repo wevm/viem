@@ -10,7 +10,7 @@ export type SignableMessage =
       /** Raw data representation of the message. */
       raw: Hex | ByteArray
     }
-export type SignatureLegacy<bigintType = bigint> = {
+type SignatureLegacy<bigintType = bigint> = {
   r: Hex
   s: Hex
   v: bigintType
