@@ -13,6 +13,7 @@ export const primiumTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'Primium Explorer',
       url: 'https://explorer-testnet.codexnetwork.org',
+      apiUrl: 'https://explorer-testnet.codexnetwork.org/api',
     },
   },
   contracts: {
