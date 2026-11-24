@@ -4,11 +4,11 @@
 
 # Install scripts stay off; the speed script records viem's tests, which need the contracts that
 # viem's postinstall builds with Foundry, so setup builds them last. The scripts keep their own
-# dependencies, such as rolldown, in .agents/metrics.
-setup: 'pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild bun && pnpm build && bun install --cwd .agents/metrics && git -c url.https://github.com/.insteadOf=git@github.com: submodule update --init --recursive && pnpm contracts:build'
+# dependencies, such as rolldown, in .agents/uphill.
+setup: 'pnpm install --frozen-lockfile --ignore-scripts && pnpm rebuild bun && pnpm build && bun install --cwd .agents/uphill && git -c url.https://github.com/.insteadOf=git@github.com: submodule update --init --recursive && pnpm contracts:build'
 
 footprint:
-  run: bun .agents/metrics/footprint.ts
+  run: bun .agents/uphill/footprint.ts
   description: 'Gzipped bytes a browser bundle adds to import each export from its entry point, or a whole entry point.'
   # Gzipped bytes a consumer bundles to import one export from its entry point, such as
   # `viem/actions:getBlockNumber`, or the whole entry, such as `viem/actions`. rolldown bundles and
@@ -2012,7 +2012,7 @@ footprint:
       "viem:zeroHash": 58B
 
 speed:
-  run: bun .agents/metrics/speed.ts
+  run: bun .agents/uphill/speed.ts
   description: 'CPU time and memory per call of each public function, replaying the arguments viem''s tests pass it, and the time and memory to import each entry point.'
   # Recording viem's tests takes about 35 minutes and replaying them about 11 at concurrency 2.
   timeout: 90m
@@ -2104,7 +2104,7 @@ speed:
 
 # How much of viem the speed bench reaches. It shares the speed script's run.
 coverage:
-  run: bun .agents/metrics/speed.ts
+  run: bun .agents/uphill/speed.ts
   description: 'Whether the speed bench can call each public function with arguments recorded from its tests.'
   timeout: 90m
   # Whether each public function has a call the bench can replay. The note says why when it has
@@ -3444,7 +3444,7 @@ coverage:
       "viem:withTimeout": fail
 
 latency:
-  run: bun .agents/metrics/latency.ts
+  run: bun .agents/uphill/latency.ts
   description: 'Whether each async function awaits independent requests one after another instead of together.'
   # Whether each async function in src awaits independent reads in sequence, or in a loop of
   # independent iterations, instead of in one Promise.all.
@@ -4404,7 +4404,7 @@ latency:
       "src/zksync/utils/bridge/getWithdrawalLog.ts:getWithdrawalLog": pass
 
 types:
-  run: bun .agents/metrics/types.ts
+  run: bun .agents/uphill/types.ts
   description: 'Type instantiations, check time, and memory for TypeScript to check one use of each public export.'
   timeout: 15m
   # Type instantiations to check one use of each public export, values and types, with namespace
@@ -8523,7 +8523,7 @@ types:
 # signature are resolved. Relating those to the function's parameters counts: that is checking the
 # call. Instantiations are exact, so one run suffices.
 call-types:
-  run: bun .agents/metrics/types-calls.ts
+  run: bun .agents/uphill/types-calls.ts
   description: 'Type instantiations for TypeScript to check the call each public function''s tests make.'
   timeout: 20m
   # What a call should cost: 1,000 for a utility; 5,000 for an ABI or typed-data utility and for an
@@ -8566,13 +8566,13 @@ call-types:
 # Whether each public function has a call in viem's tests that call-types measures; the note says
 # why not. It shares the call-types script's run.
 type-coverage:
-  run: bun .agents/metrics/types-calls.ts
+  run: bun .agents/uphill/types-calls.ts
   description: 'Whether each public function has a test call that Call types can measure.'
   timeout: 20m
   type-benched: {}
 
 fuzz:
-  run: bun .agents/metrics/fuzz.ts
+  run: bun .agents/uphill/fuzz.ts
   description: 'Whether each public function has a fuzz harness, whether fuzzing finds no failure, and how much of its source the fuzzer runs.'
   # About 3 minutes at UPHILL_CONCURRENCY=2; the limit leaves room for a loaded machine.
   timeout: 15m

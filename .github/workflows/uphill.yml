@@ -35,11 +35,11 @@ jobs:
       - name: Build
         run: pnpm build
 
-      # The metric scripts run `bun`, and keep their own dependencies in .agents/metrics.
+      # The metric scripts run `bun`, and keep their own dependencies in .agents/uphill.
       - name: Install metric dependencies
         run: |
           echo "$GITHUB_WORKSPACE/node_modules/.bin" >> "$GITHUB_PATH"
-          node_modules/.bin/bun install --cwd .agents/metrics --frozen-lockfile
+          node_modules/.bin/bun install --cwd .agents/uphill --frozen-lockfile
 
       # The pattern matches refs/notes/uphill and refs/notes/uphill-report.
       - name: Fetch past runs
@@ -71,7 +71,7 @@ jobs:
             .uphill/report.json
             .uphill/report.md
 
-  # Publishes the report to GitHub Pages: report.json, which https://viem.sh/hillclimb renders, and
+  # Publishes the report to GitHub Pages: report.json, which https://viem.sh/metrics renders, and
   # Uphill's own report.html with trends.
   pages:
     name: Pages
@@ -84,7 +84,7 @@ jobs:
       cancel-in-progress: false
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}hillclimb/
+      url: ${{ steps.deploy.outputs.page_url }}metrics/
     permissions:
       id-token: write
       pages: write
@@ -94,10 +94,10 @@ jobs:
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: uphill
-          path: site/hillclimb
+          path: site/metrics
 
       - name: Name the page
-        run: mv site/hillclimb/report.html site/hillclimb/index.html
+        run: mv site/metrics/report.html site/metrics/index.html
 
       # A rerun keeps the artifacts of earlier attempts, and deploy-pages refuses two with one name.
       - name: Upload page

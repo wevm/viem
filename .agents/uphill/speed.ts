@@ -415,10 +415,10 @@ function hashInputs() {
   for (const file of [
     'pnpm-lock.yaml',
     'contracts/generated.ts',
-    '.agents/metrics/speed-calls.test.ts',
-    '.agents/metrics/speed-codec.ts',
-    '.agents/metrics/speed-record-setup.ts',
-    '.agents/metrics/speed-vitest.config.ts',
+    '.agents/uphill/speed-calls.test.ts',
+    '.agents/uphill/speed-codec.ts',
+    '.agents/uphill/speed-record-setup.ts',
+    '.agents/uphill/speed-vitest.config.ts',
   ])
     if (fs.existsSync(path.join(root, file))) files.push(path.join(root, file))
   files.sort()

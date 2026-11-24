@@ -3,10 +3,10 @@
 import { type ReactNode, useEffect, useState } from 'react'
 
 /** The report `.github/workflows/uphill.yml` publishes every night from `main`. */
-const reportUrl = 'https://wevm.github.io/viem/hillclimb/report.json'
+const reportUrl = 'https://wevm.github.io/viem/metrics/report.json'
 
 /** Uphill's own page for the same run, which also draws each metric's trend. */
-const fullReportUrl = 'https://wevm.github.io/viem/hillclimb/'
+const fullReportUrl = 'https://wevm.github.io/viem/metrics/'
 
 /** How many rows a list shows before "Show all", as Uphill's HTML report does. */
 const rows = 100
@@ -138,7 +138,7 @@ const times = [
   ['s', 1e9],
 ] as const
 
-export function Hillclimb() {
+export function Metrics() {
   const [state, setState] = useState<State>({ status: 'loading' })
 
   useEffect(() => {

@@ -240,7 +240,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Metrics**; `pnpm build && uphill` scores viem against `.agents/uphill.yaml` and writes `.uphill/report.md`.
   - Name a category to run one, such as `uphill footprint`; `uphill --update` writes the run's values as baselines.
   - Orbs get Foundry, Uphill, and the dependencies from `.agents/setup`.
-  - `.github/workflows/uphill.yml` runs it every night on `main` and publishes the `report.json` that `viem.sh/hillclimb` renders.
+  - `.github/workflows/uphill.yml` runs it every night on `main` and publishes the `report.json` that `viem.sh/metrics` renders.
 - **Preserve canonical token definitions during generation**; match hand-authored tokens by
   chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
 

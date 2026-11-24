@@ -185,7 +185,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'calls',
-          include: ['.agents/metrics/speed-calls.test.ts'],
+          include: ['.agents/uphill/speed-calls.test.ts'],
           setupFiles: [setup],
         },
       },

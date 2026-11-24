@@ -329,7 +329,7 @@ function corpusFile() {
     : []
   if (!recordings.length)
     throw new Error(
-      'No corpus: fuzz-fixtures/corpus.json is missing and there is no speed recording to snapshot. Run `bun .agents/metrics/speed.ts` first.',
+      'No corpus: fuzz-fixtures/corpus.json is missing and there is no speed recording to snapshot. Run `bun .agents/uphill/speed.ts` first.',
     )
   fs.mkdirSync(path.dirname(file), { recursive: true })
   const result = Bun.spawnSync(

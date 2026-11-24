@@ -48,7 +48,7 @@ pnpm install --frozen-lockfile --ignore-scripts
 pnpm rebuild bun
 # Uphill runs the configuration's setup only in the checkouts it makes for --compare and blame, so
 # the metric scripts' own dependencies are installed here.
-bun install --cwd .agents/metrics --frozen-lockfile
+bun install --cwd .agents/uphill --frozen-lockfile
 
 step "contract submodules and contracts"
 git -c url.https://github.com/.insteadOf=git@github.com: submodule update --init --recursive

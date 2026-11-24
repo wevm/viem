@@ -25,7 +25,7 @@
       "!**/vectors/**/*.test.ts",
       "!**/wagmi",
       "!**/site/dist",
-      "!**/.agents/metrics/fuzz-fixtures",
+      "!**/.agents/uphill/fuzz-fixtures",
       "!**/.uphill"
     ]
   },
@@ -82,7 +82,7 @@
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "overrides": [
     {
-      "includes": [".agents/metrics/**"],
+      "includes": [".agents/uphill/**"],
       "linter": { "rules": { "suspicious": { "noConsole": "off" } } }
     }
   ]
