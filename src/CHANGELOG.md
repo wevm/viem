@@ -1,5 +1,15 @@
 # viem
 
+## 2.58.6
+
+### Patch Changes
+
+- [#5645](https://github.com/wevm/viem/pull/5645) [`1c54cdc0d4f0af851f5b5aad86a88aaba3a8408f`](https://github.com/wevm/viem/commit/1c54cdc0d4f0af851f5b5aad86a88aaba3a8408f) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `serializeErc8010Signature` throwing for authorizations that have a `v` but no `yParity`.
+
+- [#5647](https://github.com/wevm/viem/pull/5647) [`e3f5dc93aad8996ba2623b69ad8952820310da57`](https://github.com/wevm/viem/commit/e3f5dc93aad8996ba2623b69ad8952820310da57) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Added `requestsHash` ([EIP-7685](https://eips.ethereum.org/EIPS/eip-7685)) to the `Block` and `RpcBlock` types returned by `getBlock`.
+
+- [#5650](https://github.com/wevm/viem/pull/5650) [`4079b5dc8589d3da8326395782b114be7556f9ac`](https://github.com/wevm/viem/commit/4079b5dc8589d3da8326395782b114be7556f9ac) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `erc721Abi` declaring the ERC721Enumerable `tokenOfOwnerByIndex` function as a `tokenByIndex` overload and added the ERC-165 `supportsInterface` function that ERC-721 requires.
+
 ## 2.58.5
 
 ### Patch Changes
