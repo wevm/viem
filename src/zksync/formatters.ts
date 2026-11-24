@@ -91,7 +91,7 @@ export const formatters = {
         }) as ZksyncLog[],
         l2ToL1Logs: args.l2ToL1Logs.map((l2ToL1Log) => {
           return {
-            blockNumber: hexToBigInt(l2ToL1Log.blockHash),
+            blockNumber: hexToBigInt(l2ToL1Log.blockNumber),
             blockHash: l2ToL1Log.blockHash,
             l1BatchNumber: l2ToL1Log.l1BatchNumber
               ? hexToBigInt(l2ToL1Log.l1BatchNumber)
