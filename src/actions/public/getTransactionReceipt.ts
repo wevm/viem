@@ -14,6 +14,16 @@ import {
 } from '../../utils/formatters/transactionReceipt.js'
 
 export type GetTransactionReceiptParameters = {
+  /**
+   * When `true`, if the same client has sent an identical
+   * `eth_getTransactionReceipt` request and is still waiting for its
+   * response, this call returns that response instead of sending a new
+   * request. The earlier request may have been sent before the transaction
+   * was mined, so its response can say there is no receipt. Set to `false`
+   * to always send a new request.
+   * @default true
+   */
+  dedupe?: boolean | undefined
   /** The hash of the transaction. */
   hash: Hash
 }
@@ -53,14 +63,14 @@ export type GetTransactionReceiptErrorType =
  */
 export async function getTransactionReceipt<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { hash }: GetTransactionReceiptParameters,
+  { dedupe = true, hash }: GetTransactionReceiptParameters,
 ) {
   const receipt = await client.request(
     {
       method: 'eth_getTransactionReceipt',
       params: [hash],
     },
-    { dedupe: true },
+    { dedupe },
   )
 
   if (!receipt) throw new TransactionReceiptNotFoundError({ hash })

@@ -314,6 +314,10 @@ export async function waitForTransactionReceipt<
       // Keep going for later callers that share this observer.
       if (timedOut && !listenersCache.get(observerId)?.length) return
 
+      // Each receipt lookup in a block check passes `dedupe: false` and sends
+      // its own request. Otherwise a lookup could return the response to an
+      // identical request sent before the block arrived, and that response can
+      // be out of date: for example, no receipt for a transaction in the block.
       const handleBlock = async (blockNumber_: bigint) => {
         const done = (fn: () => void) => {
           latest = undefined
@@ -341,10 +345,11 @@ export async function waitForTransactionReceipt<
               client,
               getTransactionReceipt,
               'getTransactionReceipt',
-            )({ hash: receipt.transactionHash }).catch((error) =>
-              error instanceof TransactionReceiptNotFoundError
-                ? null
-                : undefined,
+            )({ dedupe: false, hash: receipt.transactionHash }).catch(
+              (error) =>
+                error instanceof TransactionReceiptNotFoundError
+                  ? null
+                  : undefined,
             )
             if (receipt_ === undefined) return
             if (!receipt_) {
@@ -413,7 +418,7 @@ export async function waitForTransactionReceipt<
             client,
             getTransactionReceipt,
             'getTransactionReceipt',
-          )({ hash })
+          )({ dedupe: false, hash })
 
           // Check if we have enough confirmations. If not, continue polling.
           if (
@@ -491,7 +496,7 @@ export async function waitForTransactionReceipt<
                     client,
                     getTransactionReceipt,
                     'getTransactionReceipt',
-                  )({ hash: found.hash }).catch((error) => {
+                  )({ dedupe: false, hash: found.hash }).catch((error) => {
                     if (error instanceof TransactionReceiptNotFoundError)
                       return undefined
                     throw error
@@ -573,6 +578,7 @@ export async function waitForTransactionReceipt<
                 getTransactionReceipt,
                 'getTransactionReceipt',
               )({
+                dedupe: false,
                 hash: replacementTransaction.hash,
               })
               replacementResponse = {
