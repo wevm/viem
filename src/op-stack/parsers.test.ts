@@ -95,6 +95,36 @@ describe('deposit', () => {
   })
 })
 
+describe('postExec', () => {
+  test('default', () => {
+    // The payload is `[1, 16, [[1, 42]]]`: a refund of 42 gas to the
+    // transaction at index 1 of block 16.
+    const serialized = serializeTransaction({
+      data: '0xc60110c3c2012a',
+      type: 'postExec',
+    })
+
+    expect(serialized).toMatchInlineSnapshot(`"0x7dc60110c3c2012a"`)
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+      {
+        "data": "0xc60110c3c2012a",
+        "type": "postExec",
+      }
+    `)
+  })
+
+  test('error: empty payload', () => {
+    expect(() => parseTransaction('0x7d')).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidSerializedTransactionError: Invalid serialized transaction of type "postExec" was provided.
+
+      Serialized Transaction: "0x7d"
+      Missing Attributes: data
+
+      Version: viem@x.y.z]
+    `)
+  })
+})
+
 describe('eip1559', () => {
   test('default', async () => {
     const transaction = {

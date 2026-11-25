@@ -15,7 +15,9 @@ import {
 import type {
   OpStackTransactionSerializable,
   TransactionSerializableDeposit,
+  TransactionSerializablePostExec,
   TransactionSerializedDeposit,
+  TransactionSerializedPostExec,
 } from './types/transaction.js'
 
 export type SerializeTransactionReturnType = ReturnType<
@@ -31,6 +33,8 @@ export function serializeTransaction(
   signature?: Signature,
 ) {
   if (isDeposit(transaction)) return serializeTransactionDeposit(transaction)
+  if (transaction.type === 'postExec')
+    return serializeTransactionPostExec(transaction)
   return serializeTransaction_(
     transaction as TransactionSerializable,
     signature,
@@ -69,6 +73,19 @@ function serializeTransactionDeposit(
     '0x7e',
     toRlp(serializedTransaction),
   ]) as SerializeTransactionDepositReturnType
+}
+
+export type SerializeTransactionPostExecReturnType =
+  TransactionSerializedPostExec
+
+function serializeTransactionPostExec(
+  transaction: TransactionSerializablePostExec,
+): SerializeTransactionPostExecReturnType {
+  // The payload follows the type byte as is, with no outer RLP list.
+  return concatHex([
+    '0x7d',
+    transaction.data,
+  ]) as SerializeTransactionPostExecReturnType
 }
 
 function isDeposit(

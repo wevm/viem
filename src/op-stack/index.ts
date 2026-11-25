@@ -246,7 +246,9 @@ export type {
 } from './types/block.js'
 export type {
   OpStackDepositTransaction,
+  OpStackPostExecTransaction,
   OpStackRpcDepositTransaction,
+  OpStackRpcPostExecTransaction,
   OpStackRpcTransaction,
   OpStackRpcTransactionReceipt,
   OpStackRpcTransactionReceiptOverrides,
