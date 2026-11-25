@@ -75,17 +75,11 @@ function serializeTransactionDeposit(
   ]) as SerializeTransactionDepositReturnType
 }
 
-export type SerializeTransactionPostExecReturnType =
-  TransactionSerializedPostExec
-
 function serializeTransactionPostExec(
   transaction: TransactionSerializablePostExec,
-): SerializeTransactionPostExecReturnType {
+): TransactionSerializedPostExec {
   // The payload follows the type byte as is, with no outer RLP list.
-  return concatHex([
-    '0x7d',
-    transaction.data,
-  ]) as SerializeTransactionPostExecReturnType
+  return concatHex(['0x7d', transaction.data]) as TransactionSerializedPostExec
 }
 
 function isDeposit(
