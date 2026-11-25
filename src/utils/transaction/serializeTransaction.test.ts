@@ -844,6 +844,9 @@ describe('legacy', () => {
       yParity: 1,
       type: 'legacy',
     })
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
+      serialized,
+    )
   })
 
   test('signature', () => {
@@ -895,6 +898,9 @@ describe('legacy', () => {
       type: 'legacy',
       v: 173n,
     })
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
+      serialized,
+    )
   })
 
   describe('errors', () => {

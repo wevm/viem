@@ -391,9 +391,18 @@ type SerializeTransactionLegacyErrorType =
 
 function serializeTransactionLegacy(
   transaction: TransactionSerializableLegacy,
-  signature?: SignatureLegacy | undefined,
+  signature_?: SignatureLegacy | undefined,
 ): TransactionSerializedLegacy {
   const { chainId = 0, gas, data, nonce, to, value, gasPrice } = transaction
+
+  // Fall back to the signature carried on the transaction (e.g. from `parseTransaction`).
+  const signature =
+    signature_ ??
+    (typeof transaction.r !== 'undefined' &&
+    typeof transaction.s !== 'undefined' &&
+    typeof transaction.v !== 'undefined'
+      ? { r: transaction.r, s: transaction.s, v: transaction.v }
+      : undefined)
 
   assertTransactionLegacy(transaction)
 
