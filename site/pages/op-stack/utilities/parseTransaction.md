@@ -29,7 +29,7 @@ import { parseTransaction } from 'viem/op-stack'
 const transaction = parseTransaction('0x7ef83ca018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808080')
 ```
 
-### Post-exec Transactions
+### Post-Exec Transactions
 
 It also parses post-exec transactions (`0x7d`-prefixed), which a sequencer appends to a block from OP Stack Upgrade 22 (Lagoon). The payload after the type byte is returned as `data`:
 

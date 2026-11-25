@@ -46,7 +46,7 @@ const serialized = serializeTransaction({
 })
 ```
 
-### Post-exec Transactions
+### Post-Exec Transactions
 
 It also serializes post-exec transactions from OP Stack Upgrade 22 (Lagoon), as the `0x7d` type byte followed by the payload:
 
@@ -94,7 +94,7 @@ const serialized = serializeTransaction({
 
 - **Type:** `Hex`
 
-Optional signature to include. **Ignored for deposit transactions.**
+Optional signature to include. **Ignored for deposit and post-exec transactions.**
 
 ```ts
 const serialized = serializeTransaction({

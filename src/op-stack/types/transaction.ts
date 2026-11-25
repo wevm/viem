@@ -159,10 +159,16 @@ export type TransactionSerializableDeposit<
 
 export type TransactionSerializedDeposit = `0x7e${string}`
 
+/** A post-exec transaction (type `0x7d`) to serialize. It has no signature. */
 export type TransactionSerializablePostExec = {
   /** The post-exec payload: the RLP list that follows the `0x7d` type byte. */
   data: Hex
+  /** The transaction type. */
   type: 'postExec'
 }
 
+/**
+ * A serialized post-exec transaction: the `0x7d` type byte followed by the
+ * payload.
+ */
 export type TransactionSerializedPostExec = `0x7d${string}`
