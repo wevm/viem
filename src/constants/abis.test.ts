@@ -535,6 +535,25 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "erc165Abi": [
+        {
+          "inputs": [
+            {
+              "name": "interfaceId",
+              "type": "bytes4",
+            },
+          ],
+          "name": "supportsInterface",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
       "erc20Abi": [
         {
           "inputs": [
