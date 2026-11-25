@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added block explorer and `multicall3` contract to `hyperliquidEvmTestnet`.
+Added the `multicall3` contract to `hyperliquidEvmTestnet`.

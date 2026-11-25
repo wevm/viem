@@ -7,12 +7,6 @@ export const hyperliquidEvmTestnet = /*#__PURE__*/ defineChain({
   fees: {
     baseFeeMultiplier: 2,
   },
-  blockExplorers: {
-    default: {
-      name: 'Purrsec',
-      url: 'https://testnet.purrsec.com',
-    },
-  },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
