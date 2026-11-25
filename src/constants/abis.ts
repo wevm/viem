@@ -379,7 +379,6 @@ export const erc165Abi = [
     ],
     outputs: [
       {
-        name: '',
         type: 'bool',
       },
     ],

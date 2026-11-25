@@ -546,7 +546,6 @@ test('exports abis', () => {
           "name": "supportsInterface",
           "outputs": [
             {
-              "name": "",
               "type": "bool",
             },
           ],
