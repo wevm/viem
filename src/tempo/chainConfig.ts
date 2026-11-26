@@ -167,13 +167,16 @@ export const chainConfig = {
             gas: storedTransaction.gas ?? 0n,
             maxFeePerGas: storedTransaction.maxFeePerGas ?? 0n,
             maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
-            // The sender. The client's account signs as the owner.
-            account: fromConfig(operation.account),
+            // Core preparation sets `from` to this account's address, so it names the sender:
+            // the parent of a configurable access key (TIP-1111), else the configurable account.
+            account: fromConfig(operation.userAddress ?? operation.account),
             from: operation.userAddress ?? operation.account,
             accountSimulation: {
               ...getAccountSimulation({ config: operation.config }),
               ...(operation.userAddress ? { signer: operation.account } : {}),
             },
+            // A prepared request signs through its account, which delegates to the owner.
+            owner: approver,
           } as unknown as typeof r
         }
 

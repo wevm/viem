@@ -2693,6 +2693,73 @@ describe('stateful', () => {
     `)
   })
 
+  test('behavior: a prepared hash approval signs as the owner account', async () => {
+    const owner_1 = tempo.accounts[1]
+    const owner_2 = tempo.accounts[2]
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x106143, { size: 32 }),
+      threshold: 2,
+    })
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    const pending = await sendTransactionSync(client, {
+      account,
+      calls: [{ to: tempo.accounts[20].address, value: 0n }],
+      owner: owner_1,
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      account: owner_2,
+      hash: pending.transactionHash,
+    })
+    const approval = await signTransaction(client, request as never)
+
+    // An owner approval is a signature envelope, not a serialized transaction.
+    expect(SignatureEnvelope.deserialize(approval).type).toMatchInlineSnapshot(
+      `"secp256k1"`,
+    )
+  })
+
+  test('behavior: an owner account approves a stored access key operation by hash', async () => {
+    const parent = tempo.accounts[0]
+    const owner_1 = tempo.accounts[4]
+    const owner_2 = tempo.accounts[5]
+    const accessKey = Account.fromConfig(
+      {
+        owners: [owner_1.address, owner_2.address],
+        salt: toHex(0x106144, { size: 32 }),
+        threshold: 2,
+      },
+      { access: parent },
+    )
+    await Actions.accessKey.authorizeSync(client, {
+      account: parent,
+      accessKey,
+      feeToken: tempo.feeToken,
+    })
+    const pending = await sendTransactionSync(client, {
+      account: accessKey,
+      calls: [{ to: tempo.accounts[20].address, value: 0n }],
+      feeToken: tempo.feeToken,
+      owner: owner_1,
+    })
+
+    const success = await sendTransactionSync(client, {
+      account: owner_2,
+      hash: pending.transactionHash,
+    })
+
+    expect(pending.operation?.userAddress).toBe(parent.address.toLowerCase())
+    expect(success.from).toBe(parent.address.toLowerCase())
+    expect(success.status).toMatchInlineSnapshot(`"success"`)
+  })
+
   test('behavior: coordinates access key authorization approvals', async () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
