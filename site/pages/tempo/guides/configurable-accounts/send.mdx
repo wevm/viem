@@ -171,6 +171,34 @@ quorum and the submitted receipt when an approval reaches quorum. A pending rece
 its `status` is `pending`, its `transactionHash` is the operation hash, and its block, gas, and log
 fields are empty or `null` because no transaction has been broadcast yet.
 
+#### Approve by Hash Alone
+
+The operation hash commits to the configurable account, so a later owner can pass its own account
+as `account` instead. A client whose account is the owner approves with only the hash:
+
+```ts
+import { Account, createClient, http, Relay, withRelay } from 'viem/tempo'
+import { store } from './store.db'
+
+const owner_3 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+const client = createClient({
+  account: owner_3, // [!code focus]
+  transport: withRelay(http(), {
+    plugins: [Relay.accounts({ store })],
+  }),
+})
+
+const receipt = await client.sendTransactionSync({
+  hash: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // [!code focus]
+})
+// @log: { status: 'success', transactionHash: '0x...', operation: { status: 'success', weight: 3, threshold: 3 } }
+```
+
+Viem reads the stored operation, checks that its hash matches, and signs the approval as the owner.
+An account that is not an owner of the operation's config is rejected before it signs.
+
 #### Inspect the Transaction
 
 Read the transaction by its operation hash to inspect the current quorum state:

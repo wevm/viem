@@ -151,6 +151,10 @@ export type TransactionRequestTempo<
     /** Fee-payer account, external relay URL, or sponsorship preference. */
     feePayer?: Account | boolean | string | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
+    /**
+     * Hash of a stored configurable account operation to approve. With an owner account as
+     * `account` and no `owner`, the operation names the configurable account.
+     */
     hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     /**

@@ -31,7 +31,11 @@ import { getAction } from '../utils/getAction.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { recoverAddress } from '../utils/signature/recoverAddress.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type { Account, ConfigurableAccount } from './Account.js'
+import {
+  type Account,
+  type ConfigurableAccount,
+  fromConfig,
+} from './Account.js'
 import {
   getMetadata,
   verifyHash as verifyAccessKey,
@@ -136,6 +140,46 @@ export const chainConfig = {
       }
 
       if (request.hash) {
+        // The operation hash commits to its account, so an owner account approves alone.
+        const approver =
+          request.account &&
+          typeof request.account !== 'string' &&
+          request.account.source === 'root' &&
+          !request.owner
+            ? request.account
+            : undefined
+        if (approver) {
+          const operation = await getStoredOperation(client, request.hash)
+          if (
+            !operation.config.owners.some(({ owner }) =>
+              isAddressEqual(owner, approver.address),
+            )
+          )
+            throw new Error(
+              'Owner account is not an owner of the stored account operation.',
+            )
+          const storedTransaction = Transaction.deserialize(
+            operation.transaction as Transaction.TransactionSerializedTempo,
+          )
+          return {
+            ...storedTransaction,
+            // Serialized zero values must not trigger a new fill of an approved transaction.
+            gas: storedTransaction.gas ?? 0n,
+            maxFeePerGas: storedTransaction.maxFeePerGas ?? 0n,
+            maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
+            // Core preparation sets `from` to this account's address, so it names the sender:
+            // the parent of a configurable access key (TIP-1111), else the configurable account.
+            account: fromConfig(operation.userAddress ?? operation.account),
+            from: operation.userAddress ?? operation.account,
+            accountSimulation: {
+              ...getAccountSimulation({ config: operation.config }),
+              ...(operation.userAddress ? { signer: operation.account } : {}),
+            },
+            // A prepared request signs through its account, which delegates to the owner.
+            owner: approver,
+          } as unknown as typeof r
+        }
+
         // A configurable access key (TIP-1111) approves as its delegate, for its parent.
         const local = (() => {
           const account = request.account
@@ -159,19 +203,7 @@ export const chainConfig = {
           throw new Error(
             'A Tempo owner account is required to approve a stored configurable account transaction.',
           )
-        const transaction = await getAction(
-          client,
-          getTransaction,
-          'getTransaction',
-        )({ hash: request.hash })
-        const operation =
-          'operation' in transaction
-            ? (transaction.operation as
-                | AccountOperation.TransactionOperation
-                | undefined)
-            : undefined
-        if (!operation)
-          throw new Error('Expected an account operation transaction.')
+        const operation = await getStoredOperation(client, request.hash)
         const parent = local === request.account ? undefined : request.account
         if (
           !isAddressEqual(operation.account, local.address) ||
@@ -186,15 +218,6 @@ export const chainConfig = {
         const storedTransaction = Transaction.deserialize(
           operation.transaction as Transaction.TransactionSerializedTempo,
         )
-        const hash = AccountOperation.getHash({
-          account: operation.account,
-          config: operation.config,
-          transaction: operation.transaction,
-          type: 'transaction',
-          userAddress: operation.userAddress,
-        })
-        if (hash.toLowerCase() !== request.hash.toLowerCase())
-          throw new Error('Account operation hash does not match transaction.')
         return {
           ...storedTransaction,
           // Serialized zero values must not trigger a new fill of an approved transaction.
@@ -662,6 +685,35 @@ async function isRegistered(client: Client, key: KeyAuthorizationManager.Key) {
     !metadata.isRevoked &&
     metadata.expiry > BigInt(Math.floor(Date.now() / 1000))
   )
+}
+
+/**
+ * Reads a stored account operation by its hash, and checks that the hash commits to the
+ * operation's account, config, and transaction.
+ */
+async function getStoredOperation(client: Client, hash: Hex.Hex) {
+  const transaction = await getAction(
+    client,
+    getTransaction,
+    'getTransaction',
+  )({ hash })
+  const operation =
+    'operation' in transaction
+      ? (transaction.operation as
+          | AccountOperation.TransactionOperation
+          | undefined)
+      : undefined
+  if (!operation) throw new Error('Expected an account operation transaction.')
+  const hash_operation = AccountOperation.getHash({
+    account: operation.account,
+    config: operation.config,
+    transaction: operation.transaction,
+    type: 'transaction',
+    userAddress: operation.userAddress,
+  })
+  if (hash_operation.toLowerCase() !== hash.toLowerCase())
+    throw new Error('Account operation hash does not match transaction.')
+  return operation
 }
 
 /** Whether each transport serves the `account_*` methods, by transport. */
