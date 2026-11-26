@@ -1,5 +1,11 @@
 # viem
 
+## 2.58.8
+
+### Patch Changes
+
+- [#5675](https://github.com/wevm/viem/pull/5675) [`c667e59568348de4ff07e09ff788d1dcdfb72445`](https://github.com/wevm/viem/commit/c667e59568348de4ff07e09ff788d1dcdfb72445) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added hash-only approvals of stored configurable account transactions, where the owner account is passed as `account` (or hoisted on the client) and Viem infers the configurable account from the operation.
+
 ## 2.58.7
 
 ### Patch Changes
