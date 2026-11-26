@@ -423,7 +423,6 @@ export declare namespace fromSecp256k1 {
  * import { Account } from 'viem/tempo'
  *
  * const account = Account.fromConfig({
- *   address: 'infer',
  *   owners: [owner_1, owner_2],
  *   threshold: 2,
  * })

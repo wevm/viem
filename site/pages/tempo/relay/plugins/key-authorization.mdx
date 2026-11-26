@@ -94,7 +94,6 @@ import { client } from './viem.config'
 const owner_1 = Account.fromSecp256k1(generatePrivateKey())
 const owner_2 = Account.fromSecp256k1(generatePrivateKey())
 const account = Account.fromConfig({
-  address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
 })

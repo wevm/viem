@@ -9,9 +9,8 @@ it to `infer` to derive the account address: the last 20 bytes of a keccak256 ha
 version-0 config. After the config changes, use the stable address and pass the current config
 fields.
 
-:::warning
-**Experimental.** Configurable account support is experimental and may change in a future release.
-It is not yet available on Tempo mainnet or testnet.
+:::info
+Configurable accounts are only available on Tempo testnet. Mainnet support is coming on December 8.
 :::
 
 Owners can be local accounts, addresses, or weighted owner entries. Direct owners have a
@@ -39,7 +38,6 @@ const owner_2 = Account.fromSecp256k1(
 )
 
 const account = Account.fromConfig({
-  address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
 })
@@ -112,7 +110,7 @@ current config from its store. Otherwise, provide the config through `{ address,
 before sending.
 
 :::tip
-Keep using `address: 'infer'` while the account remains at version `0`. After a config update,
+Omit `address` while the account remains at version `0`. After a config update,
 use the stable address with the new config.
 :::
 
@@ -124,7 +122,6 @@ Pass addresses when owner approvals are collected outside the current process.
 import { Account } from 'viem/tempo'
 
 const account = Account.fromConfig({
-  address: 'infer',
   owners: [
     '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
@@ -145,7 +142,6 @@ const owner = Account.fromSecp256k1(
 )
 
 const account = Account.fromConfig({
-  address: 'infer',
   owners: [
     { owner, weight: 2 },
     { owner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', weight: 1 },
@@ -186,7 +182,7 @@ const client = createClient()
 const owner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
-const account = Account.fromConfig({ address: 'infer', owners: [owner] })
+const account = Account.fromConfig({ owners: [owner] })
 
 const signature = await account.signMessage({ message: 'hello' })
 

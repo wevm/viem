@@ -34,7 +34,7 @@ import type * as Transaction from '../Transaction.js'
  *
  * The precompile validates the config and derives the address from its hash.
  * To derive the address locally, use
- * `AccountConfig.getAddress` or `Account.fromConfig({ address: 'infer' })`.
+ * `AccountConfig.getAddress` or `Account.fromConfig` with an initial config.
  *
  * @example
  * ```ts
@@ -297,7 +297,6 @@ export declare namespace getOperation {
  *   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
  * )
  * const account = Account.fromConfig({
- *   address: 'infer',
  *   owners: [owner],
  * })
  * const client = createClient({

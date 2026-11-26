@@ -2268,6 +2268,48 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Configurable Accounts',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Overview',
+                  link: '/tempo/guides/configurable-accounts',
+                },
+                {
+                  text: 'Send Transactions',
+                  link: '/tempo/guides/configurable-accounts/send',
+                },
+                {
+                  text: 'Weighted Owners',
+                  link: '/tempo/guides/configurable-accounts/weighted-owners',
+                },
+                {
+                  text: 'Passkeys & Other Keys',
+                  link: '/tempo/guides/configurable-accounts/key-types',
+                },
+                {
+                  text: 'Authorize Access Keys',
+                  link: '/tempo/guides/configurable-accounts/access-keys',
+                },
+                {
+                  text: 'Sponsor Fees',
+                  link: '/tempo/guides/configurable-accounts/sponsor-fees',
+                },
+                {
+                  text: 'Rotate Owners',
+                  link: '/tempo/guides/configurable-accounts/rotate-owners',
+                },
+                {
+                  text: 'Upgrade an Account',
+                  link: '/tempo/guides/configurable-accounts/upgrade',
+                },
+                {
+                  text: 'Migrate an Account',
+                  link: '/tempo/guides/configurable-accounts/migrate',
+                },
+              ],
+            },
+            {
               text: 'Tempo Transactions',
               collapsed: true,
               items: [
@@ -2554,49 +2596,6 @@ export default defineConfig({
                 },
               ],
             },
-            {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'Configurable Accounts',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/guides/configurable-accounts',
-                },
-                {
-                  text: 'Send Transactions',
-                  link: '/tempo/guides/configurable-accounts/send',
-                },
-                {
-                  text: 'Weighted Owners',
-                  link: '/tempo/guides/configurable-accounts/weighted-owners',
-                },
-                {
-                  text: 'Passkeys & Other Keys',
-                  link: '/tempo/guides/configurable-accounts/key-types',
-                },
-                {
-                  text: 'Authorize Access Keys',
-                  link: '/tempo/guides/configurable-accounts/access-keys',
-                },
-                {
-                  text: 'Sponsor Fees',
-                  link: '/tempo/guides/configurable-accounts/sponsor-fees',
-                },
-                {
-                  text: 'Rotate Owners',
-                  link: '/tempo/guides/configurable-accounts/rotate-owners',
-                },
-                {
-                  text: 'Upgrade an Account',
-                  link: '/tempo/guides/configurable-accounts/upgrade',
-                },
-                {
-                  text: 'Migrate an Account',
-                  link: '/tempo/guides/configurable-accounts/migrate',
-                },
-              ],
-            },
           ],
         },
         {
@@ -2623,7 +2622,6 @@ export default defineConfig({
               link: '/tempo/accounts/account.fromWebCryptoP256',
             },
             {
-              badge: { text: 'EXP', variant: 'warning' },
               text: 'Configurable',
               link: '/tempo/accounts/account.fromConfig',
             },
