@@ -107,7 +107,8 @@ export type CreateClientErrorType = ErrorType
  * client can be created with `createClient()`. Pass `testnet` to use the
  * Tempo testnet, or `chain` to override the chain entirely. Pass `feeToken`
  * to set a default fee token for every transaction. Use `withRelay` with a
- * `Relay.accounts` plugin to coordinate owner approvals.
+ * `Relay.accounts` plugin, or `http` to a relay that serves the `account_*`
+ * methods, to coordinate owner approvals.
  *
  * @example
  * ```ts

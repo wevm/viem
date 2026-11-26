@@ -29,6 +29,26 @@ const client = createClient({
 })
 ```
 
+### Send All Requests to a Relay
+
+A relay created with [`Relay.create`](/tempo/utilities/Relay.create) forwards
+the requests its plugins do not handle to the execution RPC. Pass its URL to `http`
+to send every request to it.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+
+const client = createClient({
+  chain: tempo,
+  transport: http('https://relay.example.com'), // [!code focus]
+})
+```
+
+When the relay serves the `account_*` methods through
+[`Relay.accounts`](/tempo/relay/plugins/accounts), Viem detects them on the first
+owner-approved transaction and coordinates approvals as it does with `withRelay`.
+
 ### Connect to a Local Relay
 
 Pass plugins to `withRelay` to run a relay inside the application. Requests pass

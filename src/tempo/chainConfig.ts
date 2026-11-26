@@ -16,6 +16,10 @@ import type { Client } from '../clients/createClient.js'
 import { maxUint256 } from '../constants/number.js'
 import { BaseError } from '../errors/base.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
+import {
+  MethodNotFoundRpcError,
+  MethodNotSupportedRpcError,
+} from '../errors/rpc.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import type { RpcBlock } from '../types/rpc.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
@@ -262,7 +266,10 @@ export const chainConfig = {
       const coordinated =
         (!!configurableIdentity || !!delegate) &&
         !!request.owner &&
-        (client.transport as { accounts?: boolean }).accounts === true
+        (await supportsAccounts(
+          client,
+          configurableIdentity?.account ?? delegate!.address,
+        ))
       if (configurableIdentity) {
         const { account, local } = configurableIdentity
         if (!configurableIdentity.config && !coordinated)
@@ -289,7 +296,7 @@ export const chainConfig = {
       if (delegate) {
         const config =
           delegate.config ??
-          ((client.transport as { accounts?: boolean }).accounts === true
+          ((await supportsAccounts(client, delegate.address))
             ? await getAction(
                 client,
                 getConfig,
@@ -655,6 +662,38 @@ async function isRegistered(client: Client, key: KeyAuthorizationManager.Key) {
     !metadata.isRevoked &&
     metadata.expiry > BigInt(Math.floor(Date.now() / 1000))
   )
+}
+
+/** Whether each transport serves the `account_*` methods, by transport. */
+const accountsSupport = new WeakMap<object, Promise<boolean>>()
+
+/**
+ * Whether the client's transport serves the `account_*` methods. Relay transports advertise
+ * them; other transports, such as `http` to a relay with `Relay.accounts`, answer one
+ * `account_getConfig` probe. Only a definitive answer is cached.
+ */
+async function supportsAccounts(client: Client, address: Address) {
+  const { transport } = client
+  if ((transport as { accounts?: boolean }).accounts === true) return true
+  const cached = accountsSupport.get(transport)
+  if (cached) return cached
+  const supported = getAction(
+    client,
+    getConfig,
+    'getConfig',
+  )({ address }).then(
+    () => true,
+    (error) => {
+      if (
+        !(error instanceof MethodNotFoundRpcError) &&
+        !(error instanceof MethodNotSupportedRpcError)
+      )
+        accountsSupport.delete(transport)
+      return false
+    },
+  )
+  accountsSupport.set(transport, supported)
+  return supported
 }
 
 /**

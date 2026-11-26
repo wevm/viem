@@ -105,9 +105,9 @@ const account = Account.fromConfig(
 )
 ```
 
-An address-only account contains no config or local owner keys. A coordinated client can load the
-current config from its store. Otherwise, provide the config through `{ address, ...config }`
-before sending.
+An address-only account contains no config or local owner keys. A client connected to a relay
+with [`Relay.accounts`](/tempo/relay/plugins/accounts) can load the current config from the
+relay. Otherwise, provide the config through `{ address, ...config }` before sending.
 
 :::tip
 Omit `address` while the account remains at version `0`. After a config update,

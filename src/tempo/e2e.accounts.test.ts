@@ -3874,3 +3874,80 @@ test('infers the chain for independent owners through a Fetch relay', async () =
     )
   }
 })
+
+test('coordinates pending operations through an http transport to a Fetch relay', async () => {
+  const relay = Relay.create({
+    client: createClient({ chain: tempo.chain, transport: tempo.http() }),
+    plugins: [Relay.accounts({ store: Store.memory() })],
+  })
+  const server = createServer(createRequestListener(relay.fetch))
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+  try {
+    const address = server.address()
+    if (!address || typeof address === 'string')
+      throw new Error('Expected TCP listener')
+    const client = createClient({
+      chain: tempo.chain,
+      transport: http(`http://127.0.0.1:${address.port}`),
+    })
+    const owner_1 = tempo.accounts[15]
+    const owner_2 = tempo.accounts[16]
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1, owner_2],
+      threshold: 2,
+      salt: toHex(0x68747470, { size: 32 }),
+    })
+    await Actions.token.transferSync(tempo.getClient(), {
+      account: tempo.accounts[0],
+      amount: 10_000_000n,
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const pending_1 = await sendTransactionSync(client, {
+      account,
+      calls: [{ data: '0x01', to: tempo.accounts[19].address }],
+      owner: owner_1,
+    })
+    // An address-only account loads its config from the relay.
+    const pending_2 = await sendTransactionSync(client, {
+      account: Account.fromConfig(account.address),
+      calls: [{ data: '0x02', to: tempo.accounts[19].address }],
+      owner: owner_1,
+    })
+    const [transaction_1, transaction_2] = await Promise.all(
+      [pending_1, pending_2].map(async ({ transactionHash }) => {
+        const { operation } = await getTransaction(client, {
+          hash: transactionHash,
+        })
+        if (!operation) throw new Error('Expected an account operation.')
+        return TxEnvelopeTempo.deserialize(operation.transaction as never)
+      }),
+    )
+    expect(transaction_1!.nonceKey).not.toBe(0n)
+    expect(transaction_2!.nonceKey).not.toBe(0n)
+    expect(transaction_1!.nonceKey).not.toBe(transaction_2!.nonceKey)
+
+    const success_1 = await sendTransactionSync(client, {
+      account,
+      hash: pending_1.transactionHash,
+      owner: owner_2,
+    })
+    const success_2 = await sendTransactionSync(client, {
+      account,
+      hash: pending_2.transactionHash,
+      owner: owner_2,
+    })
+    expect([success_1.status, success_2.status]).toMatchInlineSnapshot(`
+      [
+        "success",
+        "success",
+      ]
+    `)
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    )
+  }
+})
