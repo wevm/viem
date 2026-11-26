@@ -7,6 +7,8 @@ import { formatBlock } from './block.js'
 const block: RpcBlock = {
   blobGasUsed: '0x1',
   baseFeePerGas: '0x0',
+  blockAccessListHash:
+    '0xe2deb3f76d4651ab26db12814e05561156d8fe0b83576dcf8244d9ecbf9e4585',
   difficulty: '0x2d3a678cddba9b',
   excessBlobGas: '0x2',
   extraData: '0x',
@@ -30,6 +32,7 @@ const block: RpcBlock = {
   sha3Uncles:
     '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
   size: '0x208',
+  slotNumber: '0xb1fcec',
   stateRoot:
     '0x0000000000000000000000000000000000000000000000000000000000000000',
   timestamp: '0x63198f6f',
@@ -48,6 +51,7 @@ test('deserializes block', () => {
     {
       "baseFeePerGas": 0n,
       "blobGasUsed": 1n,
+      "blockAccessListHash": "0xe2deb3f76d4651ab26db12814e05561156d8fe0b83576dcf8244d9ecbf9e4585",
       "difficulty": 12730590371363483n,
       "excessBlobGas": 2n,
       "extraData": "0x",
@@ -67,6 +71,7 @@ test('deserializes block', () => {
       ],
       "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
       "size": 520n,
+      "slotNumber": 11664620n,
       "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "timestamp": 1662619503n,
       "totalDifficulty": 1n,
@@ -101,6 +106,7 @@ test('nullish values', () => {
     {
       "baseFeePerGas": null,
       "blobGasUsed": undefined,
+      "blockAccessListHash": "0xe2deb3f76d4651ab26db12814e05561156d8fe0b83576dcf8244d9ecbf9e4585",
       "difficulty": undefined,
       "excessBlobGas": undefined,
       "extraData": "0x",
@@ -120,6 +126,7 @@ test('nullish values', () => {
       ],
       "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
       "size": undefined,
+      "slotNumber": 11664620n,
       "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "timestamp": undefined,
       "totalDifficulty": null,
