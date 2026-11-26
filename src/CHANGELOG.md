@@ -1,5 +1,17 @@
 # viem
 
+## 2.58.7
+
+### Patch Changes
+
+- [#5653](https://github.com/wevm/viem/pull/5653) [`7a949ed6a8f05b7c8a1460101fbc190f6f1993e8`](https://github.com/wevm/viem/commit/7a949ed6a8f05b7c8a1460101fbc190f6f1993e8) Thanks [@abhijitkrm](https://github.com/abhijitkrm)! - Added Primium Testnet (Chain ID: 1234571) to the supported chains.
+
+- [#5654](https://github.com/wevm/viem/pull/5654) [`9562ba0587f0e2b4b1b255ee6509004483f900f8`](https://github.com/wevm/viem/commit/9562ba0587f0e2b4b1b255ee6509004483f900f8) Thanks [@VenomekPL](https://github.com/VenomekPL)! - Added TSX Horizon (Chain ID: 455), TSX Bastion (Chain ID: 454) and TSX Testnet (Chain ID: 445) to the supported chains.
+
+- [#5672](https://github.com/wevm/viem/pull/5672) [`64aef962b516c2d29d77c13f5c37df7de907871c`](https://github.com/wevm/viem/commit/64aef962b516c2d29d77c13f5c37df7de907871c) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Coordinated owner-approved transactions through any transport that serves the `account_*` methods, such as `http` to a relay with `Relay.accounts`, instead of only through `withRelay`.
+
+- [#5656](https://github.com/wevm/viem/pull/5656) [`68291acb8c951ee8e5edafdddec59338f47c4dfc`](https://github.com/wevm/viem/commit/68291acb8c951ee8e5edafdddec59338f47c4dfc) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Added the ERC-20 metadata functions `name`, `symbol`, and `decimals` that ERC-4626 vaults must implement to `erc4626Abi`.
+
 ## 2.58.6
 
 ### Patch Changes
