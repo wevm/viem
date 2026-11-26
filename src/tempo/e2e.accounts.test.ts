@@ -2527,6 +2527,172 @@ describe('stateful', () => {
     )
   })
 
+  test('behavior: an owner account approves a stored operation by hash (initial config)', async () => {
+    const owner_1 = tempo.accounts[1]
+    const owner_2 = tempo.accounts[2]
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x106140, { size: 32 }),
+      threshold: 2,
+    })
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const pending = await sendTransactionSync(client, {
+      account,
+      calls: [{ to: tempo.accounts[20].address, value: 0n }],
+      owner: owner_1,
+    })
+    const success = await sendTransactionSync(client, {
+      account: owner_2,
+      hash: pending.transactionHash,
+    })
+
+    expect(pending.operation?.config.version).toBe(0n)
+    expect(success.from).toBe(account.address.toLowerCase())
+    expect({
+      operation: {
+        status: success.operation?.status,
+        threshold: success.operation?.threshold,
+        weight: success.operation?.weight,
+      },
+      status: success.status,
+    }).toMatchInlineSnapshot(`
+      {
+        "operation": {
+          "status": "success",
+          "threshold": 2,
+          "weight": 2,
+        },
+        "status": "success",
+      }
+    `)
+  })
+
+  test('behavior: an owner account approves a stored operation by hash (current config)', async () => {
+    const owner_1 = tempo.accounts[1]
+    const owner_2 = tempo.accounts[2]
+    const owner_3 = tempo.accounts[3]
+    const transport = withRelay(tempo.http(), {
+      plugins: [Relay.accounts({ store: Store.memory() })],
+    })
+    const client = createClient({
+      chain: tempoLocalnet,
+      tokens: tempo.tokens,
+      transport,
+    })
+    // The owner is the client's account, so a hash approval takes no parameters besides `hash`.
+    const client_owner = createClient({
+      account: owner_3,
+      chain: tempoLocalnet,
+      tokens: tempo.tokens,
+      transport,
+    })
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x106141, { size: 32 }),
+      threshold: 2,
+    })
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    const { receipt: update } = await Actions.accounts.updateConfigSync(
+      client,
+      {
+        account,
+        nextConfig: {
+          owners: [
+            { owner: owner_1.address, weight: 1 },
+            { owner: owner_3.address, weight: 1 },
+          ],
+          threshold: 2,
+        },
+        owner: owner_1,
+      },
+    )
+    assertSuccess(
+      await sendTransactionSync(client, {
+        account: owner_2,
+        hash: update.transactionHash,
+      }),
+    )
+
+    const pending = await sendTransactionSync(client, {
+      account: Account.fromConfig(account.address),
+      calls: [{ to: tempo.accounts[20].address, value: 0n }],
+      owner: owner_1,
+    })
+    const success = await sendTransactionSync(client_owner, {
+      hash: pending.transactionHash,
+    })
+
+    expect(pending.operation?.config.version).toBe(1n)
+    expect(success.from).toBe(account.address.toLowerCase())
+    expect({
+      operation: {
+        status: success.operation?.status,
+        threshold: success.operation?.threshold,
+        weight: success.operation?.weight,
+      },
+      status: success.status,
+    }).toMatchInlineSnapshot(`
+      {
+        "operation": {
+          "status": "success",
+          "threshold": 2,
+          "weight": 2,
+        },
+        "status": "success",
+      }
+    `)
+  })
+
+  test('behavior: rejects a hash approval from an account that does not own the operation', async () => {
+    const owner_1 = tempo.accounts[1]
+    const owner_2 = tempo.accounts[2]
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x106142, { size: 32 }),
+      threshold: 2,
+    })
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    const pending = await sendTransactionSync(client, {
+      account,
+      calls: [{ to: tempo.accounts[20].address, value: 0n }],
+      owner: owner_1,
+    })
+
+    await expect(
+      sendTransactionSync(client, {
+        account: tempo.accounts[3],
+        hash: pending.transactionHash,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: An error occurred.
+
+      Request Arguments:
+        from:  0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2
+
+      Details: Owner account is not an owner of the stored account operation.
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('behavior: coordinates access key authorization approvals', async () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
