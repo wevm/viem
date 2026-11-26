@@ -1,14 +1,33 @@
 import type { Address } from 'abitype'
-import { SignatureErc8010 } from 'ox/erc8010'
 import type { ErrorType } from '../../errors/utils.js'
 import type { SignedAuthorization } from '../../types/authorization.js'
 import type { Hex } from '../../types/misc.js'
 import type { OneOf, Prettify } from '../../types/utils.js'
+import { decodeAbiParameters } from '../abi/decodeAbiParameters.js'
+import { sliceHex } from '../data/slice.js'
+import { hexToNumber } from '../encoding/fromHex.js'
 import { numberToHex } from '../encoding/toHex.js'
 import {
   type IsErc8010SignatureErrorType,
   isErc8010Signature,
 } from './isErc8010Signature.js'
+
+/** ABI of the suffix an ERC-8010 wrapped signature carries before its length and magic bytes. */
+const suffixParameters = [
+  {
+    type: 'tuple',
+    components: [
+      { name: 'chainId', type: 'uint256' },
+      { name: 'delegation', type: 'address' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'yParity', type: 'uint8' },
+      { name: 'r', type: 'uint256' },
+      { name: 's', type: 'uint256' },
+    ],
+  },
+  { name: 'to', type: 'address' },
+  { name: 'data', type: 'bytes' },
+] as const
 
 export type ParseErc8010SignatureParameters = Hex
 
@@ -47,21 +66,23 @@ export function parseErc8010Signature(
 ): ParseErc8010SignatureReturnType {
   if (!isErc8010Signature(signature)) return { signature }
 
-  const {
-    authorization: authorization_ox,
-    to,
-    ...rest
-  } = SignatureErc8010.unwrap(signature)
+  const suffixLength = hexToNumber(sliceHex(signature, -64, -32))
+  const [auth, to, data] = decodeAbiParameters(
+    suffixParameters,
+    sliceHex(signature, -suffixLength - 64, -64),
+  )
+  // Addresses stay lowercase, as the wrapped signature encodes them.
   return {
     authorization: {
-      address: authorization_ox.address,
-      chainId: authorization_ox.chainId,
-      nonce: Number(authorization_ox.nonce),
-      r: numberToHex(authorization_ox.r, { size: 32 }),
-      s: numberToHex(authorization_ox.s, { size: 32 }),
-      yParity: authorization_ox.yParity,
+      address: auth.delegation.toLowerCase() as Address,
+      chainId: Number(auth.chainId),
+      nonce: Number(auth.nonce),
+      r: numberToHex(auth.r, { size: 32 }),
+      s: numberToHex(auth.s, { size: 32 }),
+      yParity: auth.yParity,
     },
-    ...(to ? { address: to } : {}),
-    ...rest,
+    ...(data !== '0x' ? { address: to.toLowerCase() as Address } : {}),
+    signature: sliceHex(signature, 0, -suffixLength - 64),
+    ...(data !== '0x' ? { data } : {}),
   }
 }

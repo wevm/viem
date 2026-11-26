@@ -10,6 +10,10 @@ import {
   type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
+import {
+  IntegerOutOfRangeError,
+  type IntegerOutOfRangeErrorType,
+} from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import {
@@ -27,6 +31,7 @@ import {
   type BytesToBoolErrorType,
   type BytesToNumberErrorType,
   type BytesToStringErrorType,
+  bytesToBigInt,
   bytesToBool,
   bytesToNumber,
 } from '../encoding/fromBytes.js'
@@ -400,12 +405,27 @@ function decodeBytes(cursor: Cursor, budget: Budget, staticPosition: number) {
 type DecodeNumberErrorType =
   | BytesToNumberErrorType
   | BytesToBigIntErrorType
+  | IntegerOutOfRangeErrorType
   | ErrorType
 
 function decodeNumber(cursor: Cursor, param: CompiledParam) {
   const { signed, size } = param
   const position = cursor.position
   const value = cursor.readBytes(32)
+  if (size < 256) {
+    // The bytes above the type's size must be zero, or the sign extension of a negative intN.
+    const start = 32 - size / 8
+    const fill = signed && value[start]! >= 0x80 ? 0xff : 0
+    for (let i = 0; i < start; i++)
+      if (value[i] !== fill)
+        throw new IntegerOutOfRangeError({
+          max: `${signed ? 2n ** BigInt(size - 1) - 1n : 2n ** BigInt(size) - 1n}`,
+          min: `${signed ? -(2n ** BigInt(size - 1)) : 0n}`,
+          signed,
+          size: size / 8,
+          value: `${bytesToBigInt(value, { signed })}`,
+        })
+  }
   if (!(size > 48)) return wordToNumber(value, signed)
   // Read the word as four big-endian 64-bit limbs.
   const view = cursor.dataView

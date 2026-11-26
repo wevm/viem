@@ -1,4 +1,4 @@
-import { parseAbi } from 'abitype'
+import { type Abi, parseAbi } from 'abitype'
 import { erc20Abi } from 'abitype/abis'
 import { encodeFunctionData } from 'viem'
 import { expect, test } from 'vitest'
@@ -348,6 +348,18 @@ test('errors: abi item not a function', () => {
         },
       ],
     }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiFunctionNotFoundError: Function not found on ABI.
+    Make sure you are using the correct ABI and that the function exists on it.
+
+    Docs: https://viem.sh/docs/contract/encodeFunctionData
+    Version: viem@x.y.z]
+  `)
+})
+
+test('errors: empty abi', () => {
+  expect(() =>
+    encodeFunctionData({ abi: [] as Abi }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [AbiFunctionNotFoundError: Function not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.

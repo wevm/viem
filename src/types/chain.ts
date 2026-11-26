@@ -20,9 +20,13 @@ import type { IsNarrowable, IsUndefined, Prettify } from '../types/utils.js'
 import type { FormattedBlock } from '../utils/formatters/block.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 
+// `out` matches the variance TypeScript measures. Declaring it spares every program that
+// relates two `Chain` types from measuring it, which compares every fee and serializer type.
 export type Chain<
-  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  extendSchema extends Record<string, unknown> | undefined =
+  out formatters extends ChainFormatters | undefined =
+    | ChainFormatters
+    | undefined,
+  out extendSchema extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
 > = {
@@ -72,39 +76,8 @@ export type Chain<
   supportsTransactionReplacementDetection?: boolean | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
-} & ChainConfig<formatters, extendSchema>
-
-/////////////////////////////////////////////////////////////////////
-// Config
-/////////////////////////////////////////////////////////////////////
-
-type PrepareTransactionRequestPhase =
-  | 'beforeFillTransaction'
-  | 'afterFillTransactionError'
-  | 'beforeFillParameters'
-  | 'afterFillParameters'
-
-type PrepareTransactionRequestFn = (
-  args: PrepareTransactionRequestParameters,
-  options: {
-    client: Client
-    /** Error from `eth_fillTransaction`. Set in the `afterFillTransactionError` phase. */
-    error?: unknown
-    phase: PrepareTransactionRequestPhase
-  },
-) => Promise<PrepareTransactionRequestParameters | undefined>
-
-type ChainVerifyHashFn = (
-  client: Client,
-  parameters: VerifyHashParameters,
-) => Promise<VerifyHashReturnType>
-
-export type ChainConfig<
-  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  extendSchema extends Record<string, unknown> | undefined =
-    | Record<string, unknown>
-    | undefined,
-> = {
+  // Config fields, which `ChainConfig` picks. Declaring them here keeps `Chain` one object
+  // type, which an intersection is not, so it can declare variance.
   /** Custom chain data. @deprecated use `.extend` instead. */
   custom?: extendSchema | undefined
   /** Extend schema. */
@@ -141,6 +114,48 @@ export type ChainConfig<
   /** Chain-specific signature verification. */
   verifyHash?: ChainVerifyHashFn | undefined
 }
+
+/////////////////////////////////////////////////////////////////////
+// Config
+/////////////////////////////////////////////////////////////////////
+
+type PrepareTransactionRequestPhase =
+  | 'beforeFillTransaction'
+  | 'afterFillTransactionError'
+  | 'beforeFillParameters'
+  | 'afterFillParameters'
+
+type PrepareTransactionRequestFn = (
+  args: PrepareTransactionRequestParameters,
+  options: {
+    client: Client
+    /** Error from `eth_fillTransaction`. Set in the `afterFillTransactionError` phase. */
+    error?: unknown
+    phase: PrepareTransactionRequestPhase
+  },
+) => Promise<PrepareTransactionRequestParameters | undefined>
+
+type ChainVerifyHashFn = (
+  client: Client,
+  parameters: VerifyHashParameters,
+) => Promise<VerifyHashReturnType>
+
+export type ChainConfig<
+  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+  extendSchema extends Record<string, unknown> | undefined =
+    | Record<string, unknown>
+    | undefined,
+> = Pick<
+  Chain<formatters, extendSchema>,
+  | 'custom'
+  | 'extendSchema'
+  | 'fees'
+  | 'formatters'
+  | 'prepareTransactionRequest'
+  | 'serializers'
+  | 'transactionReplacement'
+  | 'verifyHash'
+>
 
 /////////////////////////////////////////////////////////////////////
 // Transaction replacement
@@ -226,8 +241,13 @@ export type ChainMaxPriorityFeePerGasFn<
   args: ChainFeesFnParameters<formatters>,
 ) => Promise<bigint | null> | bigint | null
 
+// `out` spares relating a chain object, such as `mainnet`, to `Chain` from measuring the
+// variance of every fee function. TypeScript measures it as bivariant, which no annotation
+// expresses; `out` agrees with `Chain`'s own `formatters`.
 export type ChainFees<
-  formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
+  out formatters extends ChainFormatters | undefined =
+    | ChainFormatters
+    | undefined,
 > = {
   /**
    * The fee multiplier to use to account for fee fluctuations.
@@ -285,10 +305,13 @@ export type ChainFormatter<type extends string = string> = {
 // Serializers
 /////////////////////////////////////////////////////////////////////
 
+// `out` spares relating a chain object to `Chain` from measuring the variance of
+// `SerializeTransactionFn`, which compares every transaction type. `formatters` only sets
+// `transaction`'s default, so TypeScript measures it as independent at no cost.
 export type ChainSerializers<
   formatters extends ChainFormatters | undefined = undefined,
   ///
-  transaction extends
+  out transaction extends
     TransactionSerializableGeneric = formatters extends ChainFormatters
     ? formatters['transactionRequest'] extends ChainFormatter
       ? TransactionSerializableGeneric &

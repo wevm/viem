@@ -175,15 +175,15 @@ export async function claimFailedDeposit<
   if (successL2ToL1Log?.value !== zeroHash)
     throw new CannotClaimSuccessfulDepositError({ hash: depositHash })
 
-  const tx = await getTransaction(l2Client, { hash: depositHash })
-
   // Undo the aliasing, since the Mailbox contract set it as for contract address.
   const l1BridgeAddress = undoL1ToL2Alias(receipt.from)
   const l2BridgeAddress = receipt.to
   if (!l2BridgeAddress) throw new L2BridgeNotFoundError()
 
-  const l1NativeTokenVault = (await getBridgeAddresses(client, l2Client))
-    .l1NativeTokenVault
+  const [tx, { l1NativeTokenVault }] = await Promise.all([
+    getTransaction(l2Client, { hash: depositHash }),
+    getBridgeAddresses(client, l2Client),
+  ])
 
   let depositSender: Hex
   let assetId: Hex

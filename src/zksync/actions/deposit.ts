@@ -985,12 +985,14 @@ async function getFeePrice<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
 ) {
   const client_ = client.extend(publicActions)
-  const block = await client_.getBlock()
+  const [block, maxPriorityFeePerGas] = await Promise.all([
+    client_.getBlock(),
+    client_.estimateMaxPriorityFeePerGas(),
+  ])
   const baseFee =
     typeof block.baseFeePerGas !== 'bigint'
       ? await client_.getGasPrice()
       : block.baseFeePerGas
-  const maxPriorityFeePerGas = await client_.estimateMaxPriorityFeePerGas()
 
   return {
     maxFeePerGas: (baseFee * 3n) / 2n + maxPriorityFeePerGas,

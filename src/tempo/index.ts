@@ -1,5 +1,7 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { Bytes, PublicKey, Secp256k1 } from 'ox'
+export * as Bytes from 'ox/Bytes'
+export * as PublicKey from 'ox/PublicKey'
+export * as Secp256k1 from 'ox/Secp256k1'
 // Export types required for inference.
 export type {
   /** @deprecated */

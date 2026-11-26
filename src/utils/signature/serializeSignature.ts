@@ -1,10 +1,9 @@
-import { secp256k1 } from '@noble/curves/secp256k1'
-
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import { type HexToBigIntErrorType, hexToBigInt } from '../encoding/fromHex.js'
 import { hexToBytes } from '../encoding/toBytes.js'
 import type { ToHexErrorType } from '../encoding/toHex.js'
+import { toCompactHex } from './internal/compact.js'
 
 type To = 'bytes' | 'hex'
 
@@ -47,10 +46,8 @@ export function serializeSignature<to extends To = 'hex'>({
     if (v && (v === 27n || v === 28n || v >= 35n)) return v % 2n === 0n ? 1 : 0
     throw new Error('Invalid `v` or `yParity` value')
   })()
-  const signature = `0x${new secp256k1.Signature(
-    hexToBigInt(r),
-    hexToBigInt(s),
-  ).toCompactHex()}${yParity_ === 0 ? '1b' : '1c'}` as const
+  const signature =
+    `0x${toCompactHex(hexToBigInt(r), hexToBigInt(s))}${yParity_ === 0 ? '1b' : '1c'}` as const
 
   if (to === 'hex') return signature as SerializeSignatureReturnType<to>
   return hexToBytes(signature) as SerializeSignatureReturnType<to>

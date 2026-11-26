@@ -113,11 +113,27 @@ export function parseEventLogs<
     return [parameters.eventName as string]
   })()
 
+  // Only the named events can match a log, unless `eventName` names an
+  // anonymous event: then every selector is needed to keep it from claiming a
+  // log whose signature is known. So the other events' selectors, one hash
+  // each, are skipped.
+  const named =
+    eventName &&
+    !(abi as Abi).some(
+      (abiItem) =>
+        abiItem.type === 'event' &&
+        abiItem.anonymous &&
+        eventName.includes(abiItem.name),
+    )
+      ? eventName
+      : undefined
+
   // Selectors map to events in ABI order, so overloads keep their precedence.
   const plans: Plan[] = []
   const bySelector = new Map<Hex, Plan[]>()
   for (const abiItem of abi as Abi) {
     if (abiItem.type !== 'event') continue
+    if (named && !named.includes(abiItem.name)) continue
     const topic = toEventSelector(abiItem)
     const plan: Plan = { ...toEventPlan(abiItem), topic }
     plans.push(plan)

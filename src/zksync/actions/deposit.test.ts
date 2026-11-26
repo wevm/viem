@@ -224,13 +224,13 @@ test('behavior: reads the bridge, fees, and token concurrently', async () => {
     [
       [
         "eth_getBlockByNumber",
+        "eth_maxPriorityFeePerGas",
         "zks_getBridgeContracts",
         "zks_getBridgehubContract",
       ],
       [
         "L1_NULLIFIER",
         "baseToken",
-        "eth_maxPriorityFeePerGas",
         "nativeTokenVault",
       ],
       [

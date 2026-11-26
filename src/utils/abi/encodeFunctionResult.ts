@@ -80,7 +80,7 @@ export function encodeFunctionResult<
     abiItem = item
   }
 
-  if (abiItem.type !== 'function')
+  if (abiItem?.type !== 'function')
     throw new AbiFunctionNotFoundError(undefined, { docsPath })
 
   if (!abiItem.outputs)

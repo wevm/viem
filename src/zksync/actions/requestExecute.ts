@@ -180,36 +180,42 @@ export async function requestExecute<
   if (!l2Client.chain) throw new ClientChainNotConfiguredError()
 
   const bridgehub = await getBridgehubContractAddress(l2Client)
-  const baseToken = await readContract(client, {
-    address: bridgehub,
-    abi: bridgehubAbi,
-    functionName: 'baseToken',
-    args: [BigInt(l2Client.chain.id)],
-  })
-  const isETHBasedChain = isAddressEqual(baseToken, ethAddressInContracts)
 
   refundRecipient ??= account.address
-  l2GasLimit ??= await estimateGasL1ToL2(l2Client, {
-    chain: l2Client.chain,
-    // If the `from` address is not provided, we use a random address, because
-    // due to storage slot aggregation, the gas estimation will depend on the address
-    // and so estimation for the zero address may be smaller than for the sender.
-    account:
-      l2Client.account ??
-      parseAccount(privateKeyToAddress(generatePrivateKey())),
-    data: calldata,
-    to: contractAddress,
-    value: l2Value,
-    gasPerPubdata: gasPerPubdataByte,
-    factoryDeps,
-  })
-
   let gasPriceForEstimation = maxFeePerGas || gasPrice
+  const [baseToken, estimatedL2GasLimit, estimatedFee] = await Promise.all([
+    readContract(client, {
+      address: bridgehub,
+      abi: bridgehubAbi,
+      functionName: 'baseToken',
+      args: [BigInt(l2Client.chain.id)],
+    }),
+    l2GasLimit ??
+      estimateGasL1ToL2(l2Client, {
+        chain: l2Client.chain,
+        // If the `from` address is not provided, we use a random address, because
+        // due to storage slot aggregation, the gas estimation will depend on the address
+        // and so estimation for the zero address may be smaller than for the sender.
+        account:
+          l2Client.account ??
+          parseAccount(privateKeyToAddress(generatePrivateKey())),
+        data: calldata,
+        to: contractAddress,
+        value: l2Value,
+        gasPerPubdata: gasPerPubdataByte,
+        factoryDeps,
+      }),
+    gasPriceForEstimation ? undefined : getFeePrice(client),
+  ])
+  const isETHBasedChain = isAddressEqual(baseToken, ethAddressInContracts)
+  l2GasLimit = estimatedL2GasLimit
+
   if (!gasPriceForEstimation) {
-    const estimatedFee = await getFeePrice(client)
-    gasPriceForEstimation = estimatedFee.maxFeePerGas
-    maxFeePerGas = estimatedFee.maxFeePerGas
-    maxPriorityFeePerGas ??= estimatedFee.maxPriorityFeePerGas
+    // Fetched above whenever no gas price was given.
+    const fee = estimatedFee!
+    gasPriceForEstimation = fee.maxFeePerGas
+    maxFeePerGas = fee.maxFeePerGas
+    maxPriorityFeePerGas ??= fee.maxPriorityFeePerGas
   }
 
   const baseCost = await readContract(client, {
@@ -268,12 +274,14 @@ async function getFeePrice<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
 ) {
   const client_ = client.extend(publicActions)
-  const block = await client_.getBlock()
+  const [block, maxPriorityFeePerGas] = await Promise.all([
+    client_.getBlock(),
+    client_.estimateMaxPriorityFeePerGas(),
+  ])
   const baseFee =
     typeof block.baseFeePerGas !== 'bigint'
       ? await client_.getGasPrice()
       : block.baseFeePerGas
-  const maxPriorityFeePerGas = await client_.estimateMaxPriorityFeePerGas()
 
   return {
     maxFeePerGas: (baseFee * 3n) / 2n + maxPriorityFeePerGas,

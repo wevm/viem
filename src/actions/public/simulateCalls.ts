@@ -1,6 +1,5 @@
 import type { AbiStateMutability, Address, Narrow } from 'abitype'
 import * as AbiConstructor from 'ox/AbiConstructor'
-import * as AbiEvent from 'ox/AbiEvent'
 import * as AbiFunction from 'ox/AbiFunction'
 
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
@@ -49,24 +48,28 @@ const assetProbeGas = 1_000_000n
 const staticCallAddressBase = 0x00000000000000000000000000000000deadbeefn
 
 // ERC20 & ERC721 share this selector – both are `Transfer(address,address,uint256)`.
-const transferEventSelector = AbiEvent.getSelector(
-  AbiEvent.from(
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ),
-)
+const transferEventSelector =
+  '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 
+// Unprepared, so importing the module hashes nothing; encoding hashes the signature.
 const balanceOfFunction = AbiFunction.from(
   'function balanceOf(address) returns (uint256)',
+  { prepare: false },
 )
 const decimalsFunction = AbiFunction.from(
   'function decimals() returns (uint256)',
+  { prepare: false },
 )
 const tokenUriFunction = AbiFunction.from(
   'function tokenURI(uint256) returns (string)',
+  { prepare: false },
 )
-const symbolFunction = AbiFunction.from('function symbol() returns (string)')
+const symbolFunction = AbiFunction.from('function symbol() returns (string)', {
+  prepare: false,
+})
 const staticCallFunction = AbiFunction.from(
   'function query(address target, bytes data)',
+  { prepare: false },
 )
 export type SimulateCallsParameters<
   calls extends readonly unknown[] = readonly unknown[],

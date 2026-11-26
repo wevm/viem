@@ -247,6 +247,8 @@ export function bytesToString(
   if (typeof opts.size !== 'undefined') {
     assertSize(bytes, { size: opts.size })
     bytes = trim(bytes, { dir: 'right' })
+    // `trim` keeps one zero byte, so an all-zero value is the empty string.
+    if (bytes.length === 1 && bytes[0] === 0) bytes = bytes.subarray(1)
   }
   return (decoder ??= new TextDecoder('utf-8', { ignoreBOM: true })).decode(
     bytes,

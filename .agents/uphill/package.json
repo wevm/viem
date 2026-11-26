@@ -1,0 +1,8 @@
+{
+  "name": "viem-uphill",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "rolldown": "^1.3.3"
+  }
+}

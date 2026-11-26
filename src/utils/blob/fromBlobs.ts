@@ -1,6 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
-import { type CreateCursorErrorType, createCursor } from '../cursor.js'
 import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
 import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
@@ -23,7 +22,6 @@ export type FromBlobsReturnType<to extends To> =
 
 export type FromBlobsErrorType =
   | BytesToHexErrorType
-  | CreateCursorErrorType
   | HexToBytesErrorType
   | ErrorType
 
@@ -42,37 +40,27 @@ export function fromBlobs<
   ) as ByteArray[]
 
   const length = blobs.reduce((length, blob) => length + blob.length, 0)
-  const data = createCursor(new Uint8Array(length))
-  let active = true
+  const data = new Uint8Array(length)
+  let size = 0
 
   for (const [index, blob] of blobs.entries()) {
-    const cursor = createCursor(blob)
-    // Only the final blob contains a terminator; preceding blobs contain only data.
-    const isLastBlob = index === blobs.length - 1
-    while (active && cursor.position < blob.length) {
-      // First byte will be a zero 0x00 byte – we can skip.
-      cursor.incrementPosition(1)
-
-      let consume = 31
-      if (blob.length - cursor.position < 31)
-        consume = blob.length - cursor.position
-
-      for (const _ in Array.from({ length: consume })) {
-        const byte = cursor.readByte()
-        const isTerminator =
-          isLastBlob &&
-          byte === 0x80 &&
-          !cursor.inspectBytes(cursor.remaining).includes(0x80)
-        if (isTerminator) {
-          active = false
-          break
-        }
-        data.pushByte(byte)
-      }
+    // Only the final blob contains a terminator: its last 0x80 byte. Preceding blobs contain only data.
+    const end = (() => {
+      if (index !== blobs.length - 1) return blob.length
+      const terminator = blob.lastIndexOf(0x80)
+      // A 0x80 in a field's first byte is not data, so no data byte terminates.
+      if (terminator === -1 || terminator % 32 === 0) return blob.length
+      return terminator
+    })()
+    // Each 32-byte field starts with a zero byte, followed by 31 bytes of data.
+    for (let position = 0; position < end; position += 32) {
+      const chunk = blob.subarray(position + 1, Math.min(position + 32, end))
+      data.set(chunk, size)
+      size += chunk.length
     }
   }
 
-  const trimmedData = data.bytes.slice(0, data.position)
+  const trimmedData = data.slice(0, size)
   return (
     to === 'hex' ? bytesToHex(trimmedData) : trimmedData
   ) as FromBlobsReturnType<to>

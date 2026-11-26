@@ -24,7 +24,9 @@
       "!**/vectors/**/*.json",
       "!**/vectors/**/*.test.ts",
       "!**/wagmi",
-      "!**/site/dist"
+      "!**/site/dist",
+      "!**/.agents/uphill/fuzz-fixtures",
+      "!**/.uphill"
     ]
   },
   "formatter": {
@@ -77,5 +79,11 @@
       "semicolons": "asNeeded"
     }
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "overrides": [
+    {
+      "includes": [".agents/uphill/**"],
+      "linter": { "rules": { "suspicious": { "noConsole": "off" } } }
+    }
+  ]
 }

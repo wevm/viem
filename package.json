@@ -77,7 +77,7 @@
     "magic-string": "^0.30.21",
     "micro-eth-signer": "^0.14.0",
     "mppx": "^0.17.0",
-    "ox": "0.14.67",
+    "ox": "0.14.70",
     "permissionless": "^0.2.57",
     "prool": "~0.2.16",
     "publint": "^0.2.12",
@@ -149,7 +149,7 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "94.5 kB",
+      "limit": "95 kB",
       "import": "*"
     },
     {

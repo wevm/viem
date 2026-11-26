@@ -11,7 +11,6 @@ import { poll } from '../../utils/poll.js'
 import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
 
 import { createPendingTransactionFilter } from './createPendingTransactionFilter.js'
-import { getFilterChanges } from './getFilterChanges.js'
 import { uninstallFilter } from './uninstallFilter.js'
 
 export type OnTransactionsParameter = Hash[]
@@ -165,4 +164,18 @@ export function watchPendingTransactions<
   return enablePolling
     ? pollPendingTransactions()
     : subscribePendingTransactions()
+}
+
+/**
+ * Fallback for the client's `getFilterChanges` action. A pending transaction filter returns only
+ * hashes, so it skips the log formatting and parsing that `getFilterChanges` bundles.
+ */
+function getFilterChanges(
+  _client: Client,
+  { filter }: { filter: Filter<'transaction'> },
+) {
+  return filter.request({
+    method: 'eth_getFilterChanges',
+    params: [filter.id],
+  }) as Promise<Hash[]>
 }

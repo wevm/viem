@@ -1,24 +1,31 @@
+import type { AbiError, AbiParametersToPrimitiveTypes } from 'abitype'
+
+import { solidityError, solidityPanic } from '../constants/solidity.js'
 import type { Hex } from '../types/misc.js'
 import type { UnionOmit } from '../types/utils.js'
-import {
-  type DecodeErrorResultReturnType,
-  decodeErrorResult,
-} from '../utils/abi/decodeErrorResult.js'
+import { decodeAbiParameters } from '../utils/abi/decodeAbiParameters.js'
 import { formatAbiItem } from '../utils/abi/formatAbiItem.js'
+import { slice } from '../utils/data/slice.js'
 import { toFunctionSelector } from '../utils/hash/toFunctionSelector.js'
 import * as Abis from './Abis.js'
 
 type AllAbis = typeof Abis.coreErrors
 type AbiErrorName = Extract<AllAbis[number], { type: 'error' }>['name']
 
-type DecodedError<error = DecodeErrorResultReturnType<AllAbis>> =
-  error extends DecodeErrorResultReturnType<AllAbis>
-    ? Omit<error, 'args'> & {
-        args: error['args'] | undefined
-        data: Hex
-        message: string
-      }
-    : never
+/** Decoded errors keyed by name. Overloads of a name share its key. */
+type DecodedErrors = {
+  [abiItem in AllAbis[number] as abiItem['name']]: {
+    abiItem: abiItem
+    args:
+      | AbiParametersToPrimitiveTypes<abiItem['inputs'], 'inputs', true>
+      | undefined
+    errorName: abiItem['name']
+    data: Hex
+    message: string
+  }
+}
+
+type DecodedError = DecodedErrors[keyof DecodedErrors]
 
 /** Decoded execution error from a Tempo precompile revert or selector. */
 export type ExecutionError =
@@ -479,6 +486,28 @@ function extractRevertData(
   return null
 }
 
+/** Core and Solidity errors, in the order `decodeErrorResult` matches them. */
+let errors: readonly AbiError[] | undefined
+/** Errors scanned so far, by selector, so each signature is hashed once per process. */
+const errorsBySelector = /*#__PURE__*/ new Map<
+  Hex,
+  readonly [abiItem: AbiError, signature: string]
+>()
+let scanned = 0
+
+/** Finds the first core or Solidity error with a selector, scanning only as far as needed. */
+function getError(selector: Hex) {
+  errors ??= [...Abis.coreErrors, solidityError, solidityPanic]
+  while (!errorsBySelector.has(selector) && scanned < errors.length) {
+    const abiItem = errors[scanned++]!
+    const signature = formatAbiItem(abiItem)
+    const key = toFunctionSelector(signature)
+    if (!errorsBySelector.has(key))
+      errorsBySelector.set(key, [abiItem, signature])
+  }
+  return errorsBySelector.get(selector)
+}
+
 function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
   const raw =
     (error as { details?: string }).details ??
@@ -487,33 +516,35 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
 
   const data = extractRevertData(error)
   if (data) {
-    try {
-      const decoded = decodeErrorResult({ abi: Abis.coreErrors, data })
-      const template =
-        messages[formatAbiItem(decoded.abiItem) as keyof typeof messages]
-      return {
-        ...decoded,
-        data,
-        message: template
-          ? interpolate(template, decoded.args as readonly unknown[])
-          : raw.replace(/^execution reverted:\s*/i, ''),
-      } as never
-    } catch {
-      if (data.length === 10) {
-        const abiItem = Abis.coreErrors.find(
-          (item) =>
-            item.type === 'error' &&
-            toFunctionSelector(formatAbiItem(item)) === data.toLowerCase(),
-        )
-        if (abiItem?.type === 'error')
-          return {
-            abiItem,
-            args: undefined,
-            data,
-            errorName: abiItem.name,
-            message: messages[formatAbiItem(abiItem) as keyof typeof messages]!,
-          } as DecodedError
-      }
+    const known = getError(slice(data, 0, 4))
+    if (known)
+      try {
+        const [abiItem, signature] = known
+        const args =
+          abiItem.inputs.length > 0
+            ? decodeAbiParameters(abiItem.inputs, slice(data, 4))
+            : undefined
+        const template = messages[signature as keyof typeof messages]
+        return {
+          abiItem,
+          args,
+          errorName: abiItem.name,
+          data,
+          message: template
+            ? interpolate(template, args)
+            : raw.replace(/^execution reverted:\s*/i, ''),
+        } as never
+      } catch {}
+    if (data.length === 10) {
+      const [abiItem, signature] = getError(data.toLowerCase() as Hex) ?? []
+      if (abiItem && abiItem !== solidityError && abiItem !== solidityPanic)
+        return {
+          abiItem,
+          args: undefined,
+          data,
+          errorName: abiItem.name,
+          message: messages[signature as keyof typeof messages]!,
+        } as DecodedError
     }
   }
 

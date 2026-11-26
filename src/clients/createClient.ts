@@ -150,12 +150,18 @@ type ExtendableProtectedActions<
     'sendTransaction' | 'writeContract'
   >
 
+/**
+ * The default Account of a Client. A non-generic alias, so that inference against
+ * `Client<Transport, chain>` does not walk into every Account type.
+ */
+type ClientAccount = Account | undefined
+
 // TODO: Move `transport` to slot index 2 since `chain` and `account` used more frequently.
 // Otherwise, we end up with a lot of `Client<Transport, chain, account>` in actions.
 export type Client<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
+  account extends Account | undefined = ClientAccount,
   rpcSchema extends RpcSchema | undefined = undefined,
   extended extends Extended | undefined = Extended | undefined,
   tokens extends Tokens | undefined = Tokens | undefined,

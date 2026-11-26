@@ -1,4 +1,6 @@
-import { Address, Hex, RpcResponse } from 'ox'
+import * as Address from 'ox/Address'
+import * as Hex from 'ox/Hex'
+import * as RpcResponse from 'ox/RpcResponse'
 import {
   Transaction as core_Transaction,
   KeyAuthorization,
