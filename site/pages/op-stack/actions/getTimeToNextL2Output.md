@@ -21,7 +21,7 @@ Use [`getTimeToNextGame`](/op-stack/actions/getTimeToNextGame) for OP Stack chai
 import { optimism } from 'viem/chains'
 import { account, publicClientL1, publicClientL2 } from './config'
 
-const l2BlockNumber = publicClientL2.getBlockNumber()
+const l2BlockNumber = await publicClientL2.getBlockNumber()
 
 const { // [!code hl]
   interval, // [!code hl]
@@ -68,7 +68,7 @@ export const publicClientL2 = createPublicClient({
 The latest L2 block number.
 
 ```ts
-const l2BlockNumber = publicClientL2.getBlockNumber() // [!code focus]
+const l2BlockNumber = await publicClientL2.getBlockNumber() // [!code focus]
 const { seconds } = await publicClientL1.getTimeToNextL2Output({ 
   l2BlockNumber, // [!code focus]
   targetChain: optimism, 
