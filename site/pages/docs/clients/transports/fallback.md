@@ -268,8 +268,6 @@ const transport = fallback([thirdweb, infura], {
 
 The max number of times to retry when a request fails. 
 
-> Note: The fallback will first try all the Transports before retrying.
-
 ```ts twoslash
 // @twoslash-cache: {"v":2,"hash":"f92d43c84e268377e03d418abecfcd0585194ea7a47065621a770f7705c9b3c1","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwBi3ADbiARt0YBrACo8+AtAB5SMblBbiM7ZAAk0aLEt5x+gtQFcwsAGYBLMDCgV2DiXBgA+D8am5irWdo4ubh5e4j6+ALq+lCBs3IJIAGxU4jBgAOZo+EgAnFRoqbkwDIjUypaqSeIRSAAMVIz4qbI05IjpAL4U6Ni41YQk5KV0VSAAFBJO3HAAlJ4S0rJyGlo6YHoGgWa1VuphMM6u7qsxfgEmhxbHtvZnEZfRsQkzXA+qcAD6wk02l0+iMd2CdVCz3OkSusVuQSOqie4QuUW8fjiHmYYGcuQA/MIxJIZPIIccAMIsPFLIlrUmKJHWIE7PZgxE/KGo2HvG7sA7k5GnGFvDHxXwAHTATgAtscrut5EkUmlEABGAAcWRy+UKiC11HKlTw0UVcgaTUQrRA7U6jG6SE1AyGODwYzISRo9CYLDYnHwTlIUAA7jApMIBUyTtDXujrokqCqqgAmA3ZPIFJAGsqkCrTAqBkNhi2uFptDo8e0exCp53UYZu4geybe6o4v0uBw2HgR8FRlEvNFwvzKnNVADMaZ1md6pSN0073e4JZG1ttlYdiEndcwrtGTYm1CmeBmWFIEBwggwK00XAwVLsaEJ7DANhlUjI7AAPuxha8kjojAINUCj4DA7AytwtAvm+H6kOwEAOJwsrwJwEDsLepAYAAdKOqRVAArGq2oZnqarWjmeZ4Jh94QI+K6OuWdqbsmfRYja0AjBxrAcN8IQcAAvAqDIzMgBZBqGUgeIuPBYuwwBSuwGGVFhD5gEI7AER4AD02kGAAhMwsCeBAjA2HAcRSn0SxJDKlTLogoBTDkcBOCweBoAgfR9EAA==="}
 import { createPublicClient, fallback, http } from 'viem'
@@ -281,6 +279,8 @@ const transport = fallback([thirdweb, infura], {
   retryCount: 5, // [!code focus]
 })
 ```
+
+> Note: The fallback tries every Transport before retrying, because it passes `retryCount: 0` to each child Transport. A child Transport with its own `retryCount` retries first, before `fallback` moves on to the next Transport.
 
 ### retryDelay (optional)
 
@@ -300,6 +300,8 @@ const transport = fallback([thirdweb, infura], {
   retryDelay: 100, // [!code focus]
 })
 ```
+
+> Note: If the error from the last Transport tried carries an HTTP `Retry-After` header, the Transport waits for that duration instead of using `retryDelay`. The header may be whole seconds or an HTTP-date, and the wait has no upper cap. A past or invalid date falls back to exponential backoff.
 
 ### shouldThrow (optional)
 

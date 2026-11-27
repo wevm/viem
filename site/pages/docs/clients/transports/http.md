@@ -267,6 +267,8 @@ const transport = http('https://1.rpc.thirdweb.com/...', {
 })
 ```
 
+> Note: If a retryable request fails with an HTTP `Retry-After` header, the Transport waits for that duration instead of using `retryDelay`. The header may be whole seconds or an HTTP-date, and the wait has no upper cap. A past or invalid date falls back to exponential backoff.
+
 ### timeout (optional)
 
 - **Type:** `number`
