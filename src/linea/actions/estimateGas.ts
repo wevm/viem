@@ -33,6 +33,8 @@ export type EstimateGasReturnType = {
 /**
  * Estimates the gas and fees per gas necessary to complete a transaction without submitting it to the network.
  *
+ * `linea_estimateGas` always estimates against the pending block, so `blockNumber` and `blockTag` are ignored.
+ *
  * @param client - Client to use
  * @param parameters - {@link EstimateGasParameters}
  * @returns A gas estimate and fees per gas (in wei). {@link EstimateGasReturnType}
