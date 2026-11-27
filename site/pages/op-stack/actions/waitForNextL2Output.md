@@ -110,3 +110,18 @@ const output = await publicClientL1.waitForNextL2Output({
   l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })
 ```
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
+
+```ts
+const output = await publicClientL1.waitForNextL2Output({
+  l2BlockNumber,
+  pollingInterval: 1_000, // [!code focus]
+  targetChain: optimism,
+})
+```
