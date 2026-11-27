@@ -49,32 +49,6 @@ export const publicClientL2 = createPublicClient({
 
 ## Parameters
 
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const { seconds } = await publicClientL1.waitToFinalize({
-  withdrawalHash: '0x...', // [!code focus]
-  targetChain: optimism, // [!code focus]
-})
-```
-
-### withdrawalHash
-
-- **Type:** `Hash`
-
-The withdrawal hash.
-
-```ts
-const { seconds, timestamp } = await publicClientL1.waitToFinalize({ 
-  withdrawalHash: '0x...', // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
 ### l2OutputOracleAddress (optional)
 
 - **Type:** `Address`
@@ -85,9 +59,9 @@ The address of the [L2 Output Oracle contract](https://github.com/ethereum-optim
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const { seconds } = await publicClientL1.waitToFinalize({
+await publicClientL1.waitToFinalize({
   withdrawalHash: '0x...',
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
+  l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27', // [!code focus]
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed'
 })
 ```
@@ -102,9 +76,35 @@ The address of the [Portal contract](https://github.com/ethereum-optimism/optimi
 If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
 
 ```ts
-const { seconds } = await publicClientL1.waitToFinalize({
+await publicClientL1.waitToFinalize({
   withdrawalHash: '0x...',
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
+  l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+await publicClientL1.waitToFinalize({
+  withdrawalHash: '0x...', // [!code focus]
+  targetChain: optimism, // [!code focus]
+})
+```
+
+### withdrawalHash
+
+- **Type:** `Hash`
+
+The withdrawal hash.
+
+```ts
+await publicClientL1.waitToFinalize({
+  withdrawalHash: '0x...', // [!code focus]
+  targetChain: optimism, 
+}) 
 ```

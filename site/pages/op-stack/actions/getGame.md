@@ -46,6 +46,23 @@ A valid dispute game.
 
 ## Parameters
 
+### disputeGameFactoryAddress (optional)
+
+- **Type:** `Address`
+- **Default:** the portal's `disputeGameFactory()`
+
+The address of the [`DisputeGameFactory` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol). Defaults to the factory returned by the portal's `disputeGameFactory()`, which is the factory the portal accepts games from.
+
+If `disputeGameFactoryAddress` and `portalAddress` are both provided, the `targetChain` parameter becomes optional.
+
+```ts
+const game = await publicClientL1.getGame({
+  l2BlockNumber,
+  disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9', // [!code focus]
+  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
+})
+```
+
 ### l2BlockNumber
 
 - **Type:** `bigint`
@@ -59,6 +76,53 @@ const game = await publicClientL1.getGame({
 }) 
 ```
 
+### limit (optional)
+
+- **Type:** `number`
+- **Default:** `100`
+
+Limit of games to extract.
+
+```ts
+const game = await publicClientL1.getGame({
+  limit: 10, // [!code focus]
+  l2BlockNumber,
+  targetChain: optimism,
+})
+```
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** `targetChain.contracts.portal[chainId].address`
+
+The address of the [`Portal` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the `Portal` contract specified on the `targetChain`.
+
+If `disputeGameFactoryAddress` and `portalAddress` are both provided, the `targetChain` parameter becomes optional.
+
+```ts
+const game = await publicClientL1.getGame({
+  l2BlockNumber,
+  disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+})
+```
+
+### strategy (optional)
+
+- **Type:** `'latest' | 'random'`
+- **Default:** `'latest'`
+
+Strategy for extracting a dispute game: `latest` returns the latest dispute game, `random` returns a random dispute game.
+
+```ts
+const game = await publicClientL1.getGame({
+  l2BlockNumber,
+  strategy: 'random', // [!code focus]
+  targetChain: optimism,
+})
+```
+
 ### targetChain
 
 - **Type:** [`Chain`](/docs/glossary/types#chain)
@@ -69,21 +133,5 @@ The L2 chain.
 const game = await publicClientL1.getGame({
   l2BlockNumber,
   targetChain: optimism, // [!code focus]
-})
-```
-
-### disputeGameFactoryAddress (optional)
-
-- **Type:** `Address`
-- **Default:** the portal's `disputeGameFactory()`
-
-The address of the [`DisputeGameFactory` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol). Defaults to the factory returned by the portal's `disputeGameFactory()`, which is the factory the portal accepts games from.
-
-If a `disputeGameFactoryAddress` is provided, the `targetChain` parameter becomes optional.
-
-```ts
-const game = await publicClientL1.getGame({
-  l2BlockNumber,
-  disputeGameFactoryAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })
 ```

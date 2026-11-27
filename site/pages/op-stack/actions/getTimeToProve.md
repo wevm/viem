@@ -57,6 +57,86 @@ export const publicClientL2 = createPublicClient({
 
 ## Parameters
 
+### disputeGameFactoryAddress (optional)
+
+- **Type:** `Address`
+- **Default:** the portal's `disputeGameFactory()`
+
+The address of the [`DisputeGameFactory` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol). Defaults to the factory returned by the portal's `disputeGameFactory()`, which is the factory the portal accepts games from.
+
+If `disputeGameFactoryAddress` and `portalAddress` are both provided, the `targetChain` parameter becomes optional.
+
+```ts
+const time = await publicClientL1.getTimeToProve({
+  receipt,
+  disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9', // [!code focus]
+  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
+})
+```
+
+### intervalBuffer (optional)
+
+- **Type:** `number`
+- **Default:** `1.1`
+
+The buffer to account for discrepancies between non-deterministic time intervals.
+
+```ts
+const time = await publicClientL1.getTimeToProve({ 
+  intervalBuffer: 1.2, // [!code focus]
+  receipt,
+  targetChain: optimism, 
+}) 
+```
+
+### l2OutputOracleAddress (optional)
+
+- **Type:** `Address`
+- **Default:** `targetChain.contracts.l2OutputOracle[chainId].address`
+
+The address of the [L2 Output Oracle contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the L2 Output Oracle contract specified on the `targetChain`.
+
+If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
+
+```ts
+const time = await publicClientL1.getTimeToProve({
+  receipt,
+  l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27' // [!code focus]
+})
+```
+
+### l2Timestamp (optional)
+
+- **Type:** `bigint`
+- **Default:** `blockTimestamp` of the receipt's logs for super-root games, otherwise the receipt's block number
+
+The L2 timestamp of the withdrawal. Dispute games that anchor on super roots (e.g. OP Mainnet) are matched by L2 timestamp instead of L2 block number. For these games, if `l2Timestamp` is not passed and the receipt's logs have no `blockTimestamp`, an `L2TimestampRequiredError` is thrown.
+
+```ts
+const time = await publicClientL1.getTimeToProve({
+  l2Timestamp: 1792936085n, // [!code focus]
+  receipt,
+  targetChain: optimism,
+})
+```
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** `targetChain.contracts.portal[chainId].address`
+
+The address of the [`Portal` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the `Portal` contract specified on the `targetChain`.
+
+If `disputeGameFactoryAddress` and `portalAddress` are both provided, the `targetChain` parameter becomes optional.
+
+```ts
+const time = await publicClientL1.getTimeToProve({
+  receipt,
+  disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+})
+```
+
 ### receipt
 
 - **Type:** `TransactionReceipt`
@@ -78,53 +158,7 @@ The L2 chain.
 
 ```ts
 const time = await publicClientL1.getTimeToProve({
-  l2BlockNumber,
-  targetChain: optimism, // [!code focus]
-})
-```
-
-### intervalBuffer (optional)
-
-- **Type:** `number`
-- **Default:** `1.1`
-
-The buffer to account for discrepancies between non-deterministic time intervals.
-
-```ts
-const time = await publicClientL1.getTimeToProve({ 
-  intervalBuffer: 1.2, // [!code focus]
-  l2BlockNumber,
-  targetChain: optimism, 
-}) 
-```
-
-### l2OutputOracleAddress (optional)
-
-- **Type:** `Address`
-- **Default:** `targetChain.contracts.l2OutputOracle[chainId].address`
-
-The address of the [L2 Output Oracle contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the L2 Output Oracle contract specified on the `targetChain`.
-
-If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
-
-```ts
-const time = await publicClientL1.getTimeToProve({
-  l2BlockNumber,
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
-})
-```
-
-### l2Timestamp (optional)
-
-- **Type:** `bigint`
-- **Default:** `blockTimestamp` of the receipt's logs for super-root games, otherwise the receipt's block number
-
-The L2 timestamp of the withdrawal. Dispute games that anchor on super roots (e.g. OP Mainnet) are matched by L2 timestamp instead of L2 block number. For these games, if `l2Timestamp` is not passed and the receipt's logs have no `blockTimestamp`, an `L2TimestampRequiredError` is thrown.
-
-```ts
-const time = await publicClientL1.getTimeToProve({
-  l2Timestamp: 1792936085n, // [!code focus]
   receipt,
-  targetChain: optimism,
+  targetChain: optimism, // [!code focus]
 })
 ```

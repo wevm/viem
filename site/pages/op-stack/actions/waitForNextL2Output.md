@@ -54,32 +54,6 @@ The L2 output proposal.
 
 ## Parameters
 
-### l2BlockNumber
-
-- **Type:** `bigint`
-
-The L2 block number.
-
-```ts
-const output = await publicClientL1.waitForNextL2Output({ 
-  l2BlockNumber: 69420n, // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const output = await publicClientL1.waitForNextL2Output({
-  l2BlockNumber,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### intervalBuffer (optional)
 
 - **Type:** `number`
@@ -91,6 +65,19 @@ The buffer to account for discrepancies between non-deterministic time intervals
 const output = await publicClientL1.waitForNextL2Output({
   intervalBuffer: 1.2, // [!code focus]
   l2BlockNumber,
+  targetChain: optimism, 
+}) 
+```
+
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The L2 block number.
+
+```ts
+const output = await publicClientL1.waitForNextL2Output({ 
+  l2BlockNumber: 69420n, // [!code focus]
   targetChain: optimism, 
 }) 
 ```
@@ -107,6 +94,34 @@ If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes op
 ```ts
 const output = await publicClientL1.waitForNextL2Output({
   l2BlockNumber,
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
+  l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27' // [!code focus]
+})
+```
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in ms). Defaults to the Client's `pollingInterval` config.
+
+```ts
+const output = await publicClientL1.waitForNextL2Output({
+  l2BlockNumber,
+  pollingInterval: 1_000, // [!code focus]
+  targetChain: optimism,
+})
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const output = await publicClientL1.waitForNextL2Output({
+  l2BlockNumber,
+  targetChain: optimism, // [!code focus]
 })
 ```

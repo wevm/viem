@@ -21,7 +21,7 @@ Use [`getTimeToNextGame`](/op-stack/actions/getTimeToNextGame) for OP Stack chai
 import { optimism } from 'viem/chains'
 import { account, publicClientL1, publicClientL2 } from './config'
 
-const l2BlockNumber = publicClientL2.getBlockNumber()
+const l2BlockNumber = await publicClientL2.getBlockNumber()
 
 const { // [!code hl]
   interval, // [!code hl]
@@ -61,33 +61,6 @@ export const publicClientL2 = createPublicClient({
 
 ## Parameters
 
-### l2BlockNumber
-
-- **Type:** `bigint`
-
-The latest L2 block number.
-
-```ts
-const l2BlockNumber = publicClientL2.getBlockNumber() // [!code focus]
-const { seconds } = await publicClientL1.getTimeToNextL2Output({ 
-  l2BlockNumber, // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const { seconds } = await publicClientL1.getTimeToNextL2Output({
-  l2BlockNumber,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### intervalBuffer (optional)
 
 - **Type:** `number`
@@ -99,6 +72,20 @@ The buffer to account for discrepancies between non-deterministic time intervals
 const { seconds } = await publicClientL1.getTimeToNextL2Output({ 
   intervalBuffer: 1.2, // [!code focus]
   l2BlockNumber,
+  targetChain: optimism, 
+}) 
+```
+
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The latest L2 block number.
+
+```ts
+const l2BlockNumber = await publicClientL2.getBlockNumber() // [!code focus]
+const { seconds } = await publicClientL1.getTimeToNextL2Output({ 
+  l2BlockNumber, // [!code focus]
   targetChain: optimism, 
 }) 
 ```
@@ -115,6 +102,19 @@ If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes op
 ```ts
 const { seconds } = await publicClientL1.getTimeToNextL2Output({
   l2BlockNumber,
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
+  l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27' // [!code focus]
+})
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const { seconds } = await publicClientL1.getTimeToNextL2Output({
+  l2BlockNumber,
+  targetChain: optimism, // [!code focus]
 })
 ```
