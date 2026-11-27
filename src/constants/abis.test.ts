@@ -911,6 +911,71 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "erc2612Abi": [
+        {
+          "inputs": [],
+          "name": "DOMAIN_SEPARATOR",
+          "outputs": [
+            {
+              "type": "bytes32",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+        {
+          "inputs": [
+            {
+              "name": "owner",
+              "type": "address",
+            },
+          ],
+          "name": "nonces",
+          "outputs": [
+            {
+              "type": "uint256",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+        {
+          "inputs": [
+            {
+              "name": "owner",
+              "type": "address",
+            },
+            {
+              "name": "spender",
+              "type": "address",
+            },
+            {
+              "name": "value",
+              "type": "uint256",
+            },
+            {
+              "name": "deadline",
+              "type": "uint256",
+            },
+            {
+              "name": "v",
+              "type": "uint8",
+            },
+            {
+              "name": "r",
+              "type": "bytes32",
+            },
+            {
+              "name": "s",
+              "type": "bytes32",
+            },
+          ],
+          "name": "permit",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function",
+        },
+      ],
       "erc4626Abi": [
         {
           "anonymous": false,
