@@ -59,33 +59,6 @@ export const publicClientL2 = createPublicClient({
 
 ## Parameters
 
-### l2BlockNumber
-
-- **Type:** `bigint`
-
-The latest L2 block number.
-
-```ts
-const l2BlockNumber = await publicClientL2.getBlockNumber() // [!code focus]
-const { seconds } = await publicClientL1.getTimeToNextGame({ 
-  l2BlockNumber, // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const { seconds } = await publicClientL1.getTimeToNextGame({
-  l2BlockNumber,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### disputeGameFactoryAddress (optional)
 
 - **Type:** `Address`
@@ -118,6 +91,20 @@ const { seconds } = await publicClientL1.getTimeToNextGame({
 }) 
 ```
 
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The latest L2 block number.
+
+```ts
+const l2BlockNumber = await publicClientL2.getBlockNumber() // [!code focus]
+const { seconds } = await publicClientL1.getTimeToNextGame({ 
+  l2BlockNumber, // [!code focus]
+  targetChain: optimism, 
+}) 
+```
+
 ### portalAddress (optional)
 
 - **Type:** `Address`
@@ -132,5 +119,18 @@ const { seconds } = await publicClientL1.getTimeToNextGame({
   l2BlockNumber,
   disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+})
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const { seconds } = await publicClientL1.getTimeToNextGame({
+  l2BlockNumber,
+  targetChain: optimism, // [!code focus]
 })
 ```

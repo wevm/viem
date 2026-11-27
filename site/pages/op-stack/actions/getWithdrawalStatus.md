@@ -48,32 +48,6 @@ export const publicClientL2 = createPublicClient({
 
 ## Parameters
 
-### receipt
-
-- **Type:** `TransactionReceipt`
-
-The transaction receipt.
-
-```ts
-const status = await publicClientL1.getWithdrawalStatus({ 
-  receipt, // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const status = await publicClientL1.getWithdrawalStatus({
-  receipt,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### disputeGameFactoryAddress (optional)
 
 - **Type:** `Address`
@@ -152,5 +126,31 @@ const status = await publicClientL1.getWithdrawalStatus({
   receipt,
   l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
+})
+```
+
+### receipt
+
+- **Type:** `TransactionReceipt`
+
+The transaction receipt.
+
+```ts
+const status = await publicClientL1.getWithdrawalStatus({ 
+  receipt, // [!code focus]
+  targetChain: optimism, 
+}) 
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const status = await publicClientL1.getWithdrawalStatus({
+  receipt,
+  targetChain: optimism, // [!code focus]
 })
 ```

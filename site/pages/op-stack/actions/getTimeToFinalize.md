@@ -59,32 +59,6 @@ export const publicClientL2 = createPublicClient({
 
 ## Parameters
 
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const { seconds } = await publicClientL1.getTimeToFinalize({
-  withdrawalHash: '0x...', // [!code focus]
-  targetChain: optimism, // [!code focus]
-})
-```
-
-### withdrawalHash
-
-- **Type:** `Hash`
-
-The withdrawal hash.
-
-```ts
-const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({ 
-  withdrawalHash: '0x...', // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
 ### l2OutputOracleAddress (optional)
 
 - **Type:** `Address`
@@ -117,4 +91,30 @@ const { seconds } = await publicClientL1.getTimeToFinalize({
   l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const { seconds } = await publicClientL1.getTimeToFinalize({
+  withdrawalHash: '0x...', // [!code focus]
+  targetChain: optimism, // [!code focus]
+})
+```
+
+### withdrawalHash
+
+- **Type:** `Hash`
+
+The withdrawal hash.
+
+```ts
+const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({ 
+  withdrawalHash: '0x...', // [!code focus]
+  targetChain: optimism, 
+}) 
 ```

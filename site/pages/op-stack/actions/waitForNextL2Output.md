@@ -54,32 +54,6 @@ The L2 output proposal.
 
 ## Parameters
 
-### l2BlockNumber
-
-- **Type:** `bigint`
-
-The L2 block number.
-
-```ts
-const output = await publicClientL1.waitForNextL2Output({ 
-  l2BlockNumber: 69420n, // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const output = await publicClientL1.waitForNextL2Output({
-  l2BlockNumber,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### intervalBuffer (optional)
 
 - **Type:** `number`
@@ -91,6 +65,19 @@ The buffer to account for discrepancies between non-deterministic time intervals
 const output = await publicClientL1.waitForNextL2Output({
   intervalBuffer: 1.2, // [!code focus]
   l2BlockNumber,
+  targetChain: optimism, 
+}) 
+```
+
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The L2 block number.
+
+```ts
+const output = await publicClientL1.waitForNextL2Output({ 
+  l2BlockNumber: 69420n, // [!code focus]
   targetChain: optimism, 
 }) 
 ```
@@ -123,5 +110,18 @@ const output = await publicClientL1.waitForNextL2Output({
   l2BlockNumber,
   pollingInterval: 1_000, // [!code focus]
   targetChain: optimism,
+})
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const output = await publicClientL1.waitForNextL2Output({
+  l2BlockNumber,
+  targetChain: optimism, // [!code focus]
 })
 ```

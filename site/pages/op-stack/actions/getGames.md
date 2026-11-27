@@ -45,19 +45,6 @@ Dispute games.
 
 ## Parameters
 
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const games = await publicClientL1.getGames({
-  l2BlockNumber,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### disputeGameFactoryAddress (optional)
 
 - **Type:** `Address`
@@ -116,5 +103,18 @@ const games = await publicClientL1.getGames({
   l2BlockNumber,
   disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+})
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const games = await publicClientL1.getGames({
+  l2BlockNumber,
+  targetChain: optimism, // [!code focus]
 })
 ```

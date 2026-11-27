@@ -52,32 +52,6 @@ The dispute game.
 
 ## Parameters
 
-### l2BlockNumber
-
-- **Type:** `bigint`
-
-The L2 block number.
-
-```ts
-const game = await publicClientL1.waitForNextGame({ 
-  l2BlockNumber: 69420n, // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const game = await publicClientL1.waitForNextGame({
-  l2BlockNumber,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### disputeGameFactoryAddress (optional)
 
 - **Type:** `Address`
@@ -106,6 +80,19 @@ The buffer to account for discrepancies between non-deterministic time intervals
 const game = await publicClientL1.waitForNextGame({
   intervalBuffer: 1.2, // [!code focus]
   l2BlockNumber,
+  targetChain: optimism, 
+}) 
+```
+
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The L2 block number.
+
+```ts
+const game = await publicClientL1.waitForNextGame({ 
+  l2BlockNumber: 69420n, // [!code focus]
   targetChain: optimism, 
 }) 
 ```
@@ -154,5 +141,18 @@ const game = await publicClientL1.waitForNextGame({
   l2BlockNumber,
   disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+})
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const game = await publicClientL1.waitForNextGame({
+  l2BlockNumber,
+  targetChain: optimism, // [!code focus]
 })
 ```

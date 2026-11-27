@@ -50,32 +50,6 @@ The L2 output and the withdrawal message.
 
 ## Parameters
 
-### receipt
-
-- **Type:** `TransactionReceipt`
-
-The transaction receipt.
-
-```ts
-const output = await publicClientL1.waitToProve({ 
-  receipt, // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const output = await publicClientL1.waitToProve({
-  receipt,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### disputeGameFactoryAddress (optional)
 
 - **Type:** `Address`
@@ -168,5 +142,31 @@ const output = await publicClientL1.waitToProve({
   receipt,
   disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+})
+```
+
+### receipt
+
+- **Type:** `TransactionReceipt`
+
+The transaction receipt.
+
+```ts
+const output = await publicClientL1.waitToProve({ 
+  receipt, // [!code focus]
+  targetChain: optimism, 
+}) 
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const output = await publicClientL1.waitToProve({
+  receipt,
+  targetChain: optimism, // [!code focus]
 })
 ```

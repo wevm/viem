@@ -61,19 +61,6 @@ const output = await publicClientL1.getL2Output({
 }) 
 ```
 
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const output = await publicClientL1.getL2Output({
-  l2BlockNumber,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### l2OutputOracleAddress (optional)
 
 - **Type:** `Address`
@@ -87,5 +74,18 @@ If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes op
 const output = await publicClientL1.getL2Output({
   l2BlockNumber,
   l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27' // [!code focus]
+})
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const output = await publicClientL1.getL2Output({
+  l2BlockNumber,
+  targetChain: optimism, // [!code focus]
 })
 ```

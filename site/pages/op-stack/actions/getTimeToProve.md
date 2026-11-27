@@ -57,32 +57,6 @@ export const publicClientL2 = createPublicClient({
 
 ## Parameters
 
-### receipt
-
-- **Type:** `TransactionReceipt`
-
-The transaction receipt.
-
-```ts
-const time = await publicClientL1.getTimeToProve({ 
-  receipt, // [!code focus]
-  targetChain: optimism, 
-}) 
-```
-
-### targetChain
-
-- **Type:** [`Chain`](/docs/glossary/types#chain)
-
-The L2 chain.
-
-```ts
-const time = await publicClientL1.getTimeToProve({
-  receipt,
-  targetChain: optimism, // [!code focus]
-})
-```
-
 ### disputeGameFactoryAddress (optional)
 
 - **Type:** `Address`
@@ -160,5 +134,31 @@ const time = await publicClientL1.getTimeToProve({
   receipt,
   disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+})
+```
+
+### receipt
+
+- **Type:** `TransactionReceipt`
+
+The transaction receipt.
+
+```ts
+const time = await publicClientL1.getTimeToProve({ 
+  receipt, // [!code focus]
+  targetChain: optimism, 
+}) 
+```
+
+### targetChain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+
+The L2 chain.
+
+```ts
+const time = await publicClientL1.getTimeToProve({
+  receipt,
+  targetChain: optimism, // [!code focus]
 })
 ```
