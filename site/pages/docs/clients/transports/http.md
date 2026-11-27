@@ -258,6 +258,8 @@ const transport = http('https://1.rpc.thirdweb.com/...', {
 
 The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
 
+> Note: If an HTTP error response includes a `Retry-After` header (in seconds or a future HTTP-date), the Transport waits for that duration instead of using `retryDelay`, with no upper cap.
+
 ```ts twoslash
 // @twoslash-cache: {"v":2,"hash":"12030b12be213e4d9046c09d3309b53d2ff3d2626ea712b6fb33ea471c38b7ab","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjVIENWsJSaROwASaNFgAqPPgLQAeAK5hYAMwCWYGFArtV3ADZwYAPkog23QUgBsVAzDABzNPiQBOKmitOYDRNQycPzW9pq4iAAMVIz4VtyMNOSINgC+FOjYEQTEZOY09HgAFIbq3HAAlOz44lhKKjAaWjp6hsYmRYqkBgD8wmykmk7sAD7symrhLcxgGk59orXSvMFyAMIsc/WTzbr6RqYVwmISy7KC241Te22mADpg6gC2IRw1EvncTggoyCCwcEYgywaHULHMa1IMG4NDg7G4okkkgACpwgq9OHEODMtIk4WgIPD2AApADKAHkAHIAWgASsi1uwAILIgCSADoQABdLlUSzWRAARgAHPZHC43IgACxeHx+PDvLDmAzhJDRECxeKJPJC4XpTI4BW5cheOj+EBFLCkCA4QQYKpQrgYAAiMAM3AwCzAiieACMyKNxg0mtpzFAIIwfiBJPgYOxfeU47B3Rh2EVNOwnpV434AO4wRzsR2DeCcvneAU2QVi5yuJCC9UV3zm4sut0e5WqoUxOI8bXJABMqV5Gug2RmbDRKwxAF5qrUigByRVwRAAejXgvZpCwjHZrnUpCg+d97OYTzX7Kvi90wAe7CLflIbZTwgb0XYG/YyAAhMxYHoEaKHAXIPKkFTmE8fjcEgoBmo4cBgmAeBoAgqSpEAA=="}
 import { http } from 'viem'
