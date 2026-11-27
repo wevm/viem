@@ -4,7 +4,13 @@ import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { blobData, kzg } from '~test/kzg.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
-import { concatHex, stringToHex, toHex, toRlp } from '../../index.js'
+import {
+  concatHex,
+  parseTransaction,
+  stringToHex,
+  toHex,
+  toRlp,
+} from '../../index.js'
 import type {
   TransactionSerializable,
   TransactionSerializableBase,
@@ -57,6 +63,13 @@ describe('eip7702', async () => {
     expect(signature).toMatchInlineSnapshot(
       `"0x04f9010b018203118080825208808080c0f8baf85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a401a0f6beafe7507f0c98ae9bc8d9e15d6b53c2f0714ccfc01663f658cb9f29caced4a00dc4dfc53537f8b09047eceb674c454acba020ce786d9004175f41669304dee0f85a0a94fba3912ca04dd458c843e2ee08967fc04f3579c24501a0c3fea6e0bd0f5743d6e2f2df8f1aa63ff262a6636ca96ac572da3ea5cd33344ca02a4f006f9a0cf7cd5f5528af86524c984b05a8446c8c124aede1d3531e91de9180a0c3d5845755debbe90b2fa6258ba04ec93c46bfb7b2657b66a11d8c7c5221ac939fbf44fdacf9e9f87b5074df6ba1f3f9c50c82d5b0be8e4e96686410ca405a30"`,
     )
+
+    expect(
+      await signTransaction({
+        transaction: parseTransaction(signature),
+        privateKey: accounts[0].privateKey,
+      }),
+    ).toBe(signature)
   })
 })
 
@@ -128,6 +141,13 @@ describe('eip1559', () => {
     expect(signature).toMatchInlineSnapshot(
       '"0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33"',
     )
+
+    expect(
+      await signTransaction({
+        transaction: parseTransaction(signature),
+        privateKey: accounts[0].privateKey,
+      }),
+    ).toBe(signature)
   })
 
   test('minimal (w/ maxFeePerGas)', async () => {
@@ -250,6 +270,13 @@ describe('eip2930', () => {
     expect(signature).toMatchInlineSnapshot(
       '"0x01f84f0182031180825208808080c080a089cebce5c7f728febd1060b55837c894ec2a79dd7854350abce252fc2de96b5da039f2782c70b92f4b1916aa8db91453c7229f33458bd091b3e10a40f9a7e443d2"',
     )
+
+    expect(
+      await signTransaction({
+        transaction: parseTransaction(signature),
+        privateKey: accounts[0].privateKey,
+      }),
+    ).toBe(signature)
   })
 
   test('minimal (w/ accessList & gasPrice)', async () => {
@@ -425,6 +452,13 @@ describe('legacy', () => {
     expect(signature).toMatchInlineSnapshot(
       '"0xf85182031184773594008252088080801ba0462e5dabe6d0e82ac9d2832d5ecc815e317669ae2eb018c2a07ae6f3a4763618a003214adcddee51ee1d46cb12a694f5520c851581fe53c543c8999d45fa18de07"',
     )
+
+    expect(
+      await signTransaction({
+        transaction: parseTransaction(signature),
+        privateKey: accounts[0].privateKey,
+      }),
+    ).toBe(signature)
   })
 
   test('minimal (w/ gasPrice)', async () => {

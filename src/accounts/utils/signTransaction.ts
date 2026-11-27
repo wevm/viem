@@ -51,14 +51,23 @@ export async function signTransaction<
   } = parameters
 
   const signableTransaction = (() => {
+    // Sign the unsigned payload, without a signature set on the transaction
+    // (e.g. one returned by `parseTransaction`).
+    const unsigned = {
+      ...transaction,
+      r: undefined,
+      s: undefined,
+      v: undefined,
+      yParity: undefined,
+    } as typeof transaction
     // For EIP-4844 Transactions, we want to sign the transaction payload body (tx_payload_body) without the sidecars (ie. without the network wrapper).
     // See: https://github.com/ethereum/EIPs/blob/e00f4daa66bd56e2dbd5f1d36d09fd613811a48b/EIPS/eip-4844.md#networking
     if (transaction.type === 'eip4844')
       return {
-        ...transaction,
+        ...unsigned,
         sidecars: false,
       }
-    return transaction
+    return unsigned
   })()
 
   const signature = await sign({
