@@ -63,6 +63,7 @@ export function formatBlock(
     nonce: block.nonce ? block.nonce : null,
     number: block.number ? BigInt(block.number) : null,
     size: block.size ? BigInt(block.size) : undefined,
+    ...(block.slotNumber && { slotNumber: BigInt(block.slotNumber) }),
     timestamp: block.timestamp ? BigInt(block.timestamp) : undefined,
     transactions,
     totalDifficulty: block.totalDifficulty

@@ -18,6 +18,8 @@ export type Block<
   baseFeePerGas: quantity | null
   /** Total used blob gas by all transactions in this block */
   blobGasUsed: quantity
+  /** Hash of the block-level access list ([EIP-7928](https://eips.ethereum.org/EIPS/eip-7928)) */
+  blockAccessListHash?: Hash | undefined
   /** Difficulty for this block */
   difficulty: quantity
   /** Excess blob gas */
@@ -53,6 +55,8 @@ export type Block<
   sha3Uncles: Hash
   /** Size of this block in bytes */
   size: quantity
+  /** Beacon chain slot number of this block ([EIP-7843](https://eips.ethereum.org/EIPS/eip-7843)) */
+  slotNumber?: quantity | undefined
   /** Root of this block’s final state trie */
   stateRoot: Hash
   /** Unix timestamp of when this block was collated */
