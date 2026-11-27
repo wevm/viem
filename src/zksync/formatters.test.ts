@@ -901,7 +901,24 @@ describe('transaction receipt', () => {
             removed: false,
           },
         ],
-        l2ToL1Logs: [],
+        l2ToL1Logs: [
+          {
+            blockHash:
+              '0xfd73aaef0e91fcd6c171056b235a2b0f17650dcbe17038d17f76bbf3980c4da2',
+            blockNumber: '0x8acd',
+            isService: true,
+            key: '0xe56c11904d690e1bd41a7e901df609c2dc011d1033415379193ebc4197f32fc6',
+            l1BatchNumber: '0x239',
+            logIndex: '0x0',
+            sender: '0x0000000000000000000000000000000000008001',
+            shardId: '0x0',
+            transactionHash:
+              '0xe56c11904d690e1bd41a7e901df609c2dc011d1033415379193ebc4197f32fc6',
+            transactionIndex: '0x0',
+            value:
+              '0x0000000000000000000000000000000000000000000000000000000000000001',
+          },
+        ],
         status: '0x1',
         root: '0xfd73aaef0e91fcd6c171056b235a2b0f17650dcbe17038d17f76bbf3980c4da2',
         logsBloom:
@@ -920,7 +937,21 @@ describe('transaction receipt', () => {
         "gasUsed": 3248087n,
         "l1BatchNumber": 569n,
         "l1BatchTxIndex": 340n,
-        "l2ToL1Logs": [],
+        "l2ToL1Logs": [
+          {
+            "blockHash": "0xfd73aaef0e91fcd6c171056b235a2b0f17650dcbe17038d17f76bbf3980c4da2",
+            "blockNumber": 35533n,
+            "isService": true,
+            "key": "0xe56c11904d690e1bd41a7e901df609c2dc011d1033415379193ebc4197f32fc6",
+            "l1BatchNumber": 569n,
+            "logIndex": 0n,
+            "sender": "0x0000000000000000000000000000000000008001",
+            "shardId": 0n,
+            "transactionHash": "0xe56c11904d690e1bd41a7e901df609c2dc011d1033415379193ebc4197f32fc6",
+            "transactionIndex": 0n,
+            "value": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          },
+        ],
         "logs": [
           {
             "address": "0x000000000000000000000000000000000000800a",
@@ -1209,7 +1240,7 @@ describe('transaction receipt', () => {
         "l2ToL1Logs": [
           {
             "blockHash": "0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f",
-            "blockNumber": 37075710707809432191796592030900317027155189206620910115769376626082614840703n,
+            "blockNumber": 1n,
             "isService": true,
             "key": "0xec06ab90e8cbada2b205874567504ceed9e005df452a997472823a8b59cb30ec",
             "l1BatchNumber": 1n,
