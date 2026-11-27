@@ -74,6 +74,38 @@ const status = await publicClientL1.getWithdrawalStatus({
 })
 ```
 
+### disputeGameFactoryAddress (optional)
+
+- **Type:** `Address`
+- **Default:** the portal's `disputeGameFactory()`
+
+The address of the [`DisputeGameFactory` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol). Defaults to the factory returned by the portal's `disputeGameFactory()`, which is the factory the portal accepts games from.
+
+If `disputeGameFactoryAddress` and `portalAddress` are both provided, the `targetChain` parameter becomes optional.
+
+```ts
+const status = await publicClientL1.getWithdrawalStatus({
+  receipt,
+  disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9', // [!code focus]
+  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
+})
+```
+
+### gameLimit (optional)
+
+- **Type:** `number`
+- **Default:** `100`
+
+Limit of games to extract to check the withdrawal status.
+
+```ts
+const status = await publicClientL1.getWithdrawalStatus({
+  gameLimit: 10, // [!code focus]
+  receipt,
+  targetChain: optimism,
+})
+```
+
 ### l2OutputOracleAddress (optional)
 
 - **Type:** `Address`
@@ -81,13 +113,13 @@ const status = await publicClientL1.getWithdrawalStatus({
 
 The address of the [L2 Output Oracle contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the L2 Output Oracle contract specified on the `targetChain`.
 
-If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
+If `l2OutputOracleAddress` and `portalAddress` are both provided, the `targetChain` parameter becomes optional.
 
 ```ts
 const status = await publicClientL1.getWithdrawalStatus({
   receipt,
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
-  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed'
+  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+  portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
 })
 ```
 
@@ -111,9 +143,9 @@ const status = await publicClientL1.getWithdrawalStatus({
 - **Type:** `Address`
 - **Default:** `targetChain.contracts.portal[chainId].address`
 
-The address of the [Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the L2 Output Oracle contract specified on the `targetChain`.
+The address of the [Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the `Portal` contract specified on the `targetChain`.
 
-If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
+If a `portalAddress` is provided together with `l2OutputOracleAddress` or `disputeGameFactoryAddress`, the `targetChain` parameter becomes optional.
 
 ```ts
 const status = await publicClientL1.getWithdrawalStatus({
