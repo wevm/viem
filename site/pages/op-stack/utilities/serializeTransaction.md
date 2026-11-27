@@ -4,7 +4,7 @@ description: Serializes a transaction object, with support for OP Stack.
 
 # serializeTransaction (OP Stack)
 
-Serializes a transaction object, with support for OP Stack transactions. Supports Deposit, EIP-1559, EIP-2930, and Legacy transactions.
+Serializes a transaction object, with support for OP Stack transactions. Supports Deposit, Post-exec, EIP-1559, EIP-2930, and Legacy transactions.
 
 ## Import
 
@@ -46,11 +46,26 @@ const serialized = serializeTransaction({
 })
 ```
 
+### Post-Exec Transactions
+
+It also serializes post-exec transactions from OP Stack Upgrade 22 (Lagoon), as the `0x7d` type byte followed by the payload:
+
+```ts
+import { serializeTransaction } from 'viem/op-stack'
+
+const serialized = serializeTransaction({
+  data: '0xc60110c3c2012a',
+  type: 'postExec'
+})
+// @log: '0x7dc60110c3c2012a'
+```
+
 ## Returns
 
 Returns a template `Hex` value based on transaction type:
 
 - `deposit`: [TransactionSerializedDeposit](/docs/glossary/types#TransactionSerializedDeposit)
+- `postExec`: `TransactionSerializedPostExec`
 - `eip1559`: [TransactionSerializedEIP1559](/docs/glossary/types#transactionserializedeip1559)
 - `eip2930`: [TransactionSerializedEIP2930](/docs/glossary/types#transactionserializedeip2930)
 - `legacy`: [TransactionSerializedLegacy](/docs/glossary/types#transactionserializedlegacy) 
@@ -79,7 +94,7 @@ const serialized = serializeTransaction({
 
 - **Type:** `Hex`
 
-Optional signature to include. **Ignored for deposit transactions.**
+Optional signature to include. **Ignored for deposit and post-exec transactions.**
 
 ```ts
 const serialized = serializeTransaction({

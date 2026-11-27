@@ -95,6 +95,18 @@ describe('block', () => {
             value: '0x0',
             yParity: '0x0',
           },
+          {
+            blockHash:
+              '0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846',
+            blockNumber: '0x1',
+            from: '0x0000000000000000000000000000000000000000',
+            gas: '0x0',
+            hash: '0xe0d89f323eb3de298a53ceea9f829342c3137486664110c32a5677b77684c704',
+            input: '0xc60110c3c2012a',
+            transactionIndex: '0x2',
+            type: '0x7d',
+            value: '0x0',
+          },
         ],
         uncles: [],
       }),
@@ -175,6 +187,27 @@ describe('block', () => {
             "v": 0n,
             "value": 0n,
             "yParity": 0,
+          },
+          {
+            "blockHash": "0x40b65fabd4bdda5bb716b1a39e761d76a968d5cc54d887d05b47ac6c2c298846",
+            "blockNumber": 1n,
+            "chainId": undefined,
+            "from": "0x0000000000000000000000000000000000000000",
+            "gas": 0n,
+            "gasPrice": undefined,
+            "hash": "0xe0d89f323eb3de298a53ceea9f829342c3137486664110c32a5677b77684c704",
+            "input": "0xc60110c3c2012a",
+            "maxFeePerBlobGas": undefined,
+            "maxFeePerGas": undefined,
+            "maxPriorityFeePerGas": undefined,
+            "nonce": undefined,
+            "to": null,
+            "transactionIndex": 2,
+            "type": "postExec",
+            "typeHex": "0x7d",
+            "v": undefined,
+            "value": 0n,
+            "yParity": undefined,
           },
         ],
         "transactionsRoot": "0xe41f41da49507646478023c060078f8afa962973ac38da1f7efd0355363b31d5",
@@ -488,6 +521,88 @@ describe('transaction (deposit)', () => {
         "value": 0n,
         "yParity": 0,
       }
+    `)
+  })
+})
+
+describe('transaction (post-exec)', () => {
+  test('formatter', () => {
+    const { transaction } = optimism.formatters!
+
+    // The payload is `[1, 16, [[1, 42]]]`: a refund of 42 gas to the
+    // transaction at index 1 of block 16.
+    const postExec = {
+      blockHash:
+        '0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574',
+      blockNumber: '0x10',
+      from: '0x0000000000000000000000000000000000000000',
+      gas: '0x0',
+      hash: '0xe0d89f323eb3de298a53ceea9f829342c3137486664110c32a5677b77684c704',
+      input: '0xc60110c3c2012a',
+      transactionIndex: '0x2',
+      type: '0x7d',
+      value: '0x0',
+    } as const
+
+    expect([
+      transaction.format(postExec),
+      // op-geth also reports the user transaction fields, as zero.
+      transaction.format({
+        ...postExec,
+        gasPrice: '0x0',
+        nonce: '0x0',
+        r: '0x0',
+        s: '0x0',
+        to: null,
+        v: '0x0',
+      }),
+    ]).toMatchInlineSnapshot(`
+      [
+        {
+          "blockHash": "0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574",
+          "blockNumber": 16n,
+          "chainId": undefined,
+          "from": "0x0000000000000000000000000000000000000000",
+          "gas": 0n,
+          "gasPrice": undefined,
+          "hash": "0xe0d89f323eb3de298a53ceea9f829342c3137486664110c32a5677b77684c704",
+          "input": "0xc60110c3c2012a",
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+          "nonce": undefined,
+          "to": null,
+          "transactionIndex": 2,
+          "type": "postExec",
+          "typeHex": "0x7d",
+          "v": undefined,
+          "value": 0n,
+          "yParity": undefined,
+        },
+        {
+          "blockHash": "0xd981071322be9757dc3b5479a84d61b4f1f5dd2d44ecb66463be6cfc8246f574",
+          "blockNumber": 16n,
+          "chainId": undefined,
+          "from": "0x0000000000000000000000000000000000000000",
+          "gas": 0n,
+          "gasPrice": 0n,
+          "hash": "0xe0d89f323eb3de298a53ceea9f829342c3137486664110c32a5677b77684c704",
+          "input": "0xc60110c3c2012a",
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+          "nonce": 0,
+          "r": "0x0",
+          "s": "0x0",
+          "to": null,
+          "transactionIndex": 2,
+          "type": "postExec",
+          "typeHex": "0x7d",
+          "v": 0n,
+          "value": 0n,
+          "yParity": 0,
+        },
+      ]
     `)
   })
 })

@@ -4,7 +4,7 @@ description: Converts a serialized transaction to a structured transaction, with
 
 # parseTransaction (OP Stack)
 
-Parses a serialized RLP-encoded transaction. Supports signed & unsigned Deposit, EIP-1559, EIP-2930 and Legacy Transactions.
+Parses a serialized RLP-encoded transaction. Supports signed & unsigned Deposit, Post-exec, EIP-1559, EIP-2930 and Legacy Transactions.
 
 ## Import
 ```ts
@@ -27,6 +27,17 @@ The `parseTransaction` module from `viem/op-stack` also supports parsing deposit
 import { parseTransaction } from 'viem/op-stack'
 
 const transaction = parseTransaction('0x7ef83ca018040f35752170c3339ddcd850f185c9cc46bdef4d6e1f2ab323f4d3d710431994977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808080')
+```
+
+### Post-Exec Transactions
+
+It also parses post-exec transactions (`0x7d`-prefixed), which a sequencer appends to a block from OP Stack Upgrade 22 (Lagoon). The payload after the type byte is returned as `data`:
+
+```ts
+import { parseTransaction } from 'viem/op-stack'
+
+const transaction = parseTransaction('0x7dc60110c3c2012a')
+// @log: { data: '0xc60110c3c2012a', type: 'postExec' }
 ```
 
 ## Returns

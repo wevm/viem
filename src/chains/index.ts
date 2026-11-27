@@ -877,7 +877,9 @@ export type {
 } from '../op-stack/types/block.js'
 export type {
   OpStackDepositTransaction,
+  OpStackPostExecTransaction,
   OpStackRpcDepositTransaction,
+  OpStackRpcPostExecTransaction,
   OpStackRpcTransaction,
   OpStackRpcTransactionReceipt,
   OpStackRpcTransactionReceiptOverrides,
@@ -888,7 +890,9 @@ export type {
   OpStackTransactionSerialized,
   OpStackTransactionType,
   TransactionSerializableDeposit,
+  TransactionSerializablePostExec,
   TransactionSerializedDeposit,
+  TransactionSerializedPostExec,
 } from '../op-stack/types/transaction.js'
 export type {
   /** @deprecated */

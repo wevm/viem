@@ -15,7 +15,7 @@ import type {
   TransactionSerialized,
   TransactionType,
 } from '../../types/transaction.js'
-import type { OneOf } from '../../types/utils.js'
+import type { ExactPartial, OneOf } from '../../types/utils.js'
 
 type RpcTransaction<pending extends boolean = boolean> =
   RpcTransaction_<pending> & {
@@ -32,8 +32,29 @@ export type OpStackRpcDepositTransaction<pending extends boolean = boolean> =
       sourceHash: Hex
       type: '0x7e'
     }
+/**
+ * A post-exec transaction (type `0x7d`), as returned over JSON-RPC.
+ *
+ * The sequencer appends at most one to a block, as its last transaction. It has
+ * no signer, so `from` is the zero address and `gas` and `value` are zero. The
+ * user transaction fields are left out, or reported as zero by some clients.
+ */
+export type OpStackRpcPostExecTransaction<pending extends boolean = boolean> =
+  Omit<
+    TransactionBase<Quantity, Index, pending>,
+    'nonce' | 'r' | 's' | 'to' | 'typeHex' | 'v' | 'yParity'
+  > &
+    ExactPartial<
+      Pick<TransactionBase<Quantity, Index, pending>, 'nonce' | 'r' | 's' | 'v'>
+    > & {
+      gasPrice?: Quantity | undefined
+      to?: null | undefined
+      type: '0x7d'
+    }
 export type OpStackRpcTransaction<pending extends boolean = boolean> = OneOf<
-  RpcTransaction<pending> | OpStackRpcDepositTransaction<pending>
+  | RpcTransaction<pending>
+  | OpStackRpcDepositTransaction<pending>
+  | OpStackRpcPostExecTransaction<pending>
 >
 
 export type OpStackRpcTransactionReceiptOverrides = {
@@ -67,9 +88,32 @@ export type OpStackDepositTransaction<pending extends boolean = boolean> =
       type: 'deposit'
     }
 
+/**
+ * A post-exec transaction (type `0x7d`). Its `input` is the post-exec payload.
+ */
+export type OpStackPostExecTransaction<pending extends boolean = boolean> =
+  Omit<
+    TransactionBase<bigint, number, pending>,
+    'nonce' | 'r' | 's' | 'to' | 'v' | 'yParity'
+  > &
+    ExactPartial<
+      Pick<
+        TransactionBase<bigint, number, pending>,
+        'nonce' | 'r' | 's' | 'v' | 'yParity'
+      >
+    > & {
+      gasPrice?: bigint | undefined
+      isSystemTx?: undefined
+      mint?: undefined
+      sourceHash?: undefined
+      to: null
+      type: 'postExec'
+    }
+
 export type OpStackTransaction<pending extends boolean = boolean> =
   | Transaction<pending>
   | OpStackDepositTransaction<pending>
+  | OpStackPostExecTransaction<pending>
 
 export type OpStackTransactionReceiptOverrides = {
   depositNonce?: bigint | undefined
@@ -84,16 +128,20 @@ export type OpStackTransactionReceipt = TransactionReceipt &
   OpStackTransactionReceiptOverrides
 
 export type OpStackTransactionSerializable = OneOf<
-  TransactionSerializableDeposit | TransactionSerializable
+  | TransactionSerializableDeposit
+  | TransactionSerializablePostExec
+  | TransactionSerializable
 >
 
 export type OpStackTransactionSerialized<
   type extends OpStackTransactionType = OpStackTransactionType,
 > = type extends 'deposit'
   ? TransactionSerializedDeposit
-  : TransactionSerialized<type>
+  : type extends 'postExec'
+    ? TransactionSerializedPostExec
+    : TransactionSerialized<type>
 
-export type OpStackTransactionType = TransactionType | 'deposit'
+export type OpStackTransactionType = TransactionType | 'deposit' | 'postExec'
 
 export type TransactionSerializableDeposit<
   quantity = bigint,
@@ -110,3 +158,17 @@ export type TransactionSerializableDeposit<
 }
 
 export type TransactionSerializedDeposit = `0x7e${string}`
+
+/** A post-exec transaction (type `0x7d`) to serialize. It has no signature. */
+export type TransactionSerializablePostExec = {
+  /** The post-exec payload: the RLP list that follows the `0x7d` type byte. */
+  data: Hex
+  /** The transaction type. */
+  type: 'postExec'
+}
+
+/**
+ * A serialized post-exec transaction: the `0x7d` type byte followed by the
+ * payload.
+ */
+export type TransactionSerializedPostExec = `0x7d${string}`

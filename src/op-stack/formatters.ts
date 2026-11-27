@@ -36,8 +36,12 @@ const block = {
     for (let i = 0; transactions && i < transactions.length; i++) {
       const formatted = transactions[i]!
       const transaction = args.transactions![i] as OpStackRpcTransaction
-      if (typeof formatted === 'string' || formatted.typeHex !== '0x7e')
+      if (typeof formatted === 'string') continue
+      if (formatted.typeHex === '0x7d') {
+        formatted.type = 'postExec'
         continue
+      }
+      if (formatted.typeHex !== '0x7e') continue
       formatted.isSystemTx = transaction.isSystemTx
       formatted.mint = transaction.mint
         ? hexToBigInt(transaction.mint)
@@ -65,6 +69,7 @@ export const formatters = {
         transaction.sourceHash = args.sourceHash
         transaction.type = 'deposit'
       }
+      if (args.type === '0x7d') transaction.type = 'postExec'
       return transaction
     },
   }),

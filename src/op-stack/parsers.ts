@@ -1,6 +1,7 @@
 import { InvalidSerializedTransactionError } from '../errors/transaction.js'
 import type { ErrorType } from '../errors/utils.js'
 import { isHex } from '../utils/data/isHex.js'
+import { size } from '../utils/data/size.js'
 import { sliceHex } from '../utils/data/slice.js'
 import { hexToBigInt, hexToBool } from '../utils/encoding/fromHex.js'
 import type { GetSerializedTransactionType } from '../utils/transaction/getSerializedTransactionType.js'
@@ -15,7 +16,9 @@ import type {
   OpStackTransactionSerialized,
   OpStackTransactionType,
   TransactionSerializableDeposit,
+  TransactionSerializablePostExec,
   TransactionSerializedDeposit,
+  TransactionSerializedPostExec,
 } from './types/transaction.js'
 
 export type ParseTransactionReturnType<
@@ -25,7 +28,9 @@ export type ParseTransactionReturnType<
     OpStackTransactionType = GetSerializedTransactionType<serialized>,
 > = serialized extends TransactionSerializedDeposit
   ? TransactionSerializableDeposit
-  : ParseTransactionReturnType_<serialized, type>
+  : serialized extends TransactionSerializedPostExec
+    ? TransactionSerializablePostExec
+    : ParseTransactionReturnType_<serialized, type>
 
 export type ParseTransactionErrorType = ParseTransactionErrorType_ | ErrorType
 
@@ -37,6 +42,11 @@ export function parseTransaction<
   if (serializedType === '0x7e')
     return parseTransactionDeposit(
       serializedTransaction as TransactionSerializedDeposit,
+    ) as ParseTransactionReturnType<serialized>
+
+  if (serializedType === '0x7d')
+    return parseTransactionPostExec(
+      serializedTransaction as TransactionSerializedPostExec,
     ) as ParseTransactionReturnType<serialized>
 
   return parseTransaction_(
@@ -85,4 +95,18 @@ function parseTransactionDeposit(
   assertTransactionDeposit(transaction)
 
   return transaction
+}
+
+function parseTransactionPostExec(
+  serializedTransaction: TransactionSerializedPostExec,
+): ParseTransactionReturnType<TransactionSerializedPostExec> {
+  if (size(serializedTransaction) === 1)
+    throw new InvalidSerializedTransactionError({
+      attributes: { data: undefined },
+      serializedTransaction,
+      type: 'postExec',
+    })
+
+  // The payload follows the type byte as is, with no outer RLP list.
+  return { data: sliceHex(serializedTransaction, 1), type: 'postExec' }
 }

@@ -69,7 +69,13 @@ describe('smoke', () => {
     })
 
     expectTypeOf(transaction.type).toEqualTypeOf<
-      'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | 'deposit'
+      | 'legacy'
+      | 'eip2930'
+      | 'eip1559'
+      | 'eip4844'
+      | 'eip7702'
+      | 'deposit'
+      | 'postExec'
     >()
     expectTypeOf(
       transaction.type === 'deposit' && transaction.isSystemTx,
@@ -80,6 +86,12 @@ describe('smoke', () => {
     expectTypeOf(
       transaction.type === 'deposit' && transaction.mint,
     ).toEqualTypeOf<false | undefined | bigint>()
+    expectTypeOf(
+      transaction.type === 'postExec' && transaction.nonce,
+    ).toEqualTypeOf<false | number | undefined>()
+    expectTypeOf(
+      transaction.type === 'postExec' && transaction.to,
+    ).toEqualTypeOf<false | null>()
     expectTypeOf(
       transaction.type === 'eip1559' && transaction.isSystemTx,
     ).toEqualTypeOf<false | undefined>()
