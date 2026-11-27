@@ -7,6 +7,11 @@ export const hyperliquidEvmTestnet = /*#__PURE__*/ defineChain({
   fees: {
     baseFeeMultiplier: 2,
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+    },
+  },
   rpcUrls: {
     default: {
       http: ['https://rpc.hyperliquid-testnet.xyz/evm'],
