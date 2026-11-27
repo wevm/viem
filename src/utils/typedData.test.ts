@@ -681,6 +681,20 @@ describe('validateTypedData', () => {
     `)
   })
 
+  test('invalid array element', () => {
+    expect(() =>
+      validateTypedData({
+        primaryType: 'Mail',
+        types: { Mail: [{ name: 'amounts', type: 'uint8[]' }] },
+        message: { amounts: [1, 256] },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('missing array and null struct array element: left to the encoder', () => {
     expect(
       validateTypedData({

@@ -124,7 +124,7 @@ export function validateTypedData<
     }
   }
 
-  // Validate fixed array lengths in every dimension, and the structs inside
+  // Validate fixed array lengths in every dimension, and the items inside
   // arrays.
   const validateArray = (type: string, value: unknown) => {
     // A missing or non-array value is left to the encoder.
@@ -139,8 +139,9 @@ export function validateTypedData<
       })
     for (const item of value)
       if (inner.endsWith(']')) validateArray(inner, item)
-      else if (Object.hasOwn(types, inner) && item)
-        validateData(types[inner]!, item as Record<string, unknown>)
+      else if (Object.hasOwn(types, inner)) {
+        if (item) validateData(types[inner]!, item as Record<string, unknown>)
+      } else validateData([{ name: 'item', type: inner }], { item })
   }
 
   // Validate struct types and their field types, including structs that are
