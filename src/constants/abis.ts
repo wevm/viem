@@ -365,6 +365,26 @@ export const erc6492SignatureValidatorAbi = [
   },
 ] as const
 
+/** [ERC-165 Standard Interface Detection](https://eips.ethereum.org/EIPS/eip-165) */
+export const erc165Abi = [
+  {
+    type: 'function',
+    name: 'supportsInterface',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'interfaceId',
+        type: 'bytes4',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+  },
+] as const
+
 /** [ERC-20 Token Standard](https://ethereum.org/en/developers/docs/standards/tokens/erc-20) */
 export const erc20Abi = [
   {

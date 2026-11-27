@@ -44,6 +44,7 @@ test('exports', () => {
       "webSocket",
       "erc20Abi",
       "erc20Abi_bytes32",
+      "erc165Abi",
       "erc721Abi",
       "erc1155Abi",
       "erc4626Abi",
