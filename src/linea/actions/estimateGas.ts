@@ -9,7 +9,6 @@ import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { Filter } from '../../types/utils.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getCallError } from '../../utils/errors/getCallError.js'
 import { extract } from '../../utils/formatters/extract.js'
 import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
@@ -33,6 +32,8 @@ export type EstimateGasReturnType = {
 
 /**
  * Estimates the gas and fees per gas necessary to complete a transaction without submitting it to the network.
+ *
+ * `linea_estimateGas` always estimates against the pending block, so `blockNumber` and `blockTag` are ignored.
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateGasParameters}
@@ -68,8 +69,6 @@ export async function estimateGas<
   try {
     const {
       accessList,
-      blockNumber,
-      blockTag,
       data,
       gas,
       gasPrice,
@@ -81,10 +80,6 @@ export async function estimateGas<
       value,
       ...rest
     } = args
-
-    const blockNumberHex =
-      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
-    const block = blockNumberHex || blockTag
 
     assertRequest(args as AssertRequestParameters)
 
@@ -118,13 +113,9 @@ export async function estimateGas<
     const { baseFeePerGas, gasLimit, priorityFeePerGas } =
       await client.request<LineaEstimateGasSchema>({
         method: 'linea_estimateGas',
-        params: rpcStateOverride
-          ? block
-            ? [request, block, rpcStateOverride]
-            : [request, rpcStateOverride]
-          : block
-            ? [request, block]
-            : [request],
+        // `linea_estimateGas` always estimates against the pending block and
+        // reads state overrides from the second param, so no block is sent.
+        params: rpcStateOverride ? [request, rpcStateOverride] : [request],
       })
     return {
       baseFeePerGas: BigInt(baseFeePerGas),

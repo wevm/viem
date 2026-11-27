@@ -24,6 +24,14 @@ test('default', async () => {
   expect(baseFeePerGas).toBeGreaterThan(0n)
   expect(gasLimit).toBe(21000n)
   expect(priorityFeePerGas).toBeGreaterThan(0n)
+
+  const blockTag = await estimateGas(client, {
+    account: '0x0000000000000000000000000000000000000000',
+    blockTag: 'latest',
+    to: '0x0000000000000000000000000000000000000000',
+    value: parseEther('0.0001'),
+  })
+  expect(blockTag.gasLimit).toBe(21000n)
 })
 
 test('error: insufficient balance', async () => {
@@ -63,4 +71,18 @@ test('args: stateOverride', async () => {
   expect(baseFeePerGas).toBeGreaterThan(0n)
   expect(gasLimit).toBe(21000n)
   expect(priorityFeePerGas).toBeGreaterThan(0n)
+
+  const blockNumber = await estimateGas(client, {
+    account,
+    blockNumber: 1n,
+    to: '0x0000000000000000000000000000000000000000',
+    value: parseEther('0.0001'),
+    stateOverride: [
+      {
+        address: account,
+        balance: parseEther('1'),
+      },
+    ],
+  })
+  expect(blockNumber.gasLimit).toBe(21000n)
 })
