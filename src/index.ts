@@ -689,6 +689,7 @@ export {
   erc165Abi,
   erc721Abi,
   erc1155Abi,
+  erc2612Abi,
   erc4626Abi,
   erc6492SignatureValidatorAbi,
   /** @deprecated use `erc6492SignatureValidatorAbi` instead. */

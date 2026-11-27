@@ -47,6 +47,7 @@ test('exports', () => {
       "erc165Abi",
       "erc721Abi",
       "erc1155Abi",
+      "erc2612Abi",
       "erc4626Abi",
       "erc6492SignatureValidatorAbi",
       "universalSignatureValidatorAbi",
