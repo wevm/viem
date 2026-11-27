@@ -107,7 +107,7 @@ If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes op
 ```ts
 const output = await publicClientL1.waitForNextL2Output({
   l2BlockNumber,
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
+  l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27' // [!code focus]
 })
 ```
 

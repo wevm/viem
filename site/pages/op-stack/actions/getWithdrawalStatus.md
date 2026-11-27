@@ -118,7 +118,7 @@ If `l2OutputOracleAddress` and `portalAddress` are both provided, the `targetCha
 ```ts
 const status = await publicClientL1.getWithdrawalStatus({
   receipt,
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed', // [!code focus]
+  l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27', // [!code focus]
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
 })
 ```
@@ -150,7 +150,7 @@ If a `portalAddress` is provided together with `l2OutputOracleAddress` or `dispu
 ```ts
 const status = await publicClientL1.getWithdrawalStatus({
   receipt,
-  l2OutputOracleAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
+  l2OutputOracleAddress: '0xdfe97868233d1aa22e815a266982f2cf17685a27',
   portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed' // [!code focus]
 })
 ```
