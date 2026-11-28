@@ -9,7 +9,7 @@ runs:
       run: gh repo clone wevm/wagmi
 
     - name: Set up pnpm
-      uses: wevm/actions/vendor/pnpm/action-setup/v6@b518cf981b50a4c745a8b7335fc693f34b108a75 # upstream v6.1.0
+      uses: wevm/actions/vendor/pnpm/action-setup/v6@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac # upstream v6.1.0
       with:
         dest: ~/setup-pnpm-wagmi
         package_json_file: ./wagmi/package.json
