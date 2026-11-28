@@ -67,5 +67,7 @@ export function normalizeSignature(
 
   if (!valid) throw new BaseError('Unable to normalize signature.')
 
-  return result
+  // `uint` and `int` are aliases of `uint256` and `int256`, the canonical
+  // types that signatures and selectors use.
+  return result.replace(/[(,]u?int(?=[),[])/g, (type) => `${type}256`)
 }
