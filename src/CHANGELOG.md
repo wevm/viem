@@ -1,5 +1,31 @@
 # viem
 
+## 2.58.9
+
+### Patch Changes
+
+- [#5670](https://github.com/wevm/viem/pull/5670) [`f3755583bdd751bc86a956fefb89f74b11417a69`](https://github.com/wevm/viem/commit/f3755583bdd751bc86a956fefb89f74b11417a69) Thanks [@jxom](https://github.com/jxom)! - Added `erc165Abi` for ERC-165 `supportsInterface` checks.
+
+- [#5688](https://github.com/wevm/viem/pull/5688) [`617c98e3561fc58d630b94377b7bdc0045676459`](https://github.com/wevm/viem/commit/617c98e3561fc58d630b94377b7bdc0045676459) Thanks [@jxom](https://github.com/jxom)! - Prevented cleared cache requests from replacing newer responses or clearing newer pending requests.
+
+- [#5674](https://github.com/wevm/viem/pull/5674) [`09197e36e8788ff939ed62fd6b326933e639b372`](https://github.com/wevm/viem/commit/09197e36e8788ff939ed62fd6b326933e639b372) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Added `blockAccessListHash` ([EIP-7928](https://eips.ethereum.org/EIPS/eip-7928)) and `slotNumber` ([EIP-7843](https://eips.ethereum.org/EIPS/eip-7843)) to the `Block` and `RpcBlock` types, and formatted `slotNumber` as a `bigint` in `formatBlock`, `getBlock`, `watchBlocks`, and `simulateBlocks`.
+
+- [#5660](https://github.com/wevm/viem/pull/5660) [`b8393890da031e6027ea5b579b4299cad6a20691`](https://github.com/wevm/viem/commit/b8393890da031e6027ea5b579b4299cad6a20691) Thanks [@jxom](https://github.com/jxom)! - Added the `multicall3` contract to `hyperliquidEvmTestnet`.
+
+- [#5671](https://github.com/wevm/viem/pull/5671) [`dae76d43b233a3326efe5177a84d05c528b229ce`](https://github.com/wevm/viem/commit/dae76d43b233a3326efe5177a84d05c528b229ce) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed `serializeTransaction` dropping the `r`, `s`, and `v` set on a legacy transaction, so a parsed signed legacy transaction serialized as unsigned, and `signTransaction` hashing a signature set on the transaction, so re-signing a parsed signed transaction produced an invalid signature.
+
+- [#5685](https://github.com/wevm/viem/pull/5685) [`e4bf3f84543467779c098e38c9ebf5c9243fb6f7`](https://github.com/wevm/viem/commit/e4bf3f84543467779c098e38c9ebf5c9243fb6f7) Thanks [@jxom](https://github.com/jxom)! - Fixed `estimateGas` in `viem/linea` failing with an internal RPC error when `blockNumber` or `blockTag` was set; they are now ignored, since `linea_estimateGas` takes no block parameter and always estimates against the pending block.
+
+- [#5665](https://github.com/wevm/viem/pull/5665) [`ba1293b48b8326379848ad96cb71d5ec7eca3fcd`](https://github.com/wevm/viem/commit/ba1293b48b8326379848ad96cb71d5ec7eca3fcd) Thanks [@jxom](https://github.com/jxom)! - Added `viem/op-stack` support for the post-exec transaction type (`0x7d`) from OP Stack Upgrade 22 (Lagoon), which the formatters now return as `type: 'postExec'` and `parseTransaction` and `serializeTransaction` now handle.
+
+- [#5683](https://github.com/wevm/viem/pull/5683) [`65716a53c332312bce31e8b2a0d68951687394bb`](https://github.com/wevm/viem/commit/65716a53c332312bce31e8b2a0d68951687394bb) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Added `erc2612Abi` for ERC-2612 `permit`, `nonces`, and `DOMAIN_SEPARATOR` calls.
+
+- [#5689](https://github.com/wevm/viem/pull/5689) [`5475e0d89ba8e0c26461043a3b7197644c2f59d6`](https://github.com/wevm/viem/commit/5475e0d89ba8e0c26461043a3b7197644c2f59d6) Thanks [@jxom](https://github.com/jxom)! - Aligned SIWE utilities with EIP-4361 and its test vectors: `parseSiweMessage` and `createSiweMessage` accepted userinfo and IP-literal domains, `parseSiweMessage` rejected text after the last field and invalid calendar dates and kept an empty statement or Request ID, `isUri` rejected malformed IP-literal hosts, `validateSiweMessage` rejected an invalid `uri`, resource, or `issuedAt`, and `createSiweMessage` rejected a missing `nonce`.
+
+- [#5663](https://github.com/wevm/viem/pull/5663) [`c0b2d277dd2cac7a1e0375994dffbcb18615453a`](https://github.com/wevm/viem/commit/c0b2d277dd2cac7a1e0375994dffbcb18615453a) Thanks [@wavebyrd](https://github.com/wavebyrd)! - Fixed `validateTypedData` accepting out-of-range integers, invalid addresses and wrong-size `bytes<M>` values inside primitive array fields such as `uint8[]` or `address[]`.
+
+- [#5658](https://github.com/wevm/viem/pull/5658) [`bc6e9507f5c1d14862528fd201d9d92e9ec74a7e`](https://github.com/wevm/viem/commit/bc6e9507f5c1d14862528fd201d9d92e9ec74a7e) Thanks [@mortezashojaei](https://github.com/mortezashojaei)! - Fixed the `zksync` chain `transactionReceipt` formatter parsing `l2ToL1Logs[].blockNumber` from the block hash instead of the block number.
+
 ## 2.58.8
 
 ### Patch Changes
