@@ -5,7 +5,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import type { SiweMessage } from './types.js'
-import { isUri } from './utils.js'
+import { isIpLiteral, isUri } from './utils.js'
 
 export type CreateSiweMessageParameters = SiweMessage
 
@@ -61,11 +61,14 @@ export function createSiweMessage(
           `Provided value: ${chainId}`,
         ],
       })
+    const host = domain.replace(userinfoRegex, '')
+    const ipLiteral = host.match(ipLiteralRegex)
     if (
       !(
-        domainRegex.test(domain) ||
-        ipRegex.test(domain) ||
-        localhostRegex.test(domain)
+        domainRegex.test(host) ||
+        ipRegex.test(host) ||
+        localhostRegex.test(host) ||
+        (ipLiteral && isIpLiteral(ipLiteral[1]!))
       )
     )
       throw new SiweInvalidMessageFieldError({
@@ -77,7 +80,8 @@ export function createSiweMessage(
           `Provided value: ${domain}`,
         ],
       })
-    if (!nonceRegex.test(nonce))
+    // `RegExp.test` coerces `undefined` to the valid nonce `"undefined"`.
+    if (typeof nonce !== 'string' || !nonceRegex.test(nonce))
       throw new SiweInvalidMessageFieldError({
         field: 'nonce',
         metaMessages: [
@@ -182,6 +186,8 @@ const domainRegex =
   /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+([a-zA-Z]{2,63}|[xX][nN]--[a-zA-Z0-9-]{0,58}[a-zA-Z0-9])(:[0-9]{1,5})?$/
 const ipRegex =
   /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/
+const ipLiteralRegex = /^\[([^\]]+)\](:[0-9]{1,5})?$/
 const localhostRegex = /^localhost(:[0-9]{1,5})?$/
+const userinfoRegex = /^(?:[a-zA-Z0-9\-._~!$&'()*+,;=:]|%[0-9a-fA-F]{2})*@/
 const nonceRegex = /^[a-zA-Z0-9]{8,}$/
 const schemeRegex = /^([a-zA-Z][a-zA-Z0-9+\-.]*)$/

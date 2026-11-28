@@ -106,6 +106,25 @@ Issued At: 2023-02-01T00:00:00.000Z`)
   expect(validateSiweMessage({ message: parsed })).toBeFalsy()
 })
 
+test('behavior: uri or resource is not an RFC 3986 URI', () => {
+  expect(
+    validateSiweMessage({
+      message: { ...message, uri: ':not_a_rfc3986_valid_uri_' },
+    }),
+  ).toBeFalsy()
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        resources: [
+          'https://example.com/login',
+          'https://example.com/login - https://example.com/login/2',
+        ],
+      },
+    }),
+  ).toBeFalsy()
+})
+
 test('behavior: scheme mismatch', () => {
   expect(
     validateSiweMessage({
@@ -131,6 +150,17 @@ test('behavior: time is after expirationTime', () => {
         expirationTime: new Date(Date.UTC(2024, 1, 1)),
       },
       time: new Date(Date.UTC(2025, 1, 1)),
+    }),
+  ).toBeFalsy()
+})
+
+test('behavior: unparseable issuedAt', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        issuedAt: new Date('never'),
+      },
     }),
   ).toBeFalsy()
 })

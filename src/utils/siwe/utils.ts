@@ -27,6 +27,12 @@ export function isUri(value: string) {
     if (/^\/\//.test(path)) return false
   }
 
+  // an IP-literal host must hold a valid IPv6 address or IPvFuture
+  if (authority?.includes('[')) {
+    const ipLiteral = authority.match(/^(?:[^@]*@)?\[([^\]]*)\](?::\d*)?$/)
+    if (!ipLiteral || !isIpLiteral(ipLiteral[1]!)) return false
+  }
+
   // scheme must begin with a letter, then consist of letters, digits, +, ., or -
   if (!/^[a-z][a-z0-9+\-.]*$/.test(scheme.toLowerCase())) return false
 
@@ -42,6 +48,28 @@ export function isUri(value: string) {
 
   return out
 }
+
+/** Checks the contents of an RFC 3986 `IP-literal` (between `[` and `]`). */
+export function isIpLiteral(value: string) {
+  if (/^v[0-9a-f]+\.[a-z0-9\-._~!$&'()*+,;=:]+$/i.test(value)) return true
+
+  const parts = value.split('::')
+  if (parts.length > 2) return false
+  const groups = parts.flatMap((part) => (part ? part.split(':') : []))
+  // A trailing IPv4 address counts as two 16-bit groups.
+  const ipv4 = parts.at(-1)?.split(':').at(-1)
+  const ipv4Groups = ipv4?.includes('.') ? 2 : 0
+  if (ipv4Groups) {
+    if (!ipv4Regex.test(ipv4!)) return false
+    groups.pop()
+  }
+  if (!groups.every((group) => /^[0-9a-f]{1,4}$/i.test(group))) return false
+  const count = groups.length + ipv4Groups
+  return parts.length === 2 ? count <= 7 : count === 8
+}
+
+const decOctet = '(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])'
+const ipv4Regex = new RegExp(`^${decOctet}(?:\\.${decOctet}){3}$`)
 
 function splitUri(value: string) {
   return value.match(

@@ -4,11 +4,25 @@ import type { ExactPartial, Prettify } from '../../types/utils.js'
 import type { SiweMessage } from './types.js'
 
 const siweDateTimeRegex =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 
 function isValidSiweDateTime(value: string): boolean {
-  if (!siweDateTimeRegex.test(value)) return false
-  return !Number.isNaN(new Date(value).getTime())
+  const match = value.match(siweDateTimeRegex)
+  if (!match) return false
+  if (Number.isNaN(new Date(value).getTime())) return false
+  // JS Date rolls over out-of-range parts (`2023-02-30` becomes March 2), so
+  // check that each part survives a round trip.
+  const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number)
+  const date = new Date(0)
+  date.setUTCFullYear(year!, month! - 1, day!)
+  date.setUTCHours(hour!, minute!, second!)
+  return (
+    date.getUTCMonth() === month! - 1 &&
+    date.getUTCDate() === day &&
+    date.getUTCHours() === hour &&
+    date.getUTCMinutes() === minute &&
+    date.getUTCSeconds() === second
+  )
 }
 
 function parseSiweDateTime(value: string): Date {
@@ -38,6 +52,13 @@ export function parseSiweMessage(
       .replace(/\n\n?$/, '')
     if (/[\r\n\u2028\u2029]/.test(section)) return {}
   }
+  // Text after the suffix is out of order or not part of EIP-4361 (such as an
+  // `Expiration Time` after `Not Before`), so the parsed fields would omit it.
+  if (
+    suffixMatch &&
+    suffixMatch.index! + suffixMatch[0].length !== message.length
+  )
+    return {}
   const { scheme, statement, ...prefix } = (prefixMatch?.groups ?? {}) as {
     address: Address
     domain: string
@@ -73,16 +94,16 @@ export function parseSiweMessage(
       : {}),
     ...(issuedAt ? { issuedAt: parseSiweDateTime(issuedAt) } : {}),
     ...(notBefore ? { notBefore: parseSiweDateTime(notBefore) } : {}),
-    ...(requestId ? { requestId } : {}),
+    ...(requestId !== undefined ? { requestId } : {}),
     ...(resources ? { resources } : {}),
     ...(scheme ? { scheme } : {}),
-    ...(statement ? { statement } : {}),
+    ...(statement !== undefined ? { statement } : {}),
   }
 }
 
 // https://regexr.com/80gdj
 const prefixRegex =
-  /^(?:(?<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*):\/\/)?(?<domain>[a-zA-Z0-9+-.]*(?::[0-9]{1,5})?) (?:wants you to sign in with your Ethereum account:\n)(?<address>0x[a-fA-F0-9]{40})\n\n(?:(?<statement>.*)\n\n)?/
+  /^(?:(?<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*):\/\/)?(?<domain>(?:(?:[a-zA-Z0-9\-._~!$&'()*+,;=:]|%[0-9a-fA-F]{2})*@)?(?:\[[a-zA-Z0-9\-._~!$&'()*+,;=:]+\]|(?:[a-zA-Z0-9\-._~!$&'()*+,;=]|%[0-9a-fA-F]{2})+)(?::[0-9]{1,5})?) (?:wants you to sign in with your Ethereum account:\n)(?<address>0x[a-fA-F0-9]{40})\n\n(?:(?<statement>.*)\n\n)?/
 
 // https://regexr.com/80gf9
 const suffixRegex =
