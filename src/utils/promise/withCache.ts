@@ -73,12 +73,13 @@ export async function withCache<data>(
 
     // Store the response in the cache so that subsequent invocations
     // will return the same response.
-    cache.response.set({ created: new Date(), data })
+    if (cache.promise.get() === promise)
+      cache.response.set({ created: new Date(), data })
 
     return data
   } finally {
     // Clear the promise cache so that subsequent invocations will
     // invoke the promise again.
-    cache.promise.clear()
+    if (cache.promise.get() === promise) cache.promise.clear()
   }
 }

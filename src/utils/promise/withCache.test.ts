@@ -96,6 +96,65 @@ test('behavior: programmatic removal', async () => {
   expect(fn).toBeCalledTimes(2)
 })
 
+test('does not cache a pending response after the cache is cleared', async () => {
+  let resolve!: (value: string) => void
+  const pending = withCache(
+    () => new Promise<string>((resolve_) => (resolve = resolve_)),
+    { cacheKey: 'foo' },
+  )
+
+  getCache('foo').clear()
+  resolve('old')
+
+  expect(await pending).toMatchInlineSnapshot('"old"')
+  expect(getCache<string>('foo').response.get()?.data).toMatchInlineSnapshot(
+    'undefined',
+  )
+})
+
+test('keeps a newer response when a cleared request resolves later', async () => {
+  let resolve!: (value: string) => void
+  const pending = withCache(
+    () => new Promise<string>((resolve_) => (resolve = resolve_)),
+    { cacheKey: 'foo' },
+  )
+
+  getCache('foo').clear()
+  await withCache(async () => 'new', { cacheKey: 'foo' })
+  resolve('old')
+  await pending
+
+  const cached = await withCache(async () => 'unused', { cacheKey: 'foo' })
+
+  expect(cached).toMatchInlineSnapshot('"new"')
+})
+
+test('keeps a newer pending request when a cleared request resolves', async () => {
+  let resolveOld!: (value: string) => void
+  let resolveNew!: (value: string) => void
+  const old = withCache(
+    () => new Promise<string>((resolve) => (resolveOld = resolve)),
+    { cacheKey: 'foo' },
+  )
+
+  getCache('foo').clear()
+  const pending = withCache(
+    () => new Promise<string>((resolve) => (resolveNew = resolve)),
+    { cacheKey: 'foo' },
+  )
+  resolveOld('old')
+  await old
+  const shared = withCache(async () => 'unused', { cacheKey: 'foo' })
+  resolveNew('new')
+
+  expect(await Promise.all([pending, shared])).toMatchInlineSnapshot(`
+    [
+      "new",
+      "new",
+    ]
+  `)
+})
+
 test('behavior: keeps at most 8192 responses', async () => {
   for (let i = 0; i < 8200; i++)
     await withCache(async () => i, { cacheKey: `bounded.${i}` })
