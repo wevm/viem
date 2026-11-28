@@ -373,6 +373,25 @@ test.skip('args: blobs', async () => {
   expect(data).toMatchInlineSnapshot('undefined')
 })
 
+test('args: blobVersionedHashes', async () => {
+  // MSTORE(0, BLOBHASH(0)) RETURN(0, 32)
+  const address = '0x00000000000000000000000000000000000000bb'
+  await setCode(client, { address, bytecode: '0x5f495f5260205ff3' })
+  const blobVersionedHash =
+    '0x01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+  const { data } = await call(client, {
+    account: accounts[0].address,
+    blobVersionedHashes: [blobVersionedHash],
+    maxFeePerBlobGas: parseGwei('10'),
+    to: address,
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    `"0x01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"`,
+  )
+})
+
 describe('account hoisting', () => {
   test.skip('no account hoisted', async () => {
     await expect(
