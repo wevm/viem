@@ -155,6 +155,11 @@ test('expands `uint` and `int` aliases', () => {
   expect(
     normalizeSignature('function foo(uint8 a, int128 b, uint256 c)'),
   ).toMatchInlineSnapshot(`"foo(uint8,int128,uint256)"`)
+  expect(
+    normalizeSignature(
+      'event uint(uint indexed int, int[2][] indexed uints, ((uint a, int[] b)[] c) d)',
+    ),
+  ).toMatchInlineSnapshot(`"uint(uint256,int256[2][],((uint256,int256[])[]))"`)
 })
 
 test('error: invalid signatures', () => {
