@@ -96,7 +96,7 @@ test('behavior: programmatic removal', async () => {
   expect(fn).toBeCalledTimes(2)
 })
 
-test('does not cache a pending response after the cache is cleared', async () => {
+test('behavior: does not cache a pending response after the cache is cleared', async () => {
   let resolve!: (value: string) => void
   const pending = withCache(
     () => new Promise<string>((resolve_) => (resolve = resolve_)),
@@ -112,7 +112,7 @@ test('does not cache a pending response after the cache is cleared', async () =>
   )
 })
 
-test('keeps a newer response when a cleared request resolves later', async () => {
+test('behavior: keeps a newer response when a cleared request resolves later', async () => {
   let resolve!: (value: string) => void
   const pending = withCache(
     () => new Promise<string>((resolve_) => (resolve = resolve_)),
@@ -129,7 +129,7 @@ test('keeps a newer response when a cleared request resolves later', async () =>
   expect(cached).toMatchInlineSnapshot('"new"')
 })
 
-test('keeps a newer pending request when a cleared request resolves', async () => {
+test('behavior: keeps a newer pending request when a cleared request resolves', async () => {
   let resolveOld!: (value: string) => void
   let resolveNew!: (value: string) => void
   const old = withCache(

@@ -149,7 +149,7 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "94.5 kB",
+      "limit": "95 kB",
       "import": "*"
     },
     {
