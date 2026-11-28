@@ -34,6 +34,12 @@ test('creates error selector', () => {
   expect(toFunctionSelector('error Panic(uint256 code)')).toEqual('0x4e487b71')
 })
 
+test('expands `uint` and `int` aliases', () => {
+  expect(
+    toFunctionSelector('function transfer(address to, uint amount)'),
+  ).toMatchInlineSnapshot(`"0xa9059cbb"`)
+})
+
 test('creates function signature from `AbiFunction`', () => {
   expect(
     toFunctionSelector({

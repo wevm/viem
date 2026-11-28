@@ -6,7 +6,7 @@ test('foo()', () => {
 })
 
 test('bar(uint foo)', () => {
-  expect(normalizeSignature('bar(uint foo)')).toBe('bar(uint)')
+  expect(normalizeSignature('bar(uint foo)')).toBe('bar(uint256)')
 })
 
 test('processAccount(uint256 , address )', () => {
@@ -32,26 +32,26 @@ test('error Foo(uint256 a)', () => {
 })
 
 test('function bar(uint foo)', () => {
-  expect(normalizeSignature('function bar(uint foo)')).toBe('bar(uint)')
+  expect(normalizeSignature('function bar(uint foo)')).toBe('bar(uint256)')
 })
 
 test('function bar(uint foo, address baz)', () => {
   expect(normalizeSignature('function bar(uint foo, address baz)')).toBe(
-    'bar(uint,address)',
+    'bar(uint256,address)',
   )
 })
 
 test('event Barry(uint foo)', () => {
-  expect(normalizeSignature('event Barry(uint foo)')).toBe('Barry(uint)')
+  expect(normalizeSignature('event Barry(uint foo)')).toBe('Barry(uint256)')
 })
 
 test('Barry(uint indexed foo)', () => {
-  expect(normalizeSignature('Barry(uint indexed foo)')).toBe('Barry(uint)')
+  expect(normalizeSignature('Barry(uint indexed foo)')).toBe('Barry(uint256)')
 })
 
 test('event Barry(uint indexed foo)', () => {
   expect(normalizeSignature('event Barry(uint indexed foo)')).toBe(
-    'Barry(uint)',
+    'Barry(uint256)',
   )
 })
 
@@ -63,37 +63,37 @@ test('function _compound(uint256 a, uint256 b, uint256 c)', () => {
 
 test('bar(uint foo, (uint baz))', () => {
   expect(normalizeSignature('bar(uint foo, (uint baz))')).toBe(
-    'bar(uint,(uint))',
+    'bar(uint256,(uint256))',
   )
 })
 
 test('bar(uint foo, (uint baz, bool x))', () => {
   expect(normalizeSignature('bar(uint foo, (uint baz, bool x))')).toBe(
-    'bar(uint,(uint,bool))',
+    'bar(uint256,(uint256,bool))',
   )
 })
 
 test('bar(uint foo, (uint baz, bool x) foo)', () => {
   expect(normalizeSignature('bar(uint foo, (uint baz, bool x) foo)')).toBe(
-    'bar(uint,(uint,bool))',
+    'bar(uint256,(uint256,bool))',
   )
 })
 
 test('bar(uint[] foo, (uint baz, bool x))', () => {
   expect(normalizeSignature('bar(uint[] foo, (uint baz, bool x))')).toBe(
-    'bar(uint[],(uint,bool))',
+    'bar(uint256[],(uint256,bool))',
   )
 })
 
 test('bar(uint[] foo, (uint baz, bool x)[])', () => {
   expect(normalizeSignature('bar(uint[] foo, (uint baz, bool x)[])')).toBe(
-    'bar(uint[],(uint,bool)[])',
+    'bar(uint256[],(uint256,bool)[])',
   )
 })
 
 test('foo(uint bar)', () => {
   expect(normalizeSignature('foo(uint bar) payable returns (uint)')).toBe(
-    'foo(uint)',
+    'foo(uint256)',
   )
 })
 
@@ -143,6 +143,18 @@ test('leading space after opening parenthesis', () => {
   expect(normalizeSignature('function foo( ( uint256 a, bool b)[] c)')).toBe(
     'foo((uint256,bool)[])',
   )
+})
+
+test('expands `uint` and `int` aliases', () => {
+  expect(
+    normalizeSignature('function transfer(address to, uint amount)'),
+  ).toMatchInlineSnapshot(`"transfer(address,uint256)"`)
+  expect(
+    normalizeSignature('function foo(int a, uint[] b, (uint c, int[2] d)[] e)'),
+  ).toMatchInlineSnapshot(`"foo(int256,uint256[],(uint256,int256[2])[])"`)
+  expect(
+    normalizeSignature('function foo(uint8 a, int128 b, uint256 c)'),
+  ).toMatchInlineSnapshot(`"foo(uint8,int128,uint256)"`)
 })
 
 test('error: invalid signatures', () => {

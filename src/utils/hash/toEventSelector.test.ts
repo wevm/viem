@@ -67,6 +67,16 @@ test('creates event signature', () => {
   ).toBe('0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31')
 })
 
+test('expands `uint` and `int` aliases', () => {
+  expect(
+    toEventSelector(
+      'event Transfer(address indexed from, address indexed to, uint value)',
+    ),
+  ).toMatchInlineSnapshot(
+    `"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"`,
+  )
+})
+
 test('creates event signature for `AbiEvent`', () => {
   expect(
     toEventSelector({
