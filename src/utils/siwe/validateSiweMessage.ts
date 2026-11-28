@@ -4,6 +4,7 @@ import type { ExactPartial } from '../../types/utils.js'
 import { isAddress } from '../address/isAddress.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'
 import type { SiweMessage } from './types.js'
+import { isUri } from './utils.js'
 
 export type ValidateSiweMessageParameters = {
   /**
@@ -62,12 +63,16 @@ export function validateSiweMessage(
   if (message.nonce !== undefined && !nonceRegex.test(message.nonce))
     return false
   if (message.version !== undefined && message.version !== '1') return false
+  // EIP-4361 requires `uri` and every resource to be RFC 3986 URIs.
+  if (message.uri !== undefined && !isUri(message.uri)) return false
+  if (message.resources?.some((resource) => !isUri(resource))) return false
 
   // Invalid `time` makes both lifetime comparisons false in JS; reject first.
   if (Number.isNaN(time.getTime())) return false
 
   // Invalid Date (e.g. non-RFC-3339 SIWE timestamp coerced at parse) is truthy;
   // comparisons against it are always false and previously skipped checks.
+  if (message.issuedAt && Number.isNaN(message.issuedAt.getTime())) return false
   if (message.expirationTime) {
     if (Number.isNaN(message.expirationTime.getTime())) return false
     if (time >= message.expirationTime) return false

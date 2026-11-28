@@ -104,6 +104,27 @@ test('parameters: domain', () => {
     Issued At: 2023-02-01T00:00:00.000Z"
   `)
 
+  // RFC 3986 authorities with userinfo or an IP-literal host.
+  expect(
+    [
+      'test@127.0.0.1',
+      'test@127.0.0.1:8080',
+      'user:p%40ss@example.com',
+      '[::cafe]',
+      '[2001:db8::192.168.0.1]:8080',
+      '[v1.fe]',
+    ].map((domain) => createSiweMessage({ ...message, domain }).split('\n')[0]),
+  ).toMatchInlineSnapshot(`
+    [
+      "test@127.0.0.1 wants you to sign in with your Ethereum account:",
+      "test@127.0.0.1:8080 wants you to sign in with your Ethereum account:",
+      "user:p%40ss@example.com wants you to sign in with your Ethereum account:",
+      "[::cafe] wants you to sign in with your Ethereum account:",
+      "[2001:db8::192.168.0.1]:8080 wants you to sign in with your Ethereum account:",
+      "[v1.fe] wants you to sign in with your Ethereum account:",
+    ]
+  `)
+
   vi.useRealTimers()
 })
 
@@ -320,6 +341,17 @@ test('behavior: invalid domain', () => {
 
     Version: viem@x.y.z]
   `)
+
+  for (const domain of [
+    'test@',
+    'te st@example.com',
+    '[::cafe',
+    '[::1:2:3:4:5:6:7:8]',
+    '[::0.0.0.256]',
+  ])
+    expect(() => createSiweMessage({ ...message, domain })).toThrow(
+      'Invalid Sign-In with Ethereum message field "domain".',
+    )
 })
 
 test('behavior: invalid nonce', () => {
@@ -332,6 +364,19 @@ test('behavior: invalid nonce', () => {
     - Nonce must be alphanumeric.
 
     Provided value: #foo
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    createSiweMessage({ ...message, nonce: undefined as never }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "nonce".
+
+    - Nonce must be at least 8 characters.
+    - Nonce must be alphanumeric.
+
+    Provided value: undefined
 
     Version: viem@x.y.z]
   `)
