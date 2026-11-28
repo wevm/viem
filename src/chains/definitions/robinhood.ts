@@ -7,11 +7,7 @@ export const robinhood = /*#__PURE__*/ defineChain({
   blockTime: 100,
   rpcUrls: {
     default: {
-      http: [
-        'https://rpc.mainnet.chain.robinhood.com',
-        'https://rpc.ordofi.network',
-      ],
-      webSocket: ['wss://rpc.ordofi.network'],
+      http: ['https://rpc.mainnet.chain.robinhood.com'],
     },
   },
   blockExplorers: {
