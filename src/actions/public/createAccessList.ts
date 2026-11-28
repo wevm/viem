@@ -104,8 +104,10 @@ export async function createAccessList<chain extends Chain | undefined>(
 ): Promise<CreateAccessListReturnType> {
   const {
     account: account_ = client.account,
+    authorizationList,
     blockNumber,
     blockTag = 'latest',
+    blobVersionedHashes,
     blobs,
     data,
     gas,
@@ -134,6 +136,8 @@ export async function createAccessList<chain extends Chain | undefined>(
         // Pick out extra data that might exist on the chain's transaction request type.
         ...extract(rest, { format: chainFormat }),
         account,
+        authorizationList,
+        blobVersionedHashes,
         blobs,
         data,
         gas,

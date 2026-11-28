@@ -1,10 +1,12 @@
+import { setCode, signAuthorization } from 'viem/actions'
 import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
-import { encodeFunctionData, parseEther } from '../../utils/index.js'
+import { encodeFunctionData, parseEther, parseGwei } from '../../utils/index.js'
 import { createAccessList } from './createAccessList.js'
 
 const client = anvilMainnet.getClient()
@@ -52,6 +54,67 @@ test('args: blockNumber', async () => {
         },
       ],
       "gasUsed": 26671n,
+    }
+  `)
+})
+
+test('args: authorizationList', async () => {
+  // SLOAD(1)
+  const delegate = '0x00000000000000000000000000000000000000de'
+  await setCode(client, { address: delegate, bytecode: '0x60015400' })
+  const eoa = privateKeyToAccount(
+    '0x1111111111111111111111111111111111111111111111111111111111111111',
+  )
+  const authorization = await signAuthorization(client, {
+    account: eoa,
+    contractAddress: delegate,
+  })
+
+  const result = await createAccessList(client, {
+    authorizationList: [authorization],
+    to: eoa.address,
+  })
+
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "accessList": [
+        {
+          "address": "0x19e7e376e7c213b7e7e7e46cc70a5dd086daff2a",
+          "storageKeys": [
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+          ],
+        },
+      ],
+      "gasUsed": 40323n,
+    }
+  `)
+})
+
+test('args: blobVersionedHashes', async () => {
+  // SLOAD(BLOBHASH(0))
+  const address = '0x00000000000000000000000000000000000000bb'
+  await setCode(client, { address, bytecode: '0x5f495400' })
+  const blobVersionedHash =
+    '0x01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+  const result = await createAccessList(client, {
+    account: accounts[0].address,
+    blobVersionedHashes: [blobVersionedHash],
+    maxFeePerBlobGas: parseGwei('10'),
+    to: address,
+  })
+
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "accessList": [
+        {
+          "address": "0x00000000000000000000000000000000000000bb",
+          "storageKeys": [
+            "0x01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          ],
+        },
+      ],
+      "gasUsed": 25405n,
     }
   `)
 })
