@@ -62,9 +62,7 @@ test('args: authorizationList', async () => {
   // SLOAD(1)
   const delegate = '0x00000000000000000000000000000000000000de'
   await setCode(client, { address: delegate, bytecode: '0x60015400' })
-  const eoa = privateKeyToAccount(
-    '0x1111111111111111111111111111111111111111111111111111111111111111',
-  )
+  const eoa = privateKeyToAccount(accounts[1].privateKey)
   const authorization = await signAuthorization(client, {
     account: eoa,
     contractAddress: delegate,
@@ -79,7 +77,7 @@ test('args: authorizationList', async () => {
     {
       "accessList": [
         {
-          "address": "0x19e7e376e7c213b7e7e7e46cc70a5dd086daff2a",
+          "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
           "storageKeys": [
             "0x0000000000000000000000000000000000000000000000000000000000000001",
           ],

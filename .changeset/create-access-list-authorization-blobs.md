@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `createAccessList` dropping `authorizationList` and `blobVersionedHashes` from the `eth_createAccessList` request.
+Fixed `call` and `createAccessList` dropping `blobVersionedHashes`, and `createAccessList` dropping `authorizationList`, from the JSON-RPC request.
