@@ -1,11 +1,14 @@
-import { assertType, describe, expect, it, test } from 'vitest'
+import { Instance, Pool } from 'prool'
+import { createTestClient, custom } from 'viem'
+import { assertType, describe, expect, it, onTestFinished, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { holesky, zksync } from '../../chains/index.js'
+import { holesky, mainnet, zksync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { createClient } from '../../index.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
+import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
@@ -389,6 +392,63 @@ describe('e2e', () => {
       }
     `)
   })
+})
+
+test('args: dedupe', async () => {
+  const pool = Pool.define({
+    instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+  })
+  onTestFinished(() => pool.destroyAll())
+  const node = await pool.start(1)
+  const testClient = createTestClient({
+    chain: mainnet,
+    mode: 'anvil',
+    transport: http(node.url),
+  })
+  const hash = await sendTransaction(testClient, {
+    account: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
+  })
+
+  // The transport holds anvil's answer to a receipt request sent before the
+  // transaction is mined (no receipt) until the test releases it.
+  const answered = withResolvers<void>()
+  const release = withResolvers<void>()
+  onTestFinished(() => release.resolve())
+  const client = createPublicClient({
+    chain: mainnet,
+    transport: custom({
+      async request(options) {
+        const result = await testClient.request(options)
+        if (options.method === 'eth_getTransactionReceipt' && !result) {
+          answered.resolve()
+          await release.promise
+        }
+        return result
+      },
+    }),
+  })
+
+  const early = getTransactionReceipt(client, { hash })
+  await answered.promise
+  await mine(testClient, { blocks: 1 })
+  const deduped = getTransactionReceipt(client, { hash })
+  const separate = getTransactionReceipt(client, { dedupe: false, hash })
+  release.resolve()
+  const results = await Promise.allSettled([early, deduped, separate])
+
+  expect(
+    results.map((result) =>
+      result.status === 'fulfilled' ? result.value.status : result.reason.name,
+    ),
+  ).toMatchInlineSnapshot(`
+    [
+      "TransactionReceiptNotFoundError",
+      "TransactionReceiptNotFoundError",
+      "success",
+    ]
+  `)
 })
 
 test('throws if transaction not found', async () => {

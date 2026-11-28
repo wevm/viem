@@ -9,6 +9,7 @@ import {
   type ReplacementReturnType,
 } from 'viem'
 import {
+  getBlockNumber,
   getRawTransaction,
   getTransaction,
   getTransactionReceipt,
@@ -158,6 +159,62 @@ test('reads the receipt of a block mined while a block scan runs', async () => {
     chain: mainnet,
     pollingInterval: 100,
     transport: http(proxyUrl),
+  })
+
+  const { status } = await waitForTransactionReceipt(client, {
+    hash,
+    timeout: 5_000,
+  })
+
+  expect(status).toMatchInlineSnapshot(`"success"`)
+})
+
+test('reads the receipt when its block arrives while an earlier receipt request is still waiting for its response', async () => {
+  const pool = Pool.define({
+    instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+  })
+  onTestFinished(() => pool.destroyAll())
+  const node = await pool.start(1)
+  const testClient = createTestClient({
+    chain: mainnet,
+    mode: 'anvil',
+    transport: http(node.url),
+  })
+  const hash = await sendTransaction(testClient, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+
+  // The wait looks up the receipt once before polling (lookup 0), then once
+  // per block check. Lookup 1 belongs to the first block's check, and anvil
+  // answers it with no receipt. The transport then mines the transaction's
+  // block. It holds that answer until the client sends another block number
+  // request after receiving the new block number, or until the test ends. So
+  // the new block's check starts while lookup 1 is still waiting for its
+  // response. No later block is mined.
+  let lookups = 0
+  let mined: bigint | undefined
+  let seen = false
+  const polled = withResolvers<void>()
+  onTestFinished(() => polled.resolve())
+  const client = createPublicClient({
+    chain: mainnet,
+    pollingInterval: 100,
+    transport: custom({
+      async request(options) {
+        if (options.method === 'eth_blockNumber' && seen) polled.resolve()
+        const result = await testClient.request(options)
+        if (options.method === 'eth_blockNumber' && BigInt(result) === mined)
+          seen = true
+        if (options.method === 'eth_getTransactionReceipt' && lookups++ === 1) {
+          await mine(testClient, { blocks: 1 })
+          mined = await getBlockNumber(testClient, { cacheTime: 0 })
+          await polled.promise
+        }
+        return result
+      },
+    }),
   })
 
   const { status } = await waitForTransactionReceipt(client, {

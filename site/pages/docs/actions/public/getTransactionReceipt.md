@@ -47,6 +47,24 @@ The transaction receipt.
 
 ## Parameters
 
+### dedupe (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+When `true`, if the same client has sent an identical `eth_getTransactionReceipt` request and is still waiting for its response, this call returns that response instead of sending a new request.
+
+The earlier request may have been sent before the transaction was mined, so its response can say there is no receipt. Set to `false` to always send a new request.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const transaction = await publicClient.getTransactionReceipt({
+  dedupe: false, // [!code focus]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+})
+```
+
 ### hash
 
 - **Type:** `'0x${string}'`
